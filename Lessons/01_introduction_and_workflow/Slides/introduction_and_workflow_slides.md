@@ -186,6 +186,8 @@ Write a program that decides whether an email is spam.
 - Filter certain senders? They change.
 - The exceptions grow until nobody can maintain it
 
+![](spam_rules.png)
+
 ::: notes
 Work this conversationally. Ask the room for rules and write two or three on the board,
 then break each one: "buy now" - what about a legitimate shop newsletter? Sender
@@ -197,6 +199,8 @@ state. You recognise spam instantly and cannot articulate how.
 
 If someone proposes machine learning immediately, slow them down - the interesting part
 is understanding precisely which difficulty it addresses.
+
+Take each row in turn and let someone in the room supply the exception before you reveal it. The pattern to draw out: every rule is defensible and every rule breaks, and the list has no end.
 :::
 
 # The inversion
@@ -229,6 +233,8 @@ cleanest one-sentence description of what changed.
 - A loss `L(ŷ, y)`: the cost of answering ŷ when the truth is y
 - Goal: find f: X → Y that predicts well
 
+![](learning_setup.png)
+
 ::: notes
 Keep this brisk - handout section 2.1 has the full treatment and they will read it.
 
@@ -240,6 +246,8 @@ without any warning from their metrics. Promise them we return to it.
 
 The loss function is where the domain enters the mathematics. Choosing it is a decision
 about which mistakes matter, and we make that choice explicitly in twenty minutes.
+
+Point at the dashed box. Three of these objects we handle directly - the inputs, the function we search for, the predictions. The fourth, the distribution the data comes from, we never see. Everything difficult in this course comes from that one box being out of reach.
 :::
 
 # What we actually want
@@ -627,6 +635,8 @@ Hide part of the input. Predict it from the rest.
 
 Nobody annotates anything — and the supervision is real.
 
+![](self_supervision.png)
+
 ::: notes
 The one they will have heard about without a clean definition, so define it precisely.
 
@@ -640,6 +650,8 @@ images exist in enormous quantities and nobody has to annotate them.
 
 This is the honest one-paragraph answer to "how does ChatGPT learn?", and it is worth
 giving them, since they will be asked it at every family dinner.
+
+Walk it left to right: one column hidden, the rest used to predict it. Nobody labelled anything, yet there is a genuine target. Then scale the idea in their heads - hide a word in a sentence, a patch in an image - and they have the training principle behind every large model they have heard of.
 :::
 
 # One dataset, three questions
@@ -703,6 +715,8 @@ result and a number.
 - Who would use it, for what decision?
 - **Which error is worse?**
 
+![](error_costs.png)
+
 ::: notes
 The step everyone skips, and the one the exercise marks hardest.
 
@@ -717,6 +731,8 @@ them answer before showing any metric.
 That answer determines the metric, and it must be fixed BEFORE seeing results. A metric
 chosen afterwards is a metric chosen to flatter - with enough candidates, one always
 looks good.
+
+Two of these cells are fine and two are not, and the two failures are not the same size. Accuracy adds them up as if they were. Ask which cell they would accept more of - and note that answering requires knowing who bears the cost, which is not a question about data.
 :::
 
 # Step 2 — look first
@@ -740,6 +756,8 @@ Before scaling.
 Before selecting features.
 Before looking at correlations with the target.
 
+![](split_scheme.png)
+
 ::: notes
 Return to the risk_gap figure verbally - this slide is that argument made operational.
 
@@ -752,6 +770,8 @@ set is a fair miniature of the whole. Without it, on a small or imbalanced datas
 can get a test set whose composition differs from the training set by chance.
 
 They will violate this deliberately in the third notebook and see what it costs.
+
+The caption under the test set is the whole discipline: touched once, at the very end. Say that every additional look spends some of its independence - if you test twenty variants and report the best, you have selected on the test set and the number is no longer honest.
 :::
 
 # Step 4 — baseline first
@@ -783,6 +803,8 @@ model = make_pipeline(
 model.fit(X_train, y_train)
 ```
 
+![](pipeline_versus_manual.png)
+
 ::: notes
 Explain WHY, not just what.
 
@@ -797,6 +819,8 @@ you deserve.
 
 This is structure beating discipline, and it is the single most useful habit in the
 scikit-learn API.
+
+The top row is the mistake, and note where 'split' sits: after the scaling. The mean used to scale the training rows was computed with the test rows included. Nothing errors, nothing warns, and the score comes out slightly too good - which is the worst kind of bug, because there is nothing to debug.
 :::
 
 # Step 6 — the result
@@ -949,6 +973,8 @@ methodology marks regardless of the result obtained.
 - Accuracy: **0.986**
 - Recall on positives: **0.000**
 
+![](imbalance_matrix.png)
+
 ::: notes
 The trained model in the notebook reaches 0.987 accuracy - barely above the trivial one
 - while missing 20 of the 21 positives in the test set.
@@ -959,6 +985,8 @@ Accuracy is dominated by the class nobody is looking for. Ask them what metric t
 would report to someone deploying this, and steer towards recall on the positive class -
 then note that recall alone is also gameable, by flagging everything, which is why
 lesson 4 needs a whole session.
+
+Read the bottom-left cell in both matrices: 21 missed, then 20 missed. The accuracies differ by one thousandth. If you reported only accuracy, these two systems look identical - and one of them is a constant function that never looks at the input.
 :::
 
 # Shortcut features
@@ -966,6 +994,8 @@ lesson 4 needs a whole session.
 A column that is a **consequence** of the label, not a predictor of it.
 
 `biopsy_scheduled` → accuracy rises → model is worthless
+
+![](shortcut_timeline.png)
 
 ::: notes
 Explain why it is worthless: biopsies are scheduled once malignancy is already
@@ -981,6 +1011,8 @@ extract with 200 columns and no documentation - which is the normal case - and t
 about how they would find this.
 
 The question to carry: at the moment a prediction is needed, does this value exist yet?
+
+The shaded region is the trap. Everything to the right of the blue marker happens after the moment a prediction is needed, so none of it can be an input. Give them the question in the title as the thing to ask of every column in every dataset they are handed.
 :::
 
 # One split is one measurement

@@ -507,6 +507,293 @@ def imagenet():
     fig.tight_layout()
     save(fig, "hist_2012_imagenet.png")
 
+# ---------------------------------------------------------------------------
+# Concepts that cost more in words than in a picture.
+# ---------------------------------------------------------------------------
+
+
+def spam_rules():
+    """Why hand-written rules lose: every rule buys an exception."""
+    fig, ax = plt.subplots(figsize=(9.6, 3.6))
+    ax.set_xlim(0, 10); ax.set_ylim(0, 5.2); ax.axis("off")
+
+    rules = [
+        ('contains "free"', "your bank's statement"),
+        ('sender unknown', "a new colleague"),
+        ('ALL CAPS subject', "an urgent real alert"),
+        ('many links', "a conference programme"),
+    ]
+    for i, (rule, exception) in enumerate(rules):
+        y = 4.3 - i * 1.05
+        ax.add_patch(FancyBboxPatch((0.3, y), 3.5, 0.72,
+                                    boxstyle="round,pad=0.02,rounding_size=0.06",
+                                    facecolor=BLUE, edgecolor="none"))
+        ax.text(2.05, y + 0.36, rule, ha="center", va="center",
+                color="white", fontsize=10.5)
+        ax.add_patch(FancyArrowPatch((3.95, y + 0.36), (5.15, y + 0.36),
+                                     arrowstyle="-|>", mutation_scale=13,
+                                     color=RUST, lw=1.5))
+        ax.text(5.35, y + 0.36, f"breaks on: {exception}", va="center",
+                fontsize=10.5, color=RUST)
+
+    ax.text(5.0, 0.1, "you cannot state the rule — but you recognise the answer",
+            ha="center", fontsize=11.5, color=INK, weight="bold")
+    ax.set_title("Every rule buys an exception", fontsize=12.5, weight="bold")
+    fig.tight_layout()
+    save(fig, "spam_rules.png")
+
+
+def learning_setup():
+    """The objects in the formalisation, and which one is unknown."""
+    fig, ax = plt.subplots(figsize=(10, 3.4))
+    ax.set_xlim(0, 11); ax.set_ylim(0, 5); ax.axis("off")
+
+    ax.add_patch(FancyBboxPatch((0.4, 1.5), 2.2, 1.3,
+                                boxstyle="round,pad=0.03,rounding_size=0.1",
+                                facecolor=TEAL, edgecolor="none"))
+    ax.text(1.5, 2.15, "x ∈ 𝒳", ha="center", va="center", color="white",
+            fontsize=15, weight="bold")
+    ax.text(1.5, 1.15, "input", ha="center", fontsize=10, color=SLATE)
+
+    ax.add_patch(FancyBboxPatch((4.2, 1.5), 2.2, 1.3,
+                                boxstyle="round,pad=0.03,rounding_size=0.1",
+                                facecolor=BLUE, edgecolor="none"))
+    ax.text(5.3, 2.15, "f", ha="center", va="center", color="white",
+            fontsize=17, weight="bold", style="italic")
+    ax.text(5.3, 1.15, "what we are looking for", ha="center", fontsize=10, color=SLATE)
+
+    ax.add_patch(FancyBboxPatch((8.0, 1.5), 2.2, 1.3,
+                                boxstyle="round,pad=0.03,rounding_size=0.1",
+                                facecolor=RUST, edgecolor="none"))
+    ax.text(9.1, 2.15, "ŷ ∈ 𝒴", ha="center", va="center", color="white",
+            fontsize=15, weight="bold")
+    ax.text(9.1, 1.15, "prediction", ha="center", fontsize=10, color=SLATE)
+
+    for x1, x2 in [(2.7, 4.1), (6.5, 7.9)]:
+        ax.add_patch(FancyArrowPatch((x1, 2.15), (x2, 2.15), arrowstyle="-|>",
+                                     mutation_scale=16, color=SLATE, lw=1.8))
+
+    ax.add_patch(FancyBboxPatch((3.4, 3.6), 4.0, 0.95,
+                                boxstyle="round,pad=0.03,rounding_size=0.1",
+                                facecolor="white", edgecolor=SLATE, lw=1.6,
+                                linestyle="--"))
+    ax.text(5.4, 4.07, "(x, y) ~ 𝒟   —   unknown", ha="center", va="center",
+            fontsize=12, color=INK)
+    ax.text(9.1, 0.35, "loss L(ŷ, y) scores the answer", ha="right",
+            fontsize=10.5, color=SLATE, style="italic")
+    ax.set_title("Four objects, one of them unknowable",
+                 fontsize=12.5, weight="bold")
+    fig.tight_layout()
+    save(fig, "learning_setup.png")
+
+
+def error_costs():
+    """Step 1: the two mistakes are not the same size."""
+    fig, ax = plt.subplots(figsize=(7.4, 3.9))
+    ax.set_xlim(0, 4); ax.set_ylim(0, 3.4); ax.axis("off")
+
+    cells = [
+        (0.6, 1.7, TEAL, "correct", "no action needed", "white"),
+        (2.2, 1.7, GOLD, "false alarm", "anxiety,\na follow-up test", INK),
+        (0.6, 0.3, RUST, "missed case", "a patient sent home\nwho should not be", "white"),
+        (2.2, 0.3, TEAL, "correct", "treated in time", "white"),
+    ]
+    for x, y, colour, title, detail, text_colour in cells:
+        ax.add_patch(FancyBboxPatch((x, y), 1.4, 1.25,
+                                    boxstyle="round,pad=0.02,rounding_size=0.06",
+                                    facecolor=colour, edgecolor="none"))
+        ax.text(x + 0.7, y + 0.92, title, ha="center", fontsize=11,
+                color=text_colour, weight="bold")
+        ax.text(x + 0.7, y + 0.42, detail, ha="center", fontsize=8.8,
+                color=text_colour, linespacing=1.4)
+
+    ax.text(1.3, 3.12, "predicted benign", ha="center", fontsize=10, color=SLATE)
+    ax.text(2.9, 3.12, "predicted malignant", ha="center", fontsize=10, color=SLATE)
+    ax.text(0.45, 2.32, "benign", ha="right", va="center", fontsize=10, color=SLATE)
+    ax.text(0.45, 0.92, "malignant", ha="right", va="center", fontsize=10, color=SLATE)
+    ax.set_title("Accuracy weights these equally. Nobody else does.",
+                 fontsize=12.5, weight="bold")
+    fig.tight_layout()
+    save(fig, "error_costs.png")
+
+
+def split_scheme():
+    """Step 3: what the test set is for, and when it is allowed to be touched."""
+    fig, ax = plt.subplots(figsize=(10, 3.2))
+    ax.set_xlim(0, 10); ax.set_ylim(0, 4); ax.axis("off")
+
+    ax.add_patch(FancyBboxPatch((0.3, 2.7), 9.4, 0.8,
+                                boxstyle="round,pad=0.02,rounding_size=0.06",
+                                facecolor=SLATE, edgecolor="none"))
+    ax.text(5.0, 3.1, "all the data you have", ha="center", va="center",
+            color="white", fontsize=11.5, weight="bold")
+
+    ax.add_patch(FancyArrowPatch((5.0, 2.6), (5.0, 2.15), arrowstyle="-|>",
+                                 mutation_scale=15, color=INK, lw=1.8))
+
+    ax.add_patch(FancyBboxPatch((0.3, 1.0), 6.9, 0.95,
+                                boxstyle="round,pad=0.02,rounding_size=0.06",
+                                facecolor=TEAL, edgecolor="none"))
+    ax.text(3.75, 1.48, "training set", ha="center", va="center",
+            color="white", fontsize=12, weight="bold")
+    ax.text(3.75, 0.82, "everything is learned here:\nscaling, selection, tuning, the model",
+            ha="center", va="top", fontsize=9.5, color=SLATE, linespacing=1.4)
+
+    ax.add_patch(FancyBboxPatch((7.5, 1.0), 2.2, 0.95,
+                                boxstyle="round,pad=0.02,rounding_size=0.06",
+                                facecolor=RUST, edgecolor="none"))
+    ax.text(8.6, 1.48, "test set", ha="center", va="center",
+            color="white", fontsize=12, weight="bold")
+    ax.text(8.6, 0.82, "touched once,\nat the very end", ha="center", va="top",
+            fontsize=9.5, color=RUST, linespacing=1.4, weight="bold")
+
+    ax.set_title("Split first — then never look right again until you are finished",
+                 fontsize=12.5, weight="bold")
+    fig.tight_layout()
+    save(fig, "split_scheme.png")
+
+
+def pipeline_versus_manual():
+    """Step 5: where leakage enters when preprocessing sits outside the split."""
+    fig, axes = plt.subplots(2, 1, figsize=(10.5, 4.4))
+
+    def stage(ax, x, w, label, colour, y=0.45, h=0.42):
+        ax.add_patch(FancyBboxPatch((x, y), w, h,
+                                    boxstyle="round,pad=0.015,rounding_size=0.04",
+                                    facecolor=colour, edgecolor="none"))
+        ax.text(x + w / 2, y + h / 2, label, ha="center", va="center",
+                color="white", fontsize=10.5, weight="bold")
+
+    for ax in axes:
+        ax.set_xlim(0, 10); ax.set_ylim(0, 1.4); ax.axis("off")
+
+    # Wrong
+    stage(axes[0], 0.2, 2.6, "scale everything", RUST)
+    stage(axes[0], 3.3, 1.8, "split", SLATE)
+    stage(axes[0], 5.7, 2.0, "fit model", BLUE)
+    stage(axes[0], 8.1, 1.7, "evaluate", BLUE)
+    for x1, x2 in [(2.85, 3.25), (5.15, 5.65), (7.75, 8.05)]:
+        axes[0].add_patch(FancyArrowPatch((x1, 0.66), (x2, 0.66), arrowstyle="-|>",
+                                          mutation_scale=13, color=SLATE, lw=1.5))
+    axes[0].text(1.5, 1.12, "the mean was computed over the test rows too",
+                 ha="center", fontsize=10, color=RUST, weight="bold")
+    axes[0].text(0.2, 0.05, "optimistic score, no error, nothing to notice",
+                 fontsize=10, color=RUST, style="italic")
+    axes[0].set_title("Preprocessing outside the split", fontsize=12,
+                      weight="bold", color=RUST, loc="left")
+
+    # Right
+    stage(axes[1], 0.2, 1.8, "split", SLATE)
+    stage(axes[1], 2.6, 5.1, "pipeline:  scale  →  fit model", TEAL)
+    stage(axes[1], 8.1, 1.7, "evaluate", BLUE)
+    for x1, x2 in [(2.05, 2.55), (7.75, 8.05)]:
+        axes[1].add_patch(FancyArrowPatch((x1, 0.66), (x2, 0.66), arrowstyle="-|>",
+                                          mutation_scale=13, color=SLATE, lw=1.5))
+    axes[1].text(5.15, 1.12, "the mean is learned from training rows only",
+                 ha="center", fontsize=10, color=TEAL, weight="bold")
+    axes[1].text(0.2, 0.05, "and it is refitted inside every cross-validation fold",
+                 fontsize=10, color=SLATE, style="italic")
+    axes[1].set_title("Preprocessing inside the pipeline", fontsize=12,
+                      weight="bold", color=TEAL, loc="left")
+    fig.tight_layout()
+    save(fig, "pipeline_versus_manual.png")
+
+
+def self_supervision():
+    """Hide part of the input; the answer was in the data all along."""
+    fig, ax = plt.subplots(figsize=(10, 3.4))
+    ax.set_xlim(0, 11); ax.set_ylim(0, 4); ax.axis("off")
+
+    columns = ["alcohol", "malic acid", "ash", "flavanoids", "hue", "proline"]
+    hidden = 3
+    for i, name in enumerate(columns):
+        x = 0.35 + i * 1.72
+        colour = RUST if i == hidden else TEAL
+        ax.add_patch(FancyBboxPatch((x, 2.1), 1.55, 0.85,
+                                    boxstyle="round,pad=0.02,rounding_size=0.06",
+                                    facecolor=colour, edgecolor="none"))
+        ax.text(x + 0.78, 2.52, "?" if i == hidden else name,
+                ha="center", va="center", color="white",
+                fontsize=13 if i == hidden else 9.5,
+                weight="bold" if i == hidden else "normal")
+
+    ax.text(5.5, 3.35, "one column hidden — nobody annotated anything",
+            ha="center", fontsize=11, color=INK)
+    for i in range(len(columns)):
+        if i == hidden:
+            continue
+        x = 0.35 + i * 1.72 + 0.78
+        ax.add_patch(FancyArrowPatch((x, 2.05), (0.35 + hidden * 1.72 + 0.78, 1.35),
+                                     arrowstyle="-|>", mutation_scale=11,
+                                     color=SLATE, lw=1.1, alpha=.65))
+    ax.text(5.5, 0.95, "predict it from the rest", ha="center",
+            fontsize=11.5, color=RUST, weight="bold")
+    ax.text(5.5, 0.35,
+            "the task is a pretext — what transfers is having learned how the columns relate",
+            ha="center", fontsize=10, color=SLATE, style="italic")
+    ax.set_title("Supervision that costs nothing", fontsize=12.5, weight="bold")
+    fig.tight_layout()
+    save(fig, "self_supervision.png")
+
+
+def imbalance_matrix():
+    """1% positives: the trivial model wins on accuracy and finds nothing."""
+    fig, axes = plt.subplots(1, 2, figsize=(9.6, 3.6))
+    matrices = [
+        (np.array([[1479, 0], [21, 0]]), "Always answer 'negative'", 0.986, 0.0),
+        (np.array([[1479, 0], [20, 1]]), "The trained model", 0.987, 0.048),
+    ]
+    for ax, (cm, title, acc, rec) in zip(axes, matrices):
+        ax.imshow(np.log1p(cm), cmap="Blues", vmin=0, vmax=np.log1p(1500))
+        for i in range(2):
+            for j in range(2):
+                ax.text(j, i, f"{cm[i, j]}", ha="center", va="center",
+                        fontsize=15, weight="bold",
+                        color="white" if cm[i, j] > 500 else INK)
+        ax.set_xticks([0, 1]); ax.set_xticklabels(["pred. neg", "pred. pos"], fontsize=9.5)
+        ax.set_yticks([0, 1]); ax.set_yticklabels(["true neg", "true pos"], fontsize=9.5)
+        ax.set_title(f"{title}\naccuracy {acc:.3f}   ·   recall {rec:.3f}",
+                     fontsize=11, weight="bold", linespacing=1.5)
+    fig.suptitle("Nearly identical accuracy. One of them finds nothing.",
+                 fontsize=12.5, weight="bold", y=1.06)
+    fig.tight_layout()
+    save(fig, "imbalance_matrix.png")
+
+
+def shortcut_timeline():
+    """A column recorded after the outcome cannot predict it."""
+    fig, ax = plt.subplots(figsize=(10.4, 3.4))
+    ax.set_xlim(0, 10); ax.set_ylim(0, 4); ax.axis("off")
+
+    ax.plot([0.4, 9.6], [1.5, 1.5], lw=2.2, color=SLATE)
+    moments = [
+        (1.4, "scan taken", TEAL, "up"),
+        (3.4, "measurements\nrecorded", TEAL, "down"),
+        (5.2, "PREDICTION\nNEEDED HERE", BLUE, "up"),
+        (7.4, "diagnosis made", SLATE, "down"),
+        (8.9, "biopsy\nscheduled", RUST, "up"),
+    ]
+    for x, label, colour, side in moments:
+        ax.scatter([x], [1.5], s=90, color=colour, zorder=3)
+        y = 2.15 if side == "up" else 0.85
+        va = "bottom" if side == "up" else "top"
+        ax.plot([x, x], [1.5, y - (0.08 if side == "up" else -0.08)],
+                lw=1.3, color=colour)
+        ax.text(x, y, label, ha="center", va=va, fontsize=10, color=colour,
+                weight="bold" if "PREDICTION" in label or "biopsy" in label else "normal",
+                linespacing=1.3)
+
+    ax.axvspan(5.2, 9.6, color=RUST, alpha=.10)
+    ax.text(7.4, 3.35, "everything here happens AFTER the prediction is needed",
+            ha="center", fontsize=10.5, color=RUST, style="italic")
+    ax.text(5.0, 0.1,
+            "a model that leans on 'biopsy_scheduled' has nothing to read at prediction time",
+            ha="center", fontsize=10.5, color=INK)
+    ax.set_title("Ask of every feature: does this value exist yet?",
+                 fontsize=12.5, weight="bold")
+    fig.tight_layout()
+    save(fig, "shortcut_timeline.png")
+
 
 if __name__ == "__main__":
     print("generating lesson 1 conceptual figures:")
@@ -524,3 +811,11 @@ if __name__ == "__main__":
     backpropagation()
     svm_margin()
     imagenet()
+    spam_rules()
+    learning_setup()
+    error_costs()
+    split_scheme()
+    pipeline_versus_manual()
+    self_supervision()
+    imbalance_matrix()
+    shortcut_timeline()
