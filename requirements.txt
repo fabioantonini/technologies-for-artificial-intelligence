@@ -1,0 +1,44 @@
+# Technologies for Artificial Intelligence — course environment
+#
+# Deliberately free of any LLM stack: this course covers ML fundamentals and
+# nothing here should require an API key or a network call at runtime.
+
+# ============================
+# Core scientific stack
+# ============================
+numpy
+pandas
+scipy
+matplotlib
+seaborn
+
+# ============================
+# Classical machine learning
+# ============================
+scikit-learn
+statsmodels
+xgboost
+
+# ============================
+# Deep learning (CPU only)
+# ============================
+tensorflow
+tensorboard
+
+# ============================
+# Datasets
+# ============================
+# Fetches the openml / UCI datasets used in the labs, with local caching so a
+# lab can be re-run offline once the data has been downloaded at least once.
+pooch
+
+# ============================
+# Jupyter environment
+# ============================
+jupyterlab>=4.2,<5
+notebook
+ipykernel
+ipywidgets>=8.1
+ipympl
+jupyterlab-code-formatter
+jupyterlab-git

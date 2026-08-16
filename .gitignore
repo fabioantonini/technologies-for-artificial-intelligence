@@ -1,0 +1,22 @@
+# Jupyter
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+
+# TensorBoard / training logs
+**/logs/
+**/events.out.tfevents*
+
+# Datasets cached at runtime (labs re-download them on demand)
+**/data_cache/
+*.h5
+*.keras
+
+# OS noise
+Thumbs.db
+.DS_Store
+
+# NOTE: generated .pptx and .pdf are deliberately NOT ignored.
+# This repository is also the distribution channel: students must receive
+# the built slides and handouts with a plain `git pull`, without needing
+# pandoc installed. See tools/build.py.

@@ -1,0 +1,26 @@
+services:
+  tai-course:
+    container_name: tai_course
+    build: .
+    image: fabioantonini/technologies-for-artificial-intelligence:latest
+    ports:
+      - "8888:8888"
+    volumes:
+      # The clone is mounted over the snapshot baked into the image, so
+      # `git pull` is all a student needs to receive a new lesson.
+      - .:/home/jovyan/work
+
+    # Running as root plus the CHOWN_* variables and the fix-permissions
+    # command below is what makes notebooks saveable when the host UID does
+    # not match the container's jovyan user. Without it students hit
+    # "permission denied" on every save. Do not simplify this away.
+    user: "root"
+    environment:
+      - JUPYTER_TOKEN=aicourse
+      - CHOWN_HOME=yes
+      - CHOWN_HOME_OPTS=-R
+      - CHOWN_EXTRA=/home/jovyan/work
+      - CHOWN_EXTRA_OPTS=-R
+      - NOTEBOOK_ARGS=--ServerApp.password='' --ServerApp.allow_origin='*'
+
+    command: bash -c "fix-permissions /home/jovyan/work && start-notebook.sh"
