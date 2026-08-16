@@ -1,6 +1,6 @@
 # Introduction and the Machine Learning Workflow
 
-> **Lesson 1 — Technologies for Artificial Intelligence**
+> **Lesson 1 — Technologies for Artificial Intelligence**  
 > Estimated reading time: 70 minutes
 
 ---
@@ -9,14 +9,14 @@
 
 | Time | Segment | Material |
 |---|---|---|
-| 0:00–0:15 | Course introduction: aims, structure, assessment | Slides 1–8 |
-| 0:15–0:25 | Environment check: everyone running JupyterLab | `Course/Setup/Docker_Quickstart.md` |
-| 0:25–0:50 | What learning from data means, and when not to use it | Slides 9–20 |
-| 0:50–1:05 | A short history, and what it teaches | Slides 21–28, `Resources/` |
+| 0:00–0:15 | Course introduction and assessment | Slides 1–8 |
+| 0:15–0:25 | Environment check | `Course/Setup/` |
+| 0:25–0:50 | What learning from data means | Slides 9–20 |
+| 0:50–1:05 | A short history | Slides 21–28, `Resources/` |
 | 1:05–1:15 | **Break** | |
-| 1:15–1:45 | The three kinds of learning | Slides 29–36 + notebook 02 |
-| 1:45–2:30 | The end-to-end workflow, worked live | Slides 37–46 + notebook 01 |
-| 2:30–2:55 | How models mislead | Slides 47–54 + notebook 03 |
+| 1:15–1:45 | The three kinds of learning | Slides 29–36, notebook 02 |
+| 1:45–2:30 | The end-to-end workflow, live | Slides 37–46, notebook 01 |
+| 2:30–2:55 | How models mislead | Slides 47–54, notebook 03 |
 | 2:55–3:00 | Homework set, questions | Slide 55 |
 | | **Total** | **180 minutes** |
 
