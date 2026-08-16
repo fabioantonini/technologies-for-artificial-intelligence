@@ -275,6 +275,28 @@ def renumber_oversized_ids(path: Path) -> int:
     return rewritten
 
 
+#: Characters that fit on one full-width line at the body's default size, and
+#: the height one line occupies as a fraction of the slide. Both measured from
+#: the generated decks rather than derived - pptx does no layout of its own, so
+#: there is nothing exact to compute here.
+CHARS_PER_LINE = 52
+LINE_HEIGHT = 0.085
+
+
+def _text_height(shape, slide_h: int) -> int:
+    """Estimate how tall a text box needs to be for its contents.
+
+    A fixed height is wrong as soon as a slide carries more than a line or two:
+    the text overflows its shape, the figure beneath is positioned against the
+    shape rather than the visible text, and the two overlap.
+    """
+    lines = 0
+    for paragraph in shape.text_frame.paragraphs:
+        text = "".join(run.text for run in paragraph.runs).strip()
+        lines += max(1, -(-len(text) // CHARS_PER_LINE))  # ceil division
+    return int(slide_h * LINE_HEIGHT * max(lines, 1))
+
+
 def relayout_figure_slides(path: Path) -> int:
     """Give slides that carry a picture a full-width title and centred figure.
 
@@ -321,7 +343,7 @@ def relayout_figure_slides(path: Path) -> int:
         for body in bodies:
             body.left, body.top = margin, top
             body.width = usable
-            body.height = int(slide_h * 0.16)
+            body.height = _text_height(body, slide_h)
             top += body.height + int(slide_h * 0.02)
 
         available_h = slide_h - top - int(slide_h * 0.12)  # keep clear of logo
