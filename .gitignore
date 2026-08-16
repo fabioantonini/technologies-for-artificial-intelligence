@@ -20,3 +20,7 @@ Thumbs.db
 # This repository is also the distribution channel: students must receive
 # the built slides and handouts with a plain `git pull`, without needing
 # pandoc installed. See tools/build.py.
+
+# Python virtual environments (WSL/local toolchain)
+.venv/
+venv/
