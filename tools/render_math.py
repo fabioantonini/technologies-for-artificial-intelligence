@@ -53,16 +53,50 @@ SYMBOLS = {
     r"\hat": "", r"\,": " ", r"\;": " ", r"\!": "", r"\ ": " ",
 }
 
-# Constructs that Unicode cannot represent honestly inline.
-TOO_COMPLEX = re.compile(r"\\(frac|sqrt|begin|sum_|prod_|int_|binom|matrix|left|right)")
+# Constructs with no honest inline Unicode rendering.
+TOO_COMPLEX = re.compile(r"\\(begin|sum_|prod_|int_|binom|matrix|left|right)")
+
+VULGAR_FRACTIONS = {
+    ("1", "2"): "½", ("1", "3"): "⅓", ("2", "3"): "⅔",
+    ("1", "4"): "¼", ("3", "4"): "¾", ("1", "5"): "⅕",
+    ("2", "5"): "⅖", ("3", "5"): "⅗", ("4", "5"): "⅘",
+    ("1", "6"): "⅙", ("5", "6"): "⅚", ("1", "8"): "⅛",
+    ("3", "8"): "⅜", ("5", "8"): "⅝", ("7", "8"): "⅞",
+}
+
+FRACTION = re.compile(r"\\[tdc]?frac\{([^{}]*)\}\{([^{}]*)\}")
+ROOT = re.compile(r"\\sqrt\{([^{}]*)\}")
+
+
+def _flatten_fractions(text: str) -> str:
+    """Turn simple fractions into readable inline text.
+
+    `\\frac{1}{2}` becomes ½ where a vulgar fraction exists, otherwise a slash
+    form with brackets when the denominator is compound, so `\\frac{1}{2m}`
+    reads as 1/(2m) rather than the ambiguous 1/2m.
+    """
+
+    def repl(match: re.Match) -> str:
+        num, den = match.group(1).strip(), match.group(2).strip()
+        if (num, den) in VULGAR_FRACTIONS:
+            return VULGAR_FRACTIONS[(num, den)]
+        den_text = den if len(den) == 1 else f"({den})"
+        return f"{num}/{den_text}"
+
+    previous = None
+    while previous != text:  # resolve one nesting level at a time
+        previous = text
+        text = FRACTION.sub(repl, text)
+    return text
 
 
 def to_unicode(latex: str) -> str | None:
-    """Render simple inline math as Unicode, or None if it needs an image."""
+    """Render simple inline math as Unicode, or None if it cannot be done."""
     if TOO_COMPLEX.search(latex):
         return None
 
-    text = latex
+    text = _flatten_fractions(latex)
+    text = ROOT.sub(lambda m: f"√{m.group(1)}", text)
     for command, symbol in sorted(SYMBOLS.items(), key=lambda kv: -len(kv[0])):
         text = text.replace(command, symbol)
 
@@ -75,7 +109,8 @@ def to_unicode(latex: str) -> str | None:
     text = re.sub(r"\^\{([^{}]*)\}|\^(\w)", lambda m: script(m, SUPERSCRIPT), text)
     text = re.sub(r"_\{([^{}]*)\}|_(\w)", lambda m: script(m, SUBSCRIPT), text)
 
-    text = text.replace("{", "").replace("}", "").strip()
+    text = text.replace("{", "").replace("}", "")
+    text = re.sub(r"\s+", " ", text).strip()
     if "\\" in text or "^" in text or "_" in text:
         return None  # something survived that we cannot render honestly
     return text
@@ -186,17 +221,43 @@ def process(source: Path, dest: Path | None = None) -> tuple[int, int, list[str]
         if unicode_form is not None:
             stats["unicode"] += 1
             return unicode_form
-        path = render_image(latex, figures, display=False)
-        if path is None:
-            warnings.append(f"could not render, left as text: ${latex}$")
-            return f"`{latex}`"
-        stats["images"] += 1
-        return f"![]({path.name})"
+        # Never fall back to an image here. An image inside a paragraph does
+        # not survive the pptx conversion - pandoc drops it and leaves a gap in
+        # the sentence. Keep readable text and say so, so the author can
+        # simplify the expression or move it to display position.
+        warnings.append(
+            f"inline maths has no Unicode form, left as text: ${latex}$"
+            " - simplify it, or set it on its own line as display maths"
+        )
+        return latex
 
     text = re.sub(r"(?<!\$)\$(?!\$)(.+?)(?<!\$)\$(?!\$)", inline_repl, text)
+    warnings.extend(_check_display_position(text))
 
     dest.write_text(text, encoding="utf8")
     return stats["unicode"], stats["images"], warnings
+
+
+def _check_display_position(text: str) -> list[str]:
+    """Warn when prose follows display maths inside one slide.
+
+    A block image ends the slide as far as pandoc is concerned: anything after
+    it starts a new, untitled one. So display maths has to be the last thing on
+    its slide, or the sentence following it is orphaned.
+    """
+    problems = []
+    for section in re.split(r"^# ", text, flags=re.M)[1:]:
+        title = section.splitlines()[0].strip()
+        after = re.split(r"^!\[\]\(eq_\w+\.png\)$", section, flags=re.M)
+        if len(after) < 2:
+            continue
+        trailing = after[-1].strip()
+        if trailing and not trailing.startswith(":::"):
+            problems.append(
+                f'slide "{title}": text after display maths will land on a new'
+                " untitled slide - move the equation to the end of the slide"
+            )
+    return problems
 
 
 def main(argv: list[str]) -> int:

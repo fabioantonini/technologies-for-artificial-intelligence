@@ -207,13 +207,21 @@ template, so it is not something the course template causes.
 
 `tools/render_math.py` therefore takes the math out before pandoc runs:
 
-- **inline** math becomes Unicode (`$x^2$` → `x²`, `$\in$` → `∈`) and stays editable text
+- **inline** math becomes Unicode (`$x^2$` → `x²`, `$\tfrac{1}{2}$` → `½`,
+  `$\frac{1}{2m}$` → `1/(2m)`) and stays editable text
 - **display** math is rendered to a transparent PNG in the lesson's `Figures/`
 
 You still write ordinary LaTeX in the source — the conversion happens on a temporary
-copy, and handouts keep real LaTeX because a TeX engine renders them properly. If a
-formula is too complex to convert, the build warns and leaves it as literal text:
-that is the signal to simplify it or move it to the handout, where it belongs anyway.
+copy, and handouts keep real LaTeX because a TeX engine renders them properly.
+
+Two rules follow from how pandoc builds slides, and the build warns about both:
+
+- **Display math must be the last thing on its slide.** A block image ends the slide,
+  so a sentence written after an equation lands on a new, untitled one.
+- **Inline math must be Unicode-representable.** There is no image fallback inline:
+  an image inside a paragraph is dropped during conversion, leaving a hole in the
+  sentence. If the build says a formula has no Unicode form, simplify it, promote it
+  to display position, or leave it to the handout — where it belongs anyway.
 
 ### Quizzes
 

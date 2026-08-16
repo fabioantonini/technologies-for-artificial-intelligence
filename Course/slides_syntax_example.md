@@ -38,11 +38,16 @@ should stay uncluttered.
 
 # Cost function
 
-The mean squared error over $m$ examples:
+The mean squared error over $m$ examples, where the factor $\tfrac{1}{2}$ is
+there to simplify the derivative:
 
 $$J(w, b) = \frac{1}{2m} \sum_{i=1}^{m} \left( \hat{y}^{(i)} - y^{(i)} \right)^2$$
 
-The factor $\tfrac{1}{2}$ simplifies the derivative.
+::: notes
+Display maths must be the last thing on its slide: pandoc treats a block image
+as the end of the slide, so any text after it lands on a new untitled one. The
+build warns if you get this wrong.
+:::
 
 # Comparing the estimators
 

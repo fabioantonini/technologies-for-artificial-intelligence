@@ -121,9 +121,12 @@ errors rather than take absolute values? Derivation in handout section 3.2.
 ```
 
 - Write ordinary LaTeX for maths. The build converts inline math to Unicode and display
-  math to images automatically — you never write those substitutions yourself. If the
-  build warns that a formula could not be converted, simplify it or move it to the
-  handout rather than fighting it.
+  math to images automatically — you never write those substitutions yourself. Two
+  rules, both enforced by build warnings:
+  - **display maths goes last on its slide**, otherwise the text after it is orphaned
+    onto a new untitled slide;
+  - **inline maths must be simple enough for Unicode** (`x^2`, `\tfrac{1}{2}`, greek,
+    set symbols). Anything heavier belongs in display position or in the handout.
 - Two columns where a contrast helps:
 
 ```markdown
