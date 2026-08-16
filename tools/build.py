@@ -7,6 +7,10 @@
 Slides:   Lessons/NN_*/Slides/*.md  ->  .pptx  (always)  and .pdf (if possible)
 Handouts: Lessons/NN_*/Docs/*.md    ->  .pdf   (if a working TeX engine exists)
 
+Every generated .pptx is passed through tools/postprocess_pptx.py, which
+repairs two defects in pandoc's output that break rendering in viewers other
+than PowerPoint. Never ship a deck that skipped that step.
+
 The generated files are committed: students receive them with a plain
 `git pull` and never need pandoc installed.
 
@@ -21,6 +25,9 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import postprocess_pptx  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE = ROOT / "Course" / "template.pptx"
@@ -86,6 +93,10 @@ def build_slides(source: Path, engine: str | None) -> tuple[int, int]:
             f"--resource-path={resource_path(source)}",
         ]
     )
+    if ok:
+        # pandoc's pptx output needs repairing before it is safe to ship;
+        # see tools/postprocess_pptx.py for what and why.
+        postprocess_pptx.process(pptx)
     made, failed = (made + 1, failed) if ok else (made, failed + 1)
 
     if engine:
