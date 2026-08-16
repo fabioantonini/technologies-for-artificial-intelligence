@@ -18,6 +18,8 @@ import zipfile
 from pathlib import Path
 
 from pptx import Presentation
+from pptx.enum.shapes import PP_PLACEHOLDER
+from pptx.oxml.ns import qn
 from pptx.oxml.shapes.picture import CT_Picture
 from pptx.util import Emu
 
@@ -106,6 +108,44 @@ def _place_picture(base_slide, image_path, left, top, width, height):
     shapes._spTree.append(pic)
 
 
+def normalise_caption_layouts(pptx_path: Path) -> None:
+    """Make the caption layouts look like the ordinary ones.
+
+    pandoc reaches for "Content with Caption" whenever a slide holds both text
+    and a picture, and "Picture with Caption" when it holds only a picture.
+    Both ship as narrow two-column designs whose title is pinned to 15pt in a
+    third of the width - fine for a photo essay, wrong for a lecture slide
+    showing an equation or a plot, and jarring next to every other slide.
+
+    We widen the title to full width and drop the hard-coded font sizes so the
+    text inherits from the master, exactly like "Title and Content" does.
+    tools/postprocess_pptx.py then centres the figure in what is left.
+    """
+    prs = Presentation(str(pptx_path))
+    slide_w, slide_h = prs.slide_width, prs.slide_height
+    margin = int(slide_w * 0.05)
+    usable = slide_w - 2 * margin
+
+    for master in prs.slide_masters:
+        for layout in master.slide_layouts:
+            if layout.name not in ("Content with Caption", "Picture with Caption"):
+                continue
+            for shape in layout.placeholders:
+                kind = shape.placeholder_format.type
+                if kind == PP_PLACEHOLDER.TITLE:
+                    shape.left, shape.top = margin, int(slide_h * 0.04)
+                    shape.width, shape.height = usable, int(slide_h * 0.17)
+                elif kind in (PP_PLACEHOLDER.BODY, PP_PLACEHOLDER.PICTURE):
+                    shape.left, shape.top = margin, int(slide_h * 0.24)
+                    shape.width = usable
+                    shape.height = int(slide_h * 0.16)
+
+                # Drop hard-coded sizes so the master's styles apply.
+                for prop in shape._element.iter(qn("a:defRPr"), qn("a:rPr")):
+                    prop.attrib.pop("sz", None)
+    prs.save(str(pptx_path))
+
+
 def add_logos(pptx_path: Path) -> None:
     """Place the crest on the title layout and a small mark on the master."""
     prs = Presentation(str(pptx_path))
@@ -141,6 +181,7 @@ def main() -> int:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fetch_pandoc_reference(OUT)
     restyle_theme(OUT)
+    normalise_caption_layouts(OUT)
     add_logos(OUT)
     size = OUT.stat().st_size / 1024
     print(f"written {OUT.relative_to(ROOT)} ({size:.0f} KB)")

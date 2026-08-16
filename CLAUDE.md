@@ -177,8 +177,43 @@ lessons reach students through `git pull`.
 
 `Course/slides_syntax_example.md` is the reference for every construct that survives
 the pandoc conversion: title metadata, bullets, figures, tables, code blocks, inline
-and display math, and two-column layouts via `::: columns`. Start from it when in
-doubt, and rebuild it if you change the template.
+and display math, two-column layouts via `::: columns`, and speaker notes. Start from
+it when in doubt, and rebuild it if you change the template.
+
+**Speaker notes are expected on every content slide.** They go in a `notes` div and
+never appear on the slide itself — they surface in PowerPoint's presenter view and on
+printed notes pages:
+
+```markdown
+# Gradient descent
+
+- Update rule and intuition
+
+::: notes
+What you plan to say, the question to put to the room, and a pointer to the
+handout section carrying the derivation.
+:::
+```
+
+They are what lets the slide stay uncluttered while the lecture still has its thread:
+the slide shows the result, the notes carry the delivery, the handout holds the proof.
+
+### Mathematics in slides
+
+**Do not expect LaTeX to survive as equations.** pandoc converts `$...$` into OMML that
+no renderer handles: LibreOffice drops the whole slide body and PowerPoint reports
+damaged content and strips it. This was verified against pandoc's own default
+template, so it is not something the course template causes.
+
+`tools/render_math.py` therefore takes the math out before pandoc runs:
+
+- **inline** math becomes Unicode (`$x^2$` → `x²`, `$\in$` → `∈`) and stays editable text
+- **display** math is rendered to a transparent PNG in the lesson's `Figures/`
+
+You still write ordinary LaTeX in the source — the conversion happens on a temporary
+copy, and handouts keep real LaTeX because a TeX engine renders them properly. If a
+formula is too complex to convert, the build warns and leaves it as literal text:
+that is the signal to simplify it or move it to the handout, where it belongs anyway.
 
 ### Quizzes
 

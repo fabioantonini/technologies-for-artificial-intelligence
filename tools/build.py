@@ -28,6 +28,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import postprocess_pptx  # noqa: E402
+import render_math  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE = ROOT / "Course" / "template.pptx"
@@ -66,7 +67,7 @@ def resource_path(source: Path) -> str:
     The separator is os.pathsep - ';' on Windows, ':' elsewhere.
     """
     return os.pathsep.join(
-        [str(source.parent), str(source.parent.parent / "Figures")]
+        [str(source.parent), str(render_math.figures_dir(source))]
     )
 
 
@@ -83,18 +84,32 @@ def build_slides(source: Path, engine: str | None) -> tuple[int, int]:
     made = failed = 0
     pptx = source.with_suffix(".pptx")
     print(f"  {source.relative_to(ROOT)} -> {pptx.name}")
-    ok = run(
-        [
-            "pandoc",
-            str(source),
-            "-o",
-            str(pptx),
-            f"--reference-doc={TEMPLATE}",
-            f"--resource-path={resource_path(source)}",
-        ]
-    )
+
+    # Take the LaTeX out before pandoc sees it: its OMML output is not
+    # renderable. See tools/render_math.py. The author's source is untouched.
+    staged = source.with_suffix(".staged.md")
+    uni, img, warnings = render_math.process(source, staged)
+    if uni or img:
+        print(f"    math: {uni} to Unicode, {img} to image")
+    for warning in warnings:
+        print(f"    note: {warning}")
+
+    try:
+        ok = run(
+            [
+                "pandoc",
+                str(staged),
+                "-o",
+                str(pptx),
+                f"--reference-doc={TEMPLATE}",
+                f"--resource-path={resource_path(source)}",
+            ]
+        )
+    finally:
+        staged.unlink(missing_ok=True)
+
     if ok:
-        # pandoc's pptx output needs repairing before it is safe to ship;
+        # pandoc's pptx output still needs repairing before it is safe to ship;
         # see tools/postprocess_pptx.py for what and why.
         postprocess_pptx.process(pptx)
     made, failed = (made + 1, failed) if ok else (made, failed + 1)

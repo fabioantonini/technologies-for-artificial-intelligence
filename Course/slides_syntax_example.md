@@ -23,6 +23,15 @@ We want a function that maps features to a continuous target.
 
 The parameters $w$ and $b$ are learned from data.
 
+::: notes
+Speaker notes go in a `notes` div. They never appear on the slide: they show
+in PowerPoint's presenter view, in the notes pane, and on printed notes pages.
+
+Use them for what you plan to say, the question to put to the room, and a
+pointer back to the handout section carrying the derivation - the slide itself
+should stay uncluttered.
+:::
+
 # Least squares in one picture
 
 ![Least-squares fit](univaq_logo.png)

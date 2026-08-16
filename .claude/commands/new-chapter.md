@@ -109,6 +109,21 @@ Then:
 - Figures come from the lesson notebooks, referenced as `![Caption](figure_name.png)`
   and living in the lesson's `Figures/`.
 - Use tables for comparisons and fenced code blocks for short snippets.
+- **Speaker notes on every content slide**, in a `notes` div. They never render on the
+  slide; they appear in presenter view. Write what the lecturer will say, one question
+  to put to the room, and the handout section carrying the derivation:
+
+```markdown
+::: notes
+Motivate with the housing example before the formula. Ask: why square the
+errors rather than take absolute values? Derivation in handout section 3.2.
+:::
+```
+
+- Write ordinary LaTeX for maths. The build converts inline math to Unicode and display
+  math to images automatically — you never write those substitutions yourself. If the
+  build warns that a formula could not be converted, simplify it or move it to the
+  handout rather than fighting it.
 - Two columns where a contrast helps:
 
 ```markdown

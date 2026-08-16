@@ -28,8 +28,14 @@ import sys
 import zipfile
 from pathlib import Path
 
+from lxml import etree
 from pptx import Presentation
 from pptx.oxml.ns import qn
+
+NS_A = "http://schemas.openxmlformats.org/drawingml/2006/main"
+NS_A14 = "http://schemas.microsoft.com/office/drawing/2010/main"
+NS_M = "http://schemas.openxmlformats.org/officeDocument/2006/math"
+NS_MC = "http://schemas.openxmlformats.org/markup-compatibility/2006"
 
 # Prefixes pandoc may use without declaring them, and their correct URIs.
 NAMESPACES = {
@@ -99,6 +105,73 @@ def repair_namespaces(path: Path) -> dict[str, list[str]]:
     return repaired
 
 
+def _omath_text(omath) -> str:
+    """Plain-text rendering of an OMML equation, for the fallback branch."""
+    parts = [node.text or "" for node in omath.iter(f"{{{NS_M}}}t")]
+    return "".join(parts).strip() or "[equation]"
+
+
+def _wrap_equations(tree) -> int:
+    """Wrap bare <a14:m> in <mc:AlternateContent>. Returns equations wrapped.
+
+    pandoc drops <a14:m> straight into <a:p>, but CT_TextParagraph only admits
+    a:pPr, a:r, a:br, a:fld and a:endParaRPr. Consumers are entitled to reject
+    the paragraph, and they do: LibreOffice renders the slide body empty and
+    PowerPoint offers to "repair" the file, discarding content as it goes.
+
+    The conformant form puts the extension behind a compatibility gate, with a
+    plain-text fallback for readers that cannot render OMML.
+    """
+    wrapped = 0
+    for math in list(tree.iter(f"{{{NS_A14}}}m")):
+        parent = math.getparent()
+        if parent is None or parent.tag == f"{{{NS_MC}}}Choice":
+            continue  # already wrapped
+
+        alt = etree.Element(f"{{{NS_MC}}}AlternateContent", nsmap={"mc": NS_MC})
+        choice = etree.SubElement(
+            alt, f"{{{NS_MC}}}Choice", nsmap={"a14": NS_A14}, Requires="a14"
+        )
+        fallback = etree.SubElement(alt, f"{{{NS_MC}}}Fallback")
+
+        run = etree.SubElement(fallback, f"{{{NS_A}}}r")
+        etree.SubElement(run, f"{{{NS_A}}}rPr")
+        text = etree.SubElement(run, f"{{{NS_A}}}t")
+        text.text = _omath_text(math)
+
+        parent.replace(math, alt)
+        choice.append(math)
+        wrapped += 1
+    return wrapped
+
+
+def gate_equations(path: Path) -> int:
+    """Rewrite every slide so its equations are schema-conformant."""
+    total = 0
+    temp = path.with_suffix(".gate.pptx")
+
+    with zipfile.ZipFile(path) as src, zipfile.ZipFile(
+        temp, "w", zipfile.ZIP_DEFLATED
+    ) as dst:
+        for item in src.infolist():
+            data = src.read(item.filename)
+            if SLIDE_XML.match(item.filename):
+                tree = etree.fromstring(data)
+                count = _wrap_equations(tree)
+                if count:
+                    total += count
+                    data = etree.tostring(
+                        tree, xml_declaration=True, encoding="UTF-8", standalone=True
+                    )
+            dst.writestr(item, data)
+
+    if total:
+        temp.replace(path)
+    else:
+        temp.unlink()
+    return total
+
+
 def _layout_counterpart(shape, layout):
     """The layout placeholder a slide placeholder inherits geometry from."""
     if not shape.is_placeholder:
@@ -146,12 +219,78 @@ def pin_geometry(path: Path) -> int:
     return pinned
 
 
+def relayout_figure_slides(path: Path) -> int:
+    """Give slides that carry a picture a full-width title and centred figure.
+
+    Any slide holding both text and an image makes pandoc reach for the
+    "Content with Caption" layout, which is a two-column design: a narrow
+    caption column on the left, content on the right. For a lecture slide
+    showing an equation or a plot that reads badly - the title shrinks to a
+    third of the width and drops to 15pt while everything else stays large.
+
+    We reflow those slides to the shape the material actually wants: title
+    across the top at full size, supporting text beneath it, figure centred in
+    the space that remains, aspect ratio preserved.
+    """
+    prs = Presentation(str(path))
+    slide_w, slide_h = prs.slide_width, prs.slide_height
+    margin = int(slide_w * 0.05)
+    usable = slide_w - 2 * margin
+    changed = 0
+
+    for slide in prs.slides:
+        pictures = [s for s in slide.shapes if s.shape_type == 13]  # PICTURE
+        if not pictures:
+            continue
+        title = slide.shapes.title
+        if title is None:
+            continue
+
+        if title.width < usable * 0.9:
+            # A caption layout pandoc left in its narrow two-column form.
+            title.left, title.top = margin, int(slide_h * 0.04)
+            title.width, title.height = usable, int(slide_h * 0.17)
+
+        top = title.top + title.height + int(slide_h * 0.02)
+        # Compare the underlying XML elements: python-pptx builds a fresh proxy
+        # object on every access, so `is not title` would never match and the
+        # title itself would get shuffled down with the body shapes.
+        bodies = [
+            s
+            for s in slide.shapes
+            if s.has_text_frame
+            and s._element is not title._element
+            and s.text_frame.text.strip()
+        ]
+        for body in bodies:
+            body.left, body.top = margin, top
+            body.width = usable
+            body.height = int(slide_h * 0.16)
+            top += body.height + int(slide_h * 0.02)
+
+        available_h = slide_h - top - int(slide_h * 0.12)  # keep clear of logo
+        for picture in pictures:
+            ratio = picture.width / picture.height
+            height = min(available_h, int(usable / ratio))
+            width = int(height * ratio)
+            picture.width, picture.height = width, height
+            picture.left = int((slide_w - width) / 2)
+            picture.top = top + int((available_h - height) / 2)
+        changed += 1
+
+    if changed:
+        prs.save(str(path))
+    return changed
+
+
 def process(path: Path, verbose: bool = True) -> bool:
     backup = path.with_suffix(".orig.pptx")
     shutil.copy2(path, backup)
     try:
         repaired = repair_namespaces(path)
+        equations = gate_equations(path)
         pinned = pin_geometry(path)
+        reflowed = relayout_figure_slides(path)
     except Exception as exc:  # keep the original rather than a broken file
         shutil.copy2(backup, path)
         print(f"  {path.name}: postprocess FAILED ({exc}) - left as generated")
@@ -162,10 +301,13 @@ def process(path: Path, verbose: bool = True) -> bool:
     if verbose:
         detail = []
         if repaired:
-            slides = ", ".join(sorted(repaired))
-            detail.append(f"namespaces declared on {slides}")
+            detail.append(f"namespaces fixed on {len(repaired)} slide(s)")
+        if equations:
+            detail.append(f"{equations} equation(s) gated")
         if pinned:
             detail.append(f"{pinned} shape(s) pinned")
+        if reflowed:
+            detail.append(f"{reflowed} figure slide(s) reflowed")
         print(f"  {path.name}: {'; '.join(detail) if detail else 'nothing to fix'}")
     return True
 
