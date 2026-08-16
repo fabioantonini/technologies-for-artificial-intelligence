@@ -17,6 +17,9 @@ import sys
 import zipfile
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import postprocess_pptx  # noqa: E402
 from pptx import Presentation
 from pptx.enum.shapes import PP_PLACEHOLDER
 from pptx.oxml.ns import qn
@@ -85,6 +88,29 @@ def _patch_theme(xml: str) -> str:
     return xml
 
 
+def _safe_shape_id(shapes) -> int:
+    """Smallest unused shape id in this shape tree.
+
+    We cannot use python-pptx's `_next_shape_id` on a slide master. It looks up
+    ids with an XPath beginning `//`, which lxml resolves from the document
+    root rather than from the shape tree, so it also picks up the entries in
+    <p:sldLayoutIdLst> - and those start at 2**31 by convention. The id it
+    hands back is then above 2**31 too, which PowerPoint rejects: the file
+    opens with "PowerPoint found a problem with content" and gets repaired,
+    losing whatever it could not read. Layouts have no such list, which is why
+    only the master was affected.
+    """
+    used = {
+        int(value)
+        for value in shapes._spTree.xpath(".//@id")
+        if value.isdigit() and int(value) < 2**31
+    }
+    candidate = 1
+    while candidate in used:
+        candidate += 1
+    return candidate
+
+
 def _place_picture(base_slide, image_path, left, top, width, height):
     """Add a picture to a master or layout.
 
@@ -94,7 +120,7 @@ def _place_picture(base_slide, image_path, left, top, width, height):
     """
     image_part, r_id = base_slide.part.get_or_add_image_part(str(image_path))
     shapes = base_slide.shapes
-    shape_id = shapes._next_shape_id
+    shape_id = _safe_shape_id(shapes)
     pic = CT_Picture.new_pic(
         shape_id,
         f"Logo {shape_id}",
@@ -167,7 +193,9 @@ def add_logos(pptx_path: Path) -> None:
         for layout in master.slide_layouts:
             if layout.name != "Title Slide":
                 continue
-            # Larger crest on the opening slide only.
+            # The opening slide carries the crest at full size, so suppress the
+            # inherited footer mark rather than showing the logo twice.
+            layout._element.set("showMasterSp", "0")
             w = slide_w * 0.26
             h = w * ratio
             _place_picture(layout, LOGO, (slide_w - w) / 2, slide_h * 0.055, w, h)
@@ -183,6 +211,13 @@ def main() -> int:
     restyle_theme(OUT)
     normalise_caption_layouts(OUT)
     add_logos(OUT)
+
+    # pandoc's reference document ships four sample slides that inherit their
+    # geometry. They never reach a generated deck - only the masters, layouts
+    # and theme are read from here - but the template is a file people open, so
+    # it should not greet them with overlapping placeholders or a repair prompt.
+    postprocess_pptx.process(OUT, verbose=False)
+
     size = OUT.stat().st_size / 1024
     print(f"written {OUT.relative_to(ROOT)} ({size:.0f} KB)")
     return 0

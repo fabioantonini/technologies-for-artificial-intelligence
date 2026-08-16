@@ -219,6 +219,62 @@ def pin_geometry(path: Path) -> int:
     return pinned
 
 
+def renumber_oversized_ids(path: Path) -> int:
+    """Bring shape ids back under 2**31. Returns how many were rewritten.
+
+    PowerPoint refuses ids at or above 2**31 in ordinary shapes: it opens the
+    file with "PowerPoint found a problem with content", repairs it, and drops
+    whatever it could not read. Tooling reaches that range easily, because slide
+    masters number their layout list from 2**31 upward and a naive "max id plus
+    one" walks straight into it.
+
+    Cheap to check, expensive to miss, so we verify every part on every build.
+    """
+    rewritten = 0
+    temp = path.with_suffix(".ids.pptx")
+
+    with zipfile.ZipFile(path) as src, zipfile.ZipFile(
+        temp, "w", zipfile.ZIP_DEFLATED
+    ) as dst:
+        for item in src.infolist():
+            data = src.read(item.filename)
+            is_shape_part = item.filename.startswith(
+                ("ppt/slides/slide", "ppt/slideLayouts/", "ppt/slideMasters/")
+            ) and item.filename.endswith(".xml")
+
+            if is_shape_part:
+                tree = etree.fromstring(data)
+                nodes = [
+                    node
+                    for node in tree.iter()
+                    if etree.QName(node).localname == "cNvPr"
+                    and (node.get("id") or "").isdigit()
+                ]
+                used = {int(n.get("id")) for n in nodes if int(n.get("id")) < 2**31}
+                changed = False
+                for node in nodes:
+                    if int(node.get("id")) < 2**31:
+                        continue
+                    candidate = 1
+                    while candidate in used:
+                        candidate += 1
+                    used.add(candidate)
+                    node.set("id", str(candidate))
+                    rewritten += 1
+                    changed = True
+                if changed:
+                    data = etree.tostring(
+                        tree, xml_declaration=True, encoding="UTF-8", standalone=True
+                    )
+            dst.writestr(item, data)
+
+    if rewritten:
+        temp.replace(path)
+    else:
+        temp.unlink()
+    return rewritten
+
+
 def relayout_figure_slides(path: Path) -> int:
     """Give slides that carry a picture a full-width title and centred figure.
 
@@ -291,6 +347,7 @@ def process(path: Path, verbose: bool = True) -> bool:
         equations = gate_equations(path)
         pinned = pin_geometry(path)
         reflowed = relayout_figure_slides(path)
+        renumbered = renumber_oversized_ids(path)
     except Exception as exc:  # keep the original rather than a broken file
         shutil.copy2(backup, path)
         print(f"  {path.name}: postprocess FAILED ({exc}) - left as generated")
@@ -308,6 +365,8 @@ def process(path: Path, verbose: bool = True) -> bool:
             detail.append(f"{pinned} shape(s) pinned")
         if reflowed:
             detail.append(f"{reflowed} figure slide(s) reflowed")
+        if renumbered:
+            detail.append(f"{renumbered} oversized id(s) renumbered")
         print(f"  {path.name}: {'; '.join(detail) if detail else 'nothing to fix'}")
     return True
 
