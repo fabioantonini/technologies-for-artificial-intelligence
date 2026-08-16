@@ -3,9 +3,21 @@
     python tools/build.py            # everything
     python tools/build.py 03         # only lesson 03
     python tools/build.py --no-pdf   # skip the PDF step
+    python tools/build.py --course   # only the course-level documents
 
-Slides:   Lessons/NN_*/Slides/*.md  ->  .pptx  (always)  and .pdf (if possible)
-Handouts: Lessons/NN_*/Docs/*.md    ->  .pdf   (if a working TeX engine exists)
+Per lesson:
+
+    Slides/*.md     ->  .pptx  (always)  and .pdf (if possible)
+    Docs/*.md       ->  .pdf   the handout
+    Exercises/*.md  ->  .pdf   assessed work, so students want it printable
+    Resources/*.md  ->  .pdf   supplementary reading
+
+Course-level, built once rather than per lesson:
+
+    Course/*.md     ->  .pdf   syllabus, schedule, prerequisites
+    Course/Setup/*.md, Assessment/**/*.md
+
+Everything except the slides needs a working LaTeX engine.
 
 Every generated .pptx is passed through tools/postprocess_pptx.py, which
 repairs two defects in pandoc's output that break rendering in viewers other
@@ -35,6 +47,22 @@ TEMPLATE = ROOT / "Course" / "template.pptx"
 LESSONS = ROOT / "Lessons"
 
 PDF_ENGINES = ("xelatex", "lualatex", "pdflatex", "tectonic")
+
+# Per-lesson folders whose markdown becomes a PDF. Slides are handled
+# separately because they go through the pptx chain first.
+PROSE_FOLDERS = ("Docs", "Exercises", "Resources")
+
+COURSE_DOCS = (
+    "Course/*.md",
+    "Course/Setup/*.md",
+    "Assessment/*.md",
+    "Assessment/*/*.md",
+)
+
+# Author-facing files that are not course material and should not be published
+# as PDFs. The root README is a landing page of relative links, meaningless
+# once printed; the syntax example exists to be read next to the template.
+NOT_PUBLISHED = {"slides_syntax_example.md"}
 
 
 def find_pdf_engine() -> str | None:
@@ -133,8 +161,20 @@ def build_slides(source: Path, engine: str | None) -> tuple[int, int]:
     return made, failed
 
 
+def pdf_name(source: Path) -> Path:
+    """Where the PDF for this source goes.
+
+    A file called README.md would produce README.pdf, which tells a student
+    nothing once it is sitting in their downloads folder. Name it after the
+    folder instead: Assessment/Project/README.md -> Assessment/Project/Project.pdf
+    """
+    if source.stem.lower() == "readme":
+        return source.with_name(f"{source.parent.name}.pdf")
+    return source.with_suffix(".pdf")
+
+
 def build_handout(source: Path, engine: str) -> tuple[int, int]:
-    pdf = source.with_suffix(".pdf")
+    pdf = pdf_name(source)
     print(f"  {source.relative_to(ROOT)} -> {pdf.name}")
     ok = run(
         [
@@ -160,6 +200,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("lesson", nargs="?", help="lesson number, e.g. 03")
     parser.add_argument("--no-pdf", action="store_true", help="skip PDF output")
+    parser.add_argument(
+        "--course", action="store_true", help="only the course-level documents"
+    )
     args = parser.parse_args()
 
     if not shutil.which("pandoc"):
@@ -171,7 +214,7 @@ def main() -> int:
 
     pattern = f"{args.lesson}_*" if args.lesson else "*"
     lessons = sorted(d for d in LESSONS.glob(pattern) if d.is_dir())
-    if not lessons:
+    if not lessons and not args.course:
         print(f"no lesson matches {pattern!r}", file=sys.stderr)
         return 1
 
@@ -183,25 +226,44 @@ def main() -> int:
     else:
         print(
             "No working LaTeX engine found - building .pptx only.\n"
-            "  Handout PDFs will be skipped. The markdown sources still render\n"
-            "  with full math on GitHub, so this is not blocking.\n"
+            "  Every PDF is skipped: handouts, exercises, resources and course\n"
+            "  documents. The markdown still renders with full math on GitHub,\n"
+            "  so this is not blocking.\n"
         )
 
     made = failed = 0
-    for lesson in lessons:
-        sources = sorted(lesson.glob("Slides/*.md"))
-        if engine:
-            sources += sorted(lesson.glob("Docs/*.md"))
-        if not sources:
-            continue
-        print(f"{lesson.name}")
-        for source in sources:
-            m, f = (
-                build_slides(source, engine)
-                if source.parent.name == "Slides"
-                else build_handout(source, engine)
-            )
-            made, failed = made + m, failed + f
+
+    if not args.course:
+        for lesson in lessons:
+            sources = sorted(lesson.glob("Slides/*.md"))
+            if engine:
+                for folder in PROSE_FOLDERS:
+                    sources += sorted(lesson.glob(f"{folder}/*.md"))
+            if not sources:
+                continue
+            print(f"{lesson.name}")
+            for source in sources:
+                m, f = (
+                    build_slides(source, engine)
+                    if source.parent.name == "Slides"
+                    else build_handout(source, engine)
+                )
+                made, failed = made + m, failed + f
+
+    # Course-level documents are not per-lesson, so build them once - unless a
+    # single lesson was requested, when rebuilding them would be surprising.
+    if engine and (args.course or not args.lesson):
+        course_sources = sorted(
+            path
+            for pattern in COURSE_DOCS
+            for path in ROOT.glob(pattern)
+            if path.name not in NOT_PUBLISHED
+        )
+        if course_sources:
+            print("course documents")
+            for source in course_sources:
+                m, f = build_handout(source, engine)
+                made, failed = made + m, failed + f
 
     print(f"\n{made} file(s) written, {failed} failed")
     return 1 if failed else 0
