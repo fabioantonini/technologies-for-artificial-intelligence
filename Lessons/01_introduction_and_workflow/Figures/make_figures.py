@@ -248,6 +248,265 @@ def precision_recall():
     fig.tight_layout()
     save(fig, "precision_recall_tradeoff.png")
 
+# ---------------------------------------------------------------------------
+# History section. Each figure carries the technical content of its moment,
+# not a portrait - the point is that these are the same objects we use later.
+# ---------------------------------------------------------------------------
+
+
+def mcculloch_pitts():
+    """The 1943 threshold unit - the neuron of lesson 9, with a hard step."""
+    fig, (ax, ax2) = plt.subplots(1, 2, figsize=(11, 3.5),
+                                  gridspec_kw={"width_ratios": [1.35, 1]})
+    ax.set_xlim(0, 10); ax.set_ylim(0, 6); ax.axis("off")
+
+    inputs = [("x₁", 4.6), ("x₂", 3.0), ("x₃", 1.4)]
+    weights = ["w₁", "w₂", "w₃"]
+    for (label, y), w in zip(inputs, weights):
+        ax.add_patch(plt.Circle((1.2, y), 0.42, facecolor=TEAL, edgecolor="none"))
+        ax.text(1.2, y, label, ha="center", va="center", color="white",
+                fontsize=11, weight="bold")
+        ax.add_patch(FancyArrowPatch((1.7, y), (4.5, 3.0), arrowstyle="-|>",
+                                     mutation_scale=13, color=SLATE, lw=1.4))
+        ax.text(2.9, (y + 3.0) / 2 + 0.18, w, fontsize=10, color=SLATE,
+                ha="center", style="italic")
+
+    ax.add_patch(plt.Circle((5.3, 3.0), 0.85, facecolor=BLUE, edgecolor="none"))
+    ax.text(5.3, 3.0, "Σ", ha="center", va="center", color="white", fontsize=20)
+    ax.add_patch(FancyArrowPatch((6.2, 3.0), (7.6, 3.0), arrowstyle="-|>",
+                                 mutation_scale=13, color=SLATE, lw=1.4))
+    ax.add_patch(plt.Circle((8.3, 3.0), 0.62, facecolor=RUST, edgecolor="none"))
+    ax.text(8.3, 3.0, "y", ha="center", va="center", color="white",
+            fontsize=13, weight="bold")
+    ax.text(5.3, 1.55, "fires if  Σ wᵢxᵢ ≥ θ", ha="center", fontsize=11.5, color=INK)
+    ax.set_title("A neuron as a threshold unit", fontsize=12.5, weight="bold")
+
+    # The step function itself
+    z = np.linspace(-3, 3, 400)
+    ax2.plot(z, (z >= 0).astype(float), lw=2.6, color=RUST)
+    ax2.axvline(0, ls=":", lw=1.3, color=SLATE)
+    ax2.text(0.15, 0.42, "θ", fontsize=12, color=SLATE)
+    ax2.set_ylim(-0.15, 1.25); ax2.set_yticks([0, 1])
+    ax2.set_xticks([])
+    ax2.set_title("All or nothing", fontsize=12.5, weight="bold")
+    ax2.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
+    save(fig, "hist_1943_neuron.png")
+
+
+def imitation_game():
+    """1950: replace an unanswerable question with an observable one."""
+    fig, ax = plt.subplots(figsize=(9.2, 3.6))
+    ax.set_xlim(0, 12); ax.set_ylim(0, 6); ax.axis("off")
+
+    def actor(x, y, label, colour):
+        ax.add_patch(FancyBboxPatch((x, y), 2.5, 1.15,
+                                    boxstyle="round,pad=0.03,rounding_size=0.1",
+                                    facecolor=colour, edgecolor="none"))
+        ax.text(x + 1.25, y + 0.58, label, ha="center", va="center",
+                color="white", fontsize=11, weight="bold")
+
+    actor(0.4, 2.4, "Interrogator", SLATE)
+    actor(8.6, 4.0, "A human", TEAL)
+    actor(8.6, 0.8, "A machine", RUST)
+
+    ax.plot([6.2, 6.2], [0.3, 5.6], lw=2.2, color=INK, ls="--")
+    ax.text(6.2, 5.8, "screen", ha="center", fontsize=10, color=INK, style="italic")
+
+    for y_end in (4.6, 1.4):
+        ax.add_patch(FancyArrowPatch((3.0, 3.0), (8.5, y_end), arrowstyle="<|-|>",
+                                     mutation_scale=12, color=SLATE, lw=1.4))
+    ax.text(6.2, 3.05, "text only", ha="center", fontsize=9.5, color=SLATE,
+            bbox=dict(facecolor="white", edgecolor="none", pad=2))
+    ax.text(6.0, -0.15, "Can the interrogator tell which is which?",
+            ha="center", fontsize=11.5, color=INK, weight="bold")
+    ax.set_title("An unanswerable question, replaced by an observable one",
+                 fontsize=12.5, weight="bold")
+    fig.tight_layout()
+    save(fig, "hist_1950_imitation.png")
+
+
+def dartmouth():
+    """1956: the proposal's agenda, most of it still open."""
+    topics = [
+        "Automatic computers", "Language use", "Neuron nets",
+        "Theory of computation", "Self-improvement",
+        "Abstractions", "Randomness and creativity",
+    ]
+    fig, ax = plt.subplots(figsize=(9.6, 3.8))
+    ax.set_xlim(0, 10); ax.set_ylim(0, len(topics) + 1.6); ax.axis("off")
+
+    for i, topic in enumerate(topics):
+        y = len(topics) - i - 0.4
+        ax.add_patch(FancyBboxPatch((0.5, y), 5.6, 0.62,
+                                    boxstyle="round,pad=0.02,rounding_size=0.05",
+                                    facecolor=BLUE if i % 2 == 0 else TEAL,
+                                    edgecolor="none"))
+        ax.text(0.8, y + 0.31, topic, va="center", fontsize=10.5, color="white")
+
+    ax.text(6.6, len(topics) / 2 + 0.2,
+            "“a 2 month, 10 man study”\n\n"
+            "Seventy years later,\nmost of this list\nis still open.",
+            fontsize=11, color=INK, va="center", linespacing=1.5)
+    ax.set_title("The seven topics of the Dartmouth proposal",
+                 fontsize=12.5, weight="bold")
+    fig.tight_layout()
+    save(fig, "hist_1956_dartmouth.png")
+
+
+def perceptron_learning():
+    """1957: the boundary moves as examples arrive."""
+    rng = np.random.default_rng(11)
+    a = rng.normal([-1.1, -0.7], 0.55, (26, 2))
+    b = rng.normal([1.2, 1.0], 0.55, (26, 2))
+
+    fig, ax = plt.subplots(figsize=(6.6, 4.1))
+    ax.scatter(a[:, 0], a[:, 1], s=34, color=TEAL, label="class A")
+    ax.scatter(b[:, 0], b[:, 1], s=34, color=RUST, label="class B")
+
+    grid = np.linspace(-2.8, 2.8, 10)
+    for i, (slope, intercept, alpha) in enumerate(
+        [(-2.6, -1.5, .22), (-1.5, -0.7, .38), (-0.95, -0.1, .55), (-0.75, 0.15, 1.0)]
+    ):
+        ax.plot(grid, slope * grid + intercept, lw=2.4 if alpha == 1 else 1.6,
+                color=BLUE, alpha=alpha,
+                label="learned boundary" if alpha == 1 else None)
+
+    ax.annotate("updates as it sees mistakes", xy=(-1.9, 1.9), xytext=(-2.7, 2.5),
+                fontsize=9.5, color=SLATE)
+    ax.set_xlim(-2.8, 2.8); ax.set_ylim(-2.6, 2.9)
+    ax.set_xticks([]); ax.set_yticks([])
+    ax.legend(frameon=False, fontsize=9.5, loc="lower right")
+    ax.set_title("Weights adjusted from examples, not set by hand",
+                 fontsize=12.5, weight="bold")
+    ax.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
+    save(fig, "hist_1957_perceptron.png")
+
+
+def xor_problem():
+    """1969: AND yields to a line, XOR does not."""
+    fig, axes = plt.subplots(1, 2, figsize=(9.2, 4.0))
+    points = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+
+    for ax, labels, title, separable in zip(
+        axes,
+        [np.array([0, 0, 0, 1]), np.array([0, 1, 1, 0])],
+        ["AND — one line is enough", "XOR — no line works"],
+        [True, False],
+    ):
+        for (x, y), label in zip(points, labels):
+            ax.scatter(x, y, s=340, marker="o" if label else "s",
+                       color=RUST if label else TEAL, zorder=3, edgecolors="white",
+                       linewidths=1.8)
+            ax.text(x, y - 0.19, str(label), ha="center", fontsize=11, color=SLATE)
+        if separable:
+            grid = np.linspace(-0.35, 1.35, 10)
+            ax.plot(grid, 1.55 - grid, lw=2.6, color=BLUE)
+        else:
+            for slope, intercept in [(-1, 0.5), (-1, 1.5), (1, 0.15)]:
+                grid = np.linspace(-0.35, 1.35, 10)
+                ax.plot(grid, slope * grid + intercept, lw=1.7, color=SLATE,
+                        alpha=.45, ls="--")
+            ax.text(0.5, -0.42, "every line leaves one point wrong",
+                    ha="center", fontsize=10, color=RUST, style="italic")
+        ax.set_xlim(-0.4, 1.4); ax.set_ylim(-0.55, 1.4)
+        ax.set_xticks([0, 1]); ax.set_yticks([0, 1])
+        ax.set_title(title, fontsize=12, weight="bold")
+        ax.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
+    save(fig, "hist_1969_xor.png")
+
+
+def backpropagation():
+    """1986: the error travels backwards, so hidden layers become trainable."""
+    fig, ax = plt.subplots(figsize=(9.6, 3.8))
+    ax.set_xlim(0, 11); ax.set_ylim(0, 6); ax.axis("off")
+
+    layers = [(1.5, 3, "input"), (4.4, 4, "hidden"), (7.3, 3, "hidden"), (9.8, 1, "output")]
+    positions = []
+    for x, n, _ in layers:
+        ys = np.linspace(1.2, 4.8, n) if n > 1 else [3.0]
+        positions.append([(x, y) for y in ys])
+
+    for left, right in zip(positions, positions[1:]):
+        for x1, y1 in left:
+            for x2, y2 in right:
+                ax.plot([x1, x2], [y1, y2], lw=0.7, color=SLATE, alpha=.35, zorder=1)
+
+    for (x, _, name), pts in zip(layers, positions):
+        for px, py in pts:
+            ax.add_patch(plt.Circle((px, py), 0.30, facecolor=BLUE,
+                                    edgecolor="white", lw=1.4, zorder=2))
+        ax.text(x, 0.45, name, ha="center", fontsize=10, color=SLATE)
+
+    ax.add_patch(FancyArrowPatch((1.2, 5.4), (10.0, 5.4), arrowstyle="-|>",
+                                 mutation_scale=15, color=TEAL, lw=2.0))
+    ax.text(5.6, 5.62, "forward: compute the prediction", ha="center",
+            fontsize=10.5, color=TEAL)
+    ax.add_patch(FancyArrowPatch((10.0, 0.05), (1.2, 0.05), arrowstyle="-|>",
+                                 mutation_scale=15, color=RUST, lw=2.0))
+    ax.text(5.6, -0.35, "backward: send the error to every weight", ha="center",
+            fontsize=10.5, color=RUST)
+    ax.set_title("What made depth trainable", fontsize=12.5, weight="bold")
+    fig.tight_layout()
+    save(fig, "hist_1986_backprop.png")
+
+
+def svm_margin():
+    """1995: not just a separator - the one furthest from both classes."""
+    rng = np.random.default_rng(5)
+    a = rng.normal([-1.25, -0.85], 0.42, (18, 2))
+    b = rng.normal([1.25, 0.95], 0.42, (18, 2))
+
+    fig, ax = plt.subplots(figsize=(6.6, 4.1))
+    ax.scatter(a[:, 0], a[:, 1], s=34, color=TEAL)
+    ax.scatter(b[:, 0], b[:, 1], s=34, color=RUST)
+
+    grid = np.linspace(-2.8, 2.8, 10)
+    ax.plot(grid, -0.95 * grid, lw=2.6, color=BLUE, label="maximum-margin boundary")
+    for offset in (0.95, -0.95):
+        ax.plot(grid, -0.95 * grid + offset, lw=1.5, ls="--", color=SLATE)
+    ax.fill_between(grid, -0.95 * grid - 0.95, -0.95 * grid + 0.95,
+                    color=BLUE, alpha=.09)
+    ax.plot(grid, -1.9 * grid - 0.35, lw=1.4, ls=":", color=SLATE, alpha=.75,
+            label="also separates, but barely")
+
+    ax.text(1.5, 1.9, "margin", fontsize=10.5, color=BLUE, weight="bold")
+    ax.set_xlim(-2.8, 2.8); ax.set_ylim(-2.6, 2.9)
+    ax.set_xticks([]); ax.set_yticks([])
+    ax.legend(frameon=False, fontsize=9, loc="lower left")
+    ax.set_title("Theory that explains why it generalises",
+                 fontsize=12.5, weight="bold")
+    ax.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
+    save(fig, "hist_1995_svm.png")
+
+
+def imagenet():
+    """2012: the drop, and how ordinary the years around it look."""
+    years = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
+    errors = [28.2, 25.8, 16.4, 11.7, 6.7, 3.6, 3.0, 2.3]
+
+    fig, ax = plt.subplots(figsize=(8.2, 4.0))
+    colours = [SLATE, SLATE, RUST] + [BLUE] * 5
+    bars = ax.bar([str(y) for y in years], errors, color=colours, width=.66)
+    ax.bar_label(bars, fmt="%.1f", padding=3, fontsize=9.5)
+
+    ax.axhline(5.1, ls="--", lw=1.6, color=GOLD)
+    ax.text(7.4, 5.7, "human ≈ 5.1", fontsize=9.5, color="#8A6A18", ha="right")
+
+    ax.annotate("AlexNet", xy=(2, 16.4), xytext=(2.5, 22.5),
+                fontsize=11, color=RUST, weight="bold",
+                arrowprops=dict(arrowstyle="-|>", color=RUST, lw=1.5))
+    ax.set_ylabel("top-5 error (%)")
+    ax.set_title("ImageNet: a scaling result, not a new principle",
+                 fontsize=12.5, weight="bold")
+    ax.set_ylim(0, 31)
+    ax.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
+    save(fig, "hist_2012_imagenet.png")
+
 
 if __name__ == "__main__":
     print("generating lesson 1 conceptual figures:")
@@ -257,3 +516,11 @@ if __name__ == "__main__":
     workflow()
     timeline()
     precision_recall()
+    mcculloch_pitts()
+    imitation_game()
+    dartmouth()
+    perceptron_learning()
+    xor_problem()
+    backpropagation()
+    svm_margin()
+    imagenet()

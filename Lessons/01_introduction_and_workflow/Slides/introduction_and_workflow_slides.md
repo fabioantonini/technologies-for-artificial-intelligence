@@ -386,9 +386,9 @@ work".
 
 # 1943 — the first artificial neuron
 
-McCulloch and Pitts: a neuron as a threshold unit.
+A neuron as a threshold unit: it fires when the weighted sum passes θ.
 
-Fires when the weighted sum of inputs passes a threshold.
+![](hist_1943_neuron.png)
 
 ::: notes
 A neurophysiologist and a logician. Their claim was philosophical as much as technical:
@@ -399,11 +399,15 @@ Weights were set by hand - nothing learned yet. That comes in 1957.
 
 Tell them the unit in lesson 9 is this unit with a smoother threshold. The history is
 not decoration; it is the same objects under different names.
+
+Walk the diagram: inputs, a weight on each, a sum, and a hard threshold. Then point at the right-hand panel - the step function is what makes it all-or-nothing, and it is exactly what gets replaced by a smooth sigmoid in lesson 4 and by ReLU in lesson 9. Same object, softened, so that it becomes differentiable and therefore trainable.
 :::
 
 # 1950 — Turing's imitation game
 
-"Can machines think?" — replaced by a question you can test by observation.
+"Can machines think?" — replaced by something observable.
+
+![](hist_1950_imitation.png)
 
 ::: notes
 Highlight the MOVE rather than the test. Turing opens by declaring the original question
@@ -417,13 +421,15 @@ whole of lesson 4 is about that gap for classification.
 Recommend the paper. It is readable, funny, and answers nine objections including "a
 machine can only do what it is told" - his reply, that this assumes we can foresee the
 consequences of what we tell it, has aged extremely well.
+
+The screen is the whole design: it removes appearance, voice and everything except the behaviour being tested. Ask the room what this test does NOT measure - understanding, consciousness, correctness - and note that Turing knew, and argued the substitution was worth making anyway.
 :::
 
 # 1956 — Dartmouth
 
 The term *artificial intelligence* is coined.
 
-The proposal: ten people, two months, significant progress.
+![](hist_1956_dartmouth.png)
 
 ::: notes
 Let the room react to "two months". Seventy years later the problem is open.
@@ -431,13 +437,15 @@ Let the room react to "two months". Seventy years later the problem is open.
 McCarthy, Minsky, Shannon and Rochester convened it. The optimism is not incidental -
 it is present at the field's naming and it recurs on a cycle, which is the argument of
 this whole section.
+
+These are the seven topics from the actual proposal. Read two or three aloud - 'self-improvement', 'randomness and creativity' - and let the room judge how much of the list is settled. Then note that the proposal's authors expected substantial progress on all of it in one summer.
 :::
 
 # 1957 — the perceptron learns
 
 Rosenblatt: weights adjusted **from examples**, not set by hand.
 
-Convergence theorem: if the data is linearly separable, it will find a separator.
+![](hist_1957_perceptron.png)
 
 ::: notes
 The first machine that learns. Physical hardware - photocells, potentiometers, motors.
@@ -448,13 +456,15 @@ that clause is carrying enormous weight, as 1969 will show.
 Then the contrast: the New York Times reported the Navy expected a machine that would
 walk, talk, see, write and reproduce itself. Same year, same machine. Ask them which of
 those two statements a careful reader could have checked.
+
+The faded lines are earlier states of the boundary. Every time the machine misclassified an example it nudged the weights, and the line moved. That is the whole idea: the model is corrected by its own mistakes, which is still what gradient descent does in lesson 3 - just with a smoother update rule.
 :::
 
 # 1969 — the first winter
 
-Minsky and Papert: a single-layer perceptron cannot represent XOR.
+A single-layer perceptron cannot represent XOR.
 
-Correct. And narrower than the reception suggested.
+![](hist_1969_xor.png)
 
 ::: notes
 Draw XOR on the board - four points, alternating labels - and let them see that no
@@ -471,13 +481,15 @@ time for a limitation that a correct reading would have scoped much more narrowl
 The transferable lesson: a correct result about a restricted case was received as a
 verdict on the whole approach. That failure mode is alive and well in how ML results
 get reported today.
+
+Use the figure instead of the board. AND on the left: one line, done. XOR on the right: the dashed lines are attempts, and each leaves a point on the wrong side. Ask them to try to find one that works before you move on - the impossibility is more convincing when they have looked for it themselves.
 :::
 
 # 1986 — backpropagation
 
 An efficient way to train multi-layer networks.
 
-The 1969 objection is answered. A second winter follows anyway.
+![](hist_1986_backprop.png)
 
 ::: notes
 Rumelhart, Hinton and Williams. Note the technique had been derived before - Linnainmaa
@@ -489,14 +501,15 @@ data than existed, and took too long on the hardware. Expert system companies co
 as their products proved unmaintainable.
 
 Lesson 9 derives this algorithm.
+
+Two passes: forward to compute a prediction, backward to distribute the error across every weight, including the hidden ones. That second arrow is what was missing in 1969 - not expressiveness, but a way to assign blame to a unit that never sees the target directly. Lesson 9 derives it.
 :::
 
 # 1995–2010 — statistics takes over
 
-- Support vector machines, ensembles, probabilistic methods
-- From "simulating intelligence" to "estimating functions from data"
+From "simulating intelligence" to "estimating functions from data".
 
-A retreat in ambition. An advance in rigour.
+![](hist_1995_svm.png)
 
 ::: notes
 Say that most of this course lives here, and it is where the reliable tools come from.
@@ -506,13 +519,15 @@ standard practice.
 
 It is unglamorous and it is what actually gets deployed. Lessons 5, 6 and 7 are this
 period, and lesson 5 in particular is its central contribution.
+
+The dotted line also separates the classes perfectly, and would score identically on this training data. The SVM picks the solid one - the boundary furthest from both classes. Ask which they would trust on a new point near the middle. That intuition is what the theory of the period made precise, and it is lesson 6.
 :::
 
 # 2012 — AlexNet
 
-ImageNet error: 26% → 15%.
-
 The architecture was recognisably LeNet, from 1989.
+
+![](hist_2012_imagenet.png)
 
 ::: notes
 The most important slide in the history section.
@@ -526,6 +541,8 @@ postal codes with convolutional networks. This was a scaling result.
 
 Saying so is not a criticism. It is the single most important fact about the last decade,
 and it licenses very different predictions than a conceptual breakthrough would.
+
+Read the bars left to right. Two ordinary years, then the drop, then everyone adopts the approach and the error keeps falling past human performance by 2015. Point out that the years after 2012 fell further than 2012 itself did - the story is not one heroic result, it is a field switching methods.
 :::
 
 # The pattern
