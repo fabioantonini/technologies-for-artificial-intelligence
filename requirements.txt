@@ -17,12 +17,19 @@ seaborn
 # ============================
 scikit-learn
 statsmodels
-xgboost
+# xgboost-cpu for the same reason as tensorflow-cpu below: the default xgboost
+# wheel depends on nvidia-nccl-cu12, another ~450 MB of CUDA nobody here uses.
+# Identical API, published by the same project.
+xgboost-cpu
 
 # ============================
 # Deep learning (CPU only)
 # ============================
-tensorflow
+# tensorflow-cpu, not tensorflow: the plain package pulls in the nvidia-* CUDA
+# libraries as hard dependencies, roughly 450 MB of them, even on a machine
+# with no GPU. Every lab in this course runs on CPU by design, so that is pure
+# download cost for every student.
+tensorflow-cpu
 tensorboard
 
 # ============================
