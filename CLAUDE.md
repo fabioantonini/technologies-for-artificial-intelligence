@@ -129,6 +129,32 @@ this rule prevents.
 
 ---
 
+## Where the work happens
+
+**The working copy lives in WSL**, at `/home/fabio/technologies-for-artificial-intelligence`,
+and every build runs there. Not a preference — three concrete reasons:
+
+- **It is the only environment with a complete toolchain.** pandoc, LibreOffice and a
+  working TeX Live. The MiKTeX install on the Windows side refuses to run, so handout
+  PDFs cannot be produced there at all.
+- **It is outside OneDrive.** A git repository inside a synced folder is a known way to
+  corrupt an index, and it has already produced file locks that blocked a `git reset`.
+- **Native ext4**, so git and notebook I/O are fast and there is no CRLF churn.
+
+Edit from Windows if you prefer: VS Code opens the tree directly over Remote-WSL, and
+Explorer reaches it at `\\wsl.localhost\Ubuntu-24.04\home\fabio\...`. There is no
+second checkout to keep in step.
+
+Python lives in `.venv/` there (Ubuntu 24.04 refuses system-wide pip installs), so
+prefix commands with `.venv/bin/python`. Docker Compose is run from that directory too,
+which is what makes the container serve this copy.
+
+**Regenerate figures in one environment only — the container.** matplotlib versions
+differ between host, WSL and image, so the same plot produces different bytes in each
+and every notebook run shows up as a diff.
+
+---
+
 ## Commands
 
 ### Build slides and handouts
