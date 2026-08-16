@@ -334,17 +334,39 @@ Never let the fitting procedure touch it.
 Measure there.
 
 ::: notes
-Say clearly: this is not bureaucratic caution. It is the only thing standing between
-them and a meaningless number, and it is the operational consequence of the last two
-slides - since the expected risk cannot be computed, we estimate it on data the model
-has never seen.
+Say clearly: this is not bureaucratic caution, and give the reason rather than the
+instruction. Handout sections 2.3 to 2.5 carry the full argument.
 
-Warn them we will violate this deliberately later today and watch 77% accuracy appear
-out of pure random noise.
+The difficulty is not that a sample is small. It is that if the same data both CHOOSES
+the model and JUDGES it, the judgement stops being an unbiased estimate. The analogy
+that works: writing the exam questions after reading the students' answers. Nobody
+cheated - you let the answers influence the question.
 
-If someone asks "how much do we hold out?" - typically 20-30%, and lesson 5 explains
-the trade-off: more test data gives a more reliable estimate, less training data gives
-a worse model.
+Why a held-out set repairs it: if the test set played no part in choosing f, it stays
+independent of f, and the error measured on it is an unbiased estimate of the expected
+risk - the quantity we just said was not computable. Worth putting on the board.
+
+Stress what that argument depends on: the INDEPENDENCE of the test set, not its size
+or its proportion. The moment those rows influence any decision - a mean for scaling,
+a ranking for feature selection, a comparison between models - the independence breaks
+and the estimate is optimistic by an unknown amount. That is why the rule is "nothing
+is learned before the split" rather than "keep some data aside".
+
+Warn them we will break exactly that independence later today and watch 77% accuracy
+appear out of coin-flip labels.
+
+If someone asks "how much do we hold out?" - typically 20-30%, and the trade-off is
+real in both directions: a bigger test set gives a more stable estimate (the standard
+error falls as one over root n), a bigger training set gives a better model. Give them
+the concrete number from notebook 01: 143 test examples at 0.986 accuracy carries a
+standard error of about one percentage point, so the third decimal place is noise.
+With a few hundred examples both sides hurt at once, which is what cross-validation
+exists for - lesson 5.
+
+If someone asks "what if I try ten models and report the best?" - they have just
+selected using the test set, and the number is optimistic again. That is the bridge to
+the validation set, and to lesson 5. Today we need only train and test because we make
+no choices: one model, no tuning.
 :::
 
 # When *not* to use machine learning
