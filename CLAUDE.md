@@ -67,7 +67,26 @@ distinct is what lets the course be rigorous without slowing the lecture down.
 | **Slides** (`Slides/`) | The in-class skeleton: statements, intuitions, figures. **Little mathematics.** | Markdown | `.pptx` + `.pdf` |
 | **Notebook** (`Notebooks/`) | The implementation: code that makes operational what the handout proves. | Jupyter | — |
 
-Plus `Quizzes/` (self-check) and `Exercises/` (assessed weekly work).
+Plus `Quizzes/` (self-check), `Exercises/` (assessed homework) and, where useful,
+`Resources/` (optional supplementary reading).
+
+### Every lesson fills three hours, and every lesson sets homework
+
+Two non-negotiables.
+
+**Three hours of material.** Each lesson runs 3 hours, and the material must actually
+fill it. Every handout opens with a **lesson plan table** budgeting the time across
+segments — lecture, notebook work, break, discussion — summing to 180 minutes. Write
+the plan first and use it to size the content; a lesson that runs out after 100
+minutes has been under-built, and one that needs 240 has to be cut.
+
+Reckon on roughly **25-30 slides per hour** of lecture, and **20-30 minutes per
+notebook** worked through live. Three notebooks of substance is a normal lesson.
+
+**Homework, every time.** Every lesson ends by setting an exercise from
+`Exercises/`, due the following Friday. It is never optional and never skipped: the
+exercises are assessed, and they are what carries students towards the final project.
+Announce it on the last slide and state the deadline.
 
 **Never put a full derivation on a slide.** That is the whole reason the handout
 exists. In class you show the result and why it matters; the proof is read afterwards.
@@ -84,10 +103,14 @@ it is what makes ten mathematically serious handouts feasible part-time.
 
 ```
 Course/            SYLLABUS.md, SCHEDULE.md, PREREQUISITES.md, template.pptx, Setup/
-Lessons/NN_topic/  Docs/ Slides/ Notebooks/ Quizzes/ Exercises/ Figures/
+Lessons/NN_topic/  Docs/ Slides/ Notebooks/ Quizzes/ Exercises/ Figures/ [Resources/]
 Assessment/        Project/ Exam/ Exercises/
-tools/             build.py, make_template.py, release.py
+tools/             build.py, make_template.py, postprocess_pptx.py, render_math.py, release.py
 ```
+
+`Resources/` is the one optional folder: supplementary reading that enriches a lesson
+without being examinable, such as the history of AI in lesson 1. Everything else is
+present in every lesson.
 
 The layout is **uniform with no exceptions**. The previous course repository drifted
 into five naming schemes and two parallel slide formats; that is the specific failure

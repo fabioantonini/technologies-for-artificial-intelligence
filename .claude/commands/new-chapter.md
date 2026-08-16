@@ -50,7 +50,7 @@ source of truth for current API signatures and version numbers.
 
 The reference text. This is where the **mathematics lives**.
 
-Header:
+Header, followed immediately by the lesson plan:
 
 ```markdown
 # {Human-readable title}
@@ -59,7 +59,19 @@ Header:
 > Estimated reading time: XX minutes
 
 ---
+
+## Lesson plan
+
+| Time | Segment | Material |
+|---|---|---|
+| 0:00-0:20 | ... | ... |
+| ... | ... | ... |
+| | **Total** | **180 minutes** |
 ```
+
+**The plan must sum to 180 minutes.** Write it before the body and use it to size the
+content: roughly 25-30 slides per lecture hour, 20-30 minutes per notebook worked
+through live, one break. A lesson that would run out after 100 minutes is under-built.
 
 Requirements:
 
