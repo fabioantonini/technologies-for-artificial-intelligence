@@ -361,6 +361,51 @@ def relayout_figure_slides(path: Path) -> int:
     return changed
 
 
+#: A fixed timestamp for every entry in the package. 1980-01-01 is the earliest
+#: date the zip format can represent, so it is the conventional choice.
+FIXED_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
+
+
+def make_deterministic(path: Path) -> bool:
+    """Strip the timestamps that change on every build.
+
+    pandoc and python-pptx stamp the current time into the zip entries and into
+    docProps/core.xml, so rebuilding an unchanged deck produces a file that
+    differs from the committed one in nothing but the clock. Git sees a
+    modification, and with ten lessons that is ten 1.6 MB binaries dirtying the
+    working tree after every build.
+
+    Normalising both makes the build reproducible: the same source now yields
+    byte-identical output.
+    """
+    temp = path.with_suffix(".det.pptx")
+    changed = False
+
+    with zipfile.ZipFile(path) as src, zipfile.ZipFile(
+        temp, "w", zipfile.ZIP_DEFLATED
+    ) as dst:
+        for item in src.infolist():
+            data = src.read(item.filename)
+            if item.filename == "docProps/core.xml":
+                cleaned = re.sub(
+                    r"<(dcterms:(?:created|modified))([^>]*)>[^<]*</\1>",
+                    r"<\1\2>1980-01-01T00:00:00Z</\1>",
+                    data.decode("utf8"),
+                )
+                if cleaned != data.decode("utf8"):
+                    data = cleaned.encode("utf8")
+                    changed = True
+            entry = zipfile.ZipInfo(item.filename, date_time=FIXED_TIMESTAMP)
+            entry.compress_type = item.compress_type
+            entry.external_attr = item.external_attr
+            if item.date_time != FIXED_TIMESTAMP:
+                changed = True
+            dst.writestr(entry, data)
+
+    temp.replace(path)
+    return changed
+
+
 def process(path: Path, verbose: bool = True) -> bool:
     backup = path.with_suffix(".orig.pptx")
     shutil.copy2(path, backup)
@@ -370,6 +415,7 @@ def process(path: Path, verbose: bool = True) -> bool:
         pinned = pin_geometry(path)
         reflowed = relayout_figure_slides(path)
         renumbered = renumber_oversized_ids(path)
+        make_deterministic(path)  # must run last: it rewrites the package
     except Exception as exc:  # keep the original rather than a broken file
         shutil.copy2(backup, path)
         print(f"  {path.name}: postprocess FAILED ({exc}) - left as generated")

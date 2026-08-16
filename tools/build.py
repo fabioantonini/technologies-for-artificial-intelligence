@@ -33,6 +33,7 @@ actually needs.
 
 import argparse
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -65,6 +66,19 @@ COURSE_DOCS = (
 NOT_PUBLISHED = {"slides_syntax_example.md"}
 
 
+# TeX writes the current time into every PDF as /CreationDate and /ModDate, so
+# rebuilding an unchanged handout produces a different file. SOURCE_DATE_EPOCH
+# is the cross-toolchain convention for pinning it; FORCE_SOURCE_DATE makes
+# older pdftex honour it. Together with the timestamp normalisation in
+# postprocess_pptx.py, this makes the whole build reproducible: the same source
+# yields byte-identical output, so only real changes show up in git status.
+BUILD_ENV = {
+    **os.environ,
+    "SOURCE_DATE_EPOCH": "0",
+    "FORCE_SOURCE_DATE": "1",
+}
+
+
 def find_pdf_engine() -> str | None:
     """Return the first LaTeX engine that actually compiles a document.
 
@@ -89,6 +103,28 @@ def find_pdf_engine() -> str | None:
     return None
 
 
+#: Two 32-character hex strings that xdvipdfmx derives from the clock and a
+#: random seed. Replacing them in place is safe because the substitute is the
+#: same length, so every byte offset in the cross-reference table still holds.
+PDF_ID = re.compile(rb"/ID\[<[0-9A-Fa-f]{32}><[0-9A-Fa-f]{32}>\]")
+FIXED_ID = b"/ID[<" + b"0" * 32 + b"><" + b"0" * 32 + b">]"
+
+
+def normalise_pdf(path: Path) -> None:
+    """Pin the document identifier so rebuilds are byte-identical.
+
+    SOURCE_DATE_EPOCH already removes the creation and modification dates, but
+    the identifier is regenerated on every run, which is enough to make git
+    report an unchanged handout as modified.
+    """
+    if not path.exists():
+        return
+    data = path.read_bytes()
+    patched = PDF_ID.sub(FIXED_ID, data)
+    if patched != data:
+        path.write_bytes(patched)
+
+
 def resource_path(source: Path) -> str:
     """Where pandoc looks for images: alongside the source, and in Figures/.
 
@@ -100,7 +136,7 @@ def resource_path(source: Path) -> str:
 
 
 def run(cmd: list[str]) -> bool:
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    result = subprocess.run(cmd, capture_output=True, text=True, env=BUILD_ENV)
     if result.returncode != 0:
         tail = (result.stderr or result.stdout).strip().splitlines()
         print(f"    FAILED: {' '.join(tail[-2:]) if tail else 'unknown error'}")
@@ -157,6 +193,8 @@ def build_slides(source: Path, engine: str | None) -> tuple[int, int]:
                 f"--resource-path={resource_path(source)}",
             ]
         )
+        if ok:
+            normalise_pdf(pdf)
         made, failed = (made + 1, failed) if ok else (made, failed + 1)
     return made, failed
 
@@ -193,6 +231,8 @@ def build_handout(source: Path, engine: str) -> tuple[int, int]:
             f"--resource-path={resource_path(source)}",
         ]
     )
+    if ok:
+        normalise_pdf(pdf)
     return (1, 0) if ok else (0, 1)
 
 
