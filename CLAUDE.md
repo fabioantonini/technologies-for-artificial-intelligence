@@ -179,6 +179,25 @@ Rebuild the template only when the visual identity changes:
 python tools/make_template.py
 ```
 
+### Look at what you built
+
+**Render the deck and look at it before calling a lesson finished.** Every layout
+fault in lesson 1 - figures printed over text, a title shrunk to 15pt, a table split
+across pages, captions growing upwards into the boxes above them - was invisible in
+the markdown and obvious in the render. None would have been caught by reading the
+source.
+
+```bash
+soffice --headless --convert-to pdf deck.pptx
+pdftoppm -png -r 50 deck.pdf slide
+```
+
+That gives one PNG per slide. Check at minimum: the title slide, every slide carrying
+a figure, and any slide with a table or a code block.
+
+The same applies to handouts: render the first pages of the PDF rather than trusting
+that the markdown implies the layout.
+
 ### Run the course environment
 
 ```bash
