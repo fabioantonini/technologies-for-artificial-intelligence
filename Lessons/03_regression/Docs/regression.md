@@ -7,17 +7,25 @@ date: "9 October 2026 · reading time about 75 minutes"
 
 ## Lesson plan
 
-| Time | Segment | Material |
-|---|---|---|
-| 0:00–0:15 | Exercise 2 returned; where regression sits | Slides 1–6 |
-| 0:15–0:45 | The model and its cost function | Slides 7–16 |
-| 0:45–1:05 | The normal equation, derived | Slides 17–22 |
-| 1:05–1:15 | **Break** | |
-| 1:15–1:45 | Gradient descent | Slides 23–31, notebook 01 |
-| 1:45–2:20 | Curves, and overfitting | Slides 32–40, notebook 02 |
-| 2:20–2:52 | Ridge and Lasso | Slides 41–50, notebook 03 |
-| 2:52–3:00 | Homework set, questions | Slide 51 |
-| | **Total** | **180 minutes** |
+| Time | Minutes | Segment | Material |
+|---|---|---|---|
+| 0:00–0:08 | 8 | Exercise 2 returned; the dataset | Slides 2–5 |
+| 0:08–0:23 | 15 | The model and its cost function | Slides 6–12 |
+| 0:23–0:37 | 14 | The exact solution, and when it fails | Slides 13–18 |
+| 0:37–0:48 | 11 | Gradient descent | Slides 19–23 |
+| 0:48–1:13 | 25 | **Notebook 01** — regression from scratch | Slide 24 |
+| 1:13–1:28 | 15 | **Break** | Slide 25 |
+| 1:28–1:45 | 17 | Curves, and the price of flexibility | Slides 26–33 |
+| 1:45–2:05 | 20 | **Notebook 02** — polynomials and overfitting | Slide 34 |
+| 2:05–2:26 | 21 | Ridge and Lasso | Slides 35–44 |
+| 2:26–2:35 | 9 | Reading coefficients honestly | Slides 45–48 |
+| 2:35–2:55 | 20 | **Notebook 03** — ridge, lasso, collinearity | Slide 49 |
+| 2:55–3:00 | 5 | Summary; homework set | Slides 50–51 |
+| | **180** | **Total** | **51 slides, 3 notebooks** |
+
+Slide 1 is the title slide, so the numbers above match the page numbers in
+`Slides/regression_slides.pdf`. The lecture segments come to 100 minutes across
+46 content slides — a shade under 28 slides per hour.
 
 ---
 
@@ -103,22 +111,25 @@ its minimiser — so it is pure convenience.
 
 ### 2.3 A worked example
 
-Take three houses and a candidate model $\hat{y} = 2400 \cdot \text{area} + 45000$:
+Take three houses and a candidate model $\hat{y} = 2400 \cdot \text{area} + 45000$.
+The error is $\hat{y} - y$ throughout, as in Section 2.2 — negative where the
+model has underpriced the house:
 
 | Area (m²) | True price (€) | Predicted (€) | Error (€) | Error² |
 |---|---|---|---|---|
-| 80 | 240,000 | 237,000 | 3,000 | 9.0 × 10⁶ |
-| 120 | 320,000 | 333,000 | −13,000 | 1.69 × 10⁸ |
-| 200 | 540,000 | 525,000 | 15,000 | 2.25 × 10⁸ |
+| 80 | 240,000 | 237,000 | −3,000 | $9.0 \times 10^6$ |
+| 120 | 320,000 | 333,000 | +13,000 | $1.69 \times 10^8$ |
+| 200 | 540,000 | 525,000 | −15,000 | $2.25 \times 10^8$ |
 
 The cost is $\frac{1}{2 \times 3}(9.0 \times 10^6 + 1.69 \times 10^8 + 2.25
 \times 10^8) \approx 6.7 \times 10^7$.
 
-Notice how the arithmetic behaves. The 3,000 euro error contributes almost
-nothing; the two large ones contribute nearly everything. If you halved the small
-error the cost would barely move, but halving the 15,000 error would remove a
-sixth of it. **Squared error spends its attention on the worst predictions**, and
-that is a design decision you are making whether or not you notice it.
+Notice how the arithmetic behaves. The 3,000 euro error contributes 2% of that
+total; the two large ones contribute the other 98%. Halving the small error
+would cut the cost by under 2% — you would barely see it move. Halving the
+15,000 error would cut it by **42%**. **Squared error spends its attention on
+the worst predictions**, and that is a design decision you are making whether or
+not you notice it.
 
 ---
 
@@ -298,6 +309,48 @@ worst-scaled feature**, which is a good reason to scale them all.
 
 The practical recipe: start at 0.01 on scaled features, watch the cost, divide
 by three if it rises. Lesson 5 replaces the recipe with a search.
+
+### 4.4 How stretched the valley is
+
+**The picture first.** Section 4.3 said the safe learning rate is set by the
+largest curvature. That leaves an obvious question: what about the *smallest*?
+
+A cost surface whose curvature is the same in every direction is a round bowl,
+and gradient descent walks straight to the bottom of it. When one direction is
+far steeper than another the bowl becomes a long, narrow ravine. You now have a
+problem, because **one step size has to serve every direction at once**. The
+steep direction sets the limit — step further and it diverges — so the shallow
+direction is stuck with a stride far too short for it, and crawls.
+
+The ratio of the steepest curvature to the shallowest is the **condition
+number** of the design matrix. It is, near enough, what sets the number of
+iterations you will need.
+
+On the housing data, computed with `numpy.linalg.cond` on the design matrix:
+
+| Design matrix | Condition number |
+|---|---|
+| The six features as recorded | 285 |
+| The same six, standardised | 3.4 |
+| Standardised, plus `area_sqft` | 2,286 |
+
+Read the first two rows together: **scaling is worth a factor of about 80 here**,
+and that factor is iterations you do not have to run. This is Lesson 2's
+argument for scaling arriving from the optimisation side, and it is the same
+fact as the 163-to-1 asymmetry worked out in Section 4.2 — that asymmetry is
+what a condition number measures.
+
+The third row is Section 3.3's "nearly redundant columns" with a number attached.
+Adding a column that duplicates another, even with a rounding error between them,
+multiplies the condition number by roughly 670. That is why the coefficients in
+Section 7.3 are unusable while the predictions remain fine: the ravine is almost
+perfectly flat along the direction that trades `area_sqm` against `area_sqft`, so
+the fit has almost no basis for choosing a point along it — but every point along
+it predicts equally well.
+
+The same number governs the exact solution, which is the tidy part: a large
+condition number is simultaneously why $(X^\top X)^{-1}$ is untrustworthy and why
+gradient descent is slow. One quantity, both failure modes.
 
 ---
 

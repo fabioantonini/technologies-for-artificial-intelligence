@@ -103,25 +103,47 @@ def find_pdf_engine() -> str | None:
     return None
 
 
-#: Two 32-character hex strings that xdvipdfmx derives from the clock and a
-#: random seed. Replacing them in place is safe because the substitute is the
-#: same length, so every byte offset in the cross-reference table still holds.
-PDF_ID = re.compile(rb"/ID\[<[0-9A-Fa-f]{32}><[0-9A-Fa-f]{32}>\]")
-FIXED_ID = b"/ID[<" + b"0" * 32 + b"><" + b"0" * 32 + b">]"
+#: Two 32-character hex strings derived from the clock and a random seed.
+#: xdvipdfmx writes them tightly as `/ID[<..><..>]`; LibreOffice spaces them out
+#: and puts a newline between the halves, so the pattern has to tolerate both.
+#: Every substitution below preserves length, because the cross-reference table
+#: holds byte offsets that would otherwise all shift.
+PDF_ID = re.compile(
+    rb"(/ID\s*\[\s*<)([0-9A-Fa-f]{32})(>\s*<)([0-9A-Fa-f]{32})(>\s*\])")
+
+#: LibreOffice ignores SOURCE_DATE_EPOCH and stamps the wall clock, which is
+#: enough on its own to make every rebuilt deck look modified.
+PDF_DATE = re.compile(rb"(/(?:Creation|Mod)Date\s*\(D:)(\d{14})((?:[+-]\d\d'\d\d')?)")
+FIXED_DATE = b"19800101000000"
+FIXED_OFFSET = b"+00'00'"
+
+#: LibreOffice's own trailer checksum. It is computed over the document before
+#: the two substitutions above run, so it carries their randomness even once
+#: they are pinned, and has to be flattened too.
+PDF_CHECKSUM = re.compile(rb"(/DocChecksum\s*/)([0-9A-Fa-f]{32})")
 
 
 def normalise_pdf(path: Path) -> None:
-    """Pin the document identifier so rebuilds are byte-identical.
+    """Pin the identifier and the dates so rebuilds are byte-identical.
 
-    SOURCE_DATE_EPOCH already removes the creation and modification dates, but
-    the identifier is regenerated on every run, which is enough to make git
-    report an unchanged handout as modified.
+    Without this every build rewrites every PDF, and since the generated PDFs
+    are committed — this repository is the distribution channel — a rebuild
+    that changed nothing would still produce a diff touching every deck.
     """
     if not path.exists():
         return
     data = path.read_bytes()
-    patched = PDF_ID.sub(FIXED_ID, data)
+
+    patched = PDF_ID.sub(
+        lambda m: m.group(1) + b"0" * 32 + m.group(3) + b"0" * 32 + m.group(5),
+        data)
+    patched = PDF_DATE.sub(
+        lambda m: m.group(1) + FIXED_DATE + (FIXED_OFFSET if m.group(3) else b""),
+        patched)
+    patched = PDF_CHECKSUM.sub(lambda m: m.group(1) + b"0" * 32, patched)
+
     if patched != data:
+        assert len(patched) == len(data), "la sostituzione ha cambiato lunghezza"
         path.write_bytes(patched)
 
 
