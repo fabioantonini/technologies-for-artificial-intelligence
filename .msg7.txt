@@ -1,0 +1,32 @@
+Add lesson 5: handout, slides, quiz and exercise
+
+Completes lesson 5, Friday 23 October 2026 — the lesson the syllabus calls the
+centre of the course.
+
+Handout, 19 pages: the bias-variance decomposition derived in full with the
+cross terms shown to vanish; what cross-validation estimates, why it is
+slightly pessimistic, and why the usual standard error is optimistic because the
+folds share three quarters of their rows; a section on non-independent rows,
+GroupKFold and TimeSeriesSplit; and the leakage that survives cross-validation.
+
+Slides, 46 of them with speaker notes throughout and nine figures. Two new
+conceptual diagrams: the k-fold test block rotating along the dataset, and the
+two loops of nested cross-validation with the outer block marked as the only
+number you may report.
+
+Quiz, 29 questions across six parts, several of them asking the student to
+criticise a described experiment rather than recall a definition.
+
+Exercise 5, due Friday 30 October, built around a notebook that reports AUC 0.92
+and is wrong in three separate ways. 480 weekly readings from 40 wind turbines,
+where the installation metadata is constant per turbine and therefore acts as a
+fingerprint: with a random split it scores 0.688 on its own, with GroupKFold
+0.487, which is chance. Students must predict the effects before testing them,
+isolate each flaw one at a time, and tell the maintenance team what the model is
+actually worth.
+
+Also expand AUC once in each lesson 5 artefact. Lesson 4 defines it thoroughly,
+but the rule is per-document — a student reading only these slides has not read
+that handout.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
