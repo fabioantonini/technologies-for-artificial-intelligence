@@ -154,6 +154,19 @@ past it.
 
 ### 3.2 Why mean imputation is not "no information lost"
 
+**The picture first.** Suppose you know the heights of a class, and for a few
+students you write down the class average instead of measuring them. The average
+height of the class is unchanged — you have not biased it. But the class now
+looks more uniform than it is: the invented values sit exactly in the middle,
+adding no spread.
+
+Now ask whether height predicts shoe size. The students you invented contribute
+nothing to that relationship — their height no longer varies with anything —
+so the relationship looks weaker than it truly is. **You have not biased the
+column; you have flattened its connection to everything else.**
+
+The algebra below says exactly how much, and the answer is a clean square root.
+
 It is tempting to treat mean imputation as a neutral placeholder — "we did not
 know, so we used the average, which is the best single guess." The guess is
 optimal for the *column's own mean*, but it is not neutral for anything
@@ -231,6 +244,18 @@ learned from the training fold only.
 ## 4. Outliers
 
 ### 4.1 Two rules, derived
+
+**The picture first.** Both rules answer the same question — *how far from the
+middle is too far?* — and differ in what they use as a ruler.
+
+The z-score measures distance in **standard deviations**, so it asks how
+surprising a value would be if the column were a bell curve. Tukey's rule
+measures distance in **quartiles**, so it asks how far a value sits beyond the
+bulk of the data, without assuming any shape.
+
+That difference is why they disagree on skewed data, which is Section 4.2. The
+constant 1.5 exists to make them agree on data that *is* a bell curve, and the
+derivation below is where it comes from.
 
 **The z-score rule.** Standardise and threshold:
 
@@ -320,6 +345,19 @@ below.
 
 ### 5.2 Why unscaled features slow down — or break — gradient descent
 
+**The picture first.** Think of the cost as a landscape you are descending, and
+of each feature as one compass direction. If one feature varies over thousands
+and another over units, the landscape is not a bowl but a **narrow ravine**:
+steep across, almost flat along.
+
+You have one stride length for both directions. Make it long enough to make
+progress along the flat axis and you overshoot the steep one, bouncing from wall
+to wall. Make it short enough to be safe on the steep axis and you crawl along
+the flat one.
+
+**Scaling reshapes the ravine into a bowl**, so a single stride length suits
+every direction. The derivation below turns "narrow ravine" into a number.
+
 Take linear regression's mean squared error cost, so the argument is exact
 rather than approximate (logistic regression's cost is not exactly quadratic,
 but its Hessian near the optimum has the same structure, so the conclusion
@@ -392,6 +430,19 @@ scaling still rarely hurts and remains the default.
 ## 6. Categorical encoding
 
 ### 6.1 One-hot encoding, and the dummy variable trap, proved
+
+**The picture first.** Suppose a survey asks whether you travel by car, bus or
+bicycle, and you record three yes/no columns. Those columns carry a hidden
+redundancy: knowing two of them tells you the third, because everyone answered
+exactly one.
+
+Add an intercept — a column of ones — and the redundancy becomes exact: the
+three dummies always sum to that column. The model can now shift value between
+the intercept and the dummies without changing a single prediction, so there is
+no unique best answer, only infinitely many equally good ones.
+
+Dropping one category fixes it by removing the spare degree of freedom. The
+proof below is that paragraph in matrix form.
 
 A categorical column with $k$ levels becomes $k$ binary columns, one per
 level, each row having a single 1. If a model fits an intercept term — a
@@ -583,6 +634,18 @@ substantially larger gap through exactly the same mechanism.
 why.
 
 ### 9.2 Why target encoding leaks, and why small groups make it worse
+
+**The picture first.** Target encoding replaces a category with the average
+outcome of the rows in that category. Now consider a category containing exactly
+one row: its average *is* that row's own label, copied into a feature under a
+different name.
+
+With two rows it is half the answer, with fifty it is a genuine statistic barely
+influenced by any single row. So the leak is not uniform — **it is worst exactly
+where the groups are smallest**, which is also where high-cardinality columns
+keep most of their categories.
+
+The algebra below quantifies it.
 
 Encode category $c$, containing rows indexed by $c$, with the mean of $y$
 over all its members: $\bar{y}_c = \frac{1}{n_c}\sum_{j \in c} y_j$, and use
