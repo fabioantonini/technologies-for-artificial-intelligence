@@ -1,0 +1,33 @@
+Add lesson 5 notebooks: experimental methodology
+
+Three notebooks on the lesson the syllabus calls the centre of the course.
+
+1. Why one split lies. The lesson 4 fleet cut to 800 drives with 29 failures,
+   because that is a more typical situation than 8,000 and the instability is
+   then visible. Over 200 legitimate splits the same model scores anywhere from
+   0.885 to a perfect 1.000, against an honest 0.951 — and seed 3 is the
+   perfect one. Then three models whose mean AUC agrees to three decimals, each
+   declared best by a share of those splits: 91, 71 and 38. k-fold built by
+   hand before scikit-learn, stratification shown against a plain fold holding
+   one positive out of 160, and cross-validation measured as 6.8 times more
+   stable across seeds than a single split.
+
+2. Bias, variance and learning curves. Three hundred training sets drawn from a
+   known curve, so the decomposition can be measured rather than asserted: the
+   identity bias² + variance + noise = expected error holds to 2.7e-12. The
+   optimal polynomial degree moves from 2 to 5 as the training set grows, which
+   is the practical point — "which model is best" is a question about the data
+   you have. Learning curves then give the same diagnosis without knowing the
+   truth: one feature converges flat at 0.715/0.718, and 150 noise columns give
+   a training score of exactly 1.000 against 0.847 validation, still rising.
+
+3. Leakage that survives cross-validation. Selecting 10 columns from 2,000 of
+   pure noise before cross-validating reports AUC 0.931 on data with no signal.
+   Moving the selection inside the pipeline gives 0.658 — better, and not 0.5,
+   because those spurious correlations belong to the sample rather than to the
+   split, and no rearrangement of the same 800 rows removes them. A search over
+   25 combinations then reports 0.800 where nested cross-validation says 0.670.
+   Finally lesson 4's threshold chosen honestly on a validation set, costing
+   more on the test set than the cheating version, as it should.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
