@@ -26,7 +26,7 @@ Lesson 5 gives them the machinery to do both honestly.
 - Logistic regression: the model and why the cost had to change
 - The confusion matrix, and why accuracy lies
 - Precision, recall, F1 — and the threshold nobody chose
-- ROC, AUC, and where they mislead
+- ROC curves, the area under them, and where they mislead
 - Choosing a threshold from money
 
 ::: notes

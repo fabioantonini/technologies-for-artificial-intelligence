@@ -70,7 +70,8 @@ however good the model is.
    an English sentence containing the actual counts — not just the ratio.
 6. Plot the **precision-recall curve** with its no-skill baseline drawn on it,
    and report the average precision.
-7. Plot the **ROC curve** and report the AUC.
+7. Plot the **receiver operating characteristic (ROC) curve** and report the
+   area under it (AUC).
 8. In **three or four sentences**, say which of these numbers you would put in
    an email to the hospital's operations manager, and which you would leave out.
    Justify both choices.
@@ -149,7 +150,8 @@ Marks are lost for:
   set without saying so (**−10**, and say so and lose nothing);
 - reporting the weighted average without stating that it is weighted
   (**−5**);
-- reporting AUC as the only summary of an imbalanced problem (**−5**);
+- reporting the area under the ROC curve (AUC) as the only summary of an
+  imbalanced problem (**−5**);
 - a notebook that does not run top to bottom in the container (**−10**).
 
 Marks are **not** lost for a model that performs poorly, provided the report is
