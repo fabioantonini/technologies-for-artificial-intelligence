@@ -2,7 +2,7 @@
 title: "Regression"
 subtitle: "Lesson 3 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "9 October 2026 · reading time ≈ 75 minutes"
+date: "9 October 2026 · reading time about 75 minutes"
 ---
 
 ## Lesson plan

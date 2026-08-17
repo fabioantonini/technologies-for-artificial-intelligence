@@ -2,7 +2,7 @@
 title: "Introduction and the Machine Learning Workflow"
 subtitle: "Lesson 1 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "25 September 2026 · reading time ≈ 70 minutes"
+date: "25 September 2026 · reading time about 70 minutes"
 ---
 
 ## Lesson plan

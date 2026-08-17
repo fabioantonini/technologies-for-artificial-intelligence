@@ -2,7 +2,7 @@
 title: "Data: Exploration and Preparation"
 subtitle: "Lesson 2 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "2 October 2026 · reading time ≈ 80 minutes"
+date: "2 October 2026 · reading time about 80 minutes"
 ---
 
 ## Lesson plan
