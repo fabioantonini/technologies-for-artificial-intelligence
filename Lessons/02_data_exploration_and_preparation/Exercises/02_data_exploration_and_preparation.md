@@ -47,7 +47,8 @@ random draw.
 
 Report the shape, the dtypes, the churn rate and the resulting baseline
 accuracy. Report which columns have missing values and by how much. For each,
-state whether you believe it is MCAR or MAR, and what observation led you to
+state whether you believe it is missing completely at random (MCAR) or
+missing at random (MAR), and what observation led you to
 that judgement (you do not have access to the generating code's internals —
 argue from what you can observe, the way you would with a real dataset).
 
@@ -58,7 +59,7 @@ why.
 
 ### 3. Outliers
 
-Using both the z-score and IQR rules from the lesson, find candidate outliers
+Using both the z-score and interquartile range (IQR) rules from the lesson, find candidate outliers
 in `tenure_months` and `monthly_charges`. Then apply **at least one domain
 rule** that neither statistical rule would catch on its own, and explain what
 it catches that the statistical rules miss.
@@ -75,7 +76,8 @@ your code that is enforced.
 Build a single `ColumnTransformer` + `Pipeline` that imputes, scales the
 numeric columns, encodes the low-cardinality categoricals, and fits a
 `LogisticRegression`. Do **not** include `zip_code` yet. Report baseline
-accuracy, model accuracy, and model AUC on the test set, and explain in one
+accuracy, model accuracy, and model area under the receiver operating
+characteristic curve (AUC) on the test set, and explain in one
 or two sentences why AUC is the more informative number here.
 
 ### 6. Build a leak on purpose

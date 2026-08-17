@@ -119,13 +119,15 @@ outliers, because one absurd value contributes its error squared. Lesson 2's
 outlier work is a prerequisite for this lesson, not a preliminary.
 :::
 
-# The cost function
+# The cost function — mean squared error
 
 $$J(w, b) = \frac{1}{2m}\sum_{i=1}^{m}\left(\hat{y}^{(i)} - y^{(i)}\right)^2$$
 
 ::: notes
 Name the parts: m examples, the half for convenience when we differentiate,
-the square doing the work discussed.
+the square doing the work discussed. This is the mean squared error, MSE from
+here on, and the name is worth saying aloud because every later slide uses the
+abbreviation.
 
 Ask where the half comes from if nobody has. Answer: differentiating a square
 brings down a 2, and the half cancels it. It cannot move the minimum, because
@@ -362,6 +364,9 @@ time.
 
 # The table that matters
 
+Root mean squared error (RMSE) — the square root of the MSE, so it reads in
+the units of the target:
+
 | Degree | Train RMSE | Test RMSE |
 |---|---|---|
 | 1 | 113.3 | 212.1 |
@@ -406,12 +411,18 @@ size?
 
 # Charge for size
 
-$$J_{\text{ridge}} = \text{MSE} + \alpha\sum_j w_j^2 \qquad J_{\text{lasso}} = \text{MSE} + \alpha\sum_j |w_j|$$
+$$J_{\text{ridge}} = \text{MSE} + \lambda\sum_j w_j^2 \qquad J_{\text{lasso}} = \text{MSE} + \lambda\sum_j |w_j|$$
 
 ::: notes
-Two penalties, one difference: squares or absolute values. Alpha sets the
-exchange rate between fitting the data and keeping coefficients small; at alpha
-= 0 both are ordinary least squares.
+Two penalties, one difference: squares or absolute values. MSE here is the
+mean squared error from the first half of the lesson. Lambda sets the exchange
+rate between fitting the data and keeping coefficients small; at lambda = 0
+both are ordinary least squares.
+
+Say the naming trap out loud, because they will hit it in five minutes: we
+write the penalty strength as lambda, and reserve alpha for the learning rate.
+scikit-learn calls the penalty `alpha`. So `Ridge(alpha=0.01)` in code is
+lambda = 0.01 on this slide.
 
 Two things that are not optional and that students get wrong. The intercept is
 never penalised — it is not a claim about any feature, and shrinking it would
@@ -427,9 +438,9 @@ Lesson 2 introduced scaling for optimisation speed. Here it is correctness.
 | Model | Train | Test | max \|w\| |
 |---|---|---|---|
 | none | 16.3 | 182.0 | 247,514 |
-| α = 0.01 | 18.0 | **22.8** | 365 |
-| α = 1 | 44.5 | 105.2 | 156 |
-| α = 100 | 96.0 | 227.6 | 6 |
+| λ = 0.01 | 18.0 | **22.8** | 365 |
+| λ = 1 | 44.5 | 105.2 | 156 |
+| λ = 100 | 96.0 | 227.6 | 6 |
 
 ::: notes
 Read the last column first: 247,514 down to 365, from a penalty of one
@@ -440,10 +451,10 @@ Now the training column, which is the honest part: it gets WORSE at every step.
 16, 18, 45, 96. That is the trade being made deliberately — a worse fit on the
 data we have, in exchange for a better fit on data we do not.
 
-And it stops paying. At alpha 100 the test error is 228, worse than no penalty
+And it stops paying. At lambda 100 the test error is 228, worse than no penalty
 at all, because the model is now too rigid to follow the curve.
 
-The useful range spans four orders of magnitude, which is why alpha cannot be
+The useful range spans four orders of magnitude, which is why lambda cannot be
 guessed.
 :::
 
@@ -460,7 +471,7 @@ treatment it deserves along with the machinery to find the bottom of that curve
 honestly. Today the point is only that the bottom exists and is not where either
 extreme is.
 
-If someone asks how to choose alpha: not by looking at this test curve, because
+If someone asks how to choose lambda: not by looking at this test curve, because
 that would be selecting on the test set. Cross-validation, lesson 5.
 :::
 
@@ -492,10 +503,10 @@ tolerance, not a numerical accident — the shape of the budget.
 
 ::: notes
 From notebook 3. Left: ridge coefficients approach zero smoothly and never
-arrive. Right: lasso coefficients hit zero at a finite alpha and stay.
+arrive. Right: lasso coefficients hit zero at a finite lambda and stay.
 
 Give the order in which lasso drops features on the housing data, because it is
-not arbitrary: garage first at alpha 10,000 — the smallest effect once
+not arbitrary: garage first at lambda 10,000 — the smallest effect once
 everything is on a common scale — then distance and age, and by 40,000 only area
 survives.
 
@@ -503,7 +514,7 @@ Nobody told it which features matter. It was told to keep the total size small,
 and this is the arrangement that buys the most accuracy per euro of coefficient
 spent.
 
-The warning: the selection depends entirely on alpha, so "Lasso chose these
+The warning: the selection depends entirely on lambda, so "Lasso chose these
 features" is never a complete statement.
 :::
 
@@ -542,7 +553,7 @@ combined effect is stable at about 2,420, close to the true 2,400. It is the
 EXPLANATION that is noise.
 
 Anyone reading these coefficients to learn what drives house prices would draw
-nonsense, confidently. With ridge at alpha 10 the same four splits give 38,000
+nonsense, confidently. With ridge at lambda 10 the same four splits give 38,000
 to 41,000 on both columns, split evenly, because two moderate coefficients cost
 less under a squared penalty than one huge positive and one huge negative.
 
@@ -618,7 +629,7 @@ Set it explicitly with the deadline. It uses a new dataset — bike sharing dema
 — so the exploration is theirs to do.
 
 Flag the two tasks that carry the most marks. Task 4 asks them to justify a
-choice of alpha without looking at the test set, which is genuinely awkward
+choice of lambda without looking at the test set, which is genuinely awkward
 before lesson 5 and is meant to be: the point is to feel the need for
 cross-validation before being handed it. Task 6 asks which coefficients they
 trust and why, which is section 7 of the handout applied.

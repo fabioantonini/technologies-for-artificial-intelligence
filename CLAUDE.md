@@ -179,6 +179,63 @@ Rebuild the template only when the visual identity changes:
 python tools/make_template.py
 ```
 
+### Name the predictable mistakes
+
+Every lesson states, in the handout or the notes, **what students will get wrong
+and why the wrong answer is reasonable**. That second half is what makes it
+useful: "most will say mean imputation is free, and the reasoning is sound as far
+as it goes — the mean is unbiased" tells whoever is teaching where to pause, and
+tells the student their instinct was not stupid.
+
+A list of correct answers is worth less than one well-understood misconception.
+
+### One number per lesson worth remembering
+
+Pick a single figure that carries the lesson's argument, quote it on a slide, and
+repeat it at the close. Derivations fade; a number that surprised someone does
+not.
+
+The ones so far:
+
+| Lesson | The number |
+|---|---|
+| 1 | **77%** accuracy on coin-flip labels, from leakage alone |
+| 2 | **98 of 128** imputed rows borrowed a value from the test set |
+| 3 | **247,514** — the largest coefficient of an overfitted fit, against 411 |
+
+### Expand every acronym on first use
+
+Write the words, then the abbreviation in brackets, every time a term first
+appears in a document: mean squared error (MSE), missing completely at random
+(MCAR), interquartile range (IQR), area under the curve (AUC).
+
+This audience is new to the field, and an unexplained acronym is a silent stop:
+the reader either guesses or loses the sentence. Repeat the expansion in each
+artefact — a student reading only the slides has not seen the handout.
+
+### Shared notation
+
+The same symbol means the same thing in every lesson. This table is the
+authority; check it before introducing a letter.
+
+| Symbol | Meaning | Where it appears |
+|---|---|---|
+| $x$, $X$ | one input, the design matrix | throughout |
+| $y$, $\hat{y}$ | true target, prediction | throughout |
+| $w$, $b$ | coefficients, intercept | 3, 4, 9 |
+| $\theta$ | all parameters together, intercept included | 3 |
+| $m$ | number of examples | throughout |
+| $n$ | number of features | throughout |
+| $\alpha$ | **learning rate**, and nothing else | 3, 9 |
+| $\lambda$ | **regularisation strength** (scikit-learn spells it `alpha`) | 3, 6, 9 |
+| $J$ | the cost being minimised | throughout |
+| $L$ | the loss on a single example | 1, 3, 4 |
+| $\mathcal{D}$ | the unknown data distribution | 1, 5 |
+| $R$, $\hat{R}$ | expected risk, empirical risk | 1, 5 |
+
+Lesson 3 originally used $\alpha$ for both the learning rate and the penalty, a
+few pages apart. That is the failure this table exists to prevent.
+
 ### Intuition comes before the symbols
 
 **No derivation starts cold.** Before the notation appears, say in plain language

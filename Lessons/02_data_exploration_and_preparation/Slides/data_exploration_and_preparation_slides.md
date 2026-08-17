@@ -119,14 +119,15 @@ cannot be read off a bar chart.
 Handout Section 3.1. Define each precisely, because the distinction is not
 academic - it determines which fix is valid.
 
-MCAR: probability of missing depends on nothing. A blank field for no
+MCAR, missing completely at random: probability of missing depends on
+nothing. A blank field for no
 systematic reason.
 
-MAR: depends on something you DO observe. Our num_support_calls is MAR
+MAR, missing at random: depends on something you DO observe. Our num_support_calls is MAR
 against tenure - long-standing customers' early call history predates the
 CRM system. Conditional on tenure, the gap carries no further information.
 
-MNAR: depends on the value itself, even unobserved. A customer who leaves
+MNAR, missing not at random: depends on the value itself, even unobserved. A customer who leaves
 because of a shockingly high bill and never finishes a survey. No column in
 the table can detect this - only knowing how the data was collected can.
 Say plainly: this is the dangerous one, and it does not appear in today's
@@ -206,7 +207,8 @@ Then the line at the bottom: every option except dropping the column learns a st
 
 # Outliers, two rules
 
-Two standard rules for flagging an unusual value:
+Two standard rules for flagging an unusual value — the z-score, and Tukey's
+fence built on the interquartile range (IQR):
 
 $$z_i = \frac{x_i - \bar x}{s} \qquad\qquad [\,Q_1 - 1.5\,\mathrm{IQR},\ \ Q_3 + 1.5\,\mathrm{IQR}\,]$$
 
@@ -586,7 +588,7 @@ thing the easy thing.
 # The model, on churn
 
 - Baseline: **0.806**
-- Model (numeric + low-card categorical, no zip): **0.820** accuracy, **0.752** AUC
+- Model (numeric + low-card categorical, no zip): **0.820** accuracy, **0.752** AUC — area under the receiver operating characteristic curve
 
 Modest accuracy gain. Why?
 
@@ -595,7 +597,7 @@ Modest accuracy gain. Why?
 ::: notes
 Let the room answer why the accuracy gain is modest. The dataset is 80/20 imbalanced, so accuracy is dominated by the majority class - exactly as Lesson 1 warned, and the first time they meet it on data they prepared themselves.
 
-The matrix shows where the errors sit: read the bottom-left cell, the churners the model missed. AUC at 0.752 is unaffected by the imbalance and says there is real signal that accuracy is hiding.
+The matrix shows where the errors sit: read the bottom-left cell, the churners the model missed. The area under the receiver operating characteristic curve — AUC, which Lesson 4 builds properly — at 0.752 is unaffected by the imbalance and says there is real signal that accuracy is hiding.
 
 Had we reported only accuracy, this model would look barely better than the baseline and someone would reasonably conclude the features were useless.
 :::

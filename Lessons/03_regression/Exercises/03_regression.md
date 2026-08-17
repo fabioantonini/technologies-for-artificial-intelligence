@@ -50,7 +50,8 @@ State your split proportion and why.
 
 ### 2. Baseline and first model
 
-Report the baseline — predicting the mean — as RMSE.
+Report the baseline — predicting the mean — as root mean squared error
+(RMSE), the square root of the mean squared error.
 
 Then fit an unregularised `LinearRegression` inside your pipeline and report
 train and test RMSE.

@@ -322,7 +322,9 @@ relationships that are not straight lines.
 
 Notebook 2 fits a curve — daily energy consumption against outdoor temperature,
 with a minimum around 18 °C — on 21 training observations. Here is the whole
-lesson in one table:
+lesson in one table, measured with the root mean squared error (RMSE) — the
+square root of the mean squared error, which puts the number back into the
+units of the target:
 
 | Degree | Training RMSE | Test RMSE |
 |---|---|---|

@@ -82,6 +82,13 @@ Requirements:
   the point of this document.
 - State assumptions explicitly, and say where each result stops holding.
 - Tables for comparisons; ASCII diagrams for structures and flows.
+- **Expand every acronym on first use**, in every artefact: mean squared error
+  (MSE), interquartile range (IQR). A student reading only the slides has not
+  read the handout.
+- **Name the predictable mistake.** Say what students will get wrong and why the
+  wrong answer is reasonable — the second half is what makes it useful.
+- **Choose one number worth remembering** and repeat it at the close.
+- **Check the notation table in CLAUDE.md** before introducing a symbol.
 - **Intuition before symbols.** Every derivation opens with a sentence or two of
   plain language: what we are trying to do, and why this approach is the natural
   one. Then the mathematics, then what the result means in the units of the

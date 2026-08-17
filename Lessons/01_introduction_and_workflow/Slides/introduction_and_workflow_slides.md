@@ -22,7 +22,8 @@ practice picks up the modelling and skips the validation.
 
 Practical notes to give now: the repository is public to them via git, everything runs
 offline in Docker, and there is no cost attached to any part of this course. Nobody
-needs an API key, a cloud account or a GPU.
+needs an application programming interface (API) key, a cloud account or a
+graphics processing unit (GPU).
 :::
 
 # What we will cover
@@ -32,7 +33,7 @@ needs an API key, a cloud account or a GPU.
 | 1–2 | Workflow, data preparation |
 | 3–4 | Regression, classification |
 | **5** | **Experimental methodology** |
-| 6–7 | k-NN, SVM, trees, ensembles |
+| 6–7 | k-NN, support vector machines, trees, ensembles |
 | 8 | Unsupervised learning |
 | 9–10 | Neural networks, CNNs |
 
@@ -897,7 +898,8 @@ No single number resolves this, because the resolution is not mathematical. It i
 question about consequences and it belongs to the people who bear them - here, patients
 and clinicians, not the person who trained the model.
 
-Lesson 4 builds the tools properly: ROC curves, precision-recall curves, choosing an
+Lesson 4 builds the tools properly: receiver operating characteristic
+(ROC) curves, precision-recall curves, choosing an
 operating point. Today they need to see that the trade-off exists and that it is not
 the model's decision to make.
 :::
