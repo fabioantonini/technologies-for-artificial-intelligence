@@ -102,9 +102,17 @@ zero. Handout Section 2.
 ![](missingness_pattern.png)
 
 ::: notes
-Two columns have gaps: age (8.0%) and num_support_calls (4.8%). The count is
-the easy half of the question; the next three slides are the hard half -
-why are they missing?
+Two columns have gaps: age at 8.0% and num_support_calls at 4.8%. The count is
+the easy half of the question; the next three slides are the hard half - why
+are they missing?
+
+Make the point that this figure took one line to produce and is the first thing
+to run on any new dataset, before any modelling thought at all. A column that is
+90% empty is a column you drop; a column that is 5% empty is a decision.
+
+Warn them about what the picture cannot show: whether the gaps are related to
+each other, or to the target. That is what the next slides are for, and it
+cannot be read off a bar chart.
 :::
 
 # Three reasons a value is missing
@@ -137,9 +145,20 @@ Some customers just left it blank. Nothing systematic.
 - The bias question is not "is this fair" — it is "what does filling it cost"
 
 ::: notes
-Bridge to the derivation. Ask: if the missingness is completely random, is
-mean imputation "free"? Let them guess before the next slide - most will say
-yes.
+Bridge to the derivation. Ask: if the missingness is completely random, is mean
+imputation "free"? Let them guess before the next slide - most will say yes,
+and the reasoning is sound as far as it goes: the mean is unbiased, so filling
+with the mean introduces no bias in that column.
+
+The answer is no, and the reason is that a column is never used alone. Handout
+Section 3.2 derives it: filling p of the entries with a constant shrinks the
+variance to (1-p) times the original, and attenuates every correlation the
+column has with anything else by the square root of (1-p).
+
+Have the numbers ready. For age at p = 0.08 the factor is 0.96 - small enough
+to ignore. At p = 0.4 it is 0.77, which erases nearly a quarter of a genuine
+relationship. Tell them the practical rule that follows: mean imputation is
+fine when the gaps are few, and quietly destructive when they are many.
 :::
 
 # What mean imputation actually costs
@@ -204,9 +223,18 @@ Two standard rules for flagging an unusual value:
 $$z_i = \frac{x_i - \bar x}{s} \qquad\qquad [\,Q_1 - 1.5\,\mathrm{IQR},\ \ Q_3 + 1.5\,\mathrm{IQR}\,]$$
 
 ::: notes
-Handout Section 4.1. z-score standardises and thresholds; Tukey's IQR rule
+Handout Section 4.1. The z-score standardises and thresholds; Tukey's rule
 fences off anything more than 1.5 interquartile ranges past the quartiles.
-The 1.5 is not arbitrary - next slide derives it.
+
+Give the probabilistic reading of each, because it is what makes them more than
+recipes. Under normality, |z| > 3 flags about 0.27% of a column. And the 1.5 is
+not arbitrary: for a normal column the IQR is 1.349 sigma, so the fence lands at
+2.698 sigma and flags about 0.35% per tail. Tukey chose the constant precisely
+so the two rules agree on well-behaved data.
+
+That agreement is the setup for the next section. Both rules are calibrated on
+normality; the interesting question is what they do when the data is not
+normal, and that is where they part company.
 :::
 
 # Calibrated to agree — on a normal column
@@ -266,9 +294,19 @@ Detection finds candidates. What to do next is a **domain** decision.
 - **Leave** it — unusual is not the same as wrong
 
 ::: notes
-A long-tenure, high-paying customer is not an error; a tenure of 999 is. Say
-plainly that a statistical rule cannot make this call - it only nominates
-candidates. Handout Section 4.2 closes on exactly this distinction.
+A long-tenure, high-paying customer is not an error; a tenure of 999 months is.
+Say plainly that a statistical rule cannot make this call - it only nominates
+candidates, and the decision is a domain decision.
+
+Walk the four options and note that each is a different claim about the world.
+Capping says "the value is real but the scale is misleading". Removing says
+"this row is not from the population I am modelling". Correcting says "I know
+what it should have been". Leaving it says "the model should handle this".
+
+The one that gets chosen by default, without anyone deciding, is removal - and
+it is the one that silently reweights the sample. Handout Section 4.2 closes on
+exactly this. If a rule flags 3% of your rows and you drop them all, you have
+changed the population your model is trained on.
 :::
 
 # Notebook 1, live
@@ -276,17 +314,28 @@ candidates. Handout Section 4.2 closes on exactly this distinction.
 Exploration, missingness mechanisms, both outlier rules — from scratch.
 
 ::: notes
-Work through notebook 1 now. Let them drive; walk the room. The domain-rule
-cell (negative tenure) is worth pausing on collectively - it is a two-line
-check with an outsized lesson.
+Work through notebook 1 now, 25 minutes. Let them drive; walk the room rather
+than presenting.
 
-25 minutes, then break.
+The domain-rule cell is worth pausing on collectively: a two-line check for
+negative tenure catches something no statistical rule would flag, because a
+negative tenure is not extreme, it is impossible. That distinction - impossible
+versus unusual - is the lesson of the whole section, and it lands better from
+their own screen than from the projector.
+
+Watch for the group that finishes early. Point them at the "try this" in the
+notebook: change the missing fraction and watch the correlation attenuate as
+the derivation predicts.
 :::
 
 # Break
 
 ::: notes
 15 minutes. Back for scaling, encoding and the pipeline.
+
+Use the break to check who is stuck in the notebook - the second half assumes
+everyone has a working ColumnTransformer, and it is much cheaper to fix now
+than during the leakage section.
 :::
 
 # Why scale?
@@ -296,9 +345,19 @@ check with an outsized lesson.
 Gradient descent takes **one step size, along every axis, every iteration.**
 
 ::: notes
-Set up the problem before the maths. Ask: if two features live on very
+Set up the problem before the mathematics. Ask: if two features live on very
 different scales, can a single learning rate be right for both directions at
 once? Let the room reason about it before the derivation.
+
+Give them the concrete pair from the dataset: tenure runs 0 to 70, monthly
+charges 15 to 150. The variances differ by roughly an order of magnitude, and
+gradient descent takes one step size along every axis simultaneously.
+
+Handout Section 5.2 does it properly, and the punchline is worth previewing:
+the safe learning rate is set by the largest-variance feature, so progress
+along the smallest-variance direction is throttled by their ratio. The number
+of iterations scales with the condition number. Scaling is not cosmetic - it
+changes how long training takes, and sometimes whether it converges at all.
 :::
 
 # The Hessian is the feature covariance
@@ -361,8 +420,17 @@ $$\sum_{j=1}^{k} \text{dummy}_j = 1 = \text{intercept}$$
 
 ::: notes
 The k dummy columns always sum to the intercept column, so they are not
-independent of it. Handout Section 6.1 has the full proof; notebook 2
-confirms it directly with matrix_rank. Next slide shows it as arithmetic.
+independent of it: the design matrix loses rank, and the normal equation has no
+unique solution.
+
+Stress that this is not a numerical inconvenience but an identifiability
+problem. There are infinitely many coefficient vectors that fit equally well,
+because you can add a constant to every dummy coefficient and subtract it from
+the intercept without changing a single prediction.
+
+Handout Section 6.1 has the proof; notebook 2 confirms it directly with
+matrix_rank, which is the version they will believe. The next slide shows it
+as arithmetic.
 :::
 
 # Rank deficient by exactly one
@@ -370,10 +438,19 @@ confirms it directly with matrix_rank. Next slide shows it as arithmetic.
 ![](dummy_variable_trap.png)
 
 ::: notes
-Fix: OneHotEncoder(drop="first"). The dropped category becomes the reference,
-absorbed into the intercept - no information lost, full rank restored.
-Tree-based models (Lesson 7) do not need this, since they split on one dummy
-at a time and do not care about collinearity.
+Point at the number: the rank is short by exactly one, not by an arbitrary
+amount. That is the signature of a single linear dependence - the sum of the
+dummies equalling the intercept - rather than of general collinearity.
+
+The fix is OneHotEncoder(drop="first"). The dropped category becomes the
+reference level, absorbed into the intercept: no information is lost, and full
+rank is restored.
+
+Two caveats worth saying. Tree-based models (Lesson 7) do not need this,
+because they never invert a design matrix. And regularised models tolerate the
+rank deficiency, because the penalty term picks one solution out of the
+infinitely many - which is a good early illustration of what regularisation
+actually does, and we return to it in Lesson 3.
 :::
 
 # Ordinal vs target encoding
@@ -413,9 +490,19 @@ One-hot `zip_code`: **493** new columns, mostly zero.
 - More parameters to estimate, same sample size → more variance
 
 ::: notes
-Handout Section 6.3. Quick, not a full treatment - the point is to motivate
-why target encoding is attractive for high-cardinality columns before the
-next section shows why it needs care.
+Handout Section 6.3. Deliberately quick - the point is to motivate why target
+encoding looks attractive for high-cardinality columns, before the next section
+shows why it needs care.
+
+The number to dwell on: one-hot encoding zip_code produces 493 columns, almost
+all zero, on 2000 rows. More columns than a quarter of the sample size, for one
+field.
+
+Two consequences to name. Distance-based methods (Lesson 6) degrade, because in
+high dimensions everything becomes roughly equidistant from everything else.
+And every column is a parameter to estimate from the same fixed amount of data,
+which is the bias-variance trade-off from Lesson 1 arriving from a new
+direction.
 :::
 
 # zip_code: 493 levels
@@ -497,10 +584,19 @@ thing the easy thing.
 Modest accuracy gain. Why?
 
 ::: notes
-Let the room answer: 80/20 imbalance, so accuracy is dominated by the
-majority class exactly as Lesson 1 warned. AUC, unaffected by the imbalance,
-shows the model is finding real signal that accuracy alone would hide.
-Lesson 4 makes both tools precise.
+Let the room answer why the accuracy gain is modest. The dataset is 80/20
+imbalanced, so accuracy is dominated by the majority class - exactly as Lesson
+1 warned, and this is the first time they meet it on data they have prepared
+themselves.
+
+AUC is unaffected by the imbalance, and at 0.752 it says the model is finding
+real signal that accuracy is hiding. Two numbers, two different stories about
+the same model.
+
+Worth saying explicitly: had we reported only accuracy, this model would look
+barely better than the baseline, and someone would reasonably conclude the
+features were useless. Choosing the metric before seeing results is what
+Lesson 1 asked for; this is what it buys.
 :::
 
 # Feature engineering
@@ -526,8 +622,16 @@ fold-awareness; a learned one does.
 Scaling from scratch, the dummy trap, `ColumnTransformer`, `Pipeline`.
 
 ::: notes
-25 minutes. The gradient descent toy is worth running interactively - change
-the variance ratio live if time allows, per the handout's "try this".
+25 minutes. Let them work; circulate.
+
+The gradient descent toy is worth running interactively - change the variance
+ratio live and watch the iteration count move, per the handout's "try this".
+It makes the condition number argument concrete in a way the derivation alone
+does not.
+
+If the room is moving fast, the ColumnTransformer section is where to slow
+down: it is the piece they will reuse in every exercise and in the project,
+and getting the column selectors right is fiddlier than it looks.
 :::
 
 # Same rule, broken three ways
@@ -550,10 +654,18 @@ of f, and f must be independent of the test set.
 Fit it on train + test, and some of those rows are in the test set.
 
 ::: notes
-Walk the mechanism before the number. KNNImputer finds nearest neighbours in
-feature space; "nearest in the whole dataset" includes test rows if it was
-fitted before the split existed. Notebook 3 does not just claim this - it
-traces it, row by row.
+Walk the mechanism before the number. KNNImputer fills a gap using other rows'
+values: it finds the nearest neighbours in feature space and averages them.
+"Nearest in the whole dataset" includes test rows, if it was fitted before the
+split existed.
+
+So a test row's missing value can be filled using its own neighbours - which
+may include rows whose labels the model will later be scored on. The imputer
+did nothing wrong; it was simply shown data it should not have seen.
+
+Notebook 3 measures the gap. Connect it back to Lesson 1: this is the same
+independence argument, applied to a step nobody thinks of as learning. The
+imputer learns; therefore it belongs inside the training fold.
 :::
 
 # The smoking gun
@@ -580,9 +692,17 @@ Replace `zip_code` with the **average churn rate of its own customers**,
 computed before anybody has split anything.
 
 ::: notes
-zip_code has no real relationship with churn, by construction - the
-correlation heatmap already told us. Watch what a leak manufactures out of
-nothing.
+zip_code has no real relationship with churn - the data was generated that way
+deliberately, so any apparent signal is an artefact we can measure exactly.
+
+Target encoding replaces each zip code with the average churn rate of its own
+customers. Computed before the split, that average includes the test rows'
+labels. The feature now contains the answer, in diluted form.
+
+This is the most dangerous leak of the three, because the resulting column
+looks entirely reasonable in a dataframe: a number between 0 and 1, sensibly
+distributed, with no trace of where it came from. Nothing about it says "this
+was computed from the labels".
 :::
 
 # A column with no real signal, encoded three ways
@@ -607,9 +727,19 @@ The "leave-in" encoding differs from the honest leave-one-out encoding by:
 $$\bar y_c - \bar y_c^{(-i)} = \frac{y_i - \bar y_c^{(-i)}}{n_c}$$
 
 ::: notes
-Handout Section 9.2, derived in full: the gap shrinks as 1/n_c. For n_c=1 the
-formula degenerates completely - the encoded value literally equals the
-label. Next slide shows the consequence directly.
+Handout Section 9.2 has the algebra. The intuition: for a zip code with a
+single customer, the target encoding IS that customer's label, straight
+through. With two customers it is the average of two labels. Only as the group
+grows does the encoding become a genuine statistic rather than a copy of the
+answer.
+
+So the leak is worst exactly where the data is thinnest - which is also where
+high-cardinality columns spend most of their mass. Most zip codes here have a
+handful of customers.
+
+Give them the diagnostic to remember: if a feature's usefulness comes mostly
+from its rarest levels, be suspicious. That is the shape of a leak, not of a
+signal.
 :::
 
 # The leak shrinks as 1/n_c
@@ -633,10 +763,17 @@ risk are the same underlying fact.
 Each row's encoded value comes from **other** folds, never its own label.
 
 ::: notes
-The library implementation generalises leave-one-out to leave-one-fold-out
-for efficiency, same idea. Used inside a Pipeline fitted on X_train alone, it
-recovers the honest 0.752 - because that is the correct answer for a column
-with nothing to contribute.
+Smoothing pulls each group's mean towards the global mean, weighted by group
+size, so a one-customer zip code barely moves from the overall rate. It
+reduces the leak but does not remove it.
+
+Say clearly what actually removes it: fitting the encoder inside the training
+fold, exactly as with every other learned step. Smoothing is a refinement on
+top of that, not a substitute for it.
+
+This is the third time today the same rule has appeared - imputation, scaling,
+encoding - and that repetition is the point of the lesson. Lesson 1 stated the
+rule for one case; today it turns out to be the same rule every time.
 :::
 
 # The rule, restated
@@ -660,9 +797,16 @@ tuning, where the same test applies once more.
 Trace the imputation leak. Watch the encoding leak manufacture 0.89 from noise.
 
 ::: notes
-30 minutes - this is the centrepiece of the lesson, give it the time. Let
-students find the singleton zip code themselves rather than just reading the
-number.
+20 minutes. This notebook is the payoff of the lesson: three leaks, each
+measured against an honest pipeline on the same data.
+
+The numbers matter less than the pattern - every leak inflates the score, none
+of them raises an error, and all three are things a competent person does by
+accident. Ask them to predict the direction and rough size of each gap before
+running the cell.
+
+If time is short, the target encoding case is the one to keep: it is the
+subtlest and the one most likely to appear in their own project.
 :::
 
 # What we did today
@@ -674,8 +818,18 @@ number.
 - Two leaks that look nothing like leaking
 
 ::: notes
-Recap slide. Keep it brisk - the room has done three notebooks and needs the
-summary, not a re-lecture.
+Draw the thread together explicitly. Lesson 1 said nothing is learned before
+the split, using feature selection as the example. Today every preprocessing
+step turned out to be a learning step: an imputer learns a mean or a set of
+neighbours, a scaler learns a mean and a standard deviation, an encoder learns
+a mapping from categories to numbers.
+
+So the rule did not get more complicated - it got more general. And the
+pipeline is not tidiness, it is the mechanism that enforces the rule
+structurally, which is why we now build one for everything.
+
+Preview Lesson 3 in one sentence: with the data prepared honestly, we can
+finally fit something and look at what the fitting actually does.
 :::
 
 # Homework — due Friday 9 October
@@ -709,8 +863,15 @@ thing to the exam they will see before the sample papers.
 Next: regression — the first model we derive completely.
 
 ::: notes
-Close on time. Lesson 3 is where the course starts building models rather
-than preparing to build them - say that the pipeline habit from today carries
-forward unchanged, it is just the "model" box in the diagram that gets
-interesting now.
+Set the exercise explicitly and give the deadline - Friday 9 October, at the
+start of Lesson 3.
+
+Point out that it uses the same churn dataset, so the exploration they did
+today carries over, and that the marks are again on methodology: a pipeline
+that is correct but modest beats a better score obtained by preparing the full
+dataset before splitting.
+
+Remind them the Lesson 1 exercise is due today if anyone has not handed it in,
+and that the project topic must be confirmed by Lesson 4 - which is two weeks
+away, so now is the time to be reading dataset descriptions.
 :::
