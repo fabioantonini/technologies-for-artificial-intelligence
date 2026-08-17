@@ -82,6 +82,15 @@ Requirements:
   the point of this document.
 - State assumptions explicitly, and say where each result stops holding.
 - Tables for comparisons; ASCII diagrams for structures and flows.
+- **Intuition before symbols.** Every derivation opens with a sentence or two of
+  plain language: what we are trying to do, and why this approach is the natural
+  one. Then the mathematics, then what the result means in the units of the
+  problem. A student who has the picture can rebuild the algebra; one who has
+  only the algebra has nothing when it stops applying.
+- **Every section ends in a concrete example.** State the result, then work it
+  through with real numbers from the lesson's dataset - ideally numbers the
+  student can check against a notebook output. An abstract derivation is one
+  they can follow and not use.
 - `standard`: at least 8 sections. `deep`: at least 12, each key concept getting a
   derivation subsection.
 - Two or three challenge boxes between sections:
@@ -135,6 +144,9 @@ errors rather than take absolute values? Derivation in handout section 3.2.
 - Write ordinary LaTeX for maths. The build converts inline math to Unicode and display
   math to images automatically — you never write those substitutions yourself. Two
   rules, both enforced by build warnings:
+  - **one block element per slide**: a figure, a display equation and a
+    `::: columns` layout each end the slide, so two of them means the second is
+    orphaned onto an untitled slide;
   - **display maths goes last on its slide**, otherwise the text after it is orphaned
     onto a new untitled slide;
   - **inline maths must be simple enough for Unicode** (`x^2`, `\tfrac{1}{2}`, greek,

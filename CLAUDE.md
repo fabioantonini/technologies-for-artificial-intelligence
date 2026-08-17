@@ -179,6 +179,56 @@ Rebuild the template only when the visual identity changes:
 python tools/make_template.py
 ```
 
+### Intuition comes before the symbols
+
+**No derivation starts cold.** Before the notation appears, say in plain language
+what is about to happen and why anyone would expect it — a sentence or two that a
+student could repeat to a friend without writing anything down.
+
+The order is always: *what we are trying to do* → *why this approach is natural*
+→ *the mathematics* → *what the result means in the units of the problem*.
+
+Some that work in this course:
+
+- **The normal equation** is the shadow of the target on the space the features
+  can reach. The residual is what is left over, and it is perpendicular, because
+  anything else would mean part of the error still lay in a direction the model
+  could have used.
+- **The gradient** is a weighted vote: each example pulls a coefficient in
+  proportion to how wrong it was *and* how large that feature was for it. Big
+  houses shout louder about the price of floor space.
+- **Ridge versus Lasso** is a disc versus a diamond. Corners sit on the axes,
+  and a corner is where a coefficient is exactly zero, so the shape with corners
+  is the one that produces zeros.
+- **The condition number** is how stretched the valley is. One step size has to
+  serve every direction, so the steep direction sets the limit and the shallow
+  one crawls.
+
+A student who has the picture can rebuild the algebra. A student who has only the
+algebra has nothing to fall back on when it does not apply.
+
+### Every general statement earns a concrete example
+
+A derivation or a rule that stays abstract is one students can follow and not
+use. **Every handout section states its result and then works it through with
+actual numbers**, and the slides carry the numbers rather than only the claim.
+
+Concretely:
+
+- After a derivation, substitute real values from the lesson's dataset and
+  compute the answer. "Mean imputation attenuates correlation by the square
+  root of one minus the missing fraction" becomes "age is 8% missing, so
+  0.96 - negligible; at 40% it is 0.77, which erases a quarter of the
+  relationship".
+- Prefer an example the students can check against the notebook output, so the
+  handout and the code corroborate each other.
+- On slides, quote the number. A slide that says "scaling matters" is weaker
+  than one that says "tenure runs 0-70, charges 15-150, and the condition
+  number is what sets the iteration count".
+- Where a method has a failure mode, show it happening on data rather than
+  describing it. Lesson 1's 77% accuracy on coin-flip labels does more than a
+  paragraph about leakage would.
+
 ### Look at what you built
 
 **Render the deck and look at it before calling a lesson finished.** Every layout
@@ -247,6 +297,14 @@ lessons reach students through `git pull`.
 the pandoc conversion: title metadata, bullets, figures, tables, code blocks, inline
 and display math, two-column layouts via `::: columns`, and speaker notes. Start from
 it when in doubt, and rebuild it if you change the template.
+
+**One block element per slide.** pandoc ends a slide at any block: a figure, a
+display equation, a fenced `::: columns` layout. Put two on one slide and the
+second lands on a new, untitled one. So a figure cannot share a slide with an
+equation or a two-column block - pick the one that does more work in the room
+and move the other to the handout or to a slide of its own. `tools/build.py`
+warns when prose follows a block, but it cannot see the other combinations, so
+check the slide count after a rebuild.
 
 **Speaker notes are expected on every content slide.** They go in a `notes` div and
 never appear on the slide itself — they surface in PowerPoint's presenter view and on
