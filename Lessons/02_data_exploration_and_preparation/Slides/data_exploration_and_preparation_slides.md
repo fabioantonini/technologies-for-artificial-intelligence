@@ -87,14 +87,10 @@ few minutes. Keep the asymmetry in mind for Lesson 4.
 - Churn rate: **19.4%** → baseline accuracy 80.6%
 - `tenure_months` max: 999. Not a typo in the slide.
 
-::: notes
-Get a laugh at "999" and use it: nobody wrote a bug, somebody's system
-recorded an impossible value and nothing caught it before it reached this
-table. That is the entire subject of Section 4, arriving early.
+![](numeric_distributions.png)
 
-State the baseline the way Lesson 1 insisted: 80.6% is what "always predict
-no churn" scores. Every later number is measured against that, not against
-zero. Handout Section 2.
+::: notes
+This figure already existed in the notebook and is the reason the next forty minutes happen: monthly_charges is bimodal, tenure is nearly uniform, age is skewed and has a gap. Ask what each shape implies before moving on - a bimodal column usually means two populations mixed together.
 :::
 
 # Where the gaps are
@@ -165,22 +161,16 @@ fine when the gaps are few, and quietly destructive when they are many.
 
 Every correlation involving the imputed column shrinks — even under MCAR.
 
-$$\rho(X', Y) = \sqrt{1-p}\ \ \rho(X, Y)$$
+![](correlation_attenuation.png)
 
 ::: notes
-Handout Section 3.2 derives this in full: replacing the missing p-fraction of
-X with its own mean shrinks Var(X) by (1-p) and Cov(X,Y) by (1-p) too, and the
-asymmetry between how variance and covariance enter the correlation ratio is
-where the square root comes from.
+Read the curve rather than the formula. Filling gaps with a constant costs correlation, and the cost grows with the fraction filled.
 
-Give the number: p=0.08 for our age column, attenuation factor √0.92 ≈ 0.96 -
-small. At p=0.4, it is √0.6 ≈ 0.77 - a genuine relationship substantially
-erased by a constant. The mechanism is identical either way; only the size
-changes.
+Point at the two markers. For age at 8% the factor is 0.96 - negligible, and this is why nobody notices. At 40% it is 0.77, which erases nearly a quarter of a real relationship.
 
-This is not an argument against imputation - dropping rows or columns has its
-own costs, covered in Section 3.3. It is an argument for knowing what you
-paid.
+The practical rule to state: mean imputation is fine when gaps are few, and quietly destructive when they are many. Nothing warns you at which point it crossed over.
+
+The algebra is Handout Section 3.2: the correlation is multiplied by the square root of one minus the missing fraction. Write it on the board if the room wants it - the figure is what they will remember.
 :::
 
 # num_support_calls: MAR
@@ -204,16 +194,14 @@ itself is filled with a number. Handout Section 3.3.
 - **Impute** — mean/median, most-frequent, `KNNImputer`
 - **Add a missingness indicator** — keeps MAR signal alive
 
-::: notes
-Handout Section 3.3. Four options, and the choice depends on the mechanism
-just covered - dropping rows under MAR or MNAR reweights the sample in a
-direction you may not intend, since the missing rows are not a random
-subsample.
+![](missing_data_decision.png)
 
-Whichever is chosen, flag the constraint that closes the loop back to
-Pipeline: the statistic used - a mean, a set of neighbours - is learned from
-data and must be learned from the training fold only. Section 9 is what
-happens when that is forgotten.
+::: notes
+Four options, and the choice is a question about WHY the data is missing rather than about how much is missing.
+
+The one worth dwelling on is the fourth: adding a binary indicator keeps the MAR signal itself available to the model - the fact that long-tenure customers are more often missing a call count may be more informative than the count would have been.
+
+Then the line at the bottom: every option except dropping the column learns a statistic, so all of them belong inside the training fold. That is the thread the whole lesson pulls on.
 :::
 
 # Outliers, two rules
@@ -362,21 +350,18 @@ changes how long training takes, and sometimes whether it converges at all.
 
 # The Hessian is the feature covariance
 
-$$H = \nabla^2 J(w) = \frac{1}{m}X^\top X$$
+For uncorrelated, centred features, H is diagonal — the variances sit on it.
 
-For uncorrelated, centred features, $H$ is diagonal:
-
-$$H = \mathrm{diag}(\sigma_1^2, \ldots, \sigma_n^2)$$
+![](condition_number_geometry.png)
 
 ::: notes
-Handout Section 5.2, done exactly for linear regression's quadratic cost and
-carried over qualitatively to logistic regression, whose Hessian has the same
-X-transpose-X structure weighted by p(1-p).
+The figure is the derivation made visible. Left: variances differ, so the bowl is a narrow valley. One step size is bound by the steep axis, so it bounces across the valley while barely advancing along it.
 
-The safe step size along axis j is roughly 2/σⱼ². One global learning rate is
-bounded by the LARGEST variance feature, which makes progress along the
-smallest-variance direction painfully slow. That ratio is the condition
-number κ = σ²max / σ²min, and standardising drives it towards 1.
+Right: after scaling, the bowl is round and every step points at the minimum.
+
+Give them the number that governs it - the condition number, the ratio of largest to smallest variance - and say that the iteration count scales with it. Scaling is not cosmetic: it changes how long training takes, and sometimes whether it converges at all.
+
+The derivation is Handout Section 5.2: the Hessian of the squared-error cost is the feature covariance matrix, so for uncorrelated centred features it is diagonal with the variances on it. That is why the picture is an axis-aligned ellipse, and why its elongation is the condition number.
 :::
 
 # A 100:1 variance ratio, and what it costs
@@ -473,13 +458,35 @@ actually does, and we return to it in Lesson 3.
 :::
 
 ::: notes
-Ordinal encoding on an unordered category (North=0, South=1) tells a model
-North and South are numerically closer than North and West - meaningless, and
-actively misleading for anything that uses the number arithmetically.
+Three encodings of one column, and each makes a different claim.
 
-Target encoding is why zip_code is tempting: 493 levels compressed to one
-predictive-looking column. Say directly: the temptation is exactly what makes
-it worth a whole section. Handout Section 6.2.
+Ordinal claims the categories are equally spaced on a line - fine for small/medium/large, wrong for region. One-hot claims nothing at all, which is why it is the default, and costs k columns: 493 for zip code on 2000 rows. Target claims each category is summarised by its own churn rate, which is compact and, as the next section shows, computed from the labels.
+
+The question to leave them with: which claim is true for THIS column? It is a domain question, not a technical one.
+:::
+
+# Three encodings, three claims
+
+![](encoding_comparison.png)
+
+::: notes
+The same column under all three schemes, and each makes a different claim about
+the world.
+
+Ordinal claims the categories are equally spaced along a line - fine for
+small/medium/large, wrong for region, and the model has no way to tell you it
+was the wrong claim.
+
+One-hot claims nothing at all, which is why it is the default, and pays for
+that neutrality in columns: 493 of them for zip code, on 2000 rows.
+
+Target claims each category is summarised by its own churn rate. Compact,
+effective - and computed from the labels, which is where the next section
+begins.
+
+The question to leave with them: which claim is true for THIS column? That is a
+domain question, not a technical one, and no cross-validation score will answer
+it.
 :::
 
 # The curse of dimensionality, briefly
@@ -583,20 +590,14 @@ thing the easy thing.
 
 Modest accuracy gain. Why?
 
+![](churn_confusion_matrix.png)
+
 ::: notes
-Let the room answer why the accuracy gain is modest. The dataset is 80/20
-imbalanced, so accuracy is dominated by the majority class - exactly as Lesson
-1 warned, and this is the first time they meet it on data they have prepared
-themselves.
+Let the room answer why the accuracy gain is modest. The dataset is 80/20 imbalanced, so accuracy is dominated by the majority class - exactly as Lesson 1 warned, and the first time they meet it on data they prepared themselves.
 
-AUC is unaffected by the imbalance, and at 0.752 it says the model is finding
-real signal that accuracy is hiding. Two numbers, two different stories about
-the same model.
+The matrix shows where the errors sit: read the bottom-left cell, the churners the model missed. AUC at 0.752 is unaffected by the imbalance and says there is real signal that accuracy is hiding.
 
-Worth saying explicitly: had we reported only accuracy, this model would look
-barely better than the baseline, and someone would reasonably conclude the
-features were useless. Choosing the metric before seeing results is what
-Lesson 1 asked for; this is what it buys.
+Had we reported only accuracy, this model would look barely better than the baseline and someone would reasonably conclude the features were useless.
 :::
 
 # Feature engineering
@@ -675,15 +676,14 @@ their five nearest neighbours.
 
 Nothing raised an error.
 
-::: notes
-This is traceable specifically because we control the ground truth and can
-look up which rows are in which split. In practice you rarely get this
-diagnostic; the number here is instead a proof of mechanism, done once so you
-believe it happens.
+![](smoking_gun.png)
 
-Downstream effect on this run: AUC 0.7548 (leaky) vs 0.7530 (honest) - small.
-Land the point deliberately: a leak does not have to be dramatic to be wrong.
-It is still an optimistic number reported to whoever reads it next.
+::: notes
+98 of 128. Not an edge case - the substantial majority of imputed training rows borrowed a value from at least one row the model would later be scored on.
+
+Stress that nothing in the code looks wrong. KNNImputer did exactly what it says: found the nearest neighbours in the data it was given. The error was in what it was given, and it happened one line earlier.
+
+This is the number to put on the board if only one number from today survives.
 :::
 
 # Leak 2 — encode before splitting
