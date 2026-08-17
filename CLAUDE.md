@@ -346,7 +346,11 @@ lessons reach students through `git pull`.
   lesson's `Figures/`. No screenshots, no images of unknown origin. This keeps figures
   reproducible and slides consistent with the labs.
 - Setup cell opens with a commented `pip install` line carrying pinned versions.
-- Clear outputs before committing.
+- **Commit the notebooks with their outputs.** Two reasons: the handout and the
+  slides quote numbers that come from these cells, so the committed output is what
+  makes those claims checkable; and a student browsing the repository on GitHub sees
+  the results without running anything. The cost is diff noise, which is why figures
+  are regenerated in the container only — see "Where the work happens".
 
 ### Slides markdown
 
