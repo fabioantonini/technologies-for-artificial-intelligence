@@ -1,8 +1,8 @@
-# Regression
-
-> **Lesson 3 — Technologies for Artificial Intelligence**
-> Estimated reading time: 75 minutes
-
+---
+title: "Regression"
+subtitle: "Lesson 3 — Technologies for Artificial Intelligence"
+author: "Fabio Antonini — Università degli Studi dell'Aquila"
+date: "9 October 2026 · reading time ≈ 75 minutes"
 ---
 
 ## Lesson plan
@@ -368,12 +368,14 @@ should disappear.
 
 Add a price for size to the cost:
 
-$$J_{\text{ridge}}(w) = \text{MSE}(w) + \alpha\sum_{j=1}^{n} w_j^2 \qquad\qquad J_{\text{lasso}}(w) = \text{MSE}(w) + \alpha\sum_{j=1}^{n} |w_j|$$
+$$J_{\text{ridge}}(w) = \text{MSE}(w) + \lambda\sum_{j=1}^{n} w_j^2 \qquad\qquad J_{\text{lasso}}(w) = \text{MSE}(w) + \lambda\sum_{j=1}^{n} |w_j|$$
 
 Ridge (also called $L_2$ or Tikhonov regularisation) charges the sum of squares;
 Lasso charges the sum of absolute values. The parameter $\alpha \geq 0$ sets the
 exchange rate between fitting the data and keeping coefficients small; at
-$\alpha = 0$ both reduce to ordinary least squares.
+$\lambda = 0$ both reduce to ordinary least squares.
+
+**A note on names.** The literature writes this penalty strength as $\lambda$, which is what we use, and reserves $\alpha$ for the learning rate of Section 4. scikit-learn, unhelpfully, calls the penalty parameter `alpha` — so `Ridge(alpha=0.01)` in code is $\lambda = 0.01$ in these pages.
 
 **The intercept is never penalised.** It is not a claim about any feature, only
 where the surface sits, and shrinking it would bias every prediction towards
@@ -398,19 +400,19 @@ appears. That is why Ridge always has an answer where least squares has none.
 
 Now the algebra. Ridge, unlike Lasso, can be solved exactly. Differentiating
 
-$$J(\theta) = \frac{1}{2m}\lVert X\theta - y\rVert^2 + \alpha\lVert\theta\rVert^2$$
+$$J(\theta) = \frac{1}{2m}\lVert X\theta - y\rVert^2 + \lambda\lVert\theta\rVert^2$$
 
-gives, by the same steps as Section 3.1 plus $\nabla_\theta(\alpha\theta^\top\theta) = 2\alpha\theta$:
+gives, by the same steps as Section 3.1 plus $\nabla_\theta(\lambda\theta^\top\theta) = 2\lambda\theta$:
 
-$$X^\top X\theta - X^\top y + 2m\alpha\theta = 0 \qquad \Longrightarrow \qquad \boxed{\;\theta = (X^\top X + \lambda I)^{-1}X^\top y\;}$$
+$$X^\top X\theta - X^\top y + 2m\lambda\theta = 0 \qquad \Longrightarrow \qquad \boxed{\;\theta = (X^\top X + \lambda I)^{-1}X^\top y\;}$$
 
-with $\lambda = 2m\alpha$. Compare it with the ordinary normal equation: the only
-change is $\lambda I$ added to the matrix being inverted.
+writing $\tilde\lambda = 2m\lambda$ for brevity. Compare it with the ordinary normal equation: the only
+change is $\tilde\lambda I$ added to the matrix being inverted.
 
 **That small change is why Ridge is numerically well behaved.** $X^\top X$ can be
-singular — Section 3.3 — but $X^\top X + \lambda I$ never is for $\lambda > 0$:
+singular — Section 3.3 — but $X^\top X + \tilde\lambda I$ never is for $\tilde\lambda > 0$:
 adding a positive constant to the diagonal shifts every eigenvalue up by
-$\lambda$, so none of them can be zero. Ridge always has a unique solution, even
+$\tilde\lambda$, so none of them can be zero. Ridge always has a unique solution, even
 when least squares has none or infinitely many.
 
 ### 6.3 Why Lasso reaches zero and Ridge does not
@@ -458,29 +460,29 @@ Notebook 3 applies Ridge to the degree-12 disaster from Section 5:
 | Model | Training RMSE | Test RMSE | Largest \|w\| |
 |---|---|---|---|
 | No penalty | 16.3 | 182.0 | 247,514 |
-| Ridge, α = 0.01 | 18.0 | **22.8** | 365 |
-| Ridge, α = 1 | 44.5 | 105.2 | 156 |
-| Ridge, α = 100 | 96.0 | 227.6 | 6 |
+| Ridge, λ = 0.01 | 18.0 | **22.8** | 365 |
+| Ridge, λ = 1 | 44.5 | 105.2 | 156 |
+| Ridge, λ = 100 | 96.0 | 227.6 | 6 |
 
-A penalty of 0.01 — barely a touch — cuts the largest coefficient from 247,514
+A penalty of $\lambda = 0.01$ — barely a touch — cuts the largest coefficient from 247,514
 to 365 and the test error from 182 to 23, which is the noise floor. An eightfold
 improvement, from one number.
 
 **And notice the training column: it gets worse at every step.** That is the
 trade being made explicitly — we accept a worse fit on the data we have, in
 exchange for a better fit on data we do not. The exchange stops paying: at
-α = 100 the test error is 228, worse than no penalty at all, because the model
+$\lambda = 100$ the test error is 228, worse than no penalty at all, because the model
 has become too rigid to follow the curve.
 
 The useful range here spans four orders of magnitude, which is the practical
-argument for why α cannot be guessed and must be searched. Lesson 5 provides the
+argument for why $\lambda$ cannot be guessed and must be searched. Lesson 5 provides the
 machinery.
 
 ### 6.5 Worked: Lasso as a feature selector
 
-On the housing data, raising α drops features in a specific order:
+On the housing data, raising $\lambda$ drops features in a specific order:
 
-| α | Features kept |
+| λ | Features kept |
 |---|---|
 | 1,000 | all six |
 | 10,000 | five — `garage` dropped |
@@ -493,7 +495,7 @@ most price per unit of coefficient spent.
 
 Nobody told Lasso which features mattered. It was told to keep the total size of
 its coefficients within a budget, and this is the arrangement that buys the most
-accuracy for that budget. **The selection depends entirely on α**, which is a
+accuracy for that budget. **The selection depends entirely on $\lambda$**, which is a
 choice you must justify — a fact often forgotten when Lasso output is presented
 as an objective ranking of importance.
 
@@ -549,7 +551,7 @@ The coefficient on area varies by a factor of five, and the coefficient on its
 duplicate swings to compensate. Predictions are fine throughout — their combined
 effect is stable at about 2,420 — but the explanation is noise.
 
-With Ridge at α = 10, the same four splits give roughly 38,000–41,000 on both
+With Ridge at $\lambda = 10$, the same four splits give roughly 38,000–41,000 on both
 columns, splitting the effect evenly. Two moderate coefficients cost less under a
 squared penalty than one huge positive and one huge negative.
 

@@ -1,8 +1,8 @@
-# Introduction and the Machine Learning Workflow
-
-> **Lesson 1 — Technologies for Artificial Intelligence**  
-> Estimated reading time: 70 minutes
-
+---
+title: "Introduction and the Machine Learning Workflow"
+subtitle: "Lesson 1 — Technologies for Artificial Intelligence"
+author: "Fabio Antonini — Università degli Studi dell'Aquila"
+date: "25 September 2026 · reading time ≈ 70 minutes"
 ---
 
 ## Lesson plan
