@@ -56,7 +56,7 @@ Timing: roughly 35 minutes to the first notebook, then a break, then scaling
 and encoding, then the leakage section closes the lesson before homework.
 :::
 
-# One dataset, all lesson
+# One dataset, all lesson long
 
 2000 synthetic telecom customers. Will they **churn**?
 
