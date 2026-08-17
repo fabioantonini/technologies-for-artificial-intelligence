@@ -7,7 +7,7 @@
 
 Per lesson:
 
-    Slides/*.md     ->  .pptx  (always)  and .pdf (if possible)
+    Slides/*.md     ->  .pptx, then .pdf converted from it by LibreOffice
     Docs/*.md       ->  .pdf   the handout
     Exercises/*.md  ->  .pdf   assessed work, so students want it printable
     Resources/*.md  ->  .pdf   supplementary reading
@@ -144,6 +144,29 @@ def run(cmd: list[str]) -> bool:
     return True
 
 
+def pptx_to_pdf(pptx: Path) -> bool:
+    """Convert a built deck to PDF with LibreOffice.
+
+    The PDF used to be produced by pandoc with -t beamer, which never sees
+    Course/template.pptx: no university crest, LaTeX's default colours and
+    fonts, a document that looks nothing like the deck it claims to represent.
+
+    Converting the .pptx instead makes the PDF a faithful rendering of what
+    will actually be projected, at the cost of needing LibreOffice. Where it is
+    missing we skip the PDF rather than emit a misleading one.
+    """
+    soffice = shutil.which("soffice") or shutil.which("libreoffice")
+    if soffice is None:
+        return False
+    result = subprocess.run(
+        [soffice, "--headless", "--convert-to", "pdf", "--outdir",
+         str(pptx.parent), str(pptx)],
+        capture_output=True,
+        env=BUILD_ENV,
+    )
+    return result.returncode == 0 and pptx.with_suffix(".pdf").exists()
+
+
 def build_slides(source: Path, engine: str | None) -> tuple[int, int]:
     made = failed = 0
     pptx = source.with_suffix(".pptx")
@@ -178,24 +201,14 @@ def build_slides(source: Path, engine: str | None) -> tuple[int, int]:
         postprocess_pptx.process(pptx)
     made, failed = (made + 1, failed) if ok else (made, failed + 1)
 
-    if engine:
-        pdf = source.with_suffix(".pdf")
-        print(f"  {source.relative_to(ROOT)} -> {pdf.name}")
-        ok = run(
-            [
-                "pandoc",
-                str(source),
-                "-o",
-                str(pdf),
-                "-t",
-                "beamer",
-                f"--pdf-engine={engine}",
-                f"--resource-path={resource_path(source)}",
-            ]
-        )
-        if ok:
+    if ok:
+        pdf = pptx.with_suffix(".pdf")
+        print(f"  {pptx.relative_to(ROOT)} -> {pdf.name}")
+        if pptx_to_pdf(pptx):
             normalise_pdf(pdf)
-        made, failed = (made + 1, failed) if ok else (made, failed + 1)
+            made += 1
+        else:
+            print("    note: LibreOffice not found, slide PDF skipped")
     return made, failed
 
 
