@@ -253,9 +253,9 @@ Four lines of NumPy, and notebook 1 shows it agreeing with scikit-learn to
 1.8e-12 euros per square metre.
 
 Handout section 3.1 derives it properly and section 3.2 does it by hand on three
-houses: X transpose X, determinant 22,400, the inverse, and out comes 2,480
+houses: X transpose X, determinant 22,400, the inverse, and out comes 2,536
 euros per square metre against a true 2,400. Three data points, two parameters,
-4% error. Worth doing on the board if the room is engaged.
+6% error. Worth doing on the board if the room is engaged.
 
 Also mention the second derivative is X transpose X, which is positive
 semi-definite, so the cost is convex and any stationary point is global. That is
@@ -268,20 +268,25 @@ the formal version of "the bowl has one bottom".
 |---|---|
 | the three houses | 80, 120, 200 m² → 240k, 320k, 540k |
 | Xᵀ X | rows (3, 400) and (400, 60,800) |
-| Xᵀ y | (1,100 , 165,200) |
+| Xᵀ y | (1,100 , 165,600) |
 | determinant | 22,400 |
-| **slope w** | **2,480 €/m²** — the truth is 2,400 |
-| intercept b | 35,700 € |
+| **slope w** | **2,536 €/m²** — the truth is 2,400 |
+| intercept b | 28,600 € |
 
 ::: notes
 Worth doing on the board if the room is awake — it takes four minutes and it
 turns the formula into something they have touched.
 
 The whole method on three data points: build the two-by-two matrix, take its
-determinant, invert it, multiply. Out comes a slope within 4% of the value that
+determinant, invert it, multiply. Out comes a slope within 6% of the value that
 generated the data, from three houses and two parameters.
 
-Then the honest caveat: three points is nothing, and 4% here is luck as much as
+If you do put it on the board, show the dot product that gives the second entry
+of X transpose y — 80 times 240, plus 120 times 320, plus 200 times 540. It is
+the step where an arithmetic slip hides, and watching it done is what makes the
+formula stop being a black box.
+
+Then the honest caveat: three points is nothing, and 6% here is luck as much as
 method. Notebook 1 does the same on 450 houses and gets 2,410. The point is not
 the accuracy, it is that the formula is arithmetic you could do by hand.
 

@@ -194,7 +194,13 @@ thousands, to keep the numbers readable).
 
 $$X = \begin{pmatrix} 1 & 80 \\ 1 & 120 \\ 1 & 200 \end{pmatrix}, \qquad y = \begin{pmatrix} 240 \\ 320 \\ 540 \end{pmatrix}$$
 
-$$X^\top X = \begin{pmatrix} 3 & 400 \\ 400 & 60800 \end{pmatrix}, \qquad X^\top y = \begin{pmatrix} 1100 \\ 165200 \end{pmatrix}$$
+$$X^\top X = \begin{pmatrix} 3 & 400 \\ 400 & 60800 \end{pmatrix}, \qquad X^\top y = \begin{pmatrix} 1100 \\ 165600 \end{pmatrix}$$
+
+Both are worth computing by hand once. The off-diagonal entry of $X^\top X$ is
+$80 + 120 + 200 = 400$ and the corner is $80^2 + 120^2 + 200^2 = 60{,}800$; the
+second entry of $X^\top y$ is
+
+$$80 \cdot 240 + 120 \cdot 320 + 200 \cdot 540 = 19{,}200 + 38{,}400 + 108{,}000 = 165{,}600$$
 
 The determinant of $X^\top X$ is $3 \times 60800 - 400^2 = 22400$, so
 
@@ -202,11 +208,19 @@ $$(X^\top X)^{-1} = \frac{1}{22400}\begin{pmatrix} 60800 & -400 \\ -400 & 3 \end
 
 and
 
-$$\theta = \frac{1}{22400}\begin{pmatrix} 60800 \cdot 1100 - 400 \cdot 165200 \\ -400 \cdot 1100 + 3 \cdot 165200 \end{pmatrix} = \frac{1}{22400}\begin{pmatrix} 800000 \\ 55600 \end{pmatrix} \approx \begin{pmatrix} 35.7 \\ 2.48 \end{pmatrix}$$
+$$\theta = \frac{1}{22400}\begin{pmatrix} 60800 \cdot 1100 - 400 \cdot 165600 \\ -400 \cdot 1100 + 3 \cdot 165600 \end{pmatrix} = \frac{1}{22400}\begin{pmatrix} 640000 \\ 56800 \end{pmatrix} \approx \begin{pmatrix} 28.57 \\ 2.536 \end{pmatrix}$$
 
-So $b \approx 35{,}700$ euros and $w \approx 2{,}480$ euros per square metre.
-Three points, two parameters, and a slope within 4% of the 2,400 that generated
+So $b \approx 28{,}600$ euros and $w \approx 2{,}536$ euros per square metre.
+Three points, two parameters, and a slope within 6% of the 2,400 that generated
 the data — on three houses. Notebook 1 does the same thing on 450 and gets 2,410.
+
+**Check it the other way round**, because a second route is the only real
+protection against an arithmetic slip. For one feature the least-squares slope is
+$S_{xy}/S_{xx}$ with $S_{xy} = \sum (x_i - \bar{x})(y_i - \bar{y})$ and
+$S_{xx} = \sum (x_i - \bar{x})^2$. With $\bar{x} = 133.\overline{3}$ and
+$\bar{y} = 366.\overline{6}$ that gives $18{,}933.3 / 7{,}466.7 = 2.536$, and
+$b = \bar{y} - w\bar{x} = 366.67 - 2.5357 \times 133.33 \approx 28.57$. The two routes
+agree, as they must — they are the same equations.
 
 ### 3.3 When the exact solution is not available
 
@@ -459,10 +473,24 @@ $$J(\theta) = \frac{1}{2m}\lVert X\theta - y\rVert^2 + \lambda\lVert\theta\rVert
 
 gives, by the same steps as Section 3.1 plus $\nabla_\theta(\lambda\theta^\top\theta) = 2\lambda\theta$:
 
-$$X^\top X\theta - X^\top y + 2m\lambda\theta = 0 \qquad \Longrightarrow \qquad \boxed{\;\theta = (X^\top X + \lambda I)^{-1}X^\top y\;}$$
+$$X^\top X\theta - X^\top y + 2m\lambda\theta = 0 \qquad \Longrightarrow \qquad \boxed{\;\theta = (X^\top X + \tilde\lambda I)^{-1}X^\top y\;}$$
 
 writing $\tilde\lambda = 2m\lambda$ for brevity. Compare it with the ordinary normal equation: the only
 change is $\tilde\lambda I$ added to the matrix being inverted.
+
+**Why there is a factor to keep track of at all.** Our cost divides the fit term
+by $2m$ but not the penalty, so the two are measured on different scales and the
+$2m$ reappears in the solution. Write the cost as
+$\lVert X\theta - y\rVert^2 + \lambda\lVert\theta\rVert^2$ instead — no $1/2m$ —
+and the solution is exactly $(X^\top X + \lambda I)^{-1}X^\top y$, which is the
+form most textbooks print.
+
+Neither convention is more correct, and the models they produce are identical
+once $\lambda$ is rescaled. But it does mean **a penalty strength is only
+meaningful alongside the cost function it belongs to**: `Ridge(alpha=1)` in
+scikit-learn is not the same number as a $\lambda$ of 1 taken from a paper, and
+comparing them directly is a mistake worth not making. This is the same trap as
+the naming clash in Section 6.1, one level deeper.
 
 **That small change is why Ridge is numerically well behaved.** $X^\top X$ can be
 singular — Section 3.3 — but $X^\top X + \tilde\lambda I$ never is for $\tilde\lambda > 0$:

@@ -208,7 +208,10 @@ measurements carry less information than independent ones, so
 $$\operatorname{Var}\left(\hat{R}_{CV}\right)
   = \frac{\sigma^2}{k} + \frac{k-1}{k}\,\rho\,\sigma^2$$
 
-where $\rho$ is the correlation between fold scores. The naive formula keeps
+where $\sigma^2$ is the variance of a single fold score and $\rho$ the
+correlation between any two of them — the folds being interchangeable, one
+number serves for every pair. Setting $\rho = 0$ recovers the familiar
+$\sigma^2/k$, which is the assumption being made whenever it is used. The naive formula keeps
 only the first term. With $\rho$ appreciably above zero the second term
 dominates, and no unbiased estimator of this variance exists in general — a
 result of Bengio and Grandvalet (2004).
