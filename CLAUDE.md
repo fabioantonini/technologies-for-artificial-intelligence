@@ -286,6 +286,58 @@ Concretely:
   describing it. Lesson 1's 77% accuracy on coin-flip labels does more than a
   paragraph about leakage would.
 
+### Verify before it reaches a student
+
+**A lesson is not finished when it builds. It is finished when
+`tools/verify_lesson.py` passes on it.**
+
+```bash
+python tools/verify_lesson.py 06          # the mechanical checks, seconds
+python tools/verify_lesson.py 06 --run    # also executes every notebook
+python tools/verify_lesson.py             # every lesson
+```
+
+Run it as the last step of every lesson, before the commit. It exits non-zero
+when something is wrong, so it can gate one.
+
+The checks are in two groups, and the distinction matters more than the list.
+
+**Mechanical, and automatic.** Notebooks that carry no stored tracebacks and
+have been re-run since their last edit; pinned versions that match what the
+image actually ships; every referenced figure present, every generated figure
+reproducible from a notebook or `make_figures.py`, no orphaned equation images;
+inline maths that survives the Unicode conversion; no empty or untitled slides;
+speaker notes on every content slide; a lesson plan summing to 180 minutes and
+citing slides that exist; acronyms expanded on first use in each artefact;
+cross-references that resolve.
+
+**Arithmetic, and yours to write.** Every lesson carries
+`Docs/worked_examples.py`, which recomputes each number the handout works out by
+hand and asserts it against what the handout prints. The verifier discovers and
+runs it; a lesson without one is reported as incomplete.
+
+**The rule that makes it worth anything:** each check must reach the handout's
+figure by a route that does not reuse the handout's intermediate values. Start
+again from the raw inputs. Where a second method exists — the normal equation
+against $S_{xy}/S_{xx}$, a formula against a simulation — use both.
+
+That rule is not fastidiousness. Section 3.2 of lesson 3 once printed 165,200
+where the three houses give 165,600, and **every figure after it was derived
+correctly from the wrong one**: the determinant, the inverse, both components of
+$\theta$. The example was internally consistent, read as careful work, survived
+a review and a deck rewrite, and was repeated on a slide and twice in the
+speaker notes. Nothing but recomputing from the three houses would have caught
+it.
+
+Two habits follow, for content the checker cannot reach:
+
+- **A figure is checked by looking at it.** Open the built PDF. Overlapping
+  annotations, a legend across a curve, an axis label cut off — none of these
+  fail a test.
+- **A number in prose is checked against the cell that produced it.** If the
+  handout says a coefficient came out at 1.66, that digit must appear in a
+  committed notebook output, not in your memory of the run.
+
 ### Look at what you built
 
 **Render the deck and look at it before calling a lesson finished.** Every layout

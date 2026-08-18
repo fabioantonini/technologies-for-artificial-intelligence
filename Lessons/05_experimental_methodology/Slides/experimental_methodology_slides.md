@@ -121,7 +121,7 @@ question.
 # Why so wide?
 
 - Each test set holds **7 failures**
-- Every AUC — area under the ROC curve, from lesson 4 — rests on seven of them
+- Every AUC — area under the receiver operating characteristic curve — rests on seven
 
 ::: notes
 This is the arithmetic behind the previous slide, and it generalises into the

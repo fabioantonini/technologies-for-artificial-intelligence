@@ -293,3 +293,22 @@ Options: --refs={refs or "none"} --depth={depth}
 ```
 
 Flag anything you could not complete rather than reporting it as done.
+
+## Step 6 — verify, and only then commit
+
+The lesson is not finished until this passes:
+
+```bash
+python tools/verify_lesson.py {NN} --run
+```
+
+Write `Docs/worked_examples.py` as part of the lesson, not afterwards: it
+recomputes every number the handout works out by hand, **starting from the raw
+inputs rather than from the handout's own intermediate values**, and asserts it
+against what the handout prints. The verifier runs it and reports a lesson
+without one as incomplete.
+
+Then open the built slides PDF and look at every figure. Overlapping labels and
+clipped axes pass every automated check there is.
+
+See CLAUDE.md, "Verify before it reaches a student", for why this exists.

@@ -78,7 +78,8 @@ a far more ordinary situation than 8,000, and the numbers below are what the
 honest version of that situation looks like.
 
 Split it 75/25, fit a logistic regression, and score it with the area under
-the ROC curve (AUC) of lesson 4. Then do it again with a different random seed.
+the receiver operating
+characteristic (ROC) curve (AUC) of lesson 4. Then do it again with a different random seed.
 Two hundred times:
 
 | | Test AUC |

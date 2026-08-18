@@ -17,7 +17,7 @@ date: "16 October 2026 · reading time about 80 minutes"
 | 1:25–1:45 | The accuracy trap and the confusion matrix | Slides 22–25 |
 | 1:45–2:05 | Precision, recall, F1, and what to report | Slides 26–29 |
 | 2:05–2:30 | Notebook 2, and the threshold sweep | Slides 30–33 |
-| 2:30–2:50 | ROC curves, the area under them, and where they mislead | Slides 34–40 |
+| 2:30–2:50 | Receiver operating characteristic (ROC) curves, the area under them, and where they mislead | Slides 34–40 |
 | 2:50–3:00 | Cost-optimal thresholds; multiclass; homework | Slides 41–49 |
 | | **Total** | **180 minutes** |
 

@@ -11,7 +11,7 @@ Every previous exercise asked you to build something. This one asks you to
 **refuse to sign something off**.
 
 A colleague has left the company, leaving behind `suspicious_result.ipynb`: a
-gearbox failure model reporting an area under the ROC curve (**AUC**) of
+gearbox failure model reporting an area under the receiver operating characteristic (**ROC**) curve (**AUC**) of
 **0.92** under five-fold cross-validation,
 with tight agreement between folds. The maintenance team wants to start
 scheduling inspections from it next month.
