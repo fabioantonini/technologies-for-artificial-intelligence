@@ -282,6 +282,17 @@ def renumber_oversized_ids(path: Path) -> int:
 CHARS_PER_LINE = 52
 LINE_HEIGHT = 0.085
 
+#: How far a figure may be shrunk by the text above it before we call the slide
+#: overcrowded.
+#:
+#: The reference is what this figure would get on a slide carrying nothing but
+#: its title - so the measure is what the *text* costs the figure, which is the
+#: thing an author can act on. Measuring against the figure's natural size alone
+#: would condemn every tall plot, which is limited by the slide rather than by
+#: anything on it; measuring against a fixed share of the slide would condemn
+#: every rendered equation, which is short and wide and needs very little.
+MIN_FIGURE_FRACTION = 0.7
+
 
 def _text_height(shape, slide_h: int) -> int:
     """Estimate how tall a text box needs to be for its contents.
@@ -309,14 +320,18 @@ def relayout_figure_slides(path: Path) -> int:
     We reflow those slides to the shape the material actually wants: title
     across the top at full size, supporting text beneath it, figure centred in
     the space that remains, aspect ratio preserved.
+
+    Returns the number of slides reflowed, and the number and title of any that
+    were too full to lay out honestly.
     """
     prs = Presentation(str(path))
     slide_w, slide_h = prs.slide_width, prs.slide_height
     margin = int(slide_w * 0.05)
     usable = slide_w - 2 * margin
     changed = 0
+    crowded: list[str] = []
 
-    for slide in prs.slides:
+    for number, slide in enumerate(prs.slides, 1):
         pictures = [s for s in slide.shapes if s.shape_type == 13]  # PICTURE
         if not pictures:
             continue
@@ -324,6 +339,7 @@ def relayout_figure_slides(path: Path) -> int:
         if title is None:
             continue
 
+        bare_top = int(slide_h * 0.04) + int(slide_h * 0.17) + int(slide_h * 0.02)
         if title.width < usable * 0.9:
             # A caption layout pandoc left in its narrow two-column form.
             title.left, title.top = margin, int(slide_h * 0.04)
@@ -347,6 +363,26 @@ def relayout_figure_slides(path: Path) -> int:
             top += body.height + int(slide_h * 0.02)
 
         available_h = slide_h - top - int(slide_h * 0.12)  # keep clear of logo
+
+        # What the figure would get with nothing above it but the title, and
+        # what it would take at full width. It cannot use more than either.
+        bare_h = slide_h - bare_top - int(slide_h * 0.12)
+        natural = min(int(usable / (p.width / p.height)) for p in pictures)
+        floor = int(min(bare_h, natural) * MIN_FIGURE_FRACTION)
+        if available_h < floor:
+            # The text above has eaten the figure's room. Name the slide so the
+            # author splits it - build.py treats this as a failed deck.
+            crowded.append((number, title.text))
+
+        # Whatever we report, the figure still has to be given a size. Enough
+        # text pushes this negative, and python-pptx rejects a negative extent
+        # by raising - which makes the caller restore the unprocessed deck, so
+        # one crowded slide would cost every other slide its layout. Clamp it,
+        # and leave the figure below the text rather than moving it up into it:
+        # a small figure is a defect the author fixes, an overlapped paragraph
+        # is one they might ship.
+        available_h = max(available_h, int(slide_h * 0.06))
+
         for picture in pictures:
             ratio = picture.width / picture.height
             height = min(available_h, int(usable / ratio))
@@ -358,7 +394,7 @@ def relayout_figure_slides(path: Path) -> int:
 
     if changed:
         prs.save(str(path))
-    return changed
+    return changed, crowded
 
 
 #: A fixed timestamp for every entry in the package. 1980-01-01 is the earliest
@@ -413,7 +449,7 @@ def process(path: Path, verbose: bool = True) -> bool:
         repaired = repair_namespaces(path)
         equations = gate_equations(path)
         pinned = pin_geometry(path)
-        reflowed = relayout_figure_slides(path)
+        reflowed, crowded = relayout_figure_slides(path)
         renumbered = renumber_oversized_ids(path)
         make_deterministic(path)  # must run last: it rewrites the package
     except Exception as exc:  # keep the original rather than a broken file
@@ -436,7 +472,10 @@ def process(path: Path, verbose: bool = True) -> bool:
         if renumbered:
             detail.append(f"{renumbered} oversized id(s) renumbered")
         print(f"  {path.name}: {'; '.join(detail) if detail else 'nothing to fix'}")
-    return True
+    for number, name in crowded:
+        print(f"  {path.name}: slide {number} {name!r} is too full for its "
+              f"figure - split it")
+    return not crowded
 
 
 def main(argv: list[str]) -> int:

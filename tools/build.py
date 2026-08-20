@@ -217,11 +217,15 @@ def build_slides(source: Path, engine: str | None) -> tuple[int, int]:
     finally:
         staged.unlink(missing_ok=True)
 
+    clean = True
     if ok:
         # pandoc's pptx output still needs repairing before it is safe to ship;
-        # see tools/postprocess_pptx.py for what and why.
-        postprocess_pptx.process(pptx)
-    made, failed = (made + 1, failed) if ok else (made, failed + 1)
+        # see tools/postprocess_pptx.py for what and why. Its result is part of
+        # whether the deck built: when the repair does not run, the file on disk
+        # is raw pandoc output with the title stacked on the body, and reporting
+        # that as a success is how a broken deck reaches a lecture room.
+        clean = postprocess_pptx.process(pptx)
+    made, failed = (made + 1, failed) if ok and clean else (made, failed + 1)
 
     if ok:
         pdf = pptx.with_suffix(".pdf")
