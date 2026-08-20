@@ -180,6 +180,12 @@ python tools/make_template.py
 
 ### Building a lesson with subagents
 
+The procedure is the `new-lesson` skill: `.claude/skills/new-lesson/SKILL.md`
+carries the phases as steps to walk, the four subagent briefs written out, and a
+detector that reads which phase a lesson is in off the filesystem, so one
+interrupted halfway is resumed from the files rather than from memory. What
+follows is why the order is what it is; the skill is how to execute it.
+
 The order matters more than the parallelism, and it is not the obvious one.
 
 **Phase A — sequential, main agent. Data and notebooks.** Design the synthetic

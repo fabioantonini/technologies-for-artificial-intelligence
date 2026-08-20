@@ -1,324 +1,35 @@
-Generate all five artefacts for one lesson of Technologies for Artificial Intelligence.
+Build one lesson of Technologies for Artificial Intelligence.
 
-## Arguments
-
-`$ARGUMENTS` has the form:
-
-```
-<TopicName> <NN> "<brief description>" [--refs "url1, url2"] [--depth standard|deep]
-```
-
-Examples:
+**This command has been replaced by the `new-lesson` skill.** Invoke that
+instead — it carries the same artefact specifications plus the phase order, the
+subagent briefs, and the review steps this command lacked.
 
 ```
-Regression 03 "Linear regression, cost function, gradient descent, Ridge and Lasso"
-
-TreesAndEnsembles 07 "Decision trees, bagging, random forests, gradient boosting, XGBoost" --depth deep
-
-ExperimentalMethodology 05 "Train/validation/test, cross-validation, bias-variance, leakage" --refs "https://scikit-learn.org/stable/modules/cross_validation.html"
+/new-lesson {NN}
 ```
 
-Parse into:
-
-- `TopicName` — PascalCase, used for the quiz filename (e.g. `TreesAndEnsembles`)
-- `topic_snake_case` — lowercase with underscores (e.g. `trees_and_ensembles`)
-- `NN` — two-digit lesson number; the target folder is `Lessons/{NN}_*/` which
-  **already exists** — do not create a new one, and do not rename it
-- `description`, `refs` (default none), `depth` (default `standard`)
+If the skill is not offered, read `.claude/skills/new-lesson/SKILL.md` directly
+and follow it.
 
 ---
 
-## Before writing anything
+## Why it moved
 
-Read `CLAUDE.md`. The audience section is not boilerplate: these are first-year CS MSc
-students, strong programmers, comfortable with linear algebra and probability, with no
-datasets of their own. Every artefact below depends on that.
+This command wrote the handout first and derived everything else from it. That
+order is wrong, and the repository has the evidence: a handout written before
+the code runs has to invent its numbers, and prose written ahead of execution
+was wrong four times across lessons 3 to 5.
 
-Three hard constraints, no exceptions:
+The skill uses the order that works — data and executed notebooks, then the
+handout against those numbers, then the remaining artefacts in parallel, then a
+review that executes rather than reads. `CLAUDE.md`, under "Building a lesson
+with subagents", says why.
 
-- **No LLM content**, and nothing requiring an API key or a network call at runtime.
-- **No Coursera / DeepLearning.AI derived material** — not the labs, not the figures,
-  not the slide notes.
-- **English throughout**, including file names.
-
-If `--refs` was given, fetch each URL with `WebFetch` **first** and treat it as the
-source of truth for current API signatures and version numbers.
-
----
-
-## Artefact 1 — Handout (`Docs/{topic_snake_case}.md`)
-
-The reference text. This is where the **mathematics lives**.
-
-Header, followed immediately by the lesson plan:
-
-```markdown
-# {Human-readable title}
-
-> **Lesson {NN} — Technologies for Artificial Intelligence**
-> Estimated reading time: XX minutes
-
----
-
-## Lesson plan
-
-| Time | Segment | Material |
-|---|---|---|
-| 0:00-0:20 | ... | ... |
-| ... | ... | ... |
-| | **Total** | **180 minutes** |
-```
-
-**The plan must sum to 180 minutes.** Write it before the body and use it to size the
-content: roughly 25-30 slides per lecture hour, 20-30 minutes per notebook worked
-through live, one break. A lesson that would run out after 100 minutes is under-built.
-
-Requirements:
-
-- Numbered `##` sections, `###` subsections.
-- Flowing prose that explains the *why*. No bullet-point-only sections.
-- **Complete derivations**, written out step by step, in LaTeX. Inline `$...$`,
-  display `$$...$$`. Do not skip algebra with "it can be shown that" — showing it is
-  the point of this document.
-- State assumptions explicitly, and say where each result stops holding.
-- Tables for comparisons; ASCII diagrams for structures and flows.
-- **Expand every acronym on first use**, in every artefact: mean squared error
-  (MSE), interquartile range (IQR). A student reading only the slides has not
-  read the handout.
-- **Name the predictable mistake.** Say what students will get wrong and why the
-  wrong answer is reasonable — the second half is what makes it useful.
-- **Choose one number worth remembering** and repeat it at the close.
-- **Check the notation table in CLAUDE.md** before introducing a symbol.
-- **Intuition before symbols.** Every derivation opens with a sentence or two of
-  plain language: what we are trying to do, and why this approach is the natural
-  one. Then the mathematics, then what the result means in the units of the
-  problem. A student who has the picture can rebuild the algebra; one who has
-  only the algebra has nothing when it stops applying.
-- **Every section ends in a concrete example.** State the result, then work it
-  through with real numbers from the lesson's dataset - ideally numbers the
-  student can check against a notebook output. An abstract derivation is one
-  they can follow and not use.
-- `standard`: at least 8 sections. `deep`: at least 12, each key concept getting a
-  derivation subsection.
-- Two or three challenge boxes between sections:
-
-```markdown
-> **Try this:** {A concrete experiment: change a parameter, swap a component,
-> observe the difference. One or two sentences.}
-```
-
-- Close with a **Further reading** table of 4-6 entries (title, type, why it is worth
-  reading). Prefer primary sources and official documentation.
-
----
-
-## Artefact 2 — Slides (`Slides/{topic_snake_case}_slides.md`)
-
-Markdown for **pandoc**, not Marp. Read `Course/slides_syntax_example.md` first — it
-is the reference for every construct that survives conversion.
-
-Front matter, exactly:
-
-```markdown
----
-title: "Lesson {NN} — {Human-readable title}"
-subtitle: "Technologies for Artificial Intelligence"
-author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "{lesson date from Course/SCHEDULE.md}"
----
-```
-
-Then:
-
-- `#` starts a new slide. Slide 1 is the agenda.
-- **Maximum 5-7 bullets per slide.** Slides are shown, not read.
-- **No full derivations.** State the result, give the intuition, point to the handout
-  section. This separation is the reason both documents exist.
-- Figures come from the lesson notebooks, referenced as `![Caption](figure_name.png)`
-  and living in the lesson's `Figures/`.
-- Use tables for comparisons and fenced code blocks for short snippets.
-- **Speaker notes on every content slide**, in a `notes` div. They never render on the
-  slide; they appear in presenter view. Write what the lecturer will say, one question
-  to put to the room, and the handout section carrying the derivation:
-
-```markdown
-::: notes
-Motivate with the housing example before the formula. Ask: why square the
-errors rather than take absolute values? Derivation in handout section 3.2.
-:::
-```
-
-- Write ordinary LaTeX for maths. The build converts inline math to Unicode and display
-  math to images automatically — you never write those substitutions yourself. Two
-  rules, both enforced by build warnings:
-  - **one block element per slide**: a figure, a display equation and a
-    `::: columns` layout each end the slide, so two of them means the second is
-    orphaned onto an untitled slide;
-  - **display maths goes last on its slide**, otherwise the text after it is orphaned
-    onto a new untitled slide;
-  - **inline maths must be simple enough for Unicode** (`x^2`, `\tfrac{1}{2}`, greek,
-    set symbols). Anything heavier belongs in display position or in the handout.
-- Two columns where a contrast helps:
-
-```markdown
-::: columns
-:::: column
-**Left**
-::::
-:::: column
-**Right**
-::::
-:::
-```
-
-- A 3-hour lesson is roughly 45-60 slides.
-
-Build and check it compiles:
+It also adds what this command had no notion of: `Resources/` as a required
+artefact, `Docs/worked_examples.py` as the arithmetic check, and a phase
+detector, so a lesson interrupted halfway is resumed from the filesystem rather
+than from memory.
 
 ```bash
-python tools/build.py {NN}
+python .claude/skills/new-lesson/scripts/lesson_state.py {NN}
 ```
-
----
-
-## Artefact 3 — Notebooks (`Notebooks/{NN}_{topic_snake_case}.ipynb`)
-
-Two to four notebooks per lesson, numbered from `01`.
-
-- **Cell 1** (markdown): `# {Title}` plus a paragraph on what the notebook shows and
-  which handout section it implements.
-- **Cell 2** (markdown): `## 1. Setup`
-- **Cell 3** (code): commented `pip install` with pinned versions, then imports, then
-  `np.random.seed(...)` — reproducibility is taught by example here.
-- Then alternate: markdown cell with the idea (2-4 sentences plus the key formula),
-  code cell implementing it, optional markdown cell on what to observe.
-- Final cell: `## Summary` recapping what was demonstrated.
-
-Rules:
-
-- Runs **top to bottom in a clean container**, no API key, no manual downloads beyond
-  `sklearn`/`openml` fetches with caching.
-- Real implementations on real or synthetic data — **never mocked results**.
-- At least one notebook per lesson implements the core method **from scratch with
-  NumPy** before showing the library version. This audience learns by building.
-- **Every figure used in the slides is generated here** and saved into the lesson's
-  `Figures/`:
-
-```python
-fig.savefig("../Figures/{descriptive_name}.png", dpi=150, bbox_inches="tight")
-```
-
----
-
-## Artefact 4 — Quiz (`Quizzes/{TopicName}-Quiz.ipynb`)
-
-Markdown cells only, no code cells. Exact format per `CLAUDE.md`:
-
-```markdown
-**1. Question text ending with a question mark?**
-
-<details>
-<summary>
-    <font size='3', color='darkgreen'><b>Answer</b></font>
-</summary>
-    <p>
-    <ul>
-        <li>First point — <b>bold</b> for key terms, <code>code</code> for formulas</li>
-    </ul>
-    </p>
-</details>
-```
-
-- Numbered sequentially across the whole notebook; section header cells separate from
-  question cells.
-- `standard`: at least 15 questions. `deep`: at least 25.
-- Mix definition, explanation, comparison, "why does X happen", and applied judgement.
-- Include at least three questions that require **reasoning about a derivation** from
-  the handout, not recall.
-
-Notebook JSON: `nbformat` 4, `nbformat_minor` 5, kernelspec Python 3, sequential cell
-ids.
-
----
-
-## Artefact 5 — Exercise (`Exercises/{NN}_{topic_snake_case}.md`)
-
-Assessed weekly work, so it must be unambiguous and self-contained.
-
-```markdown
-# Exercise {NN} — {Title}
-
-**Set:** {lesson date} · **Due:** {following lesson date}
-
-## Goal
-{One paragraph: what the student will be able to do afterwards.}
-
-## Dataset
-{Named dataset with the exact loading snippet. Never "your own data".}
-
-## Tasks
-1. ...
-2. ...
-
-## What to hand in
-A notebook named `{surname}_{NN}.ipynb` containing {explicit deliverables}.
-
-## Assessment criteria
-| Criterion | Weight |
-|---|---|
-| Methodological correctness | 40% |
-| Implementation | 30% |
-| Interpretation and communication | 30% |
-```
-
-Tasks must build towards the final project. Difficulty: solvable in 2-3 hours by a
-student who attended the lesson.
-
----
-
-## Finally
-
-Run the build, then report:
-
-```
-Lesson {NN} — {TopicName}
-
-  Docs/{topic_snake_case}.md            {n} sections, {n} derivations
-  Slides/{topic_snake_case}_slides.md   {n} slides -> .pptx built
-  Notebooks/                            {n} notebooks, {n} figures generated
-  Quizzes/{TopicName}-Quiz.ipynb        {n} questions
-  Exercises/{NN}_{topic_snake_case}.md  due {date}
-
-Options: --refs={refs or "none"} --depth={depth}
-```
-
-Flag anything you could not complete rather than reporting it as done.
-
-## Step 6 — verify, and only then commit
-
-The lesson is not finished until this passes:
-
-```bash
-python tools/verify_lesson.py {NN} --run
-```
-
-Write `Docs/worked_examples.py` as part of the lesson, not afterwards: it
-recomputes every number the handout works out by hand, **starting from the raw
-inputs rather than from the handout's own intermediate values**, and asserts it
-against what the handout prints. The verifier runs it and reports a lesson
-without one as incomplete.
-
-Then open the built slides PDF and look at every figure. Overlapping labels and
-clipped axes pass every automated check there is.
-
-See CLAUDE.md, "Verify before it reaches a student", for why this exists.
-
-## Building this with subagents
-
-If the lesson is built with subagents, the order is A to D and it is not
-negotiable: data and executed notebooks first, then the handout against those
-numbers, then slides, quiz and exercise in parallel, then an executable review.
-CLAUDE.md, "Building a lesson with subagents", says why the notebooks cannot
-come second.
-
-Generate a worked solution for the exercise as well — and do not commit it.
