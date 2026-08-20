@@ -11,13 +11,13 @@ date: "25 September 2026 · reading time about 70 minutes"
 |---|---|---|
 | 0:00–0:15 | Course introduction and assessment | Slides 1–8 |
 | 0:15–0:25 | Environment check | `Course/Setup/` |
-| 0:25–0:50 | What learning from data means | Slides 9–20 |
-| 0:50–1:05 | A short history | Slides 21–28, `Resources/` |
+| 0:25–0:50 | What learning from data means | Slides 9–22 |
+| 0:50–1:05 | A short history | Slides 23–30, `Resources/` |
 | 1:05–1:15 | **Break** | |
-| 1:15–1:45 | The three kinds of learning | Slides 29–36, notebook 02 |
-| 1:45–2:30 | The end-to-end workflow, live | Slides 37–46, notebook 01 |
-| 2:30–2:55 | How models mislead | Slides 47–54, notebook 03 |
-| 2:55–3:00 | Homework set, questions | Slide 55 |
+| 1:15–1:45 | The three kinds of learning | Slides 31–39, notebook 02 |
+| 1:45–2:30 | The end-to-end workflow, live | Slides 40–51, notebook 01 |
+| 2:30–2:55 | How models mislead | Slides 52–60, notebook 03 |
+| 2:55–3:00 | Homework set, questions | Slides 61–62 |
 | | **Total** | **180 minutes** |
 
 ---

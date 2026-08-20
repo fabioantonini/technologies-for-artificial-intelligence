@@ -10,14 +10,14 @@ date: "2 October 2026 · reading time about 80 minutes"
 | Time | Segment | Material |
 |---|---|---|
 | 0:00–0:10 | Recap of Exercise 1, today's map | Slides 1–6 |
-| 0:10–0:35 | Exploratory analysis and missing values | Slides 7–18 |
+| 0:10–0:35 | Exploratory analysis and missing values | Slides 7–19 |
 | 0:35–1:00 | Notebook 01, live | Notebook 01 |
 | 1:00–1:15 | **Break** | |
-| 1:15–1:40 | Scaling and encoding | Slides 19–30 |
+| 1:15–1:40 | Scaling and encoding | Slides 20–31 |
 | 1:40–2:05 | Notebook 02, live | Notebook 02 |
-| 2:05–2:20 | Leakage in preprocessing | Slides 31–38 |
+| 2:05–2:20 | Leakage in preprocessing | Slides 32–41 |
 | 2:20–2:50 | Notebook 03, live | Notebook 03 |
-| 2:50–3:00 | Homework set, questions | Slide 39 |
+| 2:50–3:00 | Homework set, questions | Slides 50–51 |
 | | **Total** | **180 minutes** |
 
 ---

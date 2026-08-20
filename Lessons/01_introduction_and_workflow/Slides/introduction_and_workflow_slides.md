@@ -187,8 +187,6 @@ Write a program that decides whether an email is spam.
 - Filter certain senders? They change.
 - The exceptions grow until nobody can maintain it
 
-![](spam_rules.png)
-
 ::: notes
 Work this conversationally. Ask the room for rules and write two or three on the board,
 then break each one: "buy now" - what about a legitimate shop newsletter? Sender
@@ -202,6 +200,25 @@ If someone proposes machine learning immediately, slow them down - the interesti
 is understanding precisely which difficulty it addresses.
 
 Take each row in turn and let someone in the room supply the exception before you reveal it. The pattern to draw out: every rule is defensible and every rule breaks, and the list has no end.
+:::
+
+# Every rule buys an exception
+
+![](spam_rules.png)
+
+::: notes
+Read the four rows down the left, and the exception each one buys on the
+right. Take them one at a time - the effect depends on the accumulation.
+
+The point is not that these are bad rules. Each is a reasonable idea, and
+each fails on a case that is obviously not spam to any human reader. Ask
+the room for a fifth rule and then for what breaks it; somebody will
+supply both within a few seconds, which is the demonstration.
+
+The line at the bottom is the one to leave them with: you cannot state the
+rule, but you recognise the answer. That gap is the whole reason this
+course exists, and every method in it is a way of closing it from
+examples instead of from specification.
 :::
 
 # The inversion
@@ -234,8 +251,6 @@ cleanest one-sentence description of what changed.
 - A loss `L(ŷ, y)`: the cost of answering ŷ when the truth is y
 - Goal: find f: X → Y that predicts well
 
-![](learning_setup.png)
-
 ::: notes
 Keep this brisk - handout section 2.1 has the full treatment and they will read it.
 
@@ -249,6 +264,25 @@ The loss function is where the domain enters the mathematics. Choosing it is a d
 about which mistakes matter, and we make that choice explicitly in twenty minutes.
 
 Point at the dashed box. Three of these objects we handle directly - the inputs, the function we search for, the predictions. The fourth, the distribution the data comes from, we never see. Everything difficult in this course comes from that one box being out of reach.
+:::
+
+# The setup, in one picture
+
+![](learning_setup.png)
+
+::: notes
+Everything on the previous slide, drawn once so it can be pointed at for
+the rest of the course.
+
+Trace the path with a finger: a pair is drawn from D, x goes into f, f
+produces y-hat, the loss compares y-hat against the y that came with it.
+Then say what is unknown - D is unknown, and it is the only thing we
+actually care about.
+
+Worth naming now, because it returns in lesson 5: we never see D. We see a
+sample from it, and every claim we make about a model is an inference from
+the sample to the distribution. Most of the methodology later in the
+course is about not fooling yourself in that step.
 :::
 
 # What we actually want
@@ -738,8 +772,6 @@ result and a number.
 - Who would use it, for what decision?
 - **Which error is worse?**
 
-![](error_costs.png)
-
 ::: notes
 The step everyone skips, and the one the exercise marks hardest.
 
@@ -756,6 +788,25 @@ chosen afterwards is a metric chosen to flatter - with enough candidates, one al
 looks good.
 
 Two of these cells are fine and two are not, and the two failures are not the same size. Accuracy adds them up as if they were. Ask which cell they would accept more of - and note that answering requires knowing who bears the cost, which is not a question about data.
+:::
+
+# Which error is worse?
+
+![](error_costs.png)
+
+::: notes
+Two problems, the same confusion matrix, and opposite answers about which
+cell hurts.
+
+Ask the room before reading either side. Missing a malignant tumour versus
+raising a false alarm; blocking a legitimate email versus letting spam
+through. Nobody needs statistics to rank these, and that is the point -
+the ranking comes from the application, and it has to arrive before any
+modelling decision is made.
+
+Lesson 4 turns this into a threshold that can be computed. Today it is
+enough that they see the question is not a modelling question, and that
+answering it with accuracy answers it by accident.
 :::
 
 # Step 2 — look first
@@ -826,8 +877,6 @@ model = make_pipeline(
 model.fit(X_train, y_train)
 ```
 
-![](pipeline_versus_manual.png)
-
 ::: notes
 Explain WHY, not just what.
 
@@ -844,6 +893,24 @@ This is structure beating discipline, and it is the single most useful habit in 
 scikit-learn API.
 
 The top row is the mistake, and note where 'split' sits: after the scaling. The mean used to scale the training rows was computed with the test rows included. Nothing errors, nothing warns, and the score comes out slightly too good - which is the worst kind of bug, because there is nothing to debug.
+:::
+
+# What the pipeline prevents
+
+![](pipeline_versus_manual.png)
+
+::: notes
+The same two steps, done in the two orders, with what each one shows the
+test set.
+
+On the manual side the scaler is fitted on everything, so the mean and the
+standard deviation it subtracts already contain the test rows. The model
+is then evaluated on data it has, in a small way, already seen. The score
+comes out slightly too high, and nothing anywhere raises an error.
+
+Emphasise that last part. This is not a mistake that announces itself: it
+produces a working notebook and a plausible number. Lesson 2 measures what
+it costs on a real dataset, and lesson 5 gives it its name.
 :::
 
 # Step 6 — the result
@@ -884,8 +951,6 @@ them separately.
 - **Precision** (malignant): how often an alert is correct
 - They trade off against each other
 
-![](precision_recall_tradeoff.png)
-
 ::: notes
 Use the figure to make the trade-off physical: the threshold is a line you slide, and
 sliding it moves errors from one column to the other.
@@ -902,6 +967,23 @@ Lesson 4 builds the tools properly: receiver operating characteristic
 (ROC) curves, precision-recall curves, choosing an
 operating point. Today they need to see that the trade-off exists and that it is not
 the model's decision to make.
+:::
+
+# The trade-off, drawn
+
+![](precision_recall_tradeoff.png)
+
+::: notes
+One model, one dataset, and the threshold swept from one end to the other.
+
+Follow the two curves in opposite directions. Lower the threshold and
+recall rises - we catch more of what is there - while precision falls,
+because more of what we flag is wrong. There is no setting where both are
+at their best, and no amount of better modelling removes the trade.
+
+So the question of whether a model is good has no answer until somebody
+says which error is worse, which is the slide from earlier arriving again
+with a number attached. Lesson 4 spends an hour here.
 :::
 
 # What we did not do
@@ -997,8 +1079,6 @@ methodology marks regardless of the result obtained.
 - Accuracy: **0.986**
 - Recall on positives: **0.000**
 
-![](imbalance_matrix.png)
-
 ::: notes
 The trained model in the notebook reaches 0.987 accuracy - barely above the trivial one
 - while missing 20 of the 21 positives in the test set.
@@ -1013,13 +1093,30 @@ lesson 4 needs a whole session.
 Read the bottom-left cell in both matrices: 21 missed, then 20 missed. The accuracies differ by one thousandth. If you reported only accuracy, these two systems look identical - and one of them is a constant function that never looks at the input.
 :::
 
+# Two models, one accuracy
+
+![](imbalance_matrix.png)
+
+::: notes
+Two confusion matrices side by side. Give them a moment to spot that the
+accuracies agree to three decimal places.
+
+Left is the model that answers negative every time and has learned nothing
+whatever. Right is a trained model. 0.986 against 0.987 - and the one on
+the right finds a single positive out of twenty-one, which is barely
+better than nothing but is not nothing.
+
+Ask what a report containing only the accuracy would say about these two,
+and let the silence do the work. Then point at the bottom-left cell of
+each: that is the number the application cares about, and it is the one
+accuracy averages away.
+:::
+
 # Shortcut features
 
 A column that is a **consequence** of the label, not a predictor of it.
 
 `biopsy_scheduled` → accuracy rises → model is worthless
-
-![](shortcut_timeline.png)
 
 ::: notes
 Explain why it is worthless: biopsies are scheduled once malignancy is already
@@ -1037,6 +1134,25 @@ about how they would find this.
 The question to carry: at the moment a prediction is needed, does this value exist yet?
 
 The shaded region is the trap. Everything to the right of the blue marker happens after the moment a prediction is needed, so none of it can be an input. Give them the question in the title as the thing to ask of every column in every dataset they are handed.
+:::
+
+# Does this value exist yet?
+
+![](shortcut_timeline.png)
+
+::: notes
+A timeline, with the moment of prediction marked, and everything that
+happens after it shaded.
+
+Walk left to right: the scan is taken, measurements are recorded - both
+before the prediction is needed, both usable. Then the shaded region: the
+diagnosis is made, the biopsy is scheduled. A model leaning on
+biopsy_scheduled scores beautifully in the notebook and has nothing to
+read at the moment it would actually be used.
+
+The question in the title is the one to make a habit of, and it is worth
+saying that it cannot be answered by looking at the data. It is answered
+by asking somebody who knows how the data is produced.
 :::
 
 # One split is one measurement

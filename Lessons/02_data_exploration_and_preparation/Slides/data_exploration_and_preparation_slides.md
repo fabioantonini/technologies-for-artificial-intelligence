@@ -195,14 +195,31 @@ itself is filled with a number. Handout Section 3.3.
 - **Impute** — mean/median, most-frequent, `KNNImputer`
 - **Add a missingness indicator** — keeps MAR signal alive
 
-![](missing_data_decision.png)
-
 ::: notes
 Four options, and the choice is a question about WHY the data is missing rather than about how much is missing.
 
 The one worth dwelling on is the fourth: adding a binary indicator keeps the MAR signal itself available to the model - the fact that long-tenure customers are more often missing a call count may be more informative than the count would have been.
 
 Then the line at the bottom: every option except dropping the column learns a statistic, so all of them belong inside the training fold. That is the thread the whole lesson pulls on.
+:::
+
+# Choosing among the four
+
+![](missing_data_decision.png)
+
+::: notes
+A decision path rather than a rule: how much is missing, does the
+missingness look related to anything, and what does the column cost if it
+goes.
+
+Point out that three of the four branches end somewhere defensible, and
+that the indicator branch is the one people forget. Adding a column that
+records that a value was missing costs nothing and keeps the signal alive
+when the fact of the gap is itself informative - which for anything
+recorded by a human it usually is.
+
+The branch worth warning about is dropping rows. It is the easiest to do
+and the only one that can quietly change what the sample represents.
 :::
 
 # Outliers, two rules
@@ -592,14 +609,30 @@ thing the easy thing.
 
 Modest accuracy gain. Why?
 
-![](churn_confusion_matrix.png)
-
 ::: notes
 Let the room answer why the accuracy gain is modest. The dataset is 80/20 imbalanced, so accuracy is dominated by the majority class - exactly as Lesson 1 warned, and the first time they meet it on data they prepared themselves.
 
 The matrix shows where the errors sit: read the bottom-left cell, the churners the model missed. The area under the receiver operating characteristic curve — AUC, which Lesson 4 builds properly — at 0.752 is unaffected by the imbalance and says there is real signal that accuracy is hiding.
 
 Had we reported only accuracy, this model would look barely better than the baseline and someone would reasonably conclude the features were useless.
+:::
+
+# Where the errors fall
+
+![](churn_confusion_matrix.png)
+
+::: notes
+The accuracy gain was fourteen thousandths. This is where those errors
+actually sit, and it explains why the gain is small.
+
+Read the bottom row: almost every customer who churned was predicted to
+stay. The model has learned to predict the majority class slightly more
+cleverly than the baseline does, and on the class the business would pay
+to identify it is close to useless.
+
+Then connect it back to lesson 1 and its imbalance slide. Same shape,
+different dataset, and it took a confusion matrix to see it in both
+cases. Accuracy on its own would have reported this as progress.
 :::
 
 # Feature engineering
@@ -678,14 +711,30 @@ their five nearest neighbours.
 
 Nothing raised an error.
 
-![](smoking_gun.png)
-
 ::: notes
 98 of 128. Not an edge case - the substantial majority of imputed training rows borrowed a value from at least one row the model would later be scored on.
 
 Stress that nothing in the code looks wrong. KNNImputer did exactly what it says: found the nearest neighbours in the data it was given. The error was in what it was given, and it happened one line earlier.
 
 This is the number to put on the board if only one number from today survives.
+:::
+
+# Leakage, counted
+
+![](smoking_gun.png)
+
+::: notes
+Ninety-eight of a hundred and twenty-eight, drawn so the proportion lands.
+
+Say what was actually done: the imputer was fitted before the split, so
+when it filled a missing age it was allowed to look at test rows to decide
+what to fill it with. Three quarters of the affected training rows had a
+test row among the five neighbours it consulted.
+
+The sentence to leave hanging is the one from the slide before: nothing
+raised an error. The notebook ran, the score improved, and the improvement
+was the test set leaking into the training data one imputed value at a
+time. This is the argument for the pipeline, made in numbers.
 :::
 
 # Leak 2 — encode before splitting
