@@ -105,11 +105,38 @@ def markdown_of(path: Path) -> str:
     return path.read_text(encoding="utf8")
 
 
+def ignored() -> frozenset[Path]:
+    """Paths git ignores, which is how this repo marks instructor-only files.
+
+    The only content under an ignore rule is the worked exercise solutions:
+    generated for whoever marks the work, never committed. They are held to the
+    same standards while being written, but not by this gate, which exists to
+    check what reaches a student. A red result on a file no student will open is
+    a red result people learn to scroll past.
+    """
+    if not hasattr(ignored, "_cache"):
+        try:
+            out = subprocess.run(
+                ["git", "ls-files", "--others", "--ignored", "--exclude-standard"],
+                cwd=ROOT, capture_output=True, text=True, check=True).stdout
+            ignored._cache = frozenset(
+                (ROOT / line).resolve() for line in out.splitlines() if line)
+        except (subprocess.CalledProcessError, FileNotFoundError, OSError):
+            ignored._cache = frozenset()  # not a checkout: check everything
+    return ignored._cache
+
+
+def shipped(paths) -> list[Path]:
+    """Those of `paths` that a student will actually receive."""
+    skip = ignored()
+    return [p for p in paths if p.resolve() not in skip]
+
+
 def artefacts(lesson: Path) -> list[Path]:
-    return [p for p in sorted(lesson.rglob("*"))
-            if p.suffix in (".md", ".ipynb")
-            and "checkpoint" not in str(p)
-            and "__pycache__" not in str(p)]
+    return shipped(p for p in sorted(lesson.rglob("*"))
+                   if p.suffix in (".md", ".ipynb")
+                   and "checkpoint" not in str(p)
+                   and "__pycache__" not in str(p))
 
 
 # --------------------------------------------------------------- notebooks
@@ -117,7 +144,7 @@ def artefacts(lesson: Path) -> list[Path]:
 def check_notebooks(lesson: Path, report: Report, run: bool) -> None:
     notebooks = sorted((lesson / "Notebooks").glob("*.ipynb"))
     notebooks += sorted((lesson / "Quizzes").glob("*.ipynb"))
-    notebooks += sorted((lesson / "Exercises").glob("*.ipynb"))
+    notebooks += shipped(sorted((lesson / "Exercises").glob("*.ipynb")))
     if not notebooks:
         report.fail("notebooks", "none found")
         return
