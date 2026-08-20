@@ -67,8 +67,8 @@ distinct is what lets the course be rigorous without slowing the lecture down.
 | **Slides** (`Slides/`) | The in-class skeleton: statements, intuitions, figures. **Little mathematics.** | Markdown | `.pptx` + `.pdf` |
 | **Notebook** (`Notebooks/`) | The implementation: code that makes operational what the handout proves. | Jupyter | — |
 
-Plus `Quizzes/` (self-check), `Exercises/` (assessed homework) and, where useful,
-`Resources/` (optional supplementary reading).
+Plus `Quizzes/` (self-check), `Exercises/` (assessed homework) and
+`Resources/` (supplementary reading, not examinable - see below).
 
 ### Every lesson fills three hours, and every lesson sets homework
 
@@ -103,14 +103,13 @@ it is what makes ten mathematically serious handouts feasible part-time.
 
 ```
 Course/            SYLLABUS.md, SCHEDULE.md, PREREQUISITES.md, template.pptx, Setup/
-Lessons/NN_topic/  Docs/ Slides/ Notebooks/ Quizzes/ Exercises/ Figures/ [Resources/]
+Lessons/NN_topic/  Docs/ Slides/ Notebooks/ Quizzes/ Exercises/ Figures/ Resources/
 Assessment/        Project/ Exam/ Exercises/
-tools/             build.py, make_template.py, postprocess_pptx.py, render_math.py, release.py
+tools/             build.py, verify_lesson.py, make_template.py, postprocess_pptx.py, render_math.py, release.py
 ```
 
-`Resources/` is the one optional folder: supplementary reading that enriches a lesson
-without being examinable, such as the history of AI in lesson 1. Everything else is
-present in every lesson.
+`Resources/` holds the supplementary reading described below. Every folder in the
+layout is present in every lesson, with no exceptions.
 
 The layout is **uniform with no exceptions**. The previous course repository drifted
 into five naming schemes and two parallel slide formats; that is the specific failure
@@ -178,6 +177,42 @@ Rebuild the template only when the visual identity changes:
 ```bash
 python tools/make_template.py
 ```
+
+### Building a lesson with subagents
+
+The order matters more than the parallelism, and it is not the obvious one.
+
+**Phase A — sequential, main agent. Data and notebooks.** Design the synthetic
+dataset with published truth, write the notebooks, **execute them**, and
+recalibrate until the numbers tell the story the lesson needs. Produces:
+verified numbers, and every figure.
+
+**Phase B — sequential, main agent. The handout.** Written against the executed
+numbers, with the figures embedded, plus `Docs/worked_examples.py`.
+
+**Phase C — parallel, three subagents. Slides, quiz, exercise.** Each receives
+the finished handout, the notebook outputs, this file, and the previous lesson
+as an example of register. These three are genuinely independent of one another.
+
+**Phase D — executable review.** `verify_lesson.py NN --run`, then the built
+PDFs opened and looked at.
+
+**Why the notebooks come first, and are not delegated.** The numbers are
+*discovered* by running code, not transcribed. Writing prose before executing
+produced a wrong figure four times over lessons 3 to 5 — "about 2,600" when the
+fit gave 2,785; overfitting invisible at 84 training points; Lasso penalties out
+by a factor of a thousand; two learning curves that looked identical. A handout
+written first must invent its numbers, and then either the notebooks contradict
+it or, worse, they are made to agree with it.
+
+**Why the review must execute rather than read.** The one arithmetic error that
+reached a built PDF survived being written, reviewed, rewritten by a separate
+agent, and audited across all 113 equations — because every number downstream of
+it was correctly derived from the wrong one. A reviewing agent finds plausible
+work plausible. Only recomputation from the raw inputs caught it.
+
+**Exercise solutions.** Generate a worked solution for each exercise, keep it
+out of the repository, and never commit it.
 
 ### Name the predictable mistakes
 
@@ -285,6 +320,37 @@ Concretely:
 - Where a method has a failure mode, show it happening on data rather than
   describing it. Lesson 1's 77% accuracy on coin-flip labels does more than a
   paragraph about leakage would.
+
+### The handout carries the slides' figures
+
+**Every figure that appears on a slide appears in the reading material too** —
+the handout, or `Resources/` where that is the document telling the story.
+Equation images are the exception: the handout renders real LaTeX.
+
+The reason is what a handout is *for*. It is read after the lecture, when the
+projected figures are gone, and for most of this course it was the one artefact
+with no picture in it at all: 0 figures against 80 across the decks.
+
+Each one gets a caption in italics saying **what to look at**. A figure a reader
+has to decode unaided is decoration.
+
+`tools/verify_lesson.py` enforces both halves — that the figure is referenced,
+and that it actually reached the PDF. The second check exists because pandoc
+drops an image it cannot find without a word of complaint and still exits zero.
+
+### Every lesson has a `Resources/` folder
+
+No longer optional. One supplementary document per lesson: material that is
+**transversal rather than deeper** — applications, legal constraints,
+consequences, history — explicitly not examinable, and useful for widening the
+view rather than passing the exam.
+
+The five written so far: the history of AI; where data comes from and what it
+costs, under the GDPR; where linear models still win, and regression to the mean
+as a reasoning trap; classifying people, and the fairness impossibility result;
+the replication crisis and machine learning's version of it.
+
+Each opens by saying it is not examinable and stating a reading time.
 
 ### Verify before it reaches a student
 

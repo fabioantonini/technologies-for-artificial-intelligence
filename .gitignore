@@ -24,3 +24,9 @@ Thumbs.db
 # Python virtual environments (WSL/local toolchain)
 .venv/
 venv/
+
+# Worked solutions to the exercises: generated for the instructor,
+# never distributed to students.
+*_solution.ipynb
+*_solution.md
+Solutions/

@@ -312,3 +312,13 @@ Then open the built slides PDF and look at every figure. Overlapping labels and
 clipped axes pass every automated check there is.
 
 See CLAUDE.md, "Verify before it reaches a student", for why this exists.
+
+## Building this with subagents
+
+If the lesson is built with subagents, the order is A to D and it is not
+negotiable: data and executed notebooks first, then the handout against those
+numbers, then slides, quiz and exercise in parallel, then an executable review.
+CLAUDE.md, "Building a lesson with subagents", says why the notebooks cannot
+come second.
+
+Generate a worked solution for the exercise as well — and do not commit it.
