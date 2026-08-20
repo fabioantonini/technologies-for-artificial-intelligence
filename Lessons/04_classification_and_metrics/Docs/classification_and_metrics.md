@@ -63,6 +63,10 @@ is there to be found out.
 
 ### 2.1 What goes wrong with a straight line
 
+![](linear_vs_logistic.png)
+
+*Left, ordinary least squares on a 0/1 label: the shaded bands are where the line claims something that cannot be true, and 45% of the fleet sits in the lower one. Right, the same data with a curve that cannot leave the interval.*
+
 Fit ordinary least squares to the 0/1 label using one feature, the count of
 reallocated sectors. Nothing prevents it. The result is
 
@@ -78,6 +82,10 @@ reconciles the two. **The shape of the function has to change, not its
 parameters.**
 
 ### 2.2 The sigmoid
+
+![](sigmoid_and_odds.png)
+
+*Left, the sigmoid: steep where the evidence is genuinely ambiguous, flat where your mind is already made up. Right, the same relationship inverted — the log-odds run over the whole real line, which is exactly the range a linear model can safely predict.*
 
 **The picture first.** We want a function that takes any real number — the
 output of a linear model, which can be anything — and returns something between
@@ -148,6 +156,10 @@ the log-odds linearly and then ask for the probability back.
 | 0.99 | 99 to 1 | +4.60 |
 
 ### 2.4 Reading the coefficients
+
+![](decision_boundary.png)
+
+*Two features, so the model can be drawn. The boundary is a straight line — logistic regression is a linear classifier, and the curve is in the probabilities rather than in the boundary. Note how many gold points sit on the healthy side: that is the threshold, not the model.*
 
 Because $z$ is log-odds, $e^{w_j}$ is a **multiplier on the odds** for a
 one-unit increase in $x_j$. With standardised features, one unit is one standard
@@ -302,6 +314,10 @@ grows without bound as $p \to 0$.
 
 ### 4.2 The sharper problem: the gradient dies
 
+![](loss_comparison.png)
+
+*Left, what each loss charges for being wrong: squared error is capped near 1, log loss is not. Right, the part that matters — squared error's gradient collapses towards zero exactly where the model is most confidently wrong, while log loss pushes hardest there.*
+
 The costs matter less than the gradients, because gradients are what the
 optimiser uses. Differentiate both with respect to $z$, for an example with
 $y = 1$:
@@ -356,6 +372,10 @@ logistic regression**. It must be solved iteratively, which is why
 
 ### 5.1 The number to remember from this lesson
 
+![](confusion_matrix.png)
+
+*The same test set under two models. The accuracy figures differ by 1.5 points; the number that separates them — 0 failures caught against 43 — appears in neither.*
+
 Our test set is 2,000 drives, 76 of which failed. Consider two models.
 
 | Model | Accuracy | Failures caught |
@@ -391,6 +411,10 @@ as in some fraud problems, it is 99.9%.
 
 ## 6. The confusion matrix and what is built on it
 
+![](precision_recall_curve.png)
+
+*Every threshold at once. The dashed line is what "no skill" looks like on this problem — the positive rate, 0.038, not 0.5. Section 8 returns to why that baseline matters more than the curve's shape.*
+
 ### 6.1 Four numbers
 
 Stop collapsing the result into one number and count all four outcomes.
@@ -419,6 +443,10 @@ Read the bottom-left cell first when misses are expensive: **33 drives failed
 and were called healthy.**
 
 ### 6.2 Precision and recall
+
+![](metric_denominators.png)
+
+*The difference is entirely the denominator. Precision divides by the shaded **column**, everything we flagged; recall divides by the shaded **row**, everything that actually failed.*
 
 Both divide the true positives. They differ in the denominator, and the
 denominator is the whole meaning.
@@ -496,6 +524,10 @@ a mediocre model look finished.
 
 ### 7.1 Nothing about the model changes along this axis
 
+![](threshold_sweep.png)
+
+*The fitted model is identical at every point on this axis: same coefficients, same probabilities, same drives. Only the line between "leave it" and "replace it" moves.*
+
 Every number in section 6 depended on a rule we never examined: flag the drive
 when $\hat{y} \geq 0.5$.
 
@@ -529,6 +561,10 @@ So when a paper or a colleague reports 77% precision, the useful question is:
 *at what threshold, and why that one?*
 
 ### 7.2 Choosing the threshold from costs
+
+![](cost_curve.png)
+
+*Total cost against threshold, with a miss priced at nineteen false alarms. The minimum is far below 0.5, and the curve is nearly flat around it — so the exact value does not have to be right, which is fortunate, because cost estimates never are.*
 
 The only defensible answer requires one ingredient no metric supplies: **what
 the errors cost.** Suppose
@@ -582,6 +618,10 @@ demonstration of a method, not a number you could report.
 ---
 
 ## 8. ROC and AUC
+
+![](roc_curve.png)
+
+*The three marked points are three thresholds on one curve. The diagonal is guessing; the top-left corner is perfection; the area between says how far towards the corner this model got.*
 
 ### 8.1 The curve
 
@@ -642,6 +682,10 @@ believable — because you are computing expected costs, as in section 7.2 — A
 is not the check you want.
 
 ### 8.3 Where ROC misleads
+
+![](roc_vs_pr_imbalance.png)
+
+*One model, drawn twice, as the positives are thinned from 3.8% to 0.4%. On the left the three curves lie almost on top of each other. On the right they are in different worlds.*
 
 An AUC of 0.949 sounds like a finished project. Now make the positives rarer,
 which is the direction reality moves in fraud, disease and hardware failure.
@@ -750,6 +794,10 @@ which is the same idea as before: the negative log of the probability the model
 assigned to what actually happened.
 
 ### 10.2 Metrics with three classes
+
+![](multiclass_confusion.png)
+
+*Read the off-diagonal cells rather than the accuracy. Degraded is the hard class: it sits between two neighbours that both resemble it, and the model confuses it in both directions.*
 
 The confusion matrix becomes $K \times K$, and precision and recall are computed
 **one class at a time**: for each class in turn, that class is positive and the

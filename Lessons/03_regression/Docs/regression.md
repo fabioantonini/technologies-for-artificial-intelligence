@@ -31,6 +31,10 @@ Slide 1 is the title slide, so the numbers above match the page numbers in
 
 ## 1. Why regression comes first
 
+![](price_vs_area.png)
+
+*The dataset the whole lesson uses: 600 houses, price against floor area. The relationship is clearly there and clearly not exact, which is what makes it worth a model rather than a lookup table.*
+
 This is the first method in the course, and it is a good first method for three
 reasons that have nothing to do with it being simple.
 
@@ -74,6 +78,10 @@ linear models but to know what you have assumed — Section 5 shows how to check
 and how to relax the assumption when it fails.
 
 ### 2.2 Why squared error
+
+![](cost_surface.png)
+
+*The cost as a function of the two parameters. It is a bowl, and a bowl has exactly one bottom — which is why squared error can be minimised exactly rather than searched for.*
 
 **The picture first.** We need a single number saying how badly a candidate
 model is doing, so that "fitting" becomes "make this number small". The obvious
@@ -136,6 +144,10 @@ not you notice it.
 ## 3. The exact solution
 
 ### 3.1 The normal equation, derived
+
+![](projection_picture.png)
+
+*Least squares as a shadow. The fitted values are the projection of $y$ onto the space the columns of $X$ can reach, and the residual is what is left over — perpendicular to that space, which is exactly what $X^\top(X\theta - y) = 0$ says.*
 
 **The picture first.** Each column of your data matrix is a direction you are
 allowed to move in. Any prediction the model can make is some combination of
@@ -247,6 +259,10 @@ next section is why.
 
 ### 4.1 The update rule, derived
 
+![](gradient_descent_path.png)
+
+*The path taken across the cost surface. Each step is against the gradient, and the steps shorten as the slope flattens near the bottom.*
+
 **The picture first.** You are standing on a hillside in fog and want to reach
 the bottom. You cannot see the valley, but you can feel which way the ground
 slopes under your feet. So you take a step downhill, feel again, and repeat.
@@ -304,6 +320,10 @@ The cure is Lesson 2's: scale the features, and both directions move at
 comparable speed.
 
 ### 4.3 Choosing the learning rate
+
+![](learning_rate_regimes.png)
+
+*Three learning rates on the same problem: too small and it crawls, about right and it arrives, too large and it climbs the opposite wall. The third case diverges — the cost goes *up*.*
 
 The step size $\alpha$ is the one parameter gradient descent cannot choose for
 itself, and both failure modes are worth recognising on sight.
@@ -372,6 +392,10 @@ gradient descent is slow. One quantity, both failure modes.
 
 ### 5.1 A linear model that bends
 
+![](energy_curve.png)
+
+*Daily energy against outdoor temperature, with a minimum near 18 °C. Heating below, cooling above: no straight line can follow this, and no amount of fitting will make one.*
+
 "Linear" refers to the coefficients, not the inputs. Nothing prevents us from
 handing the model $x^2$ as an additional column:
 
@@ -386,6 +410,10 @@ transformation you can compute. It is the reason linear models remain useful on
 relationships that are not straight lines.
 
 ### 5.2 What it costs
+
+![](underfit_residuals.png)
+
+*The straight line's residuals still carry the shape of the curve. Residuals that hold a pattern are the model telling you it has not finished.*
 
 Notebook 2 fits a curve — daily energy consumption against outdoor temperature,
 with a minimum around 18 °C — on 21 training observations. Here is the whole
@@ -413,6 +441,14 @@ it, and it is why Section 2.3 of Lesson 1's handout matters.
 
 ### 5.3 The mechanism
 
+![](residuals.png)
+
+*The right degree leaves residuals with no pattern left in them — scattered around zero, no shape. That is what "nothing left to model" looks like, and it is the check to run on any fit.*
+
+![](polynomial_degrees.png)
+
+*The same 21 observations at three degrees. The rightmost passes closest to the training points, which is precisely why it is the worst model here.*
+
 Why does a flexible model behave badly, rather than merely using its flexibility
 where it is needed?
 
@@ -434,6 +470,10 @@ should disappear.
 ## 6. Regularisation
 
 ### 6.1 Two penalties
+
+![](train_test_by_degree.png)
+
+*Training error falls with every degree added; test error turns around. The gap between the two curves is the overfitting, and the turning point is what regularisation exists to find without hunting for it by hand.*
 
 Add a price for size to the cost:
 
@@ -500,6 +540,10 @@ when least squares has none or infinitely many.
 
 ### 6.3 Why Lasso reaches zero and Ridge does not
 
+![](ridge_lasso_geometry.png)
+
+*The constraint regions: a disc for Ridge, a diamond for Lasso. The diamond has corners **on the axes**, and a corner is where the solution tends to land — which is the whole reason Lasso produces exact zeros and Ridge does not.*
+
 **The picture first.** Think of the penalty as a budget. You may spend a fixed
 total on coefficients, and you want the best fit that money can buy. The two
 methods differ only in how they charge you — by the square of each coefficient,
@@ -538,6 +582,10 @@ threshold. It is what happens when a constraint region has corners on the axes.
 
 ### 6.4 Worked: what a penalty buys
 
+![](alpha_trade_off.png)
+
+*The trade in one picture. A small penalty buys a large fall in test error; too much rigidity gives it all back. The useful range spans four orders of magnitude, which is why the penalty cannot be guessed.*
+
 Notebook 3 applies Ridge to the degree-12 disaster from Section 5:
 
 | Model | Training RMSE | Test RMSE | Largest \|w\| |
@@ -562,6 +610,10 @@ argument for why $\lambda$ cannot be guessed and must be searched. Lesson 5 prov
 machinery.
 
 ### 6.5 Worked: Lasso as a feature selector
+
+![](regularisation_paths.png)
+
+*Every coefficient tracked as the penalty sweeps from nothing to a lot. Ridge coefficients shrink towards zero and arrive only in the limit; Lasso coefficients hit zero at a finite penalty and stay there.*
 
 On the housing data, raising $\lambda$ drops features in a specific order:
 
@@ -597,6 +649,10 @@ a bedroom is worth *to a house whose floor area does not change*, which is a
 strange object: a house that gains a bedroom without gaining any space.
 
 ### 7.2 Worked: when the estimate can be trusted
+
+![](coefficient_trust.png)
+
+*The same coefficient estimated across four random splits of the same data. Where the feature is well conditioned the estimate barely moves; where two columns carry one fact, it swings wildly.*
 
 Notebook 1 fits all six features and compares against the truth:
 

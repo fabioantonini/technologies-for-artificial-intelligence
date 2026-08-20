@@ -178,12 +178,14 @@ def render_image(latex: str, figures: Path, display: bool = True) -> Path | None
 def figures_dir(source: Path) -> Path:
     """Where equation images belong for a given slide source.
 
-    Inside a lesson the slides live in `Slides/` and share the lesson's
+    Inside a lesson the slides and the handout both live one level below
+    the lesson folder, and share its``Figures/`` with the notebooks.
+    Originally this covered only `Slides/` and share the lesson's
     `Figures/` with the notebooks. Anywhere else - the syntax example in
     `Course/`, say - keep the images beside the source instead of inventing a
     `Figures/` folder one level up.
     """
-    if source.parent.name == "Slides":
+    if source.parent.name in ("Slides", "Docs"):
         return source.parent.parent / "Figures"
     return source.parent / "Figures"
 

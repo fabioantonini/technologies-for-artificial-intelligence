@@ -28,6 +28,18 @@ different name.
 
 ## 1. Foundations (1943–1956)
 
+![](hist_1943_neuron.png)
+
+*1943: the first artificial neuron — inputs, weights, a threshold.*
+
+![](hist_1950_imitation.png)
+
+*1950: Turing's imitation game, which replaced "can machines think" with a question that can actually be settled.*
+
+![](hist_1956_dartmouth.png)
+
+*1956: Dartmouth, where the field acquired both its name and its habit of optimistic timelines.*
+
 ### 1943 — A logical calculus
 
 Warren McCulloch, a neurophysiologist, and Walter Pitts, a logician, publish *A Logical
@@ -77,6 +89,14 @@ characteristic optimism is present at its naming.
 ---
 
 ## 2. The symbolic era and the first winter (1956–1980)
+
+![](hist_1957_perceptron.png)
+
+*1957: the perceptron — the first machine that improved with experience rather than with rewriting.*
+
+![](hist_1969_xor.png)
+
+*1969: XOR, a function a single-layer perceptron cannot represent, and the book that ended the first wave of funding.*
 
 ### 1957 — The perceptron
 
@@ -131,6 +151,10 @@ handout, discovered the hard way.
 
 ## 3. Connectionism returns, then falters (1986–1995)
 
+![](hist_1986_backprop.png)
+
+*1986: backpropagation — the chain rule applied to a network, which made several layers trainable at last.*
+
 ### 1986 — Backpropagation
 
 Rumelhart, Hinton and Williams popularise an efficient way to compute the gradient of
@@ -160,6 +184,10 @@ unmaintainable. Funding contracts again.
 
 ## 4. The statistical era (1995–2012)
 
+![](hist_1995_svm.png)
+
+*1995 onwards: support vector machines and the statistical turn, where theory caught up with practice for about fifteen years.*
+
 The field retreats from "simulating intelligence" to "estimating functions from data".
 Ambition down, rigour sharply up.
 
@@ -178,6 +206,10 @@ is unglamorous and it is where the reliable tools come from.
 ---
 
 ## 5. Deep learning and scale (2012–)
+
+![](hist_2012_imagenet.png)
+
+*2012: AlexNet. Conceptually little was new — what had changed was data and compute.*
 
 ### 2012 — AlexNet
 

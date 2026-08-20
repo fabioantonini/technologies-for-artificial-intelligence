@@ -65,6 +65,10 @@ the ground truth in Sections 3 and 9; real projects rarely afford the check.
 
 ## 2. Exploratory analysis
 
+![](numeric_distributions.png)
+
+*Every numeric column, before anything is done to it. Shapes, ranges and outliers are all visible here and in none of the summary statistics.*
+
 Before any transformation, look. This is not a formality; it is the step that
 tells you which of the remaining sections apply at all, and skipping it is how
 a `999`-month tenure or a category with one member ends up inside a model
@@ -110,7 +114,15 @@ and applying them everywhere is not. Section 8 makes the boundary precise.
 
 ## 3. Missing values
 
+![](missingness_pattern.png)
+
+*Where the gaps are. What a bar chart of missingness cannot show is whether the gaps are related to each other or to the target — which is exactly what decides the fix.*
+
 ### 3.1 Three mechanisms, and why the difference matters
+
+![](missingness_mechanisms.png)
+
+*The three mechanisms side by side. The distinction is not academic: it determines which repair is valid and which quietly reweights your sample.*
 
 Not all missingness is the same, and treating it as if it were is the most
 common preparation mistake in practice. The standard taxonomy, due to Rubin
@@ -155,6 +167,10 @@ usually to flag the pattern and report the limitation rather than to impute
 past it.
 
 ### 3.2 Why mean imputation is not "no information lost"
+
+![](correlation_attenuation.png)
+
+*What filling with the mean actually costs. The column keeps its average and loses its spread, so its relationship with everything else is attenuated by $\sqrt{1-p}$ — visible here as a flattening cloud.*
 
 **The picture first.** Suppose you know the heights of a class, and for a few
 students you write down the class average instead of measuring them. The average
@@ -222,6 +238,10 @@ so, and this section is the quantitative version of the same warning.
 
 ### 3.3 What to do about it
 
+![](missing_data_decision.png)
+
+*The decision, as a chart. Note that every branch depends on the mechanism, which is why Section 3.1 comes first.*
+
 - **Drop rows** only when the missing fraction is small and the mechanism is
   MCAR; otherwise you are silently reweighting the sample.
 - **Drop the column** if it is missing too often to be useful and no proxy
@@ -246,6 +266,10 @@ learned from the training fold only.
 ## 4. Outliers
 
 ### 4.1 Two rules, derived
+
+![](outlier_fences.png)
+
+*On a normal column the two rules very nearly agree — which is no accident, since the constant 1.5 was chosen to make them agree here.*
 
 **The picture first.** Both rules answer the same question — *how far from the
 middle is too far?* — and differ in what they use as a ruler.
@@ -290,6 +314,10 @@ happens when the data is not well behaved.
 
 ### 4.2 Why they disagree on real data, and what neither of them can tell you
 
+![](outlier_scatter.png)
+
+*On a skewed column they part company: Tukey's fence flags a long tail that the z-score rule, which assumes symmetry, leaves alone.*
+
 Both $\bar{x}$ and $s$ in the z-score rule are themselves computed from the
 data, including the outliers — a handful of extreme billing errors inflate
 $s$ directly, widening the flagging threshold and making the rule *less*
@@ -328,6 +356,10 @@ pays a high bill is not an error; a tenure of 999 months is.
 
 ### 5.1 Two standard transforms
 
+![](scaling_comparison.png)
+
+*The same column under both transforms. Standardisation centres and rescales by the spread; min-max squeezes into $[0,1]$ and is therefore at the mercy of a single extreme value.*
+
 $$z = \frac{x - \mu}{\sigma} \qquad\qquad x_{\text{minmax}} = \frac{x - x_{\min}}{x_{\max} - x_{\min}}$$
 
 Standardisation centres each feature at 0 with unit variance; min-max scaling
@@ -347,6 +379,10 @@ and 10) are affected for a sharper, more precise reason, derived in full
 below.
 
 ### 5.2 Why unscaled features slow down — or break — gradient descent
+
+![](condition_number_geometry.png)
+
+*The cost surface when two features differ in variance. It is not a bowl but a ravine — steep across, almost flat along — and one stride length has to serve both directions.*
 
 **The picture first.** Think of the cost as a landscape you are descending, and
 of each feature as one compass direction. If one feature varies over thousands
@@ -432,7 +468,15 @@ scaling still rarely hurts and remains the default.
 
 ## 6. Categorical encoding
 
+![](gd_convergence_scaled_vs_unscaled.png)
+
+*The same problem, scaled and unscaled, at the same learning rate. The unscaled run is still travelling when the scaled one has arrived.*
+
 ### 6.1 One-hot encoding, and the dummy variable trap, proved
+
+![](dummy_variable_trap.png)
+
+*The redundancy made visible: the dummy columns sum to the intercept column, so the design matrix loses rank by exactly one and the solution stops being unique.*
 
 **The picture first.** Suppose a survey asks whether you travel by car, bus or
 bicycle, and you record three yes/no columns. Those columns carry a hidden
@@ -475,6 +519,10 @@ not care about collinearity, can safely use all $k$ columns.
 
 ### 6.2 Ordinal and target encoding
 
+![](encoding_comparison.png)
+
+*Three encodings of the same column, each making a different claim about the categories — that they are unordered, that they are ordered, or that they can be summarised by their average outcome.*
+
 **Ordinal encoding** maps categories to integers, $\{0, 1, \dots, k-1\}$. It
 is appropriate only when the categories have a genuine order (`"low"`,
 `"medium"`, `"high"`) — imposing an arbitrary integer order on an unordered
@@ -492,6 +540,10 @@ columns. It is also, computed the obvious way, the more dangerous of the two
 encodings in this entire lesson, and Section 9.2 derives exactly why.
 
 ### 6.3 The curse of dimensionality, briefly
+
+![](correlation_heatmap.png)
+
+*What 493 levels look like once one-hot encoded. The width is the point: most columns are almost entirely zero, and each carries a handful of rows.*
 
 One-hot encoding a column with $k$ levels adds $k$ columns, most of which are
 zero for most rows. Beyond a modest $k$ this has two costs: the feature space
@@ -563,6 +615,10 @@ not name.
 
 ### 8.2 `ColumnTransformer` and `Pipeline`
 
+![](pipeline_architecture.png)
+
+*The architecture that makes the rule enforceable rather than remembered: numeric and categorical branches, each fitted on training rows only, joined into one object that can be cross-validated whole.*
+
 Different columns need different treatment — numeric columns need imputing
 then scaling, categorical columns need imputing then encoding.
 `ColumnTransformer` applies a distinct sub-pipeline to each named group of
@@ -609,7 +665,15 @@ where discipline alone silently fails.
 
 ## 9. Data leakage in preprocessing
 
+![](smoking_gun.png)
+
+*The evidence that something has leaked: a feature that should carry nothing, carrying a great deal.*
+
 ### 9.1 The same rule, two invisible violations
+
+![](invisible_leaks.png)
+
+*Three ways to break one rule. None of them raises an error, and all three produce a score that is better than the truth.*
 
 Lesson 1's leakage demonstration selected features using the whole dataset
 before splitting — visible, once you know to look, because feature selection
@@ -638,6 +702,10 @@ substantially larger gap through exactly the same mechanism.
 why.
 
 ### 9.2 Why target encoding leaks, and why small groups make it worse
+
+![](target_encoding_leak.png)
+
+*A column with no real signal, encoded three ways. Target encoding manufactures a predictor out of the labels themselves.*
 
 **The picture first.** Target encoding replaces a category with the average
 outcome of the rows in that category. Now consider a category containing exactly
@@ -710,6 +778,10 @@ coefficient, which is comparatively hard to overfit with one feature.
 
 ### 9.3 The rule, restated
 
+![](leak_shrinks_with_group_size.png)
+
+*The leak is worst where the groups are smallest, falling as $1/n_c$ — which is also where a high-cardinality column keeps most of its categories.*
+
 Everything that learns from data — a mean, a median, a set of neighbours, a
 per-category target average, a set of bin edges — belongs inside the fold it
 is fitted on. This is not a longer list of special cases to remember; it is
@@ -722,6 +794,10 @@ hyperparameter tuning.
 ---
 
 ## 10. Before the next lesson
+
+![](churn_confusion_matrix.png)
+
+*The model built on the prepared data. Read the bottom-left cell: the churners it missed. Lesson 4 gives this picture its proper treatment.*
 
 1. Work through the three notebooks in order — 01 for exploration, missing
    values and outliers; 02 for scaling, encoding and the pipeline; 03 for the

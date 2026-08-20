@@ -169,10 +169,13 @@ def check_notebooks(lesson: Path, report: Report, run: bool) -> None:
             if "Quizzes" in path.parts:
                 continue
             relative = path.relative_to(ROOT)
+            # Execute into a scratch directory, never over the committed file:
+            # --inplace would rewrite execution counts and kernel metadata, so
+            # checking a lesson would leave every notebook modified.
             result = subprocess.run(
                 ["docker", "exec", "-w", f"/home/jovyan/work/{relative.parent}",
                  CONTAINER, "jupyter", "nbconvert", "--to", "notebook",
-                 "--execute", "--inplace",
+                 "--execute", "--output-dir", "/tmp/verify",
                  "--ExecutePreprocessor.timeout=1800", path.name],
                 capture_output=True, text=True)
             if result.returncode != 0:
@@ -180,7 +183,7 @@ def check_notebooks(lesson: Path, report: Report, run: bool) -> None:
                 report.fail("notebooks --run",
                             f"{path.name} failed: {' | '.join(tail)}")
             else:
-                report.note(f"executed {path.name}")
+                report.note(f"runs clean: {path.name}")
 
 
 def check_pins(lesson: Path, report: Report) -> None:
@@ -258,6 +261,47 @@ def check_figures(lesson: Path, report: Report) -> None:
                         "make_figures.py — its origin is unreproducible")
         elif name not in referenced:
             report.note(f"{name} is generated but never shown")
+
+
+    # The handout is what gets read after the lecture, when the projected
+    # figures are gone. Every figure the slides show, it shows too.
+    slide_figures: set[str] = set()
+    for path in sorted((lesson / "Slides").glob("*_slides.md")):
+        slide_figures |= {Path(n).name for n in FIGURE_REF.findall(
+            path.read_text(encoding="utf8"))}
+
+    # Reading material means the handout or the supplementary Resources:
+    # the history figures belong with the history essay, not crammed into
+    # the one section of the handout that summarises it.
+    handout_figures: set[str] = set()
+    reading = sorted((lesson / "Docs").glob("*.md")) + sorted(
+        (lesson / "Resources").glob("*.md"))
+    for path in reading:
+        handout_figures |= {Path(n).name for n in FIGURE_REF.findall(
+            path.read_text(encoding="utf8"))}
+
+    # Equation images are excluded: the handout renders real LaTeX.
+    missing = {n for n in slide_figures - handout_figures
+               if not n.startswith("eq_")}
+    for name in sorted(missing):
+        report.fail("handout figures",
+                    f"{name} is on a slide but not in the handout")
+
+
+    # Referencing a figure is not the same as shipping one. pandoc drops an
+    # image it cannot find without a word of complaint, so look in the PDF.
+    for handout in sorted((lesson / "Docs").glob("*.md")):
+        referenced = {Path(n).name for n in FIGURE_REF.findall(
+            handout.read_text(encoding="utf8"))}
+        pdf = handout.with_suffix(".pdf")
+        if not referenced or not pdf.exists():
+            continue
+        embedded = len(re.findall(rb"/Subtype\s*/Image", pdf.read_bytes()))
+        if embedded < len(referenced):
+            report.fail("handout figures",
+                        f"{handout.name} references {len(referenced)} figures "
+                        f"but {pdf.name} embeds {embedded} images — pandoc "
+                        "could not find them")
 
 
 # ------------------------------------------------------------------ slides
@@ -371,6 +415,127 @@ def check_acronyms(lesson: Path, report: Report) -> None:
                             f"{path.name} uses {acronym} before expanding it")
 
 
+# -------------------------------------------------------------------- quiz
+
+#: Question stems that are legitimately imperative rather than interrogative.
+#: Half of lesson 5's are ("Describe k-fold cross-validation..."), so the check
+#: has to accept them or it becomes noise nobody reads.
+IMPERATIVES = ("define", "state", "describe", "list", "explain", "compute",
+               "summarise", "summarize", "draw", "give", "write", "identify",
+               "distinguish", "derive", "compare", "name", "read", "take",
+               "prove", "argue", "diagnose", "prescribe", "justify", "sketch",
+               "show", "contrast", "resolve", "criticise", "rank", "report",
+               "propose", "outline", "discuss", "interpret", "decide", "choose")
+
+def asks_something(stem: str) -> bool:
+    """Does this stem actually pose a question or give an instruction?
+
+    Deliberately generous. Most stems set a scene first and ask afterwards, so
+    the ask is looked for anywhere rather than at either end. What this rejects
+    is a stem that describes a situation and never gets round to the question.
+    """
+    if "?" in stem:
+        return True
+    lowered = stem.lower()
+    return any(re.search(rf"\b{verb}\b", lowered) for verb in IMPERATIVES)
+
+
+def question_stem(source: str) -> str:
+    """The first paragraph of a question cell, with markup removed.
+
+    Not "everything up to the next **": a stem containing bold would be cut off
+    at the first one, which is how this check first reported four false
+    positives in lesson 1.
+    """
+    paragraph = source.strip().split("\n\n")[0]
+    paragraph = re.sub(r"^\*\*\d+\.\s*", "", paragraph.strip())
+
+    # Order matters. The whole stem is bold, so its closing asterisks sit after
+    # the difficulty marker; strip the markup first or the anchored pattern
+    # below never reaches the end of the string.
+    paragraph = re.sub(r"<[^>]+>", " ", paragraph)
+    paragraph = paragraph.replace("*", " ").replace("`", " ")
+    paragraph = re.sub(r"\(\s*(reasoning|recall|calculation)\s*\)\s*$", "",
+                       " ".join(paragraph.split()), flags=re.I)
+    return " ".join(paragraph.split())
+
+
+def check_quiz(lesson: Path, report: Report) -> None:
+    quizzes = sorted((lesson / "Quizzes").glob("*.ipynb"))
+    if not quizzes:
+        report.fail("quiz", "no quiz found")
+        return
+
+    for path in quizzes:
+        name = path.name
+        try:
+            nb = json.loads(path.read_text(encoding="utf8"))
+        except json.JSONDecodeError:
+            continue        # check_notebooks already reported it
+
+        numbers: list[int] = []
+        sections = 0
+
+        for cell in nb["cells"]:
+            source = "".join(cell.get("source", []))
+            stripped = source.lstrip()
+
+            if stripped.startswith("## "):
+                sections += 1
+
+            starts = re.findall(r"^\*\*(\d+)\.", source, re.M)
+            if not starts:
+                continue
+            if len(starts) > 1:
+                report.fail("quiz",
+                            f"{name}: one cell holds questions "
+                            f"{', '.join(starts)} — each gets its own cell")
+            numbers.append(int(starts[0]))
+
+            # The collapsible answer, in the house format.
+            if source.count("<details>") != source.count("</details>"):
+                report.fail("quiz",
+                            f"{name} question {starts[0]}: <details> is not closed")
+            if source.count("<details>") != 1:
+                report.fail("quiz",
+                            f"{name} question {starts[0]}: expected exactly one "
+                            f"answer block, found {source.count('<details>')}")
+            if "<summary>" not in source or "color='darkgreen'" not in source:
+                report.fail("quiz",
+                            f"{name} question {starts[0]}: the answer summary is "
+                            "not in the course format")
+
+            # An answer that says nothing is worse than no answer, because it
+            # looks answered. Length rather than bullet count: a question that
+            # asks for the rule "in one sentence" deserves one bullet.
+            points = re.findall(r"<li>(.*?)</li>", source, re.S)
+            answered = sum(len(re.sub(r"<[^>]+>", "", p).strip()) for p in points)
+            if not points:
+                report.fail("quiz",
+                            f"{name} question {starts[0]}: the answer has no points")
+            elif answered < 80:
+                report.fail("quiz",
+                            f"{name} question {starts[0]}: the answer is a stub "
+                            f"({answered} characters)")
+
+            stem = question_stem(source)
+            if stem and not asks_something(stem):
+                report.fail("quiz",
+                            f"{name} question {starts[0]}: the stem states a "
+                            f"situation but never asks anything — {stem[:52]}")
+
+        if numbers != list(range(1, len(numbers) + 1)):
+            report.fail("quiz",
+                        f"{name}: questions are numbered {numbers[:8]}... — "
+                        "they must run consecutively from 1")
+        if sections == 0:
+            report.fail("quiz", f"{name}: no '## ' section headers")
+        if len(numbers) < 15:
+            report.fail("quiz",
+                        f"{name}: only {len(numbers)} questions; a lesson's quiz "
+                        "carries at least 15")
+
+
 # ------------------------------------------------------- worked arithmetic
 
 def check_worked_examples(lesson: Path, report: Report) -> None:
@@ -421,6 +586,7 @@ def verify(lesson: Path, run: bool) -> Report:
     check_pins(lesson, report)
     check_figures(lesson, report)
     check_slides(lesson, report)
+    check_quiz(lesson, report)
     check_acronyms(lesson, report)
     check_worked_examples(lesson, report)
     check_cross_references(lesson, report)

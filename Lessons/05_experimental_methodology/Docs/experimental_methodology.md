@@ -72,6 +72,10 @@ measurement with a standard error.
 
 ### 2.2 How wide the error bar actually is
 
+![](split_lottery.png)
+
+*Two hundred legitimate splits of the same 800 drives. Every one of these is a correctly performed experiment; the dashed lines are the worst and the best. The right-hand tail is the dangerous end — a flattering score is the one nobody goes back to question.*
+
 Take the disk fleet from lesson 4 and cut it to **800 drives, 29 of which
 fail**. That is not to exaggerate the effect — 800 records with 29 positives is
 a far more ordinary situation than 8,000, and the numbers below are what the
@@ -123,6 +127,10 @@ positive examples are in the test set?*
 
 ## 3. Selecting a model on one split selects noise
 
+![](single_split_selection.png)
+
+*Left: how often each of the three models was declared best, against the dashed line that pure chance would give. Right: their actual distributions, sitting on top of one another. The right panel is the truth; the left is what a single experiment reports.*
+
 Reporting a noisy number is bad. **Choosing** with a noisy number is worse,
 because noise does not average out when it is used to make a decision — it
 decides.
@@ -155,6 +163,10 @@ wearing the clothes of a result.**
 ## 4. Cross-validation
 
 ### 4.1 The idea
+
+![](kfold_diagram.png)
+
+*The test block rotates. Every row is predicted exactly once, by a model trained without it — which is what makes this legitimate rather than testing on training data with extra steps.*
 
 **The picture first.** If one measurement is noisy, take several and average
 them. The difficulty is that you cannot afford several test sets — you have one
@@ -312,6 +324,10 @@ validation set large enough that its own error bar is tolerable.
 
 ### 5.1 The picture first
 
+![](many_universes.png)
+
+*Each faint line is the same model fitted to a *different* training sample. Left, the lines agree with each other and all miss the truth: that is bias. Right, they disagree wildly, worst where the data runs out: that is variance. In real life you drew one of these lines and never saw the others.*
+
 Imagine drawing many different training sets from the same source and fitting
 the same model to each. You get many models, and they fail in two distinguishable
 ways.
@@ -361,6 +377,10 @@ on 300 independently drawn training sets, and the two sides agree to within
 $3 \times 10^{-12}$ — which is floating-point equality.
 
 ### 5.3 What it looks like on real numbers
+
+![](bias_variance_tradeoff.png)
+
+*Bias falls with complexity, variance rises, and the total is a U whose minimum is the model you want. The scale is logarithmic: on a linear axis degree 12 would flatten everything else onto the baseline. The dotted line is the noise floor at 484, which no model crosses.*
 
 Energy against outdoor temperature, 25 training observations, 300 samples, noise
 variance 484:
@@ -421,6 +441,10 @@ not reproduce for you. Neither experiment was wrong.
 ---
 
 ## 6. Learning curves
+
+![](learning_curves.png)
+
+*Two diagnoses. Left: the curves meet, and meet low — bias, and more data will not help. Right: a wide gap with the validation curve still climbing — variance, and more data will.*
 
 The decomposition above required knowing $f$ and $\sigma$. Learning curves give
 the same diagnosis from data you actually have.
@@ -525,6 +549,10 @@ exactly once; fewer candidates; or more rows. Nothing else.
 
 ### 7.3 Hyperparameter search is the same problem
 
+![](leakage_ladder.png)
+
+*Four numbers describing the same data, which contains no signal at all. Each step to the left is a piece of discipline, and each costs a chunk of the score you would otherwise have reported.*
+
 Choosing between configurations is choosing, and choosing on data costs the same
 honesty. A grid of 25 combinations on that signal-free table:
 
@@ -546,6 +574,10 @@ The optimism here is **+0.13** — larger than most of the differences anyone
 reports between methods.
 
 ### 7.4 Nested cross-validation
+
+![](nested_cv_diagram.png)
+
+*The entire search runs inside the outer training part. The outer test block was never involved in choosing anything, which is why its score is the one you may report.*
 
 Measure the search, not the winner.
 
