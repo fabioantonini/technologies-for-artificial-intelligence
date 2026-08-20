@@ -423,6 +423,20 @@ a figure, and any slide with a table or a code block.
 The same applies to handouts: render the first pages of the PDF rather than trusting
 that the markdown implies the layout.
 
+The build now catches the coarsest version of this by itself. A slide whose figure has
+been squeezed by the text above it fails the deck, and is named:
+
+```
+deck.pptx: slide 24 'Naive Bayes: turn the question around' is too full for its figure - split it
+```
+
+It measures what the *text* costs the figure - the reference is what that figure would
+get on a slide carrying nothing but its title - so the number it reports is something
+an author can act on. **It does not replace looking.** Overlapping annotations, a
+legend lying across a curve, an axis label that `bbox_inches="tight"` cropped away, a
+figure that does not say what its caption promises: none of these fail a check, and
+all four were in lesson 6's first build.
+
 ### Run the course environment
 
 ```bash
@@ -519,8 +533,15 @@ template, so it is not something the course template causes.
 You still write ordinary LaTeX in the source — the conversion happens on a temporary
 copy, and handouts keep real LaTeX because a TeX engine renders them properly.
 
-Two rules follow from how pandoc builds slides, and the build warns about both:
+Three rules follow from how pandoc builds slides, and the build warns about all of
+them:
 
+- **A display equation gets its own slide.** Put one on a slide that also carries
+  bullets and pandoc reaches for the two-column "Content with Caption" layout: the
+  title shrinks to 15pt and left-aligns, and the equation is scaled into whatever
+  height the bullets left it - in lesson 6, Bayes' rule came out *smaller than the
+  body text explaining it*. Give it a slide of its own, titled with what it says.
+  Lesson 6's `Distance is all it has` is the pattern.
 - **Display math must be the last thing on its slide.** A block image ends the slide,
   so a sentence written after an equation lands on a new, untitled one.
 - **Inline math must be Unicode-representable.** There is no image fallback inline:
