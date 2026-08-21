@@ -145,6 +145,12 @@ Ends when: the handout builds, carries every figure Phase A generated, and
 
   See `Lessons/06_knn_naive_bayes_svm/Docs/worked_examples.py` for the shape.
 
+  And where the handout **derives** rather than measures, check the derivation
+  itself and not only the number it produces. A transpose out of place can
+  leave every number correct while the algebra on the page is wrong, which is
+  the one thing this gate cannot see. `references/artefacts.md` §4 lists the
+  instruments — a numerical gradient being the first one to reach for.
+
 ---
 
 ## Phase C — slides, quiz, exercise, supplementary reading

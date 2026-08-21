@@ -170,6 +170,39 @@ other seed. One that could only ever pass proves nothing.
 Print one line per number checked and a count at the end. `verify_lesson.py` runs
 it and reports the count.
 
+### Checking a derivation, not just the number it produces
+
+This script recomputes **numbers**, and that is a real limit rather than a
+shortcoming to work around. A derivation can be wrong while every number it
+produces is right: the code implements the correct thing, the prose writes it
+down with a transpose out of place or the sum over the batch missing, and the
+check dutifully agrees — with the code. The handout is wrong and the gate is
+green.
+
+Everything the course has caught so far has been a wrong number. A lesson that
+*derives* rather than measures — backpropagation, convolution arithmetic — puts
+the weight on the half nothing is watching. So where the handout derives, find
+a check on the derivation:
+
+- **Against a numerical gradient.** For anything reached by differentiation,
+  compare the analytic result against finite differences at random points:
+  `(f(w + h) − f(w − h)) / 2h` with `h ≈ 1e-5` should agree to roughly `1e-7`
+  relative in double precision. This is the standard defence, it is four lines,
+  and it catches precisely the misplaced-transpose class of error.
+- **Against a second route.** The same quantity by a different derivation —
+  eigendecomposition against the SVD, a closed form against an iterative
+  solver, a hand-differentiated gradient against an autodiff one.
+- **Against the shapes it claims.** Writing the gradient as `Xᵀ(ŷ − y)/m`
+  claims a shape as well as a formula. Assert it: most transposition errors are
+  shape errors, and a shape assertion is one line.
+- **At more than one point.** An identity that holds at the lesson's worked
+  example and nowhere else is not an identity. Evaluate both sides on random
+  inputs, the same way a claim of agreement gets re-run at another seed.
+
+The test of whether this has been done properly: if someone edited a transpose
+out of place in the handout's algebra — leaving the code untouched — would
+anything go red?
+
 ---
 
 ## 5. Slides
