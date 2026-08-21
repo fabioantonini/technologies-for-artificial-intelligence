@@ -293,6 +293,13 @@ LINE_HEIGHT = 0.085
 #: every rendered equation, which is short and wide and needs very little.
 MIN_FIGURE_FRACTION = 0.7
 
+#: How far the estimated body height of a text-only slide may exceed the space
+#: below its title. Calibrated against the built PDFs rather than derived: at
+#: 1.10 the last line still clears the footer logo, at 1.23 it collides with it,
+#: and past about 1.4 the slide is cut off mid-sentence. The estimate below
+#: undercounts, which is why the threshold sits above 1.0.
+MAX_TEXT_FILL = 1.15
+
 
 def _text_height(shape, slide_h: int) -> int:
     """Estimate how tall a text box needs to be for its contents.
@@ -397,6 +404,42 @@ def relayout_figure_slides(path: Path) -> int:
     return changed, crowded
 
 
+def overfull_text_slides(path: Path) -> list[tuple[int, str]]:
+    """Slides whose bullets run past the bottom of the slide.
+
+    Figure slides are skipped: relayout_figure_slides already sizes those, and
+    it is the only thing that looks at them. Nothing looked at the rest.
+    """
+    prs = Presentation(str(path))
+    slide_h = prs.slide_height
+    overfull = []
+
+    for number, slide in enumerate(prs.slides, 1):
+        if any(s.shape_type == 13 for s in slide.shapes):  # PICTURE
+            continue
+        title = slide.shapes.title
+        if title is None or title.top is None or title.height is None:
+            continue
+
+        lines = 0
+        for shape in slide.shapes:
+            if not shape.has_text_frame or shape._element is title._element:
+                continue
+            for paragraph in shape.text_frame.paragraphs:
+                text = "".join(run.text for run in paragraph.runs).strip()
+                if text:
+                    lines += max(1, -(-len(text) // CHARS_PER_LINE))
+        if not lines:
+            continue
+
+        needed = slide_h * LINE_HEIGHT * lines
+        available = slide_h - (title.top + title.height) - slide_h * 0.10
+        if available > 0 and needed / available > MAX_TEXT_FILL:
+            overfull.append((number, title.text))
+
+    return overfull
+
+
 #: A fixed timestamp for every entry in the package. 1980-01-01 is the earliest
 #: date the zip format can represent, so it is the conventional choice.
 FIXED_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
@@ -450,6 +493,7 @@ def process(path: Path, verbose: bool = True) -> bool:
         equations = gate_equations(path)
         pinned = pin_geometry(path)
         reflowed, crowded = relayout_figure_slides(path)
+        overfull = overfull_text_slides(path)
         renumbered = renumber_oversized_ids(path)
         make_deterministic(path)  # must run last: it rewrites the package
     except Exception as exc:  # keep the original rather than a broken file
@@ -475,7 +519,10 @@ def process(path: Path, verbose: bool = True) -> bool:
     for number, name in crowded:
         print(f"  {path.name}: slide {number} {name!r} is too full for its "
               f"figure - split it")
-    return not crowded
+    for number, name in overfull:
+        print(f"  {path.name}: slide {number} {name!r} runs past the bottom "
+              f"of the slide - shorten it or split it")
+    return not (crowded or overfull)
 
 
 def main(argv: list[str]) -> int:

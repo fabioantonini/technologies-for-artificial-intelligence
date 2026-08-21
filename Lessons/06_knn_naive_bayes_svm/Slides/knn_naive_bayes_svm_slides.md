@@ -26,11 +26,11 @@ families, and each of them offers new ways to be wrong while looking right.
 
 # Today: the first lesson that offers a choice
 
-- **k-nearest neighbours (k-NN)** — remember everything, and vote
-- The **curse of dimensionality**, which is the bill for that
-- **Naive Bayes** — one very strong assumption, bought very cheaply
-- **Support vector machines (SVM)** — margins, and changing coordinates
-- Which family to reach for, and why that matters more than tuning
+- **k-nearest neighbours (k-NN)** — remember, and vote
+- The **curse of dimensionality**: the bill for that
+- **Naive Bayes** — one strong assumption, bought cheap
+- **Support vector machines (SVM)** — margins, and kernels
+- Which family to reach for, and why that beats tuning
 
 ::: notes
 Agenda, and one framing sentence that is worth saying deliberately.
@@ -1187,13 +1187,10 @@ rather than a preference.
 
 # What to take away
 
-- **No straight line separates the pumps** — both linear models score exactly
-  0.613, with zero variance across folds
-- **k is the bias-variance dial**, and training accuracy at k = 1 is 1.000 and
-  means nothing
-- **In 100 dimensions the nearest point is 70% as far away as the farthest**
-- **Naive Bayes assumes independence given the class** — 0.933 where it holds,
-  **0.404** where the signal is an interaction
+- **No line separates the pumps**: 0.613, the base rate
+- **k is the bias-variance dial**, made visible
+- **In 100 dimensions the nearest point is 70% as far as the farthest**
+- **Naive Bayes**: 0.933 where independence holds, **0.404** where it does not
 - **Choosing the family beats tuning the wrong one**: 0.613 to 0.947
 
 ::: notes
