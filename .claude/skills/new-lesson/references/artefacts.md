@@ -90,6 +90,10 @@ Rules:
 - Every figure the slides use is generated here, into `Figures/`.
 - Outputs are committed, so a student sees what a notebook does before running
   it.
+- Write them with `scripts/make_notebook.py`, which builds a notebook from a
+  list of `(kind, source)` pairs. Keep the generator beside the notebook while
+  drafting, named with a leading underscore so `lesson_state.py` does not read
+  it as the dataset module, and delete it when the notebook is final.
 
 ---
 

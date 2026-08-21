@@ -89,6 +89,18 @@ Ends when: every notebook is executed with its outputs saved, every figure is in
    Outputs are committed. A student opening a notebook should see what it does
    before running anything.
 
+   The container runs as root, so everything it writes lands on the host owned
+   by root. Put it back after any step that writes through `docker exec`, or
+   the files are awkward to edit and wrong in the archive:
+
+   ```bash
+   docker exec tai_course chown -R 1000:100 /home/jovyan/work/Lessons/NN_*
+   ```
+
+   Authoring cells as Python data and generating the JSON is much easier than
+   editing `.ipynb` directly. `scripts/make_notebook.py` in this skill does
+   that; lessons 7 and 8 each wrote their own before it existed.
+
 3. **Recalibrate until the numbers tell the story.** If the lesson's point is
    that method X fails here, and X scores 0.986 against 0.999, the demonstration
    has failed and the dataset is wrong, not the prose. Lesson 6 discarded its
@@ -147,10 +159,12 @@ The briefs are written out in `references/subagent-briefs.md`. Give each agent
 the finished handout, the notebook outputs, `CLAUDE.md`, and the previous
 lesson's counterpart artefact as an example of register.
 
-**Do not poll them.** You are notified when each one finishes. Lesson 7's run
-spent several turns asking whether they were done and spawned a stray no-op
-agent trying to cancel a scheduled wake-up. Launch, then do something else or
-wait.
+**Do not poll them, and do not ask the user either.** You are notified when
+each one finishes. Lesson 7's run spent several turns asking the shell whether
+they were done; lesson 8's replaced that with three rounds of "anything else
+you'd like while we wait?", which is the same wasted turns through a politer
+channel. The notification is the signal, and there is nothing to decide until
+it arrives. Launch them, then either do something useful or stop.
 
 **Check any data a subagent generates yourself.** In lesson 6 the exercise agent
 produced a two-station dataset and was cut off before reporting what it did;

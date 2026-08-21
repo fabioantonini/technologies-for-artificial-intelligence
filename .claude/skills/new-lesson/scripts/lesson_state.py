@@ -40,10 +40,19 @@ def executed(path: Path) -> bool:
 
 
 def figures_referenced(path: Path) -> set[str]:
+    """Basenames of the figures a document shows.
+
+    Basenames, not the written paths: lesson 8's handout referenced
+    `../Figures/x.png` where every other lesson writes `x.png`, and comparing
+    the raw strings made this report nine orphaned figures that were not
+    orphaned at all. `verify_lesson.py` normalises, so the two tools disagreed
+    silently until someone read both.
+    """
     if not path.exists():
         return set()
     text = path.read_text(encoding="utf8")
-    return {m for m in re.findall(r"!\[[^\]]*\]\(([^)]+\.png)\)", text)
+    return {Path(m).name
+            for m in re.findall(r"!\[[^\]]*\]\(([^)]+\.png)\)", text)
             if not Path(m).name.startswith("eq_")}
 
 
