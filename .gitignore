@@ -30,3 +30,10 @@ venv/
 *_solution.ipynb
 *_solution.md
 Solutions/
+# ...and any script that writes one. The notebook is covered above, but the
+# generator carries the same answers and the same marking notes, and its name
+# ends in .py rather than .ipynb. A pattern rather than the one literal name
+# lesson 9 happened to use: the skill asks only for a leading underscore, so
+# _build_solution.py and make_solution.py are both plausible, and neither was
+# covered.
+*_solution.py

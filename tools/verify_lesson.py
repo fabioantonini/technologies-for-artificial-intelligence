@@ -105,30 +105,36 @@ def markdown_of(path: Path) -> str:
     return path.read_text(encoding="utf8")
 
 
-def ignored() -> frozenset[Path]:
-    """Paths git ignores, which is how this repo marks instructor-only files.
-
-    The only content under an ignore rule is the worked exercise solutions:
-    generated for whoever marks the work, never committed. They are held to the
-    same standards while being written, but not by this gate, which exists to
-    check what reaches a student. A red result on a file no student will open is
-    a red result people learn to scroll past.
-    """
-    if not hasattr(ignored, "_cache"):
-        try:
-            out = subprocess.run(
-                ["git", "ls-files", "--others", "--ignored", "--exclude-standard"],
-                cwd=ROOT, capture_output=True, text=True, check=True).stdout
-            ignored._cache = frozenset(
-                (ROOT / line).resolve() for line in out.splitlines() if line)
-        except (subprocess.CalledProcessError, FileNotFoundError, OSError):
-            ignored._cache = frozenset()  # not a checkout: check everything
-    return ignored._cache
-
-
 def shipped(paths) -> list[Path]:
-    """Those of `paths` that a student will actually receive."""
-    skip = ignored()
+    """Those of `paths` that a student will actually receive.
+
+    Instructor-only content is marked by a git ignore rule: the worked
+    exercise solutions, generated for whoever marks the work and never
+    committed. They are held to the same standards while being written, but
+    not by this gate, which exists to check what reaches a student. A red
+    result on a file no student will open is a red result people learn to
+    scroll past.
+
+    Git is asked about the paths in hand, on every call, rather than once into
+    a cache at start-up. A `--run` pass spends twenty minutes executing
+    notebooks, which is long enough for an instructor file to be written while
+    it is still going; a set built before that file existed reports it as
+    shippable. That is how lesson 9's solution notebook came to be checked,
+    and failed, for an acronym no student will ever read.
+    """
+    paths = list(paths)
+    if not paths:
+        return []
+    try:
+        # check-ignore exits 1 when nothing matches, which is not an error,
+        # so this deliberately does not pass check=True.
+        result = subprocess.run(
+            ["git", "check-ignore", "--stdin"], cwd=ROOT,
+            capture_output=True, text=True,
+            input="\n".join(str(p) for p in paths))
+    except (FileNotFoundError, OSError):
+        return paths                      # not a checkout: check everything
+    skip = {Path(line).resolve() for line in result.stdout.splitlines() if line}
     return [p for p in paths if p.resolve() not in skip]
 
 

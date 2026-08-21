@@ -1,0 +1,12 @@
+far generare la soluzione degli esercizi
+
+aggiungo solo che per quanto riguarda la cartella Resources mi piacerebbe aggiungere dei temi non necessariamente teorici, ma trasversali pur essendo legati al ML, per esempio alcune esempi di applicazioni. proponi tu delle tematiche 'ortogonali' al ML
+
+un'altra cosa che mi veniva in mente era di usare un approccio agentico nel realizzare le lezioni ma vorrei avere il tuo parere
+per esempio un primo agente potrebbe sviluppare la dispensa e poi dei subagenti potrebbero partire dalla dispensa e creare le slides, I notebooks, i quiz, gli esercizi, la soluzione degli esercizi (non da committare)
+alla fine l'agente principale potrebbe analizzare gli artefatti generati dai subagenti alla ricerca di errori, inconsistenze e possibili migliorie, che ne pensi?
+
+
+il processo di creazione della lezione 9 è quasi finito. volevo ragionare in parallelo su un altro tema.
+
+Il Docker container è grande 10.41 GB..forse troppi per farlo scaricare agli studenti durante la prima lezione. all'inizio della sessione probabilmente avevi in mente un approccio diverso per minimizzare la dimensione del container...però lo facciamo appena finito il processo di creazione delle 10 lezioni.
