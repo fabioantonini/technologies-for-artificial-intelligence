@@ -123,8 +123,10 @@ Then:
   Then what the result means in the units of the problem.
 - **Every section ends in a concrete example** worked with real numbers from the
   lesson's dataset, ideally checkable against a notebook output.
-- **Every figure in the slides appears here too**, with an italic caption, in the
-  section that discusses it. This is enforced.
+- **Every figure the notebooks generated appears here**, with an italic caption,
+  in the section that discusses it. Not "every figure the slides use" — the
+  slides come later, so writing to that rule leaves orphans for Phase C to find.
+  The slides-⊆-handout direction is enforced once both exist.
 - State assumptions, and say where each result stops holding.
 - **Name the predictable mistake** — and say why the wrong answer is reasonable.
   The second half is what makes it useful.
@@ -152,6 +154,14 @@ Strengthen it where you can:
   iterative one, or `S_xy / S_xx` against the normal equation);
 - re-derive simulated quantities with a **different seed and sample size** than
   the notebook used, so that agreement is evidence rather than a copy.
+
+And keep the tolerances honest in both directions. A tolerance states how
+precisely a number is known, so if the handout's wording is tighter than the
+check standing behind it, the wording is wrong — lesson 7 claimed two scores
+matched "to four decimal places" while its own check confirmed them only to
+0.015, and the check was the honest one. A claim that two quantities *agree*
+needs the opposite of a tolerance as well: a check that they **differ** at some
+other seed. One that could only ever pass proves nothing.
 
 Print one line per number checked and a count at the end. `verify_lesson.py` runs
 it and reports the count.

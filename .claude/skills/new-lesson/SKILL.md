@@ -108,13 +108,16 @@ Ends when: every notebook is executed with its outputs saved, every figure is in
 
 ## Phase B — the handout
 
-Ends when: the handout builds, carries every figure the slides will use, and
+Ends when: the handout builds, carries every figure Phase A generated, and
 `Docs/worked_examples.py` passes.
 
 - Written **against the executed numbers**, quoting them as they came out.
-- **Every figure that will appear in the slides appears here too**, with an
-  italic caption. The handout is what a student reads after the lesson, when the
-  projected figures are gone. `verify_lesson.py` enforces this.
+- **Every figure Phase A generated appears here**, with an italic caption. Not
+  "every figure the slides will use" — the slides do not exist yet, so that is
+  unknowable, and lesson 7 found out the hard way: two figures surfaced as
+  orphans only when the Phase C slides agent reached for them. The handout is
+  what a student reads after the lesson, when the projected figures are gone.
+  `verify_lesson.py` enforces the slides-⊆-handout direction once both exist.
 - **`Docs/worked_examples.py` is written now, not afterwards.** It recomputes
   every number the handout works out by hand, **from the raw inputs — never from
   the handout's own intermediate values** — and asserts against what the handout
@@ -143,6 +146,11 @@ sequential anyway.
 The briefs are written out in `references/subagent-briefs.md`. Give each agent
 the finished handout, the notebook outputs, `CLAUDE.md`, and the previous
 lesson's counterpart artefact as an example of register.
+
+**Do not poll them.** You are notified when each one finishes. Lesson 7's run
+spent several turns asking whether they were done and spawned a stray no-op
+agent trying to cancel a scheduled wake-up. Launch, then do something else or
+wait.
 
 **Check any data a subagent generates yourself.** In lesson 6 the exercise agent
 produced a two-station dataset and was cut off before reporting what it did;
@@ -176,24 +184,57 @@ has not kept up.
 
 **3. Numbers against prose.** Dump every executed output and read it beside the
 prose that cites it, in the notebooks *and* the handout. **No tool does this
-step.** Both defects that escaped every check in lesson 6 were of this shape —
-including one in the instructor's solution asserting a ratio "is worth a great
-deal" directly beneath a printed correlation of 0.079. The number was right; the
-claim needed a measurement that could see a non-monotonic relationship, and a
-correlation cannot.
+step**, which is why both defects that escaped every other check so far were of
+this shape.
 
-**4. Look at the built PDF.** Not "check the deck" — list the figure slides and
-open each one:
+```bash
+python .claude/skills/new-lesson/scripts/notebook_outputs.py Lessons/NN_*/Notebooks
+```
+
+Two failures worth hunting by name:
+
+- **A claim stronger than its evidence.** Lesson 6's solution asserted a ratio
+  "is worth a great deal" directly beneath a printed correlation of 0.079. The
+  number was right; the claim needed a measurement that could see a
+  non-monotonic relationship, and a correlation cannot.
+
+- **A coincidence presented as a law.** Lesson 7 reported an out-of-bag score
+  and a cross-validated score agreeing to four decimal places and wrote
+  "*because* they are estimating the same quantity". They are — but four-decimal
+  agreement happens on two seeds in twelve, and the honest gap is ±0.003.
+  **Any sentence claiming two quantities agree must be re-run at another seed
+  before it is written.** If the agreement is a property it survives; if it does
+  not, what you had was one draw.
+
+  This second one repays understanding rather than just avoiding, because
+  everything downstream behaved correctly. The claim propagated into the slides,
+  a notebook and a quiz answer — faithfully, in each case — and
+  `worked_examples.py` confirmed it at `tolerance=0.015`, which is to say it
+  proved the *weaker, true* statement while the prose asserted the tighter,
+  false one. **A tolerance is a statement about how precisely a number is
+  known.** When the wording is tighter than the check standing behind it, the
+  wording is what is wrong.
+
+**4. Look at the built PDF.** Not "check the deck" — open specific slides.
+
+Every slide carrying a figure:
 
 ```bash
 grep -n 'png' Lessons/NN_*/Slides/*_slides.md | grep -v eq_
 ```
 
-The build fails a slide whose figure the text has squeezed, which is one narrow
-case. It cannot see: an annotation lying across a curve, a legend over data, an
-axis label cropped away by `bbox_inches="tight"`, a panel too small for the point
-it carries, or a figure that does not say what its caption promises. All five
-were in lesson 6's first build.
+**And the fullest slides of pure text**, which is the half this checklist used
+to omit — and so two overflowing text slides shipped in lesson 6, one of them
+its closing "What to take away", from a deck I had reviewed by eye. The build
+now flags a text slide that runs past the bottom, but its estimate is coarse and
+only catches the worst; sort by bullet count and look at the top few regardless.
+
+The build's two layout checks — a figure squeezed by its text, a text slide off
+the bottom — are narrow. They cannot see an annotation lying across a curve, a
+legend over data, an axis label cropped away by `bbox_inches="tight"`, a panel
+too small for the point it carries, or a figure that does not say what its
+caption promises. All five were in lesson 6's first build, and every one of them
+needed a person to look.
 
 Also confirm the build is reproducible — two consecutive builds byte-identical:
 
@@ -236,6 +277,10 @@ marking key turn a green/red gate into one with a standing exception.
 - `Resources/` holds one supplementary document, opening by saying it is not
   examinable
 - the solution notebook exists on disk and is absent from `git status`
+- **`git status` shows nothing modified outside this lesson's folder.** Phase A
+  rewrites notebooks through the container, and it is easy to touch another
+  lesson's kernel metadata in passing. Lesson 7 modified two of lesson 1's
+  notebooks and reported "everything is untracked" without looking.
 
 Report anything you could not finish rather than reporting it as done. A lesson
 that is nine-tenths built and described as complete costs more than one honestly
