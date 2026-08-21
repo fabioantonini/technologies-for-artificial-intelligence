@@ -273,7 +273,7 @@ marking key turn a green/red gate into one with a standing exception.
 - `verify_lesson.py NN --run` green
 - `build.py NN` reports `0 failed`
 - two consecutive builds byte-identical
-- every figure slide opened and looked at
+- every figure slide, and the fullest text slides, opened and looked at
 - `Resources/` holds one supplementary document, opening by saying it is not
   examinable
 - the solution notebook exists on disk and is absent from `git status`
@@ -285,3 +285,37 @@ marking key turn a green/red gate into one with a standing exception.
 Report anything you could not finish rather than reporting it as done. A lesson
 that is nine-tenths built and described as complete costs more than one honestly
 described as nine-tenths built.
+
+---
+
+## Then stop, rather than commit
+
+Phase D is run by whoever wrote the lesson, and that is its one structural
+weakness: **the author finds their own work plausible.** This is not a matter of
+care, or of which model is running. Lesson 6's escape and lesson 7's were the
+same class of defect — a sentence claiming more than the number under it
+supports — made by different models, and each survived its own author's Phase D
+in full.
+
+Both were caught the same way, and it was not by looking harder. A **separate
+session recomputed the lesson's headline claims from the dataset module**,
+without importing `Docs/worked_examples.py` — because a lesson agreeing with its
+own check is the thing this entire procedure exists to distrust. Lesson 7's
+`worked_examples.py` was in fact honest: it confirmed the claim to ±0.015 while
+the handout asserted four decimal places, and only an outside recomputation
+noticed the difference between those two statements.
+
+So finish Phase D, report what you built and what you found, and **hand the
+lesson over uncommitted.** An independent pass costs a fraction of a rebuild and
+needs only three things:
+
+1. take the two or three numbers the lesson leans on — the one worth
+   remembering, and whatever the handout sets in bold;
+2. recompute them from the dataset module in a scratch script, with a different
+   fold seed than the notebooks used;
+3. read each headline sentence beside the number it now has, asking not *"is
+   this number right"* but **"does this sentence claim more than this number
+   supports."**
+
+That last question is the one nothing automatic asks, and it is where both
+escapes were sitting.
