@@ -154,6 +154,17 @@ def main(argv: list[str]) -> int:
                        else f"Phases {' and '.join(names)} are")
             print(f"  -> resume at phase {letter}. "
                   f"{earlier} complete; do not redo that work.")
+            if letter != "A":
+                # What this cannot see, and must not imply it can.
+                print("       Except phase A step 4 - reading each notebook's"
+                      " prose against its")
+                print("       own output - which leaves no trace on disk, so"
+                      " nothing here knows")
+                print("       whether it happened. It is cheap and idempotent."
+                      " Redo it:")
+                print("         python .claude/skills/new-lesson/scripts"
+                      "/notebook_outputs.py \\")
+                print(f"             Lessons/{lesson.name}/Notebooks")
         else:
             print(f"  -> start at phase {letter}.")
     return 0

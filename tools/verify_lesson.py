@@ -639,7 +639,21 @@ def main() -> int:
         if not lessons:
             print(f"no lesson matching {args.lesson}")
             return 1
-    lessons = [p for p in lessons if any(p.glob("Docs/*.md"))]
+        # A lesson with no handout is dropped from the sweep below, which is
+        # right when verifying everything: one nobody has started yet is not a
+        # defect. Asked for by name it is the opposite - lesson 10, stopped
+        # halfway through phase A, reported "0 verificate, nessun problema" and
+        # exited 0, which reads as a pass on work that does not exist.
+        unbuilt = [p for p in lessons if not any(p.glob("Docs/*.md"))]
+        if unbuilt:
+            for path in unbuilt:
+                print(f"{path.name}  —  NON COSTRUITA: nessuna dispensa in "
+                      f"Docs/, quindi non c'è niente da verificare.")
+            print("\n    .  python .claude/skills/new-lesson/scripts/"
+                  f"lesson_state.py {args.lesson}  dice in che fase è.")
+            return 1
+    else:
+        lessons = [p for p in lessons if any(p.glob("Docs/*.md"))]
 
     failed = 0
     for lesson in lessons:
