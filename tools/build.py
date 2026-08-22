@@ -72,6 +72,15 @@ NOT_PUBLISHED = {"slides_syntax_example.md"}
 # older pdftex honour it. Together with the timestamp normalisation in
 # postprocess_pptx.py, this makes the whole build reproducible: the same source
 # yields byte-identical output, so only real changes show up in git status.
+#
+# Measured limit: this holds solidly per lesson - one lesson rebuilt five times
+# is byte-identical - and almost always across the whole course. A full run of
+# about sixty PDFs will occasionally leave one or two differing by roughly two
+# bytes, always a document built with --toc, never the same one twice. It is not
+# the pinning below, which is present and correct in the affected files, and not
+# a race, since this script is sequential; the likeliest source is pandoc's
+# temporary directory handling for the second LaTeX pass a table of contents
+# needs. The rendered content is identical, so verify the property per lesson.
 BUILD_ENV = {
     **os.environ,
     "SOURCE_DATE_EPOCH": "0",

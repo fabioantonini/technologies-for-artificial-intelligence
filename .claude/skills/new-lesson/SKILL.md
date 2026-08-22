@@ -256,7 +256,11 @@ too small for the point it carries, or a figure that does not say what its
 caption promises. All five were in lesson 6's first build, and every one of them
 needed a person to look.
 
-Also confirm the build is reproducible — two consecutive builds byte-identical:
+Also confirm the build is reproducible — two consecutive builds of **this
+lesson** byte-identical. Per lesson, not per course: a full-course run leaves one
+or two of its sixty PDFs differing by about two bytes, always a document with a
+table of contents, and `tools/build.py` records why. Per lesson the property is
+solid, and per lesson is what Phase D needs:
 
 ```bash
 python tools/build.py NN && md5sum Lessons/NN_*/Slides/*.pdf > /tmp/a
@@ -292,7 +296,8 @@ marking key turn a green/red gate into one with a standing exception.
 
 - `verify_lesson.py NN --run` green
 - `build.py NN` reports `0 failed`
-- two consecutive builds byte-identical
+- two consecutive builds **of this lesson** byte-identical (per lesson: the
+  full-course build has a known two-byte residue, recorded in `tools/build.py`)
 - every figure slide, and the fullest text slides, opened and looked at
 - `Resources/` holds one supplementary document, opening by saying it is not
   examinable
