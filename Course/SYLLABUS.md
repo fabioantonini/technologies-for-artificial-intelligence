@@ -95,4 +95,6 @@ See [`PREREQUISITES.md`](PREREQUISITES.md) and
 
 Large language models, transformers, retrieval-augmented generation and agent
 architectures are **not** covered: they belong to a separate course in the programme.
-Lesson 10 closes by indicating how the fundamentals covered here underpin them.
+[`BRIDGE.md`](BRIDGE.md) sets out what carries forward instead: which of
+this course's results the next one reuses unchanged, and which of its habits
+nobody will teach again there because they are assumed.

@@ -58,7 +58,9 @@ the Monday after, since it is study material rather than lecture support.
 | 10 | 27 Nov | Convolutional networks and course synthesis |
 
 Large language models, transformers, RAG and agents are **not** covered — they belong
-to a separate course in the programme.
+to a separate course in the programme. [`Course/BRIDGE.md`](Course/BRIDGE.md) is a
+reading for students going on to it: what this course leaves them holding, and what
+it turns into there.
 
 ---
 

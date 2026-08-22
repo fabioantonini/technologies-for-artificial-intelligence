@@ -676,6 +676,21 @@ two thousandths of it.
 | labels are scarce and a related task is not | transfer, warm start, do not freeze |
 | you cannot say what assumption your model encodes | you have not chosen a model, you have chosen a default |
 
+### 12.2 And after this
+
+The programme continues with **Toolkit for Modern Algorithms**, on large language
+models and agents, which this course deliberately left alone.
+
+Very little of what you did over these ten weeks stops being useful there, and
+some of it is not even renamed: the loss a language model trains on is lesson
+4's, its last layer is lesson 9's softmax, fetching documents before answering
+is lesson 6's k-nearest neighbours, and sampling an answer several times and
+voting is lesson 7's bagging with lesson 7's $\rho\sigma^2$ floor.
+
+`Course/BRIDGE.md` sets that out in full, along with the part that matters more:
+the methodology. Nobody teaches it twice, and it is what separates being able to
+build one of these systems from being able to say whether it is any good.
+
 ---
 
 ## Summary
