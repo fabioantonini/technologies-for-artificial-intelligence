@@ -31,6 +31,27 @@ NUMBER = re.compile(r"(?<![\w.])\d+(?:[.,]\d+)?(?![\w])")
 #: claims. Left in, they bury the numbers actually worth checking.
 LIST_MARKER = re.compile(r"^\s{0,3}\d+[.)]\s|^#+\s*\d+[.)]?\s", re.MULTILINE)
 
+#: A print() call, and the {...} placeholders inside an f-string. Stripping the
+#: placeholders leaves the part of the message that was typed rather than
+#: computed - and a decimal surviving that is a number being stated.
+PRINT_CALL = re.compile(r"print\s*\((.*?)\)\s*$", re.MULTILINE | re.DOTALL)
+PLACEHOLDER = re.compile(r"\{[^{}]*\}")
+DECIMAL = re.compile(r"(?<![\w.])\d+\.\d+")
+
+
+def asserted_numbers(source: str) -> list[str]:
+    """Decimals typed into a print(), which the output will then appear to confirm.
+
+    `print(f"mean {x:.4f}")` computes its number and is fine. `print("mean
+    0.0208")` states one, and step 4 cannot tell the difference downstream -
+    prose and output agree because the same literal produced both.
+    """
+    found = []
+    for call in PRINT_CALL.findall(source):
+        typed = PLACEHOLDER.sub(" ", call)
+        found += DECIMAL.findall(typed)
+    return found
+
 
 def outputs_of(cell: dict) -> str:
     parts = []
@@ -73,6 +94,16 @@ def report(path: Path) -> None:
                 print(f"    numbers it states: {', '.join(claimed)}")
         print("\n--- what ran below it printed ---")
         print(text[:1500] + ("..." if len(text) > 1500 else ""))
+        # Only the ones the prose above also states. A constant echoed into a
+        # message nobody cites is harmless; the failure is prose and output
+        # agreeing because one literal produced both, and that needs the number
+        # to appear in both places.
+        asserted = {n for n in asserted_numbers(source) if n in prose}
+        if asserted:
+            print(f"    !! the prose above states these, and the print below "
+                  f"was TYPED with them rather than computing them: "
+                  f"{', '.join(sorted(asserted))}")
+            print("       agreement here proves nothing - one literal made both")
         print()
 
 
@@ -103,6 +134,9 @@ def main(argv: list[str]) -> int:
     print("Read each block against the one above it. A number in the prose that "
           "does not appear\nin the output is either derived, stale, or invented "
           "- and the third is common enough\nto be worth checking every time.")
+    print("\nAnything marked !! was typed into the print rather than computed "
+          "by it. Prose and\noutput agree there no matter what, because the "
+          "same literal produced both.")
     return 0
 
 
