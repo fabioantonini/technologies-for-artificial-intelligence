@@ -37,3 +37,9 @@ Solutions/
 # _build_solution.py and make_solution.py are both plausible, and neither was
 # covered.
 *_solution.py
+
+# The instructor's own study and teaching notes: what to say with the projector
+# off, the derivations to reproduce at the board, the questions students will
+# ask. Private working material, not a course artefact — students receive the
+# handouts, which carry the same mathematics written for them.
+Instructor/
