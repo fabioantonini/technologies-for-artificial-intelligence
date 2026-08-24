@@ -104,6 +104,22 @@ $$\hat{R}_S(f) = \frac{1}{m} \sum_{i=1}^{m} L(f(x_i), y_i)$$
 and choose the $f$ that makes it small. This is *empirical risk minimisation*, and
 essentially every method in this course is an instance of it.
 
+**What $L$ actually is.** So far it is a placeholder, and it should not stay one. The
+simplest choice for a classifier is the **zero-one loss**: $L(\hat{y}, y) = 0$ when
+$\hat{y} = y$, and $1$ otherwise. Under it the expected risk is the probability of
+being wrong and the empirical risk is the error rate on the sample — so **accuracy is
+$1 - \hat{R}_S(f)$**, and every score the notebooks print is an empirical risk wearing
+a friendlier name. Notebook 01 reaches 0.986 on its 143 test examples: two mistakes, so
+$\hat{R}_T(f) = 2/143 = 0.014$.
+
+**And the choice is not cosmetic.** $L$ is where you state what counts as a bad
+mistake, before any model exists. Zero-one loss says every error costs the same, which
+is almost never true — a missed malignant tumour and a false alarm are not the same
+event, and Section 3 prices exactly that. Lesson 3 replaces zero-one with squared error
+for continuous targets, Lesson 4 with cross-entropy, and Lesson 4 goes further and
+gives the two kinds of mistake separate prices. Changing $L$ changes which $f$ wins,
+which is why it is a modelling decision and not a technicality.
+
 ### 2.2 The gap that explains the whole course
 
 ![](risk_gap.png)
@@ -206,7 +222,8 @@ way and you get a better model whose quality you know less precisely.
 Two practical consequences follow, and both surprise people.
 
 **The estimate has a variance of its own.** An accuracy measured on $m$ test examples
-is a proportion, so its standard error is roughly
+is a proportion — it is the empirical risk under the zero-one loss of Section 2.1,
+counted over $m$ independent draws — so its standard error is roughly
 
 $$\mathrm{SE} \approx \sqrt{\frac{p(1-p)}{m}}$$
 
@@ -372,13 +389,29 @@ limits most projects.
 
 ### 5.2 Unsupervised learning
 
-No targets. The data is $\{x_1, \dots, x_n\}$ and the goal is structure: groups
+No targets. The data is $\{x_1, \dots, x_m\}$ and the goal is structure: groups
 (clustering), a lower-dimensional description (dimensionality reduction), or unusual
 points (anomaly detection). Lesson 8.
 
-There is no accuracy to report, which is the difficulty. An algorithm will always
-return groups. Whether they correspond to anything you care about is a judgement you
-must make, and it cannot be delegated to a metric.
+**What is missing is not a loss.** It is easy to read "no targets" as "nothing to
+minimise", and that is wrong. k-means minimises the total squared distance from each
+point to its nearest cluster centre — the **within-cluster sum of squares (WCSS)** —
+which is an empirical risk in exactly the sense of Section 2.1, with the loss measured
+against the model's own summary of the data rather than against a label. Lesson 8
+derives it and proves the algorithm decreases it at every step. Principal component
+analysis (PCA), also Lesson 8, minimises reconstruction error the same way.
+
+What is missing is **ground truth to check the answer against**. An algorithm will
+always return groups, whether or not the data contains any. Whether they correspond to
+anything you care about is a judgement you must make, and it cannot be delegated to a
+metric. That is the difficulty — and it is a problem of validation, not of
+optimisation.
+
+**The gap of Section 2.2 does not disappear along with the labels.** WCSS falls as the
+number of clusters rises, and with one cluster per example it is exactly zero. That is
+the same memorisation that drives a flexible model's empirical risk to zero, in
+different clothes: nobody labelled anything, and it is still overfitting. Lesson 8
+spends its first half on how to choose that number honestly.
 
 ### 5.3 Self-supervised learning
 
@@ -393,6 +426,11 @@ genuine.
 The reconstruction task itself is of no interest — it is a *pretext*. The point is that
 solving it forces the model to represent how the parts of an input relate, and that
 representation transfers to tasks you do care about.
+
+Formally nothing new is happening. The target $y$ is manufactured from $x$, so
+everything in Section 2 applies unchanged — the same expected risk, the same empirical
+risk, the same gap between them, the same reason for holding data out. What changes is
+only that the labels are free.
 
 This is how modern large models are trained, and it explains their scale: text and
 images exist in enormous quantities, and this technique needs no annotation. We do not

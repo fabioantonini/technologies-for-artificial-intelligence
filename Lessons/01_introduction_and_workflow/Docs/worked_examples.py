@@ -27,6 +27,18 @@ def same(name: str, computed, printed, tolerance=5e-3) -> None:
 # The inputs the handout states: notebook 1's test set and its accuracy.
 n_test, accuracy = 143, 0.986
 
+# --- 2.1, the zero-one loss lands on that accuracy --------------------------
+#
+# Under the zero-one loss the empirical risk is the error rate, so the score the
+# notebook prints and the risk the formalism minimises are the same number read
+# two ways. Reached from the counts, not from the accuracy.
+
+mistakes = n_test - round(n_test * accuracy)
+same("2.1 accuracy 0.986 is an empirical risk of 0.014",
+     mistakes / n_test, 0.014, tolerance=5e-4)
+same("2.1 and that is one minus the accuracy",
+     1 - mistakes / n_test, accuracy, tolerance=5e-4)
+
 standard_error = math.sqrt(accuracy * (1 - accuracy) / n_test)
 same("2.4 the standard error is about one percentage point",
      standard_error, 0.010, tolerance=0.002)

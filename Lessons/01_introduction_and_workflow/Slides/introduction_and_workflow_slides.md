@@ -314,6 +314,17 @@ Empirical risk. Minimising it is empirical risk minimisation, and essentially ev
 method in this course is an instance of it - linear regression, logistic regression,
 trees, neural networks. Different function classes, same principle.
 
+Say what L is, or it stays a placeholder all lesson. Simplest choice, the zero-one
+loss: 0 when right, 1 when wrong. Then the empirical risk IS the error rate, and
+accuracy is one minus it - so every score in today's notebooks is an empirical risk
+under a friendlier name. Notebook 01: 0.986 on 143 examples is two mistakes, an
+empirical risk of 0.014.
+
+And say that choosing L is a modelling decision, not a technicality: it is where you
+state what counts as a bad mistake, before any model exists. Zero-one says every error
+costs the same, which is almost never true. Lesson 3 uses squared error, lesson 4 uses
+cross-entropy and then prices the two kinds of mistake separately. Handout 2.1.
+
 Ask the room: what could go wrong with minimising this instead of the thing we actually
 want? Give them a moment. Someone usually says "it might not generalise", which is
 exactly right and is the next slide.
@@ -681,9 +692,20 @@ No targets at all. Find structure.
 ::: notes
 Lesson 8.
 
-Plant the difficulty now: there is no accuracy to report. The algorithm ALWAYS returns
-clusters, whether or not the data contains any groups. Whether they mean something is a
-judgement about the domain and cannot be delegated to a metric.
+Plant the difficulty now, but plant the right one. It is NOT that there is nothing to
+minimise - k-means minimises the within-cluster sum of squares, which is an empirical
+risk in the sense of the slide before the break, with the loss measured against the
+model's own summary instead of a label. Lesson 8 derives it and proves the algorithm
+decreases it every step.
+
+What is missing is ground truth to check the answer against. The algorithm ALWAYS
+returns clusters, whether or not the data contains any groups. Whether they mean
+something is a judgement about the domain and cannot be delegated to a metric. It is a
+validation problem, not an optimisation one - and the distinction matters, because they
+will meet that cost function in lesson 8 and remember what was said here.
+
+Worth thirty seconds: the overfitting gap survives the loss of the labels. One cluster
+per point drives the cost to exactly zero. Same memorisation, different clothes.
 
 This is genuinely harder than supervised learning to do well, which is the opposite of
 how it is usually taught - it looks easier because there is no labelling effort.
@@ -699,6 +721,11 @@ Nobody annotates anything — and the supervision is real.
 
 ::: notes
 The one they will have heard about without a clean definition, so define it precisely.
+
+Say the formal point first, because it is one sentence and it settles the taxonomy:
+y is manufactured from x, so everything from the first hour applies unchanged - same
+expected risk, same empirical risk, same gap, same reason to hold data out. The only
+thing that changed is that the labels became free.
 
 The reconstruction task is a PRETEXT: nobody wants a flavanoid predictor, which is what
 notebook 02 builds. The point is that solving it forces the model to represent how the

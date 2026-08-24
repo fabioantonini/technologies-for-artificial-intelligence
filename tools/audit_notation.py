@@ -142,6 +142,16 @@ def audit(lessons):
                             and not re.search(excused, sentence, re.I)):
                         findings.append((number, label, str(where), sentence[:170]))
 
+            # A collection of examples ends at the m-th, never the n-th, and says so
+            # without ever using the word "examples". Braces mean a set of examples,
+            # $\{x_1, \dots, x_n\}$; bare commas mean the components of one vector,
+            # $x_1, \dots, x_n$, where n is right. A pair is always an example.
+            for pattern in (r"\\\{\s*x_1.{0,30}?x_n\s*\\\}", r"\(\s*x_n\s*,\s*y_n\s*\)"):
+                for match in re.finditer(pattern, text):
+                    findings.append((number, "a set of examples indexed to n, not m",
+                                     "%s:%d" % (where, text[:match.start()].count("\n") + 1),
+                                     match.group(0)))
+
             # an average over examples should be 1/m; k and B are ensemble counts
             for match in re.finditer(r"\\frac\{1\}\{([a-zA-Z])\}\s*\\sum", text):
                 if match.group(1) not in ("m", "k", "B", "N", "T"):
