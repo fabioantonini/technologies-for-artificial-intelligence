@@ -96,7 +96,7 @@ mechanism for looking ahead to a split that would help more two levels down.
 ### 2.2 Impurity, and the gain a split buys
 
 "As pure as possible" needs a number. For classification, the standard
-choice is the **Gini impurity** of a group of $n_g$ examples drawn from $C$
+choice is the **Gini impurity** of a group of $m_g$ examples drawn from $C$
 classes:
 
 $$G = 1 - \sum_{c=1}^{C} p_c^2$$
@@ -108,11 +108,11 @@ $G$ is not a probability of misclassification — it is the probability that
 two examples drawn at random *with replacement* from the group, and labelled
 according to the group's own class frequencies, would disagree.
 
-A candidate split divides a parent group of $n$ examples into a left child of
-$n_L$ examples and a right child of $n_R = n - n_L$. Its value is the
+A candidate split divides a parent group of $m_P$ examples into a left child of
+$m_L$ examples and a right child of $m_R = m_P - m_L$. Its value is the
 reduction in impurity, weighted by how the group is divided:
 
-$$\Delta G = G(\text{parent}) - \left(\frac{n_L}{n}\, G(\text{left}) + \frac{n_R}{n}\, G(\text{right})\right)$$
+$$\Delta G = G(\text{parent}) - \left(\frac{m_L}{m_P}\, G(\text{left}) + \frac{m_R}{m_P}\, G(\text{right})\right)$$
 
 For a continuous feature, the tree scans every feature and, within each,
 every midpoint between two adjacent sorted values as a candidate threshold,
@@ -590,7 +590,7 @@ course has made that point with a different method each time.
 | The decision must be explained to the person it affects | A single tree, depth-tuned, or nothing on this list |
 | Tabular data, accuracy matters most, no explanation required | A random forest, as a strong and low-effort default |
 | Training time matters, or the signal needs sequential refinement | Gradient boosting, tuned on a validation set |
-| Very high-dimensional, few informative columns | Any tree method, cautiously — trust importances less as $p$ grows past $n$ |
+| Very high-dimensional, few informative columns | Any tree method, cautiously — trust importances less as $n$ grows past $m$ |
 | Rows only, and OOB score suffices for validation | A random forest — free of an explicit train/test split |
 
 ---
@@ -640,6 +640,7 @@ course has made that point with a different method each time.
 | $p_c$ | fraction of a group belonging to class $c$ |
 | $d$ | a tree's depth |
 | $m$, $n$ | number of examples, number of features |
+| $m_g$; $m_P$, $m_L$, $m_R$ | examples in a group; in a parent and its two children |
 | $\sigma^2$, $\rho$ | variance of one tree's prediction, correlation between two trees |
 | $B$ | number of trees averaged |
 | $F_t$, $h_t$ | the ensemble's prediction after $t$ rounds, and the $t$-th tree added to it |
