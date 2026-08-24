@@ -394,7 +394,10 @@ If someone asks "how much do we hold out?" - typically 20-30%, and the trade-off
 real in both directions: a bigger test set gives a more stable estimate (the standard
 error falls as one over root n), a bigger training set gives a better model. Give them
 the concrete number from notebook 01: 143 test examples at 0.986 accuracy carries a
-standard error of about one percentage point, so the third decimal place is noise.
+standard error of about one percentage point, so the third decimal place is noise. If
+anyone presses on the interval, concede it: 0.986 of 143 is two errors, the normal
+approximation is not admissible there - it returns an upper limit of 100.5% - and the
+honest lower bound is 95.0%, not 96.5%. Handout section 2.4 works it through.
 With a few hundred examples both sides hurt at once, which is what cross-validation
 exists for - lesson 5.
 
