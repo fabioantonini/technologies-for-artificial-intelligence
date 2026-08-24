@@ -808,6 +808,24 @@ hyperparameter tuning.
 
 ---
 
+### Notation used in this lesson
+
+| Symbol | Meaning |
+|---|---|
+| $X$, $Y$ | a feature and the target treated as random variables (Sections 3–5); $X$ is **also** the $m \times n$ design matrix in Section 7 |
+| $x^{(i)}$ | the $i$-th example |
+| $m$, $n$ | number of examples, number of features |
+| $\mu$, $\sigma$ | a feature's mean and standard deviation |
+| $\bar{x}$ | a sample mean |
+| $\rho$ | the correlation between two variables |
+| $p$ | the fraction of a column's values that are missing (Section 4) |
+| $P(\cdot)$ | a probability |
+| $k$ | the number of categories in a column (Section 6); **and**, in Section 5 only, the z-score cut-off, $k = 3$ |
+| $w$, $J$ | the coefficients of a linear fit and its cost (Section 7) |
+| $H$ | the Hessian of that cost |
+| $\alpha$ | the learning rate |
+| $\kappa$ | the condition number |
+
 ## Further reading
 
 | Resource | Type | Why read it |

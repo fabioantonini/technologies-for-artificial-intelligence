@@ -726,6 +726,21 @@ why is one of the derivations you will be asked for.
 
 ---
 
+### Notation used in this lesson
+
+| Symbol | Meaning |
+|---|---|
+| $x$, $X$ | one input, the design matrix |
+| $y$, $\hat{y}$ | true target, prediction |
+| $w$, $b$ | coefficients, intercept |
+| $\theta$ | all parameters together, the intercept included |
+| $m$, $n$ | number of examples, number of features |
+| $J$ | the cost being minimised |
+| $\alpha$ | the **learning rate**, and nothing else |
+| $\lambda$ | the **regularisation strength** — scikit-learn spells this one `alpha`, which is why the previous row says "and nothing else" |
+| $\bar{x}$, $\bar{y}$ | sample means |
+| $S_{xx}$, $S_{xy}$ | the centred sum of squares and the centred sum of cross-products |
+
 ## Further reading
 
 | Resource | Type | Why read it |
