@@ -307,7 +307,7 @@ from it. If a student takes one idea away today, this is a good candidate.
 
 Average loss over the finite sample we happen to hold:
 
-$$\hat{R}_S(f) = \frac{1}{n} \sum_{i=1}^{n} L(f(x_i), y_i)$$
+$$\hat{R}_S(f) = \frac{1}{m} \sum_{i=1}^{m} L(f(x_i), y_i)$$
 
 ::: notes
 Empirical risk. Minimising it is empirical risk minimisation, and essentially every
@@ -374,8 +374,8 @@ instruction. Handout sections 2.3 to 2.5 carry the full argument.
 
 The difficulty is not that a sample is small. It is that if the same data both CHOOSES
 the model and JUDGES it, the judgement stops being an unbiased estimate. The analogy
-that works: writing the exam questions after reading the students' answers. Nobody
-cheated - you let the answers influence the question.
+that works: a revision session that happens to rehearse exactly the exam questions.
+Nobody cheated - the same questions both shaped the preparation and judged it.
 
 Why a held-out set repairs it: if the test set played no part in choosing f, it stays
 independent of f, and the error measured on it is an unbiased estimate of the expected

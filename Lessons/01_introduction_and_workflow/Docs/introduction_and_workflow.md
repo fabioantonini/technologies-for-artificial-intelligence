@@ -96,10 +96,10 @@ This is the average loss over all data the world might produce — including dat
 does not exist yet. It is the thing we want to make small.
 
 And it is **not computable**, because $\mathcal{D}$ is unknown. All we hold is a finite
-sample $S = \{(x_1, y_1), \dots, (x_n, y_n)\}$, so we compute the **empirical risk**
+sample $S = \{(x_1, y_1), \dots, (x_m, y_m)\}$, so we compute the **empirical risk**
 instead:
 
-$$\hat{R}_S(f) = \frac{1}{n} \sum_{i=1}^{n} L(f(x_i), y_i)$$
+$$\hat{R}_S(f) = \frac{1}{m} \sum_{i=1}^{m} L(f(x_i), y_i)$$
 
 and choose the $f$ that makes it small. This is *empirical risk minimisation*, and
 essentially every method in this course is an instance of it.
@@ -132,15 +132,18 @@ test set exists.**
 
 *The same idea on real data: the error on data the model has seen keeps falling, while the error on data it has not turns around.*
 
-**The picture first.** Imagine setting an exam, then marking it, then being
-asked whether the marks measure how well the students understood the subject.
-If you wrote the questions before seeing any answers, yes. If you wrote them
-afterwards, having read what the students happened to know — no, and nobody
-cheated. The questions simply stopped being independent of the answers.
+**The picture first.** Imagine a revision session the week before an exam, in
+which the lecturer works through exactly the exercises that will be on the
+paper — not deliberately, simply because those are the exercises on their mind.
+The class does very well. Nobody cheated, and every mark was earned. But the
+marks now measure how well those particular exercises were rehearsed rather
+than how well the subject is understood, and nothing in the marks themselves
+tells the two apart.
 
-A test set is the exam. It measures generalisation only for as long as nothing
-about it influenced the model. That is the entire content of the rule, and the
-argument below is that sentence made precise.
+A test set is that exam paper. It measures generalisation only for as long as
+nothing has rehearsed on it — for as long as nothing about it influenced the
+model. That is the entire content of the rule, and the argument below is that
+sentence made precise.
 
 The rule is easy to state and easy to treat as hygiene. It is worth seeing why it is
 not — the justification is short, and it tells you exactly when the rule has been
@@ -151,9 +154,9 @@ The difficulty is not that a sample is small or unrepresentative. It is this:
 > If the same data both **chooses** the model and **judges** it, the judgement is no
 > longer an unbiased estimate. It is systematically optimistic.
 
-An analogy that lands in a lecture: if you write the exam questions *after* reading the
-students' answers, the mark no longer measures how well they prepared. Nobody cheated.
-You simply let the answers influence the question.
+An analogy that lands in a lecture: the exercises rehearsed in the revision session
+cannot also be the exercises that are marked. Nobody cheated — the same questions
+simply did two jobs at once, and the mark inherited the optimism.
 
 Now the reason a held-out set repairs this. Suppose we fix a function $f$ using the
 training data alone, and then evaluate it on a test set $T$ drawn from the same
@@ -195,10 +198,10 @@ way and you get a better model whose quality you know less precisely.
 
 Two practical consequences follow, and both surprise people.
 
-**The estimate has a variance of its own.** An accuracy measured on $n$ test examples
+**The estimate has a variance of its own.** An accuracy measured on $m$ test examples
 is a proportion, so its standard error is roughly
 
-$$\mathrm{SE} \approx \sqrt{\frac{p(1-p)}{n}}$$
+$$\mathrm{SE} \approx \sqrt{\frac{p(1-p)}{m}}$$
 
 In Notebook 01 the test set holds 143 examples and the accuracy comes out at 0.986.
 That gives a standard error of about **one percentage point**, so anything from roughly
@@ -208,7 +211,7 @@ the same observation that Section 7 makes about single splits, arriving from the
 direction.
 
 **Hence the trade-off in choosing the split.** A larger test set gives a more stable
-estimate — the standard error falls as $1/\sqrt{n}$. A larger training set gives a
+estimate — the standard error falls as $1/\sqrt{m}$. A larger training set gives a
 better model. With thousands of examples, holding out 20-30% costs little and buys a
 reliable number. With a few hundred, both sides hurt at once, which is precisely the
 situation cross-validation is designed for. Lesson 5 takes it up.
