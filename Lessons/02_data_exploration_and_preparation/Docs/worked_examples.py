@@ -140,4 +140,30 @@ levels = frame["zip_code"].nunique()
 same("6.3 zip_code has 493 levels", levels, 493, tolerance=0)
 same("6.3 averaging 4.06 rows per level", len(frame) / levels, 4.06, tolerance=0.05)
 
+# --- 9.2, the five-customer worked example ------------------------------
+#
+# Recomputed from the counts, not from the handout's fractions.
+n_c, churners = 5, 2
+leaky = churners / n_c
+same("9.2 the leaky value everyone in the category gets", leaky, 0.40, tolerance=1e-9)
+same("9.2 an honest churner should have had 0.25",
+     (churners - 1) / (n_c - 1), 0.25, tolerance=1e-9)
+same("9.2 an honest non-churner should have had 0.50",
+     churners / (n_c - 1), 0.50, tolerance=1e-9)
+same("9.2 so a churner is pushed up by 0.15",
+     leaky - (churners - 1) / (n_c - 1), 0.15, tolerance=1e-9)
+same("9.2 and a non-churner down by 0.10",
+     leaky - churners / (n_c - 1), -0.10, tolerance=1e-9)
+
+# The same two gaps from the formula, which shares no intermediate value.
+same("9.2 the formula agrees for the churner",
+     (1 - (churners - 1) / (n_c - 1)) / n_c, 0.15, tolerance=1e-9)
+same("9.2 and for the non-churner",
+     (0 - churners / (n_c - 1)) / n_c, -0.10, tolerance=1e-9)
+
+# The table of weights is one over the group size.
+for size, share in ((1, 1.00), (2, 0.50), (5, 0.20), (50, 0.02), (500, 0.002)):
+    same(f"9.2 a group of {size} gives your own label {share:.1%}",
+         1 / size, share, tolerance=1e-9)
+
 print(f"lesson 2: {checks} hand-worked numbers recomputed, all agree")

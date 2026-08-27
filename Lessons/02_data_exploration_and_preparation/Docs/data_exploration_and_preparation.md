@@ -807,73 +807,89 @@ why.
 *A column with no real signal, encoded three ways. Target encoding manufactures a predictor out of the labels themselves.*
 
 **The picture first.** Target encoding replaces a category with the average
-outcome of the rows in that category. Now consider a category containing exactly
+outcome of the rows in it. So ask what happens to a category containing exactly
 one row: its average *is* that row's own label, copied into a feature under a
 different name.
 
-With two rows it is half the answer, with fifty it is a genuine statistic barely
-influenced by any single row. So the leak is not uniform — **it is worst exactly
-where the groups are smallest**, which is also where high-cardinality columns
-keep most of their categories.
+Said in one sentence, and this is the whole mechanism:
 
-The algebra below quantifies it.
+> **Your own label gets a vote in your own feature, and the fewer people share
+> your category, the bigger your vote.**
 
-Encode category $c$, containing rows indexed by $c$, with the mean of $y$
-over all its members: $\bar{y}_c = \frac{1}{n_c}\sum_{j \in c} y_j$, and use
-that value as row $i$'s feature — **including row $i$ itself** in the average
-that becomes row $i$'s own input. Compare this "leave-in" encoding to the
-honest, **leave-one-out** encoding that excludes row $i$ from its own
-category's statistic:
+With a category of one you are the only voter, so the feature *is* the label.
+With fifty, your vote is 2% and the column is a genuine statistic about the
+group. The size of the leak is therefore not a constant — it is one over the
+size of your group:
 
-$$\bar{y}_c^{(-i)} = \frac{1}{n_c - 1}\sum_{j \in c,\, j \neq i} y_j$$
+| rows sharing your category | how much of your own feature is your own label |
+|---|---|
+| 1 | **100%** — the feature is the label |
+| 2 | 50% |
+| 5 | 20% |
+| 50 | 2% |
+| 500 | 0.2% |
 
-The leave-in mean is a weighted combination of the leave-one-out mean and
-$y_i$ itself:
+**Worked, on five customers.** Take a category with 5 rows, 2 of whom churned,
+and encode it leakily — averaging over everyone, yourself included. Every row in
+that category gets the feature 2/5 = **0.40**. Now ask what each row *should*
+have received, if its own label had been left out:
 
-$$\bar{y}_c = \frac{(n_c - 1)\,\bar{y}_c^{(-i)} + y_i}{n_c}$$
+| the row | others in the category | honest value | leaky value | pushed |
+|---|---|---|---|---|
+| a churner | 1 of the other 4 churned | 1/4 = 0.25 | 0.40 | **+0.15 up** |
+| a non-churner | 2 of the other 4 churned | 2/4 = 0.50 | 0.40 | **−0.10 down** |
 
-Subtracting $\bar{y}_c^{(-i)}$ from both sides gives the exact size of the
-leak, for row $i$, as a function of category size:
+Read the last column, because it is the point. The leak is not a vague
+optimism sprinkled evenly over the data: **churners are pushed up and
+non-churners are pushed down, every time, in every category.** The encoded
+column separates the two classes by construction — not because it knows
+anything about them, but because each row's own answer was mixed into its own
+question. A model then discovers a "predictor" that is a slightly blurred copy
+of the labels.
+
+That is why the number in Section 9.1 is what it is. On our churn data
+`zip_code` has, by construction, no relationship with churn at all — Section 2's
+correlation check already showed that. Encoded leakily, before the split, it
+still drives test AUC from **0.751** for a model without it to **0.891**. Nothing
+was discovered. The labels were fed back in.
+
+**Why high-cardinality columns are the dangerous ones.** More levels means fewer
+rows per level, and the table above says the leak grows as the groups shrink.
+`zip_code` averages **4.1 rows per level** (Section 6.3), so a typical customer's
+own label makes up roughly a quarter of that customer's own feature. Notebook 3
+finds the extreme case and prints it: zip code `Z378` has exactly one customer,
+is encoded as `1.000`, and that customer's true `churned` value is `1`. The
+feature and the answer are the same number.
+
+**The fix follows from the sentence.** Never let a row's own label vote on its
+own encoded value. `sklearn.preprocessing.TargetEncoder` does this by
+cross-fitting: each training row's encoded value is computed from the *other*
+folds of the training data, which is "leave yourself out" done a fold at a time
+for speed. Used inside a `Pipeline` fitted on `X_train` alone, it recovers an
+AUC of **0.752** — indistinguishable from not using `zip_code` at all, which is
+the correct answer for a column with nothing in it.
+
+**The algebra, for completeness.** Nothing below is needed to use any of the
+above; it is the same statement in symbols. Write $n_c$ for the number of rows
+in category $c$, $\bar{y}_c$ for the leaky average over all of them, and
+$\bar{y}_c^{(-i)}$ for the honest average with row $i$ left out. The leaky
+average is a weighted blend of the honest one and the row's own label, and
+subtracting one from the other leaves
 
 $$\bar{y}_c - \bar{y}_c^{(-i)} = \frac{y_i - \bar{y}_c^{(-i)}}{n_c}$$
 
-The gap shrinks as $1/n_c$: for a category with thousands of members, one
-row's own label barely moves the group mean, and the leak is negligible. But
-for $n_c = 1$ — a category seen exactly once — the formula degenerates
-completely: $\bar{y}_c = y_i$. **The "encoded feature" is not correlated
-with the label. It is the label**, relabelled as if it were an input.
-Notebook 3 shows this literally: zip code `Z378`, with exactly one customer,
-gets encoded as `1.000` for a customer whose true `churned` value is `1`.
+which is the table: the pull is the row's own disagreement with its group,
+divided by the group's size. At $n_c = 1$ the right-hand side is undefined
+because there is no group left — and the encoding collapses to
+$\bar{y}_c = y_i$, the case notebook 3 prints.
 
-This is why **high-cardinality categoricals are the dangerous case**: more
-levels means smaller average group size $n_c$, which means a larger leak by
-exactly this formula, compounding the curse-of-dimensionality cost already
-noted in Section 6.3. On our churn data, `zip_code` carries — by
-construction — no real relationship with churn at all (Section 2's
-correlation check already showed this). Encoded leakily, before the split, it
-still drives test AUC from 0.751 (a model without it) to 0.891: an apparent
-improvement manufactured entirely out of the mechanism just derived, on a
-column with nothing to contribute.
-
-**The fix** is exactly what the formula suggests: never let a row's own label
-influence its own encoded value. `sklearn.preprocessing.TargetEncoder`
-implements this by cross-fitting internally — computing each training row's
-encoded value from a model fitted on the *other* folds of the training data,
-the same idea as $\bar{y}_c^{(-i)}$ generalised from "leave one row out" to
-"leave one fold out" for efficiency. Used inside a `Pipeline`, fitted on
-`X_train` alone, it recovers the honest AUC of 0.752 — indistinguishable from
-not using `zip_code` at all, which is exactly the correct answer for a column
-with no real signal.
-
-**Where this stops holding.** The derivation assumes the "leave-in" encoding
-is computed once over the *entire* dataset (train and test together), which
-is the realistic bug this section targets. A leave-in encoding computed on
-the training fold only is still slightly optimistic *for the training rows
-themselves*, by the same formula — but since those encoded values are never
-evaluated on, only fitted to, that particular bias does not reach the test
-metric; it is why cross-fitting matters more for high-variance downstream
-models (Lesson 7's boosted trees, especially) than for a single linear
-coefficient, which is comparatively hard to overfit with one feature.
+**One honest caveat.** This describes the realistic bug: an encoding computed
+once over training and test data together. An encoding computed on the training
+fold alone is still slightly optimistic *for the training rows*, by the same
+arithmetic — but those values are only ever fitted to, never scored on, so that
+particular bias does not reach the test number. It matters more for models
+flexible enough to exploit it, such as Lesson 7's boosted trees, than for a
+single linear coefficient.
 
 ### 9.3 The rule, restated
 
