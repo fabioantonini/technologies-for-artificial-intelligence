@@ -1,0 +1,19 @@
+# The full course image: adds what lessons 9 and 10 need, and nothing else.
+#
+# Built FROM the core image rather than from scratch, which is the whole point:
+# a student who already has :core downloads only the TensorFlow layer when
+# November arrives, because every other layer is already in their cache.
+#
+# CORE_IMAGE is passed by tools/release.py so the two always match versions.
+ARG CORE_IMAGE=fabioantonini/technologies-for-artificial-intelligence:core
+FROM ${CORE_IMAGE}
+
+# requirements.txt is passed as a CONSTRAINTS file, not installed again: it is
+# what stops a TensorFlow dependency from upgrading numpy underneath the pinned
+# scientific stack. Without it, pip pulls ml-dtypes 0.6.0, which requires
+# numpy>=2, and pandas, scipy and scikit-learn — all compiled against numpy 1.x
+# — stop importing. That is not hypothetical; it is what the first build did.
+COPY requirements.txt requirements-full.txt /tmp/
+RUN pip install --no-cache-dir \
+        -c /tmp/requirements.txt \
+        -r /tmp/requirements-full.txt

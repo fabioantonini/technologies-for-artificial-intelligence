@@ -1,0 +1,29 @@
+# The deep learning layer — lessons 9 and 10 only.
+#
+# Installed on top of the core image, so that pulling it later downloads this
+# layer and nothing else.
+#
+# tensorflow-cpu, not tensorflow: the plain package pulls the nvidia-* CUDA
+# libraries as hard dependencies, roughly 450 MB of them, even on a machine with
+# no GPU. Every lab in this course runs on CPU by design.
+#
+# ============================
+# Why ml-dtypes is pinned here
+# ============================
+# It is a TensorFlow dependency, not something the course imports, and it is the
+# reason this file exists rather than three lines in the Dockerfile. Resolved
+# freshly, pip selects ml-dtypes 0.6.0, which requires numpy>=2.0.0 — and numpy 2
+# breaks pandas, scipy and scikit-learn, all compiled here against numpy 1.x.
+# The first build of this image did exactly that and could not import
+# tensorflow at all.
+#
+# 0.5.4 is the version the previously published image shipped, alongside
+# numpy 1.26.4 and keras 3.15.1, and is therefore the combination the course was
+# actually verified against.
+#
+# The Dockerfile also passes requirements.txt as a pip constraints file, so a
+# future dependency cannot quietly move numpy underneath the pins.
+
+tensorflow-cpu==2.21.0
+keras==3.15.1
+ml-dtypes==0.5.4

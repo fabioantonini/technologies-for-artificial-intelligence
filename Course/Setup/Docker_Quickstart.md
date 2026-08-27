@@ -1,10 +1,15 @@
 # Getting started
 
 Everything you need for this course runs inside a Docker container: Python,
-JupyterLab, scikit-learn, XGBoost and TensorFlow are already installed. You do not
-install Python on your machine.
+JupyterLab, NumPy, pandas, scikit-learn and matplotlib are already installed. You do
+not install Python on your machine.
 
 **You will never need an API key or a paid account for this course.**
+
+The image comes in two sizes. You start with **`core`**, which is everything lessons
+1 to 8 need. Before Lesson 9 you switch one line to **`full`**, which adds TensorFlow
+for the two neural-network lessons — and because `full` is built on top of `core`,
+that switch downloads only the part you do not already have.
 
 ---
 
@@ -13,7 +18,8 @@ install Python on your machine.
 Download it from [docker.com](https://www.docker.com/products/docker-desktop/) and
 start it. Windows, macOS and Linux are all fine.
 
-You need roughly **20 GB of free disk space** and **8 GB of RAM**.
+You need **8 GB of RAM**, and about **10 GB of free disk space** — 4 GB for the
+`core` image and room for the `full` one in November.
 
 ---
 
@@ -34,11 +40,18 @@ you will find again — not your Downloads folder.
 From inside the repository folder:
 
 ```bash
+docker compose pull
+```
+
+**Do this at home, before the first lecture.** It is a multi-gigabyte download, and
+thirty people doing it at once on the lecture-theatre network is not a plan. Then
+start it:
+
+```bash
 docker compose up
 ```
 
-The first run downloads the image and takes several minutes. Later runs start in
-seconds.
+Later runs start in seconds and download nothing.
 
 Then open:
 
@@ -92,14 +105,37 @@ cloned, on your own machine. Containers are disposable; your work is not.
 
 ---
 
+## Before Lesson 9: switching to the full image
+
+Lessons 9 and 10 use TensorFlow, which is large and which nothing before them needs.
+It is therefore not in the image you have been using. To add it, open the `.env` file
+in the repository folder and change one line:
+
+```
+TAI_TAG=full
+```
+
+Then, at home and before the lecture:
+
+```bash
+docker compose pull
+docker compose up
+```
+
+You are not downloading the environment again. Everything except TensorFlow is
+already on your machine, so only that layer is fetched.
+
+---
+
 ## Running without cloning (not recommended)
 
 The published image contains a snapshot of the course, so this works:
 
 ```bash
 docker run --rm -p 8888:8888 -e JUPYTER_TOKEN=aicourse \
-  fabioantonini/technologies-for-artificial-intelligence:0.1.0
+  fabioantonini/technologies-for-artificial-intelligence:core
 ```
 
-But your work is stored **inside the container and lost when it stops**, and you have
-to pull a multi-gigabyte image for every new lesson. Use the `git clone` route above.
+But your work is stored **inside the container and lost when it stops**, and the
+snapshot inside the image is frozen at the moment it was built, so you would not
+receive new lessons at all. Use the `git clone` route above.

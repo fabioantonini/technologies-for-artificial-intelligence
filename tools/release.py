@@ -1,4 +1,4 @@
-"""Build, tag and publish the course Docker image.
+"""Build, tag and publish the two course Docker images.
 
     python tools/release.py patch      # 0.1.0 -> 0.1.1
     python tools/release.py minor      # 0.1.0 -> 0.2.0
@@ -10,6 +10,14 @@ VERSION is the single source of truth. This script also rewrites the version
 string wherever it appears in the documentation, so the student quickstart can
 never drift out of step with what was actually published - which is exactly
 the failure mode the previous course repository suffered from.
+
+Two images, not one. `:core` carries lessons 1 to 8; `:full` is built FROM it
+and adds TensorFlow for lessons 9 and 10, which is 1.3 GB nobody needs until
+20 November. Because full is built on core rather than beside it, a student who
+already has core downloads only the TensorFlow layer.
+
+There is deliberately no `:latest`. With two images that name has no honest
+meaning, and the one thing worse than a large download is the wrong image.
 """
 
 import argparse
@@ -92,26 +100,45 @@ def main() -> int:
     print(f"version: {current} -> {new}")
     print(f"image:   {IMAGE}\n")
 
-    print("building")
-    build = ["build", "-t", f"{IMAGE}:{new}", "-t", f"{IMAGE}:latest"]
+    core_versioned = f"{IMAGE}:{new}-core"
+    full_versioned = f"{IMAGE}:{new}-full"
+
+    print("building core (lessons 1-8)")
+    build = ["build", "-f", "Dockerfile", "-t", core_versioned]
+    if args.no_cache:
+        build.append("--no-cache")
+    build.append(".")
+    docker(build, args.dry_run)
+
+    print("\nbuilding full (adds TensorFlow, FROM core)")
+    build = ["build", "-f", "Dockerfile.full",
+             "--build-arg", f"CORE_IMAGE={core_versioned}", "-t", full_versioned]
     if args.no_cache:
         build.append("--no-cache")
     build.append(".")
     docker(build, args.dry_run)
 
     major, minor, _ = new.split(".")
-    moving_tags = ["latest", major, f"{major}.{minor}"]
+    # Moving tags only; no `latest`. docker-compose.yml resolves TAI_TAG to
+    # `core`, so these are the names students actually pull.
+    tags = {
+        core_versioned: ["core", f"{major}.{minor}-core", f"{major}-core"],
+        full_versioned: ["full", f"{major}.{minor}-full", f"{major}-full"],
+    }
 
     print("\ntagging")
-    for tag in moving_tags:
-        docker(["tag", f"{IMAGE}:{new}", f"{IMAGE}:{tag}"], args.dry_run)
+    for source, moving in tags.items():
+        for tag in moving:
+            docker(["tag", source, f"{IMAGE}:{tag}"], args.dry_run)
 
     if args.no_push:
         print("\npush skipped (--no-push)")
     else:
         print("\npushing")
-        for tag in (new, *moving_tags):
-            docker(["push", f"{IMAGE}:{tag}"], args.dry_run)
+        for source, moving in tags.items():
+            docker(["push", source], args.dry_run)
+            for tag in moving:
+                docker(["push", f"{IMAGE}:{tag}"], args.dry_run)
 
     touched = sync_docs(current, new, args.dry_run)
     if args.dry_run:
@@ -125,6 +152,7 @@ def main() -> int:
     if touched:
         print("version references updated in: " + ", ".join(touched))
     print(f'\nNext: git commit -am "Release v{new}" && git tag v{new}')
+    print("Students pull `:core`; they switch .env to TAI_TAG=full before lesson 9.")
     return 0
 
 

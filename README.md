@@ -90,9 +90,18 @@ Conventions, audience assumptions and content rules are in [`CLAUDE.md`](CLAUDE.
 
 ## Docker image
 
+Two images, because TensorFlow is 1.3 GB that nothing before Lesson 9 needs:
+
 ```
-fabioantonini/technologies-for-artificial-intelligence:0.1.0
+fabioantonini/technologies-for-artificial-intelligence:core    lessons 1-8
+fabioantonini/technologies-for-artificial-intelligence:full    adds TensorFlow, lessons 9-10
 ```
+
+`full` is built **from** `core`, so a student who already has `core` downloads only
+the TensorFlow layer when November arrives. `docker-compose.yml` reads the tag from
+`.env`, which ships set to `core`; versioned tags such as `0.1.0-core` exist for
+reproducibility. There is deliberately no `:latest` — with two images the name has no
+honest meaning.
 
 The image carries the **environment**. Course content reaches students through
 `git pull`, so the image is only republished when dependencies change.

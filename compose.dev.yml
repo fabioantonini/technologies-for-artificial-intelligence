@@ -1,0 +1,12 @@
+# Building the image locally, which is a job for whoever maintains the course
+# and not for a student. Overlay it on the student file:
+#
+#     docker compose -f docker-compose.yml -f compose.dev.yml up --build
+#
+# This builds the CORE image. The full one is built from it by
+# tools/release.py, which is also what tags and publishes both.
+services:
+  tai-course:
+    build:
+      context: .
+      dockerfile: Dockerfile

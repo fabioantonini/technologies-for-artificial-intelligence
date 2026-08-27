@@ -1,8 +1,16 @@
 services:
   tai-course:
     container_name: tai_course
-    build: .
-    image: fabioantonini/technologies-for-artificial-intelligence:latest
+
+    # No `build:` here, deliberately. With both `build:` and `image:` present,
+    # `docker compose up` on a clean machine BUILDS the image instead of
+    # pulling it — which is slower, needs a toolchain, and is not the artefact
+    # that was tested. Students pull; see compose.dev.yml for building.
+    #
+    # TAI_TAG comes from .env and is `core` (lessons 1-8). Change it to `full`
+    # before lesson 9 to add TensorFlow; only that layer is downloaded.
+    image: fabioantonini/technologies-for-artificial-intelligence:${TAI_TAG:-core}
+
     ports:
       - "8888:8888"
     volumes:
