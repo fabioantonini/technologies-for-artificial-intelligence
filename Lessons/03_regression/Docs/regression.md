@@ -290,7 +290,8 @@ things: how wrong the prediction was, and how large that feature was for that
 example. A 200 m² house that is badly mispriced moves the area coefficient much
 more than a 40 m² house with the same error. The gradient is a weighted vote, and
 the weights are the feature values — which is precisely why features on wildly
-different scales cause trouble, as Lesson 2 derived.
+different scales cause trouble. Lesson 2 stated that as a rule and showed it
+happening; this is the machinery underneath it.
 
 The intercept gradient has no $x$ in it: every example gets an equal vote, since
 the intercept applies equally to all of them.
@@ -316,8 +317,9 @@ than the intercept, purely because areas are around 140 and the intercept's
 crawling towards its value long after the slope has arrived — which is exactly
 what notebook 1 shows after 4,000 iterations.
 
-The cure is Lesson 2's: scale the features, and both directions move at
-comparable speed.
+The cure is the one Lesson 2 insisted on without proving: scale the features,
+and both directions move at comparable speed. Section 4.4 below puts a number
+on how much it is worth here.
 
 ### 4.3 Choosing the learning rate
 

@@ -347,40 +347,52 @@ than during the leakage section.
 
 # Why scale?
 
-`tenure_months`: 0–70. `monthly_charges`: 15–150.
+`tenure_months`: 0–72. `monthly_charges`: 15–128.
 
 Gradient descent takes **one step size, along every axis, every iteration.**
 
 ::: notes
-Set up the problem before the mathematics. Ask: if two features live on very
-different scales, can a single learning rate be right for both directions at
-once? Let the room reason about it before the derivation.
+Set up the problem before any mathematics. Ask: if two features live on very
+different scales, can a single step size be right for both directions at once?
+Let the room reason about it first.
 
-Give them the concrete pair from the dataset: tenure runs 0 to 70, monthly
-charges 15 to 150. The variances differ by roughly an order of magnitude, and
-gradient descent takes one step size along every axis simultaneously.
+Be honest about this dataset, because a sharp student will check: once the
+outliers of Section 4 are removed, these two columns have comparable spreads -
+the ratio of their standard deviations is about 0.8. They are not a dramatic
+case, which is exactly why notebook 2 builds a toy pair with a 110:1 variance
+ratio to make the effect unambiguous. The point is not that churn data is
+pathological; it is that you cannot count on it not being.
 
-Handout Section 5.2 does it properly, and the punchline is worth previewing:
-the safe learning rate is set by the largest-variance feature, so progress
-along the smallest-variance direction is throttled by their ratio. The number
-of iterations scales with the condition number. Scaling is not cosmetic - it
-changes how long training takes, and sometimes whether it converges at all.
+The punchline, which handout Section 5.2 states: the safe step size is set by
+the feature with the largest spread, so progress along the smallest-spread
+direction is throttled by their ratio. Scaling is not cosmetic - it changes how
+long training takes, and sometimes whether it converges at all. The derivation
+is deliberately NOT here: it belongs with gradient descent itself, Lesson 3.
 :::
 
-# The Hessian is the feature covariance
-
-For uncorrelated, centred features, H is diagonal — the variances sit on it.
+# A ravine, not a bowl
 
 ![](condition_number_geometry.png)
 
 ::: notes
-The figure is the derivation made visible. Left: variances differ, so the bowl is a narrow valley. One step size is bound by the steep axis, so it bounces across the valley while barely advancing along it.
+Do this one entirely on the picture; there is no algebra on this slide by choice.
 
-Right: after scaling, the bowl is round and every step points at the minimum.
+Left: the two features have different spreads, so the cost surface is a narrow
+ravine - steep across, almost flat along. One step size has to serve both. Long
+enough to advance along the flat direction and it overshoots the steep one and
+bounces from wall to wall; short enough to be safe on the steep one and it
+crawls along the flat one.
 
-Give them the number that governs it - the condition number, the ratio of largest to smallest variance - and say that the iteration count scales with it. Scaling is not cosmetic: it changes how long training takes, and sometimes whether it converges at all.
+Right: after scaling, the ravine is a bowl and every step points at the minimum.
 
-The derivation is Handout Section 5.2: the Hessian of the squared-error cost is the feature covariance matrix, so for uncorrelated centred features it is diagonal with the variances on it. That is why the picture is an axis-aligned ellipse, and why its elongation is the condition number.
+Give them the handle without the derivation: how stretched the ravine is - the
+ratio of the largest feature variance to the smallest - is called the condition
+number, and the number of steps you need grows with it.
+
+If someone asks WHY the surface has that shape, that is the right question and
+the honest answer is "Lesson 3, where we derive gradient descent" - its Section
+4.4 puts the number on it: standardising the housing design matrix takes the
+condition number from 285 to 3.4.
 :::
 
 # A 100:1 variance ratio, and what it costs
@@ -395,9 +407,10 @@ comfortably, and it does not converge slowly - it diverges. Same data, same
 starting point, one rate stable and one exploding.
 
 This is a controlled toy (notebook 2), built with exactly a 100:1 variance
-ratio so the effect is unambiguous - real churn features show the same
-direction of effect more mildly, since monthly_charges has roughly 3-4 times
-the spread of tenure_months, not 100 times.
+ratio so the effect is unambiguous. On the real churn columns, once cleaned,
+the two spreads are within about 20% of each other - so this toy is not
+exaggerating a big effect in the data, it is manufacturing a clear one to show
+a mechanism.
 :::
 
 # StandardScaler vs MinMaxScaler
@@ -533,7 +546,7 @@ direction.
 
 # zip_code: 493 levels
 
-![](correlation_heatmap.png)
+![](onehot_width.png)
 
 ::: notes
 Point at the zip_code row/column - or its absence, since it is not even

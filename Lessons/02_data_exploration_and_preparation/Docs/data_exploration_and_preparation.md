@@ -101,6 +101,10 @@ related to the target. "Tentatively" is doing real work in that sentence — a
 correlation is a starting hypothesis, not a conclusion, and Section 9 shows a
 case where it is actively misleading.
 
+![](correlation_heatmap.png)
+
+*The four numeric columns against each other and against the target. What to look at is how weak the strongest relationship is: `num_support_calls` correlates with churn at +0.16 and `tenure_months` at −0.12, and everything else sits within 0.03 of zero. No single column predicts churn on its own, which is why the rest of this chapter exists — and why Section 9's leaked feature, at a correlation far above anything here, should be read as an alarm rather than a discovery.*
+
 None of this fits a model or learns a parameter, which is exactly why it is
 safe to do on the *whole* dataset, including the portion that will later
 become the test set — looking is not fitting. The line you must not cross is
@@ -265,6 +269,44 @@ learned from the training fold only.
 
 ## 4. Outliers
 
+**What the word means.** An **outlier** is a value that sits far away from the
+rest of the values in its column — far enough that it looks as though it might
+not have come from the same process as everything else. That is the whole
+definition, and notice what it does *not* say: it does not say the value is
+wrong.
+
+That matters, because a value can be unusual for three quite different reasons,
+and only the first is a defect:
+
+- **A recording error.** In our data, `tenure_months` runs from **−3 to 999**
+  while ordinary customers sit between 0 and 72. Nobody has been a customer for
+  minus three months, and 999 is the shape a "no value here" placeholder takes
+  when somebody types it into a numeric column. Likewise `monthly_charges`
+  reaches **3,344.7** against an ordinary maximum of 128: sixteen rows carry a
+  billing error.
+- **A rare but genuine value.** A customer really does pay far more than the
+  others, because they bought everything. Throwing that row away does not clean
+  the data; it deletes a real customer and quietly narrows what the model
+  believes is possible.
+- **A value from a different population.** A business account in a dataset of
+  household ones. Real, correctly recorded, and still not what the model is
+  being asked to learn about.
+
+**The uncomfortable part: the number alone cannot tell you which.** A charge of
+3,344.7 looks identical to the arithmetic whether it is a typo or a genuine
+corporate account. Deciding requires knowing how the data was recorded — which
+is why this section gives you rules that *flag* candidates and never rules that
+delete them.
+
+**Why bother at all.** Because a handful of extreme values changes results out
+of all proportion to their number. Section 5.1 measures exactly that: sixteen
+billing errors, out of 1,500 rows, compress every ordinary customer into 3.4% of
+the min-max range. Nothing was deleted and nothing raised an error; the column
+was simply ruined for the model that came next.
+
+The two rules below are detectors. What to do once something is flagged is
+Section 4.2's question, and it has no automatic answer.
+
 ### 4.1 Two rules, derived
 
 ![](outlier_fences.png)
@@ -368,6 +410,29 @@ extreme value, since $x_{\max}$ or $x_{\min}$ can be an outlier that compresses
 every ordinary value into a sliver of the range — another reason outlier
 handling (Section 4) precedes scaling, not the other way round.
 
+**"A sliver" is measurable, so measure it.** In the training split,
+`monthly_charges` runs from 15.0 to 128.4 for the 1,484 ordinary customers and
+contains 16 billing errors, the largest at 3,344.7. Fit both scalers on that
+column as it stands and take one perfectly ordinary customer paying 80.0 a
+month:
+
+| | $x_{\min}$, $x_{\max}$ | $\mu$, $\sigma$ | where 80.0 lands |
+|---|---|---|---|
+| with the 16 errors | 15.0, 3344.7 | 81.22, 183.65 | min-max **0.020** · $z$ **−0.007** |
+| without them | 15.0, 128.4 | 63.55, 17.07 | min-max **0.573** · $z$ **+0.964** |
+
+Under min-max, every ordinary customer is now packed into
+$[0.000,\ 0.034]$ — **3.4% of the range**, with the other 96.6% reserved for
+sixteen rows. The sliver is not a metaphor.
+
+Standardisation is pulled in the same direction, and it is worth being precise
+about how much rather than waving at it: the spread it divides by grows from
+17.07 to 183.65, a factor of **10.8**, while min-max's denominator grows from
+113.4 to 3329.7, a factor of **29.4**. So min-max is about **three times** as
+badly affected here — a real difference, but not the difference in kind that
+"more sensitive" can suggest. Neither transform repairs an outlier. Only
+Section 4 does.
+
 Scaling matters for two distinct families of method, for two different
 reasons. **Distance-based methods** (k-nearest neighbours, k-means, anything
 using a Euclidean or similar metric, all met from Lesson 6 onward) compute
@@ -378,7 +443,7 @@ regression fitted by gradient descent, and every neural network in Lessons 9
 and 10) are affected for a sharper, more precise reason, derived in full
 below.
 
-### 5.2 Why unscaled features slow down — or break — gradient descent
+### 5.2 Why it matters for gradient descent
 
 ![](condition_number_geometry.png)
 
@@ -395,82 +460,93 @@ to wall. Make it short enough to be safe on the steep axis and you crawl along
 the flat one.
 
 **Scaling reshapes the ravine into a bowl**, so a single stride length suits
-every direction. The derivation below turns "narrow ravine" into a number.
+every direction.
 
-Take linear regression's mean squared error cost, so the argument is exact
-rather than approximate (logistic regression's cost is not exactly quadratic,
-but its Hessian near the optimum has the same structure, so the conclusion
-carries over; a note on that at the end):
+**What follows from that, stated rather than derived.** Most models in this
+course are fitted by **gradient descent**: start somewhere on the landscape and
+take repeated steps downhill, every step the same size. Two consequences follow
+from the picture alone.
 
-$$J(w) = \frac{1}{2m}\sum_{i=1}^m \left(w^\top x^{(i)} - y^{(i)}\right)^2$$
+- **The steepest direction sets the pace for all of them.** A stride that is
+  safe on the steep wall is the largest you may take, because a longer one
+  overshoots and the cost goes *up*. So the feature with the largest spread
+  decides the step size, however uninformative that feature happens to be.
+- **At that pace the flat direction barely moves.** How many steps you need
+  grows with how stretched the ravine is — the ratio of the largest feature
+  variance to the smallest, which has a name, the **condition number**.
 
-Gradient descent updates $w \leftarrow w - \alpha \nabla J(w)$, and how fast
-that converges is governed by the curvature of $J$, i.e. its Hessian. Writing
-$X$ for the $m \times n$ design matrix,
+Standardising sets every variance to 1. The ravine becomes a bowl, the ratio
+falls to roughly 1, and one stride suits every direction at once.
 
-$$\nabla J(w) = \frac{1}{m}X^\top(Xw - y), \qquad H = \nabla^2 J(w) = \frac{1}{m}X^\top X$$
+**On the data.** Notebook 2 builds two features with a variance ratio of 110 —
+standard deviations of 0.98 and 10.23 — and fits the same model twice. The
+scaled version is stable at a learning rate of 2.0; the raw one needs 0.1, a
+rate **twenty times smaller**, and after 200 steps has reached a cost of 0.4183
+against the scaled run's 0.4155. Give the raw features the scaled version's
+learning rate and it does not merely converge slowly: the cost reaches **3.34**,
+far above where it started. It diverges.
 
-$H$ does not depend on $w$: the cost surface is an exact quadratic bowl, and
-$H$ describes its shape completely. If the features are centred, the $(j,k)$
-entry of $H$ is $\frac{1}{m}\sum_i x^{(i)}_j x^{(i)}_k$ — the sample covariance
-between features $j$ and $k$. In particular, for *uncorrelated* centred
-features, $H$ is diagonal with entries equal to each feature's variance:
+![](gd_convergence_scaled_vs_unscaled.png)
 
-$$H = \mathrm{diag}(\sigma_1^2, \sigma_2^2, \dots, \sigma_n^2)$$
+*The same problem, scaled and unscaled, at the same learning rate. The unscaled run is still travelling when the scaled one has arrived — same data, same model, same number of steps in both panels.*
 
-A diagonal Hessian means the cost surface is an axis-aligned ellipsoid whose
-$j$-th axis has curvature $\sigma_j^2$. Gradient descent takes a step of size
-$\alpha$ times the gradient along *every* axis simultaneously, but the
-*safe* step size for a quadratic bowl of curvature $\sigma_j^2$ is
-$\alpha < 2/\sigma_j^2$ — steeper curvature (larger variance) demands a
-smaller learning rate, or the update overshoots and the loss increases on
-that axis. With one global $\alpha$, the binding constraint is set by the
-largest-variance feature,
+That is the whole practical content: **scaling is not cosmetic. It changes how
+long training takes, and sometimes whether it finishes at all.**
 
-$$\alpha < \frac{2}{\sigma_{\max}^2}$$
+**Where the details live.** Why the shape of that landscape is fixed by the
+feature covariances, and why the safe stride is exactly two over the largest
+variance, belongs with the derivation of gradient descent itself — Lesson 3,
+whose Section 4.4 computes the condition number on the real housing design
+matrix and finds that standardising takes it from 285 to 3.4, a factor of
+about 80. Nothing here depends on those steps; if you
+want them now, they are waiting there.
 
-and at that rate, progress along the smallest-variance direction is governed
-by $\alpha \sigma_{\min}^2$, which is tiny whenever $\sigma_{\min}^2 \ll
-\sigma_{\max}^2$. The number of iterations needed to reach a given accuracy
-scales with the **condition number**
-
-$$\kappa = \frac{\sigma_{\max}^2}{\sigma_{\min}^2}$$
-
-Standardising every feature to variance 1 makes $H$ close to the identity
-matrix (exactly the identity for uncorrelated standardised features), so
-$\kappa \approx 1$ and a single learning rate near the theoretical maximum
-works well along every axis at once. This is exactly what the notebook 2
-demonstration shows on two features engineered to have a variance ratio of
-100: the raw features need a learning rate roughly 20 times smaller than the
-standardised ones to stay stable, and using the standardised features'
-learning rate on the raw data does not converge slowly — it **diverges**,
-because $\alpha$ then exceeds $2/\sigma_{\max}^2$ and the update overshoots on
-every step.
-
-**Where this stops holding.** The derivation is exact for a quadratic cost
-(linear regression). For logistic regression the Hessian is
-$H = \frac{1}{m}X^\top S X$ where $S$ is diagonal with entries $p_i(1-p_i) \in
-(0, \tfrac14]$ — it depends on the current predictions and is not constant —
-but it is still built from $X^\top X$-like sums, so features with very
-different variances still stretch it in the same direction, and the
-qualitative conclusion (scale before using a single global learning rate)
-carries over even though the constant $2/\sigma_{\max}^2$ no longer applies
-exactly. Methods that do not use gradient descent with a single global rate —
-Newton's method, or optimisers with a per-parameter adaptive rate such as
-Adam, met in Lesson 9 — are considerably less sensitive to this, though
-scaling still rarely hurts and remains the default.
+Two caveats worth carrying forward. The argument is about *gradient descent
+with one global step size*; optimisers that adapt a rate per parameter — Adam,
+met in Lesson 9 — are markedly less sensitive to this, though scaling still
+rarely hurts and remains the default. And the exact statement is for linear
+regression's squared-error cost; for logistic regression the landscape changes
+shape as the model moves, but features with very different spreads stretch it
+the same way, so the conclusion carries.
 
 > **Try this:** in notebook 2, change the toy example's variance ratio from
 > 100 to 9 and to 900, and note how the gap between the two learning rates
-> that stay stable grows or shrinks. It should track $\kappa$ directly.
+> that stay stable grows or shrinks. It should track the ratio directly.
 
 ---
 
 ## 6. Categorical encoding
 
-![](gd_convergence_scaled_vs_unscaled.png)
+A model does arithmetic. A column holding `"month-to-month"` offers nothing to
+do arithmetic with, so it has to become numbers — and **every way of doing that
+makes a claim about the categories**. The claim is the part to get right; the
+code is three lines either way.
 
-*The same problem, scaled and unscaled, at the same learning rate. The unscaled run is still travelling when the scaled one has arrived.*
+Take `contract_type`, which has three levels and 2,000 rows behind it:
+
+| | rows | churn rate |
+|---|---|---|
+| `month-to-month` | 1,092 | 0.266 |
+| `one-year` | 488 | 0.137 |
+| `two-year` | 420 | 0.071 |
+
+Here is what one customer on a one-year contract becomes under each encoding,
+and what each is asserting:
+
+| Encoding | That customer becomes | The claim being made |
+|---|---|---|
+| **One-hot** | `[0, 1, 0]` | the three levels are simply different; no order, no distances |
+| **Ordinal** | `1` | they are ordered, **and** the gap from month-to-month to one-year equals the gap from one-year to two-year |
+| **Target** | `0.137` | the level's average outcome summarises it well enough to stand in for it |
+
+The middle row is where damage usually happens, and this column shows why. The
+order is genuine — a one-year contract really does sit between the other two —
+so ordinal encoding looks safe. But the churn rate falls by 0.129 on the first
+step and by only 0.066 on the second: the first gap is **twice** the second,
+while the encoding $0, 1, 2$ tells the model they are the same size. A linear model given that column fits one coefficient for a step whose
+meaning changes depending on where you take it.
+
+The three subsections take the three encodings in turn.
 
 ### 6.1 One-hot encoding, and the dummy variable trap, proved
 
@@ -533,17 +609,20 @@ arithmetically.
 
 **Target encoding** replaces a category with a statistic of the target
 computed over the rows sharing it — typically the mean, $\bar{y}_c$ for
-category $c$. It compresses arbitrarily many levels into a single, often
-highly predictive, numeric column, which is exactly why it exists for
+category $c$. On `contract_type` that is the third column of the table above —
+0.266, 0.137, 0.071 — and the appeal is immediate: three levels have become one
+column that already carries most of what the levels were telling us. It
+compresses arbitrarily many levels into a single, often highly predictive,
+numeric column, which is exactly why it exists for
 `zip_code`-shaped columns where one-hot encoding would add hundreds of sparse
 columns. It is also, computed the obvious way, the more dangerous of the two
 encodings in this entire lesson, and Section 9.2 derives exactly why.
 
 ### 6.3 The curse of dimensionality, briefly
 
-![](correlation_heatmap.png)
+![](onehot_width.png)
 
-*What 493 levels look like once one-hot encoded. The width is the point: most columns are almost entirely zero, and each carries a handful of rows.*
+*What one-hot encoding `zip_code` actually produces, drawn from the data itself. Left: 493 columns, one dark cell per row and nothing else — 99.8% of the matrix is zero. Right: the number of rows sharing a level, averaging 4.1. A column that carries four rows cannot support a coefficient estimated from those four rows, and that is the curse of dimensionality in its most concrete form.*
 
 One-hot encoding a column with $k$ levels adds $k$ columns, most of which are
 zero for most rows. Beyond a modest $k$ this has two costs: the feature space
@@ -580,10 +659,30 @@ Three common constructions:
   within-bin information.
 
 Feature engineering is a hypothesis about the domain, not a guaranteed
-improvement — notebook 2's engineered `charge_per_tenure` feature moves the
-model's area under the receiver operating characteristic curve (AUC) by a
-fraction of a point, which is itself a legitimate result, not
-a failure of the technique. And whenever the construction involves a
+improvement. Notebook 2's engineered `charge_per_tenure` moves the model's
+area under the receiver operating characteristic curve (AUC) from **0.752 to
+0.754** — two thousandths.
+
+*(AUC appears repeatedly from here on, so fix it now: it is the probability
+that the model gives a randomly chosen churner a higher score than a randomly
+chosen non-churner. A coin flip scores 0.5, a perfect ranking 1.0, and unlike
+accuracy it does not change when the classes are imbalanced. Lesson 4 derives
+it properly; until then, read it as "how well does this rank the two groups
+apart".)* Worth stating
+plainly: that is **not** a success, and reporting it as one would be the first
+step towards the reasoning Lesson 5 exists to prevent. It is a legitimate
+result — the hypothesis that cost intensity matters here was reasonable, it was
+tested, and the data declined it — and it is also within the range that a
+different train/test split could produce on its own, which is precisely why
+Lesson 5 will not let a single split settle a question this small.
+
+The three constructions are worth seeing on the actual columns:
+
+| Construction | On this dataset | What it lets a linear model express |
+|---|---|---|
+| **Ratio** | `monthly_charges / tenure_months` | cost intensity — a customer paying 90 for three months is not the customer paying 90 for sixty |
+| **Interaction** | `monthly_charges × [contract is month-to-month]` | that a high bill matters more when there is nothing holding the customer in place |
+| **Binning** | `tenure_months` into 0–6, 6–24, 24+ | that risk is high early, flattens, then flattens again — a shape no single coefficient on `tenure_months` can produce | And whenever the construction involves a
 statistic learned from data — bin edges chosen from quantiles, an interaction
 scaled by a learned coefficient — Section 8's rule applies to it exactly as it
 applies to imputation and scaling.
@@ -821,10 +920,6 @@ hyperparameter tuning.
 | $p$ | the fraction of a column's values that are missing (Section 4) |
 | $P(\cdot)$ | a probability |
 | $k$ | the number of categories in a column (Section 6); **and**, in Section 5 only, the z-score cut-off, $k = 3$ |
-| $w$, $J$ | the coefficients of a linear fit and its cost (Section 7) |
-| $H$ | the Hessian of that cost |
-| $\alpha$ | the learning rate |
-| $\kappa$ | the condition number |
 
 ## Further reading
 

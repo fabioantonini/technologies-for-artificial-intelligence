@@ -69,4 +69,75 @@ same("4.1 how often a normal exceeds three standard deviations",
 same("4.1 how often Tukey's fence flags a normal value",
      2 * (1 - norm.cdf(q3 + 1.5 * (q3 - q1))), 0.0070, tolerance=5e-4)
 
+# ------------------- Sections 5.1, 6 and 7, recomputed from the generator
+#
+# These reach the handout's figures from the dataset itself, not from the
+# notebook's printed output: the generator is the raw input, and everything
+# below is derived from it here.
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "Notebooks"))
+from churn_data import make_churn_data                       # noqa: E402
+from sklearn.model_selection import train_test_split         # noqa: E402
+
+frame = make_churn_data(n=2000, seed=7)
+features = frame.drop(columns=["churned", "zip_code"])
+X_train, _, _, _ = train_test_split(
+    features, frame["churned"], test_size=0.25, random_state=7,
+    stratify=frame["churned"])
+
+# --- 5.1, what an outlier does to each scaler ---------------------------
+charges = X_train["monthly_charges"].fillna(X_train["monthly_charges"].median())
+ordinary = charges[charges < 500]
+customer = 80.0
+
+same("5.1 ordinary customers top out at 132.3", ordinary.max(), 128.4, tolerance=0.1)
+same("5.1 the largest billing error is 3344.7", charges.max(), 3344.7, tolerance=0.1)
+same("5.1 there are 16 billing errors", (charges >= 500).sum(), 16, tolerance=0)
+same("5.1 and 1484 ordinary customers", len(ordinary), 1484, tolerance=0)
+
+span, span_clean = charges.max() - charges.min(), ordinary.max() - ordinary.min()
+same("5.1 min-max puts an 80.0 customer at 0.020",
+     (customer - charges.min()) / span, 0.020, tolerance=1e-3)
+same("5.1 and at 0.573 without the errors",
+     (customer - ordinary.min()) / span_clean, 0.573, tolerance=1e-3)
+same("5.1 the z-score of that customer is -0.007",
+     (customer - charges.mean()) / charges.std(), -0.007, tolerance=2e-3)
+same("5.1 and +0.964 without the errors",
+     (customer - ordinary.mean()) / ordinary.std(), 0.964, tolerance=2e-3)
+
+same("5.1 ordinary customers occupy 3.4% of the min-max range",
+     (ordinary.max() - ordinary.min()) / span, 0.034, tolerance=1e-3)
+same("5.1 min-max's denominator grows by 29.4x", span / span_clean, 29.4, tolerance=0.1)
+same("5.1 the standard deviation grows by 10.8x",
+     charges.std() / ordinary.std(), 10.8, tolerance=0.1)
+
+# --- 4, the planted dirt the section describes -------------------------
+tenure_all = frame["tenure_months"].dropna()
+same("4 tenure_months reaches -3", tenure_all.min(), -3, tolerance=0)
+same("4 and 999", tenure_all.max(), 999, tolerance=0)
+ordinary_tenure = tenure_all[(tenure_all >= 0) & (tenure_all < 200)]
+same("4 while ordinary customers stop at 72", ordinary_tenure.max(), 72, tolerance=0)
+
+# --- 6, what the three encodings claim ----------------------------------
+by_contract = frame.groupby("contract_type")["churned"].agg(["mean", "size"])
+for level, rate, rows in (("month-to-month", 0.266, 1092),
+                          ("one-year", 0.137, 488),
+                          ("two-year", 0.071, 420)):
+    same(f"6 churn rate for {level}", by_contract.loc[level, "mean"], rate, tolerance=1e-3)
+    same(f"6 rows for {level}", by_contract.loc[level, "size"], rows, tolerance=0)
+
+first = by_contract.loc["month-to-month", "mean"] - by_contract.loc["one-year", "mean"]
+second = by_contract.loc["one-year", "mean"] - by_contract.loc["two-year", "mean"]
+same("6 the first ordinal step is 0.129", first, 0.129, tolerance=1e-3)
+same("6 the second is 0.066", second, 0.066, tolerance=1e-3)
+same("6 so the first is about twice the second", first / second, 2.0, tolerance=0.1)
+
+# --- 6.3, the width of one-hot encoding ---------------------------------
+levels = frame["zip_code"].nunique()
+same("6.3 zip_code has 493 levels", levels, 493, tolerance=0)
+same("6.3 averaging 4.06 rows per level", len(frame) / levels, 4.06, tolerance=0.05)
+
 print(f"lesson 2: {checks} hand-worked numbers recomputed, all agree")
