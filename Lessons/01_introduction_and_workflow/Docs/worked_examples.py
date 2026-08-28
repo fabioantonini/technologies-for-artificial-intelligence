@@ -163,4 +163,43 @@ same("7 and costs this many false alarms", _cost(0.10)[1], 11, tolerance=0)
 same("7 raising to 0.90 raises no false alarm", _cost(0.90)[1], 0, tolerance=0)
 same("7 and costs this many missed malignancies", _cost(0.90)[0], 7, tolerance=0)
 
+# ------------------------------- Section 2.3, why the selector lands in the tail
+#
+# Reproduced from the seed rather than read off the notebook: notebook 03 sets
+# np.random.seed(42) in its setup cell and then draws X and y in that order, so
+# the same two calls rebuild the identical noise matrix.
+
+import numpy as np  # noqa: E402
+
+np.random.seed(42)
+_Xn = np.random.normal(size=(200, 5000))
+_yn = np.random.randint(0, 2, size=200)
+
+_Xc = _Xn - _Xn.mean(axis=0)
+_yc = _yn - _yn.mean()
+_r = (_Xc * _yc[:, None]).sum(axis=0) / np.sqrt((_Xc ** 2).sum(axis=0) * (_yc ** 2).sum())
+
+same("2.3 the noise spread of a correlation on 200 rows",
+     1 / math.sqrt(200), 0.071, tolerance=5e-4)
+same("2.3   and the sample standard deviation agrees with it",
+     float(_r.std()), 1 / math.sqrt(200), tolerance=5e-3)
+
+# The top 20 by |r| is what SelectKBest(f_classif, k=20) returns: for two classes
+# the F statistic is monotone in |r|, so ranking by either gives the same set.
+_top20 = np.argsort(-np.abs(_r))[:20]
+same("2.3 the smallest |r| among the twenty kept",
+     float(np.abs(_r[_top20]).min()), 0.20, tolerance=5e-3)
+same("2.3 the largest |r| among them",
+     float(np.abs(_r[_top20]).max()), 0.27, tolerance=5e-3)
+same("2.3   how many standard deviations out, at the near edge",
+     float(np.abs(_r[_top20]).min() / _r.std()), 2.8, tolerance=5e-2)
+same("2.3   and at the far edge",
+     float(np.abs(_r[_top20]).max() / _r.std()), 3.9, tolerance=5e-2)
+
+# Extreme-value scaling, by a route that never touches the sample.
+same("2.3 sqrt(2 ln n) for 5000 columns", math.sqrt(2 * math.log(5000)), 4.13,
+     tolerance=5e-3)
+same("2.3 so the largest draw is predicted near",
+     (1 / math.sqrt(200)) * math.sqrt(2 * math.log(5000)), 0.29, tolerance=5e-3)
+
 print(f"lesson 1: {checks} hand-worked numbers recomputed, all agree")
