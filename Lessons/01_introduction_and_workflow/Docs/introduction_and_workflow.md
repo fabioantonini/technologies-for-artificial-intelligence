@@ -320,10 +320,40 @@ trained on. If your sample comes from a different population than the one you wi
 deploy on — different hospital, different season, different user base — the model's
 measured performance says little about its real performance.
 
-**When errors are catastrophic and unexplainable.** Learned models are wrong sometimes,
-in ways that are hard to predict and often hard to explain. If a mistake is
-unrecoverable, and no human reviews the output, the question is not whether the
-accuracy is high enough but whether anyone can tell when it has failed.
+**When errors are catastrophic and nobody reviews them.** This one is easy to misread
+as something you can only discover after deployment, so read it carefully: every
+judgement it asks for can be made *before* a single line is written.
+
+Three facts, and none of them requires the model to exist.
+
+*The model will be wrong.* Not "might be" — will be. Section 2.2 established that the
+gap between empirical and expected risk never closes, and the best model in this
+lesson gets 2 of its 143 test cases wrong. That is a good model. You know the error
+rate will not be zero before you start, and you cannot know in advance *which* cases
+it will miss — if you could, you would fix them.
+
+*Whether a wrong answer can be undone is a property of the application, not of the
+model.* A misfiled support ticket is reopened; a wrongly rejected loan applicant may
+never come back; an incorrect dose is not returned. You know which of those you are
+building today.
+
+*Whether a human sees the output before it takes effect is a property of the
+deployment.* A model that ranks cases for a clinician to review is a different system
+from one that acts on its own, even if the weights are identical.
+
+Multiply the three together. If the errors are certain, unrecoverable and unseen,
+then no accuracy figure rescues the design, because the question was never "how often
+is it right" but "what happens the times it is not". That is a decision about the
+system around the model, and it is cheapest to make before the model exists.
+
+**On "unexplainable", a qualification.** Being unable to say *why* a particular
+prediction came out as it did is partly a consequence of the model family you choose,
+not a fixed property of machine learning. A short decision tree (Lesson 7) states its
+reasoning as a handful of rules; a linear model (Lesson 3) attributes its answer to
+each feature by an amount you can read off. If a human will have to justify a decision
+to the person it affects, that requirement belongs in the framing step of Section 6,
+where it constrains which families are admissible — not in a paragraph at the end,
+after a network has already been trained.
 
 **When the data encodes an injustice you would be automating.** If historical decisions
 were biased, a model fitted to them reproduces the bias — with an appearance of

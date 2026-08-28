@@ -447,7 +447,7 @@ no choices: one model, no tuning.
 
 - The rule is **known**: write it
 - The data is **not representative** of deployment
-- Errors are **catastrophic and unexplainable**
+- Errors are **certain, unrecoverable and unreviewed**
 - The data encodes an **injustice** you would automate
 - A **simple baseline** already suffices
 
@@ -461,10 +461,23 @@ and a rule is boring.
 Second: a model learns the distribution it was trained on. Sample from one hospital,
 deploy in another, and the measured accuracy says very little.
 
-Third: learned models are wrong sometimes, in ways that are hard to predict and often
-hard to explain. If a mistake is unrecoverable and nobody reviews the output, the
-question is not whether accuracy is high enough but whether anyone can tell when it has
-failed.
+Third, and expect this one to be challenged, because it sounds like something you
+could only know after deploying. Make the point that all three judgements are
+available before any code is written.
+
+The model WILL be wrong - not might be. Section 2.2 settled that, and today's best
+model gets 2 of 143 wrong. You cannot know which 2 in advance; if you could, you
+would fix them. Whether a wrong answer can be undone is a fact about the
+application - a misfiled ticket is reopened, a wrong dose is not. Whether a person
+sees the output before it acts is a fact about the deployment, not about the weights.
+
+Certain, unrecoverable and unseen: no accuracy figure rescues that design, and you
+knew all three before you started.
+
+Worth adding if someone raises it: "unexplainable" is partly a choice. A short tree
+in lesson 7 states its reasoning; a linear model in lesson 3 attributes the answer
+feature by feature. If somebody must justify the decision to the person it affects,
+that belongs in the framing step, where it rules families in or out.
 
 Fourth: a model is not neutral because it is mathematical. It is a compressed summary of
 the decisions in its training data. We return to this at the end of the lesson.
