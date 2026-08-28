@@ -244,13 +244,12 @@ would not report the result to three decimal places; ask a thousand and the
 figure steadies. A test set works the same way: the fewer examples it holds,
 the noisier the number it gives you.
 
-![](split_variance.png)
-
-*One split is one measurement. Repeat it with a different seed and the number moves — which is why lesson 5 is about measuring properly.*
-
 That is where the trade-off comes from. Move examples into the test set and the
 measurement steadies but the model has less to learn from; move them the other
 way and you get a better model whose quality you know less precisely.
+
+Size is only half of it. Even at a fixed size, *which* rows land in the test set
+is a draw of its own, and Section 7 measures how much that alone moves the score.
 
 Two practical consequences follow, and both surprise people.
 
@@ -621,6 +620,25 @@ only knowing how the data was recorded does.
 **Single-split noise.** One train/test split gives one draw from a distribution. On a
 small dataset the spread across splits can exceed the difference between two competing
 models. A result quoted with no indication of variability is incomplete.
+
+![](split_variance.png)
+
+*One split is one measurement. Repeat it with a different seed and the number moves — which is why lesson 5 is about measuring properly.*
+
+Notebook 03 fits the same model to the same data thirty times, changing nothing but
+the seed that decides the split. The accuracy runs from **0.917 to 1.000** — a spread
+of **0.083** around a mean of 0.963. Nothing in that picture is a difference between
+models, or between hyperparameters, or between anything at all: it is one number,
+measured thirty times.
+
+That spread is larger than most improvements reported between competing methods, which
+is the uncomfortable part. Run the code once, as real life allows, and you may report
+any value in that range while a reader who sees one number cannot tell which you drew.
+This is not fraud; it is the default behaviour of anyone who runs an experiment once.
+
+The repair is to stop taking one draw. Five-fold cross-validation on this data gives
+**0.960 ± 0.030** — almost the same centre, now with the spread reported alongside it.
+Lesson 5 makes that the centre of the course.
 
 ---
 
