@@ -805,6 +805,40 @@ practical problem than the choice of algorithm, and it is why unsupervised resul
 often oversold.
 :::
 
+# Notebook 02, live
+
+- **Supervised**: predict the cultivar. Accuracy **0.981**
+- **Supervised**: predict colour intensity instead. R² **0.622**
+- **Unsupervised**: throw the labels away. Recovers the cultivars at **0.897**
+- **Self-supervised**: hide `flavanoids`, predict it. R² **0.816**
+
+::: notes
+Open notebook 02 and run it. Twenty minutes, and it is the only place today where
+all three kinds appear on identical data, which is the whole argument of this
+segment made operational.
+
+The point to keep repeating as you scroll: nothing about the table changes between
+the four results. Same 178 wines, same 13 chemical measurements. What changes is
+which column is treated as the answer, and in the unsupervised case whether there
+is an answer at all.
+
+Two moments worth stopping on.
+
+The unsupervised score, 0.897, is suspiciously good, and the notebook says so: it
+is a happy accident of this dataset, where the chemical groups really are
+geometrically separated. Say plainly that this is not what clustering usually
+looks like, or they will leave expecting it.
+
+The self-supervised cell is mechanically identical to the regression cell two
+sections earlier - same estimator, same call. Ask the room what actually changed.
+The answer is only where the target came from: a person recorded the cultivar,
+whereas nobody produced the flavanoid column as a label, it was already in the
+table. That is the entire distinction the segment has been building to.
+
+If time is short, drop the R² aside and the n_init experiment; keep all four
+results, because the comparison is the content. Handout section 5.
+:::
+
 # The workflow
 
 ![](ml_workflow.png)

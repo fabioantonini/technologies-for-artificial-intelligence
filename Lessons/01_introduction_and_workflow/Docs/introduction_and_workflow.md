@@ -11,13 +11,13 @@ date: "25 September 2026 · reading time about 70 minutes"
 |---|---|---|
 | 0:00–0:15 | Course introduction and assessment | Slides 1–8 |
 | 0:15–0:25 | Environment check | `Course/Setup/` |
-| 0:25–0:50 | What learning from data means | Slides 9–22 |
-| 0:50–1:05 | A short history | Slides 23–30, `Resources/` |
+| 0:25–0:50 | What learning from data means | Slides 9–20 |
+| 0:50–1:05 | A short history | Slides 21–30, `Resources/` |
 | 1:05–1:15 | **Break** | |
-| 1:15–1:45 | The three kinds of learning | Slides 31–39, notebook 02 |
-| 1:45–2:30 | The end-to-end workflow, live | Slides 40–51, notebook 01 |
-| 2:30–2:55 | How models mislead | Slides 52–60, notebook 03 |
-| 2:55–3:00 | Homework set, questions | Slides 61–62 |
+| 1:15–1:45 | The three kinds of learning | Slides 31–37, notebook 02 |
+| 1:45–2:30 | The end-to-end workflow, live | Slides 38–50, notebook 01 |
+| 2:30–2:55 | How models mislead | Slides 51–61, notebook 03 |
+| 2:55–3:00 | Homework set, questions | Slides 62–63 |
 | | **Total** | **180 minutes** |
 
 ---
@@ -404,6 +404,12 @@ distinction that matters; the algorithms often overlap.
 
 *One dataset, three questions. What changes is not the data but what you ask of it.*
 
+**Notebook 02 runs all three on one table**, and it is the only place in this lesson
+where they can be compared without anything else changing: 178 Italian wines, 13
+chemical measurements each, from three different cultivars. Every result quoted in
+this section comes from it, and the numbers are worth reading against each other
+rather than one at a time.
+
 ### 5.1 Supervised learning
 
 Each example carries a label somebody produced: $(x_i, y_i)$ pairs. The model learns
@@ -414,6 +420,11 @@ it is continuous, **regression**. Lessons 3, 4, 6 and 7 are all supervised.
 
 The cost is the labels. In practice this — not algorithms, not compute — is what
 limits most projects.
+
+Notebook 02 does both on the wine table. Predicting the cultivar — a category, so
+classification — reaches **0.981** accuracy. Swapping the target for colour
+intensity, a continuous quantity, makes the identical pipeline a regression, scored
+with $R^2$ at **0.622**. Nothing changed but which column was called the answer.
 
 ### 5.2 Unsupervised learning
 
@@ -435,6 +446,14 @@ anything you care about is a judgement you must make, and it cannot be delegated
 metric. That is the difficulty — and it is a problem of validation, not of
 optimisation.
 
+Notebook 02 makes that concrete by cheating deliberately. It throws the cultivar
+labels away, runs k-means, and then — only as a teaching check, never as something
+available in a real unsupervised problem — compares the groups it found against the
+labels it hid. They agree at **0.897**. That is a happy accident of this dataset,
+where the chemical groups genuinely are separated in space, and the notebook says so:
+do not expect it. In a real problem there is no such comparison to make, which is
+exactly the point.
+
 **The gap of Section 2.2 does not disappear along with the labels.** WCSS falls as the
 number of clusters rises, and with one cluster per example it is exactly zero. That is
 the same memorisation that drives a flexible model's empirical risk to zero, in
@@ -446,6 +465,13 @@ spends its first half on how to choose that number honestly.
 A target is manufactured from the input: hide part of each example and train the model
 to reconstruct it from the rest. Nobody annotates anything, yet the supervision is
 genuine.
+
+Notebook 02 hides one measurement, `flavanoids`, and predicts it from the other
+twelve: $R^2 = 0.816$. Compare that cell with the regression in Section 5.1 and note
+that they are **mechanically identical** — the same estimator, the same call, the
+same kind of score. What differs is only where the target came from. A person
+recorded the cultivar; nobody produced the flavanoid column as a label, it was
+already in the table. That difference costs nothing and is the whole of the idea.
 
 ![](self_supervision.png)
 
