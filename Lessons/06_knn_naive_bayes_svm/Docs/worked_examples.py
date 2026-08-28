@@ -95,6 +95,23 @@ same("6 the gap between best and worst model", 0.947 - 0.613, 0.334,
 
 # ------------------------------------------- Section 5.3, support vectors
 
+# 5.4's table went into three figure titles and the handout, and was printed
+# nowhere, so nothing compared the two. Recomputed here from the generator.
+from sklearn.model_selection import cross_val_score, StratifiedKFold   # noqa: E402
+from sklearn.pipeline import make_pipeline                             # noqa: E402
+from sklearn.preprocessing import StandardScaler                       # noqa: E402
+from sklearn.svm import SVC                                            # noqa: E402
+
+svm_folds = StratifiedKFold(n_splits=5, shuffle=True, random_state=0)
+for gamma, C, printed_train, printed_cv in ((0.1, 1, 0.936, 0.929),
+                                            (1, 1, 0.950, 0.944),
+                                            (50, 1000, 0.995, 0.902)):
+    svm = make_pipeline(StandardScaler(), SVC(kernel="rbf", gamma=gamma, C=C))
+    same(f"5.4 training score at gamma={gamma}, C={C}",
+         svm.fit(X, y).score(X, y), printed_train, tolerance=1e-3)
+    same(f"5.4 cross-validated score at gamma={gamma}, C={C}",
+         cross_val_score(svm, X, y, cv=svm_folds).mean(), printed_cv, tolerance=1e-3)
+
 same("5.3 linear support-vector fraction", 947 / 1200, 0.79, tolerance=5e-3)
 same("5.3 RBF support-vector fraction", 278 / 1200, 0.23, tolerance=5e-3)
 
