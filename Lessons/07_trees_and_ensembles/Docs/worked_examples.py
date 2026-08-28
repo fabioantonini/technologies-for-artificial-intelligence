@@ -278,5 +278,22 @@ for a, b in zip(order, order[1:]):
             f"and {b} ({scores[b]:.3f})")
 checks += 1
 
+# ---- Section 11's second column, which is arithmetic the handout does in prose
+#
+# "Fraction of the 0.93 ceiling" is every row divided by the noise ceiling, and
+# nothing checked it. The ceiling itself is 1 minus the 7% of labels flipped on
+# purpose by the generator.
+same("11 the noise ceiling is 1 - 0.07", 1 - 0.07, 0.93, tolerance=1e-9)
+for model, score, printed_fraction in (
+        ("majority baseline", 0.613, 0.659),
+        ("logistic regression", 0.748, 0.805),
+        ("unconstrained tree", 0.852, 0.916),
+        ("tree at max_depth 8", 0.883, 0.949),
+        ("gradient boosting, 30 trees", 0.898, 0.965),
+        ("bagging, 100 trees", 0.904, 0.972),
+        ("random forest, 100 trees", 0.911, 0.979)):
+    same(f"11 {model} reaches that fraction of the ceiling",
+         score / 0.93, printed_fraction, tolerance=1e-3)
+
 print(f"{checks} numbers recomputed from raw inputs and confirmed against "
       f"{HANDOUT}.")
