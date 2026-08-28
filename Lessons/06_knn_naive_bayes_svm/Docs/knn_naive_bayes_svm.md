@@ -16,9 +16,9 @@ date: "30 October 2026 · reading time about 80 minutes"
 | 1:14–1:26 | 12 | **Break** | Slide 23 |
 | 1:26–1:48 | 22 | Naive Bayes, and when its assumption holds | Slides 24–34 |
 | 1:48–2:06 | 18 | **Notebook 02** — where it fails | Slide 35 |
-| 2:06–2:32 | 26 | Margins, support vectors, the kernel trick | Slides 36–47 |
-| 2:32–2:50 | 18 | **Notebook 03** — kernels in practice | Slide 48 |
-| 2:50–3:00 | 10 | The three compared; homework | Slides 49–52 |
+| 2:06–2:32 | 26 | Margins, support vectors, the kernel trick | Slides 36–48 |
+| 2:32–2:50 | 18 | **Notebook 03** — kernels in practice | Slide 49 |
+| 2:50–3:00 | 10 | The three compared; homework | Slides 50–53 |
 | | **180** | **Total** | **52 slides, 3 notebooks** |
 
 ---

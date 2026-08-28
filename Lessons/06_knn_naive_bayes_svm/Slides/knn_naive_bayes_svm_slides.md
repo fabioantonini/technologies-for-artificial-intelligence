@@ -862,6 +862,21 @@ outlier far from it matters not at all.
 - Let each point violate the margin by ξᵢ, and charge C for every unit of it
 - The constraint says: be on the correct side, or pay
 
+::: notes
+The point worth stressing is why the soft margin is not a patch or a
+convenience. With even one mislabelled point inside the other class, the strict
+problem is INFEASIBLE - there is no solution, not a bad one. Real data always
+contains such points. So the soft margin is the only version anyone ever runs;
+the hard-margin problem is a teaching device.
+
+Our own labels are flipped at 4%, deliberately, so this is not a hypothetical
+for this dataset: the hard-margin problem on these pumps has no answer.
+
+The next slide puts it in symbols. Handout section 5.2 has the derivation.
+:::
+
+# A wide slab, minus what the violations cost
+
 $$\min_{w, b, \xi} \ \tfrac{1}{2}\|w\|^2 + C\sum_i \xi_i \quad \text{s.t.} \quad y_i(w^\top x_i + b) \geq 1 - \xi_i$$
 
 ::: notes
@@ -870,13 +885,8 @@ Do not derive this. State what each piece is doing and move on - handout section
 minimising the norm of w.
 
 The first term wants a wide slab. The second term wants few violations. C sets
-the exchange rate between them, and that is the entire content of the expression.
-
-The point worth stressing is why the soft margin is not a patch or a
-convenience. With even one mislabelled point inside the other class, the strict
-problem is INFEASIBLE - there is no solution, not a bad one. Real data always
-contains such points. So the soft margin is the only version anyone ever runs;
-the hard-margin problem is a teaching device.
+the exchange rate between them, and that is the entire content of the
+expression. Read it out in those words rather than reading the symbols.
 
 If someone asks about the half in front of the norm: it is there to make the
 derivative tidy, exactly as in lesson 3's cost function.

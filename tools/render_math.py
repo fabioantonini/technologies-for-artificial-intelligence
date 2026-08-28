@@ -134,7 +134,34 @@ MATHTEXT_ALIASES = {
 }
 
 
+def _space_out_words(latex: str) -> str:
+    r"""Keep the spaces inside \text{...} alive through mathtext.
+
+    mathtext maps \text to \mathrm, which sets its argument as a single run
+    and throws the spaces away: ``\text{only if }`` came out as ``onlyif``.
+    Setting one \mathrm per word, joined by an explicit ``\ ``, preserves
+    them - leading and trailing spaces included, which is how these are
+    usually written.
+    """
+    pattern = re.compile(r"\\(?:text|operatorname)\{([^{}]*)\}")
+
+    def rewrite(match):
+        inner = match.group(1)
+        if " " not in inner:
+            return match.group(0)
+        words = [w for w in inner.split(" ") if w]
+        spaced = r"\ ".join(rf"\mathrm{{{w}}}" for w in words)
+        if inner.startswith(" "):
+            spaced = r"\ " + spaced
+        if inner.endswith(" "):
+            spaced = spaced + r"\ "
+        return spaced
+
+    return pattern.sub(rewrite, latex)
+
+
 def _normalise(latex: str) -> str:
+    latex = _space_out_words(latex)
     for command, replacement in sorted(
         MATHTEXT_ALIASES.items(), key=lambda kv: -len(kv[0])
     ):
@@ -235,6 +262,7 @@ def process(source: Path, dest: Path | None = None) -> tuple[int, int, list[str]
 
     text = re.sub(r"(?<!\$)\$(?!\$)(.+?)(?<!\$)\$(?!\$)", inline_repl, text)
     warnings.extend(_check_display_position(text))
+    warnings.extend(_check_display_alone(text))
 
     dest.write_text(text, encoding="utf8")
     return stats["unicode"], stats["images"], warnings
@@ -258,6 +286,31 @@ def _check_display_position(text: str) -> list[str]:
             problems.append(
                 f'slide "{title}": text after display maths will land on a new'
                 " untitled slide - move the equation to the end of the slide"
+            )
+    return problems
+
+
+def _check_display_alone(text: str) -> list[str]:
+    """Warn when a display equation shares its slide with a bullet list.
+
+    pandoc then reaches for the two-column "Content with Caption" layout: the
+    title shrinks and left-aligns, and the equation is scaled into whatever
+    height the bullets left it. A short lead-in sentence is fine and common;
+    it is the list that does the damage. Lesson 6's soft-margin slide is the
+    case this was written from.
+    """
+    problems = []
+    for section in re.split(r"^# ", text, flags=re.M)[1:]:
+        title = section.splitlines()[0].strip()
+        body = re.sub(r"::: notes.*?\n:::\n?", "", section, flags=re.S)
+        body = "\n".join(body.splitlines()[1:])
+        if not re.search(r"^!\[\]\(eq_\w+\.png\)$", body, flags=re.M):
+            continue
+        if any(line.lstrip().startswith(("- ", "* ")) for line in body.splitlines()):
+            problems.append(
+                f'slide "{title}": a bullet list shares the slide with display'
+                " maths - the title shrinks and the equation is scaled into"
+                " what the bullets left. Give the equation its own slide"
             )
     return problems
 
