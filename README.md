@@ -99,7 +99,7 @@ fabioantonini/technologies-for-artificial-intelligence:full    adds TensorFlow, 
 
 `full` is built **from** `core`, so a student who already has `core` downloads only
 the TensorFlow layer when November arrives. `docker-compose.yml` reads the tag from
-`.env`, which ships set to `core`; versioned tags such as `0.1.0-core` exist for
+`.env`, which ships set to `core`; versioned tags such as `0.1.1-core` exist for
 reproducibility. There is deliberately no `:latest` — with two images the name has no
 honest meaning.
 
