@@ -43,9 +43,10 @@ From inside the repository folder:
 docker compose pull
 ```
 
-**Do this at home, before the first lecture.** It is a multi-gigabyte download, and
-thirty people doing it at once on the lecture-theatre network is not a plan. Then
-start it:
+**Do this at home, before the first lecture.** It is about **750 MB** over the
+network, which unpacks to roughly 3 GB on disk. That is a few minutes on a home
+connection and a bad afternoon if thirty of us start it at once on the
+lecture-theatre wifi. Then start it:
 
 ```bash
 docker compose up
