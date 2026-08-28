@@ -90,7 +90,19 @@ few minutes. Keep the asymmetry in mind for Lesson 4.
 ![](numeric_distributions.png)
 
 ::: notes
-This figure already existed in the notebook and is the reason the next forty minutes happen: monthly_charges is bimodal, tenure is nearly uniform, age is skewed and has a gap. Ask what each shape implies before moving on - a bimodal column usually means two populations mixed together.
+Do not describe shapes the room cannot see. On the first two panels there is no
+shape to read: tenure and monthly_charges are each a single spike at the left,
+with the axis running out to 1000 and 3500 and nothing drawn out there.
+
+That absence IS the slide. Ask them what stretched the axis, and let someone
+say it: a few values so extreme that every other customer has been squashed
+into one bar. This is the figure that makes the next forty minutes necessary.
+
+Then point at age and num_support_calls, which are on their own honest ranges
+and do show a distribution - age skewed with a spike at the youngest bound,
+support calls a Poisson-looking count. That contrast is the argument for
+cleaning before looking any further, and it is why the same plot reappears
+after Section 4.
 :::
 
 # Where the gaps are
@@ -125,7 +137,7 @@ systematic reason.
 
 MAR, missing at random: depends on something you DO observe. Our num_support_calls is MAR
 against tenure - long-standing customers' early call history predates the
-CRM system. Conditional on tenure, the gap carries no further information.
+customer relationship management (CRM) system. Conditional on tenure, the gap carries no further information.
 
 MNAR, missing not at random: depends on the value itself, even unobserved. A customer who leaves
 because of a shockingly high bill and never finishes a survey. No column in
@@ -222,54 +234,101 @@ The branch worth warning about is dropping rows. It is the easiest to do
 and the only one that can quietly change what the sample represents.
 :::
 
-# Outliers, two rules
+# Rule 1: distance in standard deviations, flag beyond k = 3
 
-Two standard rules for flagging an unusual value: the z-score, and Tukey's
-fence built on the interquartile range (IQR):
-
-$$z_i = \frac{x_i - \bar x}{s} \qquad\qquad [\,Q_1 - 1.5\,\mathrm{IQR},\ \ Q_3 + 1.5\,\mathrm{IQR}\,]$$
+$$z_i = \frac{x_i - \bar{x}}{s}$$
 
 ::: notes
-Handout Section 4.1. The z-score standardises and thresholds; Tukey's rule
-fences off anything more than 1.5 interquartile ranges past the quartiles.
+The z-score rule. Standardise the column, then flag anything more than k
+standard deviations from the mean - we use k = 3 throughout.
 
-Give the probabilistic reading of each, because it is what makes them more than
-recipes. Under normality, |z| > 3 flags about 0.27% of a column. And the 1.5 is
-not arbitrary: for a normal column the IQR is 1.349 sigma, so the fence lands at
-2.698 sigma and flags about 0.35% per tail. Tukey chose the constant precisely
-so the two rules agree on well-behaved data.
-
-That agreement is the setup for the next section. Both rules are calibrated on
-normality; the interesting question is what they do when the data is not
-normal, and that is where they part company.
+Say what it assumes, because everything in the next three slides follows from
+it: measuring in standard deviations only means "surprising" if the column is
+a bell curve. It also computes its own ruler from the data being measured,
+which is the crack the section prises open.
 :::
 
-# Calibrated to agree: on a normal column
+# Rule 2: distance measured in quartiles
+
+$$\left[\,Q_1 - 1.5\,\mathrm{IQR},\ \ Q_3 + 1.5\,\mathrm{IQR}\,\right]$$
+
+::: notes
+Tukey's fence, built on the interquartile range (IQR) - the spread between the
+first and third quartiles, so the middle half of the data. Flag anything more
+than 1.5 interquartile ranges past the quartiles.
+
+It assumes no shape at all, and its ruler barely moves when a few points are
+extreme. That sounds strictly better than rule 1. Two slides from now it will
+be the rule making the mistakes.
+
+Now give the probabilistic reading of each, because it is what makes them more
+than recipes. Under normality |z| > 3 flags 0.27% of a column, both tails
+together. And the 1.5 is not arbitrary: for a normal column the IQR is 1.349
+sigma, so the fence lands at 2.698 sigma - just inside 3. Handout Section 4.1
+derives it.
+
+Then put the two side by side, counting both tails each time, because this is
+where people quietly mislead themselves: 0.27% against 0.70%. The fences are
+10% apart in position and a factor of 2.6 apart in what they flag. In 2,000
+normal values that is about 5 points against about 14.
+
+The moral to state out loud: the two rules were built to sit in the same
+neighbourhood, not to agree, and even on perfect data Tukey's is the readier
+of the two to call something an outlier. The next slide draws it.
+:::
+
+# Same neighbourhood, not the same answer
 
 ![](outlier_fences.png)
 
 ::: notes
-Handout Section 4.1 derives the 1.5 constant from the standard normal
-quantile function: it is chosen so the IQR fence and a 3-sigma z-score fence
-flag comparable tails on a genuinely normal column. Say this is a design
-choice with an assumption baked in, and the next slide is what happens when
-the assumption fails.
+Handout Section 4.1 derives the 1.5 constant from the standard normal quantile
+function.
+
+Work the two panels in order, because the slide is an argument and not an
+illustration. Left: the two fences are 0.30 sigma apart. Ask the room whether
+that looks like a difference worth caring about - it does not. Right: the same
+two rules flag 0.27% and 0.70% of a normal column, a factor of 2.6.
+
+The reason is the steepness of the tail. Move a fence in by a third of a
+standard deviation and you nearly triple the area beyond it. So resist saying
+"the two rules agree here": they sit in the same neighbourhood, and out in the
+tail a neighbourhood is a factor of 2.6.
+
+Say this is a design choice with an assumption baked in, and the next slide is
+what happens when the assumption fails.
 :::
 
-# The two rules disagree on real data
+# The robust rule is the one that got it wrong
 
 ![](outlier_scatter.png)
 
 ::: notes
-monthly_charges: z-score flags 20, IQR flags 32. The z-score rule's own mean
-and standard deviation are dragged around by the outliers it is trying to
-catch - a handful of billing errors inflate s directly, making the rule LESS
-sensitive exactly when it should be more so. IQR barely moves under the same
-contamination. That is why IQR is the safer default for skewed, error-prone
-columns.
+Put the counts up before the picture is read: 20 genuine billing errors in
+monthly_charges. The z-score rule flags 20 - all of them, nothing else. Tukey
+flags 32 - the same 20, plus 12 ordinary customers.
 
-tenure_months: only 4 flagged on the right panel, all at 999. Ask the room:
-where did the negative values go? Nobody will know yet - next slide.
+Ask the room to predict which rule was damaged by the contamination, then give
+them the number: the billing errors inflate s from 17.2 to 171.3, dragging the
+z-score fence from 115 out to 593. The rule was genuinely crippled. It got
+every error anyway, because the smallest of them is 780 - still past the
+ruined fence.
+
+Meanwhile the twelve Tukey extras are real people on real tariffs: eight
+paying 15 to 17, four paying 112 to 128, outside fences of 17.3 and 110.
+
+The line to land, and it is the whole point of the slide: a detector's output
+does not report the detector's health. The z-score rule was right by luck.
+Push those errors down towards 200 and its fence sails straight past them,
+exactly as the theory says. So the lesson is not "prefer IQR" - it is
+"recompute s without the candidates and see what moved". Handout Section 4.2.
+
+Point at the left panel's bottom band: those scattered red dots down in the
+ordinary customers are the twelve.
+
+tenure_months, right panel: only 4 flagged, all at 999, and here the two rules
+agree exactly. Ask the room: where did the negative values go? Nobody will
+know yet - next slide.
 :::
 
 # What neither rule can tell you
@@ -321,7 +380,7 @@ changed the population your model is trained on.
 Exploration, missingness mechanisms, both outlier rules: from scratch.
 
 ::: notes
-Work through notebook 1 now, 25 minutes. Let them drive; walk the room rather
+Work through notebook 1 now, 22 minutes. Let them drive; walk the room rather
 than presenting.
 
 The domain-rule cell is worth pausing on collectively: a two-line check for
@@ -402,12 +461,17 @@ condition number from 285 to 3.4.
 ::: notes
 Left panel: each feature set at its OWN safe rate - standardised still gets
 there faster, because it tolerates a larger rate. Right panel is the sharper
-point: give the RAW features the rate the standardised ones handle
-comfortably, and it does not converge slowly - it diverges. Same data, same
-starting point, one rate stable and one exploding.
+point: give the RAW features the rate the standardised ones handle comfortably
+and it does not converge slowly, it never converges at all.
 
-This is a controlled toy (notebook 2), built with exactly a 100:1 variance
-ratio so the effect is unambiguous. On the real churn columns, once cleaned,
+Be precise about the failure if anyone asks, because "diverges" is the word
+people reach for and it is not what this is. The loss does not climb away to
+infinity - it swings between 0.69 and 8.29 and stays there, bouncing off one
+wall of the ravine into the other. Run it for 2000 steps and it is still in the
+same band. Worse than slow, not better: a slow run finishes.
+
+This is a controlled toy (notebook 2), built to a 100:1 variance ratio and
+landing at 110 once drawn, so the effect is unambiguous. On the real churn columns, once cleaned,
 the two spreads are within about 20% of each other - so this toy is not
 exaggerating a big effect in the data, it is manufacturing a clear one to show
 a mechanism.
@@ -429,13 +493,14 @@ Both must be fitted on training data only - say this every time a fitted
 transform appears, because it is the thread the whole lesson hangs from.
 :::
 
-# The dummy variable trap
-
-One-hot encode all $k$ categories AND fit an intercept:
+# All k dummies plus an intercept cannot both be free
 
 $$\sum_{j=1}^{k} \text{dummy}_j = 1 = \text{intercept}$$
 
 ::: notes
+Read the slide as the sentence it is: one-hot encode all k categories AND fit
+an intercept, and this identity holds for every single row.
+
 The k dummy columns always sum to the intercept column, so they are not
 independent of it: the design matrix loses rank, and the normal equation has no
 unique solution.
@@ -600,15 +665,24 @@ prep = ColumnTransformer([
     ("num", num_pipe, num_cols),
     ("cat", cat_pipe, cat_cols),
 ])
-model = Pipeline([("prep", prep), ("clf", clf)])
+model = Pipeline([
+    ("prep", prep),
+    ("clf", clf),
+])
 model.fit(X_train, y_train)
 ```
 
 ::: notes
-numeric_pipe and categorical_pipe are the impute-then-transform pairs from
-the diagram; show the full definitions on screen in notebook 2 rather than
-here. Point out there is exactly ONE call to fit, at the very bottom, on
-X_train alone - everything above it declares structure, not computation.
+Say out loud what the five short names stand for, or someone spends the next
+minute working it out instead of listening: num_pipe and cat_pipe are the
+impute-then-transform pairs from the diagram two slides back, num_cols and
+cat_cols are plain lists of column names, and clf is the classifier. They are
+abbreviated here only to fit the slide - handout Section 8.2 prints the same
+block with full names, every import, and both column lists, and it runs as
+printed.
+
+Point out there is exactly ONE call to fit, at the very bottom, on X_train
+alone - everything above it declares structure, not computation.
 
 This is the code notebook 2 runs, nearly verbatim. Say that reading it should
 now feel unremarkable - that is the goal, structure that makes the right
@@ -618,7 +692,7 @@ thing the easy thing.
 # The model, on churn
 
 - Baseline: **0.806**
-- Model (numeric + low-card categorical, no zip): **0.820** accuracy, **0.751** AUC (area under the receiver operating characteristic curve)
+- Model (numeric + the low-cardinality categoricals, no zip): **0.820** accuracy, **0.751** AUC (area under the receiver operating characteristic curve)
 
 Modest accuracy gain. Why?
 
@@ -651,14 +725,28 @@ cases. Accuracy on its own would have reported this as progress.
 # Feature engineering
 
 Ratios, interactions, binning: a linear model cannot invent these itself.
-AUC: 0.751 → 0.754, a modest but real gain.
+AUC: 0.751 → 0.754. **Two thousandths: one split cannot tell that from noise.**
 
-$$\text{charge\_per\_tenure} = \frac{\text{monthly\_charges}}{\text{tenure\_months} + 1}$$
+$$\text{charge\_per\_tenure} = \frac{\text{monthly\_charges}}{\max(\text{tenure\_months},\ 0) + 1}$$
 
 ::: notes
-A modest gain, and say plainly that this is itself a legitimate result, not a
-failed experiment - feature engineering is a hypothesis about the domain, not
-a guarantee. Handout Section 7.
+Do not let anyone in the room call two thousandths a win, and do not call it
+one yourself. It is a legitimate result, not a failed experiment - the
+hypothesis that cost intensity matters here was reasonable, it was tested, and
+the data declined it. Feature engineering is a hypothesis about the domain,
+not a guarantee. Handout Section 7.
+
+Then plant the flag for Lesson 5: a difference this small is inside the range
+a different train/test split would produce on its own, so a single split
+cannot settle it either way. Reporting it as an improvement is the first step
+onto exactly the path Lesson 5 exists to close off.
+
+Explain the max and the +1 rather than skating over them, because someone will
+ask. tenure_months holds zeros and, before Section 4's domain rule, a -3:
+divide by it raw and you get an infinity and a sign flip. That is Section 4
+turning up in Section 7, and it is what feature engineering on real data
+actually looks like - one line of algebra, three lines of defending it against
+the column you have.
 
 The point to land: any engineered feature that involves a statistic LEARNED
 from data - bin edges from quantiles, a scaled interaction - is subject to
@@ -671,7 +759,7 @@ fold-awareness; a learned one does.
 Scaling from scratch, the dummy trap, `ColumnTransformer`, `Pipeline`.
 
 ::: notes
-25 minutes. Let them work; circulate.
+22 minutes. Let them work; circulate.
 
 The gradient descent toy is worth running interactively - change the variance
 ratio live and watch the iteration count move, per the handout's "try this".
@@ -708,9 +796,11 @@ values: it finds the nearest neighbours in feature space and averages them.
 "Nearest in the whole dataset" includes test rows, if it was fitted before the
 split existed.
 
-So a test row's missing value can be filled using its own neighbours - which
-may include rows whose labels the model will later be scored on. The imputer
-did nothing wrong; it was simply shown data it should not have seen.
+So a TRAINING row's missing age can be filled with a value read off a TEST
+row - the test set writing into the training data, one gap at a time. Note
+the imputer never touches a label; it copies feature values. That is enough:
+those values are what the model then fits on. The imputer did nothing wrong;
+it was simply shown data it should not have seen.
 
 Notebook 3 measures the gap. Connect it back to Lesson 1: this is the same
 independence argument, applied to a step nobody thinks of as learning. The
@@ -719,13 +809,13 @@ imputer learns; therefore it belongs inside the training fold.
 
 # The smoking gun
 
-**98 of 128** training rows with missing age had a **test-set row** among
-their five nearest neighbours.
+**94 of 128** training rows with missing age had a **test-set row** among
+the five donors used to fill it.
 
 Nothing raised an error.
 
 ::: notes
-98 of 128. Not an edge case - the substantial majority of imputed training rows borrowed a value from at least one row the model would later be scored on.
+94 of 128. Not an edge case - nearly three quarters of the imputed training rows borrowed a value from at least one row the model would later be scored on.
 
 Stress that nothing in the code looks wrong. KNNImputer did exactly what it says: found the nearest neighbours in the data it was given. The error was in what it was given, and it happened one line earlier.
 
@@ -737,12 +827,12 @@ This is the number to put on the board if only one number from today survives.
 ![](smoking_gun.png)
 
 ::: notes
-Ninety-eight of a hundred and twenty-eight, drawn so the proportion lands.
+Ninety-four of a hundred and twenty-eight, drawn so the proportion lands.
 
 Say what was actually done: the imputer was fitted before the split, so
 when it filled a missing age it was allowed to look at test rows to decide
-what to fill it with. Three quarters of the affected training rows had a
-test row among the five neighbours it consulted.
+what to fill it with. Nearly three quarters of the affected training rows had a
+test row among the five donors it consulted.
 
 The sentence to leave hanging is the one from the slide before: nothing
 raised an error. The notebook ran, the score improved, and the improvement
@@ -784,13 +874,15 @@ This is Lesson 1's 77%-on-coin-flip-labels story again, produced by two
 unremarkable lines of preprocessing instead of an obviously wrong one.
 :::
 
-# Why small groups make it worse
-
-The "leave-in" encoding differs from the honest leave-one-out encoding by:
+# Your own disagreement, divided by your group size
 
 $$\bar y_c - \bar y_c^{(-i)} = \frac{y_i - \bar y_c^{(-i)}}{n_c}$$
 
 ::: notes
+Read the equation out as a sentence: the "leave-in" encoding differs from the
+honest leave-one-out encoding by the row's own disagreement with its group,
+divided by how many people are in it.
+
 Handout Section 9.2 has the algebra. The intuition: for a zip code with a
 single customer, the target encoding IS that customer's label, straight
 through. With two customers it is the average of two labels. Only as the group
@@ -811,9 +903,9 @@ signal.
 ![](leak_shrinks_with_group_size.png)
 
 ::: notes
-Notebook 3 shows the n_c=1 case literally: zip code Z378, one customer,
-churned=1, encoded value 1.000. Not correlated with the label. IS the label,
-relabelled as an input.
+Notebook 3 shows the n_c=1 case literally: zip code Z472, one customer,
+churn label 0, encoded value 0.000. Not correlated with the label. IS the
+label, relabelled as an input.
 
 Connect to Section 6.3: high cardinality means small groups means a bigger
 leak by exactly this formula - the curse of dimensionality and the leakage
@@ -861,11 +953,12 @@ tuning, where the same test applies once more.
 Trace the imputation leak. Watch the encoding leak manufacture 0.89 from noise.
 
 ::: notes
-20 minutes. This notebook is the payoff of the lesson: three leaks, each
-measured against an honest pipeline on the same data.
+22 minutes. This notebook is the payoff of the lesson: the two leaks of
+today, each measured against an honest pipeline on the same data. The third
+way of breaking the rule, on the earlier diagram, was Lesson 1's.
 
-The numbers matter less than the pattern - every leak inflates the score, none
-of them raises an error, and all three are things a competent person does by
+The numbers matter less than the pattern - both leaks inflate the score,
+neither raises an error, and both are things a competent person does by
 accident. Ask them to predict the direction and rough size of each gap before
 running the cell.
 
