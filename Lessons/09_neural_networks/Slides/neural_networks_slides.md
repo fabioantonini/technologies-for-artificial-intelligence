@@ -1420,7 +1420,8 @@ factor.
 
 That is the fifth of these carry-home numbers the course has produced: 77%
 accuracy on coin-flip labels, 98 of 128 imputed rows that borrowed from the
-test set, an overfitted coefficient of 247,514, 37 of 40 disguised accounts
+test set, a coefficient of 365 where an unpenalised fit wanted billions,
+37 of 40 disguised accounts
 caught by reconstruction error, and now a factor of four per sigmoid layer.
 
 If one habit survives today, make it the last bullet. This lesson's methods

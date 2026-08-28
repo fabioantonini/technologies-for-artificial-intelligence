@@ -660,7 +660,7 @@ Three common constructions:
 
 Feature engineering is a hypothesis about the domain, not a guaranteed
 improvement. Notebook 2's engineered `charge_per_tenure` moves the model's
-area under the receiver operating characteristic curve (AUC) from **0.752 to
+area under the receiver operating characteristic curve (AUC) from **0.751 to
 0.754** — two thousandths.
 
 *(AUC appears repeatedly from here on, so fix it now: it is the probability
@@ -791,7 +791,7 @@ row's missing value can be filled in using a *test* row's observed value.
 Notebook 3 traces this directly: of 128 training rows with a missing `age`,
 98 had at least one test-set row among the five nearest neighbours used to
 impute it. Nothing raised an error. The measured effect on the final model's
-test AUC in that run was small (0.7548 versus 0.7530) — worth sitting with
+test AUC in that run was small (0.7547 versus 0.7530) — worth sitting with
 rather than dismissing, because a leak does not have to be dramatic to be an
 optimistic number reported to whoever reads it next, and a dataset where the
 affected column mattered more, or where more rows were affected, would show a
@@ -857,8 +857,8 @@ was discovered. The labels were fed back in.
 rows per level, and the table above says the leak grows as the groups shrink.
 `zip_code` averages **4.1 rows per level** (Section 6.3), so a typical customer's
 own label makes up roughly a quarter of that customer's own feature. Notebook 3
-finds the extreme case and prints it: zip code `Z378` has exactly one customer,
-is encoded as `1.000`, and that customer's true `churned` value is `1`. The
+finds the extreme case and prints it: zip code `Z472` has exactly one customer,
+is encoded as `0.000`, and that customer's true `churned` value is `0`. The
 feature and the answer are the same number.
 
 **The fix follows from the sentence.** Never let a row's own label vote on its
@@ -866,7 +866,7 @@ own encoded value. `sklearn.preprocessing.TargetEncoder` does this by
 cross-fitting: each training row's encoded value is computed from the *other*
 folds of the training data, which is "leave yourself out" done a fold at a time
 for speed. Used inside a `Pipeline` fitted on `X_train` alone, it recovers an
-AUC of **0.752** — indistinguishable from not using `zip_code` at all, which is
+AUC of **0.751** — indistinguishable from not using `zip_code` at all, which is
 the correct answer for a column with nothing in it.
 
 **The algebra, for completeness.** Nothing below is needed to use any of the

@@ -242,7 +242,7 @@ The ones so far:
 |---|---|
 | 1 | **77%** accuracy on coin-flip labels, from leakage alone |
 | 2 | **98 of 128** imputed rows borrowed a value from the test set |
-| 3 | **247,514** — the largest coefficient of an overfitted fit, against 411 |
+| 3 | **365** — the largest coefficient a penalty of 0.01 leaves, against billions without one |
 
 ### Expand every acronym on first use
 

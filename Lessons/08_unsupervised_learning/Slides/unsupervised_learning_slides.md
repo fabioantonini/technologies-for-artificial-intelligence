@@ -1264,8 +1264,8 @@ solve.
 
 Ask them to write it down - the fourth lesson this course has produced one
 of these carry-home numbers: 77% accuracy on coin-flip labels, 98 of 128
-imputed rows that borrowed from the test set, an overfit coefficient of
-247,514, and now this.
+imputed rows that borrowed from the test set, a coefficient of 365 where an
+unpenalised fit wanted billions, and now this.
 
 If one habit should survive from today: before trusting an unlabelled
 result, ask what the metric or the picture in front of you is actually
