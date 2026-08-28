@@ -85,9 +85,15 @@ or two sentences why AUC is the more informative number here.
 Pick **one** of the following and implement it exactly as described — the
 "wrong" way, deliberately:
 
-- **(a) Leaky imputation.** Impute the numeric columns' missing values with
-  `KNNImputer`, fitted on the concatenation of your training and test data,
-  *before* using the result to train and evaluate a model.
+- **(a) Leaky imputation.** Standardise and then impute the numeric columns
+  with `KNNImputer` — in that order, since it measures distance — with **both**
+  steps fitted on the concatenation of your training and test data, *before*
+  using the result to train and evaluate a model.
+
+    Be warned about this branch before you choose it: the gap it produces is
+    smaller than the difference between two random splits, and it comes out
+    negative about half the time. That is not you doing it wrong. It is the
+    finding, and Task 7 asks you to establish it rather than explain it away.
 - **(b) Leaky encoding.** Encode `zip_code` by the mean churn rate of its
   members, computed over the **whole** dataset (train and test together),
   and add it as a feature before training and evaluating a model.
@@ -97,14 +103,29 @@ step (imputation fitted on the training fold only inside the pipeline; or
 `sklearn.preprocessing.TargetEncoder` fitted inside the pipeline for the
 encoding option) and report its test AUC alongside the leaky one.
 
-### 7. Explain the gap
+### 7. Explain the gap — or establish that there isn't one
 
-In your own words, explain *why* the two numbers in Task 6 differ, using the
-mechanism from the handout (Section 9.1 for imputation, Section 9.2 for
-encoding) rather than just restating "it leaked." If you chose the encoding
-option, find at least one specific `zip_code` value in your data for which
-the leak is especially large or especially small, and explain why using the
-category-size argument from Section 9.2.
+**If you chose (b), the encoding leak.** Explain *why* the two numbers differ,
+using the mechanism from handout Section 9.2 rather than restating "it leaked."
+Then find at least one specific `zip_code` value in your data for which the leak
+is especially large or especially small, and explain why, using the
+category-size argument.
+
+**If you chose (a), the imputation leak.** Your two numbers will differ by very
+little, and possibly in the wrong direction. Do not explain that away — measure
+it. Redraw the split with at least ten seeds, report the distribution of
+(leaky − honest), and say whether the leak is distinguishable from split noise.
+
+Then answer the question that matters: **the leak certainly happened — what is
+your evidence?** The AUC is not it. Produce the evidence the way notebook 3
+does, by finding the training rows whose missing value was filled using a donor
+from the test set, and report how many of them there are. Finally, say why the
+metric stays silent here, using what your own Task 1 and the correlation with
+`churned` tell you about how much `age` matters.
+
+This branch is worth full marks. A leak you can prove happened and prove did not
+move your score is a more useful thing to have understood than one that
+announces itself.
 
 ### 8. Conclude
 
@@ -133,7 +154,7 @@ A single notebook named `{surname}_02.ipynb` that:
 |---|---|---|
 | **Methodological correctness** | 40% | Split before anything is learned; every fitted step lives inside the pipeline in the honest version; the domain-rule outlier check is genuinely independent of the statistical ones |
 | **Implementation** | 30% | The leak is implemented *exactly* as specified (not a weaker version of it); both the leaky and honest numbers are reported; code is clean and reproducible |
-| **Interpretation and communication** | 30% | Task 7's explanation uses the actual mechanism, not just the word "leakage"; the missingness-mechanism judgement in Task 1 is argued from evidence; Task 8 is honest about uncertainty |
+| **Interpretation and communication** | 30% | Task 7 uses the actual mechanism, not just the word "leakage" — and, on option (a), distinguishes "the leak happened" from "the leak moved my score" instead of conflating them; the missingness-mechanism judgement in Task 1 is argued from evidence; Task 8 is honest about uncertainty |
 
 There are **no marks for how large or small the leak turns out to be** — a
 small, correctly explained gap earns full marks; a large, unexplained one
@@ -156,6 +177,10 @@ its scores.
   value counts and looking at the least frequent codes — the notebook's
   singleton-code example is a template for the argument, not something to
   reuse verbatim on data with a different seed.
-- If your chosen option's leak looks tiny, do not "fix" the dataset to make
-  it bigger — report the honest number and explain, per handout Section 9.1,
-  that a leak not being dramatic does not make it valid.
+- If your chosen option's leak looks tiny or negative, do not "fix" the dataset
+  to make it bigger, and do not switch options to get a nicer number. Report
+  what you measured. Handout Section 9.1 is about exactly this case: a leak that
+  is real, traceable and invisible to the metric, all three at once.
+- Raising the missing fraction in `churn_data.py` will not open the gap in
+  option (a) — it has been tried. Understanding *why* not is worth more than
+  the experiment.

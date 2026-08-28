@@ -9,15 +9,16 @@ date: "2 October 2026 · reading time about 80 minutes"
 
 | Time | Segment | Material |
 |---|---|---|
-| 0:00–0:10 | Recap of Exercise 1, today's map | Slides 1–6 |
-| 0:10–0:35 | Exploratory analysis and missing values | Slides 7–19 |
-| 0:35–1:00 | Notebook 01, live | Notebook 01 |
-| 1:00–1:15 | **Break** | |
-| 1:15–1:40 | Scaling and encoding | Slides 20–31 |
-| 1:40–2:05 | Notebook 02, live | Notebook 02 |
-| 2:05–2:20 | Leakage in preprocessing | Slides 32–41 |
-| 2:20–2:50 | Notebook 03, live | Notebook 03 |
-| 2:50–3:00 | Homework set, questions | Slides 50–51 |
+| 0:00–0:08 | Recap of Exercise 1, today's map | Slides 1–5 |
+| 0:08–0:33 | Exploratory analysis, missing values, outliers | Slides 6–19 |
+| 0:33–0:55 | Notebook 01, live | Slide 20 |
+| 0:55–1:10 | **Break** | Slide 21 |
+| 1:10–1:30 | Scaling and encoding | Slides 22–31 |
+| 1:30–1:42 | Pipelines, the model, feature engineering | Slides 32–37 |
+| 1:42–2:04 | Notebook 02, live | Slide 38 |
+| 2:04–2:24 | Leakage in preprocessing | Slides 39–48 |
+| 2:24–2:46 | Notebook 03, live | Slide 49 |
+| 2:46–3:00 | Recap, homework set, questions | Slides 50–52 |
 | | **Total** | **180 minutes** |
 
 ---
@@ -65,14 +66,15 @@ the ground truth in Sections 3 and 9; real projects rarely afford the check.
 
 ## 2. Exploratory analysis
 
-![](numeric_distributions.png)
-
-*Every numeric column, before anything is done to it. Shapes, ranges and outliers are all visible here and in none of the summary statistics.*
 
 Before any transformation, look. This is not a formality; it is the step that
 tells you which of the remaining sections apply at all, and skipping it is how
 a `999`-month tenure or a category with one member ends up inside a model
 undetected.
+
+![](numeric_distributions.png)
+
+*Every numeric column, before anything is done to it. What to look at is what is **missing**: `tenure_months` runs to 1000 and `monthly_charges` to 3500 with no visible bar anywhere out there, and both columns are crushed into a single spike at the left. That empty stretch of axis is the whole finding — a handful of values so extreme they have flattened the shape of everything else. Compare `age` and `num_support_calls`, drawn on their own honest range, which actually show a distribution.*
 
 A systematic first pass answers four questions, in this order, and each
 answer changes what you do next.
@@ -118,20 +120,30 @@ and applying them everywhere is not. Section 8 makes the boundary precise.
 
 ## 3. Missing values
 
+A gap in a column is not a single problem with a single fix. Before you can
+choose what to do about one, you have to answer a question the gap itself
+will not tell you: *why is this value absent?* The counting comes first —
+which columns, how many — but the counting is the easy half, and it is where
+most treatments of the subject stop. The three sections below take the
+question in order: what the mechanisms are, what a careless fix costs even
+when the mechanism is benign, and how to choose.
+
 ![](missingness_pattern.png)
 
 *Where the gaps are. What a bar chart of missingness cannot show is whether the gaps are related to each other or to the target — which is exactly what decides the fix.*
 
+
 ### 3.1 Three mechanisms, and why the difference matters
 
-![](missingness_mechanisms.png)
-
-*The three mechanisms side by side. The distinction is not academic: it determines which repair is valid and which quietly reweights your sample.*
 
 Not all missingness is the same, and treating it as if it were is the most
 common preparation mistake in practice. The standard taxonomy, due to Rubin
 (1976), distinguishes three mechanisms by *what the probability of being
 missing depends on*.
+
+![](missingness_mechanisms.png)
+
+*The three mechanisms side by side. The distinction is not academic: it determines which repair is valid and which quietly reweights your sample.*
 
 **Missing completely at random (MCAR).** The probability that $x_j$ is
 missing for row $i$ does not depend on any value, observed or not:
@@ -150,7 +162,8 @@ $$P(\text{missing}_{ij} \mid x_i) = P(\text{missing}_{ij} \mid x_{i,\text{obs}})
 
 Our `num_support_calls` column is MAR: it goes missing more often for
 long-tenure customers, because their early call records predate the current
-CRM system. Conditional on `tenure_months`, which we observe, the missingness
+customer relationship management (CRM) system. Conditional on `tenure_months`,
+which we observe, the missingness
 carries no further information — but ignoring tenure and treating the gaps as
 MCAR would be wrong, because the missing rows are *not* a random subsample of
 all rows; they are disproportionately long-tenure ones.
@@ -172,9 +185,6 @@ past it.
 
 ### 3.2 Why mean imputation is not "no information lost"
 
-![](correlation_attenuation.png)
-
-*What filling with the mean actually costs. The column keeps its average and loses its spread, so its relationship with everything else is attenuated by $\sqrt{1-p}$ — visible here as a flattening cloud.*
 
 **The picture first.** Suppose you know the heights of a class, and for a few
 students you write down the class average instead of measuring them. The average
@@ -188,6 +198,10 @@ so the relationship looks weaker than it truly is. **You have not biased the
 column; you have flattened its connection to everything else.**
 
 The algebra below says exactly how much, and the answer is a clean square root.
+
+![](correlation_attenuation.png)
+
+*What filling with the mean actually costs, plotted as the fraction of a true correlation that survives. What to look at is that the curve starts at 1 and only ever falls: there is no missing fraction at which mean imputation is free. The two markers are the cases worked through below — `age` at 8% missing keeps 96% of its relationships, which is why nobody notices, and a column at 40% keeps 77%, which erases a quarter of a genuine signal without touching the column's own mean.*
 
 It is tempting to treat mean imputation as a neutral placeholder — "we did not
 know, so we used the average, which is the best single guess." The guess is
@@ -242,9 +256,6 @@ so, and this section is the quantitative version of the same warning.
 
 ### 3.3 What to do about it
 
-![](missing_data_decision.png)
-
-*The decision, as a chart. Note that every branch depends on the mechanism, which is why Section 3.1 comes first.*
 
 - **Drop rows** only when the missing fraction is small and the mechanism is
   MCAR; otherwise you are silently reweighting the sample.
@@ -259,6 +270,10 @@ so, and this section is the quantitative version of the same warning.
   was missing keeps the MAR signal (the fact that long-tenure customers are
   more often missing a call count) available to the model even after the gap
   itself has been filled with a number.
+
+![](missing_data_decision.png)
+
+*The decision, as a chart. Note that every branch depends on the mechanism, which is why Section 3.1 comes first.*
 
 Whichever you choose, Section 8 states the constraint that applies to every
 option except dropping columns outright: the statistic used to fill a gap —
@@ -282,8 +297,8 @@ and only the first is a defect:
   while ordinary customers sit between 0 and 72. Nobody has been a customer for
   minus three months, and 999 is the shape a "no value here" placeholder takes
   when somebody types it into a numeric column. Likewise `monthly_charges`
-  reaches **3,344.7** against an ordinary maximum of 128: sixteen rows carry a
-  billing error.
+  reaches **3,344.7** against an ordinary maximum of 128.4: twenty of the 2,000
+  rows carry a billing error.
 - **A rare but genuine value.** A customer really does pay far more than the
   others, because they bought everything. Throwing that row away does not clean
   the data; it deletes a real customer and quietly narrows what the model
@@ -299,19 +314,17 @@ is why this section gives you rules that *flag* candidates and never rules that
 delete them.
 
 **Why bother at all.** Because a handful of extreme values changes results out
-of all proportion to their number. Section 5.1 measures exactly that: sixteen
-billing errors, out of 1,500 rows, compress every ordinary customer into 3.4% of
-the min-max range. Nothing was deleted and nothing raised an error; the column
-was simply ruined for the model that came next.
+of all proportion to their number. Section 5.1 measures exactly that: the
+sixteen of those twenty errors that land in the training split compress every
+one of its other 1,484 customers into 3.4% of the min-max range. Nothing was
+deleted and nothing raised an error; the column was simply ruined for the model
+that came next.
 
 The two rules below are detectors. What to do once something is flagged is
 Section 4.2's question, and it has no automatic answer.
 
 ### 4.1 Two rules, derived
 
-![](outlier_fences.png)
-
-*On a normal column the two rules very nearly agree — which is no accident, since the constant 1.5 was chosen to make them agree here.*
 
 **The picture first.** Both rules answer the same question — *how far from the
 middle is too far?* — and differ in what they use as a ruler.
@@ -322,8 +335,10 @@ measures distance in **quartiles**, so it asks how far a value sits beyond the
 bulk of the data, without assuming any shape.
 
 That difference is why they disagree on skewed data, which is Section 4.2. The
-constant 1.5 exists to make them agree on data that *is* a bell curve, and the
-derivation below is where it comes from.
+constant 1.5 is what puts the two fences in roughly the same place on data that
+*is* a bell curve, and the derivation below is where it comes from — along with
+the reason "roughly the same place" is not the same thing as "roughly the same
+number of points".
 
 **The z-score rule.** Standardise and threshold:
 
@@ -348,28 +363,90 @@ so $\mathrm{IQR} = 1.349\sigma$ and the upper fence sits at
 
 $$Q_3 + 1.5\cdot\mathrm{IQR} = \mu + 0.6745\sigma + 1.5(1.349\sigma) = \mu + 2.698\sigma$$
 
-which flags roughly the most extreme 0.35% on each tail under normality — Tukey
-chose 1.5 so that this rule and the $k=3$ z-score rule flag comparable
-fractions of a genuinely normal column. The two rules are calibrated to agree
-with each other on well-behaved data, and Section 4.2 is precisely about what
-happens when the data is not well behaved.
+so 1.5 is the constant that lands the fence at 2.698 standard deviations — just
+inside the z-score rule's 3, and near enough that on a bell curve the two rules
+are asking almost the same question.
 
-### 4.2 Why they disagree on real data, and what neither of them can tell you
+![](outlier_fences.png)
+
+*The two fences, and why "calibrated" is not "agreed". Left: they sit 0.30 standard deviations apart, which is what makes them look interchangeable. Right: the same two rules by how much of a normal column they actually flag — 0.27% against 0.70%, a factor of 2.6. The normal tail falls away so steeply that moving a fence in by a third of a standard deviation nearly triples the area beyond it.*
+
+**Almost, and it is worth seeing what "almost" costs.** Compare the two rules
+like for like, counting both tails each time:
+
+| Rule | Fence | Fraction of a normal column flagged |
+|---|---|---|
+| z-score, $k = 3$ | $\mu \pm 3\sigma$ | $P(\lvert Z\rvert > 3) = 0.27\%$ |
+| Tukey, $1.5\cdot\mathrm{IQR}$ | $\mu \pm 2.698\sigma$ | $P(\lvert Z\rvert > 2.698) = 0.70\%$ |
+
+The fences differ by 10% in position and by a factor of **2.6** in how much
+they flag. That is not a mistake in either rule; it is what the tail of a
+normal distribution does — it falls away so steeply that moving a fence
+inwards by a third of a standard deviation nearly triples the area beyond it.
+In 2,000 normal values, $k=3$ nominates about 5 points and Tukey about 14.
+
+So the honest summary is: **the two rules are built to sit in the same
+neighbourhood, not to agree**, and even on data that satisfies every assumption
+either of them makes, Tukey's is the more willing of the two to call something
+an outlier. Section 4.2 is what happens when the data is not well behaved
+either, and it does not resolve in the direction you would expect.
+
+### 4.2 Why they disagree, and why the disagreement does not settle it
+
+
+**The contamination argument, and it is real.** Both $\bar{x}$ and $s$ in the
+z-score rule are computed from the data, outliers included, so the twenty
+billing errors inflate $s$ directly and widen the very threshold meant to
+catch them. On `monthly_charges` the damage is measurable, and it is not
+subtle:
+
+| | $s$ | where the fence $\bar{x} + 3s$ falls |
+|---|---|---|
+| the 1,980 ordinary customers alone | 17.23 | **115.0** |
+| the column as it actually arrives | 171.25 | **593.0** |
+
+The errors inflate the standard deviation by a factor of **9.9** and push the
+fence out fivefold. This is the outlier-detection analogue of the leakage
+argument running through the whole lesson: a statistic meant to characterise
+"normal" is corrupted by the abnormal points it was supposed to find.
+$Q_1$ and $Q_3$ barely move under the same contamination, since a handful of
+extreme points cannot shift a quartile unless they make up more than a quarter
+of the column — which is the standard reason for preferring IQR on skewed,
+error-prone data.
+
+**Now count what each rule actually caught.** That argument predicts the
+z-score rule will miss errors here. It does not:
+
+| | flagged | genuine errors caught | ordinary customers flagged |
+|---|---|---|---|
+| z-score, $k = 3$ | 20 | **20 of 20** | 0 |
+| Tukey, $1.5\cdot\mathrm{IQR}$ | 32 | 20 of 20 | **12** |
+
+The z-score rule got every error and nothing else, with a fence that had been
+dragged from 115 to 593 — because the smallest billing error is **780.1**,
+still clear of the ruined threshold. Tukey's rule caught the same twenty and
+added twelve ordinary customers: eight paying 15.0 to 16.7, four paying 111.6
+to 128.4, all of them real people on real tariffs, flagged because its fences
+sit at 17.3 and 110.0 and this column's honest spread runs wider than that.
 
 ![](outlier_scatter.png)
 
-*On a skewed column they part company: Tukey's fence flags a long tail that the z-score rule, which assumes symmetry, leaves alone.*
+*Every point Tukey's rule flags in the two contaminated columns. What to look at is the bottom of the left panel: alongside the billing errors up at 800 and beyond, the rule has also flagged a row of perfectly ordinary customers sitting in the main band.*
 
-Both $\bar{x}$ and $s$ in the z-score rule are themselves computed from the
-data, including the outliers — a handful of extreme billing errors inflate
-$s$ directly, widening the flagging threshold and making the rule *less*
-sensitive precisely when it should be more so. This is the outlier detection
-analogue of the leakage argument that runs through the whole lesson: a
-statistic that is supposed to characterise "normal" is contaminated by the
-abnormal points it is meant to catch. $Q_1$ and $Q_3$ move far less under
-contamination, because a handful of extreme points cannot shift a quartile
-unless they make up more than 25% of the data — which is why IQR is the more
-common default for skewed, error-prone columns.
+**Sit with that, because it is the point of the section.** The rule whose
+ingredients were destroyed returned the right answer. The robust rule made
+twelve mistakes. Neither outcome tells you which rule is sounder — the
+z-score rule was right by luck, and the luck was that these errors are an
+order of magnitude out rather than merely large. Shift them down towards 200
+and its inflated fence would sail straight past them, exactly as the theory
+says.
+
+**The lesson is not "prefer IQR".** It is that a detector's output does not
+report the detector's health. You cannot see, in a list of twenty flagged
+rows, that the threshold which produced it had been widened fivefold by the
+very rows it flagged. The way to see it is to compute $s$ with and without the
+candidates, as the first table does — which is a two-line check, and one worth
+running before trusting either rule on a column you have not looked at.
 
 Neither rule, however, can tell you whether a flagged point is a *mistake*.
 Both are purely distributional: they find values that are unusual relative to
@@ -398,9 +475,6 @@ pays a high bill is not an error; a tenure of 999 months is.
 
 ### 5.1 Two standard transforms
 
-![](scaling_comparison.png)
-
-*The same column under both transforms. Standardisation centres and rescales by the spread; min-max squeezes into $[0,1]$ and is therefore at the mercy of a single extreme value.*
 
 $$z = \frac{x - \mu}{\sigma} \qquad\qquad x_{\text{minmax}} = \frac{x - x_{\min}}{x_{\max} - x_{\min}}$$
 
@@ -409,6 +483,10 @@ maps each feature into $[0, 1]$. Min-max scaling is more sensitive to a single
 extreme value, since $x_{\max}$ or $x_{\min}$ can be an outlier that compresses
 every ordinary value into a sliver of the range — another reason outlier
 handling (Section 4) precedes scaling, not the other way round.
+
+![](scaling_comparison.png)
+
+*`tenure_months` (x) against `monthly_charges` (y), raw and under each scaler. What to look at is the axis numbers, not the cloud — the three panels are the same picture, because scaling moves the ruler and not the data. On the middle panel the largest billing error sits at y ≈ 17.8 standard deviations; on the right, min-max is obliged to hand that one error the value 1.0, which leaves every ordinary customer squeezed into the bottom 3% of the axis.*
 
 **"A sliver" is measurable, so measure it.** In the training split,
 `monthly_charges` runs from 15.0 to 128.4 for the 1,484 ordinary customers and
@@ -445,9 +523,6 @@ below.
 
 ### 5.2 Why it matters for gradient descent
 
-![](condition_number_geometry.png)
-
-*The cost surface when two features differ in variance. It is not a bowl but a ravine — steep across, almost flat along — and one stride length has to serve both directions.*
 
 **The picture first.** Think of the cost as a landscape you are descending, and
 of each feature as one compass direction. If one feature varies over thousands
@@ -461,6 +536,10 @@ the flat one.
 
 **Scaling reshapes the ravine into a bowl**, so a single stride length suits
 every direction.
+
+![](condition_number_geometry.png)
+
+*Two features with different variances, before and after scaling. Left: not a bowl but a ravine — steep across, almost flat along — and one stride has to serve both directions, so the path bounces off the walls while creeping towards the centre. Right: scaled, the same problem is round, and every step points at the minimum.*
 
 **What follows from that, stated rather than derived.** Most models in this
 course are fitted by **gradient descent**: start somewhere on the landscape and
@@ -482,13 +561,21 @@ falls to roughly 1, and one stride suits every direction at once.
 standard deviations of 0.98 and 10.23 — and fits the same model twice. The
 scaled version is stable at a learning rate of 2.0; the raw one needs 0.1, a
 rate **twenty times smaller**, and after 200 steps has reached a cost of 0.4183
-against the scaled run's 0.4155. Give the raw features the scaled version's
-learning rate and it does not merely converge slowly: the cost reaches **3.34**,
-far above where it started. It diverges.
+against the scaled run's 0.4155.
+
+Now give the raw features the scaled version's learning rate. It is worth being
+exact about what then happens, because the usual word for it is "diverges" and
+that is not quite right: the cost does not climb steadily away to infinity. It
+**never settles**. Starting from 0.6931 it swings between 0.69 and 8.29 and
+stays there — the mean over the first hundred steps is 3.64 and over the second
+hundred 3.04, so it is not even drifting anywhere. Run it ten times as long and
+it is still bouncing in the same band. Each step overshoots the steep axis,
+lands on the far wall, and overshoots back. That is worse than slow convergence
+rather than better: a slow run finishes eventually, and this one never does.
 
 ![](gd_convergence_scaled_vs_unscaled.png)
 
-*The same problem, scaled and unscaled, at the same learning rate. The unscaled run is still travelling when the scaled one has arrived — same data, same model, same number of steps in both panels.*
+*The same problem twice, and note the two panels are not the same experiment. Left, each version at the largest rate it tolerates — raw at 0.1, standardised at 2.0 — and after 200 steps the raw run has still not caught up. Right, both forced to the standardised version's rate of 2.0: within 60 steps the raw run is not slow, it is oscillating upwards. Scaling did not just save iterations here; it decided whether the fit finished at all.*
 
 That is the whole practical content: **scaling is not cosmetic. It changes how
 long training takes, and sometimes whether it finishes at all.**
@@ -550,9 +637,6 @@ The three subsections take the three encodings in turn.
 
 ### 6.1 One-hot encoding, and the dummy variable trap, proved
 
-![](dummy_variable_trap.png)
-
-*The redundancy made visible: the dummy columns sum to the intercept column, so the design matrix loses rank by exactly one and the solution stops being unique.*
 
 **The picture first.** Suppose a survey asks whether you travel by car, bus or
 bicycle, and you record three yes/no columns. Those columns carry a hidden
@@ -566,6 +650,10 @@ no unique best answer, only infinitely many equally good ones.
 
 Dropping one category fixes it by removing the spare degree of freedom. The
 proof below is that paragraph in matrix form.
+
+![](dummy_variable_trap.png)
+
+*The redundancy made visible: the dummy columns sum to the intercept column, so the design matrix loses rank by exactly one and the solution stops being unique.*
 
 A categorical column with $k$ levels becomes $k$ binary columns, one per
 level, each row having a single 1. If a model fits an intercept term — a
@@ -595,9 +683,6 @@ not care about collinearity, can safely use all $k$ columns.
 
 ### 6.2 Ordinal and target encoding
 
-![](encoding_comparison.png)
-
-*Three encodings of the same column, each making a different claim about the categories — that they are unordered, that they are ordered, or that they can be summarised by their average outcome.*
 
 **Ordinal encoding** maps categories to integers, $\{0, 1, \dots, k-1\}$. It
 is appropriate only when the categories have a genuine order (`"low"`,
@@ -618,11 +703,12 @@ numeric column, which is exactly why it exists for
 columns. It is also, computed the obvious way, the more dangerous of the two
 encodings in this entire lesson, and Section 9.2 derives exactly why.
 
+![](encoding_comparison.png)
+
+*`contract_type` under all three encodings. What to look at is the left panel against the right: ordinal spaces the levels 0, 1, 2 — equal steps — while the churn rates it stands in for fall 0.266, 0.137, 0.071, a first step nearly twice the second. The encoding asserts a regularity the column does not have, and a linear model has one coefficient with which to believe it.*
+
 ### 6.3 The curse of dimensionality, briefly
 
-![](onehot_width.png)
-
-*What one-hot encoding `zip_code` actually produces, drawn from the data itself. Left: 493 columns, one dark cell per row and nothing else — 99.8% of the matrix is zero. Right: the number of rows sharing a level, averaging 4.1. A column that carries four rows cannot support a coefficient estimated from those four rows, and that is the curse of dimensionality in its most concrete form.*
 
 One-hot encoding a column with $k$ levels adds $k$ columns, most of which are
 zero for most rows. Beyond a modest $k$ this has two costs: the feature space
@@ -632,6 +718,10 @@ number of parameters a model must estimate grows with it, increasing variance
 for a fixed sample size. `zip_code`, with 493 levels across 2000 rows, sits
 squarely in the range where one-hot encoding is impractical and target
 encoding — done correctly — is the standard alternative.
+
+![](onehot_width.png)
+
+*What one-hot encoding `zip_code` actually produces, drawn from the data itself. Left: 493 columns, one dark cell per row and nothing else — 99.8% of the matrix is zero. Right: the number of rows sharing a level, averaging 4.1. A column that carries four rows cannot support a coefficient estimated from those four rows, and that is the curse of dimensionality in its most concrete form.*
 
 ---
 
@@ -648,7 +738,14 @@ Three common constructions:
 
 - **Ratios and differences**, when a rate matters more than either raw
   quantity — `monthly_charges` relative to `tenure_months` captures "cost
-  intensity" in a way neither column does alone.
+  intensity" in a way neither column does alone. Note what the obvious version
+  of that ratio does on this column: `tenure_months` contains zeros and, until
+  Section 4's domain rule is applied, the value $-3$. Divide by it directly and
+  you get an infinity and a sign flip. Notebook 2 therefore computes
+  `monthly_charges / (tenure_months.clip(lower=0) + 1)` — the clip is Section 4
+  arriving in Section 7, and it is the ordinary shape of feature engineering on
+  real data, where a construction that is one line of algebra is three lines of
+  defending it against the column you actually have.
 - **Interaction terms**, $x_j \cdot x_k$, when the *combination* of two
   features matters beyond their individual effects — a model with only
   `contract_type` and `monthly_charges` cannot represent "high charges matter
@@ -680,12 +777,13 @@ The three constructions are worth seeing on the actual columns:
 
 | Construction | On this dataset | What it lets a linear model express |
 |---|---|---|
-| **Ratio** | `monthly_charges / tenure_months` | cost intensity — a customer paying 90 for three months is not the customer paying 90 for sixty |
+| **Ratio** | `monthly_charges / (tenure_months + 1)` | cost intensity — a customer paying 90 for three months is not the customer paying 90 for sixty |
 | **Interaction** | `monthly_charges × [contract is month-to-month]` | that a high bill matters more when there is nothing holding the customer in place |
-| **Binning** | `tenure_months` into 0–6, 6–24, 24+ | that risk is high early, flattens, then flattens again — a shape no single coefficient on `tenure_months` can produce | And whenever the construction involves a
-statistic learned from data — bin edges chosen from quantiles, an interaction
-scaled by a learned coefficient — Section 8's rule applies to it exactly as it
-applies to imputation and scaling.
+| **Binning** | `tenure_months` into 0–6, 6–24, 24+ | that churn runs at 0.399, 0.314 and 0.122 across the three bands — high, lower, then far lower, a shape no single coefficient on `tenure_months` can produce |
+
+And whenever the construction involves a statistic learned from data — bin edges
+chosen from quantiles, an interaction scaled by a learned coefficient — Section
+8's rule applies to it exactly as it applies to imputation and scaling.
 
 ---
 
@@ -714,20 +812,33 @@ not name.
 
 ### 8.2 `ColumnTransformer` and `Pipeline`
 
-![](pipeline_architecture.png)
-
-*The architecture that makes the rule enforceable rather than remembered: numeric and categorical branches, each fitted on training rows only, joined into one object that can be cross-validated whole.*
 
 Different columns need different treatment — numeric columns need imputing
 then scaling, categorical columns need imputing then encoding.
 `ColumnTransformer` applies a distinct sub-pipeline to each named group of
 columns and concatenates the results into a single feature matrix:
 
+![](pipeline_architecture.png)
+
+*The architecture that makes the rule enforceable rather than remembered: numeric and categorical branches, each fitted on training rows only, joined into one object that can be cross-validated whole.*
+
 ```python
 from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
+# The two groups of columns, by name. ColumnTransformer takes lists of column
+# names, so this is where you decide what counts as numeric and what does not
+# — `zip_code` is a string, but it is deliberately in neither list until
+# Section 9.2 has explained how to encode it.
+numeric_columns = ["tenure_months", "monthly_charges", "age", "num_support_calls"]
+categorical_columns = ["contract_type", "region"]
+
+# X_train, y_train are the training half of the split, exactly as in Lesson 1:
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25,
+#                                                     random_state=7, stratify=y)
 
 numeric_pipe = Pipeline([
     ("impute", SimpleImputer(strategy="median")),
@@ -745,6 +856,30 @@ model = Pipeline([("preprocess", preprocess), ("classifier", LogisticRegression(
 model.fit(X_train, y_train)
 ```
 
+Three details in that block are decisions rather than boilerplate.
+
+**The strings are names, not decoration.** `"impute"`, `"scale"`, `"numeric"` and
+the rest are labels you choose. They matter once you want to reach a fitted step —
+`model.named_steps["preprocess"]`, and they are how a search addresses a step it
+wants to vary: Lesson 5 tunes `select__k` and `model__C` this way, joining the
+step's name to the parameter's with a double underscore. Nesting just lengthens
+the path, so the imputation strategy above would be
+`preprocess__numeric__impute__strategy`. Lesson 1's
+`make_pipeline` invents these names for you; here we write them, because from now
+on we will want to refer to them.
+
+**`handle_unknown="ignore"` decides what happens to a category the encoder never
+saw.** Without it, a region absent from the training fold raises an error at
+prediction time; with it, that row is encoded as all zeros. Note the consequence,
+because it is not obvious and nothing warns you: with `drop="first"` the dropped
+reference category is *also* all zeros, so an unseen category and the reference
+category become the same input. That is usually the right trade, and it is a trade.
+
+**`median` for numeric, `most_frequent` for categorical.** The median because
+Section 4 showed what a billing error does to a mean; most-frequent because a
+category has no mean. Both are statistics learned from data, which is the whole
+reason they are inside the pipeline rather than above it.
+
 A single call to `model.fit(X_train, y_train)` fits every imputer, the
 scaler, the encoder and the classifier, **in that order, on `X_train`
 alone**. No step can see `X_test` during fitting, because no step is ever
@@ -760,19 +895,31 @@ where discipline alone silently fails.
 > version exactly. They should; the pipeline changes nothing about what
 > happens, only what can accidentally go wrong.
 
+**What that pipeline actually scores.** Fitted on the training fold and asked
+about the held-out customers, it reaches 0.820 accuracy against the 0.806 you
+get by predicting "no churn" every time — fourteen thousandths — and an AUC of 0.751. Those two
+numbers disagree about how good this model is, and the confusion matrix shows
+why.
+
+![](churn_confusion_matrix.png)
+
+*The model built on the prepared data. Read the bottom-left cell: the churners it missed. Lesson 4 gives this picture its proper treatment.*
+
+
 ---
 
 ## 9. Data leakage in preprocessing
 
-![](smoking_gun.png)
+Lesson 1 gave you one rule and one example of breaking it. This section is the
+same rule and two more examples, and the reason it closes the lesson is that
+these two do not look like the first. Nobody writes `select_features(all_data)`
+by accident twice. Everybody, at some point, fills in a missing value or
+encodes a category before splitting, because neither reads as a modelling
+step. Both are, and both leave a mark you can measure.
 
-*The evidence that something has leaked: a feature that should carry nothing, carrying a great deal.*
 
 ### 9.1 The same rule, two invisible violations
 
-![](invisible_leaks.png)
-
-*Three ways to break one rule. None of them raises an error, and all three produce a score that is better than the truth.*
 
 Lesson 1's leakage demonstration selected features using the whole dataset
 before splitting — visible, once you know to look, because feature selection
@@ -784,27 +931,47 @@ learns a neighbour structure; target encoding learns a per-category average.
 Both are statistics estimated from data, and Section 8.1's argument applies
 to them without modification.
 
+![](invisible_leaks.png)
+
+*Three ways to break one rule. None of them raises an error, and all three produce a score that is better than the truth.*
+
 **Imputation.** A `KNNImputer` (or any imputer that uses other rows' values,
 rather than a fixed global statistic) fitted on the concatenation of training
 and test data finds neighbours anywhere in that concatenation. A training
 row's missing value can be filled in using a *test* row's observed value.
 Notebook 3 traces this directly: of 128 training rows with a missing `age`,
-98 had at least one test-set row among the five nearest neighbours used to
-impute it. Nothing raised an error. The measured effect on the final model's
-test AUC in that run was small (0.7547 versus 0.7530) — worth sitting with
-rather than dismissing, because a leak does not have to be dramatic to be an
-optimistic number reported to whoever reads it next, and a dataset where the
-affected column mattered more, or where more rows were affected, would show a
-substantially larger gap through exactly the same mechanism.
+94 had at least one test-set row among the five donors used to fill it —
+measured by reproducing the imputer's own neighbour search rather than by
+guessing at it. Nothing raised an error.
+
+Now the part that is easy to get wrong, and that the notebook measures rather
+than asserts. The effect on the final model's test AUC was 0.7553 against
+0.7546 — and redrawing the split twenty times shows that gap changing sign,
+coming out *negative* in fourteen of the twenty. **It is noise.** The leak did
+not make the score better; it made it different by less than the split does.
+
+That is not a reprieve, and the reason it happens is specific rather than
+general. `age` correlates with `churned` at 0.02: it is a column with nothing
+in it, so contaminating 94 of its values cannot move a score that barely uses
+it. Raising the missing fraction does not change this, because a larger share
+of nothing is still nothing.
+
+So hold all three of these at once, because the combination is the lesson:
+the leak is **real** — 94 rows, traced individually; it is **undetectable by
+the metric** on this dataset; and the metric's silence is **not evidence that
+it did not happen**. On a real problem you have the silence and not the trace.
+Section 9.2 is the other case, where the same broken rule is impossible to
+miss.
+
+![](smoking_gun.png)
+
+*The imputation leak, counted row by row. Of the 128 training rows whose `age` had to be filled in, 94 borrowed a value from at least one test-set row — the red bar. Not a subtle contamination at the margin: nearly three quarters of every gap this imputer filled was filled with help from data it should never have seen.*
 
 **Encoding.** This is the more dramatic of the two, and Section 9.2 derives
 why.
 
 ### 9.2 Why target encoding leaks, and why small groups make it worse
 
-![](target_encoding_leak.png)
-
-*A column with no real signal, encoded three ways. Target encoding manufactures a predictor out of the labels themselves.*
 
 **The picture first.** Target encoding replaces a category with the average
 outcome of the rows in it. So ask what happens to a category containing exactly
@@ -853,6 +1020,10 @@ correlation check already showed that. Encoded leakily, before the split, it
 still drives test AUC from **0.751** for a model without it to **0.891**. Nothing
 was discovered. The labels were fed back in.
 
+![](target_encoding_leak.png)
+
+*A column with no real signal, encoded three ways. Target encoding manufactures a predictor out of the labels themselves.*
+
 **Why high-cardinality columns are the dangerous ones.** More levels means fewer
 rows per level, and the table above says the leak grows as the groups shrink.
 `zip_code` averages **4.1 rows per level** (Section 6.3), so a typical customer's
@@ -883,6 +1054,10 @@ divided by the group's size. At $n_c = 1$ the right-hand side is undefined
 because there is no group left — and the encoding collapses to
 $\bar{y}_c = y_i$, the case notebook 3 prints.
 
+![](leak_shrinks_with_group_size.png)
+
+*The leak is worst where the groups are smallest, falling as $1/n_c$ — which is also where a high-cardinality column keeps most of its categories.*
+
 **One honest caveat.** This describes the realistic bug: an encoding computed
 once over training and test data together. An encoding computed on the training
 fold alone is still slightly optimistic *for the training rows*, by the same
@@ -893,9 +1068,6 @@ single linear coefficient.
 
 ### 9.3 The rule, restated
 
-![](leak_shrinks_with_group_size.png)
-
-*The leak is worst where the groups are smallest, falling as $1/n_c$ — which is also where a high-cardinality column keeps most of its categories.*
 
 Everything that learns from data — a mean, a median, a set of neighbours, a
 per-category target average, a set of bin edges — belongs inside the fold it
@@ -910,9 +1082,6 @@ hyperparameter tuning.
 
 ## 10. Before the next lesson
 
-![](churn_confusion_matrix.png)
-
-*The model built on the prepared data. Read the bottom-left cell: the churners it missed. Lesson 4 gives this picture its proper treatment.*
 
 1. Work through the three notebooks in order — 01 for exploration, missing
    values and outliers; 02 for scaling, encoding and the pipeline; 03 for the
@@ -927,15 +1096,15 @@ hyperparameter tuning.
 
 | Symbol | Meaning |
 |---|---|
-| $X$, $Y$ | a feature and the target treated as random variables (Sections 3–5); $X$ is **also** the $m \times n$ design matrix in Section 7 |
+| $X$, $Y$ | a feature and the target treated as random variables (Sections 3–5); $X$ is **also** the $m \times n$ design matrix in Sections 6.1 and 8.1 |
 | $x^{(i)}$ | the $i$-th example |
 | $m$, $n$ | number of examples, number of features |
 | $\mu$, $\sigma$ | a feature's mean and standard deviation |
 | $\bar{x}$ | a sample mean |
 | $\rho$ | the correlation between two variables |
-| $p$ | the fraction of a column's values that are missing (Section 4) |
+| $p$ | the fraction of a column's values that are missing (Section 3.2) |
 | $P(\cdot)$ | a probability |
-| $k$ | the number of categories in a column (Section 6); **and**, in Section 5 only, the z-score cut-off, $k = 3$ |
+| $k$ | the number of categories in a column (Section 6); **and**, in Section 4 only, the z-score cut-off, $k = 3$ |
 
 ## Further reading
 

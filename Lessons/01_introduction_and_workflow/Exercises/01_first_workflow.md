@@ -23,9 +23,23 @@ measurements, each with a quality score from 3 to 9 awarded by tasters.
 ```python
 from sklearn.datasets import fetch_openml
 
-wine = fetch_openml(name="wine-quality-white", version=1, as_frame=True)
-X, y = wine.data, wine.target.astype(int)
+# OpenML ships the columns as V1...V11 and the scores renumbered 1-7. Put both back.
+COLUMNS = ["fixed_acidity", "volatile_acidity", "citric_acid", "residual_sugar",
+           "chlorides", "free_sulfur_dioxide", "total_sulfur_dioxide",
+           "density", "pH", "sulphates", "alcohol"]
+
+wine = fetch_openml("wine-quality-white", version=1, as_frame=True, parser="liac-arff")
+X = wine.data.set_axis(COLUMNS, axis=1)
+y = wine.target.astype(int) + 2        # back to the 3-9 the tasters awarded
 ```
+
+Check that yourself before going further — `y.value_counts().sort_index()` should run
+from 3 to 9, and `X.describe()` should show an alcohol column averaging about 10.5% by
+volume. If your target runs 1 to 7 you have skipped the `+ 2`, and every threshold you
+choose in task 1 will be two points off what you meant.
+
+`parser="liac-arff"` only pins the reader scikit-learn 1.3 uses by default, so the
+result does not change under a newer version; without it you get a `FutureWarning`.
 
 The first call downloads and caches it; afterwards it works offline. If your network
 blocks it, the course image has it cached — say so at the start of Lesson 2 rather than

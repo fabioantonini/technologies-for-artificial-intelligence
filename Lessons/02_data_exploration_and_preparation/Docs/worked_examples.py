@@ -66,8 +66,17 @@ same("4.1 how often a normal exceeds three standard deviations",
      2 * (1 - norm.cdf(3)), 0.0027, tolerance=5e-5)
 
 # The two rules disagree on a normal: Tukey flags at 2.698 sigma, z at 3.
-same("4.1 how often Tukey's fence flags a normal value",
-     2 * (1 - norm.cdf(q3 + 1.5 * (q3 - q1))), 0.0070, tolerance=5e-4)
+# Both fractions below count BOTH tails. The handout used to quote Tukey's
+# per-tail 0.35% against the z-score rule's two-tail 0.27% and conclude the
+# two were comparable; they are not, and this is the check that says so.
+tukey_share = 2 * (1 - norm.cdf(q3 + 1.5 * (q3 - q1)))
+z_share = 2 * (1 - norm.cdf(3))
+same("4.1 how often Tukey's fence flags a normal value", tukey_share, 0.0070,
+     tolerance=5e-4)
+same("4.1 Tukey flags 2.6x as much of a normal column as k=3 does",
+     tukey_share / z_share, 2.6, tolerance=0.05)
+same("4.1 which is about 14 points in 2000", 2000 * tukey_share, 14, tolerance=0.5)
+same("4.1 against about 5", 2000 * z_share, 5, tolerance=0.5)
 
 # ------------------- Sections 5.1, 6 and 7, recomputed from the generator
 #
@@ -93,7 +102,7 @@ charges = X_train["monthly_charges"].fillna(X_train["monthly_charges"].median())
 ordinary = charges[charges < 500]
 customer = 80.0
 
-same("5.1 ordinary customers top out at 132.3", ordinary.max(), 128.4, tolerance=0.1)
+same("5.1 ordinary customers top out at 128.4", ordinary.max(), 128.4, tolerance=0.1)
 same("5.1 the largest billing error is 3344.7", charges.max(), 3344.7, tolerance=0.1)
 same("5.1 there are 16 billing errors", (charges >= 500).sum(), 16, tolerance=0)
 same("5.1 and 1484 ordinary customers", len(ordinary), 1484, tolerance=0)
@@ -121,6 +130,63 @@ same("4 and 999", tenure_all.max(), 999, tolerance=0)
 ordinary_tenure = tenure_all[(tenure_all >= 0) & (tenure_all < 200)]
 same("4 while ordinary customers stop at 72", ordinary_tenure.max(), 72, tolerance=0)
 
+# Section 4 describes the WHOLE dataset; Section 5.1 the training split. The
+# two counts differ (20 against 16) and the handout once printed 16 in both
+# places, so both are checked here against their own population.
+charges_all = frame["monthly_charges"].dropna()
+errors_all = charges_all > 200
+same("4 twenty of the 2000 rows carry a billing error", errors_all.sum(), 20, tolerance=0)
+same("4 the ordinary maximum is 128.4", charges_all[~errors_all].max(), 128.4, tolerance=0.1)
+
+# --- 4.2, which rule caught what -----------------------------------------
+#
+# Both rules are applied here from their definitions to the raw column, so
+# nothing below reuses a threshold the handout printed.
+mean_all, sd_all = charges_all.mean(), charges_all.std(ddof=0)
+clean = charges_all[~errors_all]
+sd_clean = clean.std(ddof=0)
+
+same("4.2 the 17.23 is computed over 1980 ordinary customers", len(clean), 1980,
+     tolerance=0)
+same("4.2 the errors inflate s from 17.23", sd_clean, 17.23, tolerance=0.01)
+same("4.2 to 171.25", sd_all, 171.25, tolerance=0.01)
+same("4.2 a factor of 9.9", sd_all / sd_clean, 9.9, tolerance=0.05)
+same("4.2 dragging the fence from 115.0", clean.mean() + 3 * sd_clean, 115.0, tolerance=0.1)
+same("4.2 out to 593.0", mean_all + 3 * sd_all, 593.0, tolerance=0.1)
+
+z_flag = ((charges_all - mean_all) / sd_all).abs() > 3
+qa1, qa3 = charges_all.quantile(0.25), charges_all.quantile(0.75)
+iqr_a = qa3 - qa1
+lo, hi = qa1 - 1.5 * iqr_a, qa3 + 1.5 * iqr_a
+tukey_flag = (charges_all < lo) | (charges_all > hi)
+
+same("4.2 the z-score rule flags 20", z_flag.sum(), 20, tolerance=0)
+same("4.2 all of them genuine errors", (z_flag & errors_all).sum(), 20, tolerance=0)
+same("4.2 and no ordinary customer", (z_flag & ~errors_all).sum(), 0, tolerance=0)
+same("4.2 Tukey flags 32", tukey_flag.sum(), 32, tolerance=0)
+same("4.2 the same 20 errors", (tukey_flag & errors_all).sum(), 20, tolerance=0)
+same("4.2 plus 12 ordinary customers", (tukey_flag & ~errors_all).sum(), 12, tolerance=0)
+
+# The z-score rule survived its own ruined fence only because the errors are
+# an order of magnitude beyond it. That is the claim; this is the number.
+same("4.2 the smallest billing error is 780.1", charges_all[errors_all].min(), 780.1,
+     tolerance=0.1)
+assert charges_all[errors_all].min() > mean_all + 3 * sd_all, \
+    "4.2 claims every error clears the inflated fence, and one does not"
+
+same("4.2 Tukey's lower fence sits at 17.3", lo, 17.3, tolerance=0.1)
+same("4.2 and its upper fence at 110.0", hi, 110.0, tolerance=0.1)
+false_positives = charges_all[tukey_flag & ~errors_all].sort_values()
+same("4.2 eight of the twelve pay 15.0 to 16.7", (false_positives <= 100).sum(), 8,
+     tolerance=0)
+same("4.2 the cheapest pays 15.0", false_positives.min(), 15.0, tolerance=0.05)
+same("4.2 the dearest of those eight pays 16.7",
+     false_positives[false_positives <= 100].max(), 16.7, tolerance=0.05)
+same("4.2 and four pay 111.6 to 128.4", (false_positives > 100).sum(), 4, tolerance=0)
+same("4.2 the cheapest of those four pays 111.6",
+     false_positives[false_positives > 100].min(), 111.6, tolerance=0.05)
+same("4.2 the dearest pays 128.4", false_positives.max(), 128.4, tolerance=0.05)
+
 # --- 6, what the three encodings claim ----------------------------------
 by_contract = frame.groupby("contract_type")["churned"].agg(["mean", "size"])
 for level, rate, rows in (("month-to-month", 0.266, 1092),
@@ -134,6 +200,16 @@ second = by_contract.loc["one-year", "mean"] - by_contract.loc["two-year", "mean
 same("6 the first ordinal step is 0.129", first, 0.129, tolerance=1e-3)
 same("6 the second is 0.066", second, 0.066, tolerance=1e-3)
 same("6 so the first is about twice the second", first / second, 2.0, tolerance=0.1)
+
+# --- 7, what binning tenure into three bands exposes ---------------------
+import pandas as pd                                              # noqa: E402
+
+bands = pd.cut(frame["tenure_months"].clip(0, 72), [-0.1, 6, 24, 72],
+               labels=["0-6", "6-24", "24+"])
+by_band = frame.groupby(bands, observed=True)["churned"].mean()
+for band, printed in (("0-6", 0.399), ("6-24", 0.314), ("24+", 0.122)):
+    same(f"7 churn rate in the {band} month band", by_band.loc[band], printed,
+         tolerance=1e-3)
 
 # --- 6.3, the width of one-hot encoding ---------------------------------
 levels = frame["zip_code"].nunique()

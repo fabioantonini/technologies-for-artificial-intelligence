@@ -84,31 +84,59 @@ def missingness_mechanisms():
 
 
 def outlier_fences():
-    """z-score and IQR fences on a normal curve, and how they were calibrated to agree."""
+    """The two fences: close in position, far apart in what they flag.
+
+    Shading the tails of one curve cannot show this - 0.27% and 0.70% of the
+    area are both invisible slivers at slide size, which is exactly why the
+    first version of this figure did not say what its caption promised. The
+    comparison needs its own axes, so the areas are drawn as bars beside the
+    curve rather than on it.
+    """
+    z_fence, iqr_fence = 3.0, 2.698
+    z_share = 2 * (1 - stats.norm.cdf(z_fence)) * 100
+    iqr_share = 2 * (1 - stats.norm.cdf(iqr_fence)) * 100
+
+    fig, (ax, bx) = plt.subplots(
+        1, 2, figsize=(11.5, 4.4), gridspec_kw={"width_ratios": [2.1, 1]})
+
+    # --- left: where the fences sit -------------------------------------
     x = np.linspace(-4.5, 4.5, 600)
     y = stats.norm.pdf(x)
-
-    fig, ax = plt.subplots(figsize=(8.6, 4.2))
-    ax.plot(x, y, lw=2.2, color=INK)
+    ax.plot(x, y, lw=2.4, color=INK)
     ax.fill_between(x, y, color=SLATE, alpha=.08)
 
-    z_fence = 3.0
-    iqr_fence = 2.698  # derived in handout 4.1
+    for fence, colour, label in [(z_fence, RUST, "z-score (k = 3)"),
+                                 (iqr_fence, TEAL, "Tukey (1.5×IQR)")]:
+        ax.axvline(fence, color=colour, lw=2.4, ls="--", label=label)
+        ax.axvline(-fence, color=colour, lw=2.4, ls="--")
 
-    for fence, colour, label, y_text in [(z_fence, RUST, "z-score fence (k=3)", 0.36),
-                                          (iqr_fence, TEAL, "IQR fence (1.5×IQR)", 0.30)]:
-        ax.axvline(fence, color=colour, lw=2.0, ls="--")
-        ax.axvline(-fence, color=colour, lw=2.0, ls="--")
-        ax.text(fence + 0.15, y_text, label, fontsize=9.5, color=colour)
-
-    ax.fill_between(x[x > z_fence], y[x > z_fence], color=RUST, alpha=.5)
-    ax.fill_between(x[x < -z_fence], y[x < -z_fence], color=RUST, alpha=.5)
-
-    ax.set_xlabel("standardised value")
+    # The fences span the full height, so any legend in a corner gets a dashed
+    # line drawn through it. The clear band is the middle, above the peak.
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, 1.0), ncol=1,
+              fontsize=12.5, frameon=False)
+    ax.set_xlabel("standardised value", fontsize=13)
+    ax.set_xticks([-4, -2, 0, 2, 4])
+    ax.tick_params(labelsize=12)
     ax.set_yticks([])
-    ax.set_title("Calibrated to agree, on data that is actually normal",
-                 fontsize=12.5, weight="bold")
+    ax.set_ylim(0, 0.62)
+    # The gap is only 0.30 sigma wide, so an arrow spanning it renders as a
+    # blob. The number goes in the title instead.
+    ax.set_title("Close in position: 0.30σ apart", fontsize=14.5, weight="bold")
     ax.spines[["top", "right", "left"]].set_visible(False)
+
+    # --- right: how much each one flags ---------------------------------
+    bars = bx.bar([0, 1], [z_share, iqr_share], color=[RUST, TEAL], width=.62)
+    bx.bar_label(bars, fmt="%.2f%%", padding=5, fontsize=14, weight="bold")
+    bx.set_xticks([0, 1])
+    bx.set_xticklabels(["z-score\nk = 3", "Tukey\n1.5×IQR"], fontsize=12.5)
+    bx.set_ylabel("of a normal column", fontsize=13)
+    bx.tick_params(labelsize=12)
+    bx.set_ylim(0, 0.95)
+    bx.set_title("Far apart in area", fontsize=14.5, weight="bold")
+    bx.text(0.5, 0.86, f"×{iqr_share / z_share:.1f}", ha="center",
+            fontsize=17, weight="bold", color=INK)
+    bx.spines[["top", "right"]].set_visible(False)
+
     fig.tight_layout()
     save(fig, "outlier_fences.png")
 
@@ -155,8 +183,8 @@ def dummy_variable_trap():
 def pipeline_architecture():
     """ColumnTransformer branches into a single Pipeline."""
     fig, ax = plt.subplots(figsize=(11.5, 4.4))
-    ax.set_xlim(0, 12)
-    ax.set_ylim(0, 6)
+    ax.set_xlim(-0.25, 12.25)
+    ax.set_ylim(-0.1, 6.6)
     ax.axis("off")
 
     def box(x, y, w, h, label, colour, text_colour="white", fontsize=10.5):
@@ -194,9 +222,9 @@ def pipeline_architecture():
                                 facecolor="none", edgecolor=SLATE, lw=1.4, linestyle="--"))
     ax.text(5.2, 5.9, "ColumnTransformer", fontsize=10.5, color=SLATE, style="italic")
 
-    ax.add_patch(FancyBboxPatch((0.05, 0.15), 11.85, 5.95, boxstyle="round,pad=0.05,rounding_size=0.08",
+    ax.add_patch(FancyBboxPatch((0.05, 0.15), 11.85, 6.05, boxstyle="round,pad=0.05,rounding_size=0.08",
                                 facecolor="none", edgecolor=BLUE, lw=1.8))
-    ax.text(11.9, 0.15, "one Pipeline.fit(X_train, y_train) call", fontsize=10, color=BLUE,
+    ax.text(11.7, 0.38, "one Pipeline.fit(X_train, y_train) call", fontsize=10, color=BLUE,
             ha="right", weight="bold", style="italic")
 
     ax.set_title("Every learned parameter comes from inside this box",
@@ -369,26 +397,35 @@ def missing_data_decision():
             "the mechanism decides, and every option except dropping the column\n"
             "learns a statistic, so it belongs inside the training fold",
             ha="center", fontsize=10.5, color=INK, linespacing=1.6)
-    ax.set_title("Which one is a question about why the data is missing",
+    ax.set_title("Which one you pick is a question about why the data is missing",
                  fontsize=12.5, weight="bold")
     fig.tight_layout()
     save(fig, "missing_data_decision.png")
 
 
 def encoding_comparison():
-    """The same column, three encodings, three different claims."""
-    fig, axes = plt.subplots(1, 3, figsize=(12, 3.5))
-    categories = ["basic", "standard", "premium"]
+    """contract_type under three encodings, three different claims.
 
-    # Ordinal
+    Uses the column section 6 actually works through, with its real churn
+    rates, and the 0-based ordinal codes the handout specifies. Every
+    annotation goes in an xlabel so matplotlib pads it clear of the tick
+    labels rather than drawing on top of them.
+    """
+    fig, axes = plt.subplots(1, 3, figsize=(12, 3.7))
+    categories = ["month-to-month", "one-year", "two-year"]
+    short = ["m2m", "1-yr", "2-yr"]
+
+    # Ordinal: 0, 1, 2 - the handout's convention, so the first bar is empty.
     ax = axes[0]
-    ax.barh(range(3), [1, 2, 3], color=SLATE, height=.55)
-    ax.set_yticks(range(3)); ax.set_yticklabels(categories, fontsize=10)
-    ax.set_xticks([1, 2, 3])
+    codes = [0, 1, 2]
+    bars = ax.barh(range(3), codes, color=SLATE, height=.55)
+    ax.bar_label(bars, labels=[str(c) for c in codes], padding=4, fontsize=10.5)
+    ax.set_yticks(range(3)); ax.set_yticklabels(categories, fontsize=9.5)
+    ax.set_xticks([0, 1, 2])
     ax.set_title("Ordinal\none column", fontsize=11.5, weight="bold")
-    ax.text(1.6, -0.95, "claims premium − standard\n= standard − basic",
-            fontsize=9, color=RUST, style="italic", linespacing=1.4)
-    ax.set_xlim(0, 3.6)
+    ax.set_xlabel("claims two-year − one-year\n= one-year − month-to-month",
+                  fontsize=9, color=RUST, style="italic", linespacing=1.4)
+    ax.set_xlim(0, 2.5)
 
     # One-hot
     ax = axes[1]
@@ -398,23 +435,23 @@ def encoding_comparison():
         for j in range(3):
             ax.text(j, i, int(matrix[i, j]), ha="center", va="center",
                     fontsize=12, color="white" if matrix[i, j] else INK)
-    ax.set_yticks(range(3)); ax.set_yticklabels(categories, fontsize=10)
-    ax.set_xticks(range(3)); ax.set_xticklabels(categories, fontsize=8.5, rotation=30)
+    ax.set_yticks(range(3)); ax.set_yticklabels(categories, fontsize=9.5)
+    ax.set_xticks(range(3)); ax.set_xticklabels(short, fontsize=9)
     ax.set_title("One-hot\nk columns", fontsize=11.5, weight="bold")
-    ax.text(1.0, 3.15, "claims nothing, but k columns,\nand k = 493 for zip code",
-            ha="center", fontsize=9, color=SLATE, style="italic", linespacing=1.4)
+    ax.set_xlabel("claims nothing, but costs k columns,\nand k = 493 for zip_code",
+                  fontsize=9, color=SLATE, style="italic", linespacing=1.4)
 
-    # Target
+    # Target: the real churn rate of each level, from section 6's table.
     ax = axes[2]
-    rates = [0.31, 0.22, 0.11]
+    rates = [0.266, 0.137, 0.071]
     bars = ax.barh(range(3), rates, color=RUST, height=.55)
-    ax.bar_label(bars, fmt="%.2f", padding=3, fontsize=9.5)
-    ax.set_yticks(range(3)); ax.set_yticklabels(categories, fontsize=10)
+    ax.bar_label(bars, fmt="%.3f", padding=4, fontsize=9.5)
+    ax.set_yticks(range(3)); ax.set_yticklabels(categories, fontsize=9.5)
     ax.set_xticks([])
     ax.set_title("Target\none column", fontsize=11.5, weight="bold")
-    ax.text(0.02, -0.95, "computed from the labels,\nwhich is where leakage enters",
-            fontsize=9, color=RUST, style="italic", linespacing=1.4)
-    ax.set_xlim(0, 0.42)
+    ax.set_xlabel("computed from the labels,\nwhich is where leakage enters",
+                  fontsize=9, color=RUST, style="italic", linespacing=1.4)
+    ax.set_xlim(0, 0.36)
 
     for ax in axes:
         ax.spines[["top", "right"]].set_visible(False)
@@ -425,7 +462,7 @@ def encoding_comparison():
 def smoking_gun():
     """Most imputed training rows borrowed from a test row."""
     fig, ax = plt.subplots(figsize=(7.6, 3.4))
-    total, contaminated = 128, 98
+    total, contaminated = 128, 94
 
     ax.barh([0], [total], color=SLATE, height=.52, label="rows with age imputed")
     ax.barh([0], [contaminated], color=RUST, height=.52,

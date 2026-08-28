@@ -61,8 +61,10 @@ trained on stale records is not merely worse; it may be unlawful.
 **Storage limitation.** Keep it no longer than the purpose needs. "Forever, in
 case it is useful" is not a retention policy.
 
-The remaining two — lawfulness and fairness, and integrity and confidentiality —
-are the ones lawyers spend most time on and engineers least.
+The remaining two — lawfulness, fairness and transparency, and integrity and
+confidentiality — are the ones lawyers spend most time on and engineers least.
+(Article 5 adds a seventh duty on top of the six: **accountability**, meaning you
+must be able to *demonstrate* compliance, not merely achieve it.)
 
 ### 1.2 You need a lawful basis before you start
 
@@ -71,15 +73,16 @@ performance of a contract, legal obligation, vital interests, public task, or
 legitimate interests.
 
 Two practical notes. **Consent is the weakest basis**, not the strongest — it
-must be freely given, specific, informed and revocable, and if it is withdrawn
-your basis disappears. And **legitimate interests** requires a documented
+must be freely given, specific, informed and unambiguous (Article 4(11)), and it
+can be withdrawn at any time (Article 7(3)) — at which point your basis
+disappears. And **legitimate interests** requires a documented
 balancing test against the rights of the person, not a shrug.
 
 ### 1.3 The categories you must not touch casually
 
 Article 9 singles out **special category data**: racial or ethnic origin,
-political opinions, religious beliefs, trade union membership, genetic and
-biometric data, health, sex life and sexual orientation. Processing is
+political opinions, religious or philosophical beliefs, trade union membership,
+genetic and biometric data, health, sex life and sexual orientation. Processing is
 prohibited by default, with narrow exceptions.
 
 The trap for machine learning is that you can process this data **without
