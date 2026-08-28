@@ -350,6 +350,26 @@ check("dense network behind logistic regression by", 0.8905 - 0.7430, 0.1475, 5e
 
 
 # =====================================================================
+section("Section 5, the parameter counts")
+
+# review_lesson.py can only see this lesson's notebooks, so the two figures
+# borrowed from lesson 9 are unreachable to it. Checked from the architecture.
+PIXELS_HERE, PIXELS_LESSON_9 = 24 * 24, 8 * 8
+
+check("a 256-unit dense layer on these images", PIXELS_HERE * 256 + 256, 147_712, 0)
+check("eight 3x3 kernels, against it", 8 * 9 + 8, 80, 0)
+check("the difference the slides quote", 147_712 - 80, 147_632, 0)
+check("and the ratio", (PIXELS_HERE * 256 + 256) / 80, 1_846, 1)
+check("the two-hidden-layer dense baseline",
+      (PIXELS_HERE * 256 + 256) + (256 * 256 + 256) + (256 + 1), 213_761, 0)
+check("32 kernels of 3x3 over 16 channels", 32 * (9 * 16) + 32, 4_640, 0)
+check("lesson 9's one-hidden-layer digit network",
+      PIXELS_LESSON_9 * 64 + 64 + 64 * 10 + 10, 4_810, 0,
+      "8x8 inputs, not this lesson's 24x24")
+check("and lesson 9's two-hidden-layer one",
+      PIXELS_LESSON_9 * 64 + 64 + 64 * 64 + 64 + 64 * 10 + 10, 8_970, 0)
+
+# =====================================================================
 section("Result")
 print(f"\n  {CHECKS} hand-worked numbers recomputed from the raw inputs.")
 if FAILURES:
