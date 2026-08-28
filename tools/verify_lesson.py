@@ -669,9 +669,9 @@ def main() -> int:
 
     print()
     if failed:
-        print(f"{failed} lezione/i con problemi")
+        print(f"{failed} lesson(s) with problems")
         return 1
-    print(f"{len(lessons)} lezione/i verificate, nessun problema")
+    print(f"{len(lessons)} lesson(s) verified, no problems")
     return 0
 
 

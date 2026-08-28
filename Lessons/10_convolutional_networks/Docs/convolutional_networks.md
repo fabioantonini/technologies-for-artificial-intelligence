@@ -465,6 +465,8 @@ three types** of defect it carries.
 
 ![](permutation_test.png)
 
+*Read the pairs of bars, not the heights. Everywhere except the last pair the permuted bar matches the photographed one, which means the arrangement of the pixels was never being used. Only the convolutional network on "which defect is it?" loses anything at all, and that single 4.5-point drop is the entire measured value of locality on this problem.*
+
 Three readings, and the middle one is the surprise.
 
 **The dense network does not notice, on either task.** Exactly as lesson 9
@@ -540,6 +542,8 @@ features being worth anything.
 | 400 | 0.8447 | 0.7877 | 0.8727 | −0.0570 |
 
 ![](transfer_curve.png)
+
+*Look at the gap between the blue line and the red one, not at either line alone. It is zero at 25 images, widest at 200, and has closed and reversed by 400 — the shape of a window, not of a slope. The dashed line is the frozen base, which never competes until the very end.*
 
 The received wisdom is that transfer helps most when data is scarcest. **These
 numbers do not say that**, and the shape they do describe is more useful:

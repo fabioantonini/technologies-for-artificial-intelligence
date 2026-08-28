@@ -551,8 +551,10 @@ def learning_setup():
     ax.add_patch(FancyBboxPatch((0.4, 1.5), 2.2, 1.3,
                                 boxstyle="round,pad=0.03,rounding_size=0.1",
                                 facecolor=TEAL, edgecolor="none"))
-    ax.text(1.5, 2.15, "x ∈ 𝒳", ha="center", va="center", color="white",
-            fontsize=15, weight="bold")
+    # mathtext, not literal Unicode: the script capitals U+1D4B3 and friends are
+    # absent from DejaVu Sans and rendered as empty boxes.
+    ax.text(1.5, 2.15, r"$x \in \mathcal{X}$", ha="center", va="center",
+            color="white", fontsize=17)
     ax.text(1.5, 1.15, "input", ha="center", fontsize=10, color=SLATE)
 
     ax.add_patch(FancyBboxPatch((4.2, 1.5), 2.2, 1.3,
@@ -565,8 +567,8 @@ def learning_setup():
     ax.add_patch(FancyBboxPatch((8.0, 1.5), 2.2, 1.3,
                                 boxstyle="round,pad=0.03,rounding_size=0.1",
                                 facecolor=RUST, edgecolor="none"))
-    ax.text(9.1, 2.15, "ŷ ∈ 𝒴", ha="center", va="center", color="white",
-            fontsize=15, weight="bold")
+    ax.text(9.1, 2.15, r"$\hat{y} \in \mathcal{Y}$", ha="center", va="center",
+            color="white", fontsize=17)
     ax.text(9.1, 1.15, "prediction", ha="center", fontsize=10, color=SLATE)
 
     for x1, x2 in [(2.7, 4.1), (6.5, 7.9)]:
@@ -577,9 +579,9 @@ def learning_setup():
                                 boxstyle="round,pad=0.03,rounding_size=0.1",
                                 facecolor="white", edgecolor=SLATE, lw=1.6,
                                 linestyle="--"))
-    ax.text(5.4, 4.07, "(x, y) ~ 𝒟   —   unknown", ha="center", va="center",
-            fontsize=12, color=INK)
-    ax.text(9.1, 0.35, "loss L(ŷ, y) scores the answer", ha="right",
+    ax.text(5.4, 4.07, r"$(x,\, y) \sim \mathcal{D}$    (unknown)", ha="center",
+            va="center", fontsize=13, color=INK)
+    ax.text(9.1, 0.35, r"loss $L(\hat{y}, y)$ scores the answer", ha="right",
             fontsize=10.5, color=SLATE, style="italic")
     ax.set_title("Four objects, one of them unknowable",
                  fontsize=12.5, weight="bold")

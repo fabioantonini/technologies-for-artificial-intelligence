@@ -185,6 +185,20 @@ The empirical risk on the test set is an **unbiased estimator of the expected ri
 the quantity we said was not computable. That equation is what the test set buys, and
 it is worth writing on the board.
 
+**Read the expectation carefully, because it is easy to over-read.** The subscript
+$T \sim \mathcal{D}^{m}$ says the average is taken over *all* the test sets of size $m$
+that could have been drawn from $\mathcal{D}$ — not over the single test set you
+actually hold. Your test set is a draw from that collection, and it is still too
+optimistic or too pessimistic by some amount. What the equation promises is only that
+the amount is not *systematically* in one direction: repeat the whole experiment many
+times with fresh test sets and the scores centre on $R(f)$.
+
+So "unbiased" is a statement about the *procedure*, not a guarantee about *your
+number*. It says the target is the right one; it says nothing about how far a single
+shot lands from it. That second question — the spread rather than the centre — is what
+Section 2.4 measures, and it is why a test score quoted without an error bar is
+incomplete.
+
 Notice precisely what the argument depends on: **the independence of $T$ from $f$**.
 Not on the size of the split, not on the proportion, not on stratification. The moment
 the test rows influence any decision — a mean used for scaling, a ranking used to
@@ -276,10 +290,6 @@ Everything in Lesson 5 elaborates these three sections.
 ---
 
 ## 3. When not to use machine learning
-
-![](error_costs.png)
-
-*Framing the problem means pricing the two errors before choosing a model, because that price is what decides what "good" means.*
 
 An unfashionable section, and the most immediately useful one.
 
@@ -444,14 +454,6 @@ pursue it further here, but you should recognise it.
 
 *The cycle, and the order that matters most: the split comes before anything is fitted, not after.*
 
-![](class_distribution.png)
-
-*Look before you touch anything. The class balance decides which metrics will mean something later.*
-
-![](pipeline_versus_manual.png)
-
-*The same steps, done by hand and inside a pipeline. Only one of them survives cross-validation honestly.*
-
 The order of these steps is not a convention. Several of them are only valid in this
 order.
 
@@ -460,8 +462,16 @@ harmful? Which mistake is worse? Answer before modelling — the answers determi
 metric is honest, and a metric chosen after seeing results is a metric chosen to
 flatter them.
 
+![](error_costs.png)
+
+*Two of these four cells are failures, and they are not the same size: a false alarm costs a follow-up test, a missed case sends a patient home who should not go. Accuracy adds all four up as though they weighed the same, which is why the metric cannot be chosen until this question has been answered.*
+
 **2. Obtain and inspect the data.** Size, types, missing values, class balance,
 obvious errors. Look before transforming.
+
+![](class_distribution.png)
+
+*Look before you touch anything. The class balance decides which metrics will mean something later: 357 benign against 212 malignant, so answering "benign" every time is already right 62.7% of the time.*
 
 **3. Split.** Hold out a test set **now**, before anything is learnt. Every subsequent
 decision uses the training portion only. See Sections 2.2-2.3 for why this is the load-
@@ -476,6 +486,10 @@ you cannot tell 95% accuracy that is excellent from 95% that is worse than answe
 *learn* from data (a mean, a set of categories), so they must be fitted on training
 data only. A pipeline enforces this structurally. Doing it by hand works until the day
 it does not, and that day is silent.
+
+![](pipeline_versus_manual.png)
+
+*The same two steps in the two possible orders. Look at where "split" sits on the top row: after the scaling, so the mean subtracted from the training rows was computed with the test rows included. Only the bottom row survives cross-validation honestly, and nothing about the top row raises an error.*
 
 **6. Evaluate with a metric that matches the cost of being wrong.** Accuracy weights
 every error equally. Real problems rarely do.

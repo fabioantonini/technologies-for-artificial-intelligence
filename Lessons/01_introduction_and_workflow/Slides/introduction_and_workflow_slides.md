@@ -1,7 +1,7 @@
 ---
-title: "Lesson 1 — Introduction and the ML Workflow"
+title: "Lesson 1: Introduction and the ML Workflow"
 subtitle: "Technologies for Artificial Intelligence"
-author: "Fabio Antonini — Università degli Studi dell'Aquila"
+author: "Fabio Antonini, Università degli Studi dell'Aquila"
 date: "25 September 2026"
 ---
 
@@ -91,9 +91,9 @@ moves from "make it run" to "make it true".
 
 # How you will be assessed
 
-- **Weekly exercises** — set every Friday, due the next
-- **Final project** — an end-to-end study, with peer review
-- **Written exam** — closed book, drawn from the handouts
+- **Weekly exercises**: set every Friday, due the next
+- **Final project**: an end-to-end study, with peer review
+- **Written exam**: closed book, drawn from the handouts
 
 ::: notes
 Set expectations now. The exercises are not optional and they build towards the
@@ -114,9 +114,9 @@ this now so nobody treats the handouts as optional reading.
 
 # The three things you get each lesson
 
-- **Handout** — the reference text, with the mathematics
-- **Slides** — what we do in the room
-- **Notebooks** — runnable implementations
+- **Handout**: the reference text, with the mathematics
+- **Slides**: what we do in the room
+- **Notebooks**: runnable implementations
 
 Plus a quiz, and the exercise.
 
@@ -142,10 +142,11 @@ exam they will see before the sample papers.
 git clone https://github.com/fabioantonini/\
 technologies-for-artificial-intelligence.git
 cd technologies-for-artificial-intelligence
+docker compose pull
 docker compose up
 ```
 
-Then `http://127.0.0.1:8888/lab?token=aicourse`
+Then open **127.0.0.1:8888**, token `aicourse`
 
 ::: notes
 Do this live and take ten minutes over it. Making sure everyone has JupyterLab running
@@ -154,8 +155,20 @@ due.
 
 Explain the two-part design: the Docker image carries the environment, the repository
 carries the content. New lessons arrive with `git pull` - a few megabytes, seconds -
-not a new multi-gigabyte image. The image only changes if the libraries change, and
-they will be told when that happens.
+not a new image. The image only changes if the libraries change, and they will be told
+when that happens.
+
+Then the second thing to say, because it saves the room ten minutes today and a
+lecture in November. The image comes in two sizes. `docker compose up` gives them
+`core`, which is 770 MB and carries everything lessons 1 to 8 need. Before lesson 9
+they change one line in `.env` to `TAI_TAG=full`, which adds TensorFlow - and because
+`full` is built on top of `core`, that switch downloads the TensorFlow layer alone
+rather than the whole environment again. Point them at Course/Setup/Docker_Quickstart.md
+for both steps.
+
+Ask who has already pulled it. Anyone who has not should run `docker compose pull` at
+home tonight, not now: thirty simultaneous downloads on the lecture-theatre network is
+not a plan, and it is why the image was cut from 10.4 GB to 770 MB in the first place.
 
 Common problems: port 8888 already in use (edit docker-compose.yml to 8889), and the
 first pull taking several minutes on the room's wifi. Warn them the first start is
@@ -262,8 +275,6 @@ without any warning from their metrics. Promise them we return to it.
 
 The loss function is where the domain enters the mathematics. Choosing it is a decision
 about which mistakes matter, and we make that choice explicitly in twenty minutes.
-
-Point at the dashed box. Three of these objects we handle directly - the inputs, the function we search for, the predictions. The fourth, the distribution the data comes from, we never see. Everything difficult in this course comes from that one box being out of reach.
 :::
 
 # The setup, in one picture
@@ -276,18 +287,21 @@ the rest of the course.
 
 Trace the path with a finger: a pair is drawn from D, x goes into f, f
 produces y-hat, the loss compares y-hat against the y that came with it.
-Then say what is unknown - D is unknown, and it is the only thing we
-actually care about.
 
-Worth naming now, because it returns in lesson 5: we never see D. We see a
-sample from it, and every claim we make about a model is an inference from
+Then point at the dashed box. Three of these objects we handle directly -
+the inputs, the function we search for, the predictions. The fourth, the
+distribution the data comes from, we never see. Everything difficult in
+this course comes from that one box being out of reach.
+
+Worth naming now, because it returns in lesson 5: we see a sample from D,
+never D itself, and every claim we make about a model is an inference from
 the sample to the distribution. Most of the methodology later in the
 course is about not fooling yourself in that step.
 :::
 
 # What we actually want
 
-The average loss over all data the world might produce — including data that does not
+The average loss over all data the world might produce, including data that does not
 exist yet:
 
 $$R(f) = \mathbb{E}_{(x,y) \sim \mathcal{D}} \left[ L(f(x), y) \right]$$
@@ -392,6 +406,13 @@ Why a held-out set repairs it: if the test set played no part in choosing f, it 
 independent of f, and the error measured on it is an unbiased estimate of the expected
 risk - the quantity we just said was not computable. Worth putting on the board.
 
+Be precise about "unbiased", because it is easy to over-read and somebody will. The
+average is taken over ALL the test sets of that size we might have drawn, not over the
+one we did draw. Our particular test set is still too high or too low by some amount;
+what the argument buys is that it is not too high SYSTEMATICALLY. One test set gives
+one draw from a distribution centred on the right answer - which is exactly why the
+next question is how wide that distribution is.
+
 Stress what that argument depends on: the INDEPENDENCE of the test set, not its size
 or its proportion. The moment those rows influence any decision - a mean for scaling,
 a ranking for feature selection, a comparison between models - the independence breaks
@@ -402,8 +423,12 @@ Warn them we will break exactly that independence later today and watch 77% accu
 appear out of coin-flip labels.
 
 If someone asks "how much do we hold out?" - typically 20-30%, and the trade-off is
-real in both directions: a bigger test set gives a more stable estimate (the standard
-error falls as one over root n), a bigger training set gives a better model. Give them
+real in both directions. A bigger test set gives a more stable estimate; a bigger
+training set gives a better model. Say what "more stable" means before using it: the
+standard error is how far the measured accuracy would typically move if you drew a
+different test set of the same size, and it shrinks as one over the square root of m,
+the number of TEST examples - so quadrupling the test set halves the error bar, and
+that is the only way to buy precision. Give them
 the concrete number from notebook 01: 143 test examples at 0.986 accuracy carries a
 standard error of about one percentage point, so the third decimal place is noise. If
 anyone presses on the interval, concede it: 0.986 of 143 is two errors, the normal
@@ -420,7 +445,7 @@ no choices: one model, no tuning.
 
 # When *not* to use machine learning
 
-- The rule is **known** — write it
+- The rule is **known**: write it
 - The data is **not representative** of deployment
 - Errors are **catastrophic and unexplainable**
 - The data encodes an **injustice** you would automate
@@ -463,7 +488,7 @@ next ten minutes is what caused them, because the answer is not "the technology 
 work".
 :::
 
-# 1943 — the first artificial neuron
+# 1943: the first artificial neuron
 
 A neuron as a threshold unit: it fires when the weighted sum passes θ.
 
@@ -482,9 +507,9 @@ not decoration; it is the same objects under different names.
 Walk the diagram: inputs, a weight on each, a sum, and a hard threshold. Then point at the right-hand panel - the step function is what makes it all-or-nothing, and it is exactly what gets replaced by a smooth sigmoid in lesson 4 and by ReLU in lesson 9. Same object, softened, so that it becomes differentiable and therefore trainable.
 :::
 
-# 1950 — Turing's imitation game
+# 1950: Turing's imitation game
 
-"Can machines think?" — replaced by something observable.
+"Can machines think?" becomes a question you can settle by observation.
 
 ![](hist_1950_imitation.png)
 
@@ -504,7 +529,7 @@ consequences of what we tell it, has aged extremely well.
 The screen is the whole design: it removes appearance, voice and everything except the behaviour being tested. Ask the room what this test does NOT measure - understanding, consciousness, correctness - and note that Turing knew, and argued the substitution was worth making anyway.
 :::
 
-# 1956 — Dartmouth
+# 1956: Dartmouth
 
 The term *artificial intelligence* is coined.
 
@@ -520,7 +545,7 @@ this whole section.
 These are the seven topics from the actual proposal. Read two or three aloud - 'self-improvement', 'randomness and creativity' - and let the room judge how much of the list is settled. Then note that the proposal's authors expected substantial progress on all of it in one summer.
 :::
 
-# 1957 — the perceptron learns
+# 1957: the perceptron learns
 
 Rosenblatt: weights adjusted **from examples**, not set by hand.
 
@@ -539,7 +564,7 @@ those two statements a careful reader could have checked.
 The faded lines are earlier states of the boundary. Every time the machine misclassified an example it nudged the weights, and the line moved. That is the whole idea: the model is corrected by its own mistakes, which is still what gradient descent does in lesson 3 - just with a smoother update rule.
 :::
 
-# 1969 — the first winter
+# 1969: the first winter
 
 A single-layer perceptron cannot represent XOR.
 
@@ -564,7 +589,7 @@ get reported today.
 Use the figure instead of the board. AND on the left: one line, done. XOR on the right: the dashed lines are attempts, and each leaves a point on the wrong side. Ask them to try to find one that works before you move on - the impossibility is more convincing when they have looked for it themselves.
 :::
 
-# 1986 — backpropagation
+# 1986: backpropagation
 
 An efficient way to train multi-layer networks.
 
@@ -584,7 +609,7 @@ Lesson 9 derives this algorithm.
 Two passes: forward to compute a prediction, backward to distribute the error across every weight, including the hidden ones. That second arrow is what was missing in 1969 - not expressiveness, but a way to assign blame to a unit that never sees the target directly. Lesson 9 derives it.
 :::
 
-# 1995–2010 — statistics takes over
+# 1995-2010: statistics takes over
 
 From "simulating intelligence" to "estimating functions from data".
 
@@ -602,7 +627,7 @@ period, and lesson 5 in particular is its central contribution.
 The dotted line also separates the classes perfectly, and would score identically on this training data. The SVM picks the solid one - the boundary furthest from both classes. Ask which they would trust on a new point near the middle. That intuition is what the theory of the period made precise, and it is lesson 6.
 :::
 
-# 2012 — AlexNet
+# 2012: AlexNet
 
 The architecture was recognisably LeNet, from 1989.
 
@@ -650,7 +675,7 @@ does not establish.
 
 # Three kinds of learning
 
-The taxonomy divides by **where the target comes from** — not by algorithm.
+The taxonomy divides by **where the target comes from**, not by algorithm.
 
 ::: notes
 Correct the common misconception immediately, before it takes hold. It is not about
@@ -715,7 +740,7 @@ how it is usually taught - it looks easier because there is no labelling effort.
 
 Hide part of the input. Predict it from the rest.
 
-Nobody annotates anything — and the supervision is real.
+Nobody annotates anything, and the supervision is real.
 
 ![](self_supervision.png)
 
@@ -796,7 +821,7 @@ Handout section 6 has each step in full. The two they will be tempted to skip ar
 result and a number.
 :::
 
-# Step 1 — frame it
+# Step 1: frame it
 
 - What is predicted, from what?
 - Who would use it, for what decision?
@@ -816,8 +841,6 @@ them answer before showing any metric.
 That answer determines the metric, and it must be fixed BEFORE seeing results. A metric
 chosen afterwards is a metric chosen to flatter - with enough candidates, one always
 looks good.
-
-Two of these cells are fine and two are not, and the two failures are not the same size. Accuracy adds them up as if they were. Ask which cell they would accept more of - and note that answering requires knowing who bears the cost, which is not a question about data.
 :::
 
 # Which error is worse?
@@ -825,21 +848,28 @@ Two of these cells are fine and two are not, and the two failures are not the sa
 ![](error_costs.png)
 
 ::: notes
-Two problems, the same confusion matrix, and opposite answers about which
-cell hurts.
+One problem, four outcomes, and the two failures are not the same size.
+Two of these cells are fine and two are not, and accuracy adds all four up
+as though they weighed the same.
 
-Ask the room before reading either side. Missing a malignant tumour versus
-raising a false alarm; blocking a legitimate email versus letting spam
-through. Nobody needs statistics to rank these, and that is the point -
-the ranking comes from the application, and it has to arrive before any
-modelling decision is made.
+Ask the room which of the two failures they would rather make, and let them
+answer before any metric appears. A missed case sends home a patient who
+should not go; a false alarm costs anxiety and a follow-up test. Nobody
+needs statistics to rank those.
+
+Then the part that makes it a lesson rather than an anecdote: answering
+requires knowing who bears the cost, which is not a question about data.
+Change the application and the answer changes with it - on a spam filter
+the expensive cell is the legitimate mail that got blocked, not the spam
+that got through. The ranking comes from the application, and it has to
+arrive before any modelling decision is made.
 
 Lesson 4 turns this into a threshold that can be computed. Today it is
 enough that they see the question is not a modelling question, and that
 answering it with accuracy answers it by accident.
 :::
 
-# Step 2 — look first
+# Step 2: look first
 
 ![](class_distribution.png)
 
@@ -854,7 +884,7 @@ Mild imbalance here. Later today we will see what happens at 99 to 1, where the 
 reasoning destroys accuracy as a metric entirely.
 :::
 
-# Step 3 — split, before anything else
+# Step 3: split, before anything else
 
 Before scaling.
 Before selecting features.
@@ -878,7 +908,7 @@ They will violate this deliberately in the third notebook and see what it costs.
 The caption under the test set is the whole discipline: touched once, at the very end. Say that every additional look spends some of its independence - if you test twenty variants and report the best, you have selected on the test set and the number is no longer honest.
 :::
 
-# Step 4 — baseline first
+# Step 4: baseline first
 
 Predict the majority class. Nothing else.
 
@@ -897,7 +927,7 @@ and completely useless in practice. That is the lesson, not a curiosity - it is 
 discover that accuracy is the wrong metric for your problem.
 :::
 
-# Step 5 — pipeline, not two steps
+# Step 5: pipeline, not two steps
 
 ```python
 model = make_pipeline(
@@ -921,8 +951,6 @@ you deserve.
 
 This is structure beating discipline, and it is the single most useful habit in the
 scikit-learn API.
-
-The top row is the mistake, and note where 'split' sits: after the scaling. The mean used to scale the training rows was computed with the test rows included. Nothing errors, nothing warns, and the score comes out slightly too good - which is the worst kind of bug, because there is nothing to debug.
 :::
 
 # What the pipeline prevents
@@ -932,6 +960,9 @@ The top row is the mistake, and note where 'split' sits: after the scaling. The 
 ::: notes
 The same two steps, done in the two orders, with what each one shows the
 test set.
+
+Point at the top row and at where 'split' sits on it: after the scaling.
+That is the whole mistake, and it is one line out of order.
 
 On the manual side the scaler is fitted on everything, so the mean and the
 standard deviation it subtracts already contain the test rows. The model
@@ -943,7 +974,7 @@ produces a working notebook and a plausible number. Lesson 2 measures what
 it costs on a real dataset, and lesson 5 gives it its name.
 :::
 
-# Step 6 — the result
+# Step 6: the result
 
 - Baseline: 0.629
 - Model: **0.986**
@@ -1119,8 +1150,6 @@ Accuracy is dominated by the class nobody is looking for. Ask them what metric t
 would report to someone deploying this, and steer towards recall on the positive class -
 then note that recall alone is also gameable, by flagging everything, which is why
 lesson 4 needs a whole session.
-
-Read the bottom-left cell in both matrices: 21 missed, then 20 missed. The accuracies differ by one thousandth. If you reported only accuracy, these two systems look identical - and one of them is a constant function that never looks at the input.
 :::
 
 # Two models, one accuracy
@@ -1138,8 +1167,8 @@ better than nothing but is not nothing.
 
 Ask what a report containing only the accuracy would say about these two,
 and let the silence do the work. Then point at the bottom-left cell of
-each: that is the number the application cares about, and it is the one
-accuracy averages away.
+each: 21 missed, then 20 missed. That is the number the application cares
+about, and it is the one accuracy averages away.
 :::
 
 # Shortcut features
@@ -1162,8 +1191,6 @@ extract with 200 columns and no documentation - which is the normal case - and t
 about how they would find this.
 
 The question to carry: at the moment a prediction is needed, does this value exist yet?
-
-The shaded region is the trap. Everything to the right of the blue marker happens after the moment a prediction is needed, so none of it can be an input. Give them the question in the title as the thing to ask of every column in every dataset they are handed.
 :::
 
 # Does this value exist yet?
@@ -1180,9 +1207,13 @@ diagnosis is made, the biopsy is scheduled. A model leaning on
 biopsy_scheduled scores beautifully in the notebook and has nothing to
 read at the moment it would actually be used.
 
+The shaded region is the trap: everything to the right of the marked
+moment happens after a prediction is needed, so none of it can be an input.
+
 The question in the title is the one to make a habit of, and it is worth
 saying that it cannot be answered by looking at the data. It is answered
-by asking somebody who knows how the data is produced.
+by asking somebody who knows how the data is produced. Put it to them as
+the thing to ask of every column in every dataset they are handed.
 :::
 
 # One split is one measurement
@@ -1252,7 +1283,7 @@ end of a report.
 Keep this short and serious. Do not moralise - state it and move on.
 :::
 
-# Homework — due Friday 2 October
+# Homework: due Friday 2 October
 
 `Exercises/01_first_workflow.md`
 
@@ -1284,7 +1315,7 @@ about a dataset. Topic confirmed by lesson 4.
 - Take the quiz
 - **Do the exercise**
 
-Next: data — exploration, preparation, and leakage in earnest.
+Next week: data exploration, preparation, and leakage in earnest.
 
 ::: notes
 Close on time and offer to stay for setup problems - it is worth twenty minutes now to
