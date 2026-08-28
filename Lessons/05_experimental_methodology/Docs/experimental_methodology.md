@@ -388,7 +388,7 @@ variance 484:
 
 ![](bias_variance_tradeoff.png)
 
-*Bias falls with complexity, variance rises, and the total is a U whose minimum is the model you want. The scale is logarithmic: on a linear axis degree 12 would flatten everything else onto the baseline. The dotted line is the noise floor at 484, which no model crosses.*
+*The total error is a U whose minimum, at degree 2, is the model you want. What to look at is the red curve after degree 5: bias² climbs four orders of magnitude, which is not what the textbook picture of bias leads you to expect. The prose below explains it, and the explanation is the point of the section. The scale is logarithmic — on a linear axis degree 12 would flatten everything else onto the baseline — and the dotted line is the noise floor at 484, which no model crosses.*
 
 | Degree | bias² | Variance | Noise | Total |
 |---|---|---|---|---|
@@ -453,7 +453,7 @@ the same diagnosis from data you actually have.
 
 ![](learning_curves.png)
 
-*Two diagnoses. Left: the curves meet, and meet low — bias, and more data will not help. Right: a wide gap with the validation curve still climbing — variance, and more data will.*
+*Two diagnoses. Left: the curves meet, and meet low — bias, and more data will not help. Right: a gap of 0.15 that does not close — variance. Read the right-hand curve to the end, though, rather than stopping at its rise: it climbs from 0.76 to 0.86 by 250 examples and then flattens. Both halves are information, and Section 6.1 says what each one licenses.*
 
 **The construction.** Train on 15% of the data, then 25%, and so on to 100%,
 plotting both the training score and the cross-validated score against the
@@ -474,15 +474,26 @@ everything available to it and that is not enough.
 
 - *Helps:* a more flexible model, better features, less regularisation.
 - *Does not help:* **more data.** The curve is already flat; more rows land on
-  the same plateau. This is the expensive mistake, because collecting data is
-  the slowest and costliest item on the list, and the plot says in advance that
-  it will buy nothing.
+  the same plateau.
 
 **High variance.** A wide gap between a high training score and a lower
-validation score, with the validation curve **still rising** at the right edge.
+validation score. The gap is the diagnosis; what to do about it is written in
+the *slope* of the validation curve, and the two must be read separately.
 
-- *Helps:* more data — and the rising curve is the evidence that it will. Also
-  stronger regularisation, fewer features, a simpler model.
+- **Still rising at the right edge?** Then more data is the remedy, and the
+  rising curve is the evidence that it will pay. This is the only case in which
+  "collect more" is a defensible plan rather than a hope.
+- **Risen and then flattened**, which is what the figure above actually shows —
+  0.76 to 0.86 by 250 examples, and level from there? Then the gap is real but
+  more rows of the same kind have stopped buying anything. The remedies left are
+  the other ones: stronger regularisation, fewer features, a simpler model. In
+  that figure the 150 noise columns are the problem, and no quantity of rows
+  removes a column.
+
+**The practical point, and it is worth stating separately:** the plot tells you
+whether the expensive remedy is worth buying *before* you buy it. Collecting data
+is the slowest and costliest item on the list, and a flat curve says in advance
+that it will change nothing.
 
 ### 6.2 The one-line diagnostic
 
