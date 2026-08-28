@@ -270,6 +270,31 @@ nobody could see.
   `regularisation_paths.png` also titled a panel "everything shrinks" over a curve
   that triples first.
 
+### What check 2.1 found in lessons 4 to 10, and lesson 1
+
+Worth recording because the result is mostly negative, and a negative result from
+this check is the expensive kind to obtain.
+
+- **No caption anywhere in lessons 4, 6, 7, 8 or 10 misdescribes its figure.** Every
+  number drawn into those images traces to a notebook: lesson 4's three ROC operating
+  points and its multiclass matrix whose rows sum to the classification report's
+  supports; lesson 6's three support vectors, all three of which sit at |decision| =
+  1.000 exactly; lesson 7's box plots and bootstrap limit; lesson 8's elbow and
+  silhouette both landing on k = 4; lesson 10's permutation bars.
+- **Lesson 5 needed two.** Its high-variance learning curve was captioned "still
+  climbing" where it rises to 250 examples and then flattens, and section 6.1 built
+  its advice on that slope. Its bias-variance figure was captioned "bias falls with
+  complexity" over a curve that climbs four orders of magnitude — which the prose
+  three paragraphs below already explained, so the caption was asserting what the
+  text had to walk back.
+- **Four legend or label placements**, in lessons 3, 4, 9 and 10, each sitting over
+  the curve or bar the figure exists to compare.
+- **One cross-lesson attribution**, found while checking item 6: lesson 10 called its
+  dense baseline "lesson 9's dense network on the same images: two layers of 256".
+  Lesson 9's digit networks are one and two hidden layers of 64 units on 8×8 images.
+  The 213,761 parameters are right for lesson 10's own 24×24 images; the attribution
+  was not.
+
 ### Still open across the course
 
 Written down 28 August 2026, after the notebook pass finished. Ordered by what
@@ -277,12 +302,12 @@ each is worth.
 
 | # | What | Where it stands |
 |---|---|---|
-| 1 | **Check 2.1 — open every figure, confirm the caption describes *that* image.** The most productive check in this document, and the one no tool can do. | Lessons 2 and 3 done, five faults each. Lesson 3's are recorded below. 144 non-equation figures across the course; **lessons 1 and 4–10 remain**. |
-| 2 | **Check 2.7 — look at the rendered deck.** | Done for lessons 1 and 2, where it found a `git clone` URL broken across lines without a backslash and annotations drawn over axis labels. Decks 3–10, roughly 400 slides, have not been looked at. |
-| 3 | **CLAUDE.md's "one number per lesson" table stops at lesson 3.** Lessons 4, 9 and 10 each name a headline number in the handout — lesson 4's section 5.1 is titled "The number to remember from this lesson". | Not started. |
-| 4 | **Two submission conventions.** Exercises 1–3 are due "at the start of Lesson N+1"; exercises 4–10 are due "23:59". The date chain itself is correct end to end. | Not started. |
+| 1 | **Check 2.1 — open every figure, confirm the caption describes *that* image.** The most productive check in this document, and the one no tool can do. | **Done for all ten lessons.** The faults cluster hard: five each in lessons 2 and 3, none of substance anywhere else. Lessons 4–8 and 10 needed only four legend or label placements; lesson 5 needed two captions that stated the textbook version of what the figure complicates; lesson 1's three faults were found and fixed in the August review and the fixes have held. |
+| 2 | **Check 2.7 — look at the rendered deck.** | **Partly done.** All ten decks now build with no layout warning, none has a slide carrying more than twelve lines of text, and the figure-carrying slides of lessons 1–5 have been looked at individually. The remaining decks have been checked mechanically rather than slide by slide, which would not catch a legend lying across a curve — though the figure pass above now covers those figures wherever they also appear in a handout. |
+| 3 | **CLAUDE.md's "one number per lesson" table stops at lesson 3.** | **Done.** All ten rows filled, each with a figure verified during this review rather than chosen from memory. |
+| 4 | **Two submission conventions.** Exercises 1–3 are due "at the start of Lesson N+1"; exercises 4–10 are due "23:59" on the same Friday. The dates chain correctly end to end — every "Set" equals the previous "Due", weekly from 25 September to 4 December — so only the *time* differs. | **Analysed, left for the instructor.** The two forms mean different deadlines: morning of the Friday against the end of it. Seven of ten use 23:59 and three use "start of Lesson N+1", and lessons 2's handout and exercise are internally consistent with the latter. Either choice is defensible and either changes what some students are told, so it is a teaching decision rather than a defect to fix silently. |
 | 5 | **Deck density is nobody's decision.** 46 to 66 slides per lesson against roughly 80 lecture minutes: 35–50 slides an hour, where CLAUDE.md says 25–30. `verify_lesson.py` checks the plan sums to 180 minutes and nothing checks this ratio. | Not started; a teaching decision rather than a defect. |
-| 6 | **Cross-lesson claims verified for lesson 2 only.** Each lesson makes checkable assertions about the others. | Lesson 2 done, one overstatement found and fixed. Nine lessons unchecked. |
+| 6 | **Cross-lesson claims.** Each lesson makes checkable assertions about the others — 144 references in all. | **Done for the falsifiable subset.** Every reference naming a section number or quoting a figure was checked: four of them, three correct and one wrong (lesson 10's attribution of its dense baseline to lesson 9). The remaining 140 are prose pointers of the form "lesson 5 returns to this", which resolve but carry nothing to falsify. |
 
 
 ---

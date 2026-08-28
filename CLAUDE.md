@@ -243,6 +243,13 @@ The ones so far:
 | 1 | **77%** accuracy on coin-flip labels, from leakage alone |
 | 2 | **94 of 128** imputed rows borrowed a value from the test set |
 | 3 | **365** — the largest coefficient a penalty of 0.01 leaves, against billions without one |
+| 4 | **96.20%** accuracy from a model that finds none of the 76 failures |
+| 5 | **0.885 to 1.000** — 200 legitimate splits of the same data, one of them reporting a perfect classifier |
+| 6 | **0.613 to 0.947** — a linear model stuck exactly at the baseline where a kernel reaches the noise ceiling |
+| 7 | **36.8%** of the rows left out of every bootstrap sample, which is where a free validation score comes from |
+| 8 | **0.941 against −0.046** — DBSCAN and k-means scored against the same truth, on the same data |
+| 9 | **3,500** — what six sigmoid layers do to a gradient, and why the network never leaves chance |
+| 10 | **0.857 to 0.462** — what permuting the pixels costs a dense network, and nothing at all to a convolutional one |
 
 ### Expand every acronym on first use
 

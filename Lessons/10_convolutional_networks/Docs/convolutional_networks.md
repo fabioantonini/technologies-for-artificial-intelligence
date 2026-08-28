@@ -273,8 +273,12 @@ get wrong: each of its 16 kernels is $3 \times 3 \times 8$ — three by three
 A kernel's depth always matches the input's channel count, and only its two
 spatial dimensions are chosen.
 
-Against it, lesson 9's dense network on the same images: two layers of 256,
-**213,761** parameters.
+Against it, a dense network of the kind Lesson 9 built, sized for these images:
+two hidden layers of 256 units on the 576 input pixels, then one output —
+$576 \times 256 + 256$, then $256 \times 256 + 256$, then $256 + 1$, which is
+**213,761** parameters. (Lesson 9's own digit networks were smaller because its
+images were: one and two hidden layers of 64 units on 8×8 inputs, 4,810 and
+8,970 parameters. The architecture is the same idea at a different scale.)
 
 ### 5.1 Head to head
 
