@@ -16,6 +16,10 @@ __pycache__/
 Thumbs.db
 .DS_Store
 
+# Office owner files, written while a deck is open in PowerPoint and deleted
+# when it closes. Committing one ships a 165-byte stub next to a real deck.
+~$*
+
 # NOTE: generated .pptx and .pdf are deliberately NOT ignored.
 # This repository is also the distribution channel: students must receive
 # the built slides and handouts with a plain `git pull`, without needing

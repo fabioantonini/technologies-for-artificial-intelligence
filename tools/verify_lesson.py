@@ -265,7 +265,11 @@ def check_figures(lesson: Path, report: Report) -> None:
     on_disk = {p.name for p in figures_dir.glob("*.png")}
 
     # Equation images are generated; an unused one is stale output.
-    deck = next(iter((lesson / "Slides").glob("*.pptx")), None)
+    # `~$name.pptx` is PowerPoint's owner file, written while the deck is open.
+    # It is 165 bytes and not a zip, and globbing it crashed this check.
+    decks = (p for p in (lesson / "Slides").glob("*.pptx")
+             if not p.name.startswith("~$"))
+    deck = next(iter(decks), None)
     if deck is not None:
         embedded = set()
         with zipfile.ZipFile(deck) as archive:
@@ -658,7 +662,7 @@ def main() -> int:
     failed = 0
     for lesson in lessons:
         report = verify(lesson, args.run)
-        status = "OK" if report.ok else f"{len(report.problems)} PROBLEMI"
+        status = "OK" if report.ok else f"{len(report.problems)} PROBLEMS"
         print(f"\n{lesson.name}  —  {status}")
         for problem in report.problems:
             print(f"    x  {problem}")
