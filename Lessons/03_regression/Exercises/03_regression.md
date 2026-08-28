@@ -16,7 +16,9 @@ peeking at your test set, and — the part that carries the most marks —
 
 ## Dataset
 
-Bike sharing demand: daily hire counts against weather and calendar features.
+Bike sharing demand: **hourly** hire counts against weather and calendar
+features — 17,379 rows and 12 columns, two years of a city bike scheme. Note the
+`hour` column, and expect it to matter.
 
 ```python
 from sklearn.datasets import fetch_openml
@@ -35,7 +37,13 @@ Two things to notice before you begin:
   exactly this situation.
 - **The target is a count**, not an unbounded quantity. A linear model can
   predict negative demand, which is impossible. You are not required to fix
-  that, but you are required to notice it and say what you would do.
+  that, but you are required to notice it, count how many of your predictions
+  are negative, and say what you would do.
+- **The penalty may buy you very little here, and that is a real answer.** With
+  thirteen thousand training rows and twenty columns there is not much
+  overfitting to remove, so do not tune until the number moves. Report the sweep
+  you ran and what it showed. Task 4 is marked on the *procedure* — choosing
+  without touching the test set — not on finding an improvement.
 
 ---
 
@@ -68,22 +76,23 @@ column only. Report whether it helped.
 
 ### 4. Choose a penalty — without using the test set
 
-Fit `Ridge` for at least six values of α spanning several orders of magnitude.
+Fit `Ridge` for at least six values of the penalty λ — the `alpha=` argument in
+scikit-learn — spanning several orders of magnitude.
 
-You may **not** choose α by looking at test performance. Instead, hold out a
-**validation** set from your training data, choose α on that, and only then
+You may **not** choose λ by looking at test performance. Instead, hold out a
+**validation** set from your training data, choose λ on that, and only then
 report the test score for your chosen model.
 
-**Answer in a paragraph:** why is choosing α on the test set a problem, given
+**Answer in a paragraph:** why is choosing λ on the test set a problem, given
 that you would only look at it once? This is Lesson 1's argument applied, and
 Lesson 5 will give you better machinery — the point today is to feel why it is
 needed.
 
 ### 5. Ridge against Lasso
 
-Fit `Lasso` at an α that removes at least two features.
+Fit `Lasso` at a λ that removes at least two features.
 
-Report which features survived and in what order they were dropped as α rose.
+Report which features survived and in what order they were dropped as λ rose.
 
 **Answer in a sentence:** does the surviving set match what you would have
 guessed from the data, and what would change if you had scaled differently?
@@ -121,7 +130,7 @@ A single notebook named `{surname}_03.ipynb` that:
 
 | Criterion | Weight | What earns marks |
 |---|---|---|
-| **Methodological correctness** | 40% | α chosen without touching the test set; preprocessing inside the pipeline; scaling before regularisation; no leakage |
+| **Methodological correctness** | 40% | λ chosen without touching the test set; preprocessing inside the pipeline; scaling before regularisation; no leakage |
 | **Implementation** | 25% | Runs clean and reproducible; residual plots that support the argument |
 | **Interpretation** | 35% | Task 6 done seriously: coefficients defended or doubted with reasons, not restated |
 
@@ -132,7 +141,7 @@ which coefficients mean anything beats a better one presented uncritically.
 
 | Problem | Effect |
 |---|---|
-| α chosen by test-set performance | Methodology capped at 40% |
+| λ chosen by test-set performance | Methodology capped at 40% |
 | Regularisation applied to unscaled features | Methodology capped at 50% |
 | Notebook does not run in the course image | Returned for resubmission |
 
@@ -140,7 +149,7 @@ which coefficients mean anything beats a better one presented uncritically.
 
 ## Hints
 
-- `np.logspace(-3, 4, 8)` gives a reasonable sweep of α.
+- `np.logspace(-3, 4, 8)` gives a reasonable sweep of λ to pass as `alpha=`.
 - For task 4, a second `train_test_split` on your training data is enough. You
   are hand-rolling what `GridSearchCV` will do for you in Lesson 5.
 - For task 6, the handout's Section 7.2 table is the model to imitate: put the

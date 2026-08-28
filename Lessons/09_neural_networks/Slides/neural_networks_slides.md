@@ -1246,7 +1246,8 @@ in the training curve announces the failure. That is what makes it dangerous:
 if that layer were your bottleneck, you would be tuning everything except the
 thing that is actually wrong.
 
-The figure is in handout section 7.4, and notebook 03 reproduces the sweep.
+Handout section 7.4 carries this measurement, and notebook 03 reproduces the
+sweep. The picture of it is the next slide, so do not point at anything yet.
 Ask the room how they would check. Counting units whose activation is zero on
 every training example takes one line.
 :::

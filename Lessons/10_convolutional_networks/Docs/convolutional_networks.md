@@ -155,6 +155,11 @@ which is the cheap alternative to pooling.
 
 ### 3.3 Kernels chosen by hand, and the zero-sum trick
 
+Before letting a network learn kernels, it is worth writing a few down. A kernel
+is nine numbers; the question is what arrangement of nine numbers responds to
+one thing and ignores another. Four are enough to make the point — and only one
+of them finds the defect we care about.
+
 ![](convolution_by_hand.png)
 
 *The same die under four kernels written down rather than learned: a local

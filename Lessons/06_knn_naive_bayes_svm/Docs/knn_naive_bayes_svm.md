@@ -346,10 +346,12 @@ spurious structure it can find.
 Measured on the interacting data: mean confidence when correct **0.567**, mean
 confidence when wrong **0.555**. It cannot tell the difference.
 
-The more common complaint runs the other way. When features are *correlated*,
-multiplying their probabilities counts the same evidence repeatedly and Naive
-Bayes becomes wildly overconfident — reporting 0.999 with an accuracy nothing
-like that.
+The more common complaint runs the other way, and it is not measured on this
+dataset — it needs correlated features, which the pump data does not have. When
+features *are* correlated, multiplying their probabilities counts the same
+evidence repeatedly, and Naive Bayes becomes wildly overconfident. Ten near-copies
+of one informative column is enough: accuracy around 0.75, and two thirds of the
+predictions asserted above 0.999. Try it — it takes four lines.
 
 Either way, lesson 5's distinction applies: **the ranking may be useful while
 the probabilities are not.** Naive Bayes is the classic example of that gap, and

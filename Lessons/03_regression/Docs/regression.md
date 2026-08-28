@@ -31,12 +31,13 @@ Slide 1 is the title slide, so the numbers above match the page numbers in
 
 ## 1. Why regression comes first
 
-![](price_vs_area.png)
-
-*The dataset the whole lesson uses: 600 houses, price against floor area. The relationship is clearly there and clearly not exact, which is what makes it worth a model rather than a lookup table.*
 
 This is the first method in the course, and it is a good first method for three
 reasons that have nothing to do with it being simple.
+
+![](price_vs_area.png)
+
+*The dataset the whole lesson uses: 600 houses, price against floor area. The relationship is clearly there and clearly not exact, which is what makes it worth a model rather than a lookup table.*
 
 It has an **exact solution**, so we can see what "fitting a model" means without
 any iterative machinery in the way. It has an **iterative solution too**, which
@@ -79,14 +80,15 @@ and how to relax the assumption when it fails.
 
 ### 2.2 Why squared error
 
-![](cost_surface.png)
-
-*The cost as a function of the two parameters. It is a bowl, and a bowl has exactly one bottom — which is why squared error can be minimised exactly rather than searched for.*
 
 **The picture first.** We need a single number saying how badly a candidate
 model is doing, so that "fitting" becomes "make this number small". The obvious
 candidate — add up the errors — fails immediately, because a prediction 50,000
 too high and one 50,000 too low would cancel to zero and look perfect.
+
+![](cost_surface.png)
+
+*The cost as a function of the two parameters. It is a bowl, and a bowl has exactly one bottom — which is why squared error can be minimised exactly rather than searched for.*
 
 So we need every error to count as a positive amount. Squaring does that, and it
 also decides something less obvious: how much worse one large mistake is than
@@ -145,14 +147,15 @@ not you notice it.
 
 ### 3.1 The normal equation, derived
 
-![](projection_picture.png)
-
-*Least squares as a shadow. The fitted values are the projection of $y$ onto the space the columns of $X$ can reach, and the residual is what is left over — perpendicular to that space, which is exactly what $X^\top(X\theta - y) = 0$ says.*
 
 **The picture first.** Each column of your data matrix is a direction you are
 allowed to move in. Any prediction the model can make is some combination of
 those directions, so the set of achievable predictions is a flat surface — a
 plane, in three dimensions — sitting inside the space of all possible answers.
+
+![](projection_picture.png)
+
+*Least squares as a shadow. The fitted values are the projection of $y$ onto the space the columns of $X$ can reach, and the residual is what is left over — perpendicular to that space, which is exactly what $X^\top(X\theta - y) = 0$ says.*
 
 The true prices are a point that almost certainly does **not** lie on that
 surface: no combination of area and age reproduces them exactly. So the best you
@@ -224,7 +227,22 @@ $$\theta = \frac{1}{22400}\begin{pmatrix} 60800 \cdot 1100 - 400 \cdot 165600 \\
 
 So $b \approx 28{,}600$ euros and $w \approx 2{,}536$ euros per square metre.
 Three points, two parameters, and a slope within 6% of the 2,400 that generated
-the data — on three houses. Notebook 1 does the same thing on 450 and gets 2,410.
+the data.
+
+**Do not read that as "and more data does better", because it does not.** Notebook 1
+runs this same one-feature fit on 450 houses and gets **2,785**, which is 16% high —
+further from the truth than the three-house answer, with 150 times the data. Adding
+rows cannot fix it, because nothing is wrong with the estimate: it is the correct
+answer to the question asked. Asked what a square metre is worth *when area is the
+only thing you are told*, the honest answer includes everything that travels with
+area. In this dataset area correlates +0.77 with `bedrooms` and +0.49 with
+`bathrooms`, both of which genuinely add to the price, so the area coefficient
+carries their effect too.
+
+Fit all six features on the same 450 rows and the area coefficient drops to
+**2,421**, within 1% of the truth. What changed was not the sample size but the
+question. Section 7.2 returns to this with the whole table, and it is the single
+most common way a coefficient gets misread.
 
 **Check it the other way round**, because a second route is the only real
 protection against an arithmetic slip. For one feature the least-squares slope is
@@ -259,13 +277,14 @@ next section is why.
 
 ### 4.1 The update rule, derived
 
-![](gradient_descent_path.png)
-
-*The path taken across the cost surface. Each step is against the gradient, and the steps shorten as the slope flattens near the bottom.*
 
 **The picture first.** You are standing on a hillside in fog and want to reach
 the bottom. You cannot see the valley, but you can feel which way the ground
 slopes under your feet. So you take a step downhill, feel again, and repeat.
+
+![](gradient_descent_path.png)
+
+*The path taken across the cost surface. Each step is against the gradient, and the steps shorten as the slope flattens near the bottom.*
 
 That is the whole algorithm. The gradient is the direction of steepest *ascent*,
 so we walk against it; the learning rate is how long a stride we take. The
@@ -323,12 +342,13 @@ on how much it is worth here.
 
 ### 4.3 Choosing the learning rate
 
-![](learning_rate_regimes.png)
-
-*Three learning rates on the same problem: too small and it crawls, about right and it arrives, too large and it climbs the opposite wall. The third case diverges — the cost goes *up*.*
 
 The step size $\alpha$ is the one parameter gradient descent cannot choose for
 itself, and both failure modes are worth recognising on sight.
+
+![](learning_rate_regimes.png)
+
+*Three learning rates on the same problem: too small and it crawls, about right and it arrives, too large and it climbs the opposite wall. The third case diverges — the cost goes *up*.*
 
 **Too small** and progress is slow but monotone: the cost falls at every
 iteration and simply takes too many of them.
@@ -362,7 +382,10 @@ The ratio of the steepest curvature to the shallowest is the **condition
 number** of the design matrix. It is, near enough, what sets the number of
 iterations you will need.
 
-On the housing data, computed with `numpy.linalg.cond` on the design matrix:
+On the housing data, computed with `numpy.linalg.cond` on the six feature
+columns — not the design matrix of Section 3.1, which carries an extra column of
+ones; including it gives 654 for the first row instead of 285, and the comparison
+between the rows is what matters here:
 
 | Design matrix | Condition number |
 |---|---|
@@ -388,20 +411,55 @@ The same number governs the exact solution, which is the tidy part: a large
 condition number is simultaneously why $(X^\top X)^{-1}$ is untrustworthy and why
 gradient descent is slow. One quantity, both failure modes.
 
+**What "untrustworthy" costs, measured on this course's own material.** Notebook 2's
+degree-12 polynomial is the extreme case. After standardising, its design matrix is
+21 × 13 and **full rank** — every column is genuinely independent — with a condition
+number of **4.2 × 10⁹**. Nothing is singular, no warning is raised, and the fit is
+perfectly deterministic: run it three times in the same container and the coefficients
+agree to the last digit.
+
+Run it on a different linear-algebra backend and the largest coefficient moves from
+**247,514 to 3,097,038,010** — a factor of **12,500**, on identical code and identical
+data. Both are correct least-squares answers to the same question, and the question
+simply does not have a stable answer: the ravine is so flat along one direction that
+where you stop in it is decided by rounding.
+
+Now compare what a penalty does to that. The matrix Ridge inverts is
+$X^\top X + \lambda I$, and adding $\lambda$ to the diagonal puts a floor under the
+smallest eigenvalue:
+
+| $\lambda$ | Condition number of $X^\top X + \lambda I$ |
+|---|---|
+| 0 | 1.8 × 10¹⁹ |
+| 0.01 | 23,100 |
+| 1 | 232 |
+| 100 | 3.3 |
+
+Section 6.4's table is the consequence, and it is worth looking at twice: when that
+lesson was re-run on a different stack, **only the unpenalised row moved**. The three
+penalised rows came back identical to the digit. A penalty of 0.01 — small enough that
+Section 6.4 describes it as barely constraining the fit — already buys fifteen orders
+of magnitude of conditioning.
+
+So regularisation is not only a cure for overfitting. It is also what makes a number
+reproducible, and that is a reason to reach for it that has nothing to do with
+generalisation.
+
 ---
 
 ## 5. Curves, and the price of flexibility
 
 ### 5.1 A linear model that bends
 
-![](energy_curve.png)
-
-*Daily energy against outdoor temperature, with a minimum near 18 °C. Heating below, cooling above: no straight line can follow this, and no amount of fitting will make one.*
 
 "Linear" refers to the coefficients, not the inputs. Nothing prevents us from
 handing the model $x^2$ as an additional column:
 
 $$\hat{y} = w_1 x + w_2 x^2 + b$$
+
+![](energy_curve.png)
+
+*Daily energy against outdoor temperature, with a minimum near 18 °C. Heating below, cooling above: no straight line can follow this, and no amount of fitting will make one.*
 
 This is still least squares — the same normal equation, the same code — on a
 design matrix with an extra column. The model is linear in $w$, which is all the
@@ -413,15 +471,16 @@ relationships that are not straight lines.
 
 ### 5.2 What it costs
 
-![](underfit_residuals.png)
-
-*The straight line's residuals still carry the shape of the curve. Residuals that hold a pattern are the model telling you it has not finished.*
 
 Notebook 2 fits a curve — daily energy consumption against outdoor temperature,
 with a minimum around 18 °C — on 21 training observations. Here is the whole
 lesson in one table, measured with the root mean squared error (RMSE) — the
 square root of the mean squared error, which puts the number back into the
 units of the target:
+
+![](underfit_residuals.png)
+
+*The straight line's residuals still carry the shape of the curve. Residuals that hold a pattern are the model telling you it has not finished.*
 
 | Degree | Training RMSE | Test RMSE |
 |---|---|---|
@@ -444,16 +503,14 @@ it, and it is why Section 2.3 of Lesson 1's handout matters.
 
 ### 5.3 The mechanism
 
-![](residuals.png)
-
-*The right degree leaves residuals with no pattern left in them — scattered around zero, no shape. That is what "nothing left to model" looks like, and it is the check to run on any fit.*
+Why does a flexible model behave badly, rather than merely using its flexibility
+where it is needed? Nothing forces a degree-12 model to wiggle: it contains the
+degree-2 model as a special case, and could simply set the other ten coefficients
+near zero. It does not, and the reason is worth seeing before it is explained.
 
 ![](polynomial_degrees.png)
 
 *The same 21 observations at three degrees. The rightmost passes closest to the training points, which is precisely why it is the worst model here.*
-
-Why does a flexible model behave badly, rather than merely using its flexibility
-where it is needed?
 
 Look at the coefficients. The degree-2 fit has a largest coefficient of 411. The
 degree-12 fit needs 3,097,038,010 — seven million times larger.
@@ -463,6 +520,10 @@ coefficients there are many ways to pass close to every point, and the
 arrangement least squares finds involves terms that nearly cancel: one pushing
 the curve up where the next pushes it down, the cancellation failing exactly
 where a training point sits. Between the points, nothing constrains the swing.
+
+![](residuals.png)
+
+*The right degree leaves residuals with no pattern left in them — scattered around zero, no shape. That is what "nothing left to model" looks like, and it is the check to run on any fit.*
 
 This observation is the whole basis of the next section. If large opposing
 coefficients are the symptom, **charge for coefficient size** and the symptom
@@ -474,13 +535,14 @@ should disappear.
 
 ### 6.1 Two penalties
 
-![](train_test_by_degree.png)
-
-*Training error falls with every degree added; test error turns around. The gap between the two curves is the overfitting, and the turning point is what regularisation exists to find without hunting for it by hand.*
 
 Add a price for size to the cost:
 
 $$J_{\text{ridge}}(w) = \text{MSE}(w) + \lambda\sum_{j=1}^{n} w_j^2 \qquad\qquad J_{\text{lasso}}(w) = \text{MSE}(w) + \lambda\sum_{j=1}^{n} |w_j|$$
+
+![](train_test_by_degree.png)
+
+*Training error falls with every degree added; test error turns around. The gap between the two curves is the overfitting, and the turning point is what regularisation exists to find without hunting for it by hand.*
 
 Ridge (also called $L_2$ or Tikhonov regularisation) charges the sum of squares;
 Lasso charges the sum of absolute values. The parameter $\alpha \geq 0$ sets the
@@ -543,14 +605,15 @@ when least squares has none or infinitely many.
 
 ### 6.3 Why Lasso reaches zero and Ridge does not
 
-![](ridge_lasso_geometry.png)
-
-*The constraint regions: a disc for Ridge, a diamond for Lasso. The diamond has corners **on the axes**, and a corner is where the solution tends to land — which is the whole reason Lasso produces exact zeros and Ridge does not.*
 
 **The picture first.** Think of the penalty as a budget. You may spend a fixed
 total on coefficients, and you want the best fit that money can buy. The two
 methods differ only in how they charge you — by the square of each coefficient,
 or by its absolute value — and that changes the *shape* of what you can afford.
+
+![](ridge_lasso_geometry.png)
+
+*The constraint regions: a disc for Ridge, a diamond for Lasso. The diamond has corners **on the axes**, and a corner is where the solution tends to land — which is the whole reason Lasso produces exact zeros and Ridge does not.*
 
 Draw the affordable region in two dimensions. Charging squares gives a circle;
 charging absolute values gives a diamond standing on its corners. The best fit
@@ -585,11 +648,12 @@ threshold. It is what happens when a constraint region has corners on the axes.
 
 ### 6.4 Worked: what a penalty buys
 
+
+Notebook 3 applies Ridge to the degree-12 disaster from Section 5:
+
 ![](alpha_trade_off.png)
 
 *The trade in one picture. A small penalty buys a large fall in test error; too much rigidity gives it all back. The useful range spans four orders of magnitude, which is why the penalty cannot be guessed.*
-
-Notebook 3 applies Ridge to the degree-12 disaster from Section 5:
 
 | Model | Training RMSE | Test RMSE | Largest \|w\| |
 |---|---|---|---|
@@ -614,11 +678,12 @@ machinery.
 
 ### 6.5 Worked: Lasso as a feature selector
 
+
+On the housing data, raising $\lambda$ drops features in a specific order:
+
 ![](regularisation_paths.png)
 
 *Every coefficient tracked as the penalty sweeps from nothing to a lot. Ridge coefficients shrink towards zero and arrive only in the limit; Lasso coefficients hit zero at a finite penalty and stay there.*
-
-On the housing data, raising $\lambda$ drops features in a specific order:
 
 | λ | Features kept |
 |---|---|
@@ -653,11 +718,12 @@ strange object: a house that gains a bedroom without gaining any space.
 
 ### 7.2 Worked: when the estimate can be trusted
 
+
+Notebook 1 fits all six features and compares against the truth:
+
 ![](coefficient_trust.png)
 
 *The same coefficient estimated across four random splits of the same data. Where the feature is well conditioned the estimate barely moves; where two columns carry one fact, it swings wildly.*
-
-Notebook 1 fits all six features and compares against the truth:
 
 | Feature | True | Estimated | Error | Correlation with area |
 |---|---|---|---|---|

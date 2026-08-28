@@ -104,6 +104,13 @@ express is "which side of this line are you on, and how far".
 
 ### 2.2 What one line is worth on the acceptance data
 
+
+The right-hand panel draws something Meridian's engineers never see. The gain
+tolerance is 0.50 dB against a production spread of 0.40, and the phase
+tolerance is 3.75° against a spread of 3.00 — both exactly 1.25 spreads. So
+once each axis is standardised the accept region is a **circle of radius
+1.25**, and the fraction of units inside it is
+
 ![](acceptance_data.png)
 
 *Meridian's 2,250 training sensors. Left: the raw measurements, in decibels
@@ -111,12 +118,6 @@ and degrees. Right: the same points after each axis is divided by its own
 production spread, with the rule that generated the labels drawn on top. The
 accept region is a circle — and the wrong-coloured points scattered along it
 are the 3% of verdicts the test rig recorded incorrectly.*
-
-The right-hand panel draws something Meridian's engineers never see. The gain
-tolerance is 0.50 dB against a production spread of 0.40, and the phase
-tolerance is 3.75° against a spread of 3.00 — both exactly 1.25 spreads. So
-once each axis is standardised the accept region is a **circle of radius
-1.25**, and the fraction of units inside it is
 
 $$P\big(\lVert z \rVert < 1.25\big) = 1 - e^{-1.25^2/2} = 1 - e^{-0.78125} = 0.5422$$
 
@@ -210,6 +211,12 @@ does, what it is *searching for* is something of this kind.
 
 ### 3.3 What the hidden layer actually did
 
+
+The hidden layer **classified nothing**. It moved the data until the last
+layer's line was enough. That is the whole idea, and the name for it is
+*representation learning*: the useful thing a network learns is not the final
+boundary but the coordinates in which the final boundary is simple.
+
 ![](xor_hidden_space.png)
 
 *Left: the four clouds in the input space, where no line separates the
@@ -217,11 +224,6 @@ colours. Right: the same 800 units plotted by what the two hidden units
 output. The hidden layer has moved the correctable clouds to $(1,0)$ and
 $(0,1)$ and stacked both uncorrectable clouds at the origin, leaving a problem
 the output unit's single line solves.*
-
-The hidden layer **classified nothing**. It moved the data until the last
-layer's line was enough. That is the whole idea, and the name for it is
-*representation learning*: the useful thing a network learns is not the final
-boundary but the coordinates in which the final boundary is simple.
 
 Every deep architecture in the rest of the field is this observation applied
 repeatedly. Lesson 10's convolutional networks are the same trick with a
@@ -496,11 +498,6 @@ the output non-linearity's.
 
 ### 6.3 Does a hidden layer help on digits?
 
-![](digit_examples.png)
-
-*Two training examples of each digit. At 8×8, several are ambiguous to a human
-reader — this dataset has a ceiling too, and unlike the acceptance data nobody
-has published what it is.*
 
 | architecture | parameters | validation accuracy | sd |
 |---|---|---|---|
@@ -508,6 +505,12 @@ has published what it is.*
 | one hidden layer of 32 | 2,410 | 0.9602 | 0.0052 |
 | one hidden layer of 64 | 4,810 | 0.9611 | 0.0045 |
 | two hidden layers of 64 | 8,970 | 0.9676 | 0.0057 |
+
+![](digit_examples.png)
+
+*Two training examples of each digit. At 8×8, several are ambiguous to a human
+reader — this dataset has a ceiling too, and unlike the acceptance data nobody
+has published what it is.*
 
 Multiclass logistic regression, with no hidden layer at all, is within 3.5
 points of the best network on the table. The first hidden layer is worth
@@ -543,15 +546,16 @@ whose activations have all saturated or all died has effectively performed it.
 
 ### 7.2 The sigmoid's derivative is bounded by one quarter
 
+
+From section 5.2, $\sigma'(z) = \sigma(z)(1 - \sigma(z))$. Writing
+$s = \sigma(z) \in (0,1)$, the function $s(1-s)$ is a downward parabola with
+its maximum at $s = \tfrac{1}{2}$, giving
+
 ![](activation_functions.png)
 
 *Left: three activations. Right: their derivatives — the quantity
 backpropagation multiplies by once per layer. The sigmoid's never exceeds ¼,
 and that horizontal line is the subject of this section.*
-
-From section 5.2, $\sigma'(z) = \sigma(z)(1 - \sigma(z))$. Writing
-$s = \sigma(z) \in (0,1)$, the function $s(1-s)$ is a downward parabola with
-its maximum at $s = \tfrac{1}{2}$, giving
 
 $$\max_z \sigma'(z) = \tfrac{1}{2}\cdot\tfrac{1}{2} = \tfrac{1}{4}$$
 
@@ -576,14 +580,15 @@ the gradient by about four.**
 
 ### 7.3 What that costs, measured
 
+
+Notebook 02 measures the per-layer shrinkage across eight seeds:
+
 ![](vanishing_gradients.png)
 
 *Gradient norms at every weight matrix of an untrained six-hidden-layer
 network, on a logarithmic scale; the band spans eight random initialisations.
 The sigmoid falls by three and a half orders of magnitude from output to
 input. tanh and the ReLU are flat.*
-
-Notebook 02 measures the per-layer shrinkage across eight seeds:
 
 $$3.90,\ 3.97,\ 4.14,\ 4.05,\ 3.92,\ 4.31,\ 4.06,\ 3.86$$
 
@@ -996,6 +1001,14 @@ gets 0.6500 against the table's 0.6491, which is exactly that uncertainty and
 not a disagreement.
 
 ### 11.2 What the sweep shows
+
+The question this section asks is how many hidden units the drift problem
+actually needs, and the answer is worth having in a form you can picture. Each
+hidden unit draws one straight line; the output layer combines them. So "how
+many units" is really "how many straight lines does it take to fence off a
+circle", and that is a question with a geometric answer as well as a measured
+one. The two figures below are those two answers, and the table underneath
+checks them against each other.
 
 ![](four_lines_fence.png)
 

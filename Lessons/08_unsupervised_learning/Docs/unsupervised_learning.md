@@ -639,11 +639,11 @@ nothing more.
 
 ### 5.4 How many components: the scree plot
 
-![](pca_scree.png)
-
-*Per-component and cumulative explained variance for the 8 account
-features. The first 3 components explain 93.5% of total variance; the
-4th adds only 2.4% more — a sharp elbow at 3.*
+Principal component analysis (PCA) hands back as many components as there were
+columns, ordered by how much variance each explains. Deciding how many to keep
+is the one judgement it does not make for you, and the usual instrument is a
+**scree plot**: the explained variance per component, read for the point where
+it stops falling steeply.
 
 | Component | Eigenvalue | Variance explained | Cumulative |
 |---|---|---|---|
@@ -652,6 +652,12 @@ features. The first 3 components explain 93.5% of total variance; the
 | PC3 | 1.380 | 17.2% | 93.5% |
 | PC4 | 0.192 | 2.4% | 96.0% |
 | PC5–PC8 | 0.043–0.104 | 0.5–1.3% each | 100.0% |
+
+![](pca_scree.png)
+
+*Per-component and cumulative explained variance for the 8 account
+features. The first 3 components explain 93.5% of total variance; the
+4th adds only 2.4% more — a sharp elbow at 3.*
 
 The elbow lands exactly on **3** — the number of latent factors
 (`retail_data.py`'s `spending_propensity`, `engagement`,

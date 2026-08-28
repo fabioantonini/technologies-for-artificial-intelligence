@@ -286,9 +286,16 @@ of X transpose y - 80 times 240, plus 120 times 320, plus 200 times 540. It is
 the step where an arithmetic slip hides, and watching it done is what makes the
 formula stop being a black box.
 
-Then the honest caveat: three points is nothing, and 6% here is luck as much as
-method. Notebook 1 does the same on 450 houses and gets 2,410. The point is not
-the accuracy, it is that the formula is arithmetic you could do by hand.
+Then the honest caveat, and it is sharper than it looks: three points is
+nothing, and the 6% is luck. Run the SAME one-feature fit on 450 houses and you
+get 2,785 - sixteen percent high, further from the truth, with 150 times the
+data. More rows cannot fix it, because nothing is broken: asked what a square
+metre is worth when area is all you are told, the honest answer includes the
+bedrooms and bathrooms that come with it. All six features give 2,421.
+
+So the point is not the accuracy. It is that the formula is arithmetic you could
+do by hand - and that what a coefficient means depends on what else is in the
+model, which is section 7.
 
 Handout section 3.2 carries every intermediate step.
 :::
@@ -620,12 +627,13 @@ predicted. An MSE of 285 means nothing to anyone; an RMSE of 16.9 kWh does.
 This is the table the whole lesson turns on. Read the columns against each
 other, slowly.
 
-Training error falls at every single step, 113 down to 16, monotonically, never
+Training error falls at every single step, 113 down to 14, monotonically, never
 once suggesting anything is wrong. Test error bottoms out at degree 3 and then
-climbs: 118 at degree 9, 182 at degree 12.
+climbs: 590 at degree 9, and 24,656 at degree 12.
 
-So the model that fits the training data best is ten times worse on data it has
-not seen - and the training error congratulated us the whole way.
+So the model that fits the training data best is more than a thousand times
+worse on data it has not seen - and the training error congratulated us the
+whole way.
 
 This is lesson 1's empirical-versus-expected risk with numbers in it. And note
 how little it took: 21 training points, and by degree 9 the model has nearly as
