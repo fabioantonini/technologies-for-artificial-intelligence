@@ -5,7 +5,7 @@
 Data figures come from the notebooks. These are the diagrams that carry an idea
 and have no data behind them: the shape of the sigmoid and what it does to the
 log-odds, and the picture of which cells of the confusion matrix each metric
-divides by — which is the one thing students most reliably get backwards.
+divides by, which is the one thing students most reliably get backwards.
 """
 
 from pathlib import Path

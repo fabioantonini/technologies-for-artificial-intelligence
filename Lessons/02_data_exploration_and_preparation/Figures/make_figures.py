@@ -106,7 +106,7 @@ def outlier_fences():
 
     ax.set_xlabel("standardised value")
     ax.set_yticks([])
-    ax.set_title("Calibrated to agree — on data that is actually normal",
+    ax.set_title("Calibrated to agree, on data that is actually normal",
                  fontsize=12.5, weight="bold")
     ax.spines[["top", "right", "left"]].set_visible(False)
     fig.tight_layout()
@@ -144,7 +144,7 @@ def dummy_variable_trap():
         ax.text(9.0, y, "1", ha="center", fontsize=11, color=BLUE, weight="bold")
 
     ax.text(5.0, 1.0,
-            "the k dummy columns always sum to the intercept column — rank deficient by exactly one",
+            "the k dummy columns always sum to the intercept column: rank deficient by exactly one",
             ha="center", fontsize=10.5, color=RUST, style="italic")
     ax.set_title("Why all k dummies plus an intercept cannot work",
                  fontsize=12.5, weight="bold")
@@ -213,9 +213,9 @@ def invisible_leaks():
     ax.axis("off")
 
     rows = [
-        (3.9, "Lesson 1", "select features on the full dataset", "visible — an obvious extra step", RUST),
-        (2.5, "Today, leak 1", "impute a missing value on the full dataset", "invisible — looks like ordinary cleaning", BLUE),
-        (1.1, "Today, leak 2", "encode a category on the full dataset", "invisible — two unremarkable lines of code", TEAL),
+        (3.9, "Lesson 1", "select features on the full dataset", "visible: an obvious extra step", RUST),
+        (2.5, "Today, leak 1", "impute a missing value on the full dataset", "invisible: looks like ordinary cleaning", BLUE),
+        (1.1, "Today, leak 2", "encode a category on the full dataset", "invisible: two unremarkable lines of code", TEAL),
     ]
     for y, tag, action, note, colour in rows:
         ax.add_patch(FancyBboxPatch((0.1, y), 1.7, 0.85, boxstyle="round,pad=0.02,rounding_size=0.06",
@@ -225,7 +225,7 @@ def invisible_leaks():
         ax.text(2.1, y + 0.62, action, fontsize=10.5, color=INK)
         ax.text(2.1, y + 0.18, note, fontsize=9.5, color=colour, style="italic")
 
-    ax.text(5.0, 5.0, "Same rule, broken three ways — only the first one looks like a bug",
+    ax.text(5.0, 5.0, "Same rule, broken three ways: only the first one looks like a bug",
             ha="center", fontsize=12, weight="bold")
     fig.tight_layout()
     save(fig, "invisible_leaks.png")
@@ -366,7 +366,7 @@ def missing_data_decision():
                                      color=SLATE, lw=1.3))
 
     ax.text(6.0, 0.55,
-            "the mechanism decides — and every option except dropping the column\n"
+            "the mechanism decides, and every option except dropping the column\n"
             "learns a statistic, so it belongs inside the training fold",
             ha="center", fontsize=10.5, color=INK, linespacing=1.6)
     ax.set_title("Which one is a question about why the data is missing",
@@ -401,7 +401,7 @@ def encoding_comparison():
     ax.set_yticks(range(3)); ax.set_yticklabels(categories, fontsize=10)
     ax.set_xticks(range(3)); ax.set_xticklabels(categories, fontsize=8.5, rotation=30)
     ax.set_title("One-hot\nk columns", fontsize=11.5, weight="bold")
-    ax.text(1.0, 3.15, "claims nothing — but k columns,\nand k = 493 for zip code",
+    ax.text(1.0, 3.15, "claims nothing, but k columns,\nand k = 493 for zip code",
             ha="center", fontsize=9, color=SLATE, style="italic", linespacing=1.4)
 
     # Target
@@ -412,7 +412,7 @@ def encoding_comparison():
     ax.set_yticks(range(3)); ax.set_yticklabels(categories, fontsize=10)
     ax.set_xticks([])
     ax.set_title("Target\none column", fontsize=11.5, weight="bold")
-    ax.text(0.02, -0.95, "computed from the labels —\nwhich is where leakage enters",
+    ax.text(0.02, -0.95, "computed from the labels,\nwhich is where leakage enters",
             fontsize=9, color=RUST, style="italic", linespacing=1.4)
     ax.set_xlim(0, 0.42)
 

@@ -359,7 +359,7 @@ def xor_problem():
     for ax, labels, title, separable in zip(
         axes,
         [np.array([0, 0, 0, 1]), np.array([0, 1, 1, 0])],
-        ["AND — one line is enough", "XOR — no line works"],
+        ["AND: one line is enough", "XOR: no line works"],
         [True, False],
     ):
         for (x, y), label in zip(points, labels):
@@ -503,7 +503,7 @@ def spam_rules():
         ax.text(5.35, y + 0.36, f"breaks on: {exception}", va="center",
                 fontsize=10.5, color=RUST)
 
-    ax.text(5.0, 0.1, "you cannot state the rule — but you recognise the answer",
+    ax.text(5.0, 0.1, "you cannot state the rule, but you recognise the answer",
             ha="center", fontsize=11.5, color=INK, weight="bold")
     ax.set_title("Every rule buys an exception", fontsize=12.5, weight="bold")
     fig.tight_layout()
@@ -616,7 +616,7 @@ def split_scheme():
     ax.text(8.6, 0.82, "touched once,\nat the very end", ha="center", va="top",
             fontsize=9.5, color=RUST, linespacing=1.4, weight="bold")
 
-    ax.set_title("Split first — then never look right again until you are finished",
+    ax.set_title("Split first, then never look right again until you are finished",
                  fontsize=12.5, weight="bold")
     fig.tight_layout()
     save(fig, "split_scheme.png")
@@ -686,7 +686,7 @@ def self_supervision():
                 fontsize=13 if i == hidden else 9.5,
                 weight="bold" if i == hidden else "normal")
 
-    ax.text(5.5, 3.35, "one column hidden — nobody annotated anything",
+    ax.text(5.5, 3.35, "one column hidden: nobody annotated anything",
             ha="center", fontsize=11, color=INK)
     for i in range(len(columns)):
         if i == hidden:
@@ -698,7 +698,7 @@ def self_supervision():
     ax.text(5.5, 0.95, "predict it from the rest", ha="center",
             fontsize=11.5, color=RUST, weight="bold")
     ax.text(5.5, 0.35,
-            "the task is a pretext — what transfers is having learned how the columns relate",
+            "the task is a pretext: what transfers is having learned how the columns relate",
             ha="center", fontsize=10, color=SLATE, style="italic")
     ax.set_title("Supervision that costs nothing", fontsize=12.5, weight="bold")
     fig.tight_layout()

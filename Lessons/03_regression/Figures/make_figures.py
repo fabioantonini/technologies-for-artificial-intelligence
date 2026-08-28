@@ -77,7 +77,7 @@ def projection_picture():
     ax.plot([4.32, 4.32, 4.6], [2.05, 2.33, 2.33], lw=1.4, color=RUST)
 
     ax.text(5.0, 0.15,
-            "the closest point on the surface is the shadow — and the leftover\n"
+            "the closest point on the surface is the shadow, and the leftover\n"
             "error is perpendicular, or you could have done better",
             ha="center", fontsize=10, color=INK, linespacing=1.5)
     ax.set_title("Least squares is a projection", fontsize=12.5, weight="bold")
