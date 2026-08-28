@@ -369,7 +369,7 @@ it honestly, and lessons 3 and 7 meeting the two standard tools for controlling 
 regularisation and ensembling.
 :::
 
-# The same idea, on real data
+# The lowest training error is the worst model
 
 ![](overfitting.png)
 
