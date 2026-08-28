@@ -1,21 +1,21 @@
 ---
-title: "Lesson 6 — k-NN, Naive Bayes and Support Vector Machines"
+title: "Lesson 6: k-NN, Naive Bayes and Support Vector Machines"
 subtitle: "Technologies for Artificial Intelligence"
-author: "Fabio Antonini — Università degli Studi dell'Aquila"
+author: "Fabio Antonini, Università degli Studi dell'Aquila"
 date: "30 October 2026"
 ---
 
 # Before we start
 
 - Exercise 5 was due today
-- The score that was too good — and what the honest number cost you
+- The score that was too good, and what the honest number cost you
 
 ::: notes
 Collect exercise 5. The marks were for the diagnosis, not for the final figure,
 so say one sentence about what the class found and one about what it missed.
 
 There was more than one problem planted. Ask out loud how many people found the
-second one, and how many stopped after the first — stopping after the first is
+second one, and how many stopped after the first - stopping after the first is
 the realistic failure, because once a score drops from excellent to plausible
 the pressure to keep looking disappears.
 
@@ -26,10 +26,10 @@ families, and each of them offers new ways to be wrong while looking right.
 
 # Today: the first lesson that offers a choice
 
-- **k-nearest neighbours (k-NN)** — remember, and vote
+- **k-nearest neighbours (k-NN)**: remember, and vote
 - The **curse of dimensionality**: the bill for that
-- **Naive Bayes** — one strong assumption, bought cheap
-- **Support vector machines (SVM)** — margins, and kernels
+- **Naive Bayes**: one strong assumption, bought cheap
+- **Support vector machines (SVM)**: margins, and kernels
 - Which family to reach for, and why that beats tuning
 
 ::: notes
@@ -52,7 +52,7 @@ Handout section 1 sets this out in a paragraph each.
 # 1,200 pumps, two readings each
 
 - Vibration in Hz, pressure in bar
-- A pump is faulty when its readings fall **outside the design envelope** —
+- A pump is faulty when its readings fall **outside the design envelope**,
   too low as readily as too high
 - **61.3%** faulty; 4% of the labels are deliberately flipped
 
@@ -66,7 +66,7 @@ Somebody will get it: healthy in the middle, faulty all around.
 
 The 4% flipped labels are lesson 5's noise floor arriving in a classification
 problem. No model here can exceed roughly **0.96**, and that is the number every
-score today should be compared against — not against 1.000, and not against
+score today should be compared against - not against 1.000, and not against
 each other in isolation.
 
 Handout section 1.1.
@@ -81,7 +81,7 @@ Give them a moment before saying anything. Then ask for a straight line that
 separates these two classes, and let them try.
 
 The healthy pumps form a disc around the design point; the faulty ones form the
-annulus around them. There is no line. Not a badly chosen line — no line at all,
+annulus around them. There is no line. Not a badly chosen line - no line at all,
 because the class you want to isolate is completely surrounded.
 
 Worth naming what is unusual here, since most textbook pictures are blobs side
@@ -90,7 +90,7 @@ Any "within tolerance versus out of tolerance" problem has this shape, and that
 covers a large fraction of industrial classification.
 
 The scattered wrong-coloured points inside each region are the 4% flipped
-labels. Point at two of them now — they come back at k = 1.
+labels. Point at two of them now - they come back at k = 1.
 :::
 
 # What a straight boundary costs
@@ -110,7 +110,7 @@ genuinely the best answer available to it.
 
 Then point at the standard deviation, which is the real tell: **± 0.000**. A
 model that gives everything the same answer is perfectly consistent across
-folds. Give them that as a diagnostic to keep — a suspiciously stable
+folds. Give them that as a diagnostic to keep - a suspiciously stable
 cross-validation score often means a model that is not using its input.
 
 Connect back to lesson 5's habit: quote the baseline first, always. Without the
@@ -123,7 +123,7 @@ one.
 - To classify a new point, find the **k closest** training points and take the
   majority vote
 - There is no training step: "fitting" means **storing the data**
-- Called a **lazy learner** — an unusually honest name for an algorithm
+- Called a **lazy learner**: an unusually honest name for an algorithm
 
 ::: notes
 The whole method is one sentence, and it is worth pausing on how strange that
@@ -134,7 +134,7 @@ Ask the room what could possibly go wrong with a method that makes no
 assumptions. The answer is the next fifteen minutes: making no assumptions means
 having no way to ignore anything, and that turns out to be expensive.
 
-Two decisions hide inside that sentence — what "closest" means, and what k is —
+Two decisions hide inside that sentence - what "closest" means, and what k is  - 
 and both are consequential. Take them in that order.
 
 Handout section 2.1.
@@ -150,7 +150,7 @@ implies, which is the next slide.
 
 The observation that matters: every feature contributes to that sum through its
 own units. There is nothing in the expression that knows Hz from bar. The method
-has no other channel through which the data reaches it — no coefficients, no
+has no other channel through which the data reaches it - no coefficients, no
 weights, no notion that one column might matter more than another.
 
 Say that plainly: for k-NN, the distance IS the model. Anything that distorts
@@ -171,7 +171,7 @@ between a working model and a broken one.
 
 Work the arithmetic out loud. Two pumps differing by 10 Hz and 0 bar are 10
 apart. Two differing by 0 Hz and 1 bar are 1 apart. So the algorithm considers
-the second pair ten times more similar — for no reason other than the units
+the second pair ten times more similar - for no reason other than the units
 somebody chose when the sensors were installed.
 
 The consequence: without standardisation, vibration picks every neighbour by
@@ -179,15 +179,15 @@ itself and pressure is decorative. Change the pressure sensor to millibar and
 the model's answers change. That should feel unacceptable, and it is.
 
 Practical instruction: k-NN goes in a Pipeline with StandardScaler, always, and
-the scaler is fitted inside the fold — which is last week's lesson, not a new
+the scaler is fitted inside the fold - which is last week's lesson, not a new
 one.
 :::
 
 # k is the bias-variance dial, made visible
 
-- **Small k** — the boundary follows every point, mislabelled ones included.
+- **Small k**: the boundary follows every point, mislabelled ones included.
   Low bias, high variance
-- **Large k** — the vote is taken over a wide neighbourhood, and eventually
+- **Large k**: the vote is taken over a wide neighbourhood, and eventually
   stops following real structure. High bias, low variance
 - At k = 1 the training accuracy is **exactly 1.000**. Always, on any dataset
 
@@ -203,7 +203,7 @@ itself and wins.
 
 That is the purest illustration in the whole course of lesson 5's point: a
 training score can be perfect and measure absolutely nothing. Not
-approximately nothing — nothing, by construction, independent of the data.
+approximately nothing - nothing, by construction, independent of the data.
 
 Handout section 2.2.
 :::
@@ -224,7 +224,7 @@ Read the first row, then the last, then the middle.
 Row one: training 1.000, honest 0.912. The gap is the whole of lesson 5 in two
 numbers on one line.
 
-The best value is k = 5, at 0.944 — wide enough to average out the flipped
+The best value is k = 5, at 0.944 - wide enough to average out the flipped
 labels, narrow enough to still follow the boundary. Note that it is not
 dramatically better than 15 or 51: the choice of k is forgiving over a wide
 range, which is worth saying because they will otherwise grid-search it to death.
@@ -265,7 +265,7 @@ model on the plot bar one.
 Three panels, and each says something different.
 
 k = 1: the boundary is ragged, with islands around individual points. Those
-islands are the mislabelled 4% — the model has carved out a small territory for
+islands are the mislabelled 4% - the model has carved out a small territory for
 each one. That is variance made visible.
 
 k = 15: a clean disc, close to the envelope that actually generated the data.
@@ -282,7 +282,7 @@ Handout section 2.2 carries the same three panels.
 
 # What k-NN costs
 
-- No training time at all — you pay at **every prediction** instead
+- No training time at all: you pay at **every prediction** instead
 - A naive implementation compares the query against **every** training row:
   `O(mn)` for m rows and n features
 - **The model is the dataset.** You cannot ship one without the other
@@ -292,14 +292,14 @@ The first cost is engineering. For 1,200 pumps it is nothing. For ten million
 rows answering a thousand queries a second it is the entire problem, and it is
 why approximate nearest-neighbour indexes are a small industry. Mention that the
 scikit-learn default uses a k-d tree or ball tree, which helps in low dimensions
-and stops helping in high ones — for reasons that are the next segment.
+and stops helping in high ones - for reasons that are the next segment.
 
 The second cost is easy to miss and matters more often. Every other model in
 this course compresses its training data into parameters and then throws the
 data away. k-NN cannot: to make a prediction it must hold the training set.
 
 Spell out what that means when the training set is medical records or customer
-transactions. Shipping the model means shipping the data — to a phone, to a
+transactions. Shipping the model means shipping the data - to a phone, to a
 customer's server, to a third party. That is a legal question before it is a
 technical one. This lesson's Resources document and lesson 2's cover it.
 :::
@@ -307,7 +307,7 @@ technical one. This lesson's Resources document and lesson 2's cover it.
 # Now the price: add columns of nothing
 
 - Extra columns of **pure noise**, drawn from a normal distribution
-- The two real readings are **untouched** — the problem is exactly as solvable
+- The two real readings are **untouched**: the problem is exactly as solvable
 - Only the number of columns changes
 
 ::: notes
@@ -316,7 +316,7 @@ force of it depends on them believing that nothing was taken away.
 
 Say it twice if necessary: the signal is still there. Both original columns are
 present, unmodified, and still sufficient to solve the problem perfectly. We are
-adding columns that contain nothing — no relationship to the label, no
+adding columns that contain nothing - no relationship to the label, no
 relationship to each other.
 
 Ask for a prediction before you advance. Most of the room will say performance
@@ -340,7 +340,7 @@ Handout section 3.1.
 ::: notes
 Read down the last column, slowly, and stop at the fourth row.
 
-At 52 columns — that is 2 real and 50 empty — k-NN is BELOW the majority
+At 52 columns - that is 2 real and 50 empty - k-NN is BELOW the majority
 baseline. A model that ignored the data entirely and always answered "faulty"
 would now do better than a model that looked at it.
 
@@ -359,7 +359,7 @@ The mechanism is on the next three slides, and it is geometry, not statistics.
 
 - Scatter points in a cube, pick one, measure its **nearest** and its
   **farthest** neighbour
-- In two dimensions those are very different numbers — which is what makes
+- In two dimensions those are very different numbers, which is what makes
   "nearest" a meaningful word
 - Each new dimension adds its own squared difference, and the contributions
   **average out**
@@ -418,7 +418,7 @@ The same curve as numbers, because these are the ones worth carrying out of the
 room.
 
 Start at the top. In two dimensions the nearest point is about 2% as far away as
-the farthest. "Nearest" is a strong claim there — it picks out something
+the farthest. "Nearest" is a strong claim there - it picks out something
 genuinely special.
 
 Then walk down. By ten dimensions it is a quarter. By fifty it is more than half.
@@ -430,8 +430,8 @@ nearest neighbour is already a quarter of the way to being an arbitrary point.
 
 # In 100 dimensions the nearest point is 70% as far as the farthest
 
-- In **two** dimensions it is **2%** — "nearest" picks out something special
-- In **one hundred** it is **70%** — the nearest point is barely nearer than a
+- In **two** dimensions it is **2%**: "nearest" picks out something special
+- In **one hundred** it is **70%**: the nearest point is barely nearer than a
   random one
 - A vote among "the five nearest" becomes a vote among five taken at random
 
@@ -444,7 +444,7 @@ neighbourhood.
 
 And then the sentence that makes it operational: if the nearest five points are
 barely nearer than five chosen at random, a majority vote among them is barely
-different from a majority vote among five random labels — which is the base
+different from a majority vote among five random labels - which is the base
 rate, which is exactly what the 52-column row showed.
 
 Ask them to write the number down. Derivations fade; this one tends not to. It
@@ -455,11 +455,11 @@ Handout section 3.2.
 
 # What the curse is, and is not
 
-- **Not** that high-dimensional problems are unlearnable — lesson 9's networks
+- **Not** that high-dimensional problems are unlearnable: lesson 9's networks
   work in thousands of dimensions
 - That **methods built on distance lose their footing**, because the quantity
   they depend on stops varying
-- k-NN, k-means (lesson 8), and radial basis function (RBF) kernels — all of
+- k-NN, k-means (lesson 8), and radial basis function (RBF) kernels, all of
   them
 
 ::: notes
@@ -470,7 +470,7 @@ Neural networks work happily in thousands of dimensions. So do linear models
 with regularisation. What breaks is specifically the family of methods whose
 mechanism is a distance, because a quantity that no longer varies can no longer
 discriminate. Name the three that appear in this course: k-NN today, k-means in
-lesson 8, and the RBF kernel later this afternoon — which is why the RBF SVM
+lesson 8, and the RBF kernel later this afternoon - which is why the RBF SVM
 also degraded in that table, though more slowly.
 
 **Now the predictable mistake, and defend the instinct first.** Adding features
@@ -480,7 +480,7 @@ reasoning is sound, and it is what they have been taught for three lessons. With
 k-NN the same feature costs you a dimension in the distance, and dimensions are
 what the method is made of. The habit is right; transferring it one lesson later
 does real damage. Say that the fix is to select features BEFORE the distance,
-inside the pipeline — which is last week's rule again.
+inside the pipeline - which is last week's rule again.
 :::
 
 # Notebook 1, live
@@ -495,12 +495,12 @@ watch the score drop and can attribute it to the units rather than to the
 method.
 
 The cell to protect if time runs short is the noise-column sweep. Let them add
-the columns themselves and watch the score cross the baseline — it changes
+the columns themselves and watch the score cross the baseline - it changes
 behaviour in a way that reading the table does not.
 
 If somebody finishes early, the interesting extension is to ask what happens
 with 50 noise columns and 12,000 rows instead of 1,200. The curse is partly a
-sample-size problem, and more data does push it back — just far more slowly than
+sample-size problem, and more data does push it back - just far more slowly than
 anyone expects.
 :::
 
@@ -525,7 +525,7 @@ Say the strategy in words before the symbols appear. We want a quantity we
 cannot estimate directly. Bayes' rule trades it for quantities we might be able
 to estimate. That is the whole move.
 
-Walk the right-hand side once. The prior is the class frequency — a count, no
+Walk the right-hand side once. The prior is the class frequency - a count, no
 difficulty. The denominator is the same number for every class, so it cannot
 change which class wins, and it can be dropped entirely.
 
@@ -536,7 +536,7 @@ features it is a twenty-dimensional density, and no quantity of data populates a
 twenty-dimensional space.
 
 Point out that this is the curse again, arriving from a completely different
-direction — density estimation rather than distance. Handout section 4.1.
+direction - density estimation rather than distance. Handout section 4.1.
 :::
 
 # Bayes' rule, applied to a class
@@ -568,13 +568,13 @@ numbers rather than symbols.
 One assumption, stated in one line, and everything follows from it.
 
 Emphasise the words "given the class". This is not a claim that the features are
-independent — it is a claim that whatever dependence they have is entirely
+independent - it is a claim that whatever dependence they have is entirely
 explained by which class they belong to. Those are different claims and the
 distinction matters in about ten minutes, when we measure it.
 
 What it buys: one n-dimensional estimation problem becomes n one-dimensional
 ones. A one-dimensional density needs very little data. Training becomes a
-single pass computing a mean and a variance per feature per class — there is no
+single pass computing a mean and a variance per feature per class - there is no
 iteration, no optimisation, nothing to converge.
 
 Mention that in practice this is computed as a sum of logarithms, for the same
@@ -593,7 +593,7 @@ the left; n one-dimensional densities on the right.
 
 Why that matters is a counting argument, and it is worth making concrete.
 To estimate the left-hand side directly you would need enough pumps to fill
-an n-dimensional space — the curse of dimensionality from an hour ago,
+an n-dimensional space - the curse of dimensionality from an hour ago,
 arriving in a new disguise. To estimate the right-hand side you need enough
 pumps to fit n separate histograms, which is a completely different demand.
 
@@ -607,7 +607,7 @@ the assumption costs when it fails.
 - Training is **a single pass**; adding features costs almost nothing
 - But vibration and pressure are both driven by the operating point
 - "New" is not independent of "York" given the topic. Symptoms co-occur
-- So the question is not whether it holds — it is **when being wrong about it
+- So the question is not whether it holds: it is **when being wrong about it
   costs you nothing**
 
 ::: notes
@@ -639,7 +639,7 @@ right, not the probabilities. Handout section 4.2 closes on exactly this.
 | k-NN, k = 5 | 0.944 |
 
 ::: notes
-A point behind k-NN, and an enormous distance ahead of the linear model — from a
+A point behind k-NN, and an enormous distance ahead of the linear model - from a
 method that assumes something false and trains in a single pass over the data.
 
 Resist the temptation to stop here, because a score alone tells you nothing
@@ -664,14 +664,14 @@ Handout section 4.3.
 
 ::: notes
 Measured directly, and remember the assumption concerns independence GIVEN THE
-CLASS — so the second and third rows are the ones that count, not the first.
+CLASS - so the second and third rows are the ones that count, not the first.
 
 Within each class the two readings are essentially uncorrelated: −0.006 among
 healthy pumps is as close to zero as a sample of this size will ever produce.
 The assumption is not approximately satisfied here; it is satisfied.
 
 Say why that is more useful than the 0.933. A score tells you what happened
-once. Knowing WHY it happened tells you when to expect it again — and it gives
+once. Knowing WHY it happened tells you when to expect it again - and it gives
 them a check they can run in two lines before trusting Naive Bayes on anything.
 
 The obvious caution, since somebody will raise it: zero correlation is not
@@ -711,7 +711,7 @@ independence assumption is unable to represent. Handout section 4.4.
 
 ::: notes
 Left panel: the two sensors together. Four clean groups, and a perfectly
-learnable rule — any method that can draw a non-linear boundary will find it.
+learnable rule - any method that can draw a non-linear boundary will find it.
 
 Middle and right: each sensor on its own, which is ALL Naive Bayes ever gets.
 The two class distributions sit almost exactly on top of one another.
@@ -721,11 +721,11 @@ the relationship between the columns, and factorising the density throws that
 relationship away before the model ever sees it.
 
 Worth saying that no amount of data repairs this. It is not an estimation
-problem — with a million rows the marginals still overlap. The model cannot
+problem - with a million rows the marginals still overlap. The model cannot
 represent what is being asked of it.
 :::
 
-# 0.404 — below the baseline, and below chance
+# 0.404: below the baseline, and below chance
 
 | Model | Accuracy |
 |---|---|
@@ -744,12 +744,12 @@ not hard. It is only hard for a model that looks at one feature at a time.
 
 Second, and take the time: 0.404 is BELOW CHANCE. Below the majority baseline of
 0.523, and below what you would get by flipping a coin. Ask how that is even
-possible — a model with no information should surely sit at 50%.
+possible - a model with no information should surely sit at 50%.
 
 The explanation is worth having in full. The class means on each sensor differ
 by about 0.17, against a spread near 1, purely as an artefact of a finite sample.
 That accident is the ONLY per-feature evidence available. Naive Bayes has
-nothing else to multiply, so it follows it — and in this sample it points the
+nothing else to multiply, so it follows it - and in this sample it points the
 wrong way.
 
 The sentence to land: a model with no signal does not sit politely at 50%. It
@@ -760,7 +760,7 @@ follows whatever spurious structure it can find, with complete confidence.
 
 - Mean confidence when **correct: 0.567**. When **wrong: 0.555**
 - It cannot tell the difference between the two situations
-- With correlated features it fails the other way — 0.999 reported, with an
+- With correlated features it fails the other way: 0.999 reported, with an
   accuracy nothing like that
 - **The ranking may be useful while the probabilities are not**
 
@@ -780,7 +780,7 @@ calibration are different properties. A model can order examples usefully and
 still report numbers that mean nothing.
 
 The practical consequence, and it is concrete: do not use Naive Bayes anywhere a
-calibrated probability enters a decision — including lesson 4's cost calculation
+calibrated probability enters a decision - including lesson 4's cost calculation
 in section 7.2, where the threshold depends on the probability being real.
 :::
 
@@ -821,13 +821,13 @@ another line would have been equally good, and keep asking until the room sees
 that there are infinitely many, all with identical training error.
 
 So the error cannot decide. Something else has to. Logistic regression breaks the
-tie with log loss — a perfectly respectable answer, and one answer among several.
+tie with log loss - a perfectly respectable answer, and one answer among several.
 The SVM breaks it differently: take the boundary with the most room around it.
 
 The intuition, and this is the sentence to say slowly: maximising the distance to
 the closest points chooses the boundary that tolerates the most movement in the
 data before it changes its mind. That is a statement about GENERALISATION, not
-about fit — which is unusual, because almost everything else in this course
+about fit - which is unusual, because almost everything else in this course
 optimises fit and controls generalisation indirectly.
 
 Handout section 5.1.
@@ -842,15 +842,15 @@ The solid line is the boundary, the dashed lines are the edges of the slab, and
 the circled points are the support vectors touching it.
 
 The number to say out loud: of eighty points, THREE determine the answer. Move
-any of the other seventy-seven — anywhere, as far as you like, as long as they
-stay outside the slab — and the boundary does not shift by a millimetre.
+any of the other seventy-seven - anywhere, as far as you like, as long as they
+stay outside the slab - and the boundary does not shift by a millimetre.
 
 That is where the name comes from, and it is a genuinely different idea from
 anything so far. Every linear model in lessons 3 and 4 used every row: each one
 contributed to the gradient in proportion to its error. Here most of the data is
 irrelevant once the fit is done.
 
-Two consequences worth naming. The model is small — you store the support
+Two consequences worth naming. The model is small - you store the support
 vectors, not the dataset, which is the contrast with k-NN. And it is sensitive
 in a specific way: an outlier near the boundary matters enormously, while an
 outlier far from it matters not at all.
@@ -865,7 +865,7 @@ outlier far from it matters not at all.
 $$\min_{w, b, \xi} \ \tfrac{1}{2}\|w\|^2 + C\sum_i \xi_i \quad \text{s.t.} \quad y_i(w^\top x_i + b) \geq 1 - \xi_i$$
 
 ::: notes
-Do not derive this. State what each piece is doing and move on — handout section
+Do not derive this. State what each piece is doing and move on - handout section
 5.2 has the derivation, including why maximising the margin is the same as
 minimising the norm of w.
 
@@ -874,7 +874,7 @@ the exchange rate between them, and that is the entire content of the expression
 
 The point worth stressing is why the soft margin is not a patch or a
 convenience. With even one mislabelled point inside the other class, the strict
-problem is INFEASIBLE — there is no solution, not a bad one. Real data always
+problem is INFEASIBLE - there is no solution, not a bad one. Real data always
 contains such points. So the soft margin is the only version anyone ever runs;
 the hard-margin problem is a teaching device.
 
@@ -884,14 +884,14 @@ derivative tidy, exactly as in lesson 3's cost function.
 
 # C is the price of a training error
 
-- **Large C** — violations are expensive, so the model contorts to classify
+- **Large C**: violations are expensive, so the model contorts to classify
   everything. Narrow margin, low bias, high variance
-- **Small C** — a wider, calmer boundary, at the cost of some errors
+- **Small C**: a wider, calmer boundary, at the cost of some errors
 - The same dial as k in k-NN and λ in lesson 3, in a third costume
 - Note the direction: **large C means less regularisation**
 
 ::: notes
-Third appearance of the same idea, and say so — that repetition is the point.
+Third appearance of the same idea, and say so - that repetition is the point.
 Lesson 3 had λ, this morning had k, now C. Every model has one knob that trades
 fitting this data against surviving the next, and recognising it in an unfamiliar
 model is worth more than memorising three names.
@@ -899,7 +899,7 @@ model is worth more than memorising three names.
 Then the direction, which catches people out constantly and is worth writing on
 the board. Large λ means MORE regularisation. Large C means LESS. They run
 opposite ways, and scikit-learn's `C` parameter in `LogisticRegression` has the
-same inverted convention — it is the reciprocal of the penalty there too.
+same inverted convention - it is the reciprocal of the penalty there too.
 
 Ask them which way they would expect C to run before you tell them. Most guess
 wrong, and having guessed wrong once is what makes it stick.
@@ -913,7 +913,7 @@ wrong, and having guessed wrong once is what makes it stick.
 | SVM, RBF kernel | 0.947 ± 0.005 | 278 of 1,200 (23%) |
 
 ::: notes
-The linear kernel scores 0.613 — the base rate, exactly as logistic regression
+The linear kernel scores 0.613 - the base rate, exactly as logistic regression
 did this morning, with the same zero variance across folds.
 
 Make the point explicitly, because it is the one students most often get
@@ -923,7 +923,7 @@ line works, choosing the best one optimally still gets you nothing. A better
 criterion cannot rescue an inadequate hypothesis class.
 
 Then the RBF row, which is the same algorithm with one argument changed, at
-0.947 — the best number in the whole lesson, and within a hair of the 0.96
+0.947 - the best number in the whole lesson, and within a hair of the 0.96
 ceiling.
 
 The support-vector column says the same thing in a second language, and that is
@@ -934,14 +934,14 @@ the next slide.
 
 - The linear model needs **79%** of the training set to define its boundary
 - The RBF model needs **23%**
-- Almost every point sits on or inside the margin — there is no slab that
+- Almost every point sits on or inside the margin: there is no slab that
   separates anything
 - The count falls out of `fit` at no cost, and you should look at it
 
 ::: notes
 Explain what 79% actually means geometrically. A support vector is a point on
 the margin or inside it. If 79% of your data is in that position, there is no
-region of empty space between the classes at all — the model has been forced to
+region of empty space between the classes at all - the model has been forced to
 place a boundary through a crowd.
 
 Contrast with 23%, where the model found genuine room and only the points near
@@ -952,14 +952,14 @@ look at `len(model.support_)` over the number of training rows. High means the
 model is struggling to find room, which usually means the kernel is wrong for
 the geometry. It is a warning available BEFORE you cross-validate anything.
 
-Worth adding that it also predicts prediction cost — every support vector is one
+Worth adding that it also predicts prediction cost - every support vector is one
 kernel evaluation per query, so a model needing 79% of the data has thrown away
 most of the speed advantage over k-NN.
 :::
 
 # The kernel trick: they needed different coordinates
 
-- Healthy pumps in a disc, faulty ones around it — no line works **in the plane**
+- Healthy pumps in a disc, faulty ones around it: no line works **in the plane**
 - Add a third coordinate: the **distance from the design point**
 - Healthy pumps rise a little, faulty ones a lot, and a flat plane separates
   them perfectly
@@ -971,12 +971,12 @@ Take the scatter plot from the start of the lesson, lift each point off the page
 by its distance from the centre, and look from the side.
 
 Then the sentence that reframes the whole afternoon: the classes were never
-inseparable. Separability is not a property of the data — it is a property of
+inseparable. Separability is not a property of the data - it is a property of
 the data AND the coordinates you happen to have measured it in.
 
 Ask what is unsatisfying about what we just did, and wait for it. We chose that
 lift by already knowing the answer. We knew the fault mode was radial. In any
-real problem you do not, and inventing the right coordinate is the hard part —
+real problem you do not, and inventing the right coordinate is the hard part  - 
 which is exactly the difficulty the kernel trick removes.
 
 Handout section 5.4.
@@ -992,13 +992,13 @@ on the right lifted by their distance from the design point. The gold plane does
 what no line could.
 
 Have them look at the right panel and confirm for themselves that a flat
-horizontal cut separates the colours cleanly. Nothing was added — no new
+horizontal cut separates the colours cleanly. Nothing was added - no new
 measurement, no extra sensor. The third coordinate is computed from the two they
 already had.
 
 Then set up the objection that the next slide answers. This worked because the
 lift was three-dimensional and we could guess it. The spaces that work in general
-are enormous — the useful ones are sometimes infinite-dimensional — and
+are enormous - the useful ones are sometimes infinite-dimensional - and
 computing the coordinates of every point in such a space is impossible.
 :::
 
@@ -1015,7 +1015,7 @@ computing the coordinates of every point in such a space is impossible.
 The trick in one sentence: the SVM never needs the coordinates, only the angles
 and lengths between points, and those can be obtained without ever going there.
 
-Do not prove it — handout section 5.4 shows where the inner products come from
+Do not prove it - handout section 5.4 shows where the inner products come from
 in the dual formulation. The claim to state and let land is that a function of
 two ordinary two-dimensional vectors returns their inner product in a space of
 infinite dimension, at the cost of one exponential.
@@ -1036,12 +1036,12 @@ at its default.
 
 Read it aloud as a similarity rather than as a formula: the closer two points
 are, the nearer the exponent is to zero and the nearer the kernel is to one; far
-apart, it falls away to nothing. That is all an RBF kernel says — how much does
+apart, it falls away to nothing. That is all an RBF kernel says - how much does
 this point look like that one.
 
 Now say what γ means, because the next two slides turn on it: it sets how far a
 single training point's influence reaches. Small γ, wide reach, smooth boundary.
-Large γ, each point influences only its immediate neighbourhood — and a boundary
+Large γ, each point influences only its immediate neighbourhood - and a boundary
 that can afford an island around every mislabelled pump.
 
 Worth naming the cost, since this is an engineering course: one exponential per
@@ -1062,7 +1062,7 @@ the method rather than of the implementation.
 Read the two columns against each other, exactly as lesson 5 taught, and let the
 last row do the work.
 
-The bottom row has the best training score on the slide — 0.995, nearly perfect —
+The bottom row has the best training score on the slide - 0.995, nearly perfect  - 
 and the worst honest one. That is the signature of overfitting, and here it is
 not inferred from theory but measured on the same data by two different
 procedures.
@@ -1076,7 +1076,7 @@ lessons 3 and 4 doing. What breaks the analogy is that a flexible model can fit
 data it has already been shown without learning anything transferable.
 
 The reason this table is on the slide rather than in the handout is that the
-next slide shows the same three settings as pictures — so the failure is visible
+next slide shows the same three settings as pictures - so the failure is visible
 as well as measurable, which is rare.
 :::
 
@@ -1091,7 +1091,7 @@ together.
 Left, γ = 0.1: a smooth boundary, slightly too smooth, and the two scores agree.
 Middle, γ = 1: close to the true envelope, and the best honest score.
 
-Right is the one to sit on. The boundary has broken into bubbles — small islands
+Right is the one to sit on. The boundary has broken into bubbles - small islands
 around individual points, including the mislabelled ones. That is what a 0.995
 training score looks like from the outside: the model has drawn a private
 territory around each flipped label so that it can get it right.
@@ -1113,7 +1113,7 @@ plot it.
 Run notebooks/03. Eighteen minutes.
 
 The cell to protect is the γ sweep with the boundary drawn at each setting. Let
-them turn γ up themselves and watch the bubbles form — it is the most direct
+them turn γ up themselves and watch the bubbles form - it is the most direct
 experience of overfitting available in this course.
 
 Have them print the support-vector fraction for the linear and RBF kernels side
@@ -1141,12 +1141,12 @@ Everything in the lesson on the same 1,200 pumps, cross-validated the same way.
 
 Read the top three rows together: all exactly 0.613, and all three are linear.
 Then the bottom three, all near the ceiling, reached by three completely
-unrelated routes — remembering the neighbourhood, assuming independence, bending
+unrelated routes - remembering the neighbourhood, assuming independence, bending
 the space. There is no single idea shared between them.
 
 Then the number that is the lesson: the gap between best and worst is **0.334**.
 Larger than any difference this course has shown between a good model and a
-carefully tuned one — lesson 5's entire hyperparameter search moved things by a
+carefully tuned one - lesson 5's entire hyperparameter search moved things by a
 few hundredths.
 
 Say the conclusion plainly, and it is the practical takeaway of the whole
@@ -1173,7 +1173,7 @@ it is remembered as a set of conclusions rather than as advice.
 Row two deserves a sentence on its own, because it is the one that sounds wrong
 after the last hour. Text classification is the canonical case: tens of thousands
 of word-count features, an assumption that is transparently false, and a method
-that works anyway — because being roughly right in ten thousand dimensions beats
+that works anyway - because being roughly right in ten thousand dimensions beats
 being unable to estimate anything at all. Also mention Naive Bayes as a baseline:
 it trains in one pass, so if your tuned model does not beat it you have learned
 something quickly and cheaply.
@@ -1220,7 +1220,7 @@ Handout section 7 lists all of this with the section numbers.
 Set it explicitly and say the deadline out loud: next Friday, 6 November.
 
 The marks are for the reasoning, not for the accuracy. A well-argued choice that
-scores slightly worse beats a lucky winner with no justification — and the
+scores slightly worse beats a lucky winner with no justification - and the
 argument has to reference the data, in the way that the −0.006 justified Naive
 Bayes on the pumps this afternoon.
 
@@ -1229,6 +1229,6 @@ in the format lesson 5 set. Scaling goes inside the pipeline; that will be
 checked.
 
 Next week: decision trees and ensembles. A fourth family, with a different
-answer again to the same question — how do you draw a boundary that is not a
+answer again to the same question - how do you draw a boundary that is not a
 line.
 :::

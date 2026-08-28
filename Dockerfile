@@ -7,7 +7,15 @@
 # fix-permissions and start-notebook.sh come from it, and they are what stops
 # students hitting "cannot save notebook" when the host UID does not match
 # jovyan's. See the comment in docker-compose.yml.
-FROM quay.io/jupyter/minimal-notebook:python-3.11
+#
+# Pinned by digest, not by tag. `python-3.11` moves: rebuilding from it on a
+# later day brings a different freetype, every matplotlib glyph rasterises a
+# pixel differently, and `make_figures.py` reports the whole lesson as changed
+# without a line of source having moved. CLAUDE.md asks for figures to be
+# regenerated in one environment only; a floating tag quietly makes that
+# impossible. To move to a newer base, change this digest deliberately and
+# re-render every figure in the same commit.
+FROM quay.io/jupyter/minimal-notebook@sha256:1f1fab5b452289aff0ed9c6d85a58f555a4682b773f1dad08c2fdb35273e9ea4
 
 WORKDIR /home/jovyan/work
 

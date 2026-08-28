@@ -1,7 +1,7 @@
 ---
-title: "Lesson 8 — Unsupervised Learning"
+title: "Lesson 8: Unsupervised Learning"
 subtitle: "Technologies for Artificial Intelligence"
-author: "Fabio Antonini — Università degli Studi dell'Aquila"
+author: "Fabio Antonini, Università degli Studi dell'Aquila"
 date: "13 November 2026"
 ---
 
@@ -15,14 +15,14 @@ date: "13 November 2026"
 
 ::: notes
 Frame the whole lesson before the first slide of content. Every method met
-so far in this course — regression, logistic regression, trees, ensembles —
+so far in this course - regression, logistic regression, trees, ensembles  - 
 learned from pairs: an input and a target. Today removes the target
 entirely. The task changes from "predict the label" to "describe the
 structure": which points look alike, which few numbers summarise the many,
 which points do not belong.
 
 Say the running example once, up front: a fictional retailer, Aurora, and
-three of its actual questions, one per notebook — segmenting customers,
+three of its actual questions, one per notebook - segmenting customers,
 telling bots from humans, and catching disguised fraud. None of the three
 has a $y$ supplied by anyone.
 
@@ -39,22 +39,22 @@ Handout section 1.
 
 ::: notes
 Hand back exercise 7 briefly. A sentence on what went well, a sentence on
-the recurring gap — several reports read the random forest's importance
+the recurring gap - several reports read the random forest's importance
 ranking as settled fact rather than as something section 7 of that lesson
 showed could be dominated by noise columns.
 
 Link forward: today has no labels at all, so there is no accuracy score to
 fall back on even provisionally. The obligation to check a result does not
-go away just because there is no $y$ to check it against — it changes
+go away just because there is no $y$ to check it against - it changes
 shape, and section 4 of today's handout is entirely about that change.
 :::
 
 # No $y$ at all
 
 - Every method so far learned from pairs: input $x$, target $y$
-- **Unsupervised learning** removes $y$ — measurements, no answer key
+- **Unsupervised learning** removes $y$: measurements, no answer key
 - The question: not "predict the label" but "describe the structure"
-- Most organisational data was never labelled — expensive, slow, often
+- Most organisational data was never labelled: expensive, slow, often
   not well-defined
 - Often the *first* pass on a dataset
 
@@ -62,7 +62,7 @@ shape, and section 4 of today's handout is entirely about that change.
 Make the shift concrete rather than abstract. Ask the room: if you were
 handed 2,000 customers' spending records with no group name attached to
 any of them, what would "a good answer" even mean, before any algorithm
-runs? There is no accuracy to check against — only whether the grouping
+runs? There is no accuracy to check against - only whether the grouping
 looks and behaves like something real.
 
 That is the conceptual pivot for the whole three hours: every diagnostic
@@ -81,18 +81,18 @@ Handout section 1.
   (**hierarchical clustering, DBSCAN**, nb. 02)
 - **Catch disguised fraud** in an 8-column table, ordinary on every column
   (**PCA**, nb. 03)
-- Every dataset is synthetic — its truth is normally hidden
+- Every dataset is synthetic: its truth is normally hidden
 
 ::: notes
 Walk the three problems as three genuinely different shapes of "no
-labels" — not three demonstrations of the same idea. Segmenting customers
+labels" - not three demonstrations of the same idea. Segmenting customers
 is close to what students probably picture when they hear "clustering."
 Bots-versus-humans is deliberately built to break that picture: same mean,
 different spread. The fraud problem breaks it again: individually
 unremarkable values, anomalous only in combination.
 
 Say explicitly that one notebook is not "the more advanced version" of
-another — each is chosen because a different method is the right tool for
+another - each is chosen because a different method is the right tool for
 it, and section 8 of the handout is the summary table of when to reach for
 which.
 
@@ -103,13 +103,13 @@ Handout section 1.1.
 
 - `Notebooks/retail_data.py` publishes the **true** structure as `TRUE_*`
   constants
-- This lesson can check every method against a real answer — Aurora's own
+- This lesson can check every method against a real answer: Aurora's own
   analysts never could
 - Hold onto that asymmetry: it makes today teachable, and it is exactly
   what is missing the first time this runs on real data
 
 ::: notes
-This is a methodological point, not a throwaway remark — flag it so it
+This is a methodological point, not a throwaway remark - flag it so it
 does not get lost under the numbers that follow. Every "matches the truth"
 claim this lesson makes (ARI scores, the scree plot recovering exactly
 3 latent factors) is only checkable because the data was built for
@@ -126,13 +126,13 @@ Handout section 1.1.
 
 ::: notes
 Let the picture sit for a moment before saying anything. Four clouds are
-visible to the eye before any algorithm runs — ask the room to count them
+visible to the eye before any algorithm runs - ask the room to count them
 before you say the number.
 
 That is not an accident of this dataset: it is exactly the structure
 k-means is built to exploit, and it is why this figure opens the section
 rather than any equation. The "try this" in the handout asks students to
-predict, from the four segment means alone, where each cloud should sit —
+predict, from the four segment means alone, where each cloud should sit  - 
 worth mentioning as a pre-read they can still do retroactively.
 
 Handout section 2.
@@ -155,7 +155,7 @@ picture each cluster as having one representative point, and ask what
 "good" means for such a picture. Then say that k-means turns "close" into
 a squared distance and adds it up.
 
-Flag the two-kinds-of-variable structure before the objective appears —
+Flag the two-kinds-of-variable structure before the objective appears  - 
 it is the reason the algorithm on the next few slides is two alternating,
 each individually easy, steps rather than one hard search.
 
@@ -166,7 +166,7 @@ Handout section 2.1.
 
 - Minimise, jointly, over the cluster centres $\mu_j$ **and** every
   assignment $r_{ij}$
-- $r_{ij} = 1$ if point $i$ is assigned to cluster $j$, else $0$ — exactly
+- $r_{ij} = 1$ if point $i$ is assigned to cluster $j$, else $0$: exactly
   one $1$ per row
 - This quantity has a name: **within-cluster sum of squares (WCSS)**, or
   *inertia* in scikit-learn
@@ -175,7 +175,7 @@ Handout section 2.1.
 Set the two unknowns up before showing the formula on the next slide:
 k-means is searching over the cluster centres *and* the assignment of
 every point at once, and $r_{ij}$ is just bookkeeping for which point goes
-where — 1 if point $i$ is in cluster $j$, 0 otherwise, exactly one 1 per
+where - 1 if point $i$ is in cluster $j$, 0 otherwise, exactly one 1 per
 row.
 
 Handout section 2.1.
@@ -191,7 +191,7 @@ to the centre of the cluster it belongs to; add that up over all points.
 
 This cannot be minimised in one shot: choosing the best assignment needs
 the centres, and choosing the best centres needs the assignment. Do not
-derive the two closed-form minimisations here — state that they exist and
+derive the two closed-form minimisations here - state that they exist and
 move to what they say on the next slide. The full derivation, including
 the gradient that gives the mean as the exact minimiser, is handout
 section 2.1, for after the lecture.
@@ -202,14 +202,14 @@ Handout section 2.1.
 # Lloyd's algorithm: assign, then update, repeat
 
 - **Assign step**: centres fixed, send every point to its **nearest**
-  centre — exact minimiser over assignments
+  centre: exact minimiser over assignments
 - **Update step**: assignment fixed, move every centre to the **mean** of
-  its points — where the algorithm's name comes from
+  its points, where the algorithm's name comes from
 - Alternate the two until nothing changes
-- Each step is an exact minimisation — no approximation, no step size
+- Each step is an exact minimisation, no approximation, no step size
 
 ::: notes
-Both steps are genuinely exact, not heuristic approximations — worth
+Both steps are genuinely exact, not heuristic approximations - worth
 stressing, since students have just spent two lessons on gradient descent,
 where every step is approximate. Here, each half of the alternation solves
 its half of the problem exactly: nearest-centre assignment is provably
@@ -228,18 +228,18 @@ Handout section 2.1.
   ever **increase** $J$
 - $J$ is bounded below by 0, with only finitely many ways to partition $m$
   points into $k$ groups
-- Never increasing, cannot fall forever: the sequence must repeat — that
+- Never increasing, cannot fall forever: the sequence must repeat, and that
   is convergence
-- It converges to a **local** minimum — not necessarily the **global** one
+- It converges to a **local** minimum, not necessarily the **global** one
 
 ::: notes
 This is the argument for why Lloyd's algorithm terminates at all, and it
-is worth giving in full even though it is not a derivation of a formula —
+is worth giving in full even though it is not a derivation of a formula  - 
 it is three short facts (non-increasing, bounded below, finitely many
 partitions) chained together, and it is the kind of argument students will
 meet again.
 
-The sting is in the last bullet. Converged does not mean correct — it
+The sting is in the last bullet. Converged does not mean correct - it
 means stuck, possibly at a bad local minimum. That is exactly what the
 next few slides measure.
 
@@ -255,14 +255,14 @@ Handout section 2.1.
 | 2 | `[0 0 1 1 0 1]` | 4.674 | 4.674 |
 
 ::: notes
-Six standardised customers, two deliberately bad initial centres — the
+Six standardised customers, two deliberately bad initial centres - the
 first two points in the dataset. Walk the WCSS column: 15.965, 7.281,
-5.491, 4.674 — falling at every single step, exactly as the previous slide
+5.491, 4.674 - falling at every single step, exactly as the previous slide
 argued it must.
 
 By iteration 2 the assignment repeats and both steps leave $J$ unchanged:
 converged. In this particular six-point case it happens to be the global
-optimum — say clearly that this is a property of this small example, not
+optimum - say clearly that this is a property of this small example, not
 a guarantee, since section 2.2 is about exactly the case where it is not.
 
 `Docs/worked_examples.py` reproduces this table directly from
@@ -273,20 +273,20 @@ a guarantee, since section 2.2 is about exactly the case where it is not.
 
 - 30 independent naive random starts of Lloyd's algorithm on the
   2,000-customer data
-- Best final WCSS: **374.1**. Worst: **1,390.4** — **3.7 times worse**,
+- Best final WCSS: **374.1**. Worst: **1,390.4**, **3.7 times worse**,
   same data, same update rule
 - This happened on the very **first** attempt (worst of 30), not a rare
   one-in-a-thousand pathology
-- The naive fix — $k$ points picked uniformly at random — gives no way to
+- The naive fix ($k$ points picked uniformly at random) gives no way to
   tell in advance which kind of run you got
 
 ::: notes
 Land the number, then the framing. Nothing about the update rule changed
-between the best run and the worst — only where the search started. That
+between the best run and the worst - only where the search started. That
 is the entire content of "local, not global minimum" made concrete.
 
 Ask the room: if you ran this once, on real data, with no truth to check
-against, how would you know which kind of run you got? You would not — the
+against, how would you know which kind of run you got? You would not - the
 WCSS value alone does not distinguish a global optimum from a mediocre
 local one, because you have no reference point.
 
@@ -302,10 +302,10 @@ Say the rule in words first: the first centre is a uniformly random point;
 every centre after that is picked with probability proportional to its
 squared distance from the nearest centre already chosen. A point already
 close to an existing centre is unlikely to be picked again; a point far
-from everything picked so far — plausibly the seed of an as-yet-unrepresented
-cluster — is favoured.
+from everything picked so far - plausibly the seed of an as-yet-unrepresented
+cluster - is favoured.
 
-This is initialisation only — Lloyd's algorithm afterward is completely
+This is initialisation only - Lloyd's algorithm afterward is completely
 unchanged. It addresses exactly the risk on the previous slide, by making
 a bad draw of starting centres much less likely.
 
@@ -315,19 +315,19 @@ Handout section 2.2.
 # k-means++, measured
 
 - Same 30 seeds, k-means++ instead of naive random
-- Range narrows to **374.1–1,088.3** — worst case improves ~300 units
+- Range narrows to **374.1–1,088.3**: worst case improves ~300 units
 - Reaches the **global optimum on the first attempt**, default settings
 - `sklearn.cluster.KMeans` uses k-means++ plus 10 restarts, by default
 - Notebook 01's from-scratch version matches it to within $10^{-4}$ of WCSS
 
 ::: notes
-Read the range change against the previous slide's 374.1–1,390.4 —
+Read the range change against the previous slide's 374.1–1,390.4  - 
 narrower, and reaching the optimum immediately rather than only sometimes.
 This is why k-means++ is the library default rather than an optional
 extra.
 
 The $10^{-4}$ agreement is worth naming explicitly as a genuine check, not
-an assumption — the from-scratch and scikit-learn implementations are
+an assumption - the from-scratch and scikit-learn implementations are
 searching for the same optimum from starts drawn the same way, and the
 notebook confirms it rather than takes it on faith.
 
@@ -337,9 +337,9 @@ Handout section 2.2.
 # Choosing $k$
 
 - $k$ is an **input** to k-means, not something the algorithm discovers
-- WCSS is monotonically non-increasing in $k$ — at $k=m$, $J=0$ exactly
+- WCSS is monotonically non-increasing in $k$: at $k=m$, $J=0$ exactly
 - So the raw value of $J$ at the "best" $k$ is not the signal
-- **The elbow**: where the WCSS curve stops falling steeply — past the
+- **The elbow**: where the WCSS curve stops falling steeply, past the
   true count, an extra centre only subdivides an already-coherent group
 
 ::: notes
@@ -347,7 +347,7 @@ Make the trap explicit: a student who does not think about this will be
 tempted to pick the $k$ with the lowest WCSS, and the lowest WCSS is
 always the largest $k$ tried, which is a useless answer.
 
-The elbow logic is a shape argument, not a threshold — ask the room how
+The elbow logic is a shape argument, not a threshold - ask the room how
 they would describe "where the curve stops falling steeply" precisely
 enough to automate it. The honest answer is that it is somewhat
 subjective, which motivates a second, more quantitative diagnostic on the
@@ -380,11 +380,11 @@ $$s_i = \frac{b_i - a_i}{\max(a_i, b_i)} \in [-1, 1]$$
 Walk the three regimes: $s_i \to 1$ when a point sits deep inside its own
 cluster and far from every other; $s_i \approx 0$ on a boundary between
 two clusters; $s_i < 0$ when a point is, on average, closer to a different
-cluster than its own — an assignment the silhouette treats as actively
+cluster than its own - an assignment the silhouette treats as actively
 wrong.
 
 Averaged over all points, this gives one number per $k$ that is a genuine
-quantity to search over, not only a shape to eyeball — a sharper diagnostic
+quantity to search over, not only a shape to eyeball - a sharper diagnostic
 than the elbow, and one that measures something related but not identical:
 whether every point sits closer to its own group than to any rival.
 
@@ -398,13 +398,13 @@ Handout section 2.3.
 ::: notes
 WCSS falls sharply through $k=4$ and flattens after; silhouette peaks at
 $k=4$ and then declines. Point out that the two curves are answering
-different questions — WCSS asks only "does adding a cluster help," which
+different questions - WCSS asks only "does adding a cluster help," which
 is agnostic to what a cluster means; silhouette asks whether every point
 is closer to its own group than to any rival, a stronger, more geometric
 condition.
 
 Say plainly that the two diagnostics agreeing here is a property of this
-dataset's four well-separated, comparably sized blobs — not a guarantee.
+dataset's four well-separated, comparably sized blobs - not a guarantee.
 Section 4 of the handout returns to a dataset where a diagnostic can be
 confidently wrong.
 
@@ -413,8 +413,8 @@ Handout section 2.3.
 
 # Both point to $k=4$
 
-- WCSS at $k=4$: **374.1** — the sharpest bend in the elbow curve
-- Silhouette at $k=4$: **0.690** — the peak across $k=1$ to $8$
+- WCSS at $k=4$: **374.1**, the sharpest bend in the elbow curve
+- Silhouette at $k=4$: **0.690**, the peak across $k=1$ to $8$
 - Both match the number of segments the data was actually built with
 - Agreement here is worth noting precisely **because** it does not always
   happen, and is not required to
@@ -422,7 +422,7 @@ Handout section 2.3.
 ::: notes
 State both numbers before the punchline. The agreement is genuinely nice
 for teaching, but resist letting the class walk away thinking the two
-diagnostics always agree — that is exactly the kind of overclaim the
+diagnostics always agree - that is exactly the kind of overclaim the
 handout's "predictable mistake" boxes exist to head off, and this lesson's
 own section 4 will show a case where a diagnostic looks fine and is not.
 
@@ -436,7 +436,7 @@ Handout section 2.3.
 ::: notes
 Left: the true segments, generated by `retail_data.py`, never shown to
 k-means. Right: k-means' own $k=4$ clustering, fitted centres marked.
-Visually near-identical — say the number on the next slide rather than
+Visually near-identical - say the number on the next slide rather than
 here, since this slide is the figure alone.
 
 Repeat the asymmetry from earlier: this comparison exists only because the
@@ -450,16 +450,16 @@ Handout section 2.3.
 
 - Compares two labellings: a **random** assignment scores 0, **identical**
   labellings score 1
-- Cluster "0" need not mean the same thing on both sides — relabelling is
+- Cluster "0" need not mean the same thing on both sides: relabelling is
   handled
-- k-means vs. the true segments: **0.985** — near-perfect
+- k-means vs. the true segments: **0.985**, near-perfect
 - An **external** metric: needs a ground truth, which section 4 asks about
   when there isn't one
 
 ::: notes
 Give the definition before the number, since ARI will recur for the rest
 of the lesson as the standard way to score a clustering against a truth.
-0.985 is about as good as this metric gets — worth contrasting later
+0.985 is about as good as this metric gets - worth contrasting later
 against the bot/human numbers in section 3, which come out negative.
 
 Bridge forward explicitly: everything scored today with ARI is only
@@ -480,7 +480,7 @@ Handout section 2.3.
 Run Notebooks/01_kmeans_from_scratch.ipynb. Twenty minutes.
 
 Have them watch the from-scratch assign/update loop converge on the
-six-point worked example before scikit-learn's version ever runs — the
+six-point worked example before scikit-learn's version ever runs - the
 agreement is checked, not assumed.
 
 The cell worth protecting if time is short is the 30-seed initialisation
@@ -492,15 +492,15 @@ reading it off a slide.
 
 - Security suspects some of 1,500 sessions were automated
 - Two features: duration in minutes, pages viewed
-- **12%** are, by construction, **bots** — scripted, behaviourally
+- **12%** are, by construction, **bots**: scripted, behaviourally
   consistent
-- Bots and humans share the **same mean** — bots a tight cloud, humans a
+- Bots and humans share the **same mean**: bots a tight cloud, humans a
   diffuse ring around that same centre
 - No straight cut separates them, because there are no two offset clouds
 
 ::: notes
 Set this up as a deliberate provocation, not a natural dataset. Section 2
-just showed k-means recovering four clusters almost perfectly — this
+just showed k-means recovering four clusters almost perfectly - this
 section is built specifically to break the assumption that made that
 possible.
 
@@ -519,7 +519,7 @@ Handout section 3.1.
 ::: notes
 A dense smudge sitting inside a much larger, looser cloud, both centred in
 roughly the same place. Let the room look for a gap a linear or round
-boundary could exploit — there isn't one, and that is the point.
+boundary could exploit - there isn't one, and that is the point.
 
 Contrast directly with the four visible clouds from section 2's opening
 figure: same task (cluster with no labels), a completely different
@@ -531,13 +531,13 @@ Handout section 3.1.
 # k-means on this shape
 
 - Run k-means with $k=2$ on the session data
-- ARI: **$-0.046$** — indistinguishable from a random split
-- Not a tuning or initialisation failure — no starting point fixes it
+- ARI: **$-0.046$**, indistinguishable from a random split
+- Not a tuning or initialisation failure, no starting point fixes it
 - WCSS wants round, compact clusters; the only cut through this cloud
   slices **both** the bot core and the human ring in half
 
 ::: notes
-Stress "no starting point fixes it" — this is not the local-minimum
+Stress "no starting point fixes it" - this is not the local-minimum
 problem from section 2.2, which k-means++ addresses. This is a mismatch
 between what k-means optimises (compactness) and what the data actually
 looks like (a core and a surrounding ring, same centre). Better
@@ -545,7 +545,7 @@ initialisation cannot fix an objective that is the wrong shape for the
 data.
 
 Ask the room: what would a "cluster" need to mean for this shape to be
-findable at all? The answer — density, not compactness — is where the
+findable at all? The answer - density, not compactness - is where the
 next two sections go.
 
 Handout section 3.1.
@@ -555,14 +555,14 @@ Handout section 3.1.
 
 - Start with every point as its **own** cluster
 - Repeatedly merge the two **closest** clusters, recording every merge as
-  a branch in a tree — a **dendrogram**
+  a branch in a tree: a **dendrogram**
 - Cutting the tree at a height is equivalent to choosing $k$: branches
   crossed = cluster count
-- "Closest" needs a rule for distance **between clusters** — the
+- "Closest" needs a rule for distance **between clusters**: the
   **linkage criterion**
 
 ::: notes
-Introduce the dendrogram as an object before any linkage rule — the tree
+Introduce the dendrogram as an object before any linkage rule - the tree
 itself is the useful idea, and any linkage rule can build one. Say
 explicitly that choosing $k$ after the fact, by cutting the tree at a
 height, is a genuinely different workflow from k-means, where $k$ has to
@@ -576,14 +576,14 @@ Handout section 3.2.
 
 # Four notions of "closest"
 
-- **Single**: closest pair — can chain a winding path, or bridge two
+- **Single**: closest pair, which can chain a winding path, or bridge two
   groups at one touching point
-- **Complete**: farthest pair — favours compact groups
-- **Average**: mean distance over every cross-pair — a compromise
-- **Ward**: least added variance — the *same* objective k-means minimises
+- **Complete**: farthest pair, which favours compact groups
+- **Average**: mean distance over every cross-pair, a compromise
+- **Ward**: least added variance, the *same* objective k-means minimises
 
 ::: notes
-Four rules, four different biases — worth naming what each one is built to
+Four rules, four different biases - worth naming what each one is built to
 find, since the next slide is going to show all four failing on this
 particular dataset for two different reasons.
 
@@ -600,7 +600,7 @@ Handout section 3.2.
 
 ::: notes
 A branch peeling off single points one at a time, rather than splitting
-into two comparably sized halves, is the visual signature of chaining —
+into two comparably sized halves, is the visual signature of chaining  - 
 point it out directly on the figure, even at this small 60-session sample.
 
 This is a preview of what the full 1,500-session numbers on the next slide
@@ -621,16 +621,16 @@ Handout section 3.2.
 
 ::: notes
 Read the two failure modes separately, they are not the same failure.
-Ward and complete fail for the same reason k-means did — both still search
+Ward and complete fail for the same reason k-means did - both still search
 for compact, comparably sized pieces, which this shape does not have.
 Single and average instead produce one cluster of 1,499 points and a
-cluster of size 1 — not a discovery, but chaining: the algorithm absorbed
+cluster of size 1 - not a discovery, but chaining: the algorithm absorbed
 almost the entire dataset along its densest path before running out of
 points to merge.
 
 Land the summary line: **all four linkage rules score at or below zero
 ARI**. Hierarchical clustering, by itself, is not a fix for the shape
-problem — it needs a rule that looks for density rather than compactness
+problem - it needs a rule that looks for density rather than compactness
 or chained proximity.
 
 Handout section 3.2.
@@ -642,14 +642,14 @@ Handout section 3.2.
 
 ::: notes
 Twelve minutes. What comes back after the break is the method that
-actually solves the bot/human problem — worth saying, so the room returns
+actually solves the bot/human problem - worth saying, so the room returns
 with the open question fresh: what would a cluster need to mean for that
 ring-around-a-core shape to be findable?
 :::
 
 # DBSCAN: density instead of shape
 
-- **DBSCAN** — density-based spatial clustering of applications with noise
+- **DBSCAN**: density-based spatial clustering of applications with noise
 - Classifies points by neighbourhood crowding: radius `eps`, minimum count
   `min_samples`
 - **Core point**: at least `min_samples` others within `eps`
@@ -658,10 +658,10 @@ ring-around-a-core shape to be findable?
 
 ::: notes
 Say the name in full once, then use the acronym. Walk the three point
-types slowly — core, border, noise — since the next slide's definition of
+types slowly - core, border, noise - since the next slide's definition of
 a cluster depends on all three.
 
-Nothing here mentions a centre or a mean — flag that explicitly as the
+Nothing here mentions a centre or a mean - flag that explicitly as the
 structural difference from everything in sections 2 and 3.2.
 
 Handout section 3.3.
@@ -672,9 +672,9 @@ Handout section 3.3.
 - A **maximal set of core points**, chained by mutual `eps`-closeness, plus
   every attached border point
 - No centre, no mean, no shape assumption in the definition
-- A compact core **and**, separately, a diffuse ring both count — if dense
+- A compact core **and**, separately, a diffuse ring both count: if dense
   enough at the scale `eps` measures
-- Points can belong to **nothing** — noise is first-class, not an error
+- Points can belong to **nothing**: noise is first-class, not an error
 
 ::: notes
 This is the slide that answers the question left open before the break:
@@ -682,7 +682,7 @@ a cluster defined by density, rather than compactness, can be a ring
 around a core, because nothing in the definition forces round or convex
 shapes.
 
-The "noise is first-class" point matters on its own — every method in
+The "noise is first-class" point matters on its own - every method in
 sections 2 and 3.2 must assign every point to exactly one cluster. DBSCAN
 does not, and section 3.3's numbers later show exactly what that buys.
 
@@ -692,15 +692,15 @@ Handout section 3.3.
 # Choosing eps: the parameter that matters most
 
 - Too small: even the dense bot core fractures into isolated noise points
-- Too large: the ring bridges back into the core — everything merges, as
+- Too large: the ring bridges back into the core, everything merges, as
   Ward linkage did
 - A **$k$-distance plot**: distance from every point to its
   `min_samples`-th nearest neighbour, sorted
-- Dense regions give a small distance, sparse ones a large one — the plot
+- Dense regions give a small distance, sparse ones a large one: the plot
   typically bends sharply between the two
 
 ::: notes
-Two failure directions, both bad, and `eps` sits between them — motivate
+Two failure directions, both bad, and `eps` sits between them - motivate
 the $k$-distance plot as a principled way to find that middle point rather
 than guessing.
 
@@ -721,7 +721,7 @@ Handout section 3.3.
 stays low and flat through most of the range and bends sharply upward near
 the end.
 
-`eps = 0.30` sits just past the bend, in the flat region — point at
+`eps = 0.30` sits just past the bend, in the flat region - point at
 exactly where on the curve that is. This is the value used on the next
 slide's results.
 
@@ -738,13 +738,13 @@ Handout section 3.3.
 
 ::: notes
 0.941 against k-means' $-0.046$ and Ward's $-0.062$ on the identical
-dataset — same data, a method built for the actual shape.
+dataset - same data, a method built for the actual shape.
 
 Worth reading the noise points individually rather than as a rounding
 error: checking their true label shows all 13 are genuine human sessions,
-not misplaced bots — sessions whose one week of browsing happened, by
+not misplaced bots - sessions whose one week of browsing happened, by
 chance, to look almost as mechanically regular as a script's. DBSCAN's
-answer for them — not confidently either group — is more honest than a
+answer for them - not confidently either group - is more honest than a
 forced binary label, and it is an answer no method in section 2 or 3.2 can
 even give.
 
@@ -758,10 +758,10 @@ Handout section 3.3.
 ::: notes
 True group, k-means, and DBSCAN on the same axes. DBSCAN's cluster
 boundary follows the actual density gap; k-means' straight cut does not
-exist in this data at all — point directly at the contrast rather than
+exist in this data at all - point directly at the contrast rather than
 describing it.
 
-This is the single figure to leave up longest in this segment — it makes
+This is the single figure to leave up longest in this segment - it makes
 the whole section's argument visible in one look.
 
 Handout section 3.3.
@@ -772,17 +772,17 @@ Handout section 3.3.
 | Week | ARI at `eps = 0.30` | Knee `eps` | ARI at knee |
 |---|---|---|---|
 | this one | **0.941** | 0.258 | 0.890 |
-| week 4 | **−0.012** — *one cluster* | 0.226 | 0.858 |
-| week 5 | **−0.009** — *one cluster* | 0.232 | 0.887 |
+| week 4 | **−0.012**, *one cluster* | 0.226 | 0.858 |
+| week 5 | **−0.009**, *one cluster* | 0.232 | 0.887 |
 | the other four | 0.93 – 0.96 | 0.21 – 0.23 | 0.79 – 0.85 |
 
 ::: notes
-Seven weeks regenerated from the same generator — same site, same bot
+Seven weeks regenerated from the same generator - same site, same bot
 fraction, same shapes, different individual sessions. Read the two ARI
 columns against each other before saying anything.
 
 **The constant does not transfer.** On two of the seven, DBSCAN returns a
-single cluster and an ARI of zero. Not a worse answer — no answer at all.
+single cluster and an ARI of zero. Not a worse answer - no answer at all.
 The reason is in the knee column: 0.30 is larger than any of these weeks'
 own curves suggest, and on those two draws it is large enough to bridge the
 density gap and swallow the ring into the core.
@@ -791,7 +791,7 @@ density gap and swallow the ring into the core.
 curve and the split comes back every time, at 0.79 to 0.89.
 
 Now the row to sit on, and it is the first one. On the week we studied, the
-hand-picked 0.30 *beats* the recipe — 0.941 against 0.890. Say the
+hand-picked 0.30 *beats* the recipe - 0.941 against 0.890. Say the
 consequence out loud: the tuned constant is better where it works and absent
 where it does not.
 
@@ -808,7 +808,7 @@ Handout section 3.4.
 | Situation | Reach for |
 |---|---|
 | Clusters plausibly round, similar size, $k$ known or searchable | k-means |
-| Want the hierarchy itself — nested groupings at every scale | Agglomerative clustering |
+| Want the hierarchy itself: nested groupings at every scale | Agglomerative clustering |
 | Clusters irregular, nested, or of very different densities; outliers should be flagged | DBSCAN |
 | Dataset is very large, every point must be assigned to something | k-means (DBSCAN's noise needs a policy) |
 
@@ -817,11 +817,11 @@ This table is worth reading as a decision the data makes, not the analyst.
 The predictable mistake, from the handout: having watched k-means recover
 the customer segments almost perfectly in section 2, the reasonable
 conclusion is that clustering as a category works well. The instinct is
-not wrong about k-means specifically — it is wrong about clustering being
+not wrong about k-means specifically - it is wrong about clustering being
 one method with one assumption.
 
 k-means and Ward both optimise "compact and round"; DBSCAN optimises
-"densely connected" — a nested structure like today's bot core is exactly
+"densely connected" - a nested structure like today's bot core is exactly
 where the two notions give opposite answers, and which definition is
 right is a property of the data, not the algorithm.
 
@@ -837,7 +837,7 @@ Handout section 3.5.
 ::: notes
 Run Notebooks/02_hierarchical_and_dbscan.ipynb. Twenty minutes.
 
-Protect the `eps` sweep if time is short — watching ARI rise and then fall
+Protect the `eps` sweep if time is short - watching ARI rise and then fall
 again as `eps` moves past the bend makes the "too small fractures, too
 large merges" argument concrete rather than asserted.
 
@@ -847,7 +847,7 @@ reading the number off a slide.
 
 # No answer key this time
 
-- Every check so far — ARI in sections 2 and 3 — used a ground truth this
+- Every check so far, ARI in sections 2 and 3, used a ground truth this
   lesson happens to have because the data is synthetic
 - Aurora's actual analysts, on real customer or session data, will never
   have that
@@ -859,8 +859,8 @@ Return explicitly to the asymmetry flagged in section 1: everything scored
 with ARI today is checkable only because the truth is published. This
 section is about what is left when it is not.
 
-Set up the two-way split before naming either family — internal (only the
-clustering and the data) versus external (an outside answer key) — the
+Set up the two-way split before naming either family - internal (only the
+clustering and the data) versus external (an outside answer key) - the
 next two slides take one each.
 
 Handout section 4.
@@ -868,16 +868,16 @@ Handout section 4.
 
 # Internal metrics: only the clustering and the data
 
-- Use **no** outside answer key — computed from the clustering and the
+- Use **no** outside answer key: computed from the clustering and the
   points alone
 - **Silhouette**: are points closer to their own cluster than to any
   other? Answerable from the clustering alone
-- **WCSS**: usable, but weaker — only comparable across different $k$ on
+- **WCSS**: usable, but weaker, only comparable across different $k$ on
   the *same* algorithm, not across different methods
 - Always available, even when nothing else is
 
 ::: notes
-Silhouette already appeared in section 2.3 as a way to choose $k$ — here
+Silhouette already appeared in section 2.3 as a way to choose $k$ - here
 it is being recast as one member of a broader category, "internal
 metrics," which is the useful generalisation.
 
@@ -891,23 +891,23 @@ Handout section 4.
 
 # External metrics: an outside answer key
 
-- Compare a clustering against a **separate** labelling assumed correct —
+- Compare a clustering against a **separate** labelling assumed correct,
   ARI and its relatives
 - Here: the data generator's `true_segment` / `true_group`
 - In practice: a hand-labelled sample, a business rule, or a downstream
-  outcome — did the "bot" cluster get blocked and never return?
+  outcome: did the "bot" cluster get blocked and never return?
 - When such a signal exists, even partial or noisy, **use it**
 
 ::: notes
 The examples of a real-world external signal matter more than the
-definition here — a downstream outcome (blocked and never returned) is
+definition here - a downstream outcome (blocked and never returned) is
 the kind of proxy label that is available far more often than a clean,
 hand-verified truth, and it is worth spending a moment on that it counts
 even when partial or noisy.
 
 Set up the punchline explicitly: internal metrics can be confidently
 wrong, because they have no way to know the clustering's underlying
-assumption is the wrong one for this data — only whether it is
+assumption is the wrong one for this data - only whether it is
 self-consistent. That is the next slide.
 
 Handout section 4.
@@ -916,18 +916,18 @@ Handout section 4.
 # What silhouette can't see
 
 - A silhouette of 0.69, reported alone, sounds like strong endorsement
-- It only endorses **relative to what the metric can see** — the shape it
+- It only endorses **relative to what the metric can see**: the shape it
   was given, not the assumption
 - k-means on the bot/human data (ARI $\approx -0.046$) still gets a
   positive, unremarkable score
-- Silhouette measures **roundness**, not correctness — k-means always
+- Silhouette measures **roundness**, not correctness: k-means always
   looks round by construction
 
 ::: notes
 This is the handout's named predictable mistake, and it deserves to be
 said slowly. Ask the room directly: if you only had the silhouette score
 and not the ARI, would you have any hint that k-means' clustering on the
-session data is worthless? The honest answer is no — the internal metric
+session data is worthless? The honest answer is no - the internal metric
 alone gives no warning.
 
 That is the whole reason external validation matters whenever any signal
@@ -944,13 +944,13 @@ Handout section 4.
 ::: notes
 Aurora's account table has 8 columns. The block of warm cells among
 spend-related columns, and the separate block among engagement-related
-columns, is the correlation structure PCA is about to compress — point at
+columns, is the correlation structure PCA is about to compress - point at
 both blocks directly.
 
 Say plainly what this figure is doing here: it is the motivation for
 everything that follows, not a result. Spend, basket value and mobile
 session count all move together because they partly reflect the same
-underlying tendency to spend — PCA is about to find that underlying
+underlying tendency to spend - PCA is about to find that underlying
 tendency directly.
 
 Handout section 5.1.
@@ -959,7 +959,7 @@ Handout section 5.1.
 # PCA: the direction that varies most
 
 - Finds the direction in feature space along which the data varies
-  **most** — the first principal component
+  **most**: the first principal component
 - Then the next-most-varying direction, **perpendicular** to the first,
   and so on
 - "Varies the most" stands in for "carries the most information": a
@@ -970,12 +970,12 @@ Handout section 5.1.
 ::: notes
 Give the intuition before any algebra, exactly as the handout does: PCA is
 looking for the direction that best tells points apart, not a mysterious
-transform. "Safe to discard" is the key phrase — it is what makes
+transform. "Safe to discard" is the key phrase - it is what makes
 dimensionality reduction a defensible operation rather than just throwing
 information away.
 
 The next few slides give the two derivations the handout works through in
-full — state results here, point to the handout for the steps.
+full - state results here, point to the handout for the steps.
 
 Handout section 5.1.
 :::
@@ -984,15 +984,15 @@ Handout section 5.1.
 
 - The variance of standardised data projected onto a direction $v$, with
   ‖v‖ = 1, is what PCA maximises
-- $\Sigma$ is the sample covariance matrix — diagonal 1, off-diagonal
+- $\Sigma$ is the sample covariance matrix: diagonal 1, off-diagonal
   entries the correlations the previous figure showed as colours
 - The unit-length constraint matters: without it, variance grows without
   bound simply by scaling $v$ up
 
 ::: notes
 "Maximise variance" is meaningless until direction is separated from
-length — that is what the unit-length constraint buys. The handout works
-the constrained optimisation through a Lagrange multiplier in full —
+length - that is what the unit-length constraint buys. The handout works
+the constrained optimisation through a Lagrange multiplier in full  - 
 worth saying that word exists, not deriving it here.
 
 Handout section 5.2.
@@ -1003,7 +1003,7 @@ Handout section 5.2.
 $$\text{Var}(Xv) = v^\top \Sigma v, \qquad \Sigma = \frac{1}{m-1}X^\top X$$
 
 ::: notes
-$\Sigma$ is the sample covariance matrix — for standardised columns, its
+$\Sigma$ is the sample covariance matrix - for standardised columns, its
 diagonal is 1 and its off-diagonal entries are correlations, the same
 numbers the previous figure showed as colours.
 
@@ -1015,13 +1015,13 @@ Handout section 5.2.
 $$\Sigma v = \lambda v$$
 
 ::: notes
-State the result, not the Lagrangian steps that get there — those are
+State the result, not the Lagrangian steps that get there - those are
 handout section 5.2, in full. Say what this equation means in words:
 directions that solve the constrained maximisation are exactly the
 eigenvectors of the covariance matrix, with $\lambda$ the corresponding
 eigenvalue.
 
-Substituting back gives $v^\top \Sigma v = \lambda$ — the variance a
+Substituting back gives $v^\top \Sigma v = \lambda$ - the variance a
 direction captures **is** its eigenvalue. That single fact is the bridge
 from "an eigenvector" to "a principal component," and it is the fact
 worth the class actually remembering.
@@ -1035,7 +1035,7 @@ Handout section 5.2.
 - The direction of **largest** variance is the eigenvector with the
   **largest** eigenvalue; the second is next-largest, orthogonal to the
   first
-- Orthogonality is automatic — $\Sigma$ is symmetric, by the spectral
+- Orthogonality is automatic: $\Sigma$ is symmetric, by the spectral
   theorem
 - Order all $n$ eigenvalues largest to smallest: every component, at once
 
@@ -1043,7 +1043,7 @@ Handout section 5.2.
 This slide turns the previous slide's single equation into the actual
 recipe: sort eigenvalues, keep eigenvectors in that order, and that
 ordered list *is* PCA. Worth saying explicitly that this is the entire
-algorithm once the eigendecomposition is in hand — everything before this
+algorithm once the eigendecomposition is in hand - everything before this
 was justifying why eigenvectors are the right thing to compute at all.
 
 The automatic-orthogonality point is worth a beat: it is not a separate
@@ -1061,14 +1061,14 @@ Handout section 5.2.
 | First component direction | $(1,1)/\sqrt{2}$ |
 
 ::: notes
-Two standardised features from section 2 — spend and visit frequency. For
+Two standardised features from section 2 - spend and visit frequency. For
 this symmetric $2\times2$ form, the eigenvalues are exactly $1+r$ and
 $1-r$ for correlation $r$, checkable directly from $\Sigma v = \lambda v$
-with no numerical solver — with $r = 0.171$: 1.171 and 0.829, matching
+with no numerical solver - with $r = 0.171$: 1.171 and 0.829, matching
 `numpy.linalg.eigh` to three decimal places.
 
 The direction $(1,1)/\sqrt{2}$ is the "spend and visit often together"
-diagonal, not either axis alone — say why that makes sense: customers who
+diagonal, not either axis alone - say why that makes sense: customers who
 spend more also tend to visit more, so the greatest joint variation runs
 along the diagonal between the two original features.
 
@@ -1079,11 +1079,11 @@ Handout section 5.2.
 
 - The **singular value decomposition (SVD)** of the centred data is the
   numerically preferred route to the same components
-- Squaring a matrix squares its condition number — never form $X^\top X$
+- Squaring a matrix squares its condition number, never form $X^\top X$
   explicitly
 
 ::: notes
-Callback to lesson 3 deliberately — condition number squaring is the same
+Callback to lesson 3 deliberately - condition number squaring is the same
 argument that motivated preferring gradient-based or QR-based solvers over
 the raw normal equation there, and it is worth naming that connection out
 loud so the pattern generalises for students.
@@ -1112,11 +1112,11 @@ Handout section 5.3.
 - `numpy.linalg.svd` on the centred data, with $\lambda_i = s_i^2/(m-1)$
 - `sklearn.decomposition.PCA`
 - On the 8-feature account table, all three agree to within
-  $5 \times 10^{-15}$ — floating-point rounding, and nothing more
+  $5 \times 10^{-15}$: floating-point rounding, and nothing more
 
 ::: notes
 This is a genuine cross-check, in the same spirit as the k-means++
-notebook agreeing with scikit-learn to $10^{-4}$ earlier — three
+notebook agreeing with scikit-learn to $10^{-4}$ earlier - three
 independent computational routes to the same mathematical object,
 converging to sixteen significant figures.
 
@@ -1135,9 +1135,9 @@ Handout section 5.3.
 ::: notes
 Per-component and cumulative explained variance for the 8 account
 features. The first 3 components explain 93.5% of total variance; the
-4th adds only 2.4% more — point at exactly where the sharp elbow sits.
+4th adds only 2.4% more - point at exactly where the sharp elbow sits.
 
-Ask the room to predict the number before you say it — most will read the
+Ask the room to predict the number before you say it - most will read the
 bend correctly from the shape alone, which is the whole point of a scree
 plot as a diagnostic.
 
@@ -1155,14 +1155,14 @@ Handout section 5.4.
 | PC5–PC8 | 0.043–0.104 | 0.5–1.3% each | 100.0% |
 
 ::: notes
-3 is not an arbitrary read of the elbow — it is the exact number of latent
+3 is not an arbitrary read of the elbow - it is the exact number of latent
 factors (`retail_data.py`'s spending propensity, engagement, price
 sensitivity) that generated all 8 observed columns. The scree plot
 recovered, from the data alone, a number this lesson deliberately withheld
 from every method until now.
 
 Say clearly that this clean an elbow will not appear on every dataset
-students meet later — it exists here because the generator built 8 columns
+students meet later - it exists here because the generator built 8 columns
 as noisy linear combinations of exactly 3 signals. The next slide is what
 to do when it is not this clean.
 
@@ -1171,7 +1171,7 @@ Handout section 5.4.
 
 # What to do when the elbow is softer
 
-- This dataset's elbow is unusually clean — most real data will not
+- This dataset's elbow is unusually clean: most real data will not
   present one this sharp
 - Common alternative: keep enough components to explain a chosen fraction
   of variance, typically 90–95%
@@ -1182,7 +1182,7 @@ Handout section 5.4.
 
 ::: notes
 Close the PCA segment by generalising beyond this lesson's convenient
-dataset — students will not always get a number this clean, and this
+dataset - students will not always get a number this clean, and this
 slide is explicitly about what changes when they don't.
 
 Frame the cross-validation option as a callback to lesson 5: choosing the
@@ -1199,14 +1199,14 @@ Handout section 5.4.
   $5\times10^{-15}$
 - Reconstruction error flags disguised fraud: **37 of 40** planted
   anomalies caught at the 98th-percentile threshold
-- A 2-D PCA and t-SNE scatter of the same accounts — and why neither shows
+- A 2-D PCA and t-SNE scatter of the same accounts, and why neither shows
   the anomalies as outliers
 
 ::: notes
 Run Notebooks/03_pca_and_anomaly_detection.ipynb. Twenty minutes.
 
 This is the lesson's headline number and it is delivered live in the
-notebook rather than pre-built on a slide — reconstructing accounts from
+notebook rather than pre-built on a slide - reconstructing accounts from
 the top 3 components and watching genuine accounts snap back almost
 exactly, while planted anomalies do not, is more convincing run than
 described.
@@ -1225,7 +1225,7 @@ Handout sections 6.1, 6.2.
   points so those close together **stay** close in the picture
 - No commitment to preserving distances between points that started far
   apart
-- Excellent at making separate clusters visually obvious — often more so
+- Excellent at making separate clusters visually obvious, often more so
   than PCA's first two components
 - **Distances between clusters are not meaningful**; no fixed transform for
   a new point
@@ -1234,11 +1234,11 @@ Handout sections 6.1, 6.2.
 Position t-SNE precisely: a visualisation tool, not a measurement tool,
 and the two limitations on this slide are the reason. Two clusters drawn
 far apart in a t-SNE plot are not necessarily more different than two
-drawn close together — resist any temptation to read distance off the
+drawn close together - resist any temptation to read distance off the
 picture the way a PCA plot's axes can be read.
 
 Tie back directly to notebook 03: t-SNE inherited the exact same blind
-spot PCA's 2-D projection had for the fraud anomalies — good for looking,
+spot PCA's 2-D projection had for the fraud anomalies - good for looking,
 not a substitute for reconstruction error. The full KL-divergence
 derivation is deliberately out of scope; point to the further reading.
 
@@ -1247,7 +1247,7 @@ Handout section 7.
 
 # What to take away
 
-- k-means converges only to a **local** minimum — 30 starts ranged WCSS
+- k-means converges only to a **local** minimum: 30 starts ranged WCSS
   374.1 to 1,390.4
 - A core inside a ring defeats k-means **and** Ward; DBSCAN scored
   **0.941**
@@ -1262,14 +1262,14 @@ the relationship between eight individually ordinary-looking columns, on a
 detection problem neither of the standard 2-D visualisation tools could
 solve.
 
-Ask them to write it down — the fourth lesson this course has produced one
+Ask them to write it down - the fourth lesson this course has produced one
 of these carry-home numbers: 77% accuracy on coin-flip labels, 98 of 128
 imputed rows that borrowed from the test set, an overfit coefficient of
 247,514, and now this.
 
 If one habit should survive from today: before trusting an unlabelled
 result, ask what the metric or the picture in front of you is actually
-capable of seeing — a silhouette score cannot see a wrong shape
+capable of seeing - a silhouette score cannot see a wrong shape
 assumption, and a 2-D scatter cannot see what the discarded dimensions
 would have shown.
 
@@ -1287,13 +1287,13 @@ Set it explicitly and say the deadline out loud: Friday 20 November,
 
 Remind them of the standing rule from lesson 5, still in force with no
 labels at all: every reported number needs a check against what the
-method could and could not see — an ARI needs a ground truth to be
+method could and could not see - an ARI needs a ground truth to be
 meaningful, a silhouette score needs to be read as roundness rather than
 correctness, and a reconstruction-error threshold needs its false-positive
 rate reported alongside its catch rate, not instead of it.
 
 Next lesson moves to a different question this course has not yet
 asked. Close the loop on today: four lessons in a row have each produced
-one number worth remembering — encourage them to notice that pattern
+one number worth remembering - encourage them to notice that pattern
 themselves before it is pointed out again.
 :::

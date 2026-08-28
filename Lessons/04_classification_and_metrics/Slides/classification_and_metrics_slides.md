@@ -1,7 +1,7 @@
 ---
-title: "Lesson 4 — Classification and Evaluation Metrics"
+title: "Lesson 4: Classification and Evaluation Metrics"
 subtitle: "Technologies for Artificial Intelligence"
-author: "Fabio Antonini — Università degli Studi dell'Aquila"
+author: "Fabio Antonini, Università degli Studi dell'Aquila"
 date: "16 October 2026"
 ---
 
@@ -12,7 +12,7 @@ date: "16 October 2026"
 
 ::: notes
 Collect exercise 3. If you have looked at any of it, name the recurring mistake
-rather than praising the good answers — it is worth more to the room.
+rather than praising the good answers - it is worth more to the room.
 
 The one to watch for: choosing the penalty by looking at the test error. It is
 the natural thing to do because the test error is the number they were told to
@@ -25,7 +25,7 @@ Lesson 5 gives them the machinery to do both honestly.
 
 - Logistic regression: the model and why the cost had to change
 - The confusion matrix, and why accuracy lies
-- Precision, recall, F1 — and the threshold nobody chose
+- Precision, recall, F1, and the threshold nobody chose
 - Receiver operating characteristic (ROC) curves, and where they mislead
 - Choosing a threshold from money
 
@@ -35,7 +35,7 @@ about a third of today is the model, two thirds is how to tell whether it works.
 
 That is not padding. Fitting a classifier is one line of scikit-learn. Deciding
 whether the thing you fitted is any good, and reporting that honestly, is where
-the difficulty actually lives — and it is where working data scientists most
+the difficulty actually lives - and it is where working data scientists most
 often get it wrong in public.
 
 If anyone asks why this comes before k-nearest neighbours and support vector
@@ -66,17 +66,17 @@ of today.
 # The fleet
 
 - **8,000 disk drives** in a data centre
-- Six SMART counters each — Self-Monitoring, Analysis and Reporting Technology
+- Six SMART counters each: Self-Monitoring, Analysis and Reporting Technology
 - Label: did it fail within thirty days?
 
 ::: notes
 SMART is the diagnostic data a drive keeps about itself: reallocated sectors,
 spin retries, read error rate, temperature, hours in service. Expand the acronym
-on the slide and out loud — it is the kind of thing that gets skipped and then
+on the slide and out loud - it is the kind of thing that gets skipped and then
 quietly blocks a student for the rest of the hour.
 
 The data is synthetic, and say why: the coefficients that generated the labels
-are written down in disk_data.py. Same argument as lesson 3 — a real dataset
+are written down in disk_data.py. Same argument as lesson 3 - a real dataset
 lets you admire an estimate, a synthetic one lets you check it.
 
 One column, seek_error_rate, was generated with a coefficient of exactly zero.
@@ -96,7 +96,7 @@ Ask, without answering: if a model has to guess for each drive, and it wants to
 be right as often as possible, what should it say?
 
 Somebody will say "healthy, every time". Agree, and move on. Do not explain the
-consequence yet — it lands far harder in section 5 when they see 96.2% printed
+consequence yet - it lands far harder in section 5 when they see 96.2% printed
 as a model's accuracy score.
 :::
 
@@ -109,7 +109,7 @@ This is notebook 1, section 1. Ordinary least squares on a 0/1 label, one
 feature. Nothing prevents it and the code runs.
 
 The left panel: the fitted line gives a NEGATIVE probability to 3,606 of the
-8,000 drives — 45% of the fleet. Not a small negative number. A negative
+8,000 drives - 45% of the fleet. Not a small negative number. A negative
 probability. And extend it slightly past the data, to 32 reallocated sectors,
 and it predicts more than 1.
 
@@ -127,14 +127,14 @@ interval.
 
 ::: notes
 Left: the curve. Steep in the middle, flat at both ends. Make the case that the
-flatness is the right behaviour, not a compromise — going from 0 to 4
+flatness is the right behaviour, not a compromise - going from 0 to 4
 reallocated sectors should change your mind a lot; going from 40 to 44 should
 barely register, because you had already concluded the drive was finished.
 Evidence has diminishing returns.
 
 Right: the same relationship inverted. This is the slide that explains WHY this
 particular curve and not some other S-shape. A probability is trapped in [0,1].
-The odds — p over 1 minus p — remove the ceiling. The log of the odds removes
+The odds - p over 1 minus p - remove the ceiling. The log of the odds removes
 the floor too, leaving something that runs over all of the real line.
 
 And that is exactly what a linear model can safely predict. So the sigmoid is
@@ -150,7 +150,7 @@ $$P(y = 1 \mid x) = \sigma(w^\top x + b), \qquad \sigma(z) = \frac{1}{1 + e^{-z}
 Read it aloud as a sentence: take the linear model of lesson 3, and instead of
 calling its output a prediction, call it the log-odds and convert.
 
-Name the three properties we will use, without deriving them here — the handout
+Name the three properties we will use, without deriving them here - the handout
 section 2.2 does that: sigma of 0 is a half; sigma of minus z is 1 minus sigma
 of z; and the derivative is sigma times one minus sigma.
 
@@ -174,11 +174,11 @@ failing.
 
 Now the mistake they will make, and it is a reasonable one. They will read "six
 times the odds" as "six times as likely". For rare events those are nearly the
-same number, so here it is almost right — which is exactly why the habit
+same number, so here it is almost right - which is exactly why the habit
 survives until it does damage.
 
 Give them the counterexample out loud: odds of 9, a probability of 0.90,
-multiplied by 5 gives odds of 45 — a probability of 0.978. The odds went up
+multiplied by 5 gives odds of 45 - a probability of 0.978. The odds went up
 fivefold; the probability moved eight points. Odds ratios multiply odds.
 :::
 
@@ -197,7 +197,7 @@ fivefold; the probability moved eight points. Odds ratios multiply odds.
 Notebook 1, last section. This is the payoff of using synthetic data: we are not
 admiring the estimates, we are marking them.
 
-Go down the column. Everything is close. Nothing is exact, and say why — 6,000
+Go down the column. Everything is close. Nothing is exact, and say why - 6,000
 training drives carrying 230 failures is a modest amount of evidence, and 230 is
 the number that matters, not 6,000.
 
@@ -213,14 +213,14 @@ you? Leave it hanging. It is lesson 5.
 # The intercept is the base rate
 
 - Fitted intercept: **−6.09**
-- $\sigma(-6.09) = 0.0023$ — a 0.2% chance for an average drive
+- $\sigma(-6.09) = 0.0023$: a 0.2% chance for an average drive
 
 ::: notes
 This is the slide that quietly explains everything in the second half of the
 lesson, so do not rush it.
 
 An average drive has a 0.2% chance of failing in thirty days. For the model to
-reach an even bet — probability one half, log-odds zero — the evidence has to
+reach an even bet - probability one half, log-odds zero - the evidence has to
 move the log-odds by more than six. Only badly degraded drives manage that.
 
 So the model will assign small probabilities to almost everything, and a
@@ -229,7 +229,7 @@ is the model being correct about a rare event. Everything that looks like a
 failure of the classifier in the next hour traces back to this number.
 :::
 
-# Fitting means minimising something — but what?
+# Fitting means minimising something, but what?
 
 - Squared error worked for lesson 3
 - Why not just apply it to the sigmoid's output?
@@ -260,7 +260,7 @@ whole dataset under that setting of the parameters. Choose the setting that
 makes it largest.
 
 Two practical notes worth saying aloud. We take the logarithm because it turns
-the product into a sum, which differentiates one term at a time — and because
+the product into a sum, which differentiates one term at a time - and because
 with 8,000 factors below 1 the product is about 10 to the minus 1000, which a
 64-bit float stores as exactly zero. Every real implementation works in log
 space, and not for elegance.
@@ -273,7 +273,7 @@ Then negate, so we minimise as in lesson 3.
 $$J(w, b) = -\frac{1}{m}\sum_{i=1}^{m} \left[\, y^{(i)} \log p^{(i)} + \left(1 - y^{(i)}\right)\log\left(1 - p^{(i)}\right) \right]$$
 
 ::: notes
-Do not derive it here — the handout, section 3, does it in full. Show it and
+Do not derive it here - the handout, section 3, does it in full. Show it and
 read it.
 
 The reading that makes it stick: the cost of an outcome is the SURPRISE of
@@ -301,8 +301,8 @@ times one-minus-sigma from the chain rule cancels against the one-over-sigma
 from the logarithm. Handout section 3.4 has it.
 
 If someone asks whether that is a coincidence: no. Both are generalised linear
-models fitted by maximum likelihood — Gaussian noise for regression, Bernoulli
-outcomes for classification — and the whole exponential family gives this form.
+models fitted by maximum likelihood - Gaussian noise for regression, Bernoulli
+outcomes for classification - and the whole exponential family gives this form.
 They do not need that theory to use either method, but it is why the same
 gradient descent code, unchanged, trains both.
 :::
@@ -313,21 +313,21 @@ gradient descent code, unchanged, trains both.
 
 ::: notes
 Left panel, the costs. A drive failed and the model said 0.0001. Squared error
-charges 0.9998. An honest "don't know" — 0.5 — costs 0.25. So the worst possible
+charges 0.9998. An honest "don't know" - 0.5 - costs 0.25. So the worst possible
 answer is four times worse than a shrug. Log loss charges 9.2 against 0.69, and
 the ratio grows without bound.
 
 Right panel is the real argument, so spend the time here. The gradient is what
 the optimiser actually uses. Squared error's gradient through the sigmoid
-carries a factor p times one-minus-p — which is exactly the sigmoid derivative
-from ten minutes ago — and that factor goes to zero as p goes to zero.
+carries a factor p times one-minus-p - which is exactly the sigmoid derivative
+from ten minutes ago - and that factor goes to zero as p goes to zero.
 
 Say it as a sentence: the wronger the model gets, the less squared error asks it
 to change. At p = 0.001 the gradient is a five-hundredth of log loss's. Log loss
 goes the other way, approaching its maximum push exactly where the error is
 worst.
 
-That is the failure. Not that squared error scores badly — that it stops
+That is the failure. Not that squared error scores badly - that it stops
 teaching.
 :::
 
@@ -346,7 +346,7 @@ non-convex.
 Now the caution that catches people, and it is worth ten seconds because they
 will hit it in the notebook. Convex does NOT mean there is a closed-form
 solution. Setting the gradient to zero gives X-transpose times sigma of Xw minus
-y equals zero, which is not linear in w — the sigmoid is in the way.
+y equals zero, which is not linear in w - the sigmoid is in the way.
 
 There is no normal equation for logistic regression. It has to be solved
 iteratively, which is why LogisticRegression has a max_iter argument and
@@ -362,7 +362,7 @@ what it is about.
 ::: notes
 Run notebooks/01. Twenty minutes. The parts worth stopping on:
 
-The linear-fit failure — let them see 3,606 negative probabilities printed
+The linear-fit failure - let them see 3,606 negative probabilities printed
 rather than being told.
 
 The gradient/loss figure, which is the argument you just made, in code they can
@@ -371,7 +371,7 @@ p = 0.5?
 
 The coefficient recovery table, including the decoy.
 
-If time is short, skip the descent curve — it is the least surprising cell and
+If time is short, skip the descent curve - it is the least surprising cell and
 they saw the same picture in lesson 3.
 :::
 
@@ -381,14 +381,14 @@ they saw the same picture in lesson 3.
 
 ::: notes
 Two features, so the model can be drawn. The black line is where the predicted
-probability is exactly 0.5 — equivalently, where the log-odds are zero.
+probability is exactly 0.5 - equivalently, where the log-odds are zero.
 
 First observation: it is STRAIGHT. Logistic regression is a linear classifier.
 The curve is in the probabilities, not in the boundary. That surprises people
 who expected the sigmoid to bend it.
 
 Second observation, and this is the bridge to the rest of the lesson: almost
-every gold point — every drive that actually failed — is on the blue side of the
+every gold point - every drive that actually failed - is on the blue side of the
 line. At a threshold of 0.5 this model calls nearly the whole fleet healthy,
 including most of the drives that failed.
 
@@ -416,7 +416,7 @@ if they have not been thinking about it.
 This is the number to remember from lesson 4. Put it up and say nothing for a
 moment.
 
-A model that could be written `return 0` — no learning, no data, no features —
+A model that could be written `return 0` - no learning, no data, no features  - 
 scores 96.20%. The model they just built, which finds more than half the failing
 drives, scores 97.70%. One and a half percentage points separate a real model
 from a worthless one.
@@ -436,7 +436,7 @@ This is the 306 from the first ten minutes, coming back as an accuracy score.
 
 ::: notes
 Be careful to defend the instinct rather than mock it. Accuracy is not a naive
-metric, and students who reached for it were not being lazy — on a balanced
+metric, and students who reached for it were not being lazy - on a balanced
 problem it is the correct summary and everything else is a complication.
 
 It stops being informative precisely when one class is rare. And then list the
@@ -457,7 +457,7 @@ Accuracy is not wrong. It is answering a question nobody asked.
 ::: notes
 The fix is to stop collapsing four outcomes into one number.
 
-Side by side, the two models are obviously not comparable — and the number that
+Side by side, the two models are obviously not comparable - and the number that
 separates them, 0 caught against 43, is nowhere in the accuracy figure.
 
 Teach them to read the bottom-left cell first when misses are expensive: 33
@@ -472,12 +472,12 @@ before drawing conclusions.
 
 # The four outcomes, and what they cost
 
-- **False positive** — we replace a healthy drive. A technician's hour, €140
-- **False negative** — a drive dies in service. Callout, rebuild, risk, €2,600
+- **False positive**: we replace a healthy drive. A technician's hour, €140
+- **False negative**: a drive dies in service. Callout, rebuild, risk, €2,600
 
 ::: notes
 The names are jargon until they are attached to consequences, so attach them
-here and keep the numbers visible — they come back at the end of the lesson when
+here and keep the numbers visible - they come back at the end of the lesson when
 we choose a threshold.
 
 The essential point: these two errors are NOT the same size, and no
@@ -485,7 +485,7 @@ single-number metric knows that. Accuracy treats them as identical. F1 treats
 them as identical. Only a cost, supplied from outside the data, distinguishes
 them.
 
-Ask for a domain where the ratio goes the other way — where a false positive is
+Ask for a domain where the ratio goes the other way - where a false positive is
 the expensive one. Medical screening that triggers an invasive biopsy is the
 usual answer; content moderation that removes a legitimate post is another.
 :::
@@ -499,11 +499,11 @@ This picture is the antidote to the most reliable confusion in the lesson.
 Both metrics divide the true positives. The difference is entirely in what goes
 underneath, and the shading shows it.
 
-Precision divides by the COLUMN — everything we flagged. When this model raises
+Precision divides by the COLUMN - everything we flagged. When this model raises
 an alarm, how often is it right? That is the technician's question: how much of
 my time are you wasting?
 
-Recall divides by the ROW — everything that actually failed. Of the drives that
+Recall divides by the ROW - everything that actually failed. Of the drives that
 were going to fail, how many did we find? That is the operations manager's
 question: how exposed am I still?
 
@@ -514,9 +514,9 @@ population it is.
 
 # Our model, in those terms
 
-- Precision **0.768** — of 56 drives flagged, 43 really failed
-- Recall **0.566** — of 76 drives that failed, we found 43
-- Specificity 0.993 — of 1,924 healthy drives, we left 1,911 alone
+- Precision **0.768**: of 56 drives flagged, 43 really failed
+- Recall **0.566**: of 76 drives that failed, we found 43
+- Specificity 0.993: of 1,924 healthy drives, we left 1,911 alone
 
 ::: notes
 Read each line as an English sentence with the counts in it, not as a ratio.
@@ -538,7 +538,7 @@ who is asking, which is the honest answer and also the lesson.
 | Flag every drive | 0.038 | 1.000 | 0.519 | **0.073** |
 
 ::: notes
-Take the stupidest possible model — flag every single drive — and score it.
+Take the stupidest possible model - flag every single drive - and score it.
 Recall is a perfect 1.0. Precision is 0.038.
 
 The ordinary average gives that model 0.519, which looks respectable. Anyone
@@ -556,22 +556,22 @@ you want here where misses cost nineteen times more. F2 is the usual choice.
 
 # Read the minority class, not the average
 
-- `weighted avg` F1: **0.975** — dominated by the healthy class
-- `macro avg` F1: **0.820** — both classes get an equal say
+- `weighted avg` F1: **0.975** (dominated by the healthy class)
+- `macro avg` F1: **0.820** (both classes get an equal say)
 
 ::: notes
 classification_report prints three summary rows and students quote whichever is
 biggest. Give them the rule.
 
 The weighted average weights each class by how common it is, so on this problem
-it is essentially the healthy class talking, and it reads close to accuracy —
+it is essentially the healthy class talking, and it reads close to accuracy  - 
 inheriting exactly the blindness we spent twenty minutes on.
 
 The macro average gives the two classes equal weight, so the rare class actually
 registers. 0.820 against 0.975 for the same model.
 
 The rule: on an imbalanced problem, quote the macro average or the minority
-class directly. Reporting the weighted average is not incorrect — it is the
+class directly. Reporting the weighted average is not incorrect - it is the
 number that makes a mediocre model look finished, and choosing it without saying
 so is how a result gets oversold.
 :::
@@ -588,7 +588,7 @@ Have them build the four counts by hand before calling confusion_matrix. It is
 four comparisons and it takes two minutes, and it is what makes the jargon stop
 being jargon.
 
-The cell to linger on is the threshold sweep table. Do not explain it first —
+The cell to linger on is the threshold sweep table. Do not explain it first  - 
 let them read the columns and say what they see. Somebody will notice that
 accuracy barely moves. That is the moment to make the next slide.
 :::
@@ -630,7 +630,7 @@ justified and we catch fewer than a quarter.
 
 Now the accuracy column, which is the slide's real argument. From 0.10 upwards
 it moves by three percentage points while recall falls from 0.80 to 0.18. And
-its maximum is at 0.5 — the threshold that misses 33 of the 76 failures.
+its maximum is at 0.5 - the threshold that misses 33 of the 76 failures.
 
 Say the consequence plainly: tune on accuracy and it will quietly recommend
 catching fewer failures, because every alarm it drops was a possible false
@@ -646,7 +646,7 @@ The sweep traced a path through precision-recall space; this is that path drawn
 directly. Every threshold at once.
 
 The part to teach is the baseline. A model with random scores has precision
-equal to the positive rate — 0.038 here — at every recall. That flat red line,
+equal to the positive rate - 0.038 here - at every recall. That flat red line,
 not 0.5, is what "no skill" looks like on an imbalanced problem.
 
 That is why this curve is so much more informative than accuracy when positives
@@ -659,7 +659,7 @@ they can see the correspondence.
 
 # Comparing models without choosing a threshold
 
-- We keep evaluating at one threshold — but which?
+- We keep evaluating at one threshold, but which?
 - What if we score the whole **ranking** instead?
 
 ::: notes
@@ -667,7 +667,7 @@ Set up the next section as a question rather than announcing a tool.
 
 Everything so far has needed a threshold. That is fine when you know the costs,
 and we will come back to it. But often you want to compare two models before
-committing — is model A better than model B, at any operating point?
+committing - is model A better than model B, at any operating point?
 
 The move is to stop asking "how many did it get right" and start asking "did it
 put the failures at the top of the list". That is a question about ranking, and
@@ -679,13 +679,13 @@ ranking has no threshold in it.
 ![](roc_curve.png)
 
 ::: notes
-Receiver operating characteristic — expand it, and say where the name comes
+Receiver operating characteristic - expand it, and say where the name comes
 from, because it makes the idea concrete. Wartime radar: operators tuning
 receivers to spot aircraft without chasing flocks of birds. Same problem shape,
 literally the same trade-off.
 
-The two axes: true positive rate, which is recall under another name — the
-failures we catch. False positive rate — the healthy drives we condemn.
+The two axes: true positive rate, which is recall under another name - the
+failures we catch. False positive rate - the healthy drives we condemn.
 
 The intuition worth saying slowly: at threshold 1 both are zero, flag nothing.
 At threshold 0 both are one. The entire content of the curve is the ORDER in
@@ -728,12 +728,12 @@ Short slide, important consequence. AUC depends only on the ordering, so it is
 invariant under any monotone transformation of the scores.
 
 Divide all the probabilities by ten and the ranking is identical, so the AUC is
-identical — while the model is now badly calibrated and every threshold-based
+identical - while the model is now badly calibrated and every threshold-based
 decision it makes is different.
 
 The consequence: AUC says nothing about whether "0.7" means anything. If you
-need the probabilities to be believable — because you are computing expected
-costs, as we will in ten minutes — AUC is not the check you want.
+need the probabilities to be believable - because you are computing expected
+costs, as we will in ten minutes - AUC is not the check you want.
 
 Good place to mention calibration exists as a topic, without going into it.
 :::
@@ -744,7 +744,7 @@ Good place to mention calibration exists as a topic, without going into it.
 
 ::: notes
 Same model. Not retrained. We keep every healthy drive in a fleet of 60,000 and
-thin the FAILURES until they are 0.4% instead of 3.8% — the direction reality
+thin the FAILURES until they are 0.4% instead of 3.8% - the direction reality
 moves in fraud, disease, hardware failure.
 
 Left: the three ROC curves sit on top of each other. AUC 0.968, 0.965, 0.974. It
@@ -753,7 +753,7 @@ better one, which is sampling noise on 231 positives.
 
 Right: the precision-recall curves are in three different worlds. Average
 precision falls from 0.706 to 0.361, and precision at the same threshold falls
-from 0.79 to 0.26 — two alarms in three now false.
+from 0.79 to 0.26 - two alarms in three now false.
 
 Three curves on the left, one model, no problem. Three curves on the right, same
 model, a disaster. Let that sit for a second before explaining.
@@ -761,15 +761,15 @@ model, a disaster. Let that sit for a second before explaining.
 
 # Why the two disagree
 
-- FPR divides by **all healthy drives** — an enormous, growing denominator
-- Precision divides by **the alarms raised** — where the false ones dominate
+- FPR divides by **all healthy drives**: an enormous, growing denominator
+- Precision divides by **the alarms raised**, where the false ones dominate
 
 ::: notes
 The explanation is entirely in the denominators, and it is worth writing on the
 board.
 
 A thousand false alarms among a hundred thousand healthy drives is a false
-positive rate of 0.01 — invisible on the ROC axis, a rounding error. The same
+positive rate of 0.01 - invisible on the ROC axis, a rounding error. The same
 thousand false alarms, set against the alarms actually raised, may be most of
 them.
 
@@ -786,7 +786,7 @@ ranking when the question was about the alarm queue.
 # The rule
 
 - On an imbalanced problem, report the **precision-recall curve alongside AUC**
-- Never instead of it — and never AUC alone
+- Never instead of it, and never AUC alone
 
 ::: notes
 Short and quotable, and this is the thing to have on the board when they write
@@ -794,7 +794,7 @@ their exercise reports.
 
 If someone asks which single number to use when a single number is demanded:
 average precision, because its baseline moves with the problem. But push back on
-the premise — the reason to demand a single number is usually to avoid thinking,
+the premise - the reason to demand a single number is usually to avoid thinking,
 and this lesson is about the thinking.
 :::
 
@@ -804,7 +804,7 @@ and this lesson is about the thinking.
 
 ::: notes
 Finally, the honest way to pick a threshold. It needs one ingredient no metric
-can supply: what the errors cost. We wrote those down an hour ago — €140 for a
+can supply: what the errors cost. We wrote those down an hour ago - €140 for a
 needless replacement, €2,600 for a drive that dies in service.
 
 The curve is the total cost on the test set as the threshold moves. The default
@@ -855,7 +855,7 @@ test set has influenced the model, and the number it then reports is optimistic.
 
 Done properly: choose the threshold on a validation set, then measure once on
 test. Lesson 5 builds exactly that machinery, and this is the concrete reason it
-is needed — not a hygiene rule, a thing that changes the number you report.
+is needed - not a hygiene rule, a thing that changes the number you report.
 
 Until then, treat the 0.08 as a demonstration of a method, not a result anyone
 could publish.
@@ -875,7 +875,7 @@ It changes the training rather than the decision.
 
 Point at the AUC column: 0.949 against 0.950. Reweighting taught the model
 essentially nothing new about disk failure. What it did was move where the model
-puts its 0.5 line — the same lever as the threshold, pulled at a different
+puts its 0.5 line - the same lever as the threshold, pulled at a different
 moment.
 
 That matters because class weighting is usually presented as a REMEDY for
@@ -885,7 +885,7 @@ The remedy, where one exists, is more positive examples.
 Where it earns its place: when a downstream tool insists on predict() and gives
 you no threshold to move. Then this is how you shift the operating point.
 
-Same caution for resampling and SMOTE — and it must happen inside the
+Same caution for resampling and SMOTE - and it must happen inside the
 cross-validation fold, for the reasons lesson 2 gave about imputation.
 :::
 
@@ -911,13 +911,13 @@ Real fleets are not healthy-or-dead. A drive can be degraded: readable, but
 reporting errors, and worth replacing at the next maintenance window rather than
 at three in the morning.
 
-For K classes the model produces one score per class and normalises them — the
+For K classes the model produces one score per class and normalises them - the
 softmax, which for two classes reduces exactly to the sigmoid. The cost
 generalises to categorical cross-entropy, and it is the same idea: the negative
 log of the probability assigned to what actually happened. Handout section 10.
 
 Read the off-diagonal cells rather than the accuracy. Degraded is the hard
-class, and understandably — it sits between two neighbours that both look like
+class, and understandably - it sits between two neighbours that both look like
 it from a distance.
 
 Precision and recall are computed one class at a time: each class in turn is the
@@ -933,7 +933,7 @@ positive one, the rest are negative.
 The same choice as before, now with a much starker gap on three classes.
 
 Macro treats the three conditions as equally important. Weighted lets the
-healthy class — five drives in six — do most of the talking.
+healthy class - five drives in six - do most of the talking.
 
 Which to quote is a question about the application, not about statistics. If
 missing a failure matters as much as missing a healthy drive, macro is the
@@ -944,7 +944,7 @@ honest one. Say which you used, always.
 
 - **96.20% accuracy, nothing caught.** Accuracy measures the majority class
 - Precision is about the **alarms**, recall is about the **failures**
-- The **threshold is a decision** — and it has a formula
+- The **threshold is a decision**, and it has a formula
 - **AUC measures ranking** and hides imbalance
 
 ::: notes
@@ -956,7 +956,7 @@ the base rate?" before believing any accuracy figure. That reflex is worth more
 than any of the formulas.
 
 The second thing: every metric on the slide depended on a threshold, and the
-threshold has an answer — C-FP over C-FP plus C-FN — that comes from the
+threshold has an answer - C-FP over C-FP plus C-FN - that comes from the
 business, not from the data.
 :::
 

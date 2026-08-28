@@ -1,7 +1,7 @@
 ---
-title: "Lesson 10 — Convolutional Networks and Course Synthesis"
+title: "Lesson 10: Convolutional Networks and Course Synthesis"
 subtitle: "Technologies for Artificial Intelligence"
-author: "Fabio Antonini — Università degli Studi dell'Aquila"
+author: "Fabio Antonini, Università degli Studi dell'Aquila"
 date: "27 November 2026"
 ---
 
@@ -15,7 +15,7 @@ date: "27 November 2026"
 ::: notes
 Frame the three hours before any content. Last week's networks treated the 64
 pixels of a digit as 64 unrelated numbers. Today exactly one assumption
-changes — that the inputs have an arrangement worth keeping — and the whole
+changes - that the inputs have an arrangement worth keeping - and the whole
 lesson is the consequence of that single change, measured rather than
 asserted.
 
@@ -125,7 +125,7 @@ is the sentence the course closes on, and section 12 is where it is measured.
 # Three results that contradict a slogan
 
 - Permuting the pixels costs the convolution **nothing** on detection
-- Transfer learning helps in a **window** — and is negative outside it
+- Transfer learning helps in a **window**, and is negative outside it
 - Freezing a pre-trained base hurt even the **good** source
 - All three are measured this afternoon, in front of you
 
@@ -152,14 +152,14 @@ Handout sections 9 and 10.
 
 - **77%** accuracy on coin-flip labels, from leakage alone
 - **98 of 128** imputed rows that borrowed from the test set
-- **247,514** — one coefficient of an overfitted fit
+- **247,514**: one coefficient of an overfitted fit
 - **37 of 40** disguised accounts caught by reconstruction error
 - A sigmoid layer divides the gradient by about **four**
 
 ::: notes
 This course has produced one number per lesson worth carrying out of the room,
-and this is the last time the list gets extended. Read the five out — they are
-lessons 1, 2, 3, 8 and 9 — and say that the sixth arrives at about half past
+and this is the last time the list gets extended. Read the five out - they are
+lessons 1, 2, 3, 8 and 9 - and say that the sixth arrives at about half past
 one this afternoon.
 
 The point of the list is not nostalgia. Each of these numbers was a surprise to
@@ -183,7 +183,7 @@ what they think it will be about.
 Introduce the problem physically before any picture. Meridian Instruments is
 the fictional sensor maker from last week; this week we are one step upstream,
 on the wafer line where the sensors are cut. A die is a small square of
-silicon, photographed under a microscope at 24 by 24 pixels — 576 numbers — and
+silicon, photographed under a microscope at 24 by 24 pixels - 576 numbers - and
 graded pass or fail by an automatic station.
 
 The last bullet is the one that decides the mathematics. The optical film laid
@@ -209,7 +209,7 @@ dense layer cannot do.
 
 Point at two panels with visibly different background brightness and the same
 defect. That is the film thickness varying, and it is why absolute brightness
-is useless here. Then point at how few pixels the defect actually occupies —
+is useless here. Then point at how few pixels the defect actually occupies  - 
 about seven of 576, roughly one percent of the image.
 
 Ask the room: how many of these twelve images would you need to see before you
@@ -220,8 +220,8 @@ the whole first half of this lesson. Handout section 1.1.
 
 # Two properties decide everything
 
-- **Local** — a handful of the 576 pixels matter, the rest is irrelevant
-- **Position-independent** — top left and bottom right are the same event
+- **Local**: a handful of the 576 pixels matter, the rest is irrelevant
+- **Position-independent**: top left and bottom right are the same event
 - Both were visible in the twelve photographs
 - Every design choice this afternoon follows from these two lines
 
@@ -239,13 +239,13 @@ station does not have a special rule for row 5. That is a fact about the
 physical process, and it is the fact a dense layer cannot use.
 
 Ask them which of the two properties they think is doing more of the work.
-Hold the answers — section 9 measures it, and the answer is not an even split.
+Hold the answers - section 9 measures it, and the answer is not an even split.
 :::
 
 # The grading station is wrong 2% of the time
 
 - Published error rate **2%**; notebook 01's batch drew **2.55%**
-- A high draw at 2.5 standard deviations — not a bug
+- A high draw at 2.5 standard deviations, not a bug
 - Every score today is read against the ceiling of the set it was measured on
 - For the 2,000-image test set that ceiling is **0.9800**
 
@@ -288,7 +288,7 @@ position, independently, at full price each time. The complaint is about the
 bill, and section 8 prints it.
 
 Ask the room how many independent detectors a 24×24 image would need if each
-covers a 3×3 patch. About 576 of them — trained separately. Handout section 2.
+covers a 3×3 patch. About 576 of them - trained separately. Handout section 2.
 :::
 
 # 80 weights against 147,712
@@ -320,7 +320,7 @@ together. Handout section 2.
 
 - The convolutional layer produces **more** numbers, not fewer
 - Eight feature maps of 24×24 is **4,608** outputs, against 256
-- It is not a smaller layer — it is a differently **tied** one
+- It is not a smaller layer: it is a differently **tied** one
 - The 1,846-fold parameter ratio is a side effect
 
 ::: notes
@@ -344,7 +344,7 @@ what it might buy, and take answers before the next slide. Handout section 2.
 - The same nine weights are applied at **every** position
 - So one scratch, anywhere, teaches the detector **everywhere**
 - The dense layer must be taught position by position
-- Not a memory saving — a **data** saving
+- Not a memory saving: a **data** saving
 - We price it, in images, at 1:35
 
 ::: notes
@@ -359,8 +359,8 @@ scratches at 576 positions. The convolutional network needs scratches.
 
 The phrase "inductive bias" belongs here, and it is worth defining carefully:
 an assumption built into the model's structure rather than learned from data.
-Weight sharing is one. It is not free — it is only correct because of the
-second property two slides ago — but when it is correct, it is worth more than
+Weight sharing is one. It is not free - it is only correct because of the
+second property two slides ago - but when it is correct, it is worth more than
 any amount of tuning. Handout section 2.
 :::
 
@@ -377,10 +377,10 @@ before showing anything, and write them on the board. It takes two minutes and
 it changes how the next segment is received, because most rooms produce the
 right answer without the vocabulary.
 
-Typical answers, and what to do with each. "The darkest pixel" — good instinct,
+Typical answers, and what to do with each. "The darkest pixel" - good instinct,
 but defeated by the film thickness, so ask what it should be compared against.
-"The difference between a pixel and its neighbours" — that is the contrast
-kernel, and they have just invented section 3.3. "The variance of the image" —
+"The difference between a pixel and its neighbours" - that is the contrast
+kernel, and they have just invented section 3.3. "The variance of the image"  - 
 close, but a smooth brightness gradient has variance too.
 
 The answer we are heading for is: slide a small window over the image, compute
@@ -391,7 +391,7 @@ Handout section 1.1.
 
 # The convolution, in words
 
-- Take a small array of weights — the **kernel**
+- Take a small array of weights: the **kernel**
 - Slide it over the image, one position at a time
 - At each position, write down the weighted sum of the pixels it covers
 - The result is a **feature map**: one number per position
@@ -405,13 +405,13 @@ underneath, add them up, and write that single number down. Slide one column
 right and repeat.
 
 Two consequences worth naming immediately. The output is an image, not a
-number — smaller, and often much deeper, but still laid out in space. And the
+number - smaller, and often much deeper, but still laid out in space. And the
 same nine weights produced every entry of it, which is the weight sharing from
 the previous segment made concrete.
 
 Ask the room what the output of the sliding window means at each position. It
-is the answer to one fixed question — "how much does the pattern I encode look
-like what is here?" — asked everywhere at once. Handout section 3.1.
+is the answer to one fixed question - "how much does the pattern I encode look
+like what is here?" - asked everywhere at once. Handout section 3.1.
 :::
 
 # One weighted sum, at every position
@@ -424,7 +424,7 @@ slide: the entry of the output at row r, column c is the sum over the kernel's
 own rows and columns of image pixel times kernel weight, with the kernel's
 top-left corner placed at r, c.
 
-Two details to point at. The image index is r + i, so the window moves with r —
+Two details to point at. The image index is r + i, so the window moves with r  - 
 that is the sliding. And the kernel index is i alone, with no r in it: the same
 weight is used at every output position, which is weight sharing written down
 in one subscript.
@@ -439,7 +439,7 @@ section 3.1.
 - A true convolution flips the kernel before multiplying
 - Every deep learning library computes the formula above and calls it convolution
 - The kernel is **learned**, so the flip changes nothing that matters
-- Notebook 01 agrees with scipy to $8.9 \times 10^{-16}$ — rounding, not error
+- Notebook 01 agrees with scipy to $8.9 \times 10^{-16}$: rounding, not error
 
 ::: notes
 Mention the naming discrepancy once, so that when a student meets it in a
@@ -452,7 +452,7 @@ Say why it genuinely does not matter here: the kernel is learned. Whichever
 orientation the operation uses, gradient descent will find the weights that
 suit it, and the two conventions reach mirror-image kernels with identical
 outputs. It matters only when you write a kernel down by hand, which we do in
-ten minutes — and the four kernels we write are all symmetric.
+ten minutes - and the four kernels we write are all symmetric.
 
 The scipy check is worth a sentence: eleven lines of your own code agreeing
 with somebody else's implementation to fifteen decimal places is what
@@ -471,7 +471,7 @@ is why this is quoted as one formula rather than two.
 
 The floor is doing real work rather than tidying up. When the stride does not
 divide the available positions evenly, the last window would hang off the edge
-of the image, and it is simply not taken — those pixels are never looked at by
+of the image, and it is simply not taken - those pixels are never looked at by
 that layer. Students who have only ever used `padding="same"` meet this the
 first time they set a stride and lose a row.
 
@@ -490,7 +490,7 @@ section 3.2.
 
 ::: notes
 Walk two of these out loud. Row one: 24 plus nothing, minus 3, over 1, plus 1
-is 22 — the two lost rows are the positions where a 3×3 window would hang over
+is 22 - the two lost rows are the positions where a 3×3 window would hang over
 the edge. Row two: 24 plus 2, minus 3, plus 1 is 24, and the padding has bought
 those two rows back.
 
@@ -505,9 +505,9 @@ before the floor. Handout section 3.2.
 
 # Two cases cover almost everything
 
-- **3×3 with padding 1 leaves the size unchanged** — Keras calls this `padding="same"`
+- **3×3 with padding 1 leaves the size unchanged**: Keras calls this `padding="same"`
 - In general, padding = (kernel − 1) / 2 for odd kernels
-- **Stride 2 halves it** — the cheap alternative to pooling
+- **Stride 2 halves it**: the cheap alternative to pooling
 - Almost every architecture you will read is built from these two
 
 ::: notes
@@ -557,13 +557,13 @@ positions, so its nine weights sum to zero. Feed it any patch in which all nine
 pixels have the same value v, and the response is v times zero, whatever v is.
 
 This is the algebra behind the fourth panel. A zero-sum kernel is *blind to
-absolute brightness* — it cannot see the film thickness, because a smoothly
+absolute brightness* - it cannot see the film thickness, because a smoothly
 varying background is locally almost constant. It responds only to how much a
 pixel differs from its own neighbourhood, which is precisely the definition of
 a defect on this line.
 
-Nine numbers, chosen in advance, and the hardest part of the problem — the
-varying background that defeats every brightness threshold — is simply gone.
+Nine numbers, chosen in advance, and the hardest part of the problem - the
+varying background that defeats every brightness threshold - is simply gone.
 Handout section 3.3.
 :::
 
@@ -576,7 +576,7 @@ Handout section 3.3.
 - Nothing has been trained yet
 
 ::: notes
-Say the last bullet twice. No gradient descent, no labels, no training set —
+Say the last bullet twice. No gradient descent, no labels, no training set  - 
 nine numbers written down from an argument about what the problem requires, and
 the two classes are already separated by a factor of nearly three.
 
@@ -595,7 +595,7 @@ nearly zero. Nobody told it to. Handout sections 3.3 and 12.
 
 - The convolution in eleven lines, checked against scipy
 - Output sizes measured, then compared with the formula
-- Four kernels by hand — and the zero-sum one that works
+- Four kernels by hand, and the zero-sum one that works
 - Equivariance checked at four offsets, then pooling
 
 ::: notes
@@ -607,7 +607,7 @@ smear across the whole die is what makes the zero-sum argument concrete rather
 than algebraic.
 
 Second priority is the equivariance check, which prints a difference of exactly
-zero rather than something small. Have them predict what it will print first —
+zero rather than something small. Have them predict what it will print first  - 
 most expect a tiny floating-point residual, and the fact that it is bit-exact
 away from the borders says something stronger than "approximately equal".
 
@@ -621,7 +621,7 @@ nine weights by ten, and whether that changes which dies are flagged.
 
 ::: notes
 Twelve minutes. What comes back after the break is the property the whole idea
-rests on, and then the experiment this lesson exists for — the one that
+rests on, and then the experiment this lesson exists for - the one that
 produces today's number. Worth saying so before they leave the room.
 :::
 
@@ -635,14 +635,14 @@ produces today's number. Worth saying so before they leave the room.
 
 ::: notes
 Define equivariance carefully, because it is routinely confused with
-invariance, and today's architecture uses both — one in the convolution and one
+invariance, and today's architecture uses both - one in the convolution and one
 in the pooling. Equivariant means the output changes in a predictable,
 corresponding way: shift the input by four pixels and the feature map shifts by
 four pixels, unchanged in value.
 
 The proof is one line from the definition: the sum at the shifted position runs
 over exactly the pixels the unshifted sum ran over. But notebook 01 checks it
-rather than believing it, and the answer is not "small" — away from the borders
+rather than believing it, and the answer is not "small" - away from the borders
 it is bit-for-bit identical.
 
 Then say what a dense unit does under the same shift. Its output is not shifted.
@@ -661,7 +661,7 @@ that identity is the entire reason a convolutional network does not have to be
 taught about positions.
 
 Point out what the equation does *not* say. It does not say the answer is
-unchanged by a shift — the feature map moves. Turning "it moved" into "it does
+unchanged by a shift - the feature map moves. Turning "it moved" into "it does
 not matter where it was" is a separate operation, and it is the next segment:
 pooling.
 
@@ -688,7 +688,7 @@ by where the defect is.
 Ask the room to imagine the same figure for a dense unit. Panel one fires;
 panels two, three and four are whatever those unrelated weights happen to
 produce, which is noise. Then tell them we are about to measure exactly that,
-and it is worse than noise — it is below chance. Handout section 4.1.
+and it is worse than noise - it is below chance. Handout section 4.1.
 :::
 
 # Pooling: from *where* to *whether*
@@ -711,7 +711,7 @@ from *where* to *whether*, and that is exactly the question the station asks.
 
 The 3.129 is the same number from the hand-written kernel: pool that feature map
 three times, from 24×24 to 12×12 to 6×6 to 3×3, and the maximum is 3.129 at
-every stage. Of course it is — that is what taking a maximum does. Say it
+every stage. Of course it is - that is what taking a maximum does. Say it
 anyway, because seeing it survive four sizes is what makes pooling feel safe.
 Handout section 4.2.
 :::
@@ -738,8 +738,8 @@ of them use architectures that undo this pooling later. Handout section 4.2.
 
 # Three things pooling does
 
-- Turns equivariance into **invariance** — one pixel of shift often changes nothing
-- Enlarges the receptive field — 3×3 after pooling covers 6×6 of the image
+- Turns equivariance into **invariance**: one pixel of shift often changes nothing
+- Enlarges the receptive field: 3×3 after pooling covers 6×6 of the image
 - Discards spatial precision, which is a **cost** when *where* is the answer
 - **Global** max pooling: one number per kernel, over the whole map
 
@@ -749,7 +749,7 @@ the first is the reason we are using it today.
 
 Invariance is the goal here: after pooling, moving the defect by a pixel often
 produces a literally identical output. Receptive field growth is the reason
-depth works at all — stack pooling and small kernels and a 3×3 window at layer
+depth works at all - stack pooling and small kernels and a 3×3 window at layer
 four sees most of the die, for nine weights. Precision loss is the bill.
 
 The last bullet is the design choice that makes today's headline result
@@ -779,7 +779,7 @@ The image is progressively traded for depth, and then the global maximum
 collapses the spatial dimensions entirely.
 
 Against this, lesson 9's dense network on the same images has 213,761
-parameters — a factor of 139. Both are trained with the same optimiser, the same
+parameters - a factor of 139. Both are trained with the same optimiser, the same
 loss and the same epoch budget throughout this lesson, which is what makes
 every comparison today about architecture rather than about tuning.
 
@@ -849,7 +849,7 @@ Left panel: test accuracy, 0.6928 against 0.9800. Right panel: parameter count,
 on a logarithmic scale because otherwise the convolutional bar is invisible.
 
 The pairing is the point. Every other lesson in this course has traded capacity
-for performance in the expected direction — more trees, more units, more
+for performance in the expected direction - more trees, more units, more
 flexibility. Here the smaller model wins by twenty-nine points, and it wins
 because of what it cannot do rather than what it can.
 
@@ -878,7 +878,7 @@ generates both test sets; the defect is identical in size, contrast and shape.
 This is a controlled experiment about position and nothing else.
 
 Take a show of hands on the dense network's score on the moved band. Most rooms
-predict a drop of ten or twenty points — the reasoning being that it has
+predict a drop of ten or twenty points - the reasoning being that it has
 learned something about scratches in general and will retain part of it. That
 reasoning is sound for almost every kind of distribution shift you will meet,
 and it is wrong here. Handout section 6.
@@ -893,7 +893,7 @@ and it is wrong here. Handout section 6.
 
 ::: notes
 Say it slowly and then say it again. A dense network scoring 0.8567 on defects
-in the half of the die it was trained on scores 0.4617 — **below chance** — on
+in the half of the die it was trained on scores 0.4617 - **below chance** - on
 the identical defect moved to the other half. The convolutional network goes
 from 0.9800 to 0.9847, which is noise around the ceiling.
 
@@ -943,7 +943,7 @@ drift, populations age, prices inflate. A model trained on the old regime
 degrades on the new one and usually retains something, because the features
 still mean roughly what they meant.
 
-Here the features do not mean anything different — they are simply not the
+Here the features do not mean anything different - they are simply not the
 features carrying the signal any more. Pixel 100 was the evidence; pixel 400 is
 now the evidence; and pixel 400's weights were trained exclusively on clean
 silicon. There is no partial credit available.
@@ -956,7 +956,7 @@ break. Handout section 6.1.
 # A convolutional layer is a restricted dense layer
 
 - Every function it computes, a dense layer can compute too
-- Tie the shared entries, zero the rest — it is strictly **less** expressive
+- Tie the shared entries, zero the rest: it is strictly **less** expressive
 - The functions it gives up all treat row 5 differently from row 15
 - Nobody wanted any of those
 - **A model that cannot express a wrong answer need not learn to avoid it**
@@ -981,7 +981,7 @@ true? Handout section 6.
 
 # Augmentation buys 8 points and leaves it 44 short
 
-- Show the dense network shifted copies — a moved scratch is still a scratch
+- Show the dense network shifted copies: a moved scratch is still a scratch
 - Dense: 0.4617 → **0.5423**, a real gain of **+0.0807**
 - Convolutional: 0.9847 → 0.9847, unchanged, with nothing to gain
 - Augmentation **teaches** an invariance: approximate, and forgettable
@@ -995,14 +995,14 @@ points behind what the architecture provides for nothing.
 
 Two details of the experiment are worth copying, because both are easy to get
 wrong in a way that flatters your conclusion. Both arms got the same number of
-epochs — an augmented set is five times larger, so equal wall-clock would have
+epochs - an augmented set is five times larger, so equal wall-clock would have
 quietly given it five times fewer passes per image; an earlier version of this
 experiment did that and reported 1.6 points instead of 8.1. And the shift is
 drawn per image, not per batch: one offset applied to a whole copy just adds
 four more fixed positions.
 
-Then give the rule: augment for invariances no layer can express — brightness,
-contrast, small rotations — where it is indispensable. Handout section 7.
+Then give the rule: augment for invariances no layer can express - brightness,
+contrast, small rotations - where it is indispensable. Handout section 7.
 :::
 
 # At the ceiling by 500 images; 0.235 short at 8,000
@@ -1012,7 +1012,7 @@ contrast, small rotations — where it is indispensable. Handout section 7.
 ::: notes
 Test accuracy against training-set size, logarithmic horizontal axis. The
 convolutional network reaches the ceiling at 500 images and stays flat. The
-dense network at 8,000 — sixteen times more data — is still 0.235 below it.
+dense network at 8,000 - sixteen times more data - is still 0.235 below it.
 
 Warn them about the flat line before someone asks, because it looks like a
 plotting bug. It is not: the convolutional network is already right about every
@@ -1032,7 +1032,7 @@ optimiser, or a correct assumption. Handout section 8.
 - The translation experiment, run in front of you
 - Augmentation with the epoch budget equalised
 - The learning curve from 100 images to 8,000
-- The permutation test — hold your prediction
+- The permutation test: hold your prediction
 
 ::: notes
 Run `Notebooks/02_convnets_on_wafers.ipynb`. Twenty-two minutes.
@@ -1043,7 +1043,7 @@ network lands below 0.5 rather than near it.
 
 Second priority is the augmentation comparison, specifically the epoch
 argument. Show them the two lines of code that equalise the passes per image
-and ask what the result would have been without them — it is in the notebook,
+and ask what the result would have been without them - it is in the notebook,
 and it is 1.6 points instead of 8.1. That is a lesson about experimental
 hygiene rather than about augmentation, and it is the lesson 5 habit applied to
 deep learning.
@@ -1057,7 +1057,7 @@ room will be wrong, and that is the point of the final segment.
 - A contamination **cluster**: several faint specks together
 - By Friday there are a few dozen labelled photographs
 - Section 8 says the network needs several hundred
-- Waiting six months is not an answer — the line is shipping now
+- Waiting six months is not an answer: the line is shipping now
 - So: can we borrow from a network trained on something else?
 
 ::: notes
@@ -1091,7 +1091,7 @@ Point at the polarity difference explicitly and make sure it registers, because
 it is the mechanism behind the last result of this segment. The known defect is
 *darker* than its surroundings. The new one is *brighter*. Any detector that
 has committed to reporting local darkness is not merely uninformed about the
-new defect — it is pointed the wrong way.
+new defect - it is pointed the wrong way.
 
 Ask the room whether a network trained to grade scratches should transfer well
 here. The honest answer is "it depends entirely on what the source task forced
@@ -1112,14 +1112,14 @@ weights of a network that already learned something on a related problem, then
 continue training on your small dataset.
 
 The justification is architectural rather than mystical. The first layer of any
-image network learns local contrast operators — we saw eight of them
-rediscovering the zero-sum trick — and there is nothing about local contrast
+image network learns local contrast operators - we saw eight of them
+rediscovering the zero-sum trick - and there is nothing about local contrast
 that is specific to scratches. If that is true, those layers are worth
 borrowing.
 
 Flag the two knobs now, because the next three slides are one measurement each
 of them. Which source task, and how much of the borrowed network you allow to
-change. The received wisdom on both — "any related task", "freeze the base" —
+change. The received wisdom on both - "any related task", "freeze the base"  - 
 is what this segment tests. Handout section 10.
 :::
 
@@ -1128,7 +1128,7 @@ is what this segment tests. Handout section 10.
 - Pre-train on a task **nobody at Meridian wants solved**
 - Naming which of three types a die carries: clean, scratch, particle
 - Grading pass/fail teaches **one** detector; typing forces general descriptions
-- The source task reaches **0.9993** — a receipt, not a result
+- The source task reaches **0.9993**: a receipt, not a result
 - Transfer carries what the source **forced** the network to learn
 
 ::: notes
@@ -1161,7 +1161,7 @@ nothing to lend. Handout section 10.1.
 The received wisdom is that transfer helps most when data is scarcest. These
 numbers do not say that, and the shape they do describe is more useful.
 
-At 25 images nothing works — both arms sit at chance. There is too little data
+At 25 images nothing works - both arms sit at chance. There is too little data
 to fit even a small head onto good features, so the borrowed weights have
 nothing to attach to. Between 50 and 200 the warm start is worth 9 to 17 points
 and the gain *grows* across that range. By 400 it is negative: the from-scratch
@@ -1183,7 +1183,7 @@ The same table as a picture. Two things to point at.
 
 First, the gap between the warm-started curve and the from-scratch curve opens
 and then closes. That is the window. If you had run this experiment at a single
-dataset size — which is what most people do — you could have concluded anything
+dataset size - which is what most people do - you could have concluded anything
 you liked, including that transfer is useless, depending on which size you
 picked.
 
@@ -1256,7 +1256,7 @@ does not. Handout section 10.3.
 Run `Notebooks/03_transfer_and_synthesis.ipynb`. Eighteen minutes.
 
 Two cells to protect. The five-size transfer sweep, because the window only
-exists as a shape and any single row of it supports the wrong conclusion — and
+exists as a shape and any single row of it supports the wrong conclusion - and
 because they can see for themselves how tempting it would have been to run one
 size and publish.
 
@@ -1273,8 +1273,8 @@ needs on screen.
 # What is the convolution actually using?
 - "Images have spatial structure" is **two** claims, not one
 - Permute every image's pixels identically, then train
-- Detection: **0.9798 → 0.9800** — no cost at all
-- Typing: **0.9970 → 0.9523** — 4.5 points
+- Detection: **0.9798 → 0.9800**, no cost at all
+- Typing: **0.9970 → 0.9523**, 4.5 points
 - The dense network notices neither
 
 ::: notes
@@ -1282,14 +1282,14 @@ This is the experiment lesson 9 set up in its closing sentence, and the result
 is the one that surprised the person who wrote it.
 
 Apply one fixed permutation to the 576 pixel positions, apply it to every image
-in the dataset, and retrain from scratch. Adjacency is destroyed — neighbouring
-pixels are now scattered across the image — while every pixel value is
+in the dataset, and retrain from scratch. Adjacency is destroyed - neighbouring
+pixels are now scattered across the image - while every pixel value is
 preserved.
 
 On grading a die, the convolution does not notice. Read that again: the
 architecture defined entirely by adjacency loses nothing when adjacency is
-destroyed. It looks wrong until you ask what the task requires — "is there a
-patch of unusual local contrast somewhere" — and notice that a scattered
+destroyed. It looks wrong until you ask what the task requires - "is there a
+patch of unusual local contrast somewhere" - and notice that a scattered
 permutation leaves those pixels somewhere, still extreme. On naming the defect
 type, which is a question about *shape*, the permutation costs 4.5 points,
 because shape is exactly what it destroys. Handout section 9.
@@ -1331,7 +1331,7 @@ the entire advantage came from weight sharing, and locality contributed
 nothing measurable.
 
 Say why that matters beyond this lesson. Weight sharing is not unique to
-convolution — other architectures supply it in other forms, for sequences and
+convolution - other architectures supply it in other forms, for sequences and
 for sets. If your task needs only weight sharing, convolution is one option
 among several, and the choice should be made on other grounds. If it needs
 locality too, you are asking for something more specific.
@@ -1358,7 +1358,7 @@ the data rewarded it.
 
 This is the most honest thing that can be said in favour of learned
 representations, and it cuts both ways. It found a good feature without being
-told. It would equally have found a bad one had the data rewarded that — which
+told. It would equally have found a bad one had the data rewarded that - which
 is every leakage story from lesson 1, in a new architecture. Handout sections
 3.3 and 9.
 :::
@@ -1395,8 +1395,8 @@ solve them perfectly, so neither repair would have anything to do here.
 | k-nearest neighbours (6) | **0.4970** | 0.9800 |
 | support vector machine (6) | 0.9660 | 0.9800 |
 | random forest (7) | **0.9780** | 0.9795 |
-| dense network (9) | 0.7430 | — |
-| convolutional network (10) | **0.9800** | — |
+| dense network (9) | 0.7430 | - |
+| convolutional network (10) | **0.9800** | - |
 
 ::: notes
 This table was built expecting to show that classical methods cannot handle
@@ -1406,11 +1406,11 @@ A random forest on raw pixels reaches 0.9780, within two thousandths of the
 convolutional network, knowing nothing about which pixel adjoins which. It does
 not need to: a defect drives *some* pixel to an unusual value, and 300 trees
 splitting on individual pixels cover enough of them. That is the forest's own
-inductive bias — the answer depends on a few features crossing thresholds — and
+inductive bias - the answer depends on a few features crossing thresholds - and
 it happens to fit.
 
 Two failures are instructive. k-nearest neighbours collapses to 0.4970 because
-Euclidean distance over 576 pixels is dominated by the smooth background — the
+Euclidean distance over 576 pixels is dominated by the smooth background - the
 curse of dimensionality from lesson 6, exactly. And lesson 9's dense network,
 at 0.7430, sits *behind* plain logistic regression. Handout section 12.
 :::
@@ -1425,7 +1425,7 @@ cluster is what to look at: four hand-made features computed with the contrast
 kernel from the first hour, and every classical family lands at the ceiling.
 
 Say what that costs and what it buys. It cost nine numbers and an argument
-about film thickness — twenty minutes of thinking by someone who understood the
+about film thickness - twenty minutes of thinking by someone who understood the
 physics. It bought the entire problem, for every model family, including the
 one that scored 0.4970 on raw pixels.
 
@@ -1456,18 +1456,18 @@ estimator at all. Lesson 6's kernel is a representation chosen in advance;
 lesson 7's trees build one by splitting; lesson 8's components and embeddings
 are representations with no labels at all.
 
-The handout's closing table gives seven if-then rules for choosing — read it.
+The handout's closing table gives seven if-then rules for choosing - read it.
 The one that matters most is the last: if you cannot say what assumption your
 model encodes, you have not chosen a model, you have chosen a default.
 
 Handout section 12 and 12.1.
 :::
 
-# Homework — the last one
+# Homework: the last one
 
 - **Exercise 10**, due **Friday 4 December 2026, 23:59**
 - `Exercises/10_convolutional_networks.md`
-- It falls in the week of the **project peer review** — plan for both
+- It falls in the week of the **project peer review**: plan for both
 - Two reviews to write as well as two to receive
 
 ::: notes
@@ -1475,24 +1475,24 @@ Set it explicitly and say the deadline out loud: Friday 4 December, 23:59. It
 is the last exercise of the course.
 
 Say the scheduling problem plainly rather than letting them discover it. That
-same week is the project peer review week — each of them reads two other
-projects and is read by two — and the reviews they write are assessed alongside
+same week is the project peer review week - each of them reads two other
+projects and is read by two - and the reviews they write are assessed alongside
 the project they submit. Two pieces of work in one week. Anyone who starts the
 exercise on Thursday will do both badly.
 
 Two standing requirements that today's material makes easy to forget. Any claim
 that one architecture beats another needs the spread it was measured against.
-And any accuracy needs the ceiling it was measured against — on this data that
+And any accuracy needs the ceiling it was measured against - on this data that
 is 0.98, and a model reported at 0.98 may be perfect rather than merely good.
 :::
 
 # What ten weeks add up to
 
 - **0.8567 to 0.4617** for a dense network, on a defect moved half a die
-- The convolutional one went 0.9800 to 0.9847 — because it cannot ask *where*
+- The convolutional one went 0.9800 to 0.9847, because it cannot ask *where*
 - An assumption that is true beats flexibility that is not
 - The representation is doing most of the work; the only question is who builds it
-- Thank you — and good luck with the project
+- Thank you, and good luck with the project
 
 ::: notes
 Close on the number. A dense network scoring 0.8567 on defects in the half of
@@ -1503,14 +1503,14 @@ whole argument in one line: the convolutional network won by being *less*
 expressive.
 
 Then step back over the ten weeks. They arrived able to fit models. What this
-course tried to add is the habit of asking what a number is measured against —
-a ceiling, a spread, a baseline, a fold that was kept honest — and the habit of
+course tried to add is the habit of asking what a number is measured against  - 
+a ceiling, a spread, a baseline, a fold that was kept honest - and the habit of
 naming the assumption a model encodes before trusting what it produces. Those
 two habits are what separate a result from a plausible-looking result, and
 nothing in this field has ever made them less necessary.
 
 One forward-looking sentence, and only one: every system built on top of these
-fundamentals — including the ones this degree programme covers elsewhere — is
+fundamentals - including the ones this degree programme covers elsewhere - is
 still an argument about which inductive bias to encode and what to measure it
 against, so the questions you have practised for ten weeks are the ones that
 transfer.

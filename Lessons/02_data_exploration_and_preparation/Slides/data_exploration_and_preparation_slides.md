@@ -1,7 +1,7 @@
 ---
-title: "Lesson 2 — Data: Exploration and Preparation"
+title: "Lesson 2: Data Exploration and Preparation"
 subtitle: "Technologies for Artificial Intelligence"
-author: "Fabio Antonini — Università degli Studi dell'Aquila"
+author: "Fabio Antonini, Università degli Studi dell'Aquila"
 date: "2 October 2026"
 ---
 
@@ -81,7 +81,7 @@ few minutes. Keep the asymmetry in mind for Lesson 4.
 
 # Look before you touch anything
 
-`.info()`, `.describe()`, class balance, first — always.
+`.info()`, `.describe()`, class balance, first: always.
 
 - 2000 rows, 8 columns, mixed types
 - Churn rate: **19.4%** → baseline accuracy 80.6%
@@ -139,7 +139,7 @@ dataset, which is itself worth noting - most real ones have some.
 Some customers just left it blank. Nothing systematic.
 
 - Safe to impute with a fixed statistic
-- The bias question is not "is this fair" — it is "what does filling it cost"
+- The bias question is not "is this fair": it is "what does filling it cost"
 
 ::: notes
 Bridge to the derivation. Ask: if the missingness is completely random, is mean
@@ -160,7 +160,7 @@ fine when the gaps are few, and quietly destructive when they are many.
 
 # What mean imputation actually costs
 
-Every correlation involving the imputed column shrinks — even under MCAR.
+Every correlation involving the imputed column shrinks, even under MCAR.
 
 ![](correlation_attenuation.png)
 
@@ -176,7 +176,7 @@ The algebra is Handout Section 3.2: the correlation is multiplied by the square 
 
 # num_support_calls: MAR
 
-Missing more often for long-tenure customers — not by chance.
+Missing more often for long-tenure customers, not by chance.
 
 - Treating it as MCAR reweights the sample the wrong way
 - A **missingness indicator** column preserves the signal even after filling
@@ -190,10 +190,10 @@ itself is filled with a number. Handout Section 3.3.
 
 # What to do about a gap
 
-- **Drop rows** — only if few, and only if MCAR
-- **Drop the column** — if it is missing too often to help
-- **Impute** — mean/median, most-frequent, `KNNImputer`
-- **Add a missingness indicator** — keeps MAR signal alive
+- **Drop rows**: only if few, and only if MCAR
+- **Drop the column**: if it is missing too often to help
+- **Impute**: mean/median, most-frequent, `KNNImputer`
+- **Add a missingness indicator**: keeps MAR signal alive
 
 ::: notes
 Four options, and the choice is a question about WHY the data is missing rather than about how much is missing.
@@ -224,7 +224,7 @@ and the only one that can quietly change what the sample represents.
 
 # Outliers, two rules
 
-Two standard rules for flagging an unusual value — the z-score, and Tukey's
+Two standard rules for flagging an unusual value: the z-score, and Tukey's
 fence built on the interquartile range (IQR):
 
 $$z_i = \frac{x_i - \bar x}{s} \qquad\qquad [\,Q_1 - 1.5\,\mathrm{IQR},\ \ Q_3 + 1.5\,\mathrm{IQR}\,]$$
@@ -244,7 +244,7 @@ normality; the interesting question is what they do when the data is not
 normal, and that is where they part company.
 :::
 
-# Calibrated to agree — on a normal column
+# Calibrated to agree: on a normal column
 
 ![](outlier_fences.png)
 
@@ -277,7 +277,7 @@ where did the negative values go? Nobody will know yet - next slide.
 `tenure_months` of **-3** is impossible. Neither rule flags it.
 
 - -3 is not *extreme* relative to a column spanning 0–72
-- It is not *unusual*. It is *invalid* — a different question entirely
+- It is not *unusual*. It is *invalid*: a different question entirely
 
 ::: notes
 This is the slide worth remembering over the two formulas. Statistical rules
@@ -298,7 +298,7 @@ Detection finds candidates. What to do next is a **domain** decision.
 - **Cap** it at the fence (Winsorise)
 - **Remove** the row
 - **Correct** it, if the true value is recoverable
-- **Leave** it — unusual is not the same as wrong
+- **Leave** it: unusual is not the same as wrong
 
 ::: notes
 A long-tenure, high-paying customer is not an error; a tenure of 999 months is.
@@ -318,7 +318,7 @@ changed the population your model is trained on.
 
 # Notebook 1, live
 
-Exploration, missingness mechanisms, both outlier rules — from scratch.
+Exploration, missingness mechanisms, both outlier rules: from scratch.
 
 ::: notes
 Work through notebook 1 now, 25 minutes. Let them drive; walk the room rather
@@ -485,7 +485,7 @@ actually does, and we return to it in Lesson 3.
 
 - Category → a statistic of $y$
 - Compresses any cardinality to one column
-- The dangerous one — next
+- The dangerous one comes next
 ::::
 :::
 
@@ -560,7 +560,7 @@ run into notebook 2's pipeline section.
 
 # Restating Lesson 1's argument
 
-$f$ includes **every** learned parameter — not just "the model part".
+$f$ includes **every** learned parameter, not just "the model part".
 
 $$\mathbb{E}_{T \sim \mathcal{D}^m}\left[\hat{R}_T(f)\right] = R(f) \quad \text{only if } f \text{ is independent of } T$$
 
@@ -618,14 +618,14 @@ thing the easy thing.
 # The model, on churn
 
 - Baseline: **0.806**
-- Model (numeric + low-card categorical, no zip): **0.820** accuracy, **0.752** AUC — area under the receiver operating characteristic curve
+- Model (numeric + low-card categorical, no zip): **0.820** accuracy, **0.752** AUC (area under the receiver operating characteristic curve)
 
 Modest accuracy gain. Why?
 
 ::: notes
 Let the room answer why the accuracy gain is modest. The dataset is 80/20 imbalanced, so accuracy is dominated by the majority class - exactly as Lesson 1 warned, and the first time they meet it on data they prepared themselves.
 
-The matrix shows where the errors sit: read the bottom-left cell, the churners the model missed. The area under the receiver operating characteristic curve — AUC, which Lesson 4 builds properly — at 0.752 is unaffected by the imbalance and says there is real signal that accuracy is hiding.
+The matrix shows where the errors sit: read the bottom-left cell, the churners the model missed. The area under the receiver operating characteristic curve - AUC, which Lesson 4 builds properly - at 0.752 is unaffected by the imbalance and says there is real signal that accuracy is hiding.
 
 Had we reported only accuracy, this model would look barely better than the baseline and someone would reasonably conclude the features were useless.
 :::
@@ -650,7 +650,7 @@ cases. Accuracy on its own would have reported this as progress.
 
 # Feature engineering
 
-Ratios, interactions, binning — a linear model cannot invent these itself.
+Ratios, interactions, binning: a linear model cannot invent these itself.
 AUC: 0.752 → 0.754, a modest but real gain.
 
 $$\text{charge\_per\_tenure} = \frac{\text{monthly\_charges}}{\text{tenure\_months} + 1}$$
@@ -696,7 +696,7 @@ a model, in the sense Section 8.1 makes precise: any fitted parameter is part
 of f, and f must be independent of the test set.
 :::
 
-# Leak 1 — impute before splitting
+# Leak 1: impute before splitting
 
 `KNNImputer` fills a gap using **other rows' values**.
 
@@ -750,7 +750,7 @@ was the test set leaking into the training data one imputed value at a
 time. This is the argument for the pipeline, made in numbers.
 :::
 
-# Leak 2 — encode before splitting
+# Leak 2: encode before splitting
 
 Replace `zip_code` with the **average churn rate of its own customers**,
 computed before anybody has split anything.
@@ -822,7 +822,7 @@ risk are the same underlying fact.
 
 # The fix
 
-`sklearn.preprocessing.TargetEncoder` — cross-fitted inside the pipeline.
+`sklearn.preprocessing.TargetEncoder`: cross-fitted inside the pipeline.
 
 Each row's encoded value comes from **other** folds, never its own label.
 
@@ -875,10 +875,10 @@ subtlest and the one most likely to appear in their own project.
 
 # What we did today
 
-- Explored before transforming — types, gaps, shape, correlations
+- Explored before transforming: types, gaps, shape, correlations
 - Diagnosed *why* values are missing, not just *how many*
 - Two outlier rules, and what neither can tell you
-- Scaling, encoding, engineering — all inside `Pipeline`
+- Scaling, encoding, engineering: all inside `Pipeline`
 - Two leaks that look nothing like leaking
 
 ::: notes
@@ -896,7 +896,7 @@ Preview Lesson 3 in one sentence: with the data prepared honestly, we can
 finally fit something and look at what the fitting actually does.
 :::
 
-# Homework — due Friday 9 October
+# Homework: due Friday 9 October
 
 `Exercises/02_data_exploration_and_preparation.md`
 
@@ -920,11 +920,11 @@ thing to the exam they will see before the sample papers.
 # Before next week
 
 - Work the three notebooks in order
-- Read the handout — the derivations are examinable
+- Read the handout: the derivations are examinable
 - Take the quiz
 - **Do the exercise**
 
-Next: regression — the first model we derive completely.
+Next: regression, the first model we derive completely.
 
 ::: notes
 Set the exercise explicitly and give the deadline - Friday 9 October, at the
