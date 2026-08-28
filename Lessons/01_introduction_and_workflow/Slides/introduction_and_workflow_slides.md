@@ -139,16 +139,22 @@ exam they will see before the sample papers.
 # Getting the material
 
 ```bash
-git clone https://github.com/fabioantonini/\
-technologies-for-artificial-intelligence.git
-cd technologies-for-artificial-intelligence
+git clone $URL tai
+cd tai
 docker compose pull
 docker compose up
 ```
 
-Then open **127.0.0.1:8888**, token `aicourse`
+`$URL` is in `Course/Setup/`. Then open **127.0.0.1:8888**, token `aicourse`
 
 ::: notes
+Put the repository URL on the board or paste it in the chat, and have them clone
+into a short folder - `git clone <url> tai`. The full address is
+github.com/fabioantonini/technologies-for-artificial-intelligence and it does not
+fit on a slide in a form anyone can copy; Course/Setup/Docker_Quickstart.md has it
+written out, and that is what to point them at. The folder name is theirs to choose:
+Docker Compose does not care what it is called.
+
 Do this live and take ten minutes over it. Making sure everyone has JupyterLab running
 today is far cheaper than fixing it during lesson 3, when they also have an exercise
 due.
