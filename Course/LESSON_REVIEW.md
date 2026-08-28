@@ -241,6 +241,50 @@ What has actually been through this pass, so nobody redoes it or assumes it was 
 | 9 | 28 Aug 2026 | **Complete, and careful.** No wrong numbers, and the handout does something none of the others do: it quotes the *median* end-to-end gradient ratio (3,547) across eight seeds, states the 2,734–4,607 range, and warns in the text against quoting the largest as though it were a law. Six figures placed under their prose; section 11.2 opened on two figures back to back and now says what question they answer. One speaker note said "the figure is in handout section 7.4" with a different figure on the next slide — disambiguated. |
 | 10 | 28 Aug 2026 | **Complete, no wrong numbers.** Every parameter count checks: 576×256+256 = 147,712 dense against 8×9+8 = 80 convolutional, so the slides' "147,632 missing parameters" and the ratio of 1,846 are both exact. Section 3.3 opened on a figure; it now says why one writes kernels down before learning them. |
 
+### What check 2.1 found in lesson 3
+
+Recorded because the faults have a shape, and it is not the one the check was
+written for. Only one was a caption describing the wrong picture; three were
+figures that did not show what they claimed, and the worst was a stale number
+nobody could see.
+
+- **`alpha_trade_off.png` had its six points hard-coded, and one was pre-restack.**
+  The leftmost said test error 182.0 where the truth is 17.3 — and 182.0 is one of
+  the two values removed from the quiz the same morning. That single number
+  manufactured the entire left arm of the U and put the marked optimum in the wrong
+  place: the real minimum is λ = 10⁻⁴, not 0.01. The figure now computes its own
+  sweep over ten orders of magnitude.
+- **`learning_rate_regimes.png` contradicted the rule its own section derives.**
+  Section 4.3 states convergence requires α < 2/c, the bowl has c = 1, and the panel
+  titled "Too large: it climbs out" used α = 1.96. It converged. Now 2.15.
+- **`train_test_by_degree.png` showed none of what its caption promised.** On a
+  linear axis the degree-12 value of 24,656 flattened every other point onto the
+  x-axis, so neither the falling training error nor the turn at degree 3 was
+  visible. Log scale.
+- **`coefficient_trust.png` carried a caption for a different figure** — "the same
+  coefficient across four random splits", where the image is six features' error
+  against their correlation with `area_sqm`. Two of its labels also overlapped.
+- **`regularisation_paths.png` and `alpha_trade_off.png` labelled the penalty α.**
+  CLAUDE.md reserves α for the learning rate. The quiz and exercise were corrected
+  earlier the same day; the figures draw it into the PNG, where no search finds it.
+  `regularisation_paths.png` also titled a panel "everything shrinks" over a curve
+  that triples first.
+
+### Still open across the course
+
+Written down 28 August 2026, after the notebook pass finished. Ordered by what
+each is worth.
+
+| # | What | Where it stands |
+|---|---|---|
+| 1 | **Check 2.1 — open every figure, confirm the caption describes *that* image.** The most productive check in this document, and the one no tool can do. | Lessons 2 and 3 done, five faults each. Lesson 3's are recorded below. 144 non-equation figures across the course; **lessons 1 and 4–10 remain**. |
+| 2 | **Check 2.7 — look at the rendered deck.** | Done for lessons 1 and 2, where it found a `git clone` URL broken across lines without a backslash and annotations drawn over axis labels. Decks 3–10, roughly 400 slides, have not been looked at. |
+| 3 | **CLAUDE.md's "one number per lesson" table stops at lesson 3.** Lessons 4, 9 and 10 each name a headline number in the handout — lesson 4's section 5.1 is titled "The number to remember from this lesson". | Not started. |
+| 4 | **Two submission conventions.** Exercises 1–3 are due "at the start of Lesson N+1"; exercises 4–10 are due "23:59". The date chain itself is correct end to end. | Not started. |
+| 5 | **Deck density is nobody's decision.** 46 to 66 slides per lesson against roughly 80 lecture minutes: 35–50 slides an hour, where CLAUDE.md says 25–30. `verify_lesson.py` checks the plan sums to 180 minutes and nothing checks this ratio. | Not started; a teaching decision rather than a defect. |
+| 6 | **Cross-lesson claims verified for lesson 2 only.** Each lesson makes checkable assertions about the others. | Lesson 2 done, one overstatement found and fixed. Nine lessons unchecked. |
+
+
 ---
 
 ## 4. When a number moves

@@ -140,19 +140,19 @@ def ridge_lasso_geometry():
 
 def learning_rate_regimes():
     """Three step sizes on the same bowl."""
-    fig, axes = plt.subplots(1, 3, figsize=(12.4, 3.6), sharey=True)
-    cost = lambda w: 0.5 * w ** 2
-    grid = np.linspace(-3.2, 3.2, 300)
+    fig, axes = plt.subplots(1, 3, figsize=(12.4, 3.6))
+    cost = lambda w: 0.5 * w ** 2     # curvature 1, so 4.3's threshold is alpha < 2
 
-    for ax, (rate, title, colour) in zip(axes, [
-        (0.12, "Too small: correct, slow", SLATE),
-        (0.85, "About right", TEAL),
-        (1.96, "Too large: it climbs out", RUST),
+    for ax, (rate, steps, span, title, colour) in zip(axes, [
+        (0.12, 9, 3.2, "Too small: correct, slow", SLATE),
+        (0.85, 9, 3.2, "About right", TEAL),
+        (2.15, 5, 6.4, "Too large: it climbs out", RUST),
     ]):
+        grid = np.linspace(-span, span, 300)
         ax.plot(grid, cost(grid), lw=2, color=SLATE, alpha=.55)
         w = 2.8
         points = [w]
-        for _ in range(9):
+        for _ in range(steps):
             w = w - rate * w          # gradient of 0.5 w^2 is w
             points.append(w)
         points = np.array(points)
@@ -160,7 +160,7 @@ def learning_rate_regimes():
         ax.scatter([0], [0], marker="*", s=130, color=BLUE, zorder=4)
         ax.set_title(f"{title}\nα = {rate}", fontsize=11)
         ax.set_xlabel("w")
-        ax.set_ylim(-0.4, 6.5)
+        ax.set_ylim(-0.4, 0.5 * span ** 2 * 1.05)
         ax.set_xticks([]); ax.set_yticks([])
         ax.spines[["top", "right"]].set_visible(False)
     axes[0].set_ylabel("cost")
@@ -176,8 +176,10 @@ def coefficient_trust():
 
     fig, ax = plt.subplots(figsize=(7.2, 4.2))
     ax.scatter(correlation, error, s=110, color=RUST, zorder=3)
+    offsets = {"distance_km": (6, 10), "age_years": (8, -14),
+               "garage": (8, 4), "bathrooms": (8, 4), "bedrooms": (-4, 12)}
     for x, y, name in zip(correlation, error, features):
-        ax.annotate(name, (x, y), xytext=(6, 6), textcoords="offset points",
+        ax.annotate(name, (x, y), xytext=offsets[name], textcoords="offset points",
                     fontsize=9.5, color=INK)
 
     fit = np.polyfit(correlation, error, 1)
@@ -195,29 +197,54 @@ def coefficient_trust():
 
 
 def bias_variance_trade():
-    """Training error and test error as the penalty grows."""
-    alphas = np.array([0.001, 0.01, 0.1, 1, 10, 100])
-    train = np.array([16.3, 18.0, 22.9, 44.5, 76.0, 96.0])
-    test = np.array([182.0, 22.8, 43.2, 105.2, 185.4, 227.6])
+    """Training and test error as the penalty grows.
+
+    Computed here rather than transcribed. The previous version hard-coded its
+    six points, and one of them - the leftmost - still held a pre-restack value
+    (test 182.0 where the truth is 17.3). That single number manufactured the
+    whole left arm of the curve and put the minimum in the wrong place.
+    """
+    from sklearn.linear_model import Ridge
+    from sklearn.metrics import mean_squared_error
+    from sklearn.model_selection import train_test_split
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import PolynomialFeatures, StandardScaler
+
+    rng = np.random.default_rng(42)
+    temp = rng.uniform(-5, 35, 30)
+    use = 240 + 1.15 * (temp - 18) ** 2 + rng.normal(0, 22, 30)
+    t_fit, t_held, u_fit, u_held = train_test_split(temp, use, test_size=0.3,
+                                                    random_state=42)
+
+    penalties = np.logspace(-8, 2, 11)
+    train, test = [], []
+    for penalty in penalties:
+        fitted = make_pipeline(PolynomialFeatures(12, include_bias=False),
+                               StandardScaler(), Ridge(alpha=penalty))
+        fitted.fit(t_fit.reshape(-1, 1), u_fit)
+        train.append(mean_squared_error(u_fit, fitted.predict(t_fit.reshape(-1, 1))) ** 0.5)
+        test.append(mean_squared_error(u_held, fitted.predict(t_held.reshape(-1, 1))) ** 0.5)
+    train, test = np.array(train), np.array(test)
 
     fig, ax = plt.subplots(figsize=(7.4, 4.2))
-    ax.plot(alphas, train, "o-", lw=2.2, color=TEAL, label="training error")
-    ax.plot(alphas, test, "o-", lw=2.2, color=RUST, label="test error")
-    ax.set_xscale("log")
-    best = alphas[np.argmin(test)]
+    ax.plot(penalties, train, "o-", lw=2.2, color=TEAL, label="training error")
+    ax.plot(penalties, test, "o-", lw=2.2, color=RUST, label="test error")
+    ax.set_xscale("log"); ax.set_yscale("log")
+
+    best = penalties[np.argmin(test)]
     ax.axvline(best, ls=":", lw=1.5, color=SLATE)
-    ax.text(best * 1.25, 200, f"best: α = {best}", fontsize=10, color=SLATE)
-
-    ax.annotate("too flexible", xy=(0.0012, 182), xytext=(0.0012, 120),
+    ax.text(best * 1.6, test.max() * 0.55, f"best: λ = {best:g}",
+            fontsize=10, color=SLATE)
+    ax.annotate("too flexible", xy=(penalties[0], test[0]), xytext=(1.4e-8, test[0] * 0.35),
                 fontsize=9.5, color=SLATE)
-    ax.annotate("too rigid", xy=(100, 227), xytext=(22, 245),
-                fontsize=9.5, color=SLATE)
+    ax.annotate("too rigid", xy=(penalties[-1], test[-1]),
+                xytext=(2.0, test[-1] * 0.45), fontsize=9.5, color=SLATE)
 
-    ax.set_xlabel("penalty strength α (log scale)")
-    ax.set_ylabel("RMSE (kWh)")
+    ax.set_xlabel("penalty λ (log scale)")
+    ax.set_ylabel("RMSE (kWh, log scale)")
     ax.set_title("The penalty buys generalisation, until it does not",
                  fontsize=12.5, weight="bold")
-    ax.legend(frameon=False, fontsize=10)
+    ax.legend(frameon=False, fontsize=10, loc="upper left")
     ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
     save(fig, "alpha_trade_off.png")

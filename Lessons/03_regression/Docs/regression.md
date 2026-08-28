@@ -653,7 +653,7 @@ Notebook 3 applies Ridge to the degree-12 disaster from Section 5:
 
 ![](alpha_trade_off.png)
 
-*The trade in one picture. A small penalty buys a large fall in test error; too much rigidity gives it all back. The useful range spans four orders of magnitude, which is why the penalty cannot be guessed.*
+*The trade, swept over ten orders of magnitude and computed rather than transcribed. Test error falls from 57 at λ = 10⁻⁸ to 14.6 at λ = 10⁻⁴, then climbs to 228. Two things to read off it: the minimum is nowhere near the round number you would have guessed, and the floor is broad — anything between 10⁻⁶ and 10⁻² is within a few kWh of the best. That flatness is why a penalty can be searched for rather than solved for, and Lesson 5 is how.*
 
 | Model | Training RMSE | Test RMSE | Largest \|w\| |
 |---|---|---|---|
@@ -683,7 +683,7 @@ On the housing data, raising $\lambda$ drops features in a specific order:
 
 ![](regularisation_paths.png)
 
-*Every coefficient tracked as the penalty sweeps from nothing to a lot. Ridge coefficients shrink towards zero and arrive only in the limit; Lasso coefficients hit zero at a finite penalty and stay there.*
+*Every coefficient tracked as the penalty sweeps from nothing to a lot. Ridge coefficients approach zero and arrive only in the limit; Lasso coefficients reach it at a finite penalty and stay there. What to look at on the left is `bedrooms`, which **triples** before it falls: as the penalty pushes `area_sqm` down, the feature correlated with it at 0.77 picks up the slack. Shrinkage is not the same thing as each coefficient falling monotonically, and Section 7.2 is why.*
 
 | λ | Features kept |
 |---|---|
@@ -723,7 +723,7 @@ Notebook 1 fits all six features and compares against the truth:
 
 ![](coefficient_trust.png)
 
-*The same coefficient estimated across four random splits of the same data. Where the feature is well conditioned the estimate barely moves; where two columns carry one fact, it swings wildly.*
+*The table above, drawn. Each point is one feature: how far its estimated coefficient lands from the truth, against how strongly it correlates with `area_sqm`. The three features that share nothing with area are recovered to within 1%; the two that share a great deal are out by 9% and 17%. `garage` is the honest exception — uncorrelated and still 9.6% out — and it is there to stop the line being read as a law.*
 
 | Feature | True | Estimated | Error | Correlation with area |
 |---|---|---|---|---|
