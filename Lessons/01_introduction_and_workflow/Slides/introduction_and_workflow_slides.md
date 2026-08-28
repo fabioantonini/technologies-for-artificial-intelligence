@@ -160,7 +160,7 @@ when that happens.
 
 Then the second thing to say, because it saves the room ten minutes today and a
 lecture in November. The image comes in two sizes. `docker compose up` gives them
-`core`, which is 770 MB and carries everything lessons 1 to 8 need. Before lesson 9
+`core`, a 750 MB download carrying everything lessons 1 to 8 need. Before lesson 9
 they change one line in `.env` to `TAI_TAG=full`, which adds TensorFlow - and because
 `full` is built on top of `core`, that switch downloads the TensorFlow layer alone
 rather than the whole environment again. Point them at Course/Setup/Docker_Quickstart.md
@@ -168,7 +168,7 @@ for both steps.
 
 Ask who has already pulled it. Anyone who has not should run `docker compose pull` at
 home tonight, not now: thirty simultaneous downloads on the lecture-theatre network is
-not a plan, and it is why the image was cut from 10.4 GB to 770 MB in the first place.
+not a plan, and it is why the image was cut down in the first place.
 
 Common problems: port 8888 already in use (edit docker-compose.yml to 8889), and the
 first pull taking several minutes on the room's wifi. Warn them the first start is
@@ -1035,16 +1035,30 @@ the model's decision to make.
 ![](precision_recall_tradeoff.png)
 
 ::: notes
-One model, one dataset, and the threshold swept from one end to the other.
+Say what the axis is before anything else, because nothing else makes sense
+without it: every dot is one of the 143 tumours in the test set, and its
+position is the probability our model gave to "malignant". Not a distance,
+not a score - a probability, 0 to 1.
 
-Follow the two curves in opposite directions. Lower the threshold and
-recall rises - we catch more of what is there - while precision falls,
-because more of what we flag is wrong. There is no setting where both are
-at their best, and no amount of better modelling removes the trade.
+The black line is 0.5, and it is worth saying out loud that nothing chose
+it. It is the default. Everything to the right of it we flag; everything
+to the left we send home.
 
-So the question of whether a model is good has no answer until somebody
-says which error is worse, which is the slide from earlier arriving again
-with a number attached. Lesson 4 spends an hour here.
+Now the point of the slide. Ask them where the line SHOULD go, and let the
+picture answer. Almost every tumour sits at one end, which is why the model
+scores 0.986 - but look at the middle. One malignancy at 0.11, one benign
+at 0.62. Those two dots are the whole of the disagreement, and they are
+what the threshold is for.
+
+Then the numbers, which are in notebook 01 and worth quoting: drag the line
+down to 0.10 and every malignancy is caught, at the price of 11 false
+alarms. Drag it up to 0.90 and there are no false alarms at all, at the
+price of 7 women sent home who should not have been.
+
+Nothing about the model changed between those two sentences. So the question
+of whether it is good has no answer until somebody says which error is
+worse - which is the earlier slide arriving again, now with a number
+attached. Lesson 4 spends an hour here.
 :::
 
 # What we did not do

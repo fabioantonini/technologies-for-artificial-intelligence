@@ -511,7 +511,7 @@ for the end. Lesson 5 makes this precise.
 
 ![](precision_recall_tradeoff.png)
 
-*The trade every classifier makes, and the reason one number cannot describe it.*
+*Every tumour in the test set, placed by the probability the model gave to "malignant"; the line is the 0.5 default, and everything to its right is flagged. Look at the middle of the axis rather than the ends: the one malignant case at 0.11 and the benign one at 0.62 are the entire overlap, and they are what makes the threshold a decision rather than a calculation. Sliding the line to 0.10 catches that missed case and costs 11 false alarms; sliding it to 0.90 removes every false alarm and costs 7 missed malignancies.*
 
 ![](leakage.png)
 

@@ -104,4 +104,52 @@ same("7 doubling the columns multiplies the largest of them by 1.04",
      math.sqrt(2 * math.log(10000)) / math.sqrt(2 * math.log(5000)),
      1.04, tolerance=5e-3)
 
+# ------------------------------- Section 7, the threshold the default chose
+#
+# The handout's caption and the deck quote what moving the threshold costs. The
+# route here starts from the raw dataset and refits, so nothing is borrowed from
+# the notebook's committed output - only the same seed and split.
+
+from sklearn.datasets import load_breast_cancer  # noqa: E402
+from sklearn.linear_model import LogisticRegression  # noqa: E402
+from sklearn.model_selection import train_test_split  # noqa: E402
+from sklearn.pipeline import make_pipeline  # noqa: E402
+from sklearn.preprocessing import StandardScaler  # noqa: E402
+
+_data = load_breast_cancer(as_frame=True)
+_X_train, _X_test, _y_train, _y_test = train_test_split(
+    _data.data, _data.target, test_size=0.25, random_state=42,
+    stratify=_data.target)
+_model = make_pipeline(
+    StandardScaler(),
+    LogisticRegression(max_iter=5000, random_state=42),
+).fit(_X_train, _y_train)
+
+# Column 0 is class 0, which for this dataset is `malignant`.
+_p = _model.predict_proba(_X_test)[:, 0]
+_malignant = (_y_test == 0).to_numpy()
+
+
+def _cost(threshold: float) -> tuple[int, int]:
+    """(malignancies missed, false alarms) at this threshold."""
+    flagged = _p >= threshold
+    return int((~flagged & _malignant).sum()), int((flagged & ~_malignant).sum())
+
+
+# Two decimals, deliberately. The COUNTS below are identical under
+# scikit-learn 1.3.1 (the course image) and 1.9.0 (the host toolchain); the
+# third decimal of a fitted probability is not, moving 0.106 to 0.107 as the
+# solver changes. So the handout quotes what survives a version bump.
+same("7 the overlap: the lowest probability given to a malignancy",
+     float(_p[_malignant].min()), 0.11, tolerance=5e-3)
+same("7 the overlap: the highest given to a benign tumour",
+     float(_p[~_malignant].max()), 0.62, tolerance=5e-3)
+
+same("7 at the 0.5 default, malignancies missed", _cost(0.50)[0], 1, tolerance=0)
+same("7 at the 0.5 default, false alarms", _cost(0.50)[1], 1, tolerance=0)
+same("7 dropping to 0.10 misses nothing", _cost(0.10)[0], 0, tolerance=0)
+same("7 and costs this many false alarms", _cost(0.10)[1], 11, tolerance=0)
+same("7 raising to 0.90 raises no false alarm", _cost(0.90)[1], 0, tolerance=0)
+same("7 and costs this many missed malignancies", _cost(0.90)[0], 7, tolerance=0)
+
 print(f"lesson 1: {checks} hand-worked numbers recomputed, all agree")

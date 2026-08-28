@@ -215,39 +215,6 @@ def timeline():
     save(fig, "ai_timeline.png")
 
 
-def precision_recall():
-    """Moving the threshold trades one error against the other."""
-    rng = np.random.default_rng(7)
-    n = 900
-    negative = rng.normal(-1.0, 1.0, int(n * 0.6))
-    positive = rng.normal(1.2, 1.0, int(n * 0.4))
-    grid = np.linspace(-4.5, 4.5, 300)
-
-    fig, ax = plt.subplots(figsize=(7.6, 4.0))
-    ax.hist(negative, bins=45, alpha=.7, color=TEAL, label="benign", density=True)
-    ax.hist(positive, bins=45, alpha=.7, color=RUST, label="malignant", density=True)
-
-    threshold = 0.15
-    ax.axvline(threshold, lw=2.2, color=INK)
-    ax.text(threshold + 0.1, 0.40, "decision\nthreshold", fontsize=9.6, color=INK)
-
-    ax.annotate("", xy=(threshold - 1.5, 0.44), xytext=(threshold - 0.15, 0.44),
-                arrowprops=dict(arrowstyle="-|>", color=SLATE, lw=1.5))
-    ax.text(threshold - 1.6, 0.445, "fewer false alarms,\nmore missed cases",
-            ha="right", fontsize=9.2, color=SLATE)
-    ax.annotate("", xy=(threshold + 1.5, 0.30), xytext=(threshold + 0.15, 0.30),
-                arrowprops=dict(arrowstyle="-|>", color=SLATE, lw=1.5))
-    ax.text(threshold + 1.6, 0.305, "catch more cases,\nmore false alarms",
-            fontsize=9.2, color=SLATE)
-
-    ax.set_xlabel("model's score for 'malignant'")
-    ax.set_yticks([])
-    ax.set_title("No threshold is correct on its own", fontsize=12.5, weight="bold")
-    ax.legend(frameon=False, fontsize=10, loc="upper left")
-    ax.spines[["top", "right", "left"]].set_visible(False)
-    fig.tight_layout()
-    save(fig, "precision_recall_tradeoff.png")
-
 # ---------------------------------------------------------------------------
 # History section. Each figure carries the technical content of its moment,
 # not a portrait - the point is that these are the same objects we use later.
@@ -804,7 +771,6 @@ if __name__ == "__main__":
     risk_gap()
     workflow()
     timeline()
-    precision_recall()
     mcculloch_pitts()
     imitation_game()
     dartmouth()
