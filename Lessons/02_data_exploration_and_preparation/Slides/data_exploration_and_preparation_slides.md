@@ -618,14 +618,14 @@ thing the easy thing.
 # The model, on churn
 
 - Baseline: **0.806**
-- Model (numeric + low-card categorical, no zip): **0.820** accuracy, **0.752** AUC (area under the receiver operating characteristic curve)
+- Model (numeric + low-card categorical, no zip): **0.820** accuracy, **0.751** AUC (area under the receiver operating characteristic curve)
 
 Modest accuracy gain. Why?
 
 ::: notes
 Let the room answer why the accuracy gain is modest. The dataset is 80/20 imbalanced, so accuracy is dominated by the majority class - exactly as Lesson 1 warned, and the first time they meet it on data they prepared themselves.
 
-The matrix shows where the errors sit: read the bottom-left cell, the churners the model missed. The area under the receiver operating characteristic curve - AUC, which Lesson 4 builds properly - at 0.752 is unaffected by the imbalance and says there is real signal that accuracy is hiding.
+The matrix shows where the errors sit: read the bottom-left cell, the churners the model missed. The area under the receiver operating characteristic curve - AUC, which Lesson 4 builds properly - at 0.751 is unaffected by the imbalance and says there is real signal that accuracy is hiding.
 
 Had we reported only accuracy, this model would look barely better than the baseline and someone would reasonably conclude the features were useless.
 :::
@@ -651,7 +651,7 @@ cases. Accuracy on its own would have reported this as progress.
 # Feature engineering
 
 Ratios, interactions, binning: a linear model cannot invent these itself.
-AUC: 0.752 → 0.754, a modest but real gain.
+AUC: 0.751 → 0.754, a modest but real gain.
 
 $$\text{charge\_per\_tenure} = \frac{\text{monthly\_charges}}{\text{tenure\_months} + 1}$$
 
@@ -775,7 +775,7 @@ was computed from the labels".
 
 ::: notes
 Baseline without zip: AUC 0.751. Honest encoding (sklearn's TargetEncoder,
-cross-fitted inside the pipeline): 0.752 - indistinguishable, correctly,
+cross-fitted inside the pipeline): 0.751 - indistinguishable, correctly,
 since zip carries nothing. Leaky encoding, computed before the split: 0.891.
 
 Let that number sit. It looks like a genuinely better model. It is not one -

@@ -1055,8 +1055,8 @@ random forest's importance mass sat on columns wired to nothing.
 
 Ask them to write it down - derivations fade, this kind of number tends
 not to. It is the fourth lesson this course has produced one of these: coin
-flip labels, borrowed test-set values, an overfit coefficient of 247,514,
-and now this.
+flip labels, borrowed test-set values, a coefficient of 365 where an
+unpenalised fit wanted billions, and now this.
 
 Handout section 7 has the full mechanism.
 :::

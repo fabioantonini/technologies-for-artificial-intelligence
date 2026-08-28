@@ -607,8 +607,8 @@ time.
 |---|---|---|
 | 1 | 113.3 | 212.1 |
 | 3 | 17.5 | **16.9** |
-| 9 | 16.5 | 118.2 |
-| 12 | 16.3 | 182.0 |
+| 9 | 16.2 | 590.1 |
+| 12 | 13.6 | 24,655.7 |
 
 ::: notes
 Say the name in full before anything else, because every later slide uses the
@@ -676,7 +676,7 @@ amount of flexibility depends on how much data you have - a theme for lesson 5.
 
 Largest coefficient, degree 2: **411**
 
-Largest coefficient, degree 12: **247,514**
+Largest coefficient, degree 12: **3,097,038,010**
 
 ::: notes
 Here is the mechanism, and it is the setup for everything after the break.
@@ -748,15 +748,15 @@ Handout section 6.1.
 
 | Model | Train | Test | max \|w\| |
 |---|---|---|---|
-| none | 16.3 | 182.0 | 247,514 |
+| none | 13.6 | 24,655.7 | 3,097,038,010 |
 | λ = 0.01 | 18.0 | **22.8** | 365 |
 | λ = 1 | 44.5 | 105.2 | 156 |
 | λ = 100 | 96.0 | 227.6 | 6 |
 
 ::: notes
-Read the last column first: 247,514 down to 365, from a penalty of one
-hundredth. And the test error falls from 182 to 23, which is the noise floor  - 
-an eightfold improvement bought with one number.
+Read the last column first: three billion down to 365, from a penalty of one
+hundredth. And the test error falls from 24,656 to 23, which is the noise floor -
+a thousandfold improvement bought with one number.
 
 Now the training column, which is the honest part: it gets WORSE at every step.
 16, 18, 45, 96. That is the trade being made deliberately - a worse fit on the
@@ -1018,6 +1018,7 @@ landed.
 - An iterative one: walk downhill, mind your stride
 - Flexibility helps until it does not
 - Charging for size buys generalisation, and readable coefficients
+- **365** against billions: what a penalty of 0.01 costs, and buys
 
 ::: notes
 Draw the thread. Lesson 2 prepared data honestly; today we fitted something to
@@ -1025,6 +1026,10 @@ it and found that fitting well and explaining well are different goals.
 
 The one sentence to leave them with: the model that fits your training data best
 is usually not the one you want.
+
+And the number to leave them with, repeated from before the break: a penalty of
+one hundredth took the largest coefficient from billions to 365 and the test
+error from 24,656 to 22.8. One number, chosen well, bought all of that.
 
 Preview lesson 4 in a sentence: same machinery, but the target becomes a
 category instead of a number - and that single change turns out to require a

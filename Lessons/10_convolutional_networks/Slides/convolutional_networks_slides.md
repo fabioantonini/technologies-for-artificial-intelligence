@@ -152,7 +152,7 @@ Handout sections 9 and 10.
 
 - **77%** accuracy on coin-flip labels, from leakage alone
 - **98 of 128** imputed rows that borrowed from the test set
-- **247,514**: one coefficient of an overfitted fit
+- **365**: the largest coefficient a penalty of 0.01 leaves, against billions without one
 - **37 of 40** disguised accounts caught by reconstruction error
 - A sigmoid layer divides the gradient by about **four**
 

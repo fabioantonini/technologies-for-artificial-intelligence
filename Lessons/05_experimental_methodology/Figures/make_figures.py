@@ -111,7 +111,7 @@ def nested_cv_diagram():
     ax.text(0, 0.02, "The inner loop may overfit itself as much as it likes.",
             fontsize=10.5, color=INK)
     ax.text(0, -0.38,
-            "The outer test block was never part of it — that is the number you report.",
+            "The outer test block was never part of it: that is the number you report.",
             fontsize=10.5, color=INK, fontweight="bold")
 
     ax.set_xlim(-1.5, 8.4)

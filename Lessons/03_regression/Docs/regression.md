@@ -429,12 +429,13 @@ units of the target:
 | 2 | 17.6 | 17.4 |
 | 3 | 17.5 | **16.9** |
 | 6 | 17.0 | 23.3 |
-| 9 | 16.5 | 118.2 |
-| 12 | 16.3 | 182.0 |
+| 9 | 16.2 | 590.1 |
+| 12 | 13.6 | 24,655.7 |
 
 **Training error falls at every step.** From 113 down to 16, monotonically,
 without ever suggesting that anything is going wrong. **Test error falls to
-degree 3 and then climbs** — by degree 12 it is ten times worse than the best.
+degree 3 and then climbs** — by degree 12 it is nearly **1,500 times** worse
+than the best.
 
 Had we chosen the model by training error, we would have selected degree 12: the
 worst of the six, and the training error would have congratulated us the whole
@@ -455,7 +456,7 @@ Why does a flexible model behave badly, rather than merely using its flexibility
 where it is needed?
 
 Look at the coefficients. The degree-2 fit has a largest coefficient of 411. The
-degree-12 fit needs 247,514 — nearly a thousand times larger.
+degree-12 fit needs 3,097,038,010 — seven million times larger.
 
 They are large because they work in **opposition**. With 21 points and 12
 coefficients there are many ways to pass close to every point, and the
@@ -592,14 +593,14 @@ Notebook 3 applies Ridge to the degree-12 disaster from Section 5:
 
 | Model | Training RMSE | Test RMSE | Largest \|w\| |
 |---|---|---|---|
-| No penalty | 16.3 | 182.0 | 247,514 |
+| No penalty | 13.6 | 24,655.7 | 3,097,038,010 |
 | Ridge, λ = 0.01 | 18.0 | **22.8** | 365 |
 | Ridge, λ = 1 | 44.5 | 105.2 | 156 |
 | Ridge, λ = 100 | 96.0 | 227.6 | 6 |
 
-A penalty of $\lambda = 0.01$ — barely a touch — cuts the largest coefficient from 247,514
-to 365 and the test error from 182 to 23, which is the noise floor. An eightfold
-improvement, from one number.
+A penalty of $\lambda = 0.01$ — barely a touch — cuts the largest coefficient from
+3,097,038,010 to 365 and the test error from 24,656 to 23, which is the noise floor.
+A thousandfold improvement, from one number.
 
 **And notice the training column: it gets worse at every step.** That is the
 trade being made explicitly — we accept a worse fit on the data we have, in
