@@ -24,10 +24,6 @@ date: "25 September 2026 · reading time about 70 minutes"
 
 ## 1. What this course is, and what it is not
 
-![](spam_rules.png)
-
-*The problem you cannot specify. Every rule catches some spam and some legitimate mail, and the list never converges.*
-
 This is a course about the **foundations** of machine learning: the methods, the
 mathematics beneath them, and the experimental discipline needed to tell a result that
 holds from one that merely looks good.
@@ -54,10 +50,6 @@ begins raising it.
 
 ## 2. What learning from data means
 
-![](rules_versus_learning.png)
-
-*The inversion. Programming takes rules and data and produces answers; learning takes data and answers and produces the rules.*
-
 Start with the problem that machine learning solves, and notice that it is a problem
 about *specification*, not about computation.
 
@@ -66,17 +58,21 @@ to write the rules by hand: flag messages containing certain words, or arriving 
 certain domains. You would produce something that works for a week. Spam adapts; your
 rules do not; the list of exceptions grows until nobody can maintain it.
 
+![](spam_rules.png)
+
+*The problem you cannot specify. Every rule catches some spam and some legitimate mail, and the list never converges.*
+
 The difficulty is not that the program is hard to write. It is that **you cannot state
 the rule**. You recognise spam instantly and cannot articulate how.
 
 Machine learning inverts the approach. Rather than specifying the rule, you supply
 examples and let a procedure search for a rule consistent with them.
 
+![](rules_versus_learning.png)
+
+*The inversion. Programming takes rules and data and produces answers; learning takes data and answers and produces the rules.*
+
 ### 2.1 The formalisation
-
-![](learning_setup.png)
-
-*The setup in one picture: an unknown distribution, a sample drawn from it, a model chosen using that sample, and the world it will actually meet.*
 
 This much can be made precise, and doing so pays off later.
 
@@ -84,6 +80,10 @@ We have an input space $\mathcal{X}$ (emails, tumour measurements, images) and a
 output space $\mathcal{Y}$ (spam or not, malignant or benign, a price). We assume
 pairs $(x, y)$ are drawn from some fixed but unknown probability distribution
 $\mathcal{D}$ over $\mathcal{X} \times \mathcal{Y}$.
+
+![](learning_setup.png)
+
+*The setup in one picture: an unknown distribution, a sample drawn from it, a model chosen using that sample, and the world it will actually meet.*
 
 We want a function $f: \mathcal{X} \to \mathcal{Y}$ that predicts well. "Well" needs a
 definition, so we introduce a **loss function** $L(\hat{y}, y)$ measuring the cost of
@@ -122,17 +122,21 @@ which is why it is a modelling decision and not a technicality.
 
 ### 2.2 The gap that explains the whole course
 
+Here is the crux. We minimise $\hat{R}_S(f)$ but care about $R(f)$, and the two are
+not the same number.
+
 ![](risk_gap.png)
 
 *The quantity we want and the quantity we can compute are not the same. Everything in this course is about keeping the gap between them small and honest.*
-
-Here is the crux. We minimise $\hat{R}_S(f)$ but care about $R(f)$, and the two are
-not the same number.
 
 A sufficiently flexible $f$ can drive the empirical risk to zero by memorising the
 sample — storing every pair and reciting the answer. Its expected risk would be
 terrible: it has learnt the sample rather than the pattern. That is **overfitting**,
 and it is the central difficulty of the field.
+
+![](overfitting.png)
+
+*The same twenty-two points fitted three times. The dashed line is the pattern the data really came from, which no method gets to see. Left, a straight line is too rigid to follow it. Right, a degree-18 polynomial passes almost exactly through every sample point and shoots off the scale between them — its empirical risk is nearly zero and it has learnt the noise, not the pattern. The middle one is what we want, and nothing in the training error distinguishes it from the right-hand one.*
 
 So the practical question is never "how well does the model do on the data I fitted
 it to?" — that number is always optimistic and sometimes meaningless. It is "how well
@@ -143,10 +147,6 @@ let the fitting procedure touch it, and measure there. **That is the entire reas
 test set exists.**
 
 ### 2.3 Why holding data out actually works
-
-![](overfitting.png)
-
-*The same idea on real data: the error on data the model has seen keeps falling, while the error on data it has not turns around.*
 
 **The picture first.** Imagine a revision session the week before an exam, in
 which the lecturer works through exactly the exercises that will be on the
@@ -219,15 +219,15 @@ columns, which is why nothing in the code looks wrong.
 
 ### 2.4 How much to hold out, and how much to trust it
 
-![](split_variance.png)
-
-*One split is one measurement. Repeat it with a different seed and the number moves — which is why lesson 5 is about measuring properly.*
-
 **The picture first.** A test score is a measurement, and measurements have
 error bars. Ask a hundred people whether they will vote for a party and you
 would not report the result to three decimal places; ask a thousand and the
 figure steadies. A test set works the same way: the fewer examples it holds,
 the noisier the number it gives you.
+
+![](split_variance.png)
+
+*One split is one measurement. Repeat it with a different seed and the number moves — which is why lesson 5 is about measuring properly.*
 
 That is where the trade-off comes from. Move examples into the test set and the
 measurement steadies but the model has less to learn from; move them the other
@@ -266,10 +266,6 @@ situation cross-validation is designed for. Lesson 5 takes it up.
 
 ### 2.5 One simplification we are making today
 
-![](split_scheme.png)
-
-*Train and test today; lesson 5 adds the validation set that every choice should actually be made on.*
-
 This lesson speaks of a training set and a test set. In practice three roles are
 needed:
 
@@ -278,6 +274,10 @@ needed:
 | **Training** | Fitting the model | Freely |
 | **Validation** | Choosing between models and settings | Freely |
 | **Test** | The final reported number | Once |
+
+![](split_scheme.png)
+
+*Train and test today; lesson 5 adds the validation set that every choice should actually be made on.*
 
 Today we do not need the middle one, because we make no choices: one model, no tuning,
 no comparison. As soon as you compare ten candidates and report the best, you have
@@ -321,12 +321,12 @@ building something complicated.
 
 ## 4. A short history, and what it teaches
 
+The field's history is worth an hour not for the anecdotes, but because its pattern
+repeats and you are living through another iteration of it.
+
 ![](ai_timeline.png)
 
 *Seventy years in one picture. The pattern worth recognising is the rhythm: a genuine advance, claims well beyond the evidence, and a correction expensive enough to cost a generation of funding.*
-
-The field's history is worth an hour not for the anecdotes, but because its pattern
-repeats and you are living through another iteration of it.
 
 **1943 — the first artificial neuron.** McCulloch and Pitts model a neuron as a
 threshold unit: it fires when the weighted sum of its inputs exceeds a threshold. The
@@ -379,12 +379,12 @@ a durable skill — and it is, again, the skill this course is built to teach.
 
 ## 5. The three kinds of learning
 
+The standard taxonomy divides methods by **where the target comes from**. That is the
+distinction that matters; the algorithms often overlap.
+
 ![](kinds_of_learning.png)
 
 *One dataset, three questions. What changes is not the data but what you ask of it.*
-
-The standard taxonomy divides methods by **where the target comes from**. That is the
-distinction that matters; the algorithms often overlap.
 
 ### 5.1 Supervised learning
 
@@ -425,13 +425,13 @@ spends its first half on how to choose that number honestly.
 
 ### 5.3 Self-supervised learning
 
-![](self_supervision.png)
-
-*Where the labels come from when nobody labelled anything: hide part of the input and ask the model to reconstruct it.*
-
 A target is manufactured from the input: hide part of each example and train the model
 to reconstruct it from the rest. Nobody annotates anything, yet the supervision is
 genuine.
+
+![](self_supervision.png)
+
+*Where the labels come from when nobody labelled anything: hide part of the input and ask the model to reconstruct it.*
 
 The reconstruction task itself is of no interest — it is a *pretext*. The point is that
 solving it forces the model to represent how the parts of an input relate, and that
@@ -450,12 +450,12 @@ pursue it further here, but you should recognise it.
 
 ## 6. The end-to-end workflow
 
+The order of these steps is not a convention. Several of them are only valid in this
+order.
+
 ![](ml_workflow.png)
 
 *The cycle, and the order that matters most: the split comes before anything is fitted, not after.*
-
-The order of these steps is not a convention. Several of them are only valid in this
-order.
 
 **1. Frame the problem.** What is predicted, from what, and what would make an error
 harmful? Which mistake is worse? Answer before modelling — the answers determine which
@@ -505,9 +505,17 @@ for the end. Lesson 5 makes this precise.
 
 ## 7. How models mislead
 
+A reported score is a summary, and a summary is something with information removed.
+Before the four failure modes, it is worth seeing what Notebook 01's headline number
+left out: 0.986 is four separate counts added together, and only two of the four are
+successes.
+
 ![](confusion_matrix.png)
 
 *What a single accuracy figure hides: four outcomes collapsed into one number. Lesson 4 takes this apart properly.*
+
+Those four counts are not a property of the model alone. They are what the model
+produces *once a threshold has been chosen*, and on this problem nobody chose it.
 
 ![](precision_recall_tradeoff.png)
 
@@ -537,18 +545,6 @@ That is what it means to say the threshold is a decision rather than a
 calculation — and deciding it requires knowing what a missed cancer costs against
 what a needless biopsy costs, which is not a question the data can answer.
 
-![](leakage.png)
-
-*Selecting features before splitting: the test rows have already influenced which features exist, so the score that follows is not a measurement of anything.*
-
-![](leakage_sensitivity.png)
-
-*How much worse it gets, measured over 100 repetitions per point. Read the two panels against each other rather than separately: halving the rows costs about eight points, doubling the columns about one and a half. Leakage is driven by scarce data far more than by plentiful features — and scarce data is where it is hardest to detect.*
-
-![](shortcut_timeline.png)
-
-*A shortcut feature — something that predicts the label in this dataset for a reason that will not survive contact with new data.*
-
 Four failure modes, all producing numbers that survive casual review, all demonstrated
 in notebook 03.
 
@@ -557,23 +553,51 @@ Selecting features on the full dataset, scaling before splitting, or including a
 recorded after the outcome. Leakage inflates scores without any error being visible in
 the code: notebook 03 obtains 77% accuracy on data that is pure random noise.
 
-The figure above measures how that 77% moves. Both handles push the same way, but not
-equally: with 5000 candidate columns, going from 200 examples down to 100 costs about
-eight points of honesty, while going from 5000 columns up to 10000 costs about one and a
-half. The asymmetry follows from how each side scales — a noise correlation has spread
-$1/\sqrt{m}$, so halving the examples multiplies it by 1.41, whereas the largest of $n$
-such draws grows like $\sqrt{2\ln n}$, so doubling the columns multiplies it by 1.04.
-More columns buy more lottery tickets; fewer rows make each ticket pay better. The
-uncomfortable consequence is that leakage is at its most severe exactly where data is
-scarce, which is also where it is least likely to be caught.
+![](leakage.png)
+
+*Selecting features before splitting: the test rows have already influenced which features exist, so the score that follows is not a measurement of anything.*
+
+How bad that gets is not fixed — it depends on the shape of the table. The next figure
+turns the two available handles, the number of rows and the number of columns, and
+measures the damage each one does.
+
+![](leakage_sensitivity.png)
+
+*Both panels report the accuracy the leaked pipeline claims, on labels that are coin flips — so the honest answer is the dashed line at 0.500, and every point above it is pure illusion. Each panel turns one handle and holds the other fixed at the value named in its axis label; the two meet at 200 examples and 5000 columns, where both read 0.799. Bars are 95% intervals over 100 repetitions, small enough that the slopes are real.*
+
+**Read the left panel from right to left**, because that is the direction its title
+describes: starting at 400 examples and halving repeatedly, the claimed accuracy climbs
+0.731, 0.799, 0.874, 0.955. Every halving of the data buys roughly eight more points of
+fiction. The right panel reads the ordinary way and is much flatter: doubling the
+candidate columns from 5000 to 10000 moves it 0.799 to 0.813, about one and a half
+points.
+
+That asymmetry is not an accident of this dataset, and it follows from how each side
+scales. A noise correlation measured on $m$ rows has spread $1/\sqrt{m}$, so halving
+the examples multiplies it by 1.41. The largest of $n$ such draws grows only like
+$\sqrt{2\ln n}$, so doubling the columns multiplies it by 1.04. More columns buy more
+lottery tickets; fewer rows make every ticket pay better.
+
+The uncomfortable consequence is the one to remember. Leakage is at its most severe
+exactly where data is scarce — and scarce data is also where a suspiciously good score
+is least likely to be questioned, because there was never enough of it to check
+against anything else.
 
 **Imbalanced classes.** When 1% of cases are positive, answering "negative" always
 scores 99%. Accuracy measures the class you are not interested in.
+
+![](imbalance_matrix.png)
+
+*99% accurate and detecting nothing. On a rare-event problem, accuracy measures the majority class and little else.*
 
 **Shortcut features.** A column that is a consequence of the label rather than a
 predictor of it — a treatment code, a follow-up appointment. The model leans on it and
 collapses in deployment, where the column does not exist yet. No metric detects this;
 only knowing how the data was recorded does.
+
+![](shortcut_timeline.png)
+
+*A shortcut feature — something that predicts the label in this dataset for a reason that will not survive contact with new data. Everything to the right of the marked moment happens after a prediction is needed, so none of it can be an input.*
 
 **Single-split noise.** One train/test split gives one draw from a distribution. On a
 small dataset the spread across splits can exceed the difference between two competing
@@ -582,10 +606,6 @@ models. A result quoted with no indication of variability is incomplete.
 ---
 
 ## 8. Limits and responsibility
-
-![](imbalance_matrix.png)
-
-*99% accurate and detecting nothing. On a rare-event problem, accuracy measures the majority class and little else.*
 
 Three things worth stating on day one, since they shape everything that follows.
 
