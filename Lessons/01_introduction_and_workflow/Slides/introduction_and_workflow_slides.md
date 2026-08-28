@@ -1060,8 +1060,10 @@ them separately.
 - They trade off against each other
 
 ::: notes
-Use the figure to make the trade-off physical: the threshold is a line you slide, and
-sliding it moves errors from one column to the other.
+Define both against the confusion matrix still in their heads from the last slide,
+and keep them the right way round: recall divides by the row of things that really
+were malignant, precision by the column of things we flagged. The next slide makes
+the trade physical.
 
 Push recall towards 1.0 by flagging anything suspicious, and precision collapses - the
 clinic drowns in unnecessary biopsies. Demand high precision and you start missing
