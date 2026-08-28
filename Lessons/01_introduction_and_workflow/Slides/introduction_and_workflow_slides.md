@@ -1044,16 +1044,19 @@ The black line is 0.5, and it is worth saying out loud that nothing chose
 it. It is the default. Everything to the right of it we flag; everything
 to the left we send home.
 
-Now the point of the slide. Ask them where the line SHOULD go, and let the
-picture answer. Almost every tumour sits at one end, which is why the model
-scores 0.986 - but look at the middle. One malignancy at 0.11, one benign
-at 0.62. Those two dots are the whole of the disagreement, and they are
-what the threshold is for.
+Now the point of the slide. Most of the picture is the model being certain:
+105 of the 143 sit within 0.02 of one end, which is where 0.986 comes from.
+Tell them to ignore those and look at the middle. The band from 0.11 to 0.62
+holds the 12 it was unsure about - 1 malignant, 11 benign - and at 0.5 only
+two of the twelve are on the wrong side: the malignancy at 0.11 that we
+missed, and the benign at 0.62 that we flagged.
 
-Then the numbers, which are in notebook 01 and worth quoting: drag the line
-down to 0.10 and every malignancy is caught, at the price of 11 false
-alarms. Drag it up to 0.90 and there are no false alarms at all, at the
-price of 7 women sent home who should not have been.
+Then slide the line, and make them watch the band rather than the numbers.
+Down to 0.10 and it passes below the whole band: the missed malignancy is
+caught, and all 11 uncertain benign tumours turn into false alarms. Point at
+them - the eleven are countable on the slide, which is the whole reason this
+figure is here rather than a table. Up to 0.90 instead and no false alarm
+survives, at the price of 7 women sent home who should not have been.
 
 Nothing about the model changed between those two sentences. So the question
 of whether it is good has no answer until somebody says which error is

@@ -145,6 +145,17 @@ same("7 the overlap: the lowest probability given to a malignancy",
 same("7 the overlap: the highest given to a benign tumour",
      float(_p[~_malignant].max()), 0.62, tolerance=5e-3)
 
+# The band the caption sends the reader to, and the crowd it tells them to
+# ignore. The 11 benign inside the band are the same 11 that become false
+# alarms at a threshold of 0.10 - which is the point of drawing this at all.
+_lo, _hi = _p[_malignant].min(), _p[~_malignant].max()
+_band = (_p >= _lo) & (_p <= _hi)
+same("7 tumours the model was unsure about", int(_band.sum()), 12, tolerance=0)
+same("7   of which malignant", int((_band & _malignant).sum()), 1, tolerance=0)
+same("7   of which benign", int((_band & ~_malignant).sum()), 11, tolerance=0)
+same("7 tumours it was certain about, within 0.02 of an end",
+     int(((_p < 0.02) | (_p > 0.98)).sum()), 105, tolerance=0)
+
 same("7 at the 0.5 default, malignancies missed", _cost(0.50)[0], 1, tolerance=0)
 same("7 at the 0.5 default, false alarms", _cost(0.50)[1], 1, tolerance=0)
 same("7 dropping to 0.10 misses nothing", _cost(0.10)[0], 0, tolerance=0)

@@ -511,7 +511,31 @@ for the end. Lesson 5 makes this precise.
 
 ![](precision_recall_tradeoff.png)
 
-*Every tumour in the test set, placed by the probability the model gave to "malignant"; the line is the 0.5 default, and everything to its right is flagged. Look at the middle of the axis rather than the ends: the one malignant case at 0.11 and the benign one at 0.62 are the entire overlap, and they are what makes the threshold a decision rather than a calculation. Sliding the line to 0.10 catches that missed case and costs 11 false alarms; sliding it to 0.90 removes every false alarm and costs 7 missed malignancies.*
+*One dot per tumour, on two rows: the 53 malignant cases above, the 90 benign below. Left to right is the probability the model gave to "malignant", and the black line is the 0.5 default — everything to its right is called malignant, everything to its left benign.*
+
+Most of that picture is the model being certain, and it is the part to ignore: 105
+of the 143 tumours sit within 0.02 of one end or the other. That crowd is where
+0.986 accuracy comes from, and it tells you nothing about the threshold, because
+no threshold you would consider moves any of it.
+
+The lesson is in the middle. Between 0.11 and 0.62 lies everything the model was
+unsure about: **12 tumours, 1 malignant and 11 benign**. At the 0.5 default only
+two of those twelve fall on the wrong side — the malignancy at 0.11, missed, and
+the benign case at 0.62, a false alarm. That is the 1 and the 1 in the confusion
+matrix above, and it is the whole of the model's error.
+
+Now slide the line, and watch the band rather than the numbers. Move it **down to
+0.10** and it passes below the entire band: the missed malignancy is caught, and
+every one of the 11 uncertain benign tumours turns into a false alarm. Those 11
+are not a figure quoted from a table — they are the dots you can count to the left
+of the line. Move it **up to 0.90** instead and no false alarm survives, at the
+price of 7 malignancies missed.
+
+Nothing about the model changed between those two sentences. The same fitted
+coefficients, the same probabilities, the same 143 tumours; only the line moved.
+That is what it means to say the threshold is a decision rather than a
+calculation — and deciding it requires knowing what a missed cancer costs against
+what a needless biopsy costs, which is not a question the data can answer.
 
 ![](leakage.png)
 
