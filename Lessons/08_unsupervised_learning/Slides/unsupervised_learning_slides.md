@@ -1220,8 +1220,8 @@ Handout sections 6.1, 6.2.
 - **t-SNE** (t-distributed stochastic neighbour embedding) arranges points
   so those close together **stay** close
 - Distances between points that started far apart are not preserved
-- Excellent at making separate clusters visually obvious, often more so
-  than PCA's first two components
+- Excellent at making separate clusters visually obvious, more so than
+  PCA's first two components
 - **Distances between clusters mean nothing**
 
 ::: notes

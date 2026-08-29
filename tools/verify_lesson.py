@@ -630,6 +630,16 @@ DECK_TEXT_FLOOR = 530
 #: register as text on every slide.
 CREST_COLUMNS = (845, 960)
 
+#: A tighter box around the crest, and the amount of its own dark ink. The
+#: crest is identical on every slide: 544 of the course's 555 slides measure
+#: exactly CREST_INK here, so anything meaningfully above it is a line of text
+#: sitting on top of the logo. A bullet can end below the floor check above and
+#: still collide here, which is how lesson 8's t-SNE slide got through.
+CREST_BOX = (830, 924)
+CREST_ROWS = (487, 551)
+CREST_INK = 236
+CREST_TOLERANCE = 40
+
 
 def check_deck_overflow(lesson: Path, report: Report) -> None:
     """Look at the rendered deck and find text that runs off the slide.
@@ -665,14 +675,22 @@ def check_deck_overflow(lesson: Path, report: Report) -> None:
                 ink = (image.max(axis=2) < 120) & (
                     image.max(axis=2) - image.min(axis=2) < 40
                 )
+                crest = ink[CREST_ROWS[0]:CREST_ROWS[1],
+                            CREST_BOX[0]:CREST_BOX[1]].sum()
                 ink[:, CREST_COLUMNS[0]:CREST_COLUMNS[1]] = False
                 rows = np.where(ink.any(axis=1))[0]
+                number = int(page.stem.split("-")[-1])
                 if len(rows) and rows.max() > DECK_TEXT_FLOOR:
-                    number = int(page.stem.split("-")[-1])
                     report.fail(
                         "deck",
                         f"{deck.name}: slide {number} runs past the bottom of"
                         " the slide - shorten it or split it",
+                    )
+                elif crest > CREST_INK + CREST_TOLERANCE:
+                    report.fail(
+                        "deck",
+                        f"{deck.name}: slide {number} has text running into"
+                        " the university crest - shorten it or split it",
                     )
 
 
