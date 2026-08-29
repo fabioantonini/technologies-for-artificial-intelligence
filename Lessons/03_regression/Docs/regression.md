@@ -9,7 +9,7 @@ date: "9 October 2026 · reading time about 75 minutes"
 
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
-| 0:00–0:08 | 8 | Exercise 2 returned; the dataset | Slides 2–5 |
+| 0:00–0:08 | 8 | Exercise 2 discussed; the dataset | Slides 2–5 |
 | 0:08–0:23 | 15 | The model and its cost function | Slides 6–12 |
 | 0:23–0:37 | 14 | The exact solution, and when it fails | Slides 13–18 |
 | 0:37–0:48 | 11 | Gradient descent | Slides 19–23 |

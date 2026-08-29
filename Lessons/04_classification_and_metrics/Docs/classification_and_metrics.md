@@ -9,7 +9,7 @@ date: "16 October 2026 · reading time about 80 minutes"
 
 | Time | Segment | Material |
 |---|---|---|
-| 0:00–0:12 | Exercise 3 returned; from numbers to decisions | Slides 2–6 |
+| 0:00–0:12 | Exercise 3 discussed; from numbers to decisions | Slides 2–6 |
 | 0:12–0:35 | Logistic regression: sigmoid, odds, coefficients | Slides 7–12 |
 | 0:35–0:52 | Why the cost had to change | Slides 13–18 |
 | 0:52–1:15 | Notebook 1, and the decision boundary | Slides 19–20 |

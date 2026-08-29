@@ -9,7 +9,7 @@ date: "13 November 2026 · reading time about 95 minutes"
 
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
-| 0:00–0:10 | 10 | Exercise 7 returned; what changes when there is no $y$ | Slides 2–6 |
+| 0:00–0:10 | 10 | Exercise 7 discussed; what changes when there is no $y$ | Slides 2–6 |
 | 0:10–0:35 | 25 | k-means: the objective, Lloyd's algorithm, k-means++, choosing $k$ | Slides 7–23 |
 | 0:35–0:55 | 20 | **Notebook 01** — k-means from scratch | Slide 24 |
 | 0:55–1:10 | 15 | When round clusters are the wrong assumption: hierarchical clustering | Slides 25–31 |

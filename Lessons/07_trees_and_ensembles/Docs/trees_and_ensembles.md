@@ -9,7 +9,7 @@ date: "6 November 2026 · reading time about 85 minutes"
 
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
-| 0:00–0:10 | 10 | Exercise 6 returned; the choice this lesson offers | Slides 2–5 |
+| 0:00–0:10 | 10 | Exercise 6 discussed; the choice this lesson offers | Slides 2–5 |
 | 0:10–0:32 | 22 | Decision trees: splitting on Gini impurity | Slides 6–15 |
 | 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 16–21 |
 | 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 22 |

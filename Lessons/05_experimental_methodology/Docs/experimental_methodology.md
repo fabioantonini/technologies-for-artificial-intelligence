@@ -9,7 +9,7 @@ date: "23 October 2026 · reading time about 85 minutes"
 
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
-| 0:00–0:10 | 10 | Exercise 4 returned; the promise we broke | Slides 2–4 |
+| 0:00–0:10 | 10 | Exercise 4 discussed; the promise we broke | Slides 2–4 |
 | 0:10–0:30 | 20 | One split is a lottery | Slides 5–10 |
 | 0:30–0:52 | 22 | Cross-validation, and when it needs care | Slides 11–18 |
 | 0:52–1:14 | 22 | **Notebook 01** — the split lottery | Slide 19 |

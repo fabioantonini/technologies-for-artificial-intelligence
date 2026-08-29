@@ -9,7 +9,7 @@ date: "20 November 2026 · reading time about 100 minutes"
 
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
-| 0:00–0:10 | 10 | Exercise 8 returned; one neuron is one line | Slides 2–7 |
+| 0:00–0:10 | 10 | Exercise 8 discussed; one neuron is one line | Slides 2–7 |
 | 0:10–0:30 | 20 | The acceptance problem, and why a line cannot solve it | Slides 8–15 |
 | 0:30–0:45 | 15 | A hidden layer: fences made of lines; a network built by hand | Slides 16–23 |
 | 0:45–1:00 | 15 | Forward propagation, shapes, and the loss | Slides 24–29 |

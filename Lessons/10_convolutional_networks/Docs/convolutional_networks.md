@@ -9,7 +9,7 @@ date: "27 November 2026 · reading time about 100 minutes"
 
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
-| 0:00–0:10 | 10 | Exercise 9 returned; the promise lesson 9 left open | Slides 2–7 |
+| 0:00–0:10 | 10 | Exercise 9 discussed; the promise lesson 9 left open | Slides 2–7 |
 | 0:10–0:28 | 18 | Meridian's wafers; why a dense layer is the wrong shape | Slides 8–16 |
 | 0:28–0:45 | 17 | The convolution: definition, output size, kernels by hand | Slides 17–25 |
 | 0:45–1:05 | 20 | **Notebook 01** — convolution from scratch | Slide 26 |
