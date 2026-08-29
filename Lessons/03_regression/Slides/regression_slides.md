@@ -7,11 +7,12 @@ date: "9 October 2026"
 
 # Before we start
 
-- Exercise 2 was due today
+- Exercise 2, which we discuss now
 - The pipeline you built is the one we fit models into from now on
 
 ::: notes
-Collect exercise 2 and say one sentence about what you saw, if you have looked.
+Nothing to collect - ask two or three people what they built, and name the
+recurring mistake if it came up.
 The recurring mistake to name, if it appeared: fitting the scaler or the imputer
 before splitting. It is the exact thing lesson 2 warned about, and seeing it in
 their own work is more instructive than any slide.
@@ -1044,7 +1045,7 @@ category instead of a number - and that single change turns out to require a
 different cost function, for a reason that is one of the exam derivations.
 :::
 
-# Homework: due Friday 16 October, 09:00
+# Homework: we discuss it on Friday 16 October
 
 `Exercises/03_regression.md`
 

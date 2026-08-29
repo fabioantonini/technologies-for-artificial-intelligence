@@ -7,12 +7,12 @@ date: "30 October 2026"
 
 # Before we start
 
-- Exercise 5 was due today
+- Exercise 5, which we discuss now
 - The score that was too good, and what the honest number cost you
 
 ::: notes
-Collect exercise 5. The marks were for the diagnosis, not for the final figure,
-so say one sentence about what the class found and one about what it missed.
+Nothing to collect. What matters is the diagnosis, not the final figure, so ask
+the room what it found and listen for what it missed.
 
 There was more than one problem planted. Ask out loud how many people found the
 second one, and how many stopped after the first - stopping after the first is
@@ -1223,12 +1223,12 @@ Handout section 7 lists all of this with the section numbers.
 
 # Homework
 
-- **Exercise 6**, due **Friday 6 November 2026, 09:00**
+- **Exercise 6**, discussed at the start of **Friday 6 November**
 - A dataset, three families, and a defence of which one you chose
 
 ::: notes
-Set it explicitly and say the deadline out loud: next Friday, 6 November,
-09:00, before lesson 7 starts.
+Set it explicitly and say out loud when it comes back: the first ten
+minutes of next Friday, 6 November.
 
 The marks are for the reasoning, not for the accuracy. A well-argued choice that
 scores slightly worse beats a lucky winner with no justification - and the

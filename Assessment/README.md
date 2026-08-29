@@ -4,9 +4,9 @@ Three components, each testing something the others cannot.
 
 | Component | What it tests | When |
 |---|---|---|
-| [**Weekly exercises**](Exercises/) | That you can apply each method soon after meeting it | Set every Friday, due the next |
+| [**Weekly exercises**](Exercises/) | That you can apply each method soon after meeting it, and can say why you did what you did | Set at the end of each lesson, discussed at the start of the next; one of the ten drawn at the exam |
 | [**Final project**](Project/) | That you can run an honest end-to-end study on an unfamiliar dataset | Brief at Lesson 1, submitted after Lesson 10 |
-| [**Written exam**](Exam/) | That you understand *why* the methods work, not only how to call them | End of course |
+| [**Exam**](Exam/) | That you understand *why* the methods work, not only how to call them — on paper, then out loud about one of your own exercises | End of course |
 
 Weights are confirmed with the degree programme; see [`../Course/SYLLABUS.md`](../Course/SYLLABUS.md).
 
@@ -33,8 +33,10 @@ it. Submitting work you did not write is not.
 
 You may use libraries freely unless an exercise explicitly asks for a from-scratch
 implementation. You may use AI assistants to help you understand material or debug
-code — but you must be able to explain every line you submit, and the exam is closed
-book. A submission you cannot explain is treated as one you did not write.
+code — but you must be able to explain every line you write, and the exam is closed
+book. Work you cannot explain is treated as work you did not write — and since the
+exam draws one of the ten exercises for you to discuss, that is not a threat but a
+description of how the exercises are marked.
 
 Cite any source you drew on: datasets, papers, blog posts, code. A short "Sources"
 section at the end of a notebook is enough.

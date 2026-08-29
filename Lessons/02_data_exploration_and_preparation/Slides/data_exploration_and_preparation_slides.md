@@ -7,20 +7,21 @@ date: "2 October 2026"
 
 # Before we start
 
-Exercise 1 was due at the start of today's lesson.
+Exercise 1 was set last week. We discuss it now.
 
 - The wine-quality workflow, end to end
-- Marked on **methodology**, not on accuracy
-- We will look at a few submissions' framing choices in a moment
+- What counts is **methodology**, not accuracy
+- A show of hands on how you framed it
 
 ::: notes
 Open with the exercise, briefly - two or three minutes, not a review session.
-Ask for a show of hands: who treated quality as binary, who kept it as an
-integer regression problem? Both are defensible if justified; that was the
-whole point of Task 1.
+Nothing is collected, so this is the whole of the feedback: ask for a show of
+hands, who treated quality as binary and who kept it as an integer regression
+problem. Both are defensible if justified; that was the whole point of Task 1.
 
-Do not dwell. The purpose of raising it is continuity, not grading feedback -
-say that detailed feedback comes separately, and move to today's material.
+Say once, here and only here, why it is worth having done: at the exam one of
+the ten exercises is drawn and they talk through their own notebook for it.
+Then move to today's material.
 :::
 
 # What today builds on
@@ -1000,7 +1001,7 @@ Preview Lesson 3 in one sentence: with the data prepared honestly, we can
 finally fit something and look at what the fitting actually does.
 :::
 
-# Homework: due Friday 9 October, 09:00
+# Homework: we discuss it on Friday 9 October
 
 `Exercises/02_data_exploration_and_preparation.md`
 
@@ -1031,8 +1032,8 @@ thing to the exam they will see before the sample papers.
 Next: regression, the first model we derive completely.
 
 ::: notes
-Set the exercise explicitly and give the deadline - Friday 9 October, 09:00, at
-the start of Lesson 3.
+Set the exercise explicitly and say when it is discussed - the first ten minutes
+of Lesson 3, Friday 9 October.
 
 Point out that it uses the same churn dataset, so the exploration they did
 today carries over, and that the marks are again on methodology: a pipeline

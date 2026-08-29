@@ -2,7 +2,7 @@
 title: "Exercise 6 — k-NN, Naive Bayes and Support Vector Machines"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 30 October 2026 · due Friday 6 November 2026, 09:00, at the start of lesson 7"
+date: "Set 30 October 2026 · discussed at the start of lesson 7, Friday 6 November 2026"
 ---
 
 ## What this exercise is for
@@ -17,9 +17,12 @@ be predicted from twenty minutes spent looking at the data.
 
 That is the skill being assessed. Not tuning — **choosing**.
 
-**Submit** a single notebook, `exercise06_<surname>.ipynb`, that runs top to
-bottom in the course container. Written answers go in markdown cells beside the
-evidence for them.
+**Keep** a single notebook, `exercise06.ipynb`, that runs top to bottom in the
+course container. Written answers go in markdown cells beside the evidence for
+them.
+
+Nothing is handed in: lesson 7 opens by discussing this exercise, and at the
+exam one of the ten is drawn for you to talk through your own notebook.
 
 ---
 

@@ -2,7 +2,7 @@
 title: "Exercise 1 — Your first honest workflow"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 25 September 2026 · due Friday 2 October 2026, 09:00, at the start of lesson 2"
+date: "Set 25 September 2026 · discussed at the start of lesson 2, Friday 2 October 2026"
 ---
 
 Roughly 2–3 hours. Work alone; discussing ideas with others is fine, sharing notebooks
@@ -113,15 +113,18 @@ you do next with another week?
 
 ---
 
-## What to hand in
+## What to produce, and keep
 
-A single notebook named `{surname}_01.ipynb` that:
+A single notebook named `exercise01.ipynb` that:
 
 - runs top to bottom in the course container with no edits
 - has `random_state` fixed everywhere, so your numbers reproduce
 - keeps its outputs, so it can be read without being run
 - alternates markdown and code — the prose is not decoration, it is where the reasoning
   lives
+
+Nothing is handed in: lesson 2 opens by discussing this exercise, and at the
+exam one of the ten is drawn for you to talk through your own notebook.
 
 ---
 
@@ -134,7 +137,7 @@ A single notebook named `{surname}_01.ipynb` that:
 | **Interpretation and communication** | 30% | Decisions justified rather than stated; the confusion matrix read in words; honest account of uncertainty in task 7 |
 
 Note there are **no marks for accuracy**. A modest score reached by a sound route beats
-a better one reached by an unsound one — and any submission that scales the full dataset
+a better one reached by an unsound one — and any notebook that scales the full dataset
 before splitting loses the methodology marks regardless of its result.
 
 ---

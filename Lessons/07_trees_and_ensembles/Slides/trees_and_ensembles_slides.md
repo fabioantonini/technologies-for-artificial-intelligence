@@ -31,18 +31,18 @@ reason is the subject of today.
 Handout section 1 sets this framing out in full.
 :::
 
-# Exercise 6 returned
+# Exercise 6, before we start
 
-- Marks were for the **defence of which family**, not for the winning score
-- The recurring gap: a strong accuracy number with no check of *why* the
+- What counts is the **defence of which family**, not the winning score
+- The gap to watch for: a strong accuracy number with no check of *why* the
   assumption behind it held
 - Today's models come with the same obligation
 
 ::: notes
-Hand back exercise 6 quickly - a sentence on what the class did well (most
-picked a defensible family) and a sentence on the common gap (several reports
-quoted a cross-validated score without ever checking whether the model's
-assumption, such as within-class independence, actually held on that data).
+Nothing to collect and nothing to hand back - this is a discussion. Ask who
+picked which family and why, and listen for the common gap: a cross-validated
+score quoted without any check of whether the model's assumption, such as
+within-class independence, actually held on that data.
 
 Link forward explicitly: today introduces a family with its own convenient
 assumption - that the columns you feed a random forest are all worth
@@ -1087,12 +1087,12 @@ Handout summary and notation table.
 
 # Homework
 
-- **Exercise 7**, due **Friday 13 November 2026, 09:00**
+- **Exercise 7**, discussed at the start of **Friday 13 November**
 - `Exercises/07_trees_and_ensembles.md`
 
 ::: notes
-Set it explicitly and say the deadline out loud: Friday 13 November,
-09:00 - it is due as lesson 8 begins.
+Set it explicitly and say out loud when it comes back: the first ten
+minutes of lesson 8, Friday 13 November.
 
 Remind them of the standing rule from lesson 5: every reported number needs
 a cross-validated spread, and any feature-importance claim needs the check

@@ -2,7 +2,7 @@
 title: "Exercise 4 — Classification and Evaluation Metrics"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 16 October 2026 · due Friday 23 October 2026, 09:00, at the start of lesson 5"
+date: "Set 16 October 2026 · discussed at the start of lesson 5, Friday 23 October 2026"
 ---
 
 ## What this exercise is for
@@ -14,9 +14,12 @@ takes the rest** — and the marks follow the judgement.
 You will build a classifier on a dataset you have not seen, report it honestly,
 and defend one decision that the data cannot make for you.
 
-**Submit** a single notebook, `exercise04_<surname>.ipynb`, that runs top to
-bottom in the course container with no manual steps. Written answers go in
-markdown cells, next to the evidence for them.
+**Keep** a single notebook, `exercise04.ipynb`, that runs top to bottom in the
+course container. Written answers go in markdown cells beside the evidence for
+them.
+
+Nothing is handed in: lesson 5 opens by discussing this exercise, and at the
+exam one of the ten is drawn for you to talk through your own notebook.
 
 ---
 
@@ -59,7 +62,7 @@ rate**.
 4. Report the confusion matrix at threshold 0.5.
 
 **What is being marked:** that the pipeline is genuinely leak-free, and that the
-baseline is present. A submission without the baseline cannot score full marks
+baseline is present. A notebook without the baseline cannot score full marks
 however good the model is.
 
 ---

@@ -2,7 +2,7 @@
 title: "Exercise 7 — Decision Trees and Ensembles"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 6 November 2026 · due Friday 13 November 2026, 09:00, at the start of lesson 8"
+date: "Set 6 November 2026 · discussed at the start of lesson 8, Friday 13 November 2026"
 ---
 
 ## What this exercise is for
@@ -27,9 +27,12 @@ That is the skill being assessed. Not fitting models — **reading a rule
 well enough to know, before you fit anything, whether it needs an
 ensemble.**
 
-**Submit** a single notebook, `exercise07_<surname>.ipynb`, that runs top to
-bottom in the course container. Written answers go in markdown cells beside
-the evidence for them.
+**Keep** a single notebook, `exercise07.ipynb`, that runs top to bottom in the
+course container. Written answers go in markdown cells beside the evidence for
+them.
+
+Nothing is handed in: lesson 8 opens by discussing this exercise, and at the
+exam one of the ten is drawn for you to talk through your own notebook.
 
 ---
 

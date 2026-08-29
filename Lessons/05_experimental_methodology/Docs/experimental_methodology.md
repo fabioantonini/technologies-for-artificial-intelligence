@@ -714,7 +714,7 @@ questions open — and section 7.3 suggests how large the correction tends to be
 
 ### Homework
 
-`Exercises/05_experimental_methodology.md`, due **Friday 30 October 2026, 09:00**, at the start of Lesson 6.
+`Exercises/05_experimental_methodology.md`, discussed at the start of Lesson 6, **Friday 30 October 2026**.
 
 ### Notation used in this lesson
 

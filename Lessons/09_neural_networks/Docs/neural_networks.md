@@ -1130,8 +1130,8 @@ the architecture that encodes it is the convolutional network.
 
 ### Homework
 
-**Exercise 9** — see `Exercises/09_neural_networks.md`. Due **Friday 27
-November 2026, 09:00**, at the start of lesson 10.
+**Exercise 9** — see `Exercises/09_neural_networks.md`. Discussed at the start of lesson 10,
+**Friday 27 November 2026**.
 
 ### Notation used in this lesson
 

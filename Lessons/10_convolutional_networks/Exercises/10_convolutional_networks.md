@@ -2,7 +2,7 @@
 title: "Exercise 10 — Two Stations, One Photograph"
 subtitle: "Technologies for Artificial Intelligence — Lesson 10"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 27 November 2026 · due Friday 4 December 2026, 23:59 — no lesson follows it"
+date: "Set 27 November 2026 · the last one, and the only one no lesson follows: work it by Friday 4 December 2026"
 ---
 
 ## What this is
@@ -235,4 +235,7 @@ and what it separates. Section 4.2 is what pooling does and what it costs.
 Notebook 02 runs every one of these on the wafer images, and the code
 transfers with the dataset swapped.
 
-Submit one notebook, executed top to bottom, with the prose in markdown cells.
+Keep one notebook, `exercise10.ipynb`, executed top to bottom, with the prose in
+markdown cells. Nothing is handed in, and no lesson follows to discuss this one:
+it is worked for the exam, where one of the ten exercises is drawn for you to talk
+through your own notebook.

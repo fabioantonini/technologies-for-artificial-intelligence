@@ -2,7 +2,7 @@
 title: "Exercise 8 — Unsupervised Learning"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 13 November 2026 · due Friday 20 November 2026, 09:00, at the start of lesson 9"
+date: "Set 13 November 2026 · discussed at the start of lesson 9, Friday 20 November 2026"
 ---
 
 ## What this exercise is for
@@ -38,9 +38,12 @@ That is the skill being assessed. Not fitting PCA — **reading how an
 anomaly was constructed well enough to know, before you plot anything,
 whether a picture will show it to you.**
 
-**Submit** a single notebook, `exercise08_<surname>.ipynb`, that runs top to
-bottom in the course container. Written answers go in markdown cells beside
-the evidence for them.
+**Keep** a single notebook, `exercise08.ipynb`, that runs top to bottom in the
+course container. Written answers go in markdown cells beside the evidence for
+them.
+
+Nothing is handed in: lesson 9 opens by discussing this exercise, and at the
+exam one of the ten is drawn for you to talk through your own notebook.
 
 ---
 

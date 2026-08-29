@@ -29,19 +29,19 @@ has a $y$ supplied by anyone.
 Handout section 1.
 :::
 
-# Exercise 7 returned
+# Exercise 7, before we start
 
-- Marks were for the **defence of the chosen family**, not the winning score
-- Recurring gap: a feature-importance ranking quoted without checking how
+- What counts is the **defence of the chosen family**, not the winning score
+- The gap to watch for: a feature-importance ranking quoted without checking how
   many candidate columns competed for attention at each split
 - Today's methods come with a version of the same obligation: a clustering
   or a projection is a claim, and it needs its own check
 
 ::: notes
-Hand back exercise 7 briefly. A sentence on what went well, a sentence on
-the recurring gap - several reports read the random forest's importance
-ranking as settled fact rather than as something section 7 of that lesson
-showed could be dominated by noise columns.
+Nothing to collect and nothing to hand back - discuss it. Ask what the
+importance ranking was taken to mean, and listen for the gap: reading it as
+settled fact rather than as something section 7 of that lesson showed could be
+dominated by noise columns.
 
 Link forward: today has no labels at all, so there is no accuracy score to
 fall back on even provisionally. The obligation to check a result does not
@@ -1272,12 +1272,12 @@ Handout summary and notation table.
 
 # Homework
 
-- **Exercise 8**, due **Friday 20 November 2026, 09:00**
+- **Exercise 8**, discussed at the start of **Friday 20 November**
 - `Exercises/08_unsupervised_learning.md`
 
 ::: notes
-Set it explicitly and say the deadline out loud: Friday 20 November,
-09:00, as lesson 9 begins.
+Set it explicitly and say out loud when it comes back: the first ten
+minutes of lesson 9, Friday 20 November.
 
 Remind them of the standing rule from lesson 5, still in force with no
 labels at all: every reported number needs a check against what the

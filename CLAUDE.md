@@ -84,9 +84,13 @@ Reckon on roughly **25-30 slides per hour** of lecture, and **20-30 minutes per
 notebook** worked through live. Three notebooks of substance is a normal lesson.
 
 **Homework, every time.** Every lesson ends by setting an exercise from
-`Exercises/`, due the following Friday. It is never optional and never skipped: the
-exercises are assessed, and they are what carries students towards the final project.
-Announce it on the last slide and state the deadline.
+`Exercises/`, and the next lesson opens by discussing it. Nothing is collected and
+nothing is marked week by week: the exercises are assessed once, at the exam, where
+**one of the ten is drawn and the student talks through their own notebook**. That is
+what makes them non-negotiable rather than a marking deadline, and it is what carries
+students towards the final project. Announce the exercise on the last slide, say when
+it is discussed, and write the opening of the next lesson as a discussion — never as a
+collection or a hand-back.
 
 **Never put a full derivation on a slide.** That is the whole reason the handout
 exists. In class you show the result and why it matters; the proof is read afterwards.

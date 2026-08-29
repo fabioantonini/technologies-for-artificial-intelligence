@@ -2,7 +2,7 @@
 title: "Exercise 3 — Fit, regularise, and say what you believe"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 9 October 2026 · due Friday 16 October 2026, 09:00, at the start of lesson 4"
+date: "Set 9 October 2026 · discussed at the start of lesson 4, Friday 16 October 2026"
 ---
 
 Roughly 2–3 hours. Work alone; discussing ideas is fine, sharing notebooks is not.
@@ -118,9 +118,9 @@ predict badly, and what would you do with another week?
 
 ---
 
-## What to hand in
+## What to produce, and keep
 
-A single notebook named `{surname}_03.ipynb` that:
+A single notebook named `exercise03.ipynb` that:
 
 - runs top to bottom in the course container with no edits
 - has `random_state` fixed everywhere
@@ -146,7 +146,7 @@ which coefficients mean anything beats a better one presented uncritically.
 |---|---|
 | λ chosen by test-set performance | Methodology capped at 40% |
 | Regularisation applied to unscaled features | Methodology capped at 50% |
-| Notebook does not run in the course image | Returned for resubmission |
+| Notebook does not run in the course image | Nothing to discuss at the exam |
 
 ---
 

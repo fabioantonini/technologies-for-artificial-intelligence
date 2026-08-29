@@ -74,8 +74,11 @@ Plus a self-check quiz and an assessed weekly exercise.
 | Component | Weight |
 |---|---|
 | Final project, with peer review | to be confirmed |
-| Written exam | to be confirmed |
-| Weekly exercises | to be confirmed |
+| Exam: a written paper, then a discussion of one of the ten weekly exercises, drawn at random | to be confirmed |
+
+The weekly exercises are not collected or marked separately. They are set at the end of
+each lesson, discussed at the start of the next, and assessed at the exam through the
+one that is drawn — so keep all ten notebooks.
 
 See [`../Assessment/`](../Assessment) for the project brief, the exam structure and
 the assessment criteria.

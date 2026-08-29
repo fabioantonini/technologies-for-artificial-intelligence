@@ -31,20 +31,20 @@ Two of today's three datasets come from a fictional sensor maker, Meridian
 Instruments; the third is real handwritten digits. Handout section 1.
 :::
 
-# Exercise 8 returned
+# Exercise 8, before we start
 
-- Marks were for **what the metric could see**, not for the score itself
-- Recurring gap: a silhouette reported as endorsement of a clustering, when
+- What counts is **what the metric could see**, not the score itself
+- The gap to watch for: a silhouette reported as endorsement of a clustering, when
   it can only endorse roundness
 - Today the same obligation returns in a new form: a network will reach a
   high training accuracy very quickly, and that number on its own says
   almost nothing
 
 ::: notes
-Hand back exercise 8 briefly. One sentence on what went well, one on the
-recurring gap - several reports quoted a silhouette score as though it
-validated the clustering, which is precisely the blind spot section 4 of that
-lesson was about.
+Nothing to collect and nothing to hand back - discuss it. Ask what the
+silhouette score was taken to prove, and listen for it being treated as
+validation of the clustering, which is precisely the blind spot section 4 of
+that lesson was about.
 
 Link forward deliberately. Today's methods are the easiest in the whole course
 to make *look* like they work: a network with enough units will drive its
@@ -1433,12 +1433,12 @@ Handout section 12 and the summary.
 
 # Homework
 
-- **Exercise 9**, due **Friday 27 November 2026, 09:00**
+- **Exercise 9**, discussed at the start of **Friday 27 November**
 - `Exercises/09_neural_networks.md`
 
 ::: notes
-Set it explicitly and say the deadline out loud: Friday 27 November, 09:00, at
-the start of lesson 10.
+Set it explicitly and say out loud when it comes back: the first ten minutes
+of lesson 10, Friday 27 November.
 
 Two standing requirements, both of which today's material makes easy to
 forget. Every reported difference needs the spread it was measured against  - 

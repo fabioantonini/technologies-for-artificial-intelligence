@@ -7,12 +7,12 @@ date: "16 October 2026"
 
 # Before we start
 
-- Exercise 3 was due today
+- Exercise 3, which we discuss now
 - Ridge, Lasso, and the choice of the penalty strength
 
 ::: notes
-Collect exercise 3. If you have looked at any of it, name the recurring mistake
-rather than praising the good answers - it is worth more to the room.
+Nothing to collect. Ask who chose which penalty and why, and name the recurring
+mistake rather than praising the good answers - it is worth more to the room.
 
 The one to watch for: choosing the penalty by looking at the test error. It is
 the natural thing to do because the test error is the number they were told to
@@ -848,7 +848,7 @@ between them.
 
 ::: notes
 Say this out loud rather than leaving it in the handout, because it is the same
-mistake you may have just returned to them on exercise 3.
+mistake you may have just named to them, this morning, on exercise 3.
 
 The threshold is a parameter. Choosing it by looking at the test set means the
 test set has influenced the model, and the number it then reports is optimistic.
@@ -962,12 +962,12 @@ business, not from the data.
 
 # Homework
 
-- **Exercise 4**, due **Friday 23 October 2026, 09:00**
+- **Exercise 4**, discussed at the start of **Friday 23 October**
 - Build a classifier, choose a threshold from a stated cost ratio, defend it
 
 ::: notes
-Set it explicitly and say the deadline out loud: next Friday, 23 October,
-09:00, before lesson 5 starts.
+Set it explicitly and say out loud when it comes back: the first ten
+minutes of next Friday, 23 October.
 
 Emphasise which part carries the marks. The classifier is a few lines and
 everyone will get it. The paragraph defending the threshold choice is where the

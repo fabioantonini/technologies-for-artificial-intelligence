@@ -25,10 +25,10 @@ Total: **30 hours**.
 |---|---|
 | Project brief presented | Lesson 1 — 25 September |
 | Project topic confirmed | Lesson 4 — 16 October |
-| Weekly exercises | Set each Friday, due 09:00 the following Friday, at the start of the next lesson. Exercise 10 has no lesson after it and is due 23:59 on Friday 4 December. |
+| Weekly exercises | Set at the end of each lesson, discussed at the start of the next. Nothing is collected: one of the ten is drawn at the exam and you talk through your own notebook. Exercise 10 has no lesson after it, so it is worked for the exam alone. |
 | Peer review of project drafts | Week of 30 November |
 | Project submission | To be confirmed with the degree programme |
-| Written exam | To be confirmed with the degree programme |
+| Exam: written paper, then one of the ten exercises drawn and discussed | To be confirmed with the degree programme |
 
 ## Material release policy
 

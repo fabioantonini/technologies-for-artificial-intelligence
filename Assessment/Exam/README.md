@@ -1,14 +1,15 @@
-# Written exam
+# Exam
 
-Closed book, two hours.
+Two stages on the same day: a **written paper**, closed book, two hours; then a
+**discussion** of one of the ten weekly exercises, drawn at random.
 
 The exam tests what the project cannot: whether you understand *why* the methods work.
-It draws on the **handouts**, including the derivations. If you have only run the
-notebooks, you will not pass.
+The paper draws on the **handouts**, including the derivations. If you have only run
+the notebooks, you will not pass.
 
 ---
 
-## Structure
+## The written paper
 
 | Part | Questions | Marks | What it tests |
 |---|---|---|---|
@@ -19,6 +20,28 @@ notebooks, you will not pass.
 
 Part D always presents a flawed study. Finding the flaw is a course learning outcome,
 so it is never worth fewer than a fifth of the marks.
+
+---
+
+## The discussion
+
+One of the ten weekly exercises is drawn, and you talk through **your own notebook**
+for it. **Bring all ten**, on a laptop or printed; an exercise you cannot produce is
+an exercise you did not do.
+
+It is a conversation about work you have already done, not a second examination of the
+theory. Expect to be asked:
+
+- what you actually measured, and why that quantity rather than another;
+- which decision in the notebook you were least sure of, and what you did about it;
+- what result would have told you the whole thing was wrong.
+
+There are no marks for the score you obtained. There are marks for knowing why you
+obtained it, which is the same standard the exercises are written to and the same one
+the project is marked against.
+
+Its weight beside the written paper is confirmed with the degree programme; see
+[`../../Course/SYLLABUS.md`](../../Course/SYLLABUS.md).
 
 ---
 
@@ -51,7 +74,11 @@ pseudocode.
 
 ## How to prepare
 
-Work through the derivations with a pen rather than reading them. Then take the quiz
+Keep the ten exercise notebooks somewhere you can find them, and re-read your own
+reasoning before the day rather than rewriting the code — the discussion is about the
+decisions, and those live in the markdown cells.
+
+For the paper: work through the derivations with a pen rather than reading them. Then take the quiz
 for each lesson: the quizzes deliberately include questions that require reasoning
 about a derivation rather than recalling a fact, and those are the closest thing to
 Part B you will find before the sample papers appear.

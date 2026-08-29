@@ -91,14 +91,21 @@ moves from "make it run" to "make it true".
 
 # How you will be assessed
 
-- **Weekly exercises**: set every Friday, due the next
+- **Weekly exercises**: set each Friday, discussed the next. Never collected
 - **Final project**: an end-to-end study, with peer review
-- **Written exam**: closed book, drawn from the handouts
+- **Exam**: a written paper, then **one of the ten exercises drawn** to discuss
 
 ::: notes
-Set expectations now. The exercises are not optional and they build towards the
-project: by lesson 5 they should be able to write their project's evaluation plan, by
-lesson 7 to have a draft comparison.
+Set expectations now, and be explicit about the exercises, because the arrangement is
+unusual and they will assume the ordinary one. Nothing is handed in and nothing comes
+back with a mark on it. Each lesson opens by discussing the exercise set the week
+before, and at the exam one of the ten is drawn and they talk through their own
+notebook for it - so all ten are worth keeping, and an exercise skipped is one they
+may have to sit in front of with nothing to say.
+
+They are not optional and they build towards the project: by lesson 5 they should be
+able to write their project's evaluation plan, by lesson 7 to have a draft
+comparison.
 
 Point them at Assessment/ in the repository. The project brief is available today, so
 they can start thinking about a dataset - the topic must be confirmed by lesson 4.
@@ -108,8 +115,8 @@ accuracy. Two students with different scores can both earn full marks. A spectac
 score obtained by leaking the test set will not - the rubric caps methodology marks at
 40% for that, and today's third notebook shows exactly why.
 
-The exam is closed book and drawn from the handouts, including the derivations. Say
-this now so nobody treats the handouts as optional reading.
+The written paper is closed book and drawn from the handouts, including the
+derivations. Say this now so nobody treats the handouts as optional reading.
 :::
 
 # The three things you get each lesson
@@ -1355,7 +1362,7 @@ end of a report.
 Keep this short and serious. Do not moralise - state it and move on.
 :::
 
-# Homework: due Friday 2 October, 09:00
+# Homework: we discuss it on Friday 2 October
 
 `Exercises/01_first_workflow.md`
 

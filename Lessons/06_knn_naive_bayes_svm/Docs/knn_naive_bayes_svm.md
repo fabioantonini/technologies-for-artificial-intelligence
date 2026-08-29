@@ -563,7 +563,7 @@ lesson 2 insisted.
 
 ### Homework
 
-`Exercises/06_knn_naive_bayes_svm.md`, due **Friday 6 November 2026, 09:00**, at the start of Lesson 7.
+`Exercises/06_knn_naive_bayes_svm.md`, discussed at the start of Lesson 7, **Friday 6 November 2026**.
 
 ### Notation used in this lesson
 

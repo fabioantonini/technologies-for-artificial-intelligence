@@ -28,18 +28,18 @@ Nothing today needs a graphics card, a downloaded model, or a network call.
 The largest network in this lesson has 1,537 parameters. Handout section 1.
 :::
 
-# Exercise 9 returned
+# Exercise 9, before we start
 
-- Marks were for the **spread** reported beside each number, not the number
-- Recurring gap: a hand-written backward pass, never gradient-checked
+- What counts is the **spread** reported beside each number, not the number
+- The gap to watch for: a hand-written backward pass, never gradient-checked
 - Conclusions drawn from a single seed, presented as differences
 - Today the same obligation lands on an **architecture** claim
 
 ::: notes
-Hand exercise 9 back briefly. One sentence on what went well, one on the
-recurring gap. Two things came up repeatedly: gradients written by hand and
-trusted without the four-line check, and single-seed runs whose differences
-were smaller than the seed-to-seed spread would have been.
+Nothing to collect and nothing to hand back - discuss it. Two things to listen
+for: gradients written by hand and trusted without the four-line check, and
+single-seed runs whose differences were smaller than the seed-to-seed spread
+would have been.
 
 Link it forward deliberately, because today is the easiest lesson in the course
 in which to fool yourself. Every claim this afternoon is of the form
@@ -1465,14 +1465,14 @@ Handout section 12 and 12.1.
 
 # Homework: the last one
 
-- **Exercise 10**, due **Friday 4 December 2026, 23:59**
+- **Exercise 10**, no lesson left to discuss it: work it for the exam
 - `Exercises/10_convolutional_networks.md`
 - It falls in the week of the **project peer review**: plan for both
 - Two reviews to write as well as two to receive
 
 ::: notes
-Set it explicitly and say the deadline out loud: Friday 4 December, 23:59 - the
-only exercise with no lesson after it, so it runs to the end of the day. It
+Set it explicitly and say what is different about it: no lesson follows to
+discuss it, so this one is worked for the exam alone. It
 is the last exercise of the course.
 
 Say the scheduling problem plainly rather than letting them discover it. That

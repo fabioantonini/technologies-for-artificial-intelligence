@@ -786,8 +786,8 @@ suspicious of any interpretation phrased as an intervention.
 2. Read Sections 3.1, 4.1 and 6.3 with a pen — those three derivations are
    examinable.
 3. Take the quiz in `Quizzes/`.
-4. **Complete the homework** in `Exercises/03_regression.md`, due **Friday 16 October
-   2026, 09:00**, at the start of Lesson 4.
+4. **Complete the homework** in `Exercises/03_regression.md`, discussed at the
+   start of Lesson 4, **Friday 16 October 2026**.
 
 Lesson 4 keeps the same machinery and changes the target from a number to a
 category, which turns out to require a different cost function — and the reason

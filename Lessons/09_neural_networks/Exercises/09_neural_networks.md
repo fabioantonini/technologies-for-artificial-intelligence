@@ -2,7 +2,7 @@
 title: "Exercise 9 — Neural Networks"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 20 November 2026 · due Friday 27 November 2026, 09:00, at the start of lesson 10"
+date: "Set 20 November 2026 · discussed at the start of lesson 10, Friday 27 November 2026"
 ---
 
 ## What this exercise is for
@@ -38,9 +38,12 @@ minutes spent reading the generator's docstring and plotting the columns. That
 is the skill being assessed — not fitting a network, but **looking at a
 problem and knowing in advance whether depth is what it needs.**
 
-**Submit** a single notebook, `exercise09_<surname>.ipynb`, that runs top to
-bottom in the course container in under five minutes. Written answers go in
-markdown cells beside the evidence for them.
+**Keep** a single notebook, `exercise09.ipynb`, that runs top to bottom in the
+course container. Written answers go in markdown cells beside the evidence for
+them.
+
+Nothing is handed in: lesson 10 opens by discussing this exercise, and at the
+exam one of the ten is drawn for you to talk through your own notebook.
 
 ---
 

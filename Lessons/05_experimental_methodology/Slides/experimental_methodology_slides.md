@@ -7,12 +7,13 @@ date: "23 October 2026"
 
 # Before we start
 
-- Exercise 4 was due today
+- Exercise 4, which we discuss now
 - The threshold you chose, and how you chose it
 
 ::: notes
-Collect exercise 4. The paragraph defending the threshold was the part that
-carried the marks, so say one sentence about what you saw across the class.
+Nothing to collect. The defence of the threshold is the part that matters, so
+ask two people to give theirs out loud - that is the rehearsal for the exam,
+where one of the ten exercises is drawn and discussed.
 
 The recurring mistake to name, if it appeared: choosing the threshold by
 sweeping it on the test set. The exercise sheet said that losing marks for it
@@ -892,12 +893,12 @@ the question the final project will be marked on.
 
 # Homework
 
-- **Exercise 5**, due **Friday 30 October 2026, 09:00**
+- **Exercise 5**, discussed at the start of **Friday 30 October**
 - A result that is too good. Find out why, then produce the honest number
 
 ::: notes
-Set it explicitly and say the deadline out loud: next Friday, 30 October,
-09:00, before lesson 6 starts.
+Set it explicitly and say out loud when it comes back: the first ten
+minutes of next Friday, 30 October.
 
 The shape of it: they are given a notebook that reports an excellent score, and
 the score is wrong. They have to find the reason, fix it, report the honest

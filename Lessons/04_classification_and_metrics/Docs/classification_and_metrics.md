@@ -868,7 +868,7 @@ missing a healthy drive, macro is the honest one.**
 
 ### Homework
 
-`Exercises/04_classification_and_metrics.md`, due **Friday 23 October 2026, 09:00**, at the start of Lesson 5.
+`Exercises/04_classification_and_metrics.md`, discussed at the start of Lesson 5, **Friday 23 October 2026**.
 
 ### Notation used in this lesson
 

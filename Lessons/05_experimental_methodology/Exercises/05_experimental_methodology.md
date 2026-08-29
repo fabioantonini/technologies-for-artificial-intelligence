@@ -2,7 +2,7 @@
 title: "Exercise 5 — Experimental Methodology"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 23 October 2026 · due Friday 30 October 2026, 09:00, at the start of lesson 6"
+date: "Set 23 October 2026 · discussed at the start of lesson 6, Friday 30 October 2026"
 ---
 
 ## What this exercise is for
@@ -22,9 +22,12 @@ one way.
 Your job is to find out how, fix it, and report the number that should have been
 there — which will be worse, and is the point.
 
-**Submit** a single notebook, `exercise05_<surname>.ipynb`, that runs top to
-bottom in the course container. Written answers go in markdown cells beside the
-evidence for them.
+**Keep** a single notebook, `exercise05.ipynb`, that runs top to bottom in the
+course container. Written answers go in markdown cells beside the evidence for
+them.
+
+Nothing is handed in: lesson 6 opens by discussing this exercise, and at the
+exam one of the ten is drawn for you to talk through your own notebook.
 
 ---
 

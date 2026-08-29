@@ -2,7 +2,7 @@
 title: "Exercise 2 — Build the pipeline, then break it on purpose"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 2 October 2026 · due Friday 9 October 2026, 09:00, at the start of lesson 3"
+date: "Set 2 October 2026 · discussed at the start of lesson 3, Friday 9 October 2026"
 ---
 
 Roughly 2–3 hours. Work alone; discussing ideas with others is fine, sharing
@@ -25,7 +25,7 @@ leak, measure what it manufactures, and fix it.** Anyone can follow the rule
 The same synthetic telecom churn dataset used in the lesson, from a different
 random seed so your numbers will not match anyone else's. Copy
 `churn_data.py` — from this lesson's `Notebooks/` folder — into the same
-folder as your submitted notebook, then:
+folder as your notebook, then:
 
 ```python
 from churn_data import make_churn_data
@@ -138,9 +138,9 @@ this dataset?
 
 ---
 
-## What to hand in
+## What to produce, and keep
 
-A single notebook named `{surname}_02.ipynb` that:
+A single notebook named `exercise02.ipynb` that:
 
 - runs top to bottom in the course container with no edits beyond the file
   path to `churn_data.py`
@@ -161,7 +161,7 @@ A single notebook named `{surname}_02.ipynb` that:
 
 There are **no marks for how large or small the leak turns out to be** — a
 small, correctly explained gap earns full marks; a large, unexplained one
-does not. As in Exercise 1, a submission that leaves a fitted step outside
+does not. As in Exercise 1, a notebook that leaves a fitted step outside
 the pipeline in the *honest* version loses methodology marks regardless of
 its scores.
 
