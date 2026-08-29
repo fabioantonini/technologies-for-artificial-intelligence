@@ -547,10 +547,10 @@ handed better coordinates. Handout section 4.1.
 | symbol | shape | what it is |
 |---|---|---|
 | $X$ | $m \times n$ | the design matrix, one example per row |
-| $W^{[1]}$ | $n \times H$ | one column per hidden unit |
-| $b^{[1]}$ | $H$ | broadcast across rows |
-| $Z^{[1]}, A^{[1]}$ | $m \times H$ | pre-activations and activations |
-| $W^{[2]}$ | $H \times 1$ | the output unit's weights |
+| W, layer 1 | $n \times H$ | one column per hidden unit |
+| b, layer 1 | $H$ | broadcast across rows |
+| Z and A, layer 1 | $m \times H$ | pre-activations and activations |
+| W, layer 2 | $H \times 1$ | the output unit's weights |
 | $\hat{y}$ | $m \times 1$ | one prediction per example |
 
 ::: notes

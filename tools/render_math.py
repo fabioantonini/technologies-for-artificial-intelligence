@@ -27,8 +27,13 @@ import re
 import sys
 from pathlib import Path
 
-SUPERSCRIPT = str.maketrans("0123456789+-=()aeioruvxn", "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ᵃᵉⁱᵒʳᵘᵛˣⁿ")
-SUBSCRIPT = str.maketrans("0123456789+-=()aeioruvxn", "₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ₐₑᵢₒᵣᵤᵥₓₙ")
+# Every letter Unicode actually has a raised form for - q has none.
+SUPERSCRIPT = str.maketrans("0123456789+-=()abcdefghijklmnoprstuvwxyz",
+                            "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ")
+# Unicode has far fewer lowered letters than raised ones; these are all
+# of them. A subscript using any other letter has no honest rendering.
+SUBSCRIPT = str.maketrans("0123456789+-=()aehijklmnoprstuvx",
+                          "₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜᵤᵥₓ")
 
 SYMBOLS = {
     r"\alpha": "α", r"\beta": "β", r"\gamma": "γ", r"\delta": "δ",
@@ -120,8 +125,24 @@ def to_unicode(latex: str) -> str | None:
     def script(match: re.Match, table: dict) -> str:
         body = match.group(1) or match.group(2) or ""
         converted = body.translate(table)
-        # Refuse a partial conversion - a stray ^ looks worse than an image.
-        return converted if converted != body or not body else body
+        # Refuse a PARTIAL conversion. Letting one through printed F_{t-1} as
+        # "Ft₋₁" and r_{ij} as "rᵢj", which read as products, not subscripts.
+        # Leaving the marker in place makes to_unicode give up, and the build
+        # then says so instead of shipping something misleading.
+        # Already-raised characters count as converted: \top has become ᵀ
+        # by this point, and X^ᵀ must still close up to Xᵀ.
+        marks = set(table.values()) | {ord("ᵀ")}
+        if body and all(
+            character in table or character in marks
+            for character in map(ord, body)
+        ):
+            return converted
+        # Anything less is refused, marker and all: letting a partial through
+        # printed F_{t-1} as "Ft₋₁" and r_{ij} as "rᵢj", and letting one with
+        # no rendering at all through printed m_L as "mL". Both read as
+        # products. Keeping the marker makes to_unicode give up, and the build
+        # then names the formula instead of shipping something misleading.
+        return match.group(0)
 
     text = re.sub(r"\^\{([^{}]*)\}|\^(\w)", lambda m: script(m, SUPERSCRIPT), text)
     text = re.sub(r"_\{([^{}]*)\}|_(\w)", lambda m: script(m, SUBSCRIPT), text)

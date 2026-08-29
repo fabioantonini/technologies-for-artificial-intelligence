@@ -165,8 +165,8 @@ Handout section 2.2.
 $$G = 1 - \sum_{c=1}^{C} p_c^2$$
 
 ::: notes
-$p_c$ is the fraction of the group belonging to class $c$, across $C$
-classes. Do not derive anything here - state what it does: subtract, from
+Each p in the sum is the fraction of the group belonging to one class,
+across C classes. Do not derive anything here - state what it does: subtract, from
 one, the chance two examples share a class if drawn independently from the
 group's own frequencies. A pure group scores zero; a maximally mixed one
 scores as high as the formula allows.
@@ -227,9 +227,9 @@ Handout section 2.2.
 $$\Delta G = G(\text{parent}) - \left(\frac{m_L}{m_P}\, G(\text{left}) + \frac{m_R}{m_P}\, G(\text{right})\right)$$
 
 ::: notes
-$m_L$ and $m_R$ are the sizes of the two children, $m_P = m_L + m_R$. Read it
-as: what the parent's impurity was, minus what is left after the split,
-weighted by how the group was divided. The tree keeps whichever candidate
+The two m terms are the sizes of the left and right children, and they add
+to the parent's. Read it as: what the parent's impurity was, minus what is
+left after the split, weighted by how the group was divided. The tree keeps whichever candidate
 split makes $\Delta G$ largest.
 
 No derivation needed here - the formula is exactly the weighted comparison
