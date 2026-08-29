@@ -368,6 +368,46 @@ render.
 - **Lesson 4's slide 17 asked a question without a question mark** — "So why not
   squared error", the title of the slide whose whole job is to answer it.
 
+### What check 2.7 found in lesson 5, and in the second half of lesson 4
+
+Read 29 August 2026, closing the two decks the first sweep had rendered and not
+read. Lesson 5 is the lesson about verification, so it is the one where an
+unread deck was least comfortable; it had five faults, and none of them was a
+wrong number.
+
+- **Two annotations written on top of the bars they describe.** `mean 0.955`
+  sat at 55% of the axis height, which put black text across two bars of the
+  histogram, while its own siblings `worst 0.885` and `best 1.000` sit above
+  the bars. And `what pure chance would give` was centred on x = 1.5, so half
+  of it lay on the C = 1 bar — the one bar the dashed chance line exists to be
+  compared against. Both moved into white space.
+- **`n = 25 | n = 60 | n = 150` for the number of examples**, in the handout's
+  section 5.4 table, on the slide that repeats it, and in quiz question 16.
+  CLAUDE.md reserves `n` for features and `m` for examples, and this lesson
+  contradicted itself twice over: its own notation table gives `m` as the
+  number of examples, and slide 16 of the same deck says "k = m is
+  leave-one-out". This is lesson 3's α collision in a lesson that had not been
+  suspected of it.
+- **A table whose columns did not add up.** Slide 24 printed bias², variance
+  and total, having dropped the noise column the handout carries — so the
+  arithmetic on screen was short by 484 in every row, and only the speaker
+  notes said why. The column is back; five columns fit a slide comfortably.
+- **A legend across the confidence band it belongs to**, in the left panel of
+  the learning curves, where everything above 0.80 is empty. `loc="lower
+  right"` was being applied to both panels by one loop; it is right for the
+  panel on the left only.
+
+The second half of lesson 4 — 32 slides — is clean: no legend over a curve, no
+overlapping annotation, no cropped label, and every number that appears on a
+slide checks. The threshold sweep's five rows are internally consistent
+(TP + FN = 76 in each), both confusion matrices total 2,000, the three-class
+matrix's rows give 1,665 / 259 / 76, and F1's harmonic 0.073 against arithmetic
+0.519 is exact. The only fault was the missing question mark recorded above.
+
+Two things deliberately left: lesson 5's slide 32 wraps a code block inside a
+call, and its slide 36 prints `0.7999` beside `0.500` in one column. Both are
+legible, and neither is worth a rebuild on its own.
+
 ### Still open across the course
 
 Written down 28 August 2026, after the notebook pass finished. Ordered by what
@@ -376,7 +416,7 @@ each is worth.
 | # | What | Where it stands |
 |---|---|---|
 | 1 | **Check 2.1 — open every figure, confirm the caption describes *that* image.** The most productive check in this document, and the one no tool can do. | **Done for all ten lessons.** The faults cluster hard: five each in lessons 2 and 3, none of substance anywhere else. Lessons 4–8 and 10 needed only four legend or label placements; lesson 5 needed two captions that stated the textbook version of what the figure complicates; lesson 1's three faults were found and fixed in the August review and the fixes have held. |
-| 2 | **Check 2.7 — look at the rendered deck.** | **Read slide by slide for lessons 1, 2, 3 and 6–10; lesson 4 half read, lesson 5 not read.** All ten decks were rendered to one PNG per slide, but only those eight were read to the end. Twenty overrunning slides, three equation-rendering faults and one bullets-beside-an-equation slide, all fixed; the section above records them, and the corrections made after it are listed below. Two of the three now have an automated check that did not exist before, so the same faults cannot return silently. Lesson 5 and the second half of lesson 4 remain to be read. |
+| 2 | **Check 2.7 — look at the rendered deck.** | **Done for all ten, now genuinely.** Every deck rendered to one PNG per slide and read to the end: eight on 29 August, then lesson 5 and the second half of lesson 4, which the first sweep had rendered without reading. Twenty overrunning slides, three equation-rendering faults, one bullets-beside-an-equation slide, six more from reading further, and five in lesson 5 — all fixed, and the sections above record them. Three now have an automated check that did not exist before, so those cannot return silently. |
 | 3 | **CLAUDE.md's "one number per lesson" table stops at lesson 3.** | **Done.** All ten rows filled, each with a figure verified during this review rather than chosen from memory. |
 | 4 | **Two submission conventions.** Exercises 1–3 are due "at the start of Lesson N+1"; exercises 4–10 are due "23:59" on the same Friday. The dates chain correctly end to end — every "Set" equals the previous "Due", weekly from 25 September to 4 December — so only the *time* differs. | **Analysed, left for the instructor.** The two forms mean different deadlines: morning of the Friday against the end of it. Seven of ten use 23:59 and three use "start of Lesson N+1", and lessons 2's handout and exercise are internally consistent with the latter. Either choice is defensible and either changes what some students are told, so it is a teaching decision rather than a defect to fix silently. |
 | 5 | **Deck density is nobody's decision.** 46 to 66 slides per lesson against roughly 80 lecture minutes: 35–50 slides an hour, where CLAUDE.md says 25–30. `verify_lesson.py` checks the plan sums to 180 minutes and nothing checks this ratio. | Not started; a teaching decision rather than a defect. |
