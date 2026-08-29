@@ -321,8 +321,52 @@ reading them. Three faults, none of which any existing check could see.
 
 Also found here, though it belongs to item 6: **three lessons still quoted 98 of
 128 imputed rows**, which this review corrected to 94 in lesson 2. Lessons 8, 9
-and 10 each repeat lesson 2's number in a carry-home list, and nothing checks
-that a number quoted from another lesson still matches its source.
+and 10 each repeat lesson 2's number in a carry-home list, and nothing checked
+that a number quoted from another lesson still matched its source.
+
+`verify_lesson.py` now does, in both directions: a lesson that no longer
+contains the number CLAUDE.md remembers it by, and a lesson that reproduces
+another's carry-home wording beside a number that appears nowhere in the lesson
+it came from. Run against the commit that corrected lesson 2, it names all three
+stale quotations; run against the course as it stands, it says nothing.
+
+### Fixed after that pass, still from reading the slides
+
+The three faults above were what the first pass found. Reading further into the
+decks turned up six more, each invisible in the markdown and obvious in the
+render.
+
+- **`\hat` was mapped to the empty string, so ŷ projected as `y`.** Lesson 9's
+  shapes table is the one place inline maths uses the prediction, and exactly
+  the place the distinction from the target matters. `render_math` now uses
+  Unicode's precomposed circumflex where one exists and the combining one for
+  the rest.
+- **Half-converted subscripts printed as products.** Lesson 7 projected
+  `Ft₋₁(x)` and `ht`, lesson 8 `rᵢj`: the conversion lowered the characters it
+  had a glyph for and left the rest at full size. The guard only fired when
+  *nothing* converted, which was worse still — `m_L` came out as `mL`. The
+  script tables now carry every raised and lowered letter Unicode has, and a
+  formula that still cannot be fully converted is refused whole, so the build
+  names it rather than shipping something misleading. That left eight formulas
+  with no honest inline form: lesson 7's were in speaker notes and are now
+  words, and lesson 9's shapes table says "W, layer 1" with the real notation in
+  the display equations above it.
+- **Lesson 2's slide 6 carried three bullets and a four-panel figure**, which
+  left the histograms a strip a fifth of the slide high — while their own
+  speaker notes open "do not describe shapes the room cannot see". Split, with
+  the plot alone on "Two of these four have no shape left to read"; the lesson
+  plan's slide numbers move on by one from there.
+- **Lesson 3's by-hand table wrote `Xᵀ X` open in four places** where the
+  equation two slides earlier sets it closed up, and its `Xᵀy` row carried a
+  stray space before the comma.
+- **Two legends in lesson 10 covered the reading their slide titles quote.**
+  `sample_efficiency.png` sat its legend over the dense curve's last segment,
+  hiding the value at 8,000 images under the title "0.235 short at 8,000";
+  `family_comparison.png` covered the logistic-regression pair on "Four
+  hand-written numbers reach the ceiling", one of the four. Moved into the empty
+  band between the curves, and below the axes in two columns.
+- **Lesson 4's slide 17 asked a question without a question mark** — "So why not
+  squared error", the title of the slide whose whole job is to answer it.
 
 ### Still open across the course
 
@@ -332,11 +376,11 @@ each is worth.
 | # | What | Where it stands |
 |---|---|---|
 | 1 | **Check 2.1 — open every figure, confirm the caption describes *that* image.** The most productive check in this document, and the one no tool can do. | **Done for all ten lessons.** The faults cluster hard: five each in lessons 2 and 3, none of substance anywhere else. Lessons 4–8 and 10 needed only four legend or label placements; lesson 5 needed two captions that stated the textbook version of what the figure complicates; lesson 1's three faults were found and fixed in the August review and the fixes have held. |
-| 2 | **Check 2.7 — look at the rendered deck.** | **Done for all ten.** Every deck rendered to one PNG per slide and read. Twenty overrunning slides, three equation-rendering faults and one bullets-beside-an-equation slide, all fixed; the section above records them. Two of the three now have an automated check that did not exist before, so the same faults cannot return silently. |
+| 2 | **Check 2.7 — look at the rendered deck.** | **Read slide by slide for lessons 1, 2, 3 and 6–10; lesson 4 half read, lesson 5 not read.** All ten decks were rendered to one PNG per slide, but only those eight were read to the end. Twenty overrunning slides, three equation-rendering faults and one bullets-beside-an-equation slide, all fixed; the section above records them, and the corrections made after it are listed below. Two of the three now have an automated check that did not exist before, so the same faults cannot return silently. Lesson 5 and the second half of lesson 4 remain to be read. |
 | 3 | **CLAUDE.md's "one number per lesson" table stops at lesson 3.** | **Done.** All ten rows filled, each with a figure verified during this review rather than chosen from memory. |
 | 4 | **Two submission conventions.** Exercises 1–3 are due "at the start of Lesson N+1"; exercises 4–10 are due "23:59" on the same Friday. The dates chain correctly end to end — every "Set" equals the previous "Due", weekly from 25 September to 4 December — so only the *time* differs. | **Analysed, left for the instructor.** The two forms mean different deadlines: morning of the Friday against the end of it. Seven of ten use 23:59 and three use "start of Lesson N+1", and lessons 2's handout and exercise are internally consistent with the latter. Either choice is defensible and either changes what some students are told, so it is a teaching decision rather than a defect to fix silently. |
 | 5 | **Deck density is nobody's decision.** 46 to 66 slides per lesson against roughly 80 lecture minutes: 35–50 slides an hour, where CLAUDE.md says 25–30. `verify_lesson.py` checks the plan sums to 180 minutes and nothing checks this ratio. | Not started; a teaching decision rather than a defect. |
-| 6 | **Cross-lesson claims.** Each lesson makes checkable assertions about the others — 144 references in all. | **Done for the falsifiable subset.** Every reference naming a section number or quoting a figure was checked: four of them, three correct and one wrong (lesson 10's attribution of its dense baseline to lesson 9). The remaining 140 are prose pointers of the form "lesson 5 returns to this", which resolve but carry nothing to falsify. |
+| 6 | **Cross-lesson claims.** Each lesson makes checkable assertions about the others — 144 references in all. | **Done for the falsifiable subset, and the carry-home numbers are now gated.** Every reference naming a section number or quoting a figure was checked: four of them, three correct and one wrong (lesson 10's attribution of its dense baseline to lesson 9). The remaining 140 are prose pointers of the form "lesson 5 returns to this", which resolve but carry nothing to falsify. The numbers that *are* repeated verbatim — the carry-home list — are checked against their source lesson by `verify_lesson.py` on every run. |
 
 
 ---

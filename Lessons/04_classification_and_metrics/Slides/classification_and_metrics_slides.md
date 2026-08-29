@@ -307,7 +307,7 @@ They do not need that theory to use either method, but it is why the same
 gradient descent code, unchanged, trains both.
 :::
 
-# So why not squared error
+# So why not squared error?
 
 ![](loss_comparison.png)
 
