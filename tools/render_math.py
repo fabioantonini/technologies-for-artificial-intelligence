@@ -90,6 +90,23 @@ def _flatten_fractions(text: str) -> str:
     return text
 
 
+#: Symbols that stand where a letter would. The space after them in the source
+#: exists only to terminate the control word - TeX sets \Delta G closed up - so
+#: it has to go, or slides read "Δ G" and "Xᵀ X". Relations and binary operators
+#: are deliberately absent: their spacing is real, and α = 0.1 must keep it.
+LETTERLIKE = "αβγδεζηθλμνξπρστφχψωΓΔΘΛΣΦΨΩᵀ∞∂∇ℝℕℤℚℂ𝔼"
+
+
+def _tighten_spacing(text: str) -> str:
+    """Close the gap a control word's terminating space left behind."""
+    text = re.sub(rf"([{LETTERLIKE}]) (?=[A-Za-z0-9{LETTERLIKE}])", r"\1", text)
+    # A sign in unary position binds to what follows: \pm 1 is ±1. After a
+    # term it is a binary operator - a ± b - and keeps its spaces, so only an
+    # opening bracket, a relation or the start of the formula counts.
+    text = re.sub(r"(^|[(\[{=,] ?)([±∓]) (?=[\w(])", r"\1\2", text)
+    return text
+
+
 def to_unicode(latex: str) -> str | None:
     """Render simple inline math as Unicode, or None if it cannot be done."""
     if TOO_COMPLEX.search(latex):
@@ -111,6 +128,7 @@ def to_unicode(latex: str) -> str | None:
 
     text = text.replace("{", "").replace("}", "")
     text = re.sub(r"\s+", " ", text).strip()
+    text = _tighten_spacing(text)
     if "\\" in text or "^" in text or "_" in text:
         return None  # something survived that we cannot render honestly
     return text

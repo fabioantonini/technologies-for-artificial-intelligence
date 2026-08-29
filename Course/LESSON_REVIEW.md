@@ -295,6 +295,35 @@ this check is the expensive kind to obtain.
   The 213,761 parameters are right for lesson 10's own 24×24 images; the attribution
   was not.
 
+### What check 2.7 found: the decks, looked at rather than counted
+
+Added 29 August 2026, after rendering all ten decks to one PNG per slide and
+reading them. Three faults, none of which any existing check could see.
+
+- **Twenty slides ran off the bottom of the slide**, all in lessons 7 to 10 and
+  all the same shape: five bullets that each wrap to two lines. The last line
+  either sat behind the university crest or was cut off by the edge. The check
+  in `postprocess_pptx.py` was supposed to catch this and did not - it counts
+  characters, and scored all thirteen of the worst slides *identically* before
+  and after they were fixed. `verify_lesson.py` now rasterises the built PDF and
+  looks for ink below the footer line, which is the thing a student sees. On the
+  previous commit it names eight slides in lesson 9 alone.
+- **Multi-word `\text{}` lost its spaces in every equation image.** Lesson 2
+  slide 32 projected `onlyiffisindependentofT`. `render_math` maps `\text` to
+  mathtext's `\mathrm`, which sets the argument as one run; it now sets one
+  `\mathrm` per word. Lesson 8's "chosen next" and lesson 10's "output size"
+  were the other two. Inline maths had the mirror problem, a space the control
+  word only needed as a terminator: `$\Delta G$` came out as "Δ G".
+- **One slide carried bullets and a display equation together** - lesson 6's
+  soft-margin formulation, the layout CLAUDE.md warns about. The build claimed
+  to warn about it and only checked for text *after* an equation; it now checks
+  for a bullet list beside one. Exactly one slide in the course tripped it.
+
+Also found here, though it belongs to item 6: **three lessons still quoted 98 of
+128 imputed rows**, which this review corrected to 94 in lesson 2. Lessons 8, 9
+and 10 each repeat lesson 2's number in a carry-home list, and nothing checks
+that a number quoted from another lesson still matches its source.
+
 ### Still open across the course
 
 Written down 28 August 2026, after the notebook pass finished. Ordered by what
@@ -303,7 +332,7 @@ each is worth.
 | # | What | Where it stands |
 |---|---|---|
 | 1 | **Check 2.1 — open every figure, confirm the caption describes *that* image.** The most productive check in this document, and the one no tool can do. | **Done for all ten lessons.** The faults cluster hard: five each in lessons 2 and 3, none of substance anywhere else. Lessons 4–8 and 10 needed only four legend or label placements; lesson 5 needed two captions that stated the textbook version of what the figure complicates; lesson 1's three faults were found and fixed in the August review and the fixes have held. |
-| 2 | **Check 2.7 — look at the rendered deck.** | **Partly done.** All ten decks now build with no layout warning, none has a slide carrying more than twelve lines of text, and the figure-carrying slides of lessons 1–5 have been looked at individually. The remaining decks have been checked mechanically rather than slide by slide, which would not catch a legend lying across a curve — though the figure pass above now covers those figures wherever they also appear in a handout. |
+| 2 | **Check 2.7 — look at the rendered deck.** | **Done for all ten.** Every deck rendered to one PNG per slide and read. Twenty overrunning slides, three equation-rendering faults and one bullets-beside-an-equation slide, all fixed; the section above records them. Two of the three now have an automated check that did not exist before, so the same faults cannot return silently. |
 | 3 | **CLAUDE.md's "one number per lesson" table stops at lesson 3.** | **Done.** All ten rows filled, each with a figure verified during this review rather than chosen from memory. |
 | 4 | **Two submission conventions.** Exercises 1–3 are due "at the start of Lesson N+1"; exercises 4–10 are due "23:59" on the same Friday. The dates chain correctly end to end — every "Set" equals the previous "Due", weekly from 25 September to 4 December — so only the *time* differs. | **Analysed, left for the instructor.** The two forms mean different deadlines: morning of the Friday against the end of it. Seven of ten use 23:59 and three use "start of Lesson N+1", and lessons 2's handout and exercise are internally consistent with the latter. Either choice is defensible and either changes what some students are told, so it is a teaching decision rather than a defect to fix silently. |
 | 5 | **Deck density is nobody's decision.** 46 to 66 slides per lesson against roughly 80 lecture minutes: 35–50 slides an hour, where CLAUDE.md says 25–30. `verify_lesson.py` checks the plan sums to 180 minutes and nothing checks this ratio. | Not started; a teaching decision rather than a defect. |
