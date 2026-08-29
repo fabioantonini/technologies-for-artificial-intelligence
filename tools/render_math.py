@@ -55,7 +55,7 @@ SYMBOLS = {
     r"\mathbb{R}": "ℝ", r"\mathbb{N}": "ℕ", r"\mathbb{Z}": "ℤ",
     r"\mathbb{Q}": "ℚ", r"\mathbb{C}": "ℂ", r"\mathbb{E}": "𝔼",
     r"\top": "ᵀ", r"\ldots": "…", r"\dots": "…", r"\cdots": "⋯",
-    r"\hat": "", r"\,": " ", r"\;": " ", r"\!": "", r"\ ": " ",
+    r"\,": " ", r"\;": " ", r"\!": "", r"\ ": " ",
 }
 
 # Constructs with no honest inline Unicode rendering.
@@ -68,6 +68,26 @@ VULGAR_FRACTIONS = {
     ("1", "6"): "⅙", ("5", "6"): "⅚", ("1", "8"): "⅛",
     ("3", "8"): "⅜", ("5", "8"): "⅝", ("7", "8"): "⅞",
 }
+
+#: \hat was being dropped, so the shapes table in lesson 9 listed ŷ as "y".
+#: Unicode has a precomposed circumflex for some letters and a combining one
+#: for the rest, which every font in the template renders.
+PRECOMPOSED_HAT = {
+    "a": "â", "c": "ĉ", "e": "ê", "g": "ĝ", "h": "ĥ", "i": "î", "j": "ĵ",
+    "o": "ô", "s": "ŝ", "u": "û", "w": "ŵ", "y": "ŷ",
+    "A": "Â", "C": "Ĉ", "E": "Ê", "G": "Ĝ", "H": "Ĥ", "I": "Î", "J": "Ĵ",
+    "O": "Ô", "S": "Ŝ", "U": "Û", "W": "Ŵ", "Y": "Ŷ",
+}
+COMBINING_CIRCUMFLEX = "\u0302"
+HAT = re.compile(r"\\hat\{?(\w)\}?")
+
+
+def _apply_hats(text: str) -> str:
+    return HAT.sub(
+        lambda m: PRECOMPOSED_HAT.get(m.group(1), m.group(1) + COMBINING_CIRCUMFLEX),
+        text,
+    )
+
 
 FRACTION = re.compile(r"\\[tdc]?frac\{([^{}]*)\}\{([^{}]*)\}")
 ROOT = re.compile(r"\\sqrt\{([^{}]*)\}")
@@ -117,7 +137,8 @@ def to_unicode(latex: str) -> str | None:
     if TOO_COMPLEX.search(latex):
         return None
 
-    text = _flatten_fractions(latex)
+    text = _apply_hats(latex)
+    text = _flatten_fractions(text)
     text = ROOT.sub(lambda m: f"√{m.group(1)}", text)
     for command, symbol in sorted(SYMBOLS.items(), key=lambda kv: -len(kv[0])):
         text = text.replace(command, symbol)
