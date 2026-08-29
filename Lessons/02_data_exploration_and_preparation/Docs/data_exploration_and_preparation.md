@@ -10,15 +10,15 @@ date: "2 October 2026 · reading time about 80 minutes"
 | Time | Segment | Material |
 |---|---|---|
 | 0:00–0:08 | Recap of Exercise 1, today's map | Slides 1–5 |
-| 0:08–0:33 | Exploratory analysis, missing values, outliers | Slides 6–19 |
-| 0:33–0:55 | Notebook 01, live | Slide 20 |
-| 0:55–1:10 | **Break** | Slide 21 |
-| 1:10–1:30 | Scaling and encoding | Slides 22–31 |
-| 1:30–1:42 | Pipelines, the model, feature engineering | Slides 32–37 |
-| 1:42–2:04 | Notebook 02, live | Slide 38 |
-| 2:04–2:24 | Leakage in preprocessing | Slides 39–48 |
-| 2:24–2:46 | Notebook 03, live | Slide 49 |
-| 2:46–3:00 | Recap, homework set, questions | Slides 50–52 |
+| 0:08–0:33 | Exploratory analysis, missing values, outliers | Slides 6–20 |
+| 0:33–0:55 | Notebook 01, live | Slide 21 |
+| 0:55–1:10 | **Break** | Slide 22 |
+| 1:10–1:30 | Scaling and encoding | Slides 23–32 |
+| 1:30–1:42 | Pipelines, the model, feature engineering | Slides 33–38 |
+| 1:42–2:04 | Notebook 02, live | Slide 39 |
+| 2:04–2:24 | Leakage in preprocessing | Slides 40–49 |
+| 2:24–2:46 | Notebook 03, live | Slide 50 |
+| 2:46–3:00 | Recap, homework set, questions | Slides 51–53 |
 | | **Total** | **180 minutes** |
 
 ---

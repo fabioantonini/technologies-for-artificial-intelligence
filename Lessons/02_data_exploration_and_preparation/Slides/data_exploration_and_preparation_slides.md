@@ -87,6 +87,17 @@ few minutes. Keep the asymmetry in mind for Lesson 4.
 - Churn rate: **19.4%** → baseline accuracy 80.6%
 - `tenure_months` max: 999. Not a typo in the slide.
 
+::: notes
+Read the three numbers off the slide and stop. The plot on the next slide is
+what makes the 999 mean something, and it needs the whole slide to be legible
+from the back of the room.
+
+Ask, before turning over: what will a histogram of tenure look like, if one
+customer in the file has 999 months?
+:::
+
+# Two of these four have no shape left to read
+
 ![](numeric_distributions.png)
 
 ::: notes
