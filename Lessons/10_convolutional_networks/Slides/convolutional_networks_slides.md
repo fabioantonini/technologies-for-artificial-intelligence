@@ -151,8 +151,8 @@ Handout sections 9 and 10.
 # Five numbers so far; today the sixth
 
 - **77%** accuracy on coin-flip labels, from leakage alone
-- **98 of 128** imputed rows that borrowed from the test set
-- **365**: the largest coefficient a penalty of 0.01 leaves, against billions without one
+- **94 of 128** imputed rows borrowed from the test set
+- **365**: the largest coefficient a 0.01 penalty leaves
 - **37 of 40** disguised accounts caught by reconstruction error
 - A sigmoid layer divides the gradient by about **four**
 
@@ -1055,10 +1055,10 @@ room will be wrong, and that is the point of the final segment.
 # A new defect appears on a Monday
 
 - A contamination **cluster**: several faint specks together
-- By Friday there are a few dozen labelled photographs
+- By Friday, a few dozen labelled photographs
 - Section 8 says the network needs several hundred
-- Waiting six months is not an answer: the line is shipping now
-- So: can we borrow from a network trained on something else?
+- Waiting six months is no answer: the line ships now
+- Can we borrow from a network trained on something else?
 
 ::: notes
 Set up transfer learning as the response to a scheduling problem rather than as
@@ -1127,9 +1127,9 @@ is what this segment tests. Handout section 10.
 
 - Pre-train on a task **nobody at Meridian wants solved**
 - Naming which of three types a die carries: clean, scratch, particle
-- Grading pass/fail teaches **one** detector; typing forces general descriptions
-- The source task reaches **0.9993**: a receipt, not a result
-- Transfer carries what the source **forced** the network to learn
+- Grading pass/fail teaches **one** detector; typing forces description
+- **0.9993** on the source task: a receipt, not a result
+- Transfer carries what the source **forced** it to learn
 
 ::: notes
 This is the design decision that makes the rest of the segment work, and it is

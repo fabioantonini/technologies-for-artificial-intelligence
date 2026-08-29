@@ -142,12 +142,11 @@ Handout section 2.
 
 - A good grouping puts every point close to one representative "typical
   customer," and far from every other group's
-- **k-means** turns "close" into a number, and searches for the grouping
-  that minimises the total
-- Searched for jointly: every point's **assignment**, and the $k$ cluster
-  **centres**
-- Searching both at once is hard; the trick is minimising each one
-  separately, holding the other fixed
+- **k-means** turns "close" into a number and minimises the total
+- Two things are searched for jointly: every point's **assignment**, and
+  the $k$ cluster **centres**
+- Both at once is hard; the trick is minimising each separately, holding
+  the other fixed
 
 ::: notes
 Give the intuition with no symbols first, exactly as the handout does:
@@ -315,10 +314,10 @@ Handout section 2.2.
 # k-means++, measured
 
 - Same 30 seeds, k-means++ instead of naive random
-- Range narrows to **374.1–1,088.3**: worst case improves ~300 units
-- Reaches the **global optimum on the first attempt**, default settings
-- `sklearn.cluster.KMeans` uses k-means++ plus 10 restarts, by default
-- Notebook 01's from-scratch version matches it to within $10^{-4}$ of WCSS
+- Range narrows to **374.1–1,088.3**: the worst case gains ~300 units
+- Reaches the **global optimum on the first attempt**
+- `sklearn.cluster.KMeans` uses k-means++ plus 10 restarts by default
+- Notebook 01 matches its WCSS to $10^{-4}$
 
 ::: notes
 Read the range change against the previous slide's 374.1–1,390.4  - 
@@ -492,11 +491,10 @@ reading it off a slide.
 
 - Security suspects some of 1,500 sessions were automated
 - Two features: duration in minutes, pages viewed
-- **12%** are, by construction, **bots**: scripted, behaviourally
-  consistent
-- Bots and humans share the **same mean**: bots a tight cloud, humans a
-  diffuse ring around that same centre
-- No straight cut separates them, because there are no two offset clouds
+- **12%** are, by construction, **bots**: scripted and consistent
+- Bots and humans share the **same mean**: a tight cloud inside a diffuse
+  ring
+- No straight cut separates them: there are no two offset clouds
 
 ::: notes
 Set this up as a deliberate provocation, not a natural dataset. Section 2
@@ -669,11 +667,11 @@ Handout section 3.3.
 
 # What counts as a cluster
 
-- A **maximal set of core points**, chained by mutual `eps`-closeness, plus
-  every attached border point
+- A **maximal set of core points**, chained by mutual `eps`-closeness,
+  plus every attached border point
 - No centre, no mean, no shape assumption in the definition
-- A compact core **and**, separately, a diffuse ring both count: if dense
-  enough at the scale `eps` measures
+- A compact core and a diffuse ring both count, if dense enough at the
+  scale `eps` measures
 - Points can belong to **nothing**: noise is first-class, not an error
 
 ::: notes
@@ -916,11 +914,11 @@ Handout section 4.
 # What silhouette can't see
 
 - A silhouette of 0.69, reported alone, sounds like strong endorsement
-- It only endorses **relative to what the metric can see**: the shape it
-  was given, not the assumption
-- k-means on the bot/human data (ARI $\approx -0.046$) still gets a
-  positive, unremarkable score
-- Silhouette measures **roundness**, not correctness: k-means always
+- It endorses only **what the metric can see**: the shape, not the
+  assumption behind it
+- k-means on the bot/human data (ARI $\approx -0.046$) still scores
+  positive
+- Silhouette measures **roundness**, not correctness, and k-means always
   looks round by construction
 
 ::: notes
@@ -1171,14 +1169,12 @@ Handout section 5.4.
 
 # What to do when the elbow is softer
 
-- This dataset's elbow is unusually clean: most real data will not
-  present one this sharp
-- Common alternative: keep enough components to explain a chosen fraction
-  of variance, typically 90–95%
-- Or: treat the number of components as a hyperparameter, and let
-  cross-validated downstream performance decide
-- The scree plot is a starting point for judgement, not a rule that
-  automates itself
+- This dataset's elbow is unusually clean; most real data is not
+- Common alternative: keep enough components for a chosen fraction of the
+  variance, typically 90–95%
+- Or treat the number of components as a hyperparameter, and let
+  cross-validation decide
+- The scree plot starts the judgement; it does not automate it
 
 ::: notes
 Close the PCA segment by generalising beyond this lesson's convenient
@@ -1221,14 +1217,12 @@ Handout sections 6.1, 6.2.
 
 # t-SNE: a tool built for looking, not for measuring
 
-- **t-SNE** (t-distributed stochastic neighbour embedding): arranges
-  points so those close together **stay** close in the picture
-- No commitment to preserving distances between points that started far
-  apart
+- **t-SNE** (t-distributed stochastic neighbour embedding) arranges points
+  so those close together **stay** close
+- Distances between points that started far apart are not preserved
 - Excellent at making separate clusters visually obvious, often more so
   than PCA's first two components
-- **Distances between clusters are not meaningful**; no fixed transform for
-  a new point
+- **Distances between clusters mean nothing**
 
 ::: notes
 Position t-SNE precisely: a visualisation tool, not a measurement tool,
@@ -1263,7 +1257,7 @@ detection problem neither of the standard 2-D visualisation tools could
 solve.
 
 Ask them to write it down - the fourth lesson this course has produced one
-of these carry-home numbers: 77% accuracy on coin-flip labels, 98 of 128
+of these carry-home numbers: 77% accuracy on coin-flip labels, 94 of 128
 imputed rows that borrowed from the test set, a coefficient of 365 where an
 unpenalised fit wanted billions, and now this.
 

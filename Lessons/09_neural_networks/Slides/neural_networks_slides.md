@@ -313,13 +313,13 @@ Handout section 2.2.
 
 # The smallest problem that needs a hidden layer
 
-- Same-direction drift: removable. Opposite drift: not
-- Correctable when the two drifts **share a sign**
+- Removable only when the two drifts **share a sign**; opposite drifts
+  are not
 - That is the exclusive-or (XOR) function
 - Four clouds of 200 units; a line scores exactly **0.5000**
 - Coding the channels as $\pm 1$, the rule is about $|a + b|$
-- "Large in absolute value" is the outside of a strip
-- **Two boundaries, not one**
+- "Large in absolute value" is the outside of a strip: **two boundaries,
+  not one**
 
 ::: notes
 XOR is the traditional example and it is usually presented as an abstract
@@ -342,8 +342,7 @@ Handout section 3.1.
 - One fires when a + b > 1, the other when a + b < -1
 - Between them they compute $|a + b|$, clipped
 - Output weights 10 and 10, bias -1: the rule is $|a + b| > 1.1$
-- Over all 800 units, **nothing trained**, it scores **0.9938**
-- Chosen by reasoning about the problem, and they work
+- **Nothing trained**, and over all 800 units it scores **0.9938**
 
 ::: notes
 This is the moment the lesson turns. Write the four hidden weights on the
@@ -815,12 +814,11 @@ Handout section 5.5.
 
 # Notebook 1, live
 
-- Backpropagation written from scratch, and gradient-checked before it is
-  trusted with anything
+- Backpropagation from scratch, gradient-checked before it is trusted
 - The two-unit hand-built network, then the same problem trained from 20
   random starts at each width
-- The polygon yardstick: how well could $H$ lines possibly fence a circle?
-- The one initialisation that cannot work, and the exact cost it converges to
+- The polygon yardstick: how well could $H$ lines fence a circle?
+- The one initialisation that cannot work, and the cost it converges to
 
 ::: notes
 Run `Notebooks/01_backpropagation_from_scratch.ipynb`. Twenty-two minutes.
@@ -924,13 +922,12 @@ Handout section 6.3.
 :::
 
 # A sigmoid layer divides the gradient by about four
-- Any number of linear layers composes to one: the activation is the entire
+- Any number of linear layers composes to one: the activation is the whole
   reason depth buys anything
-- The sigmoid's derivative σ(z)(1 − σ(z)) peaks at **¼**, at zero and nowhere
-  else
+- The sigmoid's derivative σ(z)(1 − σ(z)) peaks at **¼**, at zero only
 - Backpropagation multiplies by it **once per layer**
-- Initialisation makes the weight factor about 1, leaving the derivative in
-  charge, so **each sigmoid layer divides the gradient by about four**
+- Initialisation leaves the weight factor near 1, so the derivative decides:
+  **each sigmoid layer divides the gradient by about four**
 
 ::: notes
 This is the number the lesson exists to leave behind, so say it, write it, and
@@ -995,10 +992,10 @@ Handout section 7.3.
 
 # One draw is not a law
 - End-to-end ratio, last weight matrix to first: median **3,547**
-- Across the same eight seeds it ranges **2,734 to 4,607**
-- Quoting the largest would report one draw as though it were a law
+- Over the same eight seeds it ranges **2,734 to 4,607**
+- Quoting the largest reports one draw as a law
 - **The per-layer factor of about 4 is the property**
-- By depth: 9.5 at two layers, 170 at four, 3,553 at six, 46,250 at eight
+- By depth: 9.5, 170, 3,553, 46,250 at two, four, six and eight layers
 
 ::: notes
 This slide is a methodological point wearing a numerical costume, and it is
@@ -1092,12 +1089,11 @@ Have them change the depth and predict the ratio before running it.
 
 # Zero cannot work
 - Lesson 3 started from zero, and was right to: those costs are convex
-- All-zero weights **freeze** a network: hidden and output weights both
-  receive exactly zero gradient
-- **Every parameter is frozen except the output bias**
-- That bias converges to the base rate, so the cost converges to the label
+- All-zero weights **freeze** a network: every gradient is exactly zero
+- **Only the output bias ever moves**
+- The bias converges to the base rate, so the cost converges to the label
   entropy: **0.6887 predicted, 0.6887 measured**
-- Distinct hidden columns afterwards: **1 of 32**
+- Distinct hidden columns: **1 of 32**
 
 ::: notes
 The usual explanation for random initialisation is symmetry - identical units
@@ -1137,12 +1133,11 @@ Handout section 8.1.
 
 # How large? Propagate the variance
 - A unit sums n inputs, so variance is multiplied by n × Var(w) each layer
-- Set Var(w) = 1/n, which is **Glorot**. The ReLU halves it again, so it wants 2/n,
-  **He**
+- Set Var(w) = 1/n: **Glorot**. ReLU halves it, so it wants 2/n: **He**
 - **Too small collapses**: indistinguishable from zero by layer 4
-- **Too large saturates** rather than exploding: 73% of the last layer past
-  0.99 in absolute value
-- Glorot loses about half its spread over eight layers
+- **Too large saturates** rather than exploding: 73% of the last layer
+  past 0.99
+- Glorot loses half its spread over eight layers
 
 ::: notes
 Give the variance argument in words before any of the numbers: a unit adds up
@@ -1407,10 +1402,10 @@ something you can tune your way to. Handout sections 10.1, 10.3 and 10.4.
 
 # What to take away
 - **A neuron is a line**: three enclose a region, one never does
-- A hidden layer does not classify: it **moves the data**
-- **Backpropagation is the chain rule right to left**: so gradient-check it
+- A hidden layer **moves the data**; it does not classify
+- **Backpropagation is the chain rule** - so gradient-check it
 - **A sigmoid layer divides the gradient by about four**
-- Report a difference with the spread it was measured against
+- Report a difference with its spread
 
 ::: notes
 The number to carry out of the room is the fourth bullet, and it is worth
@@ -1420,7 +1415,7 @@ one draw of a compounding quantity, and the honest version is the per-layer
 factor.
 
 That is the fifth of these carry-home numbers the course has produced: 77%
-accuracy on coin-flip labels, 98 of 128 imputed rows that borrowed from the
+accuracy on coin-flip labels, 94 of 128 imputed rows that borrowed from the
 test set, a coefficient of 365 where an unpenalised fit wanted billions,
 37 of 40 disguised accounts
 caught by reconstruction error, and now a factor of four per sigmoid layer.

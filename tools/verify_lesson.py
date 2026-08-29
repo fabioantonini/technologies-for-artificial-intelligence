@@ -38,8 +38,10 @@ import argparse
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 import zipfile
 from pathlib import Path
 
@@ -617,12 +619,70 @@ def check_cross_references(lesson: Path, report: Report) -> None:
 
 # -------------------------------------------------------------------- main
 
+#: A slide is 7.5in tall; rendered at 100 dpi that is 563 rows. Text below this
+#: row is inside the footer band: it collides with the university crest, and a
+#: few rows further down it is simply cut off by the edge of the slide. The
+#: value is measured, not derived - across the ten decks every slide either
+#: stops by row 522 or runs to 548 and beyond, with nothing in between.
+DECK_TEXT_FLOOR = 530
+
+#: The crest sits in this column band. Its own dark lettering would otherwise
+#: register as text on every slide.
+CREST_COLUMNS = (845, 960)
+
+
+def check_deck_overflow(lesson: Path, report: Report) -> None:
+    """Look at the rendered deck and find text that runs off the slide.
+
+    The estimate in postprocess_pptx counts characters, which cannot tell a
+    bullet that wraps to two lines from one that just fits: it scored thirteen
+    clipped slides exactly as it scored their fixed versions. Rasterising the
+    built PDF measures what a student will actually see, which is the whole
+    point of the rule in CLAUDE.md about looking at what you built.
+
+    Silently skipped where the tools are missing - it must not become a reason
+    the verifier cannot run.
+    """
+    decks = list((lesson / "Slides").glob("*_slides.pdf"))
+    if not decks or shutil.which("pdftoppm") is None:
+        return
+    try:
+        import numpy as np
+        from PIL import Image
+    except ImportError:
+        return
+
+    for deck in decks:
+        with tempfile.TemporaryDirectory() as tmp:
+            rendered = subprocess.run(
+                ["pdftoppm", "-png", "-r", "100", str(deck), f"{tmp}/slide"],
+                capture_output=True,
+            )
+            if rendered.returncode != 0:
+                return
+            for page in sorted(Path(tmp).glob("slide-*.png")):
+                image = np.array(Image.open(page).convert("RGB")).astype(int)
+                ink = (image.max(axis=2) < 120) & (
+                    image.max(axis=2) - image.min(axis=2) < 40
+                )
+                ink[:, CREST_COLUMNS[0]:CREST_COLUMNS[1]] = False
+                rows = np.where(ink.any(axis=1))[0]
+                if len(rows) and rows.max() > DECK_TEXT_FLOOR:
+                    number = int(page.stem.split("-")[-1])
+                    report.fail(
+                        "deck",
+                        f"{deck.name}: slide {number} runs past the bottom of"
+                        " the slide - shorten it or split it",
+                    )
+
+
 def verify(lesson: Path, run: bool) -> Report:
     report = Report()
     check_notebooks(lesson, report, run)
     check_pins(lesson, report)
     check_figures(lesson, report)
     check_slides(lesson, report)
+    check_deck_overflow(lesson, report)
     check_quiz(lesson, report)
     check_acronyms(lesson, report)
     check_worked_examples(lesson, report)

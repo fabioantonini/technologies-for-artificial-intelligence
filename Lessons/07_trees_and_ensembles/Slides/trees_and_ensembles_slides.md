@@ -496,8 +496,8 @@ come back with that framing fresh.
 
 # Bagging: averaging away the instability
 
-- If a tree's mistakes are somewhat random: different across resamples, as
-  just measured: **many trees, averaged**, should partly cancel them out
+- A tree's mistakes differ across resamples, as just measured, so **many
+  trees, averaged** should partly cancel out
 - Draw a **bootstrap sample**: $m$ rows chosen **with replacement** from
   the $m$ training rows
 - Fit a tree to it. Repeat `n_estimators` times; predict by **majority
@@ -663,11 +663,10 @@ Handout section 6.
 
 # Feature importance: what the forest claims to tell you
 
-- A random forest reports **feature importance**: total impurity reduction
-  each feature is responsible for, summed and averaged across every tree
-  and every split
-- Tempting to read as "the forest tells you which features matter"
-- With only the two real features in this dataset, it does exactly that
+- A random forest reports **feature importance**: the impurity reduction
+  each feature is responsible for, summed over every tree and split
+- Tempting to read as "the forest tells you which features matter" - and
+  with only the two real features here, it does exactly that
 - The question: what happens once most of the columns carry **nothing**?
 
 ::: notes
@@ -995,11 +994,10 @@ Handout section 11.
 
 # Three findings
 
-- Every ensemble lands within about a point and a half of the others,
-  **which strategy** you pick matters far less than **whether you ensemble
-  at all**
-- The single tuned tree is not far behind, at 0.883 against 0.911, and it
-  is the only model on the table a person could read start to finish
+- Every ensemble lands within a point and a half of the others: **which
+  strategy** matters far less than **whether you ensemble at all**
+- The tuned single tree is close behind, 0.883 against 0.911, and the only
+  model here a person can read
 - The **unconstrained tree is the worst model on the list**, despite being
   the most flexible one
 
@@ -1063,13 +1061,11 @@ Handout section 7 has the full mechanism.
 
 # What to take away
 
-- A tree splits greedily on Gini impurity, verified to the **fourth
-  decimal place** against scikit-learn
-- Depth is the bias-variance dial: accuracy peaked at **depth 8**, three
-  points above the unconstrained tree
-- Bootstrap resampling leaves **36.8%** of rows out-of-bag, free validation
+- A tree splits greedily on Gini impurity, matching scikit-learn
+- Depth is the bias-variance dial: accuracy peaked at **depth 8**
+- Bootstrap resampling leaves **36.8%** of rows out-of-bag: free validation
 - **54% of a random forest's importance landed on 20 noise columns**,
-  today's number worth remembering
+  today's number
 
 ::: notes
 Close on the same shape as lesson 6's summary: a handful of numbers that
