@@ -438,15 +438,16 @@ as a schematic. Here it is measured.
 
 # Measured, on 25 observations
 
-| Degree | bias² | Variance | Total |
-|---|---|---|---|
-| 1 | 5,250.8 | 723.8 | 6,458.6 |
-| 2 | 59.6 | 70.8 | **614.3** |
-| 5 | 8.9 | 368.9 | 861.8 |
-| 12 | 153,537.3 | 32,174,344.9 | 32,328,366.2 |
+| Degree | bias² | Variance | Noise | Total |
+|---|---|---|---|---|
+| 1 | 5,250.8 | 723.8 | 484.0 | 6,458.6 |
+| 2 | 59.6 | 70.8 | 484.0 | **614.3** |
+| 5 | 8.9 | 368.9 | 484.0 | 861.8 |
+| 12 | 153,537.3 | 32,174,344.9 | 484.0 | 32,328,366.2 |
 
 ::: notes
-Noise is 484 in every row and is left out of the table for width - say so.
+Noise is 484 in every row - point at the column and say that it never
+moves, because it is a property of the data and not of the model.
 
 Degree 1 is a bias problem: the largest bias² and the smallest variance. Stable
 and wrong.
@@ -498,7 +499,7 @@ deliberately.
 
 # The best model depends on how much data you have
 
-| Degree | n = 25 | n = 60 | n = 150 |
+| Degree | m = 25 | m = 60 | m = 150 |
 |---|---|---|---|
 | 2 | **614.3** | 570.6 | 555.3 |
 | 5 | 861.8 | **540.9** | **506.9** |

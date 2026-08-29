@@ -424,7 +424,7 @@ your measurement precision and your model beats it, something has leaked.
 
 The same experiment at three training-set sizes, showing total expected error:
 
-| Degree | n = 25 | n = 60 | n = 150 |
+| Degree | m = 25 | m = 60 | m = 150 |
 |---|---|---|---|
 | 1 | 6,458.6 | 5,998.6 | 5,861.5 |
 | 2 | **614.3** | 570.6 | 555.3 |
