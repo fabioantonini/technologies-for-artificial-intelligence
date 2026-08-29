@@ -388,7 +388,8 @@ reproducible from a notebook or `make_figures.py`, no orphaned equation images;
 inline maths that survives the Unicode conversion; no empty or untitled slides;
 speaker notes on every content slide; a lesson plan summing to 180 minutes and
 citing slides that exist; acronyms expanded on first use in each artefact;
-cross-references that resolve.
+cross-references that resolve; and a number one lesson quotes from another
+still matching what that lesson says.
 
 **Arithmetic, and yours to write.** Every lesson carries
 `Docs/worked_examples.py`, which recomputes each number the handout works out by

@@ -19,8 +19,9 @@ So there are two kinds of check here, and only one of them is automatic:
 
 **Mechanical** — the checks in this file. Notebooks that run, figures that
 exist, formulas that survive conversion, slide counts that match the lesson
-plan, acronyms expanded, cross-references that resolve. These run on every
-lesson, every time, and cost nothing.
+plan, acronyms expanded, cross-references that resolve, carry-home numbers
+quoted from another lesson that still match it. These run on every lesson,
+every time, and cost nothing.
 
 **Arithmetic** — a per-lesson ``Docs/worked_examples.py``. Every number a
 handout works out by hand must be recomputed there from the raw inputs, by a
@@ -43,6 +44,7 @@ import subprocess
 import sys
 import tempfile
 import zipfile
+from functools import lru_cache
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -617,6 +619,249 @@ def check_cross_references(lesson: Path, report: Report) -> None:
                             "which does not exist")
 
 
+# ------------------------------------------------------- quoted numbers
+
+#: Words too common in this course to identify a claim on their own. A quotation
+#: has to reproduce several of a claim's words, and at least one of them has to
+#: be one the source lesson uses far more than this one does, or "accuracy" and
+#: "model" would tie every lesson to every other one.
+COMMON_WORDS = set("""
+a an and are as at be been before but by can does for from give gives had has
+have how in into is it its just left like made make more most much no not of
+off on one only or our out over same than that the their them then there these
+they this to two under up was were what when where which who why with without
+you your number numbers accuracy model models data set sets score scores test
+tests train training lesson lessons section sections notebook figure table
+slide slides course student students first last next
+""".split())
+
+#: How much more often a word must occur in the lesson being quoted than in the
+#: one doing the quoting before it counts as that lesson's word. "Imputed" is
+#: lesson 2's; "layers" is not lesson 9's, whatever its carry-home sentence
+#: says, because lesson 10 uses it on every other slide.
+CLAIM_WORD_RATIO = 3.0
+
+#: What counts as "beside the number": the clause around it, not the paragraph.
+#: Widening this to a sentence starts matching a synthesis list - which quotes
+#: half a dozen lessons in one breath - against every claim it contains.
+QUOTE_BEFORE, QUOTE_AFTER = 60, 110
+
+CARRY_HOME_HEADING = "One number per lesson worth remembering"
+TABLE_ROW = re.compile(r"^\|\s*(\d{1,2})\s*\|\s*(.+?)\s*\|\s*$", re.M)
+BOLD = re.compile(r"\*\*(.+?)\*\*")
+QUANTITY = r"(\d[\d,]*(?:\.\d+)?)\s*(%?)"
+NUMBER = re.compile(r"(?<![\w.,])" + QUANTITY)
+#: The two-number shapes the carry-home numbers come in: "94 of 128",
+#: "0.885 to 1.000", "0.941 against -0.046".
+PAIRED = re.compile(r"(?<![\w.,])" + QUANTITY + r"\s+(of|out of|to|against)\s+"
+                    + QUANTITY, re.I)
+CLAIM_WORD = re.compile(r"[a-z][a-z-]{2,}")
+
+
+def numbers_in(text: str) -> set[str]:
+    return {m.group(0).replace(",", "") for m in
+            re.finditer(r"\d[\d,]*(?:\.\d+)?", text)}
+
+
+def says(value: str, pool) -> bool:
+    """Is `value` one of `pool`, allowing for the rounding a quote does?
+
+    CLAUDE.md remembers lesson 10 by "0.857 to 0.462" where the notebooks print
+    0.8567 and 0.4617. Quoting a number to three places rather than four is not
+    a lesson quoting a different number.
+    """
+    if value in pool:
+        return True
+    if "." not in value:
+        return False
+    places = len(value.split(".")[1])
+    for other in pool:
+        try:
+            if f"{float(other):.{places}f}" == value:
+                return True
+        except ValueError:
+            pass
+    return False
+
+
+def shape_of(value: str, percent: str) -> tuple:
+    """What a number looks like: 0.857 and 0.462 match, 3,500 and 0.5 do not."""
+    return bool(percent), "." in value, len(value.split(".")[0])
+
+
+@lru_cache(maxsize=None)
+def lesson_prose(lesson: Path) -> str:
+    """Every word a student reads in this lesson, markup flattened away."""
+    joined = "\n".join(markdown_of(p) for p in artefacts(lesson))
+    return " ".join(re.sub(r"[|*`#>]", " ", joined).split())
+
+
+@lru_cache(maxsize=None)
+def lesson_numbers(lesson: Path) -> frozenset:
+    """Every number this lesson prints anywhere a student can read it."""
+    return frozenset(numbers_in(lesson_prose(lesson)))
+
+
+@lru_cache(maxsize=None)
+def word_rates(lesson: Path) -> dict:
+    """How often each word of the course's claims occurs in this lesson.
+
+    Per ten thousand words, so the ten lessons compare despite their different
+    lengths.
+    """
+    prose = lesson_prose(lesson).lower()
+    total = max(len(prose.split()), 1) / 10_000
+    return {w: len(re.findall(rf"\b{re.escape(w)}\b", prose)) / total
+            for claim in carry_home_claims() for w in claim["words"]}
+
+
+@lru_cache(maxsize=None)
+def carry_home_claims() -> tuple:
+    """The course's register of quotable numbers: CLAUDE.md's own table.
+
+    Each row names the one number a lesson is meant to be remembered by, which
+    makes it exactly the number the *other* lessons repeat - the synthesis
+    lists in lessons 8, 9 and 10 are built from them. So the table is what a
+    quotation elsewhere has to agree with.
+    """
+    body = (ROOT / "CLAUDE.md").read_text(encoding="utf8")
+    if CARRY_HOME_HEADING not in body:
+        return ()
+    table = body.split(CARRY_HOME_HEADING, 1)[1].split("\n### ", 1)[0]
+    claims = []
+    for row in TABLE_ROW.finditer(table):
+        lesson, cell = row.group(1).zfill(2), row.group(2)
+        if not numbers_in(cell):
+            continue                       # the header, and any prose row
+        text = " ".join(re.sub(r"[*`]", "", cell).split())
+        words = {w for w in CLAIM_WORD.findall(text.lower())
+                 if w not in COMMON_WORDS}
+        pair = PAIRED.search(text)
+        primary = sorted(numbers_in(" ".join(BOLD.findall(cell))))
+        claims.append({
+            "lesson": lesson,
+            "text": text,
+            "primary": primary,
+            "numbers": numbers_in(cell),
+            "words": words,
+            # ("94", "of", "128") where the claim is a pair, else None
+            "pair": (pair.group(1).replace(",", ""), pair.group(3).lower(),
+                     pair.group(4).replace(",", "")) if pair else None,
+            "percent": bool(pair is None and len(primary) == 1
+                            and re.search(re.escape(primary[0]) + r"\s*%", text)),
+        })
+    return tuple(claims)
+
+
+def check_quoted_numbers(lesson: Path, report: Report) -> None:
+    """A number quoted from another lesson must still match its source.
+
+    Lessons 8, 9 and 10 each close on a list of the numbers the course has
+    produced so far, and all three said "98 of 128 imputed rows" after the
+    review of lesson 2 established the figure is 94 - the neighbour search that
+    produced 98 was over three standardised columns where the imputer used four
+    raw ones. Nothing caught it. The three lessons agreed with each other;
+    `worked_examples.py` recomputes only what its *own* handout prints; and
+    lesson 2 was correct everywhere it spoke for itself.
+
+    So this compares a quotation against its source rather than against its
+    neighbours, in the two directions that can go stale:
+
+    * **the source moved and the table did not** - a lesson no longer contains
+      the number CLAUDE.md says it is remembered by;
+    * **the source moved and a quotation did not** - another lesson reproduces
+      the claim's wording beside a number that is not the claim's, and that
+      appears nowhere in the lesson it is taken from.
+
+    Three conditions together are what keep it quiet enough to be worth having.
+    A quotation has to reproduce the claim's *wording*, not merely sit near a
+    number; the number has to have the claim's shape, so a count is never read
+    as a mis-stated accuracy; and it must appear nowhere in the source lesson,
+    which is what separates a stale quote from an honest new measurement.
+    Lesson 10 runs a network of lesson 9's design on its own wafers and prints
+    numbers lesson 9 never saw: those are not quotations of anything.
+    """
+    claims = carry_home_claims()
+    if not claims:
+        return
+    here = lesson.name[:2]
+    lessons = {p.name[:2]: p for p in sorted(ROOT.glob("Lessons/[0-9][0-9]_*"))}
+    if here not in lessons:
+        return
+    source_numbers = {c["lesson"]: lesson_numbers(lessons[c["lesson"]])
+                      for c in claims if c["lesson"] in lessons}
+    every_claim_number = set().union(*(c["numbers"] for c in claims))
+
+    # Half one: the number this lesson is remembered by is still in it.
+    for claim in claims:
+        if claim["lesson"] != here:
+            continue
+        gone = [n for n in claim["primary"]
+                if not says(n, source_numbers.get(here, frozenset()))]
+        if gone:
+            report.fail(
+                "quoted numbers",
+                f"CLAUDE.md remembers this lesson by \"{claim['text']}\", and "
+                f"{', '.join(gone)} appears in no artefact of it - the table is "
+                "quoting a number the lesson has moved on from")
+
+    # Half two: what this lesson quotes from the others.
+    mine = word_rates(lesson)
+
+    def matches(claim: dict, window: str, needed: int) -> bool:
+        """Does this window reproduce the claim, in the source lesson's words?"""
+        theirs = word_rates(lessons[claim["lesson"]])
+        hits = {w for w in claim["words"]
+                if re.search(rf"\b{re.escape(w)}\b", window)}
+        return len(hits) >= needed and any(
+            theirs[w] and theirs[w] >= CLAIM_WORD_RATIO * mine[w] for w in hits)
+
+    for path in artefacts(lesson):
+        flat = " ".join(re.sub(r"[|*`#>]", " ", markdown_of(path)).split())
+        low = flat.lower()
+        for claim in claims:
+            source = claim["lesson"]
+            if source == here or source not in source_numbers:
+                continue
+
+            def stale(value: str, at: tuple[int, int], needed: int) -> None:
+                if value in every_claim_number:
+                    return
+                if says(value, source_numbers[source]):
+                    return              # a number of that lesson's own
+                window = low[max(0, at[0] - QUOTE_BEFORE):at[1] + QUOTE_AFTER]
+                if not matches(claim, window, needed):
+                    return
+                report.fail(
+                    "quoted numbers",
+                    f"{path.name} quotes {value} where lesson {int(source)} "
+                    f"gives \"{claim['text']}\", and {value} is in no artefact "
+                    "of that lesson - check the source before reprinting it")
+
+            if claim["pair"]:
+                # One half of the pair still matches, the other does not: the
+                # shape of a quotation left behind by a correction.
+                first, joiner, second = claim["pair"]
+                for found in PAIRED.finditer(flat):
+                    if found.group(3).lower() != joiner:
+                        continue
+                    left = found.group(1).replace(",", "")
+                    right = found.group(4).replace(",", "")
+                    if (left == first) == (right == second):
+                        continue
+                    stale(right if left == first else left, found.span(), 2)
+            elif len(claim["primary"]) == 1:
+                target = claim["primary"][0]
+                wanted = shape_of(target, "%" if claim["percent"] else "")
+                for found in NUMBER.finditer(flat):
+                    value = found.group(1).replace(",", "")
+                    if value == target:
+                        continue
+                    if shape_of(value, found.group(2)) != wanted:
+                        continue
+                    stale(value, found.span(), 2)
+
+
 # -------------------------------------------------------------------- main
 
 #: A slide is 7.5in tall; rendered at 100 dpi that is 563 rows. Text below this
@@ -705,6 +950,7 @@ def verify(lesson: Path, run: bool) -> Report:
     check_acronyms(lesson, report)
     check_worked_examples(lesson, report)
     check_cross_references(lesson, report)
+    check_quoted_numbers(lesson, report)
     return report
 
 
