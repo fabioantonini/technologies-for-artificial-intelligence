@@ -736,7 +736,8 @@ build one of these systems from being able to say whether it is any good.
 ### Homework
 
 **Exercise 10** — see `Exercises/10_convolutional_networks.md`. Due **Friday
-4 December 2026**, 23:59. It is the last exercise of the course, and it falls
+4 December 2026, 23:59** — the one exercise with no lesson after it to be due
+at the start of. It is the last exercise of the course, and it falls
 in the week of the project peer review; plan accordingly.
 
 ### Notation used in this lesson

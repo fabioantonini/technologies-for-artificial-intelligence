@@ -1088,7 +1088,7 @@ hyperparameter tuning.
    two leaks.
 2. Take the quiz in `Quizzes/`.
 3. **Complete the homework** in `Exercises/02_data_exploration_and_preparation.md`,
-   due at the start of Lesson 3, Friday 9 October.
+   due **Friday 9 October 2026, 09:00**, at the start of Lesson 3.
 
 ---
 

@@ -2,7 +2,7 @@
 title: "Exercise 8 — Unsupervised Learning"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 13 November 2026 · due Friday 20 November 2026, 23:59"
+date: "Set 13 November 2026 · due Friday 20 November 2026, 09:00, at the start of lesson 9"
 ---
 
 ## What this exercise is for
@@ -285,8 +285,8 @@ hedged.
 
 ## Getting help
 
-Bring questions to the start of lesson 9, or email
-fabio.antonini.1969@gmail.com. If you are stuck on Part 3, section 6.2 of
+Email fabio.antonini.1969@gmail.com. There is no lesson between the day this
+is set and the morning it is due, so the inbox is the only channel. If you are stuck on Part 3, section 6.2 of
 the handout does exactly this kind of measurement for Aurora's own account
 table — it claims the anomalies sit closer to the centre than genuine
 accounts do, on average, and then checks that claim at two further seeds

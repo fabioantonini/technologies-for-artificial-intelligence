@@ -1,6 +1,9 @@
-# Exercise 2 — Build the pipeline, then break it on purpose
-
-**Set:** Friday 2 October 2026 · **Due:** Friday 9 October 2026, start of Lesson 3
+---
+title: "Exercise 2 — Build the pipeline, then break it on purpose"
+subtitle: "Technologies for Artificial Intelligence"
+author: "Fabio Antonini — Università degli Studi dell'Aquila"
+date: "Set 2 October 2026 · due Friday 9 October 2026, 09:00, at the start of lesson 3"
+---
 
 Roughly 2–3 hours. Work alone; discussing ideas with others is fine, sharing
 notebooks is not.

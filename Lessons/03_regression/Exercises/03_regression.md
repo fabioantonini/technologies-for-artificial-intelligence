@@ -1,6 +1,9 @@
-# Exercise 3 — Fit, regularise, and say what you believe
-
-**Set:** Friday 9 October 2026 · **Due:** Friday 16 October 2026, start of Lesson 4
+---
+title: "Exercise 3 — Fit, regularise, and say what you believe"
+subtitle: "Technologies for Artificial Intelligence"
+author: "Fabio Antonini — Università degli Studi dell'Aquila"
+date: "Set 9 October 2026 · due Friday 16 October 2026, 09:00, at the start of lesson 4"
+---
 
 Roughly 2–3 hours. Work alone; discussing ideas is fine, sharing notebooks is not.
 

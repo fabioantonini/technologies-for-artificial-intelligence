@@ -2,7 +2,7 @@
 title: "Exercise 5 — Experimental Methodology"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 23 October 2026 · due Friday 30 October 2026, 23:59"
+date: "Set 23 October 2026 · due Friday 30 October 2026, 09:00, at the start of lesson 6"
 ---
 
 ## What this exercise is for
@@ -165,6 +165,6 @@ headline. That is the expected outcome and the reason the exercise exists.
 
 ## Getting help
 
-Bring questions to the start of lesson 6 on 30 October, or email
-fabio.antonini.1969@gmail.com. If you are stuck on Part 2, notebook 3 of this
+Email fabio.antonini.1969@gmail.com. There is no lesson between the day this
+is set and the morning it is due, so the inbox is the only channel. If you are stuck on Part 2, notebook 3 of this
 lesson does the same kind of isolation on a different dataset.

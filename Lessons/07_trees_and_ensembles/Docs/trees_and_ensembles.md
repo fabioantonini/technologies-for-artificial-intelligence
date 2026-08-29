@@ -629,7 +629,7 @@ course has made that point with a different method each time.
 
 ### Homework
 
-`Exercises/07_trees_and_ensembles.md`, due **Friday 13 November 2026, 23:59**.
+`Exercises/07_trees_and_ensembles.md`, due **Friday 13 November 2026, 09:00**, at the start of Lesson 8.
 
 ### Notation used in this lesson
 

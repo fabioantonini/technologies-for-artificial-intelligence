@@ -1433,11 +1433,11 @@ Handout section 12 and the summary.
 
 # Homework
 
-- **Exercise 9**, due **Friday 27 November 2026, 23:59**
+- **Exercise 9**, due **Friday 27 November 2026, 09:00**
 - `Exercises/09_neural_networks.md`
 
 ::: notes
-Set it explicitly and say the deadline out loud: Friday 27 November, 23:59, at
+Set it explicitly and say the deadline out loud: Friday 27 November, 09:00, at
 the start of lesson 10.
 
 Two standing requirements, both of which today's material makes easy to

@@ -1044,7 +1044,7 @@ category instead of a number - and that single change turns out to require a
 different cost function, for a reason that is one of the exam derivations.
 :::
 
-# Homework: due Friday 16 October
+# Homework: due Friday 16 October, 09:00
 
 `Exercises/03_regression.md`
 

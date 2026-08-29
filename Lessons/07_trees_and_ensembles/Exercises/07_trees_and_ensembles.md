@@ -2,7 +2,7 @@
 title: "Exercise 7 — Decision Trees and Ensembles"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 6 November 2026 · due Friday 13 November 2026, 23:59"
+date: "Set 6 November 2026 · due Friday 13 November 2026, 09:00, at the start of lesson 8"
 ---
 
 ## What this exercise is for
@@ -210,8 +210,8 @@ worth more than a cautious one that hedged.
 
 ## Getting help
 
-Bring questions to the start of lesson 8, or email
-fabio.antonini.1969@gmail.com. If you are stuck on Part 3, notebook 2 of
+Email fabio.antonini.1969@gmail.com. There is no lesson between the day this
+is set and the morning it is due, so the inbox is the only channel. If you are stuck on Part 3, notebook 2 of
 lesson 7 does exactly this kind of measurement for the lesson's own
 dataset — it claims a random forest decorrelates its trees, and then
 measures the tightening spread across resampled splits to show it.

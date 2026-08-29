@@ -1272,12 +1272,12 @@ Handout summary and notation table.
 
 # Homework
 
-- **Exercise 8**, due **Friday 20 November 2026, 23:59**
+- **Exercise 8**, due **Friday 20 November 2026, 09:00**
 - `Exercises/08_unsupervised_learning.md`
 
 ::: notes
 Set it explicitly and say the deadline out loud: Friday 20 November,
-23:59.
+09:00, as lesson 9 begins.
 
 Remind them of the standing rule from lesson 5, still in force with no
 labels at all: every reported number needs a check against what the

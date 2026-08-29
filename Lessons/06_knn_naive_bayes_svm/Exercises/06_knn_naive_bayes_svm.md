@@ -2,7 +2,7 @@
 title: "Exercise 6 — k-NN, Naive Bayes and Support Vector Machines"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 30 October 2026 · due Friday 6 November 2026, 23:59"
+date: "Set 30 October 2026 · due Friday 6 November 2026, 09:00, at the start of lesson 7"
 ---
 
 ## What this exercise is for
@@ -164,8 +164,8 @@ you then investigated is worth more here than a cautious one.
 
 ## Getting help
 
-Bring questions to the start of lesson 7 on 6 November, or email
-fabio.antonini.1969@gmail.com. If you are stuck on Part 3, notebook 2 of this
+Email fabio.antonini.1969@gmail.com. There is no lesson between the day this
+is set and the morning it is due, so the inbox is the only channel. If you are stuck on Part 3, notebook 2 of this
 lesson does exactly this kind of measurement — it claims Naive Bayes works
 because its assumption holds, and then measures the within-class correlation to
 show it.

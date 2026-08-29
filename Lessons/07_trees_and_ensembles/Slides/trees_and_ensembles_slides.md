@@ -1087,12 +1087,12 @@ Handout summary and notation table.
 
 # Homework
 
-- **Exercise 7**, due **Friday 13 November 2026, 23:59**
+- **Exercise 7**, due **Friday 13 November 2026, 09:00**
 - `Exercises/07_trees_and_ensembles.md`
 
 ::: notes
 Set it explicitly and say the deadline out loud: Friday 13 November,
-23:59 - the same date lesson 8 begins.
+09:00 - it is due as lesson 8 begins.
 
 Remind them of the standing rule from lesson 5: every reported number needs
 a cross-validated spread, and any feature-importance claim needs the check

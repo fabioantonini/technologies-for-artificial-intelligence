@@ -1,6 +1,9 @@
-# Exercise 1 — Your first honest workflow
-
-**Set:** Friday 25 September 2026 · **Due:** Friday 2 October 2026, start of Lesson 2
+---
+title: "Exercise 1 — Your first honest workflow"
+subtitle: "Technologies for Artificial Intelligence"
+author: "Fabio Antonini — Università degli Studi dell'Aquila"
+date: "Set 25 September 2026 · due Friday 2 October 2026, 09:00, at the start of lesson 2"
+---
 
 Roughly 2–3 hours. Work alone; discussing ideas with others is fine, sharing notebooks
 is not.

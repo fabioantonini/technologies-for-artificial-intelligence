@@ -1471,7 +1471,8 @@ Handout section 12 and 12.1.
 - Two reviews to write as well as two to receive
 
 ::: notes
-Set it explicitly and say the deadline out loud: Friday 4 December, 23:59. It
+Set it explicitly and say the deadline out loud: Friday 4 December, 23:59 - the
+only exercise with no lesson after it, so it runs to the end of the day. It
 is the last exercise of the course.
 
 Say the scheduling problem plainly rather than letting them discover it. That

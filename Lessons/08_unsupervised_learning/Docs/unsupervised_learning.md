@@ -882,7 +882,7 @@ same blind spot PCA's 2-D projection had.
 ### Homework
 
 `Exercises/08_unsupervised_learning.md`, due **Friday 20 November 2026,
-23:59**.
+09:00**, at the start of Lesson 9.
 
 ### Notation used in this lesson
 

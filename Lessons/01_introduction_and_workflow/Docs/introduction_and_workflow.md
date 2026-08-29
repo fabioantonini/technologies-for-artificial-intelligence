@@ -726,8 +726,8 @@ in the framing step, not in a paragraph at the end of a report.
 2. Work through the notebooks in order — 01 for the shape of the process, 02 for the
    taxonomy, 03 for the failure modes.
 3. Take the quiz in `Quizzes/`.
-4. **Complete the homework** in `Exercises/01_first_workflow.md`, due at the start of
-   Lesson 2.
+4. **Complete the homework** in `Exercises/01_first_workflow.md`, due **Friday 2
+   October 2026, 09:00**, at the start of Lesson 2.
 
 ---
 

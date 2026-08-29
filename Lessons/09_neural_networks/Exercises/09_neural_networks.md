@@ -2,7 +2,7 @@
 title: "Exercise 9 — Neural Networks"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 20 November 2026 · due Friday 27 November 2026, 23:59"
+date: "Set 20 November 2026 · due Friday 27 November 2026, 09:00, at the start of lesson 10"
 ---
 
 ## What this exercise is for
@@ -355,8 +355,8 @@ Marks are **not** lost for:
 
 ## Getting help
 
-Bring questions to the start of lesson 10, or email
-fabio.antonini.1969@gmail.com.
+Email fabio.antonini.1969@gmail.com. There is no lesson between the day this
+is set and the morning it is due, so the inbox is the only channel.
 
 If you are stuck on Part 1, handout section 2.2 does exactly this kind of
 reasoning for the acceptance data: it argues from the *symmetry* of the accept

@@ -1223,11 +1223,12 @@ Handout section 7 lists all of this with the section numbers.
 
 # Homework
 
-- **Exercise 6**, due **Friday 6 November 2026**
+- **Exercise 6**, due **Friday 6 November 2026, 09:00**
 - A dataset, three families, and a defence of which one you chose
 
 ::: notes
-Set it explicitly and say the deadline out loud: next Friday, 6 November.
+Set it explicitly and say the deadline out loud: next Friday, 6 November,
+09:00, before lesson 7 starts.
 
 The marks are for the reasoning, not for the accuracy. A well-argued choice that
 scores slightly worse beats a lucky winner with no justification - and the

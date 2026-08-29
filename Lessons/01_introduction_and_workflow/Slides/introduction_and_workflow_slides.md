@@ -1355,7 +1355,7 @@ end of a report.
 Keep this short and serious. Do not moralise - state it and move on.
 :::
 
-# Homework: due Friday 2 October
+# Homework: due Friday 2 October, 09:00
 
 `Exercises/01_first_workflow.md`
 

@@ -962,11 +962,12 @@ business, not from the data.
 
 # Homework
 
-- **Exercise 4**, due Friday 23 October
+- **Exercise 4**, due **Friday 23 October 2026, 09:00**
 - Build a classifier, choose a threshold from a stated cost ratio, defend it
 
 ::: notes
-Set it explicitly and say the deadline out loud: next Friday, 23 October.
+Set it explicitly and say the deadline out loud: next Friday, 23 October,
+09:00, before lesson 5 starts.
 
 Emphasise which part carries the marks. The classifier is a few lines and
 everyone will get it. The paragraph defending the threshold choice is where the

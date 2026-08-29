@@ -1000,7 +1000,7 @@ Preview Lesson 3 in one sentence: with the data prepared honestly, we can
 finally fit something and look at what the fitting actually does.
 :::
 
-# Homework: due Friday 9 October
+# Homework: due Friday 9 October, 09:00
 
 `Exercises/02_data_exploration_and_preparation.md`
 
@@ -1031,8 +1031,8 @@ thing to the exam they will see before the sample papers.
 Next: regression, the first model we derive completely.
 
 ::: notes
-Set the exercise explicitly and give the deadline - Friday 9 October, at the
-start of Lesson 3.
+Set the exercise explicitly and give the deadline - Friday 9 October, 09:00, at
+the start of Lesson 3.
 
 Point out that it uses the same churn dataset, so the exploration they did
 today carries over, and that the marks are again on methodology: a pipeline

@@ -2,7 +2,7 @@
 title: "Exercise 4 — Classification and Evaluation Metrics"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 16 October 2026 · due Friday 23 October 2026, 23:59"
+date: "Set 16 October 2026 · due Friday 23 October 2026, 09:00, at the start of lesson 5"
 ---
 
 ## What this exercise is for
@@ -162,7 +162,7 @@ undocumented good one, which is the same standard the final project will apply.
 
 ## Getting help
 
-Bring questions to the start of lesson 5 on 23 October, or email
-fabio.antonini.1969@gmail.com. If you are stuck on the mechanics of Part 3,
+Email fabio.antonini.1969@gmail.com. There is no lesson between the day this
+is set and the morning it is due, so the inbox is the only channel. If you are stuck on the mechanics of Part 3,
 re-read notebook 3 section 4 — the cost sweep there is the same computation on
 different numbers.

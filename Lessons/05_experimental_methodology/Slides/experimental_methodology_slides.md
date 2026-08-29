@@ -892,11 +892,12 @@ the question the final project will be marked on.
 
 # Homework
 
-- **Exercise 5**, due Friday 30 October
+- **Exercise 5**, due **Friday 30 October 2026, 09:00**
 - A result that is too good. Find out why, then produce the honest number
 
 ::: notes
-Set it explicitly and say the deadline out loud: next Friday, 30 October.
+Set it explicitly and say the deadline out loud: next Friday, 30 October,
+09:00, before lesson 6 starts.
 
 The shape of it: they are given a notebook that reports an excellent score, and
 the score is wrong. They have to find the reason, fix it, report the honest
