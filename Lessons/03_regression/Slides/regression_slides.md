@@ -267,8 +267,8 @@ the formal version of "the bowl has one bottom".
 | Quantity | Value |
 |---|---|
 | the three houses | 80, 120, 200 m² → 240k, 320k, 540k |
-| Xᵀ X | rows (3, 400) and (400, 60,800) |
-| Xᵀ y | (1,100 , 165,600) |
+| XᵀX | rows (3, 400) and (400, 60,800) |
+| Xᵀy | (1,100, 165,600) |
 | determinant | 22,400 |
 | **slope w** | **2,536 €/m²** (truth 2,400) |
 | intercept b | 28,600 € |
@@ -302,7 +302,7 @@ Handout section 3.2 carries every intermediate step.
 
 # And it really is the minimum
 
-- The second derivative is Xᵀ X, never negative in any direction
+- The second derivative is XᵀX, never negative in any direction
 - So the cost is **convex**: one bottom, no local traps
 - Any stationary point is *the* answer, not *an* answer
 
@@ -312,7 +312,7 @@ does not by itself tell you the flat spot is the lowest point rather than a
 ridge or a local dip.
 
 Here it does, because the cost is convex. Give the one-line reason without the
-algebra: Xᵀ X can never be negative in any direction, since asking for its
+algebra: XᵀX can never be negative in any direction, since asking for its
 value in direction v gives the squared length of Xv, and a squared length is
 never negative.
 
