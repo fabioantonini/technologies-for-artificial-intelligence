@@ -24,6 +24,7 @@ engine, which renders math properly.
 
 import hashlib
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -229,6 +230,71 @@ def _normalise(latex: str) -> str:
     return latex
 
 
+#: The course image, and where it bind-mounts this repository.
+CONTAINER = "tai_course"
+WORKDIR = "/home/jovyan/work"
+REPO = Path(__file__).resolve().parent.parent
+
+#: Display maths is placed on the slide at its true size and never enlarged
+#: (see `relayout_content_slides`), so this is the point size the audience
+#: reads: rendering runs at 220 dpi onto a 10-inch slide, which makes a point
+#: in the PNG a point on the slide. At 26 a short formula had to be stretched
+#: to fill the width, which set lesson 2's z-score at 151pt and Tukey's fence,
+#: on the next slide, at 42.
+DISPLAY_PT, INLINE_PT = 56, 18
+
+#: Equations drawn here rather than in the container during this run. Silence
+#: is the failure mode that matters: a build with the container down would
+#: otherwise produce host-rendered images, and the author would commit them
+#: without ever being told the environment had changed under them.
+_drawn_on_host: list = []
+
+#: The drawing itself. Kept as source rather than a function because the
+#: container executes it with `python -c`.
+DRAW = """
+import sys
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+latex, out, size = sys.argv[1], sys.argv[2], float(sys.argv[3])
+fig = plt.figure(figsize=(0.01, 0.01))
+fig.text(0, 0, latex, fontsize=size, color="#1A1A1A")
+try:
+    fig.savefig(out, dpi=220, transparent=True, bbox_inches="tight",
+                pad_inches=0.06)
+except ValueError:
+    raise SystemExit(3)
+"""
+
+
+def _draw_in_container(latex: str, out: Path, size: float):
+    """Draw inside the image, or None if there is no container to draw in.
+
+    Equation images are figures, and this repository has one rule for figures:
+    regenerate them in a single environment, because matplotlib versions differ
+    and every run otherwise shows up as a diff. That rule was written for the
+    notebooks and quietly excluded these - the host was drawing them with
+    matplotlib 3.11 against the image's pinned 3.8, and the same z-score came
+    out 701x239 here against 683x264 there.
+
+    True if it drew, False if mathtext refused, None if there is no container
+    and the caller should fall back to drawing here.
+    """
+    alive = subprocess.run(["docker", "exec", CONTAINER, "true"],
+                           capture_output=True, text=True).returncode == 0
+    if not alive:
+        return None
+    try:
+        inside = out.resolve().relative_to(REPO).as_posix()
+    except ValueError:
+        return None  # outside the bind mount; only the host can reach it
+    drawn = subprocess.run(
+        ["docker", "exec", "-w", WORKDIR, CONTAINER, "python", "-c", DRAW,
+         latex, inside, str(size)],
+        capture_output=True, text=True)
+    return drawn.returncode == 0
+
+
 def render_image(latex: str, figures: Path, display: bool = True) -> Path | None:
     """Render one equation to a transparent PNG, or None if mathtext refuses.
 
@@ -236,24 +302,27 @@ def render_image(latex: str, figures: Path, display: bool = True) -> Path | None
     to leaving readable text on the slide and warns, so the author can decide
     whether to simplify it or move it to the handout where it belongs.
     """
-    import matplotlib
-
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-
     figures.mkdir(parents=True, exist_ok=True)
     digest = hashlib.md5(latex.encode()).hexdigest()[:10]
     out = figures / f"eq_{digest}.png"
     if out.exists():
         return out
 
-    # Display maths is placed on the slide at its true size and never enlarged
-    # (see `relayout_figure_slides`), so this is the point size the audience
-    # reads: rendering runs at 220 dpi onto a 10-inch slide, which makes a
-    # point in the PNG a point on the slide. At 26 a short formula had to be
-    # stretched to fill the width, which set lesson 2's z-score at 151pt and
-    # Tukey's fence, on the next slide, at 42.
-    size = 56 if display else 18
+    size = DISPLAY_PT if display else INLINE_PT
+    drawn = _draw_in_container(f"${_normalise(latex)}$", out, size)
+    if drawn is True:
+        return out
+    if drawn is False:
+        out.unlink(missing_ok=True)
+        return None
+
+    _drawn_on_host.append(out.name)
+
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
     fig = plt.figure(figsize=(0.01, 0.01))
     fig.text(0, 0, f"${_normalise(latex)}$", fontsize=size, color="#1A1A1A")
     try:
@@ -295,6 +364,7 @@ def process(source: Path, dest: Path | None = None) -> tuple[int, int, list[str]
     figures = figures_dir(source)
     stats = {"unicode": 0, "images": 0}
     warnings: list[str] = []
+    _drawn_on_host.clear()
 
     def display_repl(match: re.Match) -> str:
         latex = match.group(1).strip()
@@ -329,6 +399,14 @@ def process(source: Path, dest: Path | None = None) -> tuple[int, int, list[str]
     text = re.sub(r"(?<!\$)\$(?!\$)(.+?)(?<!\$)\$(?!\$)", inline_repl, text)
     warnings.extend(_check_display_position(text))
     warnings.extend(_check_display_alone(text))
+
+    if _drawn_on_host:
+        warnings.append(
+            f"{len(_drawn_on_host)} equation(s) drawn on this machine, not in "
+            f"the {CONTAINER} container - start it and delete Figures/eq_*.png "
+            "before committing, or the images will not match the ones a "
+            "rebuild produces"
+        )
 
     dest.write_text(text, encoding="utf8")
     return stats["unicode"], stats["images"], warnings
