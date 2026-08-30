@@ -64,11 +64,19 @@ pseudocode.
 
 ---
 
-## Materials
+## Materials, and when they appear
 
-- [`question_bank.md`](question_bank.md) — questions by topic, built up as the course runs
-- `sample_paper_1.md`, `sample_paper_2.md` — full papers with solutions, published
-  after Lesson 8
+Neither of these exists yet. They are listed here so you know what is coming and do
+not go looking for it early; both will appear in this folder, and reach you with a
+`git pull` like everything else.
+
+| Material | What it is | When |
+|---|---|---|
+| `question_bank.md` | Questions by topic, in the shape of Parts A, C and D | Built up as the course runs, from Lesson 4 onwards |
+| `sample_paper_1.md`, `sample_paper_2.md` | Two full papers with worked solutions | After Lesson 8, Friday 13 November 2026 |
+
+Until they do, the quizzes are the closest thing there is, and they are already
+written: one per lesson, in `Lessons/NN_topic/Quizzes/`. See *How to prepare* below.
 
 ---
 
@@ -78,7 +86,7 @@ Keep the ten exercise notebooks somewhere you can find them, and re-read your ow
 reasoning before the day rather than rewriting the code — the discussion is about the
 decisions, and those live in the markdown cells.
 
-For the paper: work through the derivations with a pen rather than reading them. Then take the quiz
-for each lesson: the quizzes deliberately include questions that require reasoning
-about a derivation rather than recalling a fact, and those are the closest thing to
-Part B you will find before the sample papers appear.
+For the paper: work through the derivations with a pen rather than reading them. Then
+take the quiz for each lesson — they deliberately include questions that require
+reasoning about a derivation rather than recalling a fact, and until the sample papers
+appear in November they are the closest thing to Part B there is.
