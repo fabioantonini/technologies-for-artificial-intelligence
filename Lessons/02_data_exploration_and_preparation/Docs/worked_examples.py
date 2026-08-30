@@ -168,8 +168,12 @@ same("3.3 and with them, 0.741", _auc_with(True), 0.741, tolerance=1e-3)
 
 # The claim is about a difference of under three thousandths, so it is checked
 # at four decimals: at three the two AUCs would read as 0.003 apart.
-def _auc_engineered() -> float:
-    """The same pipeline, plus monthly_charges / (tenure_months + 1)."""
+def _auc_engineered(clip_high: float = float("inf")) -> float:
+    """The same pipeline, plus monthly_charges x tenure_months.
+
+    `clip_high` is Section 4's domain rule: leave it open and the 999-month rows
+    reach the feature, set it to 120 and they do not.
+    """
     from sklearn.compose import ColumnTransformer
     from sklearn.impute import SimpleImputer
     from sklearn.linear_model import LogisticRegression
@@ -179,12 +183,12 @@ def _auc_engineered() -> float:
 
     def engineer(f):
         f = f.copy()
-        f["charge_per_tenure"] = (f["monthly_charges"]
-                                  / (f["tenure_months"].clip(lower=0) + 1))
+        f["total_paid"] = (f["monthly_charges"]
+                           * f["tenure_months"].clip(0, clip_high))
         return f
 
     numeric = ["tenure_months", "monthly_charges", "age", "num_support_calls",
-               "charge_per_tenure"]
+               "total_paid"]
     prep = ColumnTransformer([
         ("num", Pipeline([("impute", SimpleImputer(strategy="median")),
                           ("scale", StandardScaler())]), numeric),
@@ -202,13 +206,22 @@ def _auc_engineered() -> float:
 # the point. This file runs on the host, where scikit-learn is 1.9.0 against the
 # image's pinned 1.3.1; the same fit gives 0.751401 in the image and 0.751528
 # here, so the fourth decimal of an AUC is not portable between the two stacks.
-# The difference is: +0.002788 there against +0.002814 here. Section 7's claim
+# The difference is portable where the level is not. Section 7's claim
 # is about the size of a gap, which is why it is the gap that is pinned.
 _plain, _engineered = _auc_with(False), _auc_engineered()
 same("7 the model without the engineered feature", _plain, 0.7514, tolerance=5e-4)
-same("7 and with it", _engineered, 0.7542, tolerance=5e-4)
-same("7 the gap is under three thousandths", _engineered - _plain, 0.0028,
-     tolerance=5e-5)
+same("7 and with it", _engineered, 0.7548, tolerance=5e-4)
+same("7 the gap is under four thousandths", _engineered - _plain, 0.0034,
+     tolerance=5e-4)
+
+
+def _auc_domain_ruled() -> float:
+    """The same feature, built after Section 4's domain rule instead of before."""
+    return _auc_engineered(clip_high=120)
+
+
+same("7 the domain rule turns the gain negative", _auc_domain_ruled() - _plain,
+     -0.0075, tolerance=5e-4)
 
 # --- 3.2, covariance carries units and correlation does not -------------
 

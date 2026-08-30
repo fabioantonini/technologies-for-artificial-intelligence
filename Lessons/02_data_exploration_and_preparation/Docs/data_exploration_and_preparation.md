@@ -930,31 +930,49 @@ column.
 
 Three common constructions:
 
-- **Ratios and differences**, when a rate matters more than either raw
-  quantity — `monthly_charges` relative to `tenure_months` captures "cost
-  intensity" in a way neither column does alone. Note what the obvious version
-  of that ratio does on this column: `tenure_months` contains zeros and, until
-  Section 4's domain rule is applied, the value $-3$. Divide by it directly and
-  you get an infinity and a sign flip. Notebook 2 therefore computes
-  `monthly_charges / (tenure_months.clip(lower=0) + 1)` — the clip is Section 4
-  arriving in Section 7, and it is the ordinary shape of feature engineering on
-  real data, where a construction that is one line of algebra is three lines of
-  defending it against the column you actually have.
+- **Ratios and differences**, when a *rate* matters more than either raw
+  quantity — support calls per month of tenure, or a charge expressed as a
+  multiple of what comparable customers pay. Check the units before trusting
+  the construction: `monthly_charges / tenure_months` looks like a ratio of the
+  same family, but `monthly_charges` is already a rate, so dividing it by months
+  again gives euros per month *per month* — a quantity nobody would name, and a
+  sign that the feature was reached for rather than thought through.
 - **Interaction terms**, $x_j \cdot x_k$, when the *combination* of two
   features matters beyond their individual effects — a model with only
   `contract_type` and `monthly_charges` cannot represent "high charges matter
   more for month-to-month customers" unless that product is added explicitly.
+  This is the one notebook 2 builds: `total_paid`, the monthly charge times the
+  months stayed, which is what this customer has been worth so far — in euros,
+  and interpretable as such. Note what the raw columns do to it:
+  `tenure_months` still holds the $-3$ of Section 4, and multiplying by it
+  unclipped hands the model a customer who has paid minus two hundred euros. So
+  notebook 2 computes `monthly_charges * tenure_months.clip(lower=0)` — the
+  clip is Section 4 arriving in Section 7, and it is the ordinary shape of
+  feature engineering on real data, where a construction that is one line of
+  algebra is three lines of defending it against the column you actually have.
 - **Binning**, converting a continuous variable into ordered categories, which
   lets a linear model approximate a non-linear (e.g. non-monotonic)
   relationship with the target piecewise, at the cost of discarding
   within-bin information.
 
 Feature engineering is a hypothesis about the domain, not a guaranteed
-improvement. Notebook 2's engineered `charge_per_tenure` moves the model's
+improvement. Notebook 2's engineered `total_paid` moves the model's
 area under the receiver operating characteristic curve (AUC) from **0.7514 to
-0.7542** — under three thousandths. Four decimals rather than three, because at
-three the two numbers read as a gap of 0.003 while the gap is 0.0028, and a
+0.7548** — under four thousandths. Four decimals rather than three, because at
+three the two numbers read as a gap of 0.004 while the gap is 0.0034, and a
 result this small does not survive that rounding.
+
+**And now the result worth more than the feature.** Build the identical column
+*after* applying Section 4's domain rule — `tenure_months` clipped to its
+legitimate 0–120 rather than merely at zero — and the gain does not shrink, it
+changes sign: **+0.0034 becomes −0.0075**. The improvement was never about what
+a customer had paid. It lived in the rows this lesson has already called broken:
+a tenure of 999 months multiplied by a billing error of 3,344.7 gives a
+`total_paid` no honest customer could have, and those rows happen to align with
+the target well enough to move the score. **Multiplying two contaminated columns
+concentrates the contamination rather than diluting it** — and the result looked
+like a discovery. The order in which the steps are done is part of the method,
+not an implementation detail.
 
 *(AUC appears repeatedly from here on, so fix it now: it is the probability
 that the model gives a randomly chosen churner a higher score than a randomly
@@ -964,8 +982,9 @@ it properly; until then, read it as "how well does this rank the two groups
 apart".)* Worth stating
 plainly: that is **not** a success, and reporting it as one would be the first
 step towards the reasoning Lesson 5 exists to prevent. It is a legitimate
-result — the hypothesis that cost intensity matters here was reasonable, it was
-tested, and the data declined it — and it is also within the range that a
+result — the hypothesis that what a customer has been worth so far predicts
+whether they leave was reasonable, it was tested, and the data declined it — and
+it is also within the range that a
 different train/test split could produce on its own, which is precisely why
 Lesson 5 will not let a single split settle a question this small.
 
@@ -973,8 +992,8 @@ The three constructions are worth seeing on the actual columns:
 
 | Construction | On this dataset | What it lets a linear model express |
 |---|---|---|
-| **Ratio** | `monthly_charges / (tenure_months + 1)` | cost intensity — a customer paying 90 for three months is not the customer paying 90 for sixty |
-| **Interaction** | `monthly_charges × [contract is month-to-month]` | that a high bill matters more when there is nothing holding the customer in place |
+| **Ratio** | `num_support_calls / (tenure_months + 1)` | a rate — five calls in three months is not five calls in sixty |
+| **Interaction** | `monthly_charges × tenure_months` | what the customer has paid so far, which neither column states on its own; the one notebook 2 builds |
 | **Binning** | `tenure_months` into 0–6, 6–24, 24+ | that churn runs at 0.399, 0.314 and 0.122 across the three bands — high, lower, then far lower, a shape no single coefficient on `tenure_months` can produce |
 
 And whenever the construction involves a statistic learned from data — bin edges

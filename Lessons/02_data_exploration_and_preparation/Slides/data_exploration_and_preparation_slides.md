@@ -887,33 +887,48 @@ cases. Accuracy on its own would have reported this as progress.
 # Feature engineering
 
 Ratios, interactions, binning: a linear model cannot invent these itself.
-AUC: 0.7514 → 0.7542. **Under three thousandths: one split cannot tell that from noise.**
+AUC: 0.7514 → 0.7548, under four thousandths. Clean `tenure_months` first and
+the same feature scores **0.7439** — the gain was living in the 999s.
 
-$$\text{charge\_per\_tenure} = \frac{\text{monthly\_charges}}{\max(\text{tenure\_months},\ 0) + 1}$$
+$$\text{total\_paid} = \text{monthly\_charges} \times \max(\text{tenure\_months},\ 0)$$
 
 ::: notes
 Do not let anyone in the room call three thousandths a win, and do not call it
-one yourself. Quote the four decimals: at three, 0.751 against 0.754 sounds
-like a difference of 0.003, and the difference is 0.0028. It is a legitimate result, not a failed experiment - the
-hypothesis that cost intensity matters here was reasonable, it was tested, and
-the data declined it. Feature engineering is a hypothesis about the domain,
-not a guarantee. Handout Section 7.
+one yourself. Quote the four decimals: at three, 0.751 against 0.755 sounds
+like a difference of 0.004, and the difference is 0.0034. It is a legitimate
+result, not a failed experiment - the hypothesis that what a customer has been
+worth so far predicts whether they leave was reasonable, it was tested, and the
+data declined it. Feature engineering is a hypothesis about the domain, not a
+guarantee. Handout Section 7.
+
+Then the second number, which is the one to spend time on. Rebuild the same
+column after Section 4's domain rule - tenure clipped to 0-120, not just at
+zero - and +0.0034 becomes -0.0075. The gain was never about what the customer
+paid: 999 months times a billing error of 3,344.7 is a total_paid no real
+customer could have, and those rows line up with the target well enough to move
+the score. Multiplying two contaminated columns concentrates the contamination.
+Say the moral out loud: the order of the steps is part of the method.
 
 Then plant the flag for Lesson 5: a difference this small is inside the range
 a different train/test split would produce on its own, so a single split
 cannot settle it either way. Reporting it as an improvement is the first step
 onto exactly the path Lesson 5 exists to close off.
 
-Explain the max and the +1 rather than skating over them, because someone will
-ask. tenure_months holds zeros and, before Section 4's domain rule, a -3:
-divide by it raw and you get an infinity and a sign flip. That is Section 4
-turning up in Section 7, and it is what feature engineering on real data
-actually looks like - one line of algebra, three lines of defending it against
-the column you have.
+Explain the max rather than skating over it, because someone will ask.
+tenure_months still holds the -3 of Section 4 at this point, and multiplying by
+it unclipped hands the model a customer who has paid minus two hundred euros.
+That is Section 4 turning up in Section 7, and it is what feature engineering on
+real data actually looks like - one line of algebra, three lines of defending it
+against the column you have.
+
+If someone objects to the obvious alternative, monthly_charges divided by
+tenure_months, they are right to: monthly_charges is already a rate, so
+dividing it by months again gives euros per month per month. Check the units
+before trusting a construction.
 
 The point to land: any engineered feature that involves a statistic LEARNED
 from data - bin edges from quantiles, a scaled interaction - is subject to
-the same rule as scaling. A pure arithmetic combination (this ratio) needs no
+the same rule as scaling. A pure arithmetic combination (this product) needs no
 fold-awareness; a learned one does.
 :::
 
