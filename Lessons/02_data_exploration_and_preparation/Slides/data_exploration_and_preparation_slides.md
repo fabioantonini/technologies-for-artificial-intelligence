@@ -934,19 +934,41 @@ fold-awareness; a learned one does.
 
 # Notebook 2, live
 
-Scaling from scratch, the dummy trap, `ColumnTransformer`, `Pipeline`.
+Four numbers to come back with:
+
+- Variance ratio **110:1** - learning rate **2.0** scaled, **0.1** raw
+- That rate on raw features: loss swings **0.69 to 8.29**, for ever
+- k dummies + intercept: **4 columns, rank 3**
+- `Pipeline`, then `total_paid`: **0.7514 → 0.7548 → 0.7439**
 
 ::: notes
 20 minutes. Let them work; circulate.
 
-The gradient descent toy is worth running interactively - change the variance
-ratio live and watch the iteration count move, per the handout's "try this".
-It makes the condition number argument concrete in a way the derivation alone
-does not.
+Say what the eight sections are for before they start, because the notebook is
+long and the middle of it looks like plumbing: sections 3 and 4 are why we
+scale, 5 and 6 are why we encode and what zip_code costs, 7 is the pipeline
+that makes the rule true by construction, and 8 is the feature that does not
+work.
 
-If the room is moving fast, the ColumnTransformer section is where to slow
-down: it is the piece they will reuse in every exercise and in the project,
-and getting the column selectors right is fiddlier than it looks.
+The gradient descent toy in section 3 is worth running interactively - change
+the variance ratio live and watch the iteration count move, per the handout's
+"try this". It makes the condition number argument concrete in a way the
+derivation alone does not. The number to make them say out loud is the second
+one on the slide: the raw features do not diverge to infinity, they oscillate
+between 0.69 and 8.29 and never settle. That is a worse failure than slowness,
+because nothing errors.
+
+Section 5 is the one that lands without discussion: matrix_rank returns 3 for
+four columns, and short by exactly one is the signature of a single dependence.
+They believe numpy where they might not believe the algebra.
+
+If the room is moving fast, section 7 is where to slow down: ColumnTransformer
+is the piece they will reuse in every exercise and in the project, and getting
+the column selectors right is fiddlier than it looks.
+
+And leave time for section 8, which is the one they will get wrong on their own
+data: the engineered feature gains 0.0034, then loses 0.0075 once tenure is
+cleaned first. Ask them why before telling them.
 :::
 
 # Same rule, broken three ways
