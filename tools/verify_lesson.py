@@ -632,14 +632,53 @@ def check_worked_examples(lesson: Path, report: Report) -> None:
                         "Docs/worked_examples.py recomputing them")
         return
 
-    result = subprocess.run([sys.executable, str(checker)],
-                            capture_output=True, text=True, cwd=str(ROOT))
+    result = run_checker(checker, report)
     if result.returncode != 0:
         tail = (result.stderr or result.stdout).strip().splitlines()[-4:]
         report.fail("worked examples", " | ".join(tail))
     else:
         for line in result.stdout.strip().splitlines():
             report.note(line)
+
+
+#: Where docker-compose bind-mounts this repository inside the image.
+WORKDIR = "/home/jovyan/work"
+
+
+def run_checker(checker: Path, report: Report):
+    """Recompute the lesson's numbers on the stack that produced them.
+
+    The container first, and the host only as a fallback. Every figure a
+    handout quotes came out of a notebook run in the image, and the image
+    pins numpy, pandas and scikit-learn; the host venv does not track those
+    pins and in practice runs well ahead of them. Most of these checks are
+    arithmetic on the dataset and do not care, but the ones that fit a model
+    do: the same logistic pipeline scores 0.751401 in the image and 0.751528
+    on the host, so a fourth decimal verified here is not the fourth decimal
+    a student will see.
+
+    A missing or stopped container is not a failure - it is a note, and the
+    checks still run - because verifying on the wrong stack is worth far more
+    than not verifying at all.
+    """
+    # Ask whether the container is there before asking it to do anything, so
+    # that "docker is not running" and "your arithmetic is wrong" cannot arrive
+    # as the same failure. Matching on the daemon's wording would be one more
+    # string to keep in step with docker.
+    alive = subprocess.run(["docker", "exec", CONTAINER, "true"],
+                           capture_output=True, text=True).returncode == 0
+    if alive:
+        # The path has to be the one the container sees, not the one we hold:
+        # the repository is bind-mounted, the same file under another name.
+        relative = checker.resolve().relative_to(ROOT).as_posix()
+        return subprocess.run(
+            ["docker", "exec", "-w", WORKDIR, CONTAINER, "python", relative],
+            capture_output=True, text=True)
+
+    report.note("container not running; the arithmetic ran on the host stack, "
+                "which does not match the image's pinned versions")
+    return subprocess.run([sys.executable, str(checker)],
+                          capture_output=True, text=True, cwd=str(ROOT))
 
 
 # ------------------------------------------------------- cross-references

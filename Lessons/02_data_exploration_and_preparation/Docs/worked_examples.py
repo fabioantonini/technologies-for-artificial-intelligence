@@ -202,12 +202,12 @@ def _auc_engineered(clip_high: float = float("inf")) -> float:
     return roc_auc_score(y_test, model.predict_proba(engineer(X_test))[:, 1])
 
 
-# The levels get a loose tolerance and the gap a tight one, and the asymmetry is
-# the point. This file runs on the host, where scikit-learn is 1.9.0 against the
-# image's pinned 1.3.1; the same fit gives 0.751401 in the image and 0.751528
-# here, so the fourth decimal of an AUC is not portable between the two stacks.
-# The difference is portable where the level is not. Section 7's claim
-# is about the size of a gap, which is why it is the gap that is pinned.
+# verify_lesson.py runs this inside the container, so these numbers are checked
+# on the stack that produced them. The tolerances stay wide enough to survive
+# the host fallback, which happens when the container is down: there
+# scikit-learn is 1.9.0 against the image's pinned 1.3.1, and the same fit gives
+# 0.751528 rather than 0.751401. A stopped container should print a note, not a
+# false alarm.
 _plain, _engineered = _auc_with(False), _auc_engineered()
 same("7 the model without the engineered feature", _plain, 0.7514, tolerance=5e-4)
 same("7 and with it", _engineered, 0.7548, tolerance=5e-4)
