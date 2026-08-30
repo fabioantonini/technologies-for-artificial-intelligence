@@ -97,6 +97,21 @@ X_train, X_test, _, _ = train_test_split(
     features, frame["churned"], test_size=0.25, random_state=7,
     stratify=frame["churned"])
 
+# --- 2, what the correlation matrix says about the features -------------
+
+# The three numbers Section 2 reads off the heatmap, recomputed from the frame.
+# The claim that matters is the third: the features carry no redundancy, so the
+# lesson's difficulty is not collinearity between columns.
+_numeric = ["tenure_months", "monthly_charges", "age", "num_support_calls"]
+_corr = frame[_numeric + ["churned"]].corr()
+same("2 num_support_calls against churn", _corr.loc["num_support_calls", "churned"],
+     0.16, tolerance=5e-3)
+same("2 tenure_months against churn", _corr.loc["tenure_months", "churned"],
+     -0.12, tolerance=5e-3)
+_pairs = _corr.loc[_numeric, _numeric].where(
+    ~np.eye(len(_numeric), dtype=bool)).abs().max().max()
+same("2 no two features correlate above 0.035", _pairs, 0.035, tolerance=5e-4)
+
 # --- 5.1, what an outlier does to each scaler ---------------------------
 charges = X_train["monthly_charges"].fillna(X_train["monthly_charges"].median())
 ordinary = charges[charges < 500]

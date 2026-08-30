@@ -103,9 +103,39 @@ related to the target. "Tentatively" is doing real work in that sentence — a
 correlation is a starting hypothesis, not a conclusion, and Section 9 shows a
 case where it is actively misleading.
 
+**Reading the matrix.** Each cell holds the **Pearson correlation** of the two
+columns that name it, and the intuition is a single question: *if I tell you
+this customer is above average on one column, how sure are you they are above
+average on the other?* Completely sure, and by a proportional amount, is $+1$;
+completely sure they are below is $-1$; no better off than before I told you is
+$0$. The measure ignores units, so it is the same number whether charges are in
+euros or in cents, and it is symmetric — the cell says nothing about which
+column would be the cause.
+
+The last row is the one people read, and it asks what each feature might be
+worth. **The rest of the matrix asks a different question, about the features
+themselves and not about churn: how much do these two columns duplicate each
+other?** Two features correlated at $0.9$ are very nearly one column entered
+twice — the model is handed two inputs but barely more than one column's worth
+of information, and it has two coefficients to split between them with almost
+nothing to say how, which is why such pairs give unstable coefficients that
+swing between fits. Two features near $0$ are the opposite: each carries
+something the other cannot supply, so both earn their place.
+
+Here every feature-against-feature cell sits within **0.035** of zero — this
+dataset's inputs are, by construction, unrelated to one another. That is worth
+naming, because it means the difficulty in what follows is *not* redundancy
+between columns. It is that no single column says much about the target at all.
+
+One caution before the picture. Pearson measures a *straight-line* relationship
+only. A column that rises with the target and then falls again — a perfect,
+obvious, arch-shaped relationship — can correlate at exactly zero, and a
+correlation matrix will report it as nothing. A near-zero cell is a reason to
+plot the pair, not a proof that there is nothing there.
+
 ![](correlation_heatmap.png)
 
-*The four numeric columns against each other and against the target. What to look at is how weak the strongest relationship is: `num_support_calls` correlates with churn at +0.16 and `tenure_months` at −0.12, and everything else sits within 0.03 of zero. No single column predicts churn on its own, which is why the rest of this chapter exists — and why Section 9's leaked feature, at a correlation far above anything here, should be read as an alarm rather than a discovery.*
+*The four numeric columns against each other and against the target. The diagonal is 1.00 by definition — every column agrees perfectly with itself — and the matrix is symmetric about it, so only one triangle carries information. The bottom row is the four features against churn; the block above it is the features against each other, where a large value would mean two columns saying the same thing twice. What to look at is how weak the strongest relationship is: `num_support_calls` correlates with churn at +0.16 and `tenure_months` at −0.12, and everything else sits within 0.03 of zero. No single column predicts churn on its own, which is why the rest of this chapter exists — and why Section 9's leaked feature, at a correlation far above anything here, should be read as an alarm rather than a discovery.*
 
 None of this fits a model or learns a parameter, which is exactly why it is
 safe to do on the *whole* dataset, including the portion that will later
