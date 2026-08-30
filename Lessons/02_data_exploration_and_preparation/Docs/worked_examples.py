@@ -93,7 +93,7 @@ from sklearn.model_selection import train_test_split         # noqa: E402
 
 frame = make_churn_data(n=2000, seed=7)
 features = frame.drop(columns=["churned", "zip_code"])
-X_train, X_test, _, _ = train_test_split(
+X_train, X_test, y_train, y_test = train_test_split(
     features, frame["churned"], test_size=0.25, random_state=7,
     stratify=frame["churned"])
 
@@ -111,6 +111,57 @@ same("2 tenure_months against churn", _corr.loc["tenure_months", "churned"],
 _pairs = _corr.loc[_numeric, _numeric].where(
     ~np.eye(len(_numeric), dtype=bool)).abs().max().max()
 same("2 no two features correlate above 0.035", _pairs, 0.035, tolerance=5e-4)
+
+# --- 3.3, what the missingness indicator is worth -----------------------
+
+# The table's four rows, and then the claim that matters: the indicator buys
+# nothing here. Both models are fitted from the raw frame, so nothing below
+# reuses a number the handout printed.
+_missing = frame["num_support_calls"].isna()
+same("3.3 96 rows are missing a call count", _missing.sum(), 96, tolerance=0)
+same("3.3 their median tenure is 52 months",
+     frame.loc[_missing, "tenure_months"].median(), 52, tolerance=0)
+same("3.3 against 35 for the rest",
+     frame.loc[~_missing, "tenure_months"].median(), 35, tolerance=0)
+same("3.3 they churn at 12.5%", frame.loc[_missing, "churned"].mean(), 0.125,
+     tolerance=5e-3)
+same("3.3 against 19.7%", frame.loc[~_missing, "churned"].mean(), 0.197,
+     tolerance=5e-3)
+_age_missing = frame["age"].isna()
+same("3.3 the MCAR indicator separates nothing: 17.5%",
+     frame.loc[_age_missing, "churned"].mean(), 0.175, tolerance=5e-3)
+same("3.3 against 19.6%", frame.loc[~_age_missing, "churned"].mean(), 0.196,
+     tolerance=5e-3)
+
+
+def _auc_with(add_indicator: bool) -> float:
+    """Section 8's pipeline, with and without the indicator columns."""
+    from sklearn.compose import ColumnTransformer
+    from sklearn.impute import SimpleImputer
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import roc_auc_score
+    from sklearn.pipeline import Pipeline
+    from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
+    numeric = ["tenure_months", "monthly_charges", "age", "num_support_calls"]
+    categorical = ["contract_type", "region"]
+    prep = ColumnTransformer([
+        ("num", Pipeline([
+            ("impute", SimpleImputer(strategy="median", add_indicator=add_indicator)),
+            ("scale", StandardScaler())]), numeric),
+        ("cat", Pipeline([
+            ("impute", SimpleImputer(strategy="most_frequent")),
+            ("onehot", OneHotEncoder(handle_unknown="ignore", drop="first"))]),
+         categorical)])
+    model = Pipeline([("prep", prep),
+                      ("clf", LogisticRegression(max_iter=1000))])
+    model.fit(X_train, y_train)
+    return roc_auc_score(y_test, model.predict_proba(X_test)[:, 1])
+
+
+same("3.3 the pipeline without indicators scores 0.751", _auc_with(False), 0.751,
+     tolerance=1e-3)
+same("3.3 and with them, 0.741", _auc_with(True), 0.741, tolerance=1e-3)
 
 # --- 3.2, covariance carries units and correlation does not -------------
 

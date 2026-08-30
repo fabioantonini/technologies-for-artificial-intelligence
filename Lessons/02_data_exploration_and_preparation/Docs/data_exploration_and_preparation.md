@@ -352,6 +352,59 @@ so, and this section is the quantitative version of the same warning.
   more often missing a call count) available to the model even after the gap
   itself has been filled with a number.
 
+**How the indicator is actually used, since it is the least obvious of the
+four.** It is not metadata and it is not a note to yourself: it is an ordinary
+column in the design matrix, `num_support_calls_was_missing`, holding 1 for the
+rows that had a gap and 0 for the rest, and the model treats it exactly as it
+treats any other column. A linear model gives it a coefficient, so every row
+that had a gap gets the same fixed shift applied to its prediction; a tree can
+split on it, sending the rows that were missing down one branch. Nothing has to
+be taught to use it — that is the whole reason for putting the fact *in the
+table* rather than in a comment. `SimpleImputer(add_indicator=True)` appends
+these columns for you, inside the pipeline, fitted on the training fold like
+everything else.
+
+What it can carry is this: once the gap is filled, the model **cannot tell an
+invented value from a measured one**. If the fact of the gap was itself
+informative, imputation has just destroyed that information, and the indicator
+is what puts it back. Whether it *was* informative is a question about the
+mechanism, and Section 3.1 already answers it for our two columns:
+
+| | rows | median `tenure_months` | churn rate |
+|---|---|---|---|
+| `num_support_calls` missing (MAR) | 96 | 52 | **12.5%** |
+| present | 1,904 | 35 | **19.7%** |
+| `age` missing (MCAR) | 160 | — | 17.5% |
+| present | 1,840 | — | 19.6% |
+
+The MAR column behaves as advertised — the rows with a gap are the long-tenure
+ones, and they churn at two thirds the rate of everybody else — while the MCAR
+column's indicator separates nothing, which is what MCAR means.
+
+**And now the part that is worth more than the rule.** Fit the Section 8
+pipeline twice, once with `add_indicator=True` and once without, and the area
+under the curve goes **0.751 → 0.741**. It does not help. The reason is not
+that the indicator carries nothing; the table above shows that it does. It is
+that what it knows — *this is a long-tenure customer* — the model **already
+has**, in the `tenure_months` column sitting next to it. The indicator is a
+noisier copy of a column that is already in the table, which is Section 2's
+redundancy argument arriving from a different direction.
+
+Read the drop as "no gain" rather than "harm": two hundredths of an AUC point
+is comfortably inside the spread a different train/test split would produce,
+which is the whole subject of Lesson 5. The rule that survives is sharper than
+"add indicators, they are free":
+
+> Add the indicator when the fact of the gap could carry something **the other
+> columns cannot supply**. When the missingness depends on a column you already
+> hold — the definition of MAR — expect the model to have that information
+> already, and expect the indicator to earn nothing.
+
+The case where it does earn its place is the one this dataset does not contain:
+missingness driven by something unrecorded, where the blank is the only trace
+left of it. That is MNAR, no imputation recovers the value, and a column saying
+*this was blank* is the only honest thing you can hand the model.
+
 ![](missing_data_decision.png)
 
 *The decision, as a chart. Note that every branch depends on the mechanism, which is why Section 3.1 comes first.*
