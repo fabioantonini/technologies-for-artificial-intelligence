@@ -606,9 +606,10 @@ that looks completely reasonable, and get 0.93.
 # The code almost everyone writes
 
 ```python
-selector = SelectKBest(f_classif, k=10).fit(noise, y)
-chosen = noise.loc[:, selector.get_support()]
-cross_val_score(model, chosen, y, cv=folds)
+sel = SelectKBest(f_classif, 10)
+sel.fit(noise, y)
+X = noise.loc[:, sel.get_support()]
+cross_val_score(model, X, y, cv=cv)
 ```
 
 ::: notes
@@ -696,7 +697,7 @@ candidates; or more rows. Nothing else.
 | best of 25 candidates | **0.7999** |
 | average candidate | 0.7265 |
 | nested cross-validation | 0.6699 |
-| the truth | 0.500 |
+| the truth | 0.5000 |
 
 ::: notes
 Choosing between configurations is choosing, and choosing on data costs the same

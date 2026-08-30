@@ -365,7 +365,8 @@ The mechanism is on the next three slides, and it is geometry, not statistics.
   **average out**
 
 ::: notes
-Give the picture in words before any number appears.
+Give the picture in words before showing it - the figure is on the next slide,
+and it lands better once they have pictured it themselves.
 
 In two dimensions, the nearest point is genuinely near and the farthest is
 genuinely far. That difference is the entire basis on which k-NN operates: it

@@ -580,7 +580,7 @@ honesty. A grid of 25 combinations on that signal-free table:
 | average candidate | 0.7265 |
 | worst candidate | 0.6840 |
 | nested cross-validation | 0.6699 |
-| the truth | 0.500 |
+| the truth | 0.5000 |
 
 The number a practitioner reports is `best_score_`, and it is the **maximum of
 25 noisy estimates**. The maximum of a set of noisy numbers is biased upward
