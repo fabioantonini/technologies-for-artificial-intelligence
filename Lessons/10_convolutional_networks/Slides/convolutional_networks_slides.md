@@ -416,7 +416,7 @@ like what is here?" - asked everywhere at once. Handout section 3.1.
 
 # One weighted sum, at every position
 
-$$(I * K)[r, c] = \sum_{i=0}^{f-1}\sum_{j=0}^{f-1} I[r + i,\; c + j]\; K[i, j]$$
+$$(I * K)[r, c] = \sum_{i=0}^{f-1}\;\sum_{j=0}^{f-1} I[r + i,\; c + j]\; K[i, j]$$
 
 ::: notes
 Read it out in words rather than in symbols, since the words were the previous

@@ -182,7 +182,7 @@ Handout section 2.1.
 
 # Minimise $J$
 
-$$J = \sum_{i=1}^{m}\sum_{j=1}^{k} r_{ij}\,\Vert x_i - \mu_j \Vert^2$$
+$$J = \sum_{i=1}^{m}\;\sum_{j=1}^{k} r_{ij}\,\Vert x_i - \mu_j \Vert^2$$
 
 ::: notes
 Read the sum out loud in words: for every point, add the squared distance

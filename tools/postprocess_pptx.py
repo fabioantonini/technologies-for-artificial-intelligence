@@ -294,6 +294,18 @@ LINE_HEIGHT = 0.085
 #: every rendered equation, which is short and wide and needs very little.
 MIN_FIGURE_FRACTION = 0.7
 
+#: Below this, an equation is set no larger than the bullets on a neighbouring
+#: slide, and it is the only thing on its own. Measured by rendering all 45
+#: equation slides in the course and reading them: at 40pt and above they carry
+#: the room, by 30 they are body text, and lesson 8's k-means++ pair at 25
+#: needs the front row. A formula lands here because it is too wide - two put
+#: side by side on one line, or one long enough to reach the slide edge - so
+#: what the author can do about it is split the slide or move the formula to
+#: the handout. A warning, not a failure: eight slides are below it today, and
+#: each is a teaching decision rather than a defect.
+MIN_EQUATION_PT = 30
+EQUATION_RENDER_PT = 56
+
 #: How far the estimated body height of a text-only slide may exceed the space
 #: below its title. Calibrated against the built PDFs rather than derived: at
 #: 1.10 the last line still clears the footer logo, at 1.23 it collides with it,
@@ -389,6 +401,7 @@ def relayout_content_slides(path: Path) -> int:
     usable = slide_w - 2 * margin
     changed = 0
     crowded: list[str] = []
+    squeezed: list[tuple[int, str, float]] = []
     equations = _equation_digests(path)
 
     for number, slide in enumerate(prs.slides, 1):
@@ -472,11 +485,16 @@ def relayout_content_slides(path: Path) -> int:
             picture.width, picture.height = width, height
             picture.left = int((slide_w - width) / 2)
             picture.top = top + int((available_h - height) / 2)
+            if picture.image.sha1 in equations:
+                native = picture.image.size[0] / (picture.image.dpi[0] or 72)
+                point_size = EQUATION_RENDER_PT * (width / EMU_PER_INCH) / native
+                if point_size < MIN_EQUATION_PT:
+                    squeezed.append((number, title.text, point_size))
         changed += 1
 
     if changed:
         prs.save(str(path))
-    return changed, crowded
+    return changed, crowded, squeezed
 
 
 def overfull_text_slides(path: Path) -> list[tuple[int, str]]:
@@ -567,7 +585,7 @@ def process(path: Path, verbose: bool = True) -> bool:
         repaired = repair_namespaces(path)
         equations = gate_equations(path)
         pinned = pin_geometry(path)
-        reflowed, crowded = relayout_content_slides(path)
+        reflowed, crowded, squeezed = relayout_content_slides(path)
         overfull = overfull_text_slides(path)
         renumbered = renumber_oversized_ids(path)
         make_deterministic(path)  # must run last: it rewrites the package
@@ -591,6 +609,10 @@ def process(path: Path, verbose: bool = True) -> bool:
         if renumbered:
             detail.append(f"{renumbered} oversized id(s) renumbered")
         print(f"  {path.name}: {'; '.join(detail) if detail else 'nothing to fix'}")
+    for number, name, point_size in squeezed:
+        print(f"  {path.name}: slide {number} {name!r} sets its equation at "
+              f"{point_size:.0f}pt - too wide to be read from the back; split "
+              f"the slide or move the formula to the handout")
     for number, name in crowded:
         print(f"  {path.name}: slide {number} {name!r} is too full for its "
               f"figure - split it")
