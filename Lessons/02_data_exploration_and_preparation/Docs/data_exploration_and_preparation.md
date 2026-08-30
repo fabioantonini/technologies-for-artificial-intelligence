@@ -175,10 +175,25 @@ missing depends on*.
 
 *The three mechanisms side by side. The distinction is not academic: it determines which repair is valid and which quietly reweights your sample.*
 
-**Missing completely at random (MCAR).** The probability that $x_j$ is
+**The notation, before the three definitions.** Write $x^{(i)}$ for the whole
+of row $i$ — everything the dataset holds about customer $i$, all $n$ features
+together, the recorded values *and* the ones that are blank. Write $x^{(i)}_j$
+for one cell of it, the $j$-th feature of that customer, and
+$\text{missing}^{(i)}_j$ for the yes/no fact that this particular cell is
+empty. One more piece: $x^{(i)}_{\text{obs}}$ is the part of the row that was
+actually recorded — the same customer, minus whatever is blank.
+
+That is the whole apparatus, and the three mechanisms differ only in **what you
+have to condition on** to say how likely a blank is: on nothing, on the recorded
+part of the row, or on the missing value itself.
+
+**Missing completely at random (MCAR).** The probability that feature $j$ is
 missing for row $i$ does not depend on any value, observed or not:
 
-$$P(\text{missing}_{ij} \mid x_i) = P(\text{missing}_{ij})$$
+$$P(\text{missing}^{(i)}_j \mid x^{(i)}) = P(\text{missing}^{(i)}_j)$$
+
+Read it as: even if I showed you everything about this customer, you could not
+improve your guess about whether that cell is blank.
 
 A form left blank for no systematic reason is MCAR. Under MCAR, the observed
 rows are a random subsample of the full data, so simple imputation (the mean,
@@ -188,7 +203,10 @@ does, however, still distort other things, as Section 3.2 derives.
 **Missing at random (MAR).** The probability of being missing depends on
 *observed* variables, but not on the missing value itself:
 
-$$P(\text{missing}_{ij} \mid x_i) = P(\text{missing}_{ij} \mid x_{i,\text{obs}})$$
+$$P(\text{missing}^{(i)}_j \mid x^{(i)}) = P(\text{missing}^{(i)}_j \mid x^{(i)}_{\text{obs}})$$
+
+Read it as: the recorded part of the row is enough — showing you the hidden
+value as well would tell you nothing further about whether it is hidden.
 
 Our `num_support_calls` column is MAR: it goes missing more often for
 long-tenure customers, because their early call records predate the current
@@ -201,7 +219,10 @@ all rows; they are disproportionately long-tenure ones.
 **Missing not at random (MNAR).** The probability of being missing depends on
 the missing value itself, even after conditioning on everything observed:
 
-$$P(\text{missing}_{ij} \mid x_i) \neq P(\text{missing}_{ij} \mid x_{i,\text{obs}})$$
+$$P(\text{missing}^{(i)}_j \mid x^{(i)}) \neq P(\text{missing}^{(i)}_j \mid x^{(i)}_{\text{obs}})$$
+
+Read it as: the recorded part is *not* enough. The blank depends on the very
+value that is missing, so no column you hold can stand in for it.
 
 A customer who cancels because their bill was unexpectedly high, and who
 never finished a sign-up survey as a result, produces MNAR missingness in any
@@ -1198,7 +1219,10 @@ rather than fitted inside it: its **hyperparameters**.
 | Symbol | Meaning |
 |---|---|
 | $X$, $Y$ | a feature and the target treated as random variables (Sections 3–5); $X$ is **also** the $m \times n$ design matrix in Sections 6.1 and 8.1 |
-| $x^{(i)}$ | the $i$-th example |
+| $x^{(i)}$ | the $i$-th example: the whole of row $i$, all $n$ features together (Sections 3.1 and 6.1) |
+| $x^{(i)}_j$, $x^{(i)}_{\text{obs}}$ | one cell of that row, and the part of the row that was actually recorded (Section 3.1) |
+| $\text{missing}^{(i)}_j$ | whether that cell is blank (Section 3.1) |
+| $x_i$ | in Section 4 only, and **not** a row: the $i$-th value of the single column being screened for outliers |
 | $m$, $n$ | number of examples, number of features |
 | $\mu$, $\sigma$ | a feature's mean and standard deviation |
 | $\bar{x}$ | a sample mean |
