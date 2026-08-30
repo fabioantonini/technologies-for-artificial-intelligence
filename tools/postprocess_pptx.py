@@ -22,6 +22,7 @@ order, because the second cannot run until the first has made the file valid.
    and write the result into each slide.
 """
 
+import hashlib
 import re
 import shutil
 import sys
@@ -315,14 +316,65 @@ def _text_height(shape, slide_h: int) -> int:
     return int(slide_h * LINE_HEIGHT * max(lines, 1))
 
 
-def relayout_figure_slides(path: Path) -> int:
-    """Give slides that carry a picture a full-width title and centred figure.
+EMU_PER_INCH = 914400
+
+
+def _equation_digests(path: Path) -> set:
+    """SHA-1 of every equation image `render_math.py` left beside this deck.
+
+    Matching on the bytes rather than on the shape name is what makes the rule
+    below safe: pandoc renames every image it embeds to `image1.png`, so the
+    file name in the deck says nothing about where the picture came from.
+    """
+    figures = path.parent.parent / "Figures"
+    if not figures.is_dir():
+        figures = path.parent / "Figures"
+    if not figures.is_dir():
+        return set()
+    return {
+        hashlib.sha1(f.read_bytes()).hexdigest() for f in figures.glob("eq_*.png")
+    }
+
+
+def _native_height(picture) -> int:
+    """The height the image was rendered at, in EMU."""
+    image = picture.image
+    dpi = image.dpi[1] or 72
+    return int(image.size[1] / dpi * EMU_PER_INCH)
+
+
+def _ceiling(picture, usable: int, equations: set) -> int:
+    """The tallest this picture may be drawn, before the slide is consulted.
+
+    A plot is limited by the width it is given: it was exported far wider than
+    the slide, so filling the width is what it is for. An equation is limited by
+    the size it was rendered at as well. Both are a page of the same document,
+    and the reader should not be able to tell which formula was the short one -
+    but stretching to the width sets a three-character fraction in 151pt and the
+    formula on the next slide in 42, because the only thing the two sizes
+    encode is how much the author typed.
+    """
+    fit_width = int(usable / (picture.width / picture.height))
+    if picture.image.sha1 in equations:
+        return min(fit_width, _native_height(picture))
+    return fit_width
+
+
+def relayout_content_slides(path: Path) -> int:
+    """Give slides that carry a picture or a table a full-width title and
+    the content centred below it.
 
     Any slide holding both text and an image makes pandoc reach for the
     "Content with Caption" layout, which is a two-column design: a narrow
     caption column on the left, content on the right. For a lecture slide
     showing an equation or a plot that reads badly - the title shrinks to a
     third of the width and drops to 15pt while everything else stays large.
+
+    A table takes the same layout and fails differently, which is why it is
+    handled here too: the title keeps its width, so nothing looks wrong by the
+    measurements, and the table is simply placed in the right-hand column
+    starting at the top of the slide - lying across the title. Lesson 2 built
+    that way without a warning, and it was legible only in the render.
 
     We reflow those slides to the shape the material actually wants: title
     across the top at full size, supporting text beneath it, figure centred in
@@ -337,10 +389,12 @@ def relayout_figure_slides(path: Path) -> int:
     usable = slide_w - 2 * margin
     changed = 0
     crowded: list[str] = []
+    equations = _equation_digests(path)
 
     for number, slide in enumerate(prs.slides, 1):
         pictures = [s for s in slide.shapes if s.shape_type == 13]  # PICTURE
-        if not pictures:
+        tables = [s for s in slide.shapes if s.has_table]
+        if not pictures and not tables:
             continue
         title = slide.shapes.title
         if title is None:
@@ -374,9 +428,9 @@ def relayout_figure_slides(path: Path) -> int:
         # What the figure would get with nothing above it but the title, and
         # what it would take at full width. It cannot use more than either.
         bare_h = slide_h - bare_top - int(slide_h * 0.12)
-        natural = min(int(usable / (p.width / p.height)) for p in pictures)
+        natural = min([_ceiling(p, usable, equations) for p in pictures] or [bare_h])
         floor = int(min(bare_h, natural) * MIN_FIGURE_FRACTION)
-        if available_h < floor:
+        if pictures and available_h < floor:
             # The text above has eaten the figure's room. Name the slide so the
             # author splits it - build.py treats this as a failed deck.
             crowded.append((number, title.text))
@@ -390,9 +444,30 @@ def relayout_figure_slides(path: Path) -> int:
         # is one they might ship.
         available_h = max(available_h, int(slide_h * 0.06))
 
+        # A table sets its own row heights, so it is given a position and a
+        # width and left to be as tall as it is. Reading `.height` back after
+        # the move is what keeps a picture on the same slide clear of it.
+        for table in tables:
+            table.left, table.top = margin, top
+            # Widening the frame alone leaves the columns at the width the
+            # two-column layout gave them, so the table keeps its old
+            # proportions inside a wider box. The columns are what actually
+            # gets drawn, so scale those and let the frame follow: measured
+            # against their own total, not against the frame, which pandoc
+            # leaves wider than the columns it put inside it.
+            columns = list(table.table.columns)
+            total = sum(column.width for column in columns)
+            if total and total != usable:
+                for column in columns[:-1]:
+                    column.width = int(column.width * usable / total)
+                columns[-1].width = usable - sum(c.width for c in columns[:-1])
+            table.width = usable
+            top += table.height + int(slide_h * 0.02)
+        available_h = max(slide_h - top - int(slide_h * 0.12), int(slide_h * 0.06))
+
         for picture in pictures:
             ratio = picture.width / picture.height
-            height = min(available_h, int(usable / ratio))
+            height = min(available_h, _ceiling(picture, usable, equations))
             width = int(height * ratio)
             picture.width, picture.height = width, height
             picture.left = int((slide_w - width) / 2)
@@ -492,7 +567,7 @@ def process(path: Path, verbose: bool = True) -> bool:
         repaired = repair_namespaces(path)
         equations = gate_equations(path)
         pinned = pin_geometry(path)
-        reflowed, crowded = relayout_figure_slides(path)
+        reflowed, crowded = relayout_content_slides(path)
         overfull = overfull_text_slides(path)
         renumbered = renumber_oversized_ids(path)
         make_deterministic(path)  # must run last: it rewrites the package
@@ -512,7 +587,7 @@ def process(path: Path, verbose: bool = True) -> bool:
         if pinned:
             detail.append(f"{pinned} shape(s) pinned")
         if reflowed:
-            detail.append(f"{reflowed} figure slide(s) reflowed")
+            detail.append(f"{reflowed} content slide(s) reflowed")
         if renumbered:
             detail.append(f"{renumbered} oversized id(s) renumbered")
         print(f"  {path.name}: {'; '.join(detail) if detail else 'nothing to fix'}")

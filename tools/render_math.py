@@ -247,7 +247,13 @@ def render_image(latex: str, figures: Path, display: bool = True) -> Path | None
     if out.exists():
         return out
 
-    size = 26 if display else 18
+    # Display maths is placed on the slide at its true size and never enlarged
+    # (see `relayout_figure_slides`), so this is the point size the audience
+    # reads: rendering runs at 220 dpi onto a 10-inch slide, which makes a
+    # point in the PNG a point on the slide. At 26 a short formula had to be
+    # stretched to fill the width, which set lesson 2's z-score at 151pt and
+    # Tukey's fence, on the next slide, at 42.
+    size = 56 if display else 18
     fig = plt.figure(figsize=(0.01, 0.01))
     fig.text(0, 0, f"${_normalise(latex)}$", fontsize=size, color="#1A1A1A")
     try:
