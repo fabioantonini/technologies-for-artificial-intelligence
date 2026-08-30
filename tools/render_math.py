@@ -280,8 +280,14 @@ def _draw_in_container(latex: str, out: Path, size: float):
     True if it drew, False if mathtext refused, None if there is no container
     and the caller should fall back to drawing here.
     """
-    alive = subprocess.run(["docker", "exec", CONTAINER, "true"],
-                           capture_output=True, text=True).returncode == 0
+    try:
+        alive = subprocess.run(["docker", "exec", CONTAINER, "true"],
+                               capture_output=True, text=True).returncode == 0
+    except FileNotFoundError:
+        # No docker on this machine at all - and this is also the path taken
+        # when the code runs *inside* the container, which has no docker of its
+        # own. Draw here, which is the container, which is what was wanted.
+        return None
     if not alive:
         return None
     try:

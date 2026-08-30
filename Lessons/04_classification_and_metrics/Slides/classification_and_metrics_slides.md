@@ -270,9 +270,15 @@ Then negate, so we minimise as in lesson 3.
 
 # Cross-entropy, also called log loss
 
-$$J(w, b) = -\frac{1}{m}\sum_{i=1}^{m} \left[\, y^{(i)} \log p^{(i)} + \left(1 - y^{(i)}\right)\log\left(1 - p^{(i)}\right) \right]$$
+$$L = -\left[\, y \log p + (1 - y)\log(1 - p) \right]$$
 
 ::: notes
+This is the loss on ONE example, L, not the cost over the training set. Say the
+missing half rather than showing it: the cost J is the average of this over the
+m examples, one over m times the sum. Written out in full the formula reached
+the slide edge and came out at 26pt, smaller than the bullets on the slide
+before it.
+
 Do not derive it here - the handout, section 3, does it in full. Show it and
 read it.
 

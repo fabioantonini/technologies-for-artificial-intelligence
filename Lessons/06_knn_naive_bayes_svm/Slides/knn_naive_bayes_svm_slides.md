@@ -877,9 +877,14 @@ The next slide puts it in symbols. Handout section 5.2 has the derivation.
 
 # A wide slab, minus what the violations cost
 
-$$\min_{w, b, \xi} \ \tfrac{1}{2}\|w\|^2 + C\sum_i \xi_i \quad \text{s.t.} \quad y_i(w^\top x_i + b) \geq 1 - \xi_i$$
+$$\min_{w, b, \xi} \ \tfrac{1}{2}\|w\|^2 + C\sum_i \xi_i$$
 
 ::: notes
+The constraint is not on the slide any more - it made the line wide enough to
+land at 28pt - so state it: subject to y_i(w'x_i + b) >= 1 - xi_i, every point
+on the right side of the slab by a margin, or paying xi_i for the shortfall.
+Handout section 5.2 writes it out.
+
 Do not derive this. State what each piece is doing and move on - handout section
 5.2 has the derivation, including why maximising the margin is the same as
 minimising the norm of w.

@@ -225,12 +225,16 @@ def check_notebooks(lesson: Path, report: Report, run: bool) -> None:
 
 def check_pins(lesson: Path, report: Report) -> None:
     """Pinned versions must match what the container actually has."""
-    result = subprocess.run(
-        ["docker", "exec", CONTAINER, "python", "-c",
-         "import numpy, pandas, sklearn, matplotlib; "
-         "print(numpy.__version__, pandas.__version__, "
-         "sklearn.__version__, matplotlib.__version__)"],
-        capture_output=True, text=True)
+    try:
+        result = subprocess.run(
+            ["docker", "exec", CONTAINER, "python", "-c",
+             "import numpy, pandas, sklearn, matplotlib; "
+             "print(numpy.__version__, pandas.__version__, "
+             "sklearn.__version__, matplotlib.__version__)"],
+            capture_output=True, text=True)
+    except FileNotFoundError:
+        report.note("docker not installed; skipped the pinned-version check")
+        return
     if result.returncode != 0:
         report.note("container not running; skipped the pinned-version check")
         return
@@ -691,8 +695,11 @@ def run_checker(checker: Path, report: Report):
     # that "docker is not running" and "your arithmetic is wrong" cannot arrive
     # as the same failure. Matching on the daemon's wording would be one more
     # string to keep in step with docker.
-    alive = subprocess.run(["docker", "exec", CONTAINER, "true"],
-                           capture_output=True, text=True).returncode == 0
+    try:
+        alive = subprocess.run(["docker", "exec", CONTAINER, "true"],
+                               capture_output=True, text=True).returncode == 0
+    except FileNotFoundError:
+        alive = False  # no docker installed here
     if alive:
         # The path has to be the one the container sees, not the one we hold:
         # the repository is bind-mounted, the same file under another name.

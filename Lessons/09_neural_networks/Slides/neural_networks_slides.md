@@ -206,9 +206,12 @@ Handout section 2.2.
 
 # What fraction of units the circle holds
 
-$$P(\|z\| < 1.25) = 1 - e^{-1.25^{2}/2} = 1 - e^{-0.78125} = 0.5422$$
+$$P(\|z\| < 1.25) = 1 - e^{-0.78125} = 0.5422$$
 
 ::: notes
+The middle step is gone from the slide to keep the type readable: 1.25 squared
+over two is 0.78125, and that is the exponent. Do it out loud.
+
 For a standard two-dimensional normal the probability of landing inside a
 circle of radius s is one minus e to the minus s squared over two - a fact
 worth a moment, since it is the same integral that reappears in section 11

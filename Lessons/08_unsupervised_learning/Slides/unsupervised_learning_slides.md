@@ -294,9 +294,13 @@ Handout section 2.2.
 
 # k-means++: favour centres far from what's chosen
 
-$$P(x_i \text{ chosen next}) = \frac{d(x_i)^2}{\sum_{i'} d(x_{i'})^2}, \qquad d(x_i) = \min_{j \text{ chosen}} \Vert x_i - \mu_j \Vert$$
+$$P(x_i \text{ chosen next}) = \frac{d(x_i)^2}{\sum_{i'} d(x_{i'})^2}$$
 
 ::: notes
+Define d before reading the formula, since it is no longer beside it: d(x_i) is
+the distance from x_i to the NEAREST centre already chosen, not to all of them.
+The two formulas side by side came out at 25pt, which needs the front row.
+
 Say the rule in words first: the first centre is a uniformly random point;
 every centre after that is picked with probability proportional to its
 squared distance from the nearest centre already chosen. A point already

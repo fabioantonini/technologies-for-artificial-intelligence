@@ -783,9 +783,14 @@ run into notebook 2's pipeline section.
 
 $f$ includes **every** learned parameter, not just "the model part".
 
-$$\mathbb{E}_{T \sim \mathcal{D}^m}\left[\hat{R}_T(f)\right] = R(f) \quad \text{only if } f \text{ is independent of } T$$
+$$\mathbb{E}_{T \sim \mathcal{D}^m}\left[\hat{R}_T(f)\right] = R(f)$$
 
 ::: notes
+Say the condition out loud, because it is no longer written on the slide and it
+is the whole content: this equality holds ONLY IF f is independent of T. It was
+on the slide and made the formula too small to read from the back; it belongs in
+your mouth, not in the image.
+
 Handout Section 8.1. Lesson 1's unbiasedness argument never mentioned "the
 model" specifically - it is about f, whatever function maps raw inputs to
 predictions. In deployment, a fitted scaler or imputer travels WITH the
@@ -887,12 +892,18 @@ cases. Accuracy on its own would have reported this as progress.
 # Feature engineering
 
 Ratios, interactions, binning: a linear model cannot invent these itself.
-AUC: 0.7514 → 0.7548, under four thousandths. Clean `tenure_months` first and
-the same feature scores **0.7439** — the gain was living in the 999s.
 
-$$\text{total\_paid} = \text{monthly\_charges} \times \max(\text{tenure\_months},\ 0)$$
+`total_paid` = charge × months stayed. AUC: 0.7514 → 0.7548, under four
+thousandths. Clean `tenure_months` first and the same feature scores
+**0.7439** — the gain was living in the 999s.
 
 ::: notes
+The formula was on this slide as a rendered equation and came out at 23pt, the
+smallest in the course: the column names are long enough that no amount of
+trimming saves it. It is one sentence to say — total_paid is the monthly charge
+times the months stayed, with tenure clipped at zero first — and the three AUCs
+are what does the work in the room.
+
 Do not let anyone in the room call three thousandths a win, and do not call it
 one yourself. Quote the four decimals: at three, 0.751 against 0.755 sounds
 like a difference of 0.004, and the difference is 0.0034. It is a legitimate
