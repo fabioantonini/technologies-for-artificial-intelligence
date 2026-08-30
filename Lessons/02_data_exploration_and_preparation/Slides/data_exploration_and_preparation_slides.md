@@ -887,13 +887,14 @@ cases. Accuracy on its own would have reported this as progress.
 # Feature engineering
 
 Ratios, interactions, binning: a linear model cannot invent these itself.
-AUC: 0.751 → 0.754. **Two thousandths: one split cannot tell that from noise.**
+AUC: 0.7514 → 0.7542. **Under three thousandths: one split cannot tell that from noise.**
 
 $$\text{charge\_per\_tenure} = \frac{\text{monthly\_charges}}{\max(\text{tenure\_months},\ 0) + 1}$$
 
 ::: notes
-Do not let anyone in the room call two thousandths a win, and do not call it
-one yourself. It is a legitimate result, not a failed experiment - the
+Do not let anyone in the room call three thousandths a win, and do not call it
+one yourself. Quote the four decimals: at three, 0.751 against 0.754 sounds
+like a difference of 0.003, and the difference is 0.0028. It is a legitimate result, not a failed experiment - the
 hypothesis that cost intensity matters here was reasonable, it was tested, and
 the data declined it. Feature engineering is a hypothesis about the domain,
 not a guarantee. Handout Section 7.

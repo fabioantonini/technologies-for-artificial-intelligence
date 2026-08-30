@@ -163,6 +163,53 @@ same("3.3 the pipeline without indicators scores 0.751", _auc_with(False), 0.751
      tolerance=1e-3)
 same("3.3 and with them, 0.741", _auc_with(True), 0.741, tolerance=1e-3)
 
+
+# --- 7, the size of the engineered feature's gain -----------------------
+
+# The claim is about a difference of under three thousandths, so it is checked
+# at four decimals: at three the two AUCs would read as 0.003 apart.
+def _auc_engineered() -> float:
+    """The same pipeline, plus monthly_charges / (tenure_months + 1)."""
+    from sklearn.compose import ColumnTransformer
+    from sklearn.impute import SimpleImputer
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import roc_auc_score
+    from sklearn.pipeline import Pipeline
+    from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
+    def engineer(f):
+        f = f.copy()
+        f["charge_per_tenure"] = (f["monthly_charges"]
+                                  / (f["tenure_months"].clip(lower=0) + 1))
+        return f
+
+    numeric = ["tenure_months", "monthly_charges", "age", "num_support_calls",
+               "charge_per_tenure"]
+    prep = ColumnTransformer([
+        ("num", Pipeline([("impute", SimpleImputer(strategy="median")),
+                          ("scale", StandardScaler())]), numeric),
+        ("cat", Pipeline([("impute", SimpleImputer(strategy="most_frequent")),
+                          ("onehot", OneHotEncoder(handle_unknown="ignore",
+                                                   drop="first"))]),
+         ["contract_type", "region"])])
+    model = Pipeline([("prep", prep),
+                      ("clf", LogisticRegression(max_iter=2000))])
+    model.fit(engineer(X_train), y_train)
+    return roc_auc_score(y_test, model.predict_proba(engineer(X_test))[:, 1])
+
+
+# The levels get a loose tolerance and the gap a tight one, and the asymmetry is
+# the point. This file runs on the host, where scikit-learn is 1.9.0 against the
+# image's pinned 1.3.1; the same fit gives 0.751401 in the image and 0.751528
+# here, so the fourth decimal of an AUC is not portable between the two stacks.
+# The difference is: +0.002788 there against +0.002814 here. Section 7's claim
+# is about the size of a gap, which is why it is the gap that is pinned.
+_plain, _engineered = _auc_with(False), _auc_engineered()
+same("7 the model without the engineered feature", _plain, 0.7514, tolerance=5e-4)
+same("7 and with it", _engineered, 0.7542, tolerance=5e-4)
+same("7 the gap is under three thousandths", _engineered - _plain, 0.0028,
+     tolerance=5e-5)
+
 # --- 3.2, covariance carries units and correlation does not -------------
 
 _cov = frame["tenure_months"].cov(frame["churned"])

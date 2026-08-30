@@ -951,8 +951,10 @@ Three common constructions:
 
 Feature engineering is a hypothesis about the domain, not a guaranteed
 improvement. Notebook 2's engineered `charge_per_tenure` moves the model's
-area under the receiver operating characteristic curve (AUC) from **0.751 to
-0.754** — two thousandths.
+area under the receiver operating characteristic curve (AUC) from **0.7514 to
+0.7542** — under three thousandths. Four decimals rather than three, because at
+three the two numbers read as a gap of 0.003 while the gap is 0.0028, and a
+result this small does not survive that rounding.
 
 *(AUC appears repeatedly from here on, so fix it now: it is the probability
 that the model gives a randomly chosen churner a higher score than a randomly
