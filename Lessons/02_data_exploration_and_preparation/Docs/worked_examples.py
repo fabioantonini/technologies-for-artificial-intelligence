@@ -112,6 +112,16 @@ _pairs = _corr.loc[_numeric, _numeric].where(
     ~np.eye(len(_numeric), dtype=bool)).abs().max().max()
 same("2 no two features correlate above 0.035", _pairs, 0.035, tolerance=5e-4)
 
+# --- 3.2, covariance carries units and correlation does not -------------
+
+_cov = frame["tenure_months"].cov(frame["churned"])
+same("3.2 covariance of tenure and churn, in months", _cov, -2.330, tolerance=5e-3)
+same("3.2 the same relationship, tenure in years",
+     (frame["tenure_months"] / 12).cov(frame["churned"]), -0.194, tolerance=5e-3)
+same("3.2 the correlation is the same either way",
+     (frame["tenure_months"] / 12).corr(frame["churned"]),
+     frame["tenure_months"].corr(frame["churned"]), tolerance=1e-9)
+
 # --- 5.1, what an outlier does to each scaler ---------------------------
 charges = X_train["monthly_charges"].fillna(X_train["monthly_charges"].median())
 ordinary = charges[charges < 500]

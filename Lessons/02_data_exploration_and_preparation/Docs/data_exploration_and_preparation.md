@@ -266,6 +266,30 @@ $\bar{X}$ of the observed part. Write the imputed column as
 
 $$X'_i = \begin{cases} X_i & \text{observed} \\ \bar{X} & \text{missing} \end{cases}$$
 
+**A reminder, in case it has been a while.** The **variance** of a column is
+the average squared distance of its values from their own mean: one number
+saying how spread out the column is. **Covariance** is the same idea for two
+columns at once — for each row, take how far $X$ sits from its mean, multiply
+it by how far $Y$ sits from *its* mean, and average those products over the
+rows. When the two are above their means together, and below together, every
+product is positive and the average is positive; when one is high while the
+other is low the products are negative; when there is no pattern the positives
+and negatives cancel and the average sits near zero.
+
+That definition is enough to see the whole of what follows, before any algebra.
+An imputed row has $X$ sitting *exactly* at the mean, so its deviation is zero
+— and zero times whatever $Y$ does is still zero. Such a row contributes
+nothing to the variance sum and nothing to the covariance sum. The derivation
+below is only the bookkeeping of how many rows are in that state.
+
+One property to keep separate from correlation: covariance carries the units of
+both columns, so its size on its own says nothing. In our data,
+$\mathrm{Cov}(\texttt{tenure\_months}, \texttt{churned}) = -2.330$; measure
+tenure in years instead of months and the identical relationship reads $-0.194$.
+Correlation divides by both standard deviations, which cancels the units and
+confines the result to $[-1, 1]$: $-0.123$ either way. That is why Section 2's
+matrix reported correlations and not covariances.
+
 The variance of $X'$ is smaller than the true variance of $X$: the imputed
 entries contribute zero to the sum of squared deviations from the mean, while
 a genuine draw from $X$'s distribution would not. Precisely, if $\mathrm{Var}(X) = \sigma_X^2$
