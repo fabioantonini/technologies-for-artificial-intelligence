@@ -895,13 +895,13 @@ Ratios, interactions, binning: a linear model cannot invent these itself.
 
 `total_paid` = charge × months stayed. AUC: 0.7514 → 0.7548, under four
 thousandths. Clean `tenure_months` first and the same feature scores
-**0.7439** — the gain was living in the 999s.
+**0.7439** - the gain was living in the 999s.
 
 ::: notes
 The formula was on this slide as a rendered equation and came out at 23pt, the
 smallest in the course: the column names are long enough that no amount of
-trimming saves it. It is one sentence to say — total_paid is the monthly charge
-times the months stayed, with tenure clipped at zero first — and the three AUCs
+trimming saves it. It is one sentence to say - total_paid is the monthly charge
+times the months stayed, with tenure clipped at zero first - and the three AUCs
 are what does the work in the room.
 
 Do not let anyone in the room call three thousandths a win, and do not call it
