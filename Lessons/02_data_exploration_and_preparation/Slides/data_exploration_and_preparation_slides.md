@@ -246,6 +246,31 @@ The branch worth warning about is dropping rows. It is the easiest to do
 and the only one that can quietly change what the sample represents.
 :::
 
+# An outlier is far from the rest - not necessarily wrong
+
+- `tenure_months` runs **-3 to 999**; ordinary customers sit at 0 to 72
+- Three reasons: a **recording error**, a **rare but genuine** value, a
+  **different population**
+- The arithmetic cannot tell which: 3,344.7 may be a typo or a corporate account
+- Two rules follow - standard deviations, then quartiles - and both only **flag**
+
+::: notes
+Pay off the 999 from slide 6: they have already seen it, and now it gets a name.
+
+Put the three reasons to the room before reading them out - ask what could make
+a customer's monthly charge 3,344.7 when everyone else is under 128. Someone
+will say typo; ask whether they are sure, and let the silence do the work. That
+is the point of the third bullet.
+
+The last bullet is the promise the next six slides keep: rule 1 in standard
+deviations, rule 2 in quartiles, then the slide where they disagree and the
+slide where the robust one is the one that got it wrong. Nothing here deletes a
+row - what to do once something is flagged is Section 4.2, and it has no
+automatic answer.
+
+Handout Section 4 opening.
+:::
+
 # Rule 1: distance in standard deviations, flag beyond k = 3
 
 $$z_i = \frac{x_i - \bar{x}}{s}$$
@@ -281,8 +306,14 @@ derives it.
 
 Then put the two side by side, counting both tails each time, because this is
 where people quietly mislead themselves: 0.27% against 0.70%. The fences are
-10% apart in position and a factor of 2.6 apart in what they flag. In 2,000
-normal values that is about 5 points against about 14.
+10% apart in position and a factor of 2.6 apart in what they flag.
+
+Then make that concrete, because a percentage does not land: take 2,000 values
+off a perfect bell curve, nothing wrong with any of them. The z-score rule still
+nominates about 5 and Tukey about 14 - false alarms both, the tail being flagged
+for being the tail. Say what that means for the twenty real billing errors in
+this dataset: neither rule can tell the two kinds apart, which is why a flag is
+a candidate and never a verdict.
 
 The moral to state out loud: the two rules were built to sit in the same
 neighbourhood, not to agree, and even on perfect data Tukey's is the readier
@@ -366,7 +397,7 @@ different mistakes, and neither substitutes for the other. Handout Section
 
 Detection finds candidates. What to do next is a **domain** decision.
 
-- **Cap** it at the fence (Winsorise)
+- **Cap** it at the fence: 3,344.7 becomes 110.0 (*Winsorising*)
 - **Remove** the row
 - **Correct** it, if the true value is recoverable
 - **Leave** it: unusual is not the same as wrong
@@ -377,7 +408,10 @@ Say plainly that a statistical rule cannot make this call - it only nominates
 candidates, and the decision is a domain decision.
 
 Walk the four options and note that each is a different claim about the world.
-Capping says "the value is real but the scale is misleading". Removing says
+Capping - Winsorising, after Charles Winsor - replaces the value with the fence
+itself: the billing error of 3,344.7 becomes 110.0, the row keeps every other
+column it has, and the sample keeps its size. It says "the value is real but the
+scale is misleading". Removing says
 "this row is not from the population I am modelling". Correcting says "I know
 what it should have been". Leaving it says "the model should handle this".
 
@@ -392,7 +426,7 @@ changed the population your model is trained on.
 Exploration, missingness mechanisms, both outlier rules: from scratch.
 
 ::: notes
-Work through notebook 1 now, 22 minutes. Let them drive; walk the room rather
+Work through notebook 1 now, 20 minutes. Let them drive; walk the room rather
 than presenting.
 
 The domain-rule cell is worth pausing on collectively: a two-line check for
@@ -418,14 +452,31 @@ than during the leakage section.
 
 # Why scale?
 
-`tenure_months`: 0–72. `monthly_charges`: 15–128.
-
-Gradient descent takes **one step size, along every axis, every iteration.**
+- `tenure_months`: 0–72. `monthly_charges`: 15–128
+- **Training** = choosing the model's numbers to make Lesson 1's average loss
+  small
+- **Gradient descent** does it by repeated small steps downhill on that loss
+- One step size, along every axis, every iteration. Can it suit both columns?
 
 ::: notes
-Set up the problem before any mathematics. Ask: if two features live on very
-different scales, can a single step size be right for both directions at once?
-Let the room reason about it first.
+Reconnect to Lesson 1 before anything else, because the vocabulary is already
+theirs: the empirical risk was the average loss over the rows we hold, and
+choosing the f that makes it small was the whole definition of learning. What
+was left open there is HOW you make it small. This is the how.
+
+Say what a model's "numbers" are, once: one coefficient per feature, plus the
+intercept. Training is a search over those numbers, and every candidate set of
+them has a loss.
+
+Then say what a single step is, because the slide leans on it: gradient descent
+starts from some numbers, works out for each one whether nudging it up or down
+lowers the loss, and moves them all at once - each by the same step size, times
+how steeply the loss falls in that direction. One step size for the whole model,
+not one per feature. That is the sentence the next slide draws.
+
+Ask, before turning over: if two features live on very different scales, can a
+single step size be right for both directions at once? Let the room reason
+about it first.
 
 Be honest about this dataset, because a sharp student will check: once the
 outliers of Section 4 are removed, these two columns have comparable spreads -
@@ -448,11 +499,21 @@ is deliberately NOT here: it belongs with gradient descent itself, Lesson 3.
 ::: notes
 Do this one entirely on the picture; there is no algebra on this slide by choice.
 
-Left: the two features have different spreads, so the cost surface is a narrow
+Read the axes first, and do not skip this - a contour plot of a loss surface is
+new to most of them and it is not a plot of the data. Neither axis is a column.
+The horizontal axis is the coefficient the model gives feature 1, the vertical
+axis is the coefficient it gives feature 2, so every point in the square is one
+candidate model. The grey rings join the models that fit equally badly, the way
+contour lines on a map join points of equal altitude. The blue star is the
+model with the lowest loss - what training is looking for. The rust dots are
+successive steps, and the line joining them is the search.
+
+Left: the two features have different spreads, so the loss surface is a narrow
 ravine - steep across, almost flat along. One step size has to serve both. Long
 enough to advance along the flat direction and it overshoots the steep one and
 bounces from wall to wall; short enough to be safe on the steep one and it
-crawls along the flat one.
+crawls along the flat one. Count the dots out loud: twenty-six steps and it is
+still not at the star.
 
 Right: after scaling, the ravine is a bowl and every step points at the minimum.
 
@@ -505,26 +566,147 @@ Both must be fitted on training data only - say this every time a fitted
 transform appears, because it is the thread the whole lesson hangs from.
 :::
 
+# Every encoding makes a claim about the categories
+
+A model does arithmetic, and `"month-to-month"` offers none.
+
+| `contract_type` | rows | churn rate |
+|---|---|---|
+| `month-to-month` | 1,092 | 0.266 |
+| `one-year` | 488 | 0.137 |
+| `two-year` | 420 | 0.071 |
+
+::: notes
+Open by saying what the problem is, because nothing so far has needed it: a
+model does arithmetic, and a column holding the words "month-to-month" offers
+nothing to do arithmetic with. It has to become numbers, and there is more than
+one way to do that.
+
+Give them the word: the distinct values a categorical column can take are its
+levels. contract_type has three, with 2,000 rows spread across them.
+
+Then the sentence the whole section hangs on, and it is worth saying slowly:
+every way of turning a category into numbers makes a claim about the
+categories. The claim is the part to get right - the code is three lines either
+way.
+
+Point at the churn column before moving on. It does double duty: it is what
+target encoding will use as the number, and it is the evidence that will convict
+ordinal encoding two slides from now.
+
+Handout Section 6.
+:::
+
+# One customer, three encodings
+
+| Encoding | A one-year customer becomes | What that asserts |
+|---|---|---|
+| **One-hot** | `[0, 1, 0]` | simply different: no order, no distances |
+| **Ordinal** | `1` | ordered, **and** equally spaced |
+| **Target** | `0.137` | the level's own average outcome stands in for it |
+
+::: notes
+One customer, one contract, three numbers. Read the table a row at a time and
+let the right-hand column do the work - it is what each encoding is asserting
+about the world, not about the data type.
+
+The middle row is where damage usually happens, and this column shows why the
+mistake is reasonable: the order is genuine. A one-year contract really does sit
+between the other two, so ordinal looks safe here in a way it would not for
+region or zip code.
+
+Ask the room which of the three claims is true for THIS column before turning
+over. It is a domain question, not a technical one, and no cross-validation
+score will answer it.
+
+Handout Section 6.
+:::
+
+# Equal steps, unequal meaning
+
+![](encoding_comparison.png)
+
+::: notes
+Left panel against right panel - that is the whole slide, and it is the answer
+to the question left hanging.
+
+Ordinal spaces the levels 0, 1, 2: equal steps by construction. The churn rates
+those levels stand in for fall 0.266, 0.137, 0.071, so the first step is 0.129
+and the second is 0.066 - the first is nearly twice the second. The encoding
+asserts a regularity the column does not have, and a linear model has exactly
+one coefficient with which to believe it.
+
+Then the middle panel, which claims nothing at all and pays for that neutrality
+in columns - the caption says k = 493 for zip_code, and that is the thread into
+the next three slides.
+
+The right panel is computed from the labels. Say that out loud and leave it
+there: it is the first appearance of the leak the last third of the lesson is
+about.
+
+Handout Section 6.2.
+:::
+
+# One-hot claims nothing, and pays in columns
+
+- A column with $k$ levels becomes $k$ binary columns, one 1 per row
+- It asserts no order and no distance - which is why it is the default
+- The price is width: `zip_code` would add **493** columns to 2,000 rows
+- Target encoding compresses any cardinality into one column - computed from
+  the labels, which is where leakage gets in
+
+::: notes
+This is the encoding to spend time on, because it is what scikit-learn's
+OneHotEncoder does and what the pipeline later in the notebook uses.
+
+The mechanics first: k levels, k binary columns, exactly one 1 in every row. No
+category is closer to any other, which is precisely the neutrality that makes it
+the safe default.
+
+Then the cost, which is the honest trade: k columns. Three is nothing;
+493 on 2,000 rows is the curse of dimensionality, two slides from here.
+
+The last bullet is the hook, not a conclusion. Target encoding is the obvious
+escape from the width problem and it is the more dangerous of the two
+encodings in this entire lesson. Do not resolve it - the leakage section does.
+
+One more thing this slide sets up: k columns plus an intercept is one column too
+many, which the next slide proves.
+
+Handout Section 6.1 and 6.2.
+:::
+
 # All k dummies plus an intercept cannot both be free
+
+Most models carry a column of ones - the **intercept** - so they can fit a
+baseline level.
 
 $$\sum_{j=1}^{k} \text{dummy}_j = 1 = \text{intercept}$$
 
 ::: notes
-Read the slide as the sentence it is: one-hot encode all k categories AND fit
-an intercept, and this identity holds for every single row.
+Define the word before using it, because this is the first time in the course
+they meet it: a model that fits an intercept is carrying one extra column made
+entirely of ones, so that it has a baseline to work from. That is all they need
+today - Lesson 3 is where it becomes a coefficient in an equation.
 
-The k dummy columns always sum to the intercept column, so they are not
-independent of it: the design matrix loses rank, and the normal equation has no
-unique solution.
+Now the redundancy, which needs no model at all. Ask them the survey question
+from the handout: you record whether someone travels by car, by bus or by
+bicycle, three yes/no columns, and everyone answered exactly once. How many of
+those columns do you actually have to read? Two. The third is whatever is left,
+which means the three columns carry two columns' worth of information.
 
-Stress that this is not a numerical inconvenience but an identifiability
-problem. There are infinitely many coefficient vectors that fit equally well,
-because you can add a constant to every dummy coefficient and subtract it from
-the intercept without changing a single prediction.
+The slide is that sentence in symbols, plus one step: the k dummies sum to 1 in
+every row, and a column of ones is exactly what the intercept is. So k dummies
+and an intercept are k+1 columns carrying k columns' worth of information, and
+one of them is spare.
 
-Handout Section 6.1 has the proof; notebook 2 confirms it directly with
-matrix_rank, which is the version they will believe. The next slide shows it
-as arithmetic.
+Stop there. What exactly breaks - the design matrix losing rank, the normal
+equation no longer having a unique solution, infinitely many coefficient
+vectors fitting equally well - is Lesson 3's machinery, and it is the right
+place for it. Today's consequence is practical: pass drop="first".
+
+Handout Section 6.1 carries the proof for whoever wants it now. The next slide
+shows the redundancy as a number.
 :::
 
 # Rank deficient by exactly one
@@ -532,70 +714,26 @@ as arithmetic.
 ![](dummy_variable_trap.png)
 
 ::: notes
-Point at the number: the rank is short by exactly one, not by an arbitrary
-amount. That is the signature of a single linear dependence - the sum of the
-dummies equalling the intercept - rather than of general collinearity.
+This is the redundancy counted by numpy rather than argued, which is the
+version they will believe: matrix_rank on the k+1 columns comes back one short.
+
+Point at the number: short by exactly one, not by an arbitrary amount. That is
+the signature of a single dependence - the dummies summing to the intercept -
+and not of general collinearity.
 
 The fix is OneHotEncoder(drop="first"). The dropped category becomes the
-reference level, absorbed into the intercept: no information is lost, and full
-rank is restored.
+reference level, absorbed into the intercept: no information is lost, because
+that category is still recoverable as "all the other dummies are 0".
 
-Two caveats worth saying. Tree-based models (Lesson 7) do not need this,
-because they never invert a design matrix. And regularised models tolerate the
-rank deficiency, because the penalty term picks one solution out of the
-infinitely many - which is a good early illustration of what regularisation
-actually does, and we return to it in Lesson 3.
-:::
+What a rank-deficient matrix does to a fit - infinitely many coefficient
+vectors that predict identically, and a solver returning whichever one the
+arithmetic happens to land on - is Lesson 3, once the normal equation exists to
+say it with. Flag it as coming and move on.
 
-# Ordinal vs target encoding
-
-::: columns
-:::: column
-**Ordinal**
-
-- Categories → integers
-- Only valid if a real **order** exists
-- `low` < `medium` < `high`
-::::
-:::: column
-**Target**
-
-- Category → a statistic of $y$
-- Compresses any cardinality to one column
-- The dangerous one comes next
-::::
-:::
-
-::: notes
-Three encodings of one column, and each makes a different claim.
-
-Ordinal claims the categories are equally spaced on a line - fine for small/medium/large, wrong for region. One-hot claims nothing at all, which is why it is the default, and costs k columns: 493 for zip code on 2000 rows. Target claims each category is summarised by its own churn rate, which is compact and, as the next section shows, computed from the labels.
-
-The question to leave them with: which claim is true for THIS column? It is a domain question, not a technical one.
-:::
-
-# Three encodings, three claims
-
-![](encoding_comparison.png)
-
-::: notes
-The same column under all three schemes, and each makes a different claim about
-the world.
-
-Ordinal claims the categories are equally spaced along a line - fine for
-small/medium/large, wrong for region, and the model has no way to tell you it
-was the wrong claim.
-
-One-hot claims nothing at all, which is why it is the default, and pays for
-that neutrality in columns: 493 of them for zip code, on 2000 rows.
-
-Target claims each category is summarised by its own churn rate. Compact,
-effective - and computed from the labels, which is where the next section
-begins.
-
-The question to leave with them: which claim is true for THIS column? That is a
-domain question, not a technical one, and no cross-validation score will answer
-it.
+Two caveats worth saying now. Tree-based models (Lesson 7) do not need the drop
+at all. And regularised models tolerate the rank deficiency, because the
+penalty picks one solution out of the many - which is a good early sketch of
+what regularisation does, and Lesson 3 returns to it.
 :::
 
 # The curse of dimensionality, briefly
@@ -626,7 +764,13 @@ direction.
 ![](onehot_width.png)
 
 ::: notes
-Point at the zip_code row/column - or its absence, since it is not even
+Read the right panel out loud before making any argument with it, because it is
+a histogram of the 493 codes and nobody reads that off a projector unaided: the
+horizontal axis is how many customers share one zip code, the vertical axis is
+how many zip codes that happens to. The tallest bar stands at 3 and 4 - about
+a hundred codes each - and the whole thing stops at 12.
+
+Then point at the zip_code row/column - or its absence, since it is not even
 numeric yet - and say: notebook 1's correlation check already suggests this
 column carries nothing. One-hot encoding it would add 493 mostly-empty
 columns. The natural alternative - replace each code with the average churn
@@ -771,7 +915,7 @@ fold-awareness; a learned one does.
 Scaling from scratch, the dummy trap, `ColumnTransformer`, `Pipeline`.
 
 ::: notes
-22 minutes. Let them work; circulate.
+20 minutes. Let them work; circulate.
 
 The gradient descent toy is worth running interactively - change the variance
 ratio live and watch the iteration count move, per the handout's "try this".

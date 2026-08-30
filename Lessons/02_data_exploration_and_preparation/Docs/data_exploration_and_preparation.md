@@ -10,15 +10,15 @@ date: "2 October 2026 · reading time about 80 minutes"
 | Time | Segment | Material |
 |---|---|---|
 | 0:00–0:08 | Recap of Exercise 1, today's map | Slides 1–5 |
-| 0:08–0:33 | Exploratory analysis, missing values, outliers | Slides 6–20 |
-| 0:33–0:55 | Notebook 01, live | Slide 21 |
-| 0:55–1:10 | **Break** | Slide 22 |
-| 1:10–1:30 | Scaling and encoding | Slides 23–32 |
-| 1:30–1:42 | Pipelines, the model, feature engineering | Slides 33–38 |
-| 1:42–2:04 | Notebook 02, live | Slide 39 |
-| 2:04–2:24 | Leakage in preprocessing | Slides 40–49 |
-| 2:24–2:46 | Notebook 03, live | Slide 50 |
-| 2:46–3:00 | Recap, homework set, questions | Slides 51–53 |
+| 0:08–0:35 | Exploratory analysis, missing values, outliers | Slides 6–21 |
+| 0:35–0:55 | Notebook 01, live | Slide 22 |
+| 0:55–1:10 | **Break** | Slide 23 |
+| 1:10–1:32 | Scaling and encoding | Slides 24–35 |
+| 1:32–1:44 | Pipelines, the model, feature engineering | Slides 36–41 |
+| 1:44–2:04 | Notebook 02, live | Slide 42 |
+| 2:04–2:24 | Leakage in preprocessing | Slides 43–52 |
+| 2:24–2:46 | Notebook 03, live | Slide 53 |
+| 2:46–3:00 | Recap, homework set, questions | Slides 54–56 |
 | | **Total** | **180 minutes** |
 
 ---
@@ -383,7 +383,16 @@ The fences differ by 10% in position and by a factor of **2.6** in how much
 they flag. That is not a mistake in either rule; it is what the tail of a
 normal distribution does — it falls away so steeply that moving a fence
 inwards by a third of a standard deviation nearly triples the area beyond it.
-In 2,000 normal values, $k=3$ nominates about 5 points and Tukey about 14.
+Put that on a column the size of this lesson's own. Take 2,000 values drawn
+from a perfect bell curve — no recording errors, no contamination, nothing
+whatever to find. The $k=3$ rule still nominates about **5** of them
+($0.27\% \times 2{,}000 = 5.4$) and Tukey's fence about **14**
+($0.70\% \times 2{,}000 = 14.0$). Those points are not defects in the data:
+they are the price of the rule, ordinary members of the tail flagged for the
+crime of being in the tail. Neither rule can tell them apart from the twenty
+genuine billing errors, which is the whole reason a flagged value is a
+candidate rather than a verdict — and on clean data Tukey hands you nearly
+three times the pile to look through.
 
 So the honest summary is: **the two rules are built to sit in the same
 neighbourhood, not to agree**, and even on data that satisfies every assumption
@@ -460,9 +469,12 @@ kind of check entirely: not "is this unusual" but "is this valid". A thorough
 pass runs both, because they catch different mistakes.
 
 **Deciding what to do once something is flagged is a fourth, separate step,
-and it is a domain decision, not a statistical one:** cap it (Winsorise) at
-the fence, remove the row, correct it if the true value is recoverable, or
-leave it if it is unusual but genuine. A customer who has stayed 70 months and
+and it is a domain decision, not a statistical one:** cap it at the fence,
+remove the row, correct it if the true value is recoverable, or leave it if it
+is unusual but genuine. Capping is *Winsorising*, after Charles Winsor: the
+flagged value is replaced by the fence itself rather than deleted, so the charge
+of 3,344.7 becomes 110.0, the row keeps every other column it has, and the
+sample keeps its size — only the extremity is lost. A customer who has stayed 70 months and
 pays a high bill is not an error; a tenure of 999 months is.
 
 > **Try this:** in notebook 1, lower the z-score threshold from $k=3$ to
@@ -524,10 +536,20 @@ below.
 ### 5.2 Why it matters for gradient descent
 
 
-**The picture first.** Think of the cost as a landscape you are descending, and
-of each feature as one compass direction. If one feature varies over thousands
-and another over units, the landscape is not a bowl but a **narrow ravine**:
-steep across, almost flat along.
+**What is being minimised.** Lesson 1 defined learning as choosing the $f$ that
+makes the empirical risk $\hat{R}_S(f)$ — the average loss over the rows we
+hold — as small as possible. It left open how. For most of this course the
+answer is **gradient descent**: the model is a set of numbers, one coefficient
+per feature plus an intercept, every choice of those numbers has a risk, and
+training starts from some choice and repeatedly nudges all of them downhill.
+One step size serves the whole model, not one per feature, and that single
+number is the whole difficulty below.
+
+**The picture first.** Think of that risk as a landscape and of each
+coefficient as one compass direction, so that every point of the landscape is a
+candidate model and its height is how badly that model fits. If one feature
+varies over thousands and another over units, the landscape is not a bowl but a
+**narrow ravine**: steep across, almost flat along.
 
 You have one stride length for both directions. Make it long enough to make
 progress along the flat axis and you overshoot the steep one, bouncing from wall
@@ -539,7 +561,7 @@ every direction.
 
 ![](condition_number_geometry.png)
 
-*Two features with different variances, before and after scaling. Left: not a bowl but a ravine — steep across, almost flat along — and one stride has to serve both directions, so the path bounces off the walls while creeping towards the centre. Right: scaled, the same problem is round, and every step points at the minimum.*
+*Two features with different variances, before and after scaling. Neither axis is a column of data: each is the coefficient the model gives one feature, so every point in the square is a candidate model, the grey rings join the models that fit equally badly — contour lines of the loss, like altitude on a map — and the star is the model with the lowest loss. The rust dots are successive steps. Left: not a bowl but a ravine — steep across, almost flat along — and one stride has to serve both directions, so the path bounces off the walls while creeping towards the centre; twenty-six steps in, it has still not arrived. Right: scaled, the same problem is round, and every step points at the minimum.*
 
 **What follows from that, stated rather than derived.** Most models in this
 course are fitted by **gradient descent**: start somewhere on the landscape and
@@ -609,7 +631,9 @@ do arithmetic with, so it has to become numbers — and **every way of doing tha
 makes a claim about the categories**. The claim is the part to get right; the
 code is three lines either way.
 
-Take `contract_type`, which has three levels and 2,000 rows behind it:
+Take `contract_type`. The distinct values a categorical column can take are
+its **levels**, so `contract_type` has three, with 2,000 rows spread across
+them:
 
 | | rows | churn rate |
 |---|---|---|
@@ -710,18 +734,49 @@ encodings in this entire lesson, and Section 9.2 derives exactly why.
 ### 6.3 The curse of dimensionality, briefly
 
 
-One-hot encoding a column with $k$ levels adds $k$ columns, most of which are
-zero for most rows. Beyond a modest $k$ this has two costs: the feature space
-grows large relative to the number of examples, so distance-based methods
-(Lesson 6) find every point roughly equidistant from every other, and the
-number of parameters a model must estimate grows with it, increasing variance
-for a fixed sample size. `zip_code`, with 493 levels across 2000 rows, sits
-squarely in the range where one-hot encoding is impractical and target
-encoding — done correctly — is the standard alternative.
+**The idea in one sentence.** Every column you add is a question the model has
+to answer from the same rows you already had. Add enough of them and the rows
+run out: there is not enough data left per question to answer any of them
+reliably. That is the **curse of dimensionality** — not that high-dimensional
+data is hard to store, but that the evidence per dimension thins out as fast as
+the dimensions multiply.
+
+One-hot encoding is the fastest way to walk into it, because a column with $k$
+levels becomes $k$ columns and $k$ is not yours to choose — the data picks it.
+Count what `zip_code` would do here. It has 493 levels, so one-hot encoding it
+adds 493 columns, and a linear model then has 493 coefficients to estimate. The
+rows do not multiply to match: the training half holds 1,500 of them, spread
+across the 477 codes that appear in it. That is **3.1 rows per coefficient**,
+and 82 of those coefficients would be estimated from a single row each.
+
+Two distinct things go wrong, and it is worth keeping them apart:
+
+- **Estimation.** A coefficient fitted on three rows is mostly noise. Nothing
+  errors, nothing warns; the model simply reports 493 numbers of which most
+  are accidents of which customers happened to land in the training half.
+  Lesson 5 gives this its proper name — variance — and measures it.
+- **Geometry.** One-hot rows are unit vectors, so any two customers with
+  *different* codes sit at exactly the same distance from each other,
+  $\sqrt{2}$, whatever the two codes are. Neighbouring postcodes and opposite
+  ends of the country are equally far apart. Methods that work by distance
+  (Lesson 6) get nothing at all from the column, because the encoding threw
+  away the only thing distance could have used.
+
+There is a third failure that shows up at prediction time rather than during
+fitting. Sixteen of the 493 codes appear in the test half and never in the
+training half, carrying 26 test rows between them. An encoder fitted on the
+training data has no column for those codes and no coefficient to apply — the
+model meets a category it has never seen, which is why `OneHotEncoder` takes a
+`handle_unknown` argument at all.
+
+`zip_code` therefore sits squarely in the range where one-hot encoding is
+impractical, and target encoding — done correctly — is the standard
+alternative. What "correctly" means is Section 9.2, and it is the harder half
+of this lesson.
 
 ![](onehot_width.png)
 
-*What one-hot encoding `zip_code` actually produces, drawn from the data itself. Left: 493 columns, one dark cell per row and nothing else — 99.8% of the matrix is zero. Right: the number of rows sharing a level, averaging 4.1. A column that carries four rows cannot support a coefficient estimated from those four rows, and that is the curse of dimensionality in its most concrete form.*
+*What one-hot encoding `zip_code` produces. Left: 493 columns, one dark cell per row and nothing else — 99.8% of the matrix is zero. Right: how many zip codes are shared by how many customers; the bar standing at 4 reaches 96, so 96 codes have exactly 4 customers each, and the average is 4.1. A column that carries four rows cannot support a coefficient estimated from those four rows, and that is the curse of dimensionality in its most concrete form.*
 
 ---
 

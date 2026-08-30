@@ -93,7 +93,7 @@ from sklearn.model_selection import train_test_split         # noqa: E402
 
 frame = make_churn_data(n=2000, seed=7)
 features = frame.drop(columns=["churned", "zip_code"])
-X_train, _, _, _ = train_test_split(
+X_train, X_test, _, _ = train_test_split(
     features, frame["churned"], test_size=0.25, random_state=7,
     stratify=frame["churned"])
 
@@ -215,6 +215,35 @@ for band, printed in (("0-6", 0.399), ("6-24", 0.314), ("24+", 0.122)):
 levels = frame["zip_code"].nunique()
 same("6.3 zip_code has 493 levels", levels, 493, tolerance=0)
 same("6.3 averaging 4.06 rows per level", len(frame) / levels, 4.06, tolerance=0.05)
+
+# The two readings the caption gives the histogram. Counted from the column
+# itself rather than from the figure: the point of naming a bar's height in the
+# caption is that a student can check it, and so can this.
+sizes = frame["zip_code"].value_counts()
+same("6.3 the bar at 4 reaches 96", (sizes == 4).sum(), 96, tolerance=0)
+
+# What the section says about the training half, recomputed from the same
+# split the notebooks use rather than from anything they printed.
+zip_train = frame.loc[X_train.index, "zip_code"]
+zip_test = frame.loc[X_test.index, "zip_code"]
+train_sizes = zip_train.value_counts()
+same("6.3 477 codes appear in the training half", zip_train.nunique(), 477,
+     tolerance=0)
+same("6.3 3.1 training rows per coefficient", len(zip_train) / zip_train.nunique(),
+     3.1, tolerance=0.05)
+same("6.3 82 of them rest on a single row", (train_sizes == 1).sum(), 82,
+     tolerance=0)
+unseen = set(zip_test) - set(zip_train)
+same("6.3 16 codes reach the test half unseen", len(unseen), 16, tolerance=0)
+same("6.3 carrying 26 test rows", zip_test.isin(unseen).sum(), 26, tolerance=0)
+
+# The geometry claim: one-hot rows are unit vectors, so every pair of
+# distinct levels is the same distance apart whatever the levels are.
+eye = np.eye(4)
+gaps = {round(float(np.linalg.norm(eye[i] - eye[j])), 12)
+        for i in range(4) for j in range(4) if i != j}
+same("6.3 every distinct pair sits sqrt(2) apart", gaps.pop(), 2 ** 0.5,
+     tolerance=1e-9)
 
 # --- 9.2, the five-customer worked example ------------------------------
 #

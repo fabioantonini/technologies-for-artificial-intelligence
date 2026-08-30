@@ -351,10 +351,24 @@ def condition_number_geometry():
         path = np.array(path)
         ax.plot(path[:, 0], path[:, 1], "o-", color=RUST, ms=3.4, lw=1.5, zorder=3)
         ax.scatter([0], [0], s=90, marker="*", color=BLUE, zorder=4)
+        if sx != sy:
+            ax.annotate("rings join equal-loss models",
+                        xy=(-1.35, 1.42), xytext=(-2.2, 2.02),
+                        fontsize=9, color=SLATE,
+                        arrowprops=dict(arrowstyle="-|>", color=SLATE, lw=1.1))
+            ax.annotate("lowest loss", xy=(-0.12, -0.06), xytext=(-2.25, -1.35),
+                        fontsize=9, color=BLUE, weight="bold",
+                        arrowprops=dict(arrowstyle="-|>", color=BLUE, lw=1.1))
 
         ax.set_title(title, fontsize=12, weight="bold")
         ax.text(0, -2.15, note, ha="center", fontsize=9.5, color=SLATE,
                 style="italic", linespacing=1.4)
+        # Both axes are coefficients, not columns of data: every point in the
+        # square is a candidate model, and the rings join the ones that fit
+        # equally badly. Saying so on the figure is the difference between a
+        # picture that argues and one the reader has to be told about.
+        ax.set_xlabel("coefficient for feature 1", fontsize=9.5, color=SLATE)
+        ax.set_ylabel("coefficient for feature 2", fontsize=9.5, color=SLATE)
         ax.set_xlim(-2.4, 2.4); ax.set_ylim(-2.4, 2.4)
         ax.set_xticks([]); ax.set_yticks([])
         ax.set_aspect("equal")
