@@ -57,8 +57,8 @@ argue from what you can observe, the way you would with a real dataset).
 
 ### 2. Split, before anything else
 
-Hold out a test set. State your proportion and whether you stratified, and
-why.
+Hold out a test set. State your proportion, and whether you **stratified** —
+kept each class in the proportion it has in the whole dataset — and why.
 
 ### 3. Outliers
 

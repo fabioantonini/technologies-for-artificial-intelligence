@@ -759,7 +759,7 @@ which is the bias-variance trade-off from Lesson 1 arriving from a new
 direction.
 :::
 
-# zip_code: 493 levels
+# zip_code: 493 codes, 2,000 customers
 
 ![](onehot_width.png)
 
@@ -865,6 +865,12 @@ Had we reported only accuracy, this model would look barely better than the base
 ![](churn_confusion_matrix.png)
 
 ::: notes
+Say what the picture is before reading anything off it: a confusion matrix is a
+table counting predictions against truth, one cell per combination - predicted
+stay and did stay, predicted stay and churned, and so on. Lesson 4 gives it its
+proper treatment; today it is a way of seeing where an accuracy number comes
+from.
+
 The accuracy gain was fourteen thousandths. This is where those errors
 actually sit, and it explains why the gain is small.
 

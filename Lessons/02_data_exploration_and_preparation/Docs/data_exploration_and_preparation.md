@@ -358,7 +358,9 @@ $$\left[\,Q_1 - 1.5\cdot\mathrm{IQR},\ \ Q_3 + 1.5\cdot\mathrm{IQR}\,\right]$$
 
 The constant 1.5 is not arbitrary. For $X \sim \mathcal{N}(\mu, \sigma^2)$,
 the quartiles are $Q_1 = \mu - 0.6745\sigma$ and $Q_3 = \mu + 0.6745\sigma$
-(from the standard normal quantile function $\Phi^{-1}(0.25) \approx -0.6745$),
+(from the standard normal quantile function $\Phi^{-1}$, which answers "below
+which value does this fraction of the distribution lie": $\Phi^{-1}(0.25) \approx
+-0.6745$),
 so $\mathrm{IQR} = 1.349\sigma$ and the upper fence sits at
 
 $$Q_3 + 1.5\cdot\mathrm{IQR} = \mu + 0.6745\sigma + 1.5(1.349\sigma) = \mu + 2.698\sigma$$
@@ -581,7 +583,8 @@ falls to roughly 1, and one stride suits every direction at once.
 
 **On the data.** Notebook 2 builds two features with a variance ratio of 110 —
 standard deviations of 0.98 and 10.23 — and fits the same model twice. The
-scaled version is stable at a learning rate of 2.0; the raw one needs 0.1, a
+scaled version is stable at a **learning rate** — the name gradient descent
+gives that single step size — of 2.0; the raw one needs 0.1, a
 rate **twenty times smaller**, and after 200 steps has reached a cost of 0.4183
 against the scaled run's 0.4155.
 
@@ -702,8 +705,9 @@ dropped level becomes the *reference category*, absorbed into the intercept.
 This loses no information — the $k$-th category is recoverable as "all other
 dummies are 0" — and restores full rank. `OneHotEncoder(drop="first")`
 implements this directly. Models that do not fit an intercept, and
-tree-based models met in Lesson 7, which split on one dummy at a time and do
-not care about collinearity, can safely use all $k$ columns.
+tree-based models met in Lesson 7, which split on one dummy at a time and do not
+care whether two columns carry the same information — *collinearity* — can
+safely use all $k$ columns.
 
 ### 6.2 Ordinal and target encoding
 
@@ -723,8 +727,8 @@ category $c$. On `contract_type` that is the third column of the table above —
 column that already carries most of what the levels were telling us. It
 compresses arbitrarily many levels into a single, often highly predictive,
 numeric column, which is exactly why it exists for
-`zip_code`-shaped columns where one-hot encoding would add hundreds of sparse
-columns. It is also, computed the obvious way, the more dangerous of the two
+`zip_code`-shaped columns where one-hot encoding would add hundreds of *sparse*
+columns — columns that are zero for almost every row. It is also, computed the obvious way, the more dangerous of the two
 encodings in this entire lesson, and Section 9.2 derives exactly why.
 
 ![](encoding_comparison.png)
@@ -755,8 +759,9 @@ Two distinct things go wrong, and it is worth keeping them apart:
   errors, nothing warns; the model simply reports 493 numbers of which most
   are accidents of which customers happened to land in the training half.
   Lesson 5 gives this its proper name — variance — and measures it.
-- **Geometry.** One-hot rows are unit vectors, so any two customers with
-  *different* codes sit at exactly the same distance from each other,
+- **Geometry.** One-hot rows are unit vectors — a single 1 and zeros
+  everywhere else — so any two customers with *different* codes sit at exactly
+  the same distance from each other,
   $\sqrt{2}$, whatever the two codes are. Neighbouring postcodes and opposite
   ends of the country are equally far apart. Methods that work by distance
   (Lesson 6) get nothing at all from the column, because the encoding threw
@@ -891,7 +896,10 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 numeric_columns = ["tenure_months", "monthly_charges", "age", "num_support_calls"]
 categorical_columns = ["contract_type", "region"]
 
-# X_train, y_train are the training half of the split, exactly as in Lesson 1:
+# X_train, y_train are the training half of the split, exactly as in Lesson 1.
+# stratify=y makes the split keep each class in the proportion it has in the
+# whole dataset — 19.4% churners here, in the training half and the test half
+# alike — so a rare class cannot land unevenly by chance:
 # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25,
 #                                                     random_state=7, stratify=y)
 
@@ -953,7 +961,8 @@ where discipline alone silently fails.
 **What that pipeline actually scores.** Fitted on the training fold and asked
 about the held-out customers, it reaches 0.820 accuracy against the 0.806 you
 get by predicting "no churn" every time — fourteen thousandths — and an AUC of 0.751. Those two
-numbers disagree about how good this model is, and the confusion matrix shows
+numbers disagree about how good this model is, and the **confusion matrix** —
+a table counting predictions against truth, one cell per combination — shows
 why.
 
 ![](churn_confusion_matrix.png)
@@ -1130,8 +1139,9 @@ is fitted on. This is not a longer list of special cases to remember; it is
 one test, applied to every preprocessing step in this lesson: *does fitting
 this step compute anything from the rows it is given?* If yes, it goes inside
 the pipeline. Lesson 5 returns to leakage a third time, in the context of
-cross-validation, where the same test applies once more, this time to
-hyperparameter tuning.
+cross-validation — splitting the training data repeatedly rather than once — where
+the same test applies once more, this time to the settings chosen *around* a model
+rather than fitted inside it: its **hyperparameters**.
 
 ---
 
