@@ -253,6 +253,31 @@ def check_pins(lesson: Path, report: Report) -> None:
 
 # ----------------------------------------------------------------- figures
 
+def check_figures_are_tracked(figures_dir: Path, report: Report) -> None:
+    """A figure on this disk and not in the index is a figure nobody else has.
+
+    Everything else here asks the filesystem, which is the one place a figure
+    is certain to exist: it is sitting there because this machine just built
+    it. The deck embeds it, the PDF renders it, every check passes, and the
+    repository ships a reference to a file it does not carry.
+
+    Twice in a day on 30 August, both times an equation image whose name
+    changed with its LaTeX - `git add` on the modified paths does not stage a
+    new one. Neither was caught by anything but reading `git status` by eye.
+    """
+    result = subprocess.run(
+        ["git", "ls-files", "--", str(figures_dir)],
+        capture_output=True, text=True, cwd=str(ROOT))
+    if result.returncode != 0:
+        return  # not a git checkout; nothing to say
+    tracked = {Path(line).name for line in result.stdout.splitlines()}
+    for path in sorted(figures_dir.glob("*.png")):
+        if path.name not in tracked:
+            report.fail("figures",
+                        f"{path.name} is not tracked by git - it exists here "
+                        "and nowhere else; git add it")
+
+
 def check_figures(lesson: Path, report: Report) -> None:
     figures_dir = lesson / "Figures"
     if not figures_dir.exists():
@@ -267,6 +292,7 @@ def check_figures(lesson: Path, report: Report) -> None:
                             f"{path.name} references {name}, which is missing")
 
     on_disk = {p.name for p in figures_dir.glob("*.png")}
+    check_figures_are_tracked(figures_dir, report)
 
     # Equation images are generated; an unused one is stale output.
     # `~$name.pptx` is PowerPoint's owner file, written while the deck is open.
