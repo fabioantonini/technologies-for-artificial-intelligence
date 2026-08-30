@@ -185,28 +185,64 @@ JARGON = (
 #: further to run than the phrase that introduces it. Heuristic on purpose: this
 #: tool is advisory, and a false alarm costs one glance.
 GLOSS = re.compile(r"[—:(]|, (which|that|a |an |the )| - ")
+
+#: A term set in bold and then explained by the sentence after it - "**Data
+#: leakage.** Information from the test set reaches the training procedure."
+#: The full stop hides it from GLOSS, and it is how this course introduces half
+#: its vocabulary.
+BOLD_THEN_SENTENCE = re.compile(r"\*\*[^*]{0,60}\*\*[.:]?\s")
 BEFORE, AFTER = 40, 60
 
 
 def _glossed(body: str, at: re.Match) -> bool:
     """Is the term at `at` set off by punctuation that introduces a meaning?"""
     strip = lambda s: s.replace("*", "").replace("`", "").replace("_", "")
-    return bool(GLOSS.search(strip(body[max(0, at.start() - BEFORE):at.start()]))
-                or GLOSS.search(strip(body[at.end():at.end() + AFTER])))
+    before = body[max(0, at.start() - BEFORE):at.start()]
+    after = body[at.end():at.end() + AFTER]
+    return bool(GLOSS.search(strip(before)) or GLOSS.search(strip(after))
+                or BOLD_THEN_SENTENCE.search(before + body[at.start():at.end() + 4]))
+
+
+def first_use_in_course() -> dict:
+    """Which lesson introduces each term to the course, ignoring later uses.
+
+    Without this the check reports a term every time a later lesson mentions
+    it, which on the first run meant twenty reports of which two were real:
+    lesson 5 saying "overfitting" is not a cold start, because lesson 1 spent a
+    section on it. What matters is whether the word was explained the FIRST
+    time a student met it, anywhere.
+    """
+    owner = {}
+    for lesson in sorted(p for p in (ROOT / "Lessons").iterdir() if p.is_dir()):
+        for path in sorted(lesson.glob("Docs/*.md")) + sorted(lesson.glob("Slides/*.md")) \
+                + sorted(lesson.glob("Exercises/*.md")):
+            body = path.read_text(encoding="utf8")
+            for term in JARGON:
+                if term not in owner and re.search(re.escape(term), body, re.I):
+                    owner[term] = lesson.name
+    return owner
 
 
 def jargon_never_explained(lesson, say):
-    """Terms used a handful of times and never glossed, per artefact.
+    """Terms the course introduces here and never glosses, per artefact.
 
     Per artefact rather than per lesson, because a student reading only the
     slides has not read the handout - the rule CLAUDE.md states for acronyms,
-    applied to the words that are not acronyms.
+    applied to the words that are not acronyms. And only in the lesson that
+    introduces the term, so that a later, legitimate use is not reported.
     """
+    owner = first_use_in_course()
     for path in sorted(lesson.glob("Docs/*.md")) + sorted(lesson.glob("Slides/*.md")) \
             + sorted(lesson.glob("Exercises/*.md")):
         body = path.read_text(encoding="utf8")
+        # Speaker notes address the lecturer, who has the vocabulary. The rule
+        # is about what a student reads unaided, so a term is not owed a gloss
+        # for appearing in a note.
+        body = re.sub(r"::: notes.*?:::", "", body, flags=re.S)
         bare = []
         for term in JARGON:
+            if owner.get(term) != lesson.name:
+                continue  # introduced by an earlier lesson; this is a reuse
             hits = list(re.finditer(re.escape(term), body, re.I))
             if not hits or len(hits) > 3:
                 continue  # used throughout: the lesson is about it

@@ -200,7 +200,8 @@ Section 2.4 measures, and it is why a test score quoted without an error bar is
 incomplete.
 
 Notice precisely what the argument depends on: **the independence of $T$ from $f$**.
-Not on the size of the split, not on the proportion, not on stratification. The moment
+Not on the size of the split, not on the proportion, not on stratification —
+holding each class in the same proportion in both halves. The moment
 the test rows influence any decision — a mean used for scaling, a ranking used to
 select features, a comparison used to pick a model — $f$ ceases to be independent of
 $T$, the equality above fails, and the estimate becomes optimistic by an unknown

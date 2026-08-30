@@ -677,9 +677,9 @@ makes the empirical risk $\hat{R}_S(f)$ — the average loss over the rows we
 hold — as small as possible. It left open how. For most of this course the
 answer is **gradient descent**: the model is a set of numbers, one coefficient
 per feature plus an intercept, every choice of those numbers has a risk, and
-training starts from some choice and repeatedly nudges all of them downhill.
-One step size serves the whole model, not one per feature, and that single
-number is the whole difficulty below.
+training starts from some choice and repeatedly nudges all of them downhill by
+the same amount — the **step size**. One step size serves the whole model, not
+one per feature, and that single number is the whole difficulty below.
 
 **The picture first.** Think of that risk as a landscape and of each
 coefficient as one compass direction, so that every point of the landscape is a

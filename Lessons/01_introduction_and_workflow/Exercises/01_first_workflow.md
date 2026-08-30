@@ -77,7 +77,8 @@ that shows the class imbalance clearly.
 
 ### 3. Split, before anything else
 
-Hold out a test set. Justify your proportion and say why you did or did not stratify.
+Hold out a test set. Justify your proportion and say why you did or did not
+**stratify** — hold each class in the same proportion in both halves.
 
 ### 4. Baseline
 
