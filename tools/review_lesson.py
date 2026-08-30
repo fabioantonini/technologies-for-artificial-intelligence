@@ -163,12 +163,69 @@ def em_dashes_where_they_show(lesson, say):
             say(f"{n} em dash(es) drawn inside figures ({nb_path.name})")
 
 
+#: Terms this audience has not met before and cannot look up mid-sentence. A
+#: lesson may use any of them; what it may not do is use one two or three times
+#: and never stand still to say what it means. Lesson 2 shipped "cap it at the
+#: fence (Winsorise)" for months - the gloss was the word itself.
+JARGON = (
+    "collinearity", "multicollinearity", "cardinality", "sparse", "stratif",
+    "winsoris", "quantile function", "hyperparameter", "confusion matrix",
+    "rank-deficient", "design matrix", "normal equation", "empirical risk",
+    "expected risk", "condition number", "reference category", "curse of "
+    "dimensionality", "cross-validation", "regularis", "bootstrap", "kernel",
+    "eigenvector", "singular value", "identifiab", "heteroscedas", "unit vector",
+    "learning rate", "step size", "one-hot", "target encoding", "ordinal",
+    "attenuat", "imputation", "leakage", "overfit", "baseline", "loss function",
+    "cost function",
+)
+
+#: What an explanation looks like in this course's prose: the term set off by a
+#: dash, a bracket, a colon or an appositive comma, on either side of it. The
+#: windows are deliberately lopsided - a gloss usually follows the term and has
+#: further to run than the phrase that introduces it. Heuristic on purpose: this
+#: tool is advisory, and a false alarm costs one glance.
+GLOSS = re.compile(r"[—:(]|, (which|that|a |an |the )| - ")
+BEFORE, AFTER = 40, 60
+
+
+def _glossed(body: str, at: re.Match) -> bool:
+    """Is the term at `at` set off by punctuation that introduces a meaning?"""
+    strip = lambda s: s.replace("*", "").replace("`", "").replace("_", "")
+    return bool(GLOSS.search(strip(body[max(0, at.start() - BEFORE):at.start()]))
+                or GLOSS.search(strip(body[at.end():at.end() + AFTER])))
+
+
+def jargon_never_explained(lesson, say):
+    """Terms used a handful of times and never glossed, per artefact.
+
+    Per artefact rather than per lesson, because a student reading only the
+    slides has not read the handout - the rule CLAUDE.md states for acronyms,
+    applied to the words that are not acronyms.
+    """
+    for path in sorted(lesson.glob("Docs/*.md")) + sorted(lesson.glob("Slides/*.md")) \
+            + sorted(lesson.glob("Exercises/*.md")):
+        body = path.read_text(encoding="utf8")
+        bare = []
+        for term in JARGON:
+            hits = list(re.finditer(re.escape(term), body, re.I))
+            if not hits or len(hits) > 3:
+                continue  # used throughout: the lesson is about it
+            at = hits[0]
+            if any(_glossed(body, hit) for hit in hits):
+                continue
+            bare.append(term)
+        if bare:
+            say(f"{path.name}: used once or twice and never glossed - "
+                + ", ".join(sorted(bare)))
+
+
 def review(lesson):
     problems = []
     figures_under_headings(lesson, problems.append)
     notes_without_their_figure(lesson, problems.append)
     prose_numbers_not_in_notebooks(lesson, problems.append)
     em_dashes_where_they_show(lesson, problems.append)
+    jargon_never_explained(lesson, problems.append)
 
     print(f"\n{lesson.name}  —  {len(problems) or 'nothing'} to look at")
     for p in problems:

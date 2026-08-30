@@ -375,6 +375,8 @@ def check_slides(lesson: Path, report: Report) -> None:
     from pptx import Presentation
     slides = list(Presentation(deck).slides)
 
+    notes_by_slide: dict[int, str] = {}
+
     for index, slide in enumerate(slides, 1):
         has_text = any(sh.has_text_frame and sh.text_frame.text.strip()
                        for sh in slide.shapes)
@@ -390,15 +392,17 @@ def check_slides(lesson: Path, report: Report) -> None:
         notes = ""
         if slide.has_notes_slide:
             notes = slide.notes_slide.notes_text_frame.text.strip()
+        notes_by_slide[index] = notes
         title = slide.shapes.title.text.strip() if slide.shapes.title else ""
         if len(notes) < 60 and title.lower() not in ("break",):
             report.fail("slides",
                         f"slide {index} ({title[:34]}) has thin speaker notes")
 
-    check_lesson_plan(lesson, len(slides), report)
+    check_lesson_plan(lesson, len(slides), notes_by_slide, report)
 
 
-def check_lesson_plan(lesson: Path, slide_count: int, report: Report) -> None:
+def check_lesson_plan(lesson: Path, slide_count: int,
+                      notes_by_slide: dict, report: Report) -> None:
     handouts = sorted((lesson / "Docs").glob("*.md"))
     if not handouts:
         report.fail("handout", "no handout found")
@@ -420,6 +424,38 @@ def check_lesson_plan(lesson: Path, slide_count: int, report: Report) -> None:
     if cited and max(cited) > slide_count:
         report.fail("lesson plan",
                     f"cites slide {max(cited)} but the deck has {slide_count}")
+
+    check_notes_timings(plan, notes_by_slide, report)
+
+
+#: A row of the plan: its two clock times and the slides it covers.
+PLAN_ROW = re.compile(
+    r"\|\s*(\d):(\d\d)[-–](\d):(\d\d)\s*\|[^|]*\|\s*Slides? (\d+)(?:[-–](\d+))?")
+#: "22 minutes", "20 minutes." - what a notebook slide's notes tell the lecturer.
+STATED = re.compile(r"\b(\d{1,3})\s+minutes\b")
+
+
+def check_notes_timings(plan: str, notes_by_slide: dict, report: Report) -> None:
+    """A slide that owns a whole segment must not tell the lecturer another time.
+
+    Only single-slide segments are checked - the notebooks and the break. Inside
+    a segment covering fifteen slides, "two or three minutes" is about something
+    else entirely, and reading it as a claim about the segment would make this
+    check cry wolf until it was ignored.
+
+    The failure it exists for: two minutes moved out of Notebook 01 to pay for a
+    new slide, the plan updated, and the speaker notes left saying 22. Nothing
+    could see it. The plan summed to 180 either way.
+    """
+    for h1, m1, h2, m2, first, last in PLAN_ROW.findall(plan):
+        if last and int(last) != int(first):
+            continue
+        budget = (int(h2) * 60 + int(m2)) - (int(h1) * 60 + int(m1))
+        stated = STATED.search(notes_by_slide.get(int(first), ""))
+        if stated and int(stated.group(1)) != budget:
+            report.fail("lesson plan",
+                        f"slide {first}'s notes say {stated.group(1)} minutes, "
+                        f"the plan gives that segment {budget}")
 
 
 # --------------------------------------------------------------- acronyms
