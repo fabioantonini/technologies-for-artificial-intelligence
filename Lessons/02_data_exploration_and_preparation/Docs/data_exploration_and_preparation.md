@@ -278,6 +278,12 @@ predict the missing value from other columns rather than replacing it with a
 single constant, preserving more of the covariance structure at the cost of a
 new place for leakage to enter, which Section 9 returns to.
 
+Notebook 1, Section 4.1, measures this rather than asserting it: a pair with a
+correlation of 0.700 by construction, a fraction of one column hidden at random
+and filled with the mean, and what survives compared against $\sqrt{1-p}$. The
+two agree to within a thousandth at every fraction tried, including the two that
+are ours — 4.8% for `num_support_calls` and 8% for `age`.
+
 **Where this stops holding.** The derivation assumes MCAR missingness and a
 linear correlation measure; under MAR the attenuation is biased in a
 direction that depends on which subgroup is missing more, and under MNAR no
