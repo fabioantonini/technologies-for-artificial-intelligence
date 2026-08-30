@@ -42,6 +42,14 @@ Solutions/
 # covered.
 *_solution.py
 
+# Cross-checks of a lesson by a second reader — a colleague, or another model
+# asked to review the same material. One Review/ folder per lesson, holding
+# whatever came back: PDFs, notes, exports. It is working material for deciding
+# what to change, not a course artefact, and what survives the reading ends up
+# in the handout or the deck. Windows also drops a `name:Zone.Identifier` stub
+# beside anything downloaded, which this keeps out too.
+Lessons/*/Review/
+
 # The instructor's own study and teaching notes: what to say with the projector
 # off, the derivations to reproduce at the board, the questions students will
 # ask. Private working material, not a course artefact — students receive the
