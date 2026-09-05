@@ -1,0 +1,26 @@
+% Glyphs that Latin Modern lacks, kept so the document can stay in the
+% handouts' typeface instead of switching to a Unicode-wide font.
+%
+% Two different problems. The Greek letters and operators arrive as literal
+% Unicode inside ordinary prose, because the questions were pasted from a
+% chat window; they are rendered as the maths they mean. The accented "u" is
+% the opposite case: it is fine in text but reaches maths mode inside Italian
+% words such as "piu`", where the maths italic font has no accents, so it is
+% pushed back into a text box when that happens.
+\usepackage{newunicodechar}
+\newunicodechar{α}{\ensuremath{\alpha}}
+\newunicodechar{θ}{\ensuremath{\theta}}
+\newunicodechar{∥}{\ensuremath{\|}}
+\newunicodechar{≠}{\ensuremath{\neq}}
+\newunicodechar{ù}{\ifmmode\text{\`u}\else\`u\fi}
+
+% Tighten the space around displayed equations. The transcript puts almost every
+% formula on its own display line - 2,427 of them, many a single symbol - and
+% LaTeX's default skips around each turn that habit into roughly a hundred extra
+% pages. This changes spacing only: no equation is reflowed and no word is cut.
+\usepackage{amsmath}
+\setlength{\abovedisplayskip}{3pt plus 2pt minus 2pt}
+\setlength{\belowdisplayskip}{3pt plus 2pt minus 2pt}
+\setlength{\abovedisplayshortskip}{1pt plus 1pt}
+\setlength{\belowdisplayshortskip}{2pt plus 1pt}
+\setlength{\parskip}{2pt plus 1pt}
