@@ -668,9 +668,10 @@ A thousandfold improvement, from one number.
 
 **And notice the training column: it gets worse at every step.** That is the
 trade being made explicitly — we accept a worse fit on the data we have, in
-exchange for a better fit on data we do not. The exchange stops paying: at
-$\lambda = 100$ the test error is 228, worse than no penalty at all, because the model
-has become too rigid to follow the curve.
+exchange for a better fit on data we do not. The exchange stops paying: the test
+error rises from 22.8 at $\lambda = 0.01$, to 105 at $\lambda = 1$, to 228 at
+$\lambda = 100$ — a tenfold loss against the best penalty, because the model has
+become too rigid to follow the curve.
 
 The useful range here spans four orders of magnitude, which is the practical
 argument for why $\lambda$ cannot be guessed and must be searched. Lesson 5 provides the

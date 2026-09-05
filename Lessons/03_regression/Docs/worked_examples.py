@@ -185,4 +185,59 @@ same("4.4 adding area_sqft takes it to 2,286",
 same("4.4 the largest coefficient moved by a factor of 12,500 across stacks",
      3_097_038_010 / 247_514 / 1_000, 12.5, tolerance=0.1)
 
+# ---------------------------------------------- Section 6.4, the ridge table
+
+# The table Section 6.4 prints, refitted from the same seed the data came from
+# rather than transcribed. It is checked here because the row it does not have —
+# "no penalty" — is the one that moves with the linear-algebra backend, and a
+# claim written against an older stack survived four artefacts unnoticed: that
+# lambda = 100 was "worse than no penalty at all". It is not. At 24,656 the
+# unpenalised fit is two orders of magnitude worse than the most over-penalised
+# row in the table, so the comparison below anchors on the *best* penalty.
+from sklearn.linear_model import LinearRegression, Ridge                # noqa: E402
+from sklearn.metrics import mean_squared_error                          # noqa: E402
+from sklearn.pipeline import make_pipeline                              # noqa: E402
+
+r_train, r_test, u_train, u_test = train_test_split(
+    temps, usage, test_size=0.3, random_state=42)
+
+
+def ridge_row(estimator):
+    model = make_pipeline(
+        PolynomialFeatures(12, include_bias=False), StandardScaler(), estimator
+    ).fit(r_train.reshape(-1, 1), u_train)
+    rmse = lambda t, u: mean_squared_error(u, model.predict(t.reshape(-1, 1))) ** 0.5
+    return (rmse(r_train, u_train), rmse(r_test, u_test),
+            float(np.abs(model[-1].coef_).max()))
+
+
+table = {"none": ridge_row(LinearRegression())}
+for penalty in (0.01, 1.0, 100.0):
+    table[penalty] = ridge_row(Ridge(alpha=penalty))
+
+for row, (train, test, largest) in zip(
+        ("none", 0.01, 1.0, 100.0),
+        ((13.6, 24_655.7, 3_097_038_010), (18.0, 22.8, 365),
+         (44.5, 105.2, 156), (96.0, 227.6, 6))):
+    label = "no penalty" if row == "none" else f"a penalty of {row}"
+    same(f"6.4 {label}, training RMSE", table[row][0], train, tolerance=0.05)
+    same(f"6.4 {label}, test RMSE", table[row][1], test,
+         tolerance=max(test * 2e-3, 0.05))
+    same(f"6.4 {label}, largest coefficient", table[row][2], largest,
+         tolerance=max(abs(largest) * 2e-3, 0.5))
+
+# The two claims the prose draws from the table, each stated as the comparison
+# it actually makes rather than as a transcribed number.
+same("6.4 a penalty of 0.01 is a thousandfold improvement in test error",
+     table["none"][1] / table[0.01][1] / 1_000, 1.08, tolerance=0.05)
+same("6.4 over-penalising costs tenfold against the best penalty",
+     table[100.0][1] / table[0.01][1] / 10, 1.0, tolerance=0.05)
+if table[100.0][1] >= table["none"][1]:
+    raise SystemExit(
+        f"{HANDOUT}: 6.4 the prose may again say lambda = 100 is worse than no\n"
+        f"    penalty; on this stack it is {table['none'][1]:,.0f} against "
+        f"{table[100.0][1]:,.1f}, which is better, not worse")
+checks += 1
+
+
 print(f"lesson 3: {checks} hand-worked numbers recomputed, all agree")

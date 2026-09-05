@@ -768,11 +768,12 @@ hundredth. And the test error falls from 24,656 to 23, which is the noise floor 
 a thousandfold improvement bought with one number.
 
 Now the training column, which is the honest part: it gets WORSE at every step.
-16, 18, 45, 96. That is the trade being made deliberately - a worse fit on the
+13.6, 18, 45, 96. That is the trade being made deliberately - a worse fit on the
 data we have, in exchange for a better fit on data we do not.
 
-And it stops paying. At lambda 100 the test error is 228, worse than no penalty
-at all, because the model is now too rigid to follow the curve.
+And it stops paying. The test error rises from 22.8 at lambda 0.01, to 105 at
+lambda 1, to 228 at lambda 100 - a tenfold loss against the best penalty,
+because the model is now too rigid to follow the curve.
 
 The useful range spans four orders of magnitude, which is why lambda cannot be
 guessed.
