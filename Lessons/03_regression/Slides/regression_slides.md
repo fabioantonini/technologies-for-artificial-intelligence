@@ -779,6 +779,31 @@ The useful range spans four orders of magnitude, which is why lambda cannot be
 guessed.
 :::
 
+# The unpenalised fit leaves the picture
+
+![](ridge_degrees.png)
+
+::: notes
+The last column of that table, drawn. Give the room a moment on the left panel
+before saying anything.
+
+Point at the vertical scale. The unpenalised curve goes off the top and off the
+bottom between the training points, and it only comes back where a point is
+sitting there to pull it. That is what a coefficient of three billion looks
+like from the outside.
+
+Middle panel, lambda one hundredth: on top of the true curve, the dashed line.
+You cannot separate them by eye.
+
+Right panel, lambda one hundred: a nearly flat line. It misses the curve
+completely - but look at how it misses. It is wrong by a few hundred kilowatt
+hours, on a plot where the left panel is wrong by thousands.
+
+That is the asymmetry to take away, and the table hides it: too much penalty is
+a mild failure, too little is a catastrophic one. If you have to err, err
+towards more penalty. Handout section 6.4.
+:::
+
 # Too flexible, too rigid
 
 ![](alpha_trade_off.png)

@@ -673,6 +673,10 @@ error rises from 22.8 at $\lambda = 0.01$, to 105 at $\lambda = 1$, to 228 at
 $\lambda = 100$ — a tenfold loss against the best penalty, because the model has
 become too rigid to follow the curve.
 
+![](ridge_degrees.png)
+
+*The same three fits drawn on the data, which is the table's last column made visible. Look first at the vertical scale on the left: the unpenalised curve leaves the axes entirely between the training points and returns only where a point is there to pull it back. At λ = 0.01 the fit is indistinguishable from the true curve (dashed). At λ = 100 it is a nearly flat line — wrong, but wrong by a few hundred kWh rather than by thousands. That is the asymmetry the table hides: over-penalising is a mild failure, under-penalising is a catastrophic one.*
+
 The useful range here spans four orders of magnitude, which is the practical
 argument for why $\lambda$ cannot be guessed and must be searched. Lesson 5 provides the
 machinery.
