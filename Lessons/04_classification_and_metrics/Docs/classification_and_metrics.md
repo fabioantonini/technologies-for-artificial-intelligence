@@ -57,6 +57,25 @@ check it. One column, `seek_error_rate`, was generated with a coefficient of
 **exactly zero** — a plausible-looking counter with no connection to failure. It
 is there to be found out.
 
+**The counters are read on a logarithmic scale.** Before the labels are
+generated, `disk_data.py` applies $\log(1 + x)$ to the four count columns, so
+the truth is linear in $\log(1 + x)$ and not in $x$. That is not a
+convenience: it is how the evidence behaves. Going from 0 to 4 reallocated
+sectors is a **17 times** larger move than going from 40 to 44
+($\log 5 = 1.61$ against $\log(45/41) = 0.09$), because the first sector a
+drive ever reallocates says something and the forty-first says almost nothing
+new. In the units the model works in, those first four sectors are worth
+**$+4.7$ log-odds**: a drive with average telemetry and no reallocated sectors
+has a 0.01% chance of failing, and four sectors take it to 1.3% — **a
+hundred-and-thirtyfold increase**. The four sectors from 40 to 44 are worth
+$+0.27$, and move the same drive from 85% to 89%.
+
+This is the feature engineering of lesson 2, and it has two consequences here.
+The coefficients in section 2.4 are per standard deviation of the *transformed*
+column. And the single-feature curve in section 2.1 is fitted on the raw count
+instead, which is exactly why it is steepest in the middle of the observed
+range rather than at its left edge.
+
 ---
 
 ## 2. The model: from a line to a probability
@@ -89,9 +108,9 @@ parameters.**
 output of a linear model, which can be anything — and returns something between
 0 and 1. It should be **monotone**, so more evidence never lowers the
 probability. And it should **flatten at both ends**, because evidence has
-diminishing returns: going from 0 to 4 reallocated sectors should change your
-mind a great deal, while going from 40 to 44 should barely register, since you
-had already concluded the drive was finished.
+diminishing returns: the same increment of evidence should count for a great
+deal while the question is still open, and for almost nothing once it is
+settled.
 
 ![](sigmoid_and_odds.png)
 
@@ -115,6 +134,22 @@ The derivative is the one that matters most. It is largest at $z = 0$, where
 $\sigma' = \tfrac{1}{4}$, and it decays to zero at both ends. Section 4 shows
 that this is simultaneously the reason the sigmoid works and the reason squared
 error does not.
+
+**The diminishing returns, measured.** They are diminishing in the *total*
+evidence $z$, not in any single counter. Two units of log-odds spent from
+$z = 0$ move the probability from 0.50 to 0.88; the same two units spent from
+$z = 6$ move it from 0.9975 to 0.9997 — **178 times less**. The curve is steep
+where the model is genuinely undecided and flat where its mind is made up.
+
+**A predictable mistake, and the figure invites it.** Read that against the
+right-hand panel of the figure in section 2.1, whose horizontal axis is a raw
+counter rather than $z$, and the two appear to contradict each other: that curve
+is steepest at **13.2 reallocated sectors**, and the first four sectors move it
+by 0.03 against the 0.31 that sectors 10 to 14 are worth. Both pictures are
+correct. A flat left tail does not say the first four sectors carry no
+information — it says that on the scale that panel uses, four sectors have not
+yet made the question interesting. Section 1.1 gives the scale the counters are
+really measured on, where those same four sectors are worth $+4.7$ in log-odds.
 
 **Deriving the third property**, since it is used repeatedly. Write
 $\sigma = (1 + e^{-z})^{-1}$ and differentiate:
@@ -162,7 +197,8 @@ the log-odds linearly and then ask for the probability back.
 
 Because $z$ is log-odds, $e^{w_j}$ is a **multiplier on the odds** for a
 one-unit increase in $x_j$. With standardised features, one unit is one standard
-deviation.
+deviation — of the transformed column, for the four counters that section 1.1
+puts on a logarithmic scale.
 
 ![](decision_boundary.png)
 

@@ -27,9 +27,31 @@ def sigmoid(z: float) -> float:
     return 1 / (1 + math.exp(-z))
 
 
+# --------------------------------- Section 1, the logarithmic scale
+
+# Section 1.1 claims 0 -> 4 reallocated sectors is a 17 times larger move than
+# 40 -> 44. Recomputed from the transform itself, not from the handout's logs.
+same("1.1 how much larger the first four sectors are",
+     (math.log1p(4) - math.log1p(0)) / (math.log1p(44) - math.log1p(40)), 17,
+     tolerance=0.3)
+
 # --------------------------------- Section 2, the sigmoid and the odds
 
 same("2.2 the sigmoid's slope at zero", sigmoid(0) * (1 - sigmoid(0)), 0.25)
+
+# Section 2.2 contrasts two units of log-odds spent in two places. The four
+# probabilities are asserted individually as well as by their differences, so
+# each digit the handout prints is checked rather than only their gap.
+same("2.2 the probability at z = 0", sigmoid(0), 0.50, tolerance=5e-5)
+same("2.2 the probability at z = 2", sigmoid(2), 0.88, tolerance=5e-3)
+same("2.2 the probability at z = 6", sigmoid(6), 0.9975, tolerance=5e-5)
+same("2.2 the probability at z = 8", sigmoid(8), 0.9997, tolerance=5e-5)
+same("2.2 two units of evidence from z = 0", sigmoid(2) - sigmoid(0), 0.38,
+     tolerance=5e-3)
+same("2.2 the same two units from z = 6", sigmoid(8) - sigmoid(6), 0.0021,
+     tolerance=5e-5)
+same("2.2 how much less the second pair buys",
+     (sigmoid(2) - sigmoid(0)) / (sigmoid(8) - sigmoid(6)), 178, tolerance=1.5)
 same("2.4 the base rate implied by the intercept", sigmoid(-6.09), 0.0023,
      tolerance=5e-5)
 same("2.4 the odds multiplier for a coefficient of 1.80",
@@ -112,5 +134,62 @@ weight_positive = m / (2 * positives)
 weight_negative = m / (2 * (m - positives))
 same("9 how many healthy drives a failure is worth under balanced weights",
      weight_positive / weight_negative, 25, tolerance=0.6)
+
+# --------------------------------- Sections 1.1 and 2.2, on the real data
+#
+# These are the only numbers here that need the dataset. Both sections make a
+# claim about *scale* - what four reallocated sectors are worth - and the two
+# claims disagree on purpose, because one is read off a model fitted to the raw
+# counter and the other off the log scale the labels were generated on. Refit
+# from the raw drives rather than trusting either.
+
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "Notebooks"))
+
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
+from disk_data import (TRUE_COEFFICIENTS, TRUE_INTERCEPT, load_drives,
+                       transform_features)
+
+drives = load_drives()
+raw = drives[["reallocated_sectors"]]
+fit = make_pipeline(StandardScaler(),
+                    LogisticRegression(max_iter=1000)).fit(raw, drives["failed"])
+scaler, model = fit[0], fit[1]
+
+# Put the fitted curve back into sectors, so its steepest point is a count.
+slope = model.coef_[0][0] / scaler.scale_[0]
+intercept = model.intercept_[0] - model.coef_[0][0] * scaler.mean_[0] / scaler.scale_[0]
+curve = lambda sectors: sigmoid(slope * sectors + intercept)
+
+same("2.2 where the raw-counter curve is steepest", -intercept / slope, 13.2,
+     tolerance=0.05)
+same("2.2 what the first four sectors are worth to it",
+     curve(4) - curve(0), 0.03, tolerance=5e-3)
+same("2.2 what sectors 10 to 14 are worth to it",
+     curve(14) - curve(10), 0.31, tolerance=5e-3)
+
+# The same four sectors on the scale the labels were actually generated on.
+transformed = transform_features(drives)["reallocated_sectors"]
+mean, deviation = transformed.mean(), transformed.std(ddof=0)
+weight = TRUE_COEFFICIENTS["reallocated_sectors"]
+severity = lambda sectors: (TRUE_INTERCEPT
+                            + weight * (np.log1p(sectors) - mean) / deviation)
+
+same("1.1 the first four sectors, in log-odds", severity(4) - severity(0), 4.7,
+     tolerance=0.05)
+same("1.1 sectors 40 to 44, in log-odds", severity(44) - severity(40), 0.27,
+     tolerance=5e-3)
+same("1.1 a drive with no reallocated sectors", sigmoid(severity(0)), 0.0001,
+     tolerance=5e-5)
+same("1.1 the same drive with four", sigmoid(severity(4)), 0.013, tolerance=5e-4)
+same("1.1 the same drive with forty", sigmoid(severity(40)), 0.85, tolerance=5e-3)
+same("1.1 the same drive with forty-four", sigmoid(severity(44)), 0.89,
+     tolerance=5e-3)
 
 print(f"lesson 4: {checks} hand-worked numbers recomputed, all agree")

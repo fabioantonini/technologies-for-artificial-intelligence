@@ -127,10 +127,17 @@ interval.
 
 ::: notes
 Left: the curve. Steep in the middle, flat at both ends. Make the case that the
-flatness is the right behaviour, not a compromise - going from 0 to 4
-reallocated sectors should change your mind a lot; going from 40 to 44 should
-barely register, because you had already concluded the drive was finished.
-Evidence has diminishing returns.
+flatness is the right behaviour, not a compromise - and be precise about what
+is diminishing. It is the total evidence z, not any one counter. Two units of
+log-odds from z = 0 take the probability from 0.50 to 0.88; the same two from
+z = 6 take it from 0.9975 to 0.9997, 178 times less.
+
+Expect someone to object that the previous figure says otherwise. That curve is
+drawn against raw reallocated sectors, not against z, so it is steepest at 13.2
+and the first four sectors move it by only 0.03. Both pictures are right: the
+counters act on a log scale, and on that scale four sectors are worth +4.7 in
+log-odds, taking a drive from a 0.01% chance of failing to 1.3%. Handout
+section 1.1.
 
 Right: the same relationship inverted. This is the slide that explains WHY this
 particular curve and not some other S-shape. A probability is trapped in [0,1].
