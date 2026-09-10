@@ -550,8 +550,9 @@ are costly, as here. $\beta < 1$ favours precision.
 
 ### 6.4 Averaging across classes
 
-`classification_report` prints three summary rows, and choosing between them
-matters more than it looks.
+Scikit-learn's `classification_report` — the summary table notebook 2 prints,
+one row per class followed by three summary rows — is where the numbers below
+come from. Choosing between those three rows matters more than it looks.
 
 | Average | What it does | Our model |
 |---|---|---|

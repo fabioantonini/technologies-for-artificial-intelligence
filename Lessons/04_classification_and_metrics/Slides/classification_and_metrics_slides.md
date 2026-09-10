@@ -573,8 +573,14 @@ you want here where misses cost nineteen times more. F2 is the usual choice.
 - `macro avg` F1: **0.820** (both classes get an equal say)
 
 ::: notes
-classification_report prints three summary rows and students quote whichever is
-biggest. Give them the rule.
+classification_report is scikit-learn's summary table, and they will print it
+themselves in notebook 2 in about five minutes: one row per class, then three
+summary rows - accuracy, macro avg, weighted avg. The two numbers on this slide
+are the f1-score column of the last two.
+
+Anticipating it by one slide is deliberate. The rule for choosing between those
+rows is what they need in their heads while they run the notebook, not
+afterwards - left to themselves they quote whichever is biggest.
 
 The weighted average weights each class by how common it is, so on this problem
 it is essentially the healthy class talking, and it reads close to accuracy  - 
