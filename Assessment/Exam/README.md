@@ -6,6 +6,11 @@ notebook for it.** That is the whole exam.
 **Bring all ten**, on a laptop or printed. An exercise you cannot produce is an
 exercise you did not do, and you will be sitting in front of it with nothing to say.
 
+**There are three sittings, between January and February 2027.** The exact dates come
+from the degree programme and are not yet published; `Course/SCHEDULE.md` carries them
+as soon as they are. Prepare once — the exercises do not change between sittings, and
+the ten notebooks you bring are the same ten whichever one you take.
+
 ---
 
 ## What the discussion asks

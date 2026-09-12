@@ -24,7 +24,7 @@ Total: **30 hours**.
 | Milestone | Date |
 |---|---|
 | Weekly exercises | Set at the end of each lesson, discussed at the start of the next. Nothing is collected: one of the ten is drawn at the exam and you talk through your own notebook. Exercise 10 has no lesson after it, so it is worked for the exam alone. |
-| Exam: one of the ten exercises drawn and discussed | To be confirmed with the degree programme |
+| Exam: one of the ten exercises drawn and discussed | **Three sittings between January and February 2027.** The dates are set by the degree programme and are not yet published; this table is updated when they are. |
 
 ## Material release policy
 
