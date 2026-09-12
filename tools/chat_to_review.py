@@ -127,6 +127,18 @@ def conversation(pool: list) -> list:
     raise SystemExit("the conversation key resolves to nothing")
 
 
+def strip_citations(text: str) -> str:
+    """Remove ChatGPT's own source markers.
+
+    They arrive wrapped in private-use codepoints - U+E200 opens, U+E201 closes
+    - and print as "filecite turn17file0" in the middle of a sentence. They
+    refer to files in the chat session, which this document is not, so they are
+    noise here rather than provenance. Lesson 4's session left 53 of them.
+    """
+    text = re.sub("\ue200.*?\ue201", "", text, flags=re.S)
+    return re.sub("[\ue200-\ue20f]", "", text)
+
+
 def messages(nodes: list) -> tuple[list[dict], int]:
     """Visible user and assistant turns, in order, plus a generated-image count.
 
@@ -152,7 +164,8 @@ def messages(nodes: list) -> tuple[list[dict], int]:
             continue
         if not text.strip() and not images:
             continue
-        kept.append({"role": role, "text": text, "images": len(images)})
+        kept.append({"role": role, "text": strip_citations(text),
+                     "images": len(images)})
     return kept, generated
 
 
@@ -284,6 +297,58 @@ def inline_short_equations(text: str) -> str:
     return "\n".join(out)
 
 
+def render_slides(lesson: Path, review: Path, count: int) -> tuple[dict, int]:
+    """One PNG per slide of the built deck, and the deck's own numbering offset.
+
+    What was pasted into the chat was a screenshot of a slide, and the share
+    link will not give it back: the attachment is a ``sediment://`` pointer that
+    resolves only against the uploader's session. The repository has something
+    better anyway - the deck itself - so the slide is re-rendered from the built
+    PDF at print resolution.
+
+    The offset exists because pandoc puts a title slide in front of the first
+    ``# `` heading, so the deck a reader has open is numbered one ahead of this
+    script's slides. Measured rather than assumed, so a template that stops
+    emitting one does not silently shift every heading.
+    """
+    deck = next(iter(lesson.glob("Slides/*_slides.pdf")), None)
+    if deck is None:
+        print("    no built deck PDF: slides stay as headings, run build.py first")
+        return {}, 0
+
+    pages = pdf_pages(deck)
+    offset = pages - count if pages - count in (0, 1) else 0
+    if pages - count not in (0, 1):
+        print(f"    {deck.name} has {pages} pages against {count} slides: "
+              f"numbering left as the markdown has it")
+
+    out = review / "slides"
+    out.mkdir(exist_ok=True)
+    fresh = [f for f in out.glob("slide-*.png")
+             if f.stat().st_mtime >= deck.stat().st_mtime]
+    if len(fresh) < pages:
+        for stale in out.glob("slide-*.png"):
+            stale.unlink()
+        subprocess.run(["pdftoppm", "-png", "-r", "150", str(deck),
+                        str(out / "slide")], check=True)
+
+    # pdftoppm pads the page number to the width of the page count, so the
+    # filenames are read back rather than reconstructed.
+    by_page = {}
+    for rendered in out.glob("slide-*.png"):
+        digits = rendered.stem.rsplit("-", 1)[-1]
+        if digits.isdigit():
+            by_page[int(digits)] = f"slides/{rendered.name}"
+    return {n: by_page[n + offset]
+            for n in range(1, count + 1) if n + offset in by_page}, offset
+
+
+def pdf_pages(pdf: Path) -> int:
+    probe = subprocess.run(["pdfinfo", str(pdf)], capture_output=True, text=True)
+    match = re.search(r"^Pages:\s+(\d+)", probe.stdout, re.M)
+    return int(match.group(1)) if match else 0
+
+
 def load_extras(review: Path) -> list[dict]:
     """Per-lesson insertions, declared in Review/extras.json if there are any.
 
@@ -315,9 +380,10 @@ def load_extras(review: Path) -> list[dict]:
 
 
 def compose(turns: list[dict], slides: list[dict], deck_title: str,
-            extras: list[dict]) -> tuple[str, dict]:
+            extras: list[dict], slide_images: dict, offset: int
+            ) -> tuple[str, dict]:
     out, stats = [], {"pasted": 0, "questions": 0, "answers": 0,
-                              "figures": 0, "extras": 0}
+                              "figures": 0, "extras": 0, "slides": 0}
     for index, turn in enumerate(turns):
         if index == 0 and turn["role"] == "user" and len(turn["text"]) < 40:
             continue                       # the opening "let us call this ..."
@@ -328,12 +394,22 @@ def compose(turns: list[dict], slides: list[dict], deck_title: str,
         slide = match_slide(turn["text"], slides)
         if slide:
             stats["pasted"] += 1
-            out.append(f"\n\\newpage\n\n## Slide {slide['n']} — {slide['title']}\n")
-            out.append("*Slide e note del deck, sottoposte all'analisi. "
-                       "Il testo integrale è nel deck della lezione.*\n")
-            for figure in slide["figures"]:
-                stats["figures"] += 1
-                out.append(f"![]({figure})\n")
+            # Number the heading as the built deck does, not as this script
+            # counts: that is the number on the screen during the lecture.
+            out.append(f"\n\\newpage\n\n## Slide {slide['n'] + offset} — "
+                       f"{slide['title']}\n")
+            rendered = slide_images.get(slide["n"])
+            if rendered:
+                stats["slides"] += 1
+                out.append(f"![]({rendered})\n")
+                out.append("*La slide che hai sottoposto, ripresa dal deck "
+                           "costruito invece che dallo screenshot caricato.*\n")
+            else:
+                out.append("*Slide e note del deck, sottoposte all'analisi. "
+                           "Il testo integrale è nel deck della lezione.*\n")
+                for figure in slide["figures"]:
+                    stats["figures"] += 1
+                    out.append(f"![]({figure})\n")
         else:
             stats["questions"] += 1
             # Title the section with the question: a table of contents full of
@@ -412,6 +488,8 @@ def main() -> int:
     parser.add_argument("url", nargs="?", help="ChatGPT share link")
     parser.add_argument("--html", help="a saved copy of the share page instead")
     parser.add_argument("--no-pdf", action="store_true")
+    parser.add_argument("--no-slide-images", action="store_true",
+                        help="headings only, without re-rendering the deck")
     args = parser.parse_args()
 
     if not args.url and not args.html:
@@ -435,14 +513,22 @@ def main() -> int:
 
     turns, generated = messages(conversation(decode_stream(html)))
     extras = load_extras(review)
-    body, stats = compose(turns, slides, deck_title, extras)
+    if args.no_slide_images:
+        slide_images, offset = {}, 0
+    else:
+        slide_images, offset = render_slides(lesson, review, len(slides))
+    body, stats = compose(turns, slides, deck_title, extras,
+                          slide_images, offset)
 
     markdown = review / "approfondimenti.md"
     markdown.write_text(preamble(deck_title) + body, encoding="utf-8")
 
     print(f"  {stats['pasted']} pasted slides matched, "
           f"{stats['questions']} questions, {stats['answers']} answers")
-    print(f"  {stats['figures']} figures taken from Figures/ at full resolution")
+    if stats["slides"]:
+        print(f"  {stats['slides']} slides re-rendered from the built deck")
+    if stats["figures"]:
+        print(f"  {stats['figures']} figures taken from Figures/ at full resolution")
     if extras:
         print(f"  {stats['extras']} of {len(extras)} declared extras placed")
         for extra in extras:
