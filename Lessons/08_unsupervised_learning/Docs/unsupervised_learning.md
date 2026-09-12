@@ -242,7 +242,7 @@ declining. Section 4 works through a dataset where the two disagree.*
 *Two different questions, one dashed line. Left: the within-cluster sum of squares stops falling steeply after k = 4, which is the "elbow" — note how much judgement reading that bend takes. Right: the mean silhouette has an unambiguous maximum at the same k, which is why the second diagnostic is the more useful one when they disagree.*
 
 Both diagnostics agree here, and agree with the number of segments the
-data was actually built with — a agreement worth noting precisely because
+data was actually built with — an agreement worth noting precisely because
 it does not always happen, and is not required to. WCSS asks only "does
 adding a cluster help," a question that is agnostic to what a cluster
 *means*; silhouette asks whether every point is closer to its own group
