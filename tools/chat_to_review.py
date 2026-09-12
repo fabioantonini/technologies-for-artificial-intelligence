@@ -329,7 +329,11 @@ def render_slides(lesson: Path, review: Path, count: int) -> tuple[dict, int]:
     if len(fresh) < pages:
         for stale in out.glob("slide-*.png"):
             stale.unlink()
-        subprocess.run(["pdftoppm", "-png", "-r", "150", str(deck),
+        # 220 dpi, not 150: the page scales a 10-inch slide down to the text
+        # block, so the rendered pixels are what decide whether an equation set
+        # in the deck's sans-serif still reads beside the same formula typeset
+        # in LaTeX below it.
+        subprocess.run(["pdftoppm", "-png", "-r", "220", str(deck),
                         str(out / "slide")], check=True)
 
     # pdftoppm pads the page number to the width of the page count, so the
@@ -452,10 +456,11 @@ Non è esaminabile e non va distribuito agli studenti. Vive in `Review/`, che è
 esclusa dal repository.
 
 **Come è organizzato.** La sequenza è quella originale della sessione. Le sezioni
-intitolate *Slide N* riprendono una slide sottoposta all'analisi: se ne riporta
-solo la figura, perché testo e note stanno già nel deck. Le sezioni intitolate
-*Domanda* sono le domande poste al di fuori del commento slide per slide, e sono
-riportate testualmente.
+intitolate *Slide N* riprendono una slide sottoposta all'analisi: la slide è
+ristampata dal deck costruito, con la stessa numerazione che compare in aula, e
+le note del docente restano nel deck. Le sezioni intitolate *Domanda* sono le
+domande poste al di fuori del commento slide per slide, e sono riportate
+testualmente.
 
 ---
 """
