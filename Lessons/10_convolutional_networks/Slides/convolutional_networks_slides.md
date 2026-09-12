@@ -1467,19 +1467,19 @@ Handout section 12 and 12.1.
 
 - **Exercise 10**, no lesson left to discuss it: work it for the exam
 - `Exercises/10_convolutional_networks.md`
-- It falls in the week of the **project peer review**: plan for both
-- Two reviews to write as well as two to receive
+- The one you will have had **least practice defending**
+- Write the reasoning down as you go, not afterwards
 
 ::: notes
 Set it explicitly and say what is different about it: no lesson follows to
-discuss it, so this one is worked for the exam alone. It
-is the last exercise of the course.
+discuss it, so this one is worked for the exam alone. It is the last exercise of
+the course.
 
-Say the scheduling problem plainly rather than letting them discover it. That
-same week is the project peer review week - each of them reads two other
-projects and is read by two - and the reviews they write are assessed alongside
-the project they submit. Two pieces of work in one week. Anyone who starts the
-exercise on Thursday will do both badly.
+Draw the consequence for them, because it is not obvious. Every other exercise
+gets discussed in the room the following week, and that discussion is where they
+find out whether their reasoning held. This one does not, so if it is the one
+drawn at the exam they will be defending it cold. The repair is to write the
+markdown cells as though explaining to someone else, on the day they do it.
 
 Two standing requirements that today's material makes easy to forget. Any claim
 that one architecture beats another needs the spread it was measured against.

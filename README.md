@@ -17,7 +17,7 @@ Ten lessons of three hours, every Friday from 25 September to 27 November 2026.
 2. [**Getting started**](Course/Setup/Docker_Quickstart.md) — Docker setup, 15 minutes
 3. [**Schedule**](Course/SCHEDULE.md) — dates and what each lesson covers
 4. [**Syllabus**](Course/SYLLABUS.md) — aims, outcomes, assessment
-5. [**Assessment**](Assessment/) — project brief, exam structure, criteria
+5. [**Assessment**](Assessment/) — how the exam works, and what it asks of you
 
 New material appears on the day of each lesson. Run `git pull` to get it.
 

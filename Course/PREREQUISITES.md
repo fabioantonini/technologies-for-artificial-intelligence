@@ -27,7 +27,7 @@ is needed: every lab runs on CPU.
 - Prior machine learning, statistics or data science experience.
 - Any paid service. **No API keys, no cloud accounts, no LLM subscriptions.** Every
   notebook runs offline once the environment is built.
-- Your own dataset. All exercises and the final project ship with data.
+- Your own dataset. Every exercise ships with the data it needs.
 
 ## A note on the mathematics
 

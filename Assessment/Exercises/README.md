@@ -13,7 +13,7 @@ may be asked to discuss with nothing to say, and an exercise someone else wrote 
 you is worse, because you will be asked why you did what you did.
 
 They are deliberately small: two to three hours for a student who attended the
-lesson. The point is regular contact with the material, not a second project.
+lesson. The point is regular contact with the material, week by week.
 
 ---
 
@@ -38,16 +38,15 @@ again at the exam. They are not a marking scheme applied to a submission.
 | Implementation | 30% |
 | Interpretation and communication | 30% |
 
-As with the project, **methodology outweighs results**. An exercise that reaches a
-modest number by a sound route scores better than one that reaches a good number by
-an unsound one.
+**Methodology outweighs results.** An exercise that reaches a modest number by a
+sound route scores better than one that reaches a good number by an unsound one.
 
 ---
 
-## How they build towards the project
+## How they build on each other
 
-The exercises are not independent. Taken in order they walk through the same sequence
-the project demands, one step at a time:
+The exercises are not independent. Taken in order they walk through a complete study,
+one step at a time:
 
 | Lessons | What the exercises establish |
 |---|---|
@@ -58,8 +57,10 @@ the project demands, one step at a time:
 | 8-9 | Handle unlabelled data; train a network |
 | 10 | Diagnose a failing model |
 
-By Lesson 5 you should be able to write your project's evaluation plan. By Lesson 7
-you should have a draft comparison. The project should not be started in November.
+Lesson 5 is the pivot, and it is the one the exam questions return to most often: by
+then you should be able to write an evaluation plan before you fit anything. An
+exercise from the second half that ignores what lesson 5 established is the hardest
+kind to defend out loud.
 
 ---
 

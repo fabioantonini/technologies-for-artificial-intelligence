@@ -168,9 +168,9 @@ Two habits are worth more than any technique in lesson 2:
 
 ---
 
-## 4. What this means for your project
+## 4. What this means for your own work
 
-Concretely, for the final project of this course and for the first year of your
+Concretely, for the exercises in this course and for the first year of your
 working life:
 
 - **Prefer datasets with a documented licence and provenance.** "Found on

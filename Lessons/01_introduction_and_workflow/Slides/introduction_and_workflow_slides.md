@@ -92,31 +92,31 @@ moves from "make it run" to "make it true".
 # How you will be assessed
 
 - **Weekly exercises**: set each Friday, discussed the next. Never collected
-- **Final project**: an end-to-end study, with peer review
-- **Exam**: a written paper, then **one of the ten exercises drawn** to discuss
+- **Exam**: **one of the ten is drawn**, and you talk through your own notebook
+- No written paper, no project. Keep all ten
 
 ::: notes
-Set expectations now, and be explicit about the exercises, because the arrangement is
-unusual and they will assume the ordinary one. Nothing is handed in and nothing comes
-back with a mark on it. Each lesson opens by discussing the exercise set the week
-before, and at the exam one of the ten is drawn and they talk through their own
-notebook for it - so all ten are worth keeping, and an exercise skipped is one they
-may have to sit in front of with nothing to say.
+Set expectations now, and be explicit, because the arrangement is unusual and they
+will assume the ordinary one. Nothing is handed in, nothing comes back with a mark on
+it, and there is no written paper to revise for. Each lesson opens by discussing the
+exercise set the week before; at the exam one of the ten is drawn and they talk
+through their own notebook for it.
 
-They are not optional and they build towards the project: by lesson 5 they should be
-able to write their project's evaluation plan, by lesson 7 to have a draft
-comparison.
+Say the consequence plainly, because it is the whole design: an exercise they skipped
+is one they may have to sit in front of with nothing to say, and an exercise someone
+else wrote for them is worse, because the questions are all "why did you do this".
 
-Point them at Assessment/ in the repository. The project brief is available today, so
-they can start thinking about a dataset - the topic must be confirmed by lesson 4.
+Expect the question "so what do we have to study?". The answer is that the handouts
+are not optional: nothing is asked in the abstract, but "why that metric" and "what
+would have told you it was wrong" cannot be answered without them. The theory is
+examined through their own work rather than on paper.
 
-Emphasise the principle that runs through all three components: methodology outweighs
-accuracy. Two students with different scores can both earn full marks. A spectacular
-score obtained by leaking the test set will not - the rubric caps methodology marks at
-40% for that, and today's third notebook shows exactly why.
+Emphasise the principle: methodology outweighs accuracy. Two students with different
+scores can both do well. A spectacular score obtained by leaking the test set will
+not - methodological correctness is 40% of the criteria, and today's third notebook
+shows exactly why.
 
-The written paper is closed book and drawn from the handouts, including the
-derivations. Say this now so nobody treats the handouts as optional reading.
+Point them at Assessment/ in the repository.
 :::
 
 # The three things you get each lesson
@@ -1381,9 +1381,8 @@ Task 7 - repeat the split with ten seeds - connects directly to the figure they 
 Remind them: scaling the full dataset before splitting loses the methodology marks
 regardless of the score. And there are no marks for accuracy anywhere in this course.
 
-Also point them at the quiz - 20 questions, ungraded, and the ones marked "reasoning" are
-the closest thing to the exam - and at the project brief, so they can start thinking
-about a dataset. Topic confirmed by lesson 4.
+Also point them at the quiz - 20 questions, ungraded, and the ones marked "reasoning"
+are the closest thing there is to the exam, because they ask why rather than what.
 :::
 
 # Before next week

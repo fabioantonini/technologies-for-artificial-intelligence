@@ -7,10 +7,10 @@ date: "Set 27 November 2026 · the last one, and the only one no lesson follows:
 
 ## What this is
 
-The last exercise of the course. It is deliberately smaller than exercise 9,
-because the week it falls in is the week of the project peer review and that
-has the stronger claim on your time. Budget **two to three hours**, and if it
-is taking longer than that you have misread something — say so in your report
+The last exercise of the course, and the only one with no lesson after it to
+discuss it — so it is worked for the exam alone, and it is the one you are most
+likely to meet cold if it is drawn. Budget **two to three hours**, and if it is
+taking longer than that you have misread something — say so in your report
 rather than pushing on.
 
 Everything runs on the container's central processing unit (CPU) in well under

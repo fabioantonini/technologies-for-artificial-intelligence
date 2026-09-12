@@ -87,10 +87,16 @@ notebook** worked through live. Three notebooks of substance is a normal lesson.
 `Exercises/`, and the next lesson opens by discussing it. Nothing is collected and
 nothing is marked week by week: the exercises are assessed once, at the exam, where
 **one of the ten is drawn and the student talks through their own notebook**. That is
-what makes them non-negotiable rather than a marking deadline, and it is what carries
-students towards the final project. Announce the exercise on the last slide, say when
-it is discussed, and write the opening of the next lesson as a discussion — never as a
-collection or a hand-back.
+what makes them non-negotiable rather than a marking deadline.
+
+**The ten exercises are the whole assessment.** Settled with the degree programme's
+course leader on 12 September 2026: there is no written paper and no final project.
+Everything the course examines, it examines through a student's own exercise
+notebook, which is why each one must ship with its data, be workable in two to three
+hours, and be written so that the *reasoning* lands in markdown cells rather than
+only in code. Announce the exercise on the last slide, say when it is discussed, and
+write the opening of the next lesson as a discussion — never as a collection or a
+hand-back.
 
 **Never put a full derivation on a slide.** That is the whole reason the handout
 exists. In class you show the result and why it matters; the proof is read afterwards.
@@ -108,7 +114,7 @@ it is what makes ten mathematically serious handouts feasible part-time.
 ```
 Course/            SYLLABUS.md, SCHEDULE.md, PREREQUISITES.md, template.pptx, Setup/
 Lessons/NN_topic/  Docs/ Slides/ Notebooks/ Quizzes/ Exercises/ Figures/ Resources/
-Assessment/        Project/ Exam/ Exercises/
+Assessment/        Exam/ Exercises/
 tools/             build.py, verify_lesson.py, make_template.py, postprocess_pptx.py, render_math.py, release.py
 ```
 

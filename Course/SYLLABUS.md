@@ -71,17 +71,22 @@ Plus a self-check quiz and an assessed weekly exercise.
 
 ## Assessment
 
-| Component | Weight |
+**One of the ten weekly exercises is drawn at random at the exam, and the student
+talks through their own notebook for it.** There is no written paper and no separate
+project; the exercises are the whole assessment.
+
+They are not collected or marked week by week. Each is set at the end of a lesson and
+discussed at the start of the next, and the one drawn at the exam is where the mark
+comes from — so keep all ten notebooks, and treat none of them as optional.
+
+| Criterion | Weight |
 |---|---|
-| Final project, with peer review | to be confirmed |
-| Exam: a written paper, then a discussion of one of the ten weekly exercises, drawn at random | to be confirmed |
+| Methodological correctness | 40% |
+| Implementation | 30% |
+| Interpretation and communication | 30% |
 
-The weekly exercises are not collected or marked separately. They are set at the end of
-each lesson, discussed at the start of the next, and assessed at the exam through the
-one that is drawn — so keep all ten notebooks.
-
-See [`../Assessment/`](../Assessment) for the project brief, the exam structure and
-the assessment criteria.
+See [`../Assessment/`](../Assessment) for the exam structure and what the discussion
+asks of you.
 
 ## Environment
 

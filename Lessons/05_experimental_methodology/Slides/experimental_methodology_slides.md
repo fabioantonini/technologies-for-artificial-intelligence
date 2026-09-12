@@ -819,7 +819,8 @@ Contrast the two ways of writing the same experiment up. "AUC 1.000,
 random_state=3" - fully reproducible, thoroughly misleading. "AUC 0.951 plus or
 minus 0.019 over 5-fold cross-validation, seed 0" - reproducible and honest.
 
-The second one is also the format the final project will be marked in.
+The second one is also the way to write up every exercise from here on - it is
+what the exam asks them to defend.
 :::
 
 # What to fix, and what to write down
@@ -859,7 +860,7 @@ reliably.
 - Which choices were made on which data
 
 ::: notes
-A checklist they can apply to the final project and to anything they read.
+A checklist they can apply to every remaining exercise and to anything they read.
 
 The four items map to the four failures of today: a number without a spread
 hides the lottery; a metric without a positive count hides why the spread is
@@ -888,8 +889,8 @@ If they remember one habit from today, make it this: before believing any
 reported score, ask what the base rate is, how many positives are in the test
 set, and which choices were made while looking at which data.
 
-That third question is the one that separates a result from a story, and it is
-the question the final project will be marked on.
+That third question is the one that separates a result from a story, and it is the
+one they are most likely to be asked at the exam about whichever exercise is drawn.
 :::
 
 # Homework

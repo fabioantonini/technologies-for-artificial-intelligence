@@ -1,92 +1,68 @@
 # Exam
 
-Two stages on the same day: a **written paper**, closed book, two hours; then a
-**discussion** of one of the ten weekly exercises, drawn at random.
+**One of the ten weekly exercises is drawn at random, and you talk through your own
+notebook for it.** That is the whole exam.
 
-The exam tests what the project cannot: whether you understand *why* the methods work.
-The paper draws on the **handouts**, including the derivations. If you have only run
-the notebooks, you will not pass.
-
----
-
-## The written paper
-
-| Part | Questions | Marks | What it tests |
-|---|---|---|---|
-| **A — Foundations** | 8 short answers | 24 | Definitions, statements, when a method applies |
-| **B — Derivations** | 2 of 3 offered | 30 | Reproduce and reason about a derivation from the handouts |
-| **C — Method selection** | 2 scenarios | 26 | Choose an approach for a described problem and justify it |
-| **D — Diagnosis** | 1 case | 20 | Given results, say what went wrong and how to check |
-
-Part D always presents a flawed study. Finding the flaw is a course learning outcome,
-so it is never worth fewer than a fifth of the marks.
+**Bring all ten**, on a laptop or printed. An exercise you cannot produce is an
+exercise you did not do, and you will be sitting in front of it with nothing to say.
 
 ---
 
-## The discussion
+## What the discussion asks
 
-One of the ten weekly exercises is drawn, and you talk through **your own notebook**
-for it. **Bring all ten**, on a laptop or printed; an exercise you cannot produce is
-an exercise you did not do.
-
-It is a conversation about work you have already done, not a second examination of the
-theory. Expect to be asked:
+It is a conversation about work you have already done, not an examination of theory
+in the abstract. Expect to be asked:
 
 - what you actually measured, and why that quantity rather than another;
 - which decision in the notebook you were least sure of, and what you did about it;
-- what result would have told you the whole thing was wrong.
+- what result would have told you the whole thing was wrong;
+- why the method you used was the right one for that problem — and what you would
+  have reached for if the data had been different.
 
-There are no marks for the score you obtained. There are marks for knowing why you
-obtained it, which is the same standard the exercises are written to and the same one
-the project is marked against.
+**There are no marks for the score you obtained.** There are marks for knowing why
+you obtained it. Two students with different numbers can both do well; a student with
+an excellent number who cannot say where it came from cannot.
 
-Its weight beside the written paper is confirmed with the degree programme; see
-[`../../Course/SYLLABUS.md`](../../Course/SYLLABUS.md).
-
----
-
-## What you are expected to be able to derive
-
-From the handouts, unaided:
-
-| Lesson | Derivation |
-|---|---|
-| 3 | Normal equation from the least-squares objective; the gradient descent update; Ridge as constrained optimisation |
-| 4 | The logistic model's cross-entropy from maximum likelihood; **why squared error is a poor choice for classification** |
-| 5 | The bias-variance decomposition of expected prediction error |
-| 6 | The SVM margin as an optimisation problem; what the kernel trick avoids computing |
-| 7 | Entropy and information gain for a split; boosting as gradient descent in function space |
-| 8 | PCA as an eigenvalue problem; the k-means objective and why the algorithm converges |
-| 9 | Backpropagation for a two-layer network; why non-linear activations are necessary |
-
-You are not asked to memorise library APIs. You may be asked to write a few lines of
-pseudocode.
+That is the same standard the exercises are written to, and it is deliberate: the
+difficult skill in this subject is not producing a model that appears to work, but
+telling that apart from one that generalises.
 
 ---
 
-## Materials, and when they appear
+## Why the theory still matters
 
-Neither of these exists yet. They are listed here so you know what is coming and do
-not go looking for it early; both will appear in this folder, and reach you with a
-`git pull` like everything else.
+Nothing is asked in the abstract, but the questions above cannot be answered without
+it. "Why that metric" is a question about section 6 of lesson 4. "What would have told
+you it was wrong" is lesson 5. The handouts carry the derivations precisely so that
+the *why* is available to you when you are asked for it.
 
-| Material | What it is | When |
-|---|---|---|
-| `question_bank.md` | Questions by topic, in the shape of Parts A, C and D | Built up as the course runs, from Lesson 4 onwards |
-| `sample_paper_1.md`, `sample_paper_2.md` | Two full papers with worked solutions | After Lesson 8, Friday 13 November 2026 |
-
-Until they do, the quizzes are the closest thing there is, and they are already
-written: one per lesson, in `Lessons/NN_topic/Quizzes/`. See *How to prepare* below.
+The practical consequence: re-read your own reasoning before the day rather than
+rewriting the code. The decisions live in the markdown cells of your notebooks, and
+those are what the discussion is about.
 
 ---
 
 ## How to prepare
 
-Keep the ten exercise notebooks somewhere you can find them, and re-read your own
-reasoning before the day rather than rewriting the code — the discussion is about the
-decisions, and those live in the markdown cells.
+1. **Find all ten notebooks** and check each one runs. Do this in the week before,
+   not on the day.
+2. **Read your own markdown cells.** Where a cell says what you did but not why, that
+   is the question you will be asked.
+3. **Take the quizzes**, one per lesson, in `Lessons/NN_topic/Quizzes/`. They are
+   written to require reasoning about a derivation rather than recalling a fact,
+   which is the shape of the *why* questions.
+4. For the exercise you found hardest, work out in advance what you would do
+   differently. Saying so is worth more than defending a choice you no longer believe.
 
-For the paper: work through the derivations with a pen rather than reading them. Then
-take the quiz for each lesson — they deliberately include questions that require
-reasoning about a derivation rather than recalling a fact, and until the sample papers
-appear in November they are the closest thing to Part B there is.
+---
+
+## Academic integrity
+
+You may use libraries freely unless an exercise asks for a from-scratch
+implementation, and you may use AI assistants to understand material or debug code.
+But **you must be able to explain every line you wrote**. Work you cannot explain is
+treated as work you did not write — and since the exam draws one of the ten for you
+to discuss, that is not a threat but a description of how the exercises are assessed.
+
+Cite any source you drew on: datasets, papers, blog posts, code. A short "Sources"
+section at the end of a notebook is enough.

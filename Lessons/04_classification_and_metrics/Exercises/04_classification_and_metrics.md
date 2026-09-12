@@ -159,7 +159,8 @@ Marks are lost for:
 
 Marks are **not** lost for a model that performs poorly, provided the report is
 honest about it. A well-documented mediocre model is worth more here than an
-undocumented good one, which is the same standard the final project will apply.
+undocumented good one, which is the standard the exam applies to whichever
+exercise is drawn.
 
 ---
 

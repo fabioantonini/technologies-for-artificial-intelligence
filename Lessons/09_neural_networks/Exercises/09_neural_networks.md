@@ -346,8 +346,8 @@ Marks are **not** lost for:
   genuinely overlap, that is the correct answer and it earns full marks in
   question 6 — naming a winner anyway, on a difference smaller than the spread
   you measured, loses them. This is lesson 5's discipline and lesson 9's
-  section 10.3 applied to your own numbers, and it is the habit that carries
-  into the final project;
+  section 10.3 applied to your own numbers, and it is the habit the exam asks
+  you to demonstrate;
 - a network that comes out **below** logistic regression, if you report it as
   measured and explain it rather than retuning until it wins;
 - measuring the lens line's logistic regression at the majority-class

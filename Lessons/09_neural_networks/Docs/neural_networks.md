@@ -937,8 +937,8 @@ headline numbers are not separable.
 Reporting it this way is not excessive caution. Four numbers with no spread
 beside them would have supported a confident sentence about which regulariser
 is best, and that sentence would have been unfounded. This is lesson 5's
-discipline applied to a lesson-9 method, and it is the part of both lessons
-that carries into the final project.
+discipline applied to a lesson-9 method, and it is the part of both lessons you
+are most likely to be asked to defend out loud.
 
 ### 10.4 The intervention that is not a hyperparameter
 
