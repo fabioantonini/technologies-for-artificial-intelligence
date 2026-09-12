@@ -297,8 +297,16 @@ def inline_short_equations(text: str) -> str:
     return "\n".join(out)
 
 
-def render_slides(lesson: Path, review: Path, count: int) -> tuple[dict, int]:
-    """One PNG per slide of the built deck, and the deck's own numbering offset.
+def render_slides(lesson: Path, review: Path, slides: list[dict],
+                  policy: str) -> tuple[dict, int]:
+    """One PNG per slide worth printing, and the deck's own numbering offset.
+
+    ``policy`` is "figures" (the default), "all" or "none". Only a slide
+    carrying a figure earns its picture: a slide of bullets is a rectangle of
+    sans-serif restating what the discussion below already says at length,
+    while a figure cannot be reconstructed from its title. Three quarters of a
+    deck is bullets - 36 slides of 48 in lesson 4 - so the rule removes most of
+    the pages and almost none of the value.
 
     What was pasted into the chat was a screenshot of a slide, and the share
     link will not give it back: the attachment is a ``sediment://`` pointer that
@@ -311,6 +319,7 @@ def render_slides(lesson: Path, review: Path, count: int) -> tuple[dict, int]:
     script's slides. Measured rather than assumed, so a template that stops
     emitting one does not silently shift every heading.
     """
+    count = len(slides)
     deck = next(iter(lesson.glob("Slides/*_slides.pdf")), None)
     if deck is None:
         print("    no built deck PDF: slides stay as headings, run build.py first")
@@ -321,6 +330,11 @@ def render_slides(lesson: Path, review: Path, count: int) -> tuple[dict, int]:
     if pages - count not in (0, 1):
         print(f"    {deck.name} has {pages} pages against {count} slides: "
               f"numbering left as the markdown has it")
+
+    wanted = {s["n"] for s in slides
+              if policy == "all" or (policy == "figures" and s["figures"])}
+    if not wanted:
+        return {}, offset
 
     out = review / "slides"
     out.mkdir(exist_ok=True)
@@ -344,7 +358,7 @@ def render_slides(lesson: Path, review: Path, count: int) -> tuple[dict, int]:
         if digits.isdigit():
             by_page[int(digits)] = f"slides/{rendered.name}"
     return {n: by_page[n + offset]
-            for n in range(1, count + 1) if n + offset in by_page}, offset
+            for n in sorted(wanted) if n + offset in by_page}, offset
 
 
 def pdf_pages(pdf: Path) -> int:
@@ -527,8 +541,10 @@ def main() -> int:
     parser.add_argument("url", nargs="?", help="ChatGPT share link")
     parser.add_argument("--html", help="a saved copy of the share page instead")
     parser.add_argument("--no-pdf", action="store_true")
-    parser.add_argument("--no-slide-images", action="store_true",
-                        help="headings only, without re-rendering the deck")
+    parser.add_argument("--slides", choices=("figures", "all", "none"),
+                        default="figures",
+                        help="which slides to reprint: those carrying a figure "
+                             "(default), every one, or none")
     args = parser.parse_args()
 
     if not args.url and not args.html:
@@ -552,10 +568,7 @@ def main() -> int:
 
     turns, generated = messages(conversation(decode_stream(html)))
     extras = load_extras(review)
-    if args.no_slide_images:
-        slide_images, offset = {}, 0
-    else:
-        slide_images, offset = render_slides(lesson, review, len(slides))
+    slide_images, offset = render_slides(lesson, review, slides, args.slides)
     body, stats = compose(turns, slides, deck_title, extras,
                           slide_images, offset)
 
