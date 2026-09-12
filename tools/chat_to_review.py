@@ -383,17 +383,51 @@ def load_extras(review: Path) -> list[dict]:
     return entries
 
 
+def renumber_slide_labels(text: str, titles: dict) -> tuple[str, int]:
+    """Correct the slide numbers the assistant wrote for itself.
+
+    A session that is fed the deck one slide at a time tends to number them as
+    it goes, and it loses count: lesson 4's answers carry 46 headings whose
+    offset from the real deck wanders between one and three. They are worse
+    than untitled - a reader chasing "Slide 30" lands on three different slides
+    depending where in the document they looked.
+
+    Only a heading that quotes the slide's title is touched, and only its
+    number: the title is what identifies the slide, so a heading that names one
+    can be renumbered without guessing. Prose references are left alone.
+    """
+    fixed = 0
+
+    def replace(match: re.Match) -> str:
+        nonlocal fixed
+        hashes, number, title = match.group(1), match.group(2), match.group(3)
+        real = titles.get(flatten(title.strip("*").strip()))
+        if real is None or str(real) == number:
+            return match.group(0)
+        fixed += 1
+        return f"{hashes} Slide {real} — *{title.strip('*').strip()}*"
+
+    pattern = r'^(#{2,6}) Slide (\d+)\s*[—–-]\s*(.+?)\s*$'
+    return re.sub(pattern, replace, text, flags=re.M), fixed
+
+
 def compose(turns: list[dict], slides: list[dict], deck_title: str,
             extras: list[dict], slide_images: dict, offset: int
             ) -> tuple[str, dict]:
     out, stats = [], {"pasted": 0, "questions": 0, "answers": 0,
-                              "figures": 0, "extras": 0, "slides": 0}
+                              "figures": 0, "extras": 0, "slides": 0,
+                              "renumbered": 0}
+    # The assistant's own slide headings, keyed by title so they can be given
+    # the deck's number instead of the one it counted out for itself.
+    titles = {flatten(s["title"]): s["n"] + offset for s in slides}
     for index, turn in enumerate(turns):
         if index == 0 and turn["role"] == "user" and len(turn["text"]) < 40:
             continue                       # the opening "let us call this ..."
         if turn["role"] == "assistant":
             stats["answers"] += 1
-            out.append("\n" + fix_math(turn["text"]).strip() + "\n")
+            text, fixed = renumber_slide_labels(fix_math(turn["text"]), titles)
+            stats["renumbered"] += fixed
+            out.append("\n" + text.strip() + "\n")
             continue
         slide = match_slide(turn["text"], slides)
         if slide:
@@ -532,6 +566,9 @@ def main() -> int:
           f"{stats['questions']} questions, {stats['answers']} answers")
     if stats["slides"]:
         print(f"  {stats['slides']} slides re-rendered from the built deck")
+    if stats["renumbered"]:
+        print(f"  {stats['renumbered']} slide heading(s) in the answers renumbered "
+              f"to the deck")
     if stats["figures"]:
         print(f"  {stats['figures']} figures taken from Figures/ at full resolution")
     if extras:
