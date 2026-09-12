@@ -333,6 +333,21 @@ whole exponential family the maximum-likelihood gradient takes this form. You do
 not need that theory to use either method — but it explains why the same
 gradient descent code, unchanged, trains both.
 
+**The same code, run on the drives.** Notebook 1 implements that update in
+fifteen lines and runs it for 4,000 iterations on the six standardised
+features, starting from $w = 0$ and $b = 0$. The log loss falls from 0.6931 to
+0.0692.
+
+![](logloss_descent.png)
+
+*What to look at: the descent is over almost at once. The first 100 iterations cover 96.7% of the total fall, and the last 100 of the 4,000 change the loss by nothing at the fifth decimal — the run is long out of caution, not necessity.*
+
+**The starting value is a free test.** With $w = 0$ and $b = 0$ the model gives
+every drive $p = 0.5$, so the loss must begin at $-\log\tfrac{1}{2} = \log 2 =
+0.6931$, which is what the notebook prints. **A from-scratch implementation
+that starts anywhere else has a bug in its initialisation** — one number,
+checked before any of the training matters.
+
 ---
 
 ## 4. Why not squared error

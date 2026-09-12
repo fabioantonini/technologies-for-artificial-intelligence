@@ -192,4 +192,39 @@ same("1.1 the same drive with forty", sigmoid(severity(40)), 0.85, tolerance=5e-
 same("1.1 the same drive with forty-four", sigmoid(severity(44)), 0.89,
      tolerance=5e-3)
 
+# --------------------------------- Section 3.4, the descent itself
+#
+# Re-run the fifteen lines rather than reading the notebook's printout, so the
+# figure the handout quotes is checked against a second execution of the same
+# arithmetic from the same raw drives.
+
+from sklearn.model_selection import train_test_split
+
+split = train_test_split(transform_features(drives), drives["failed"],
+                         test_size=0.25, random_state=42,
+                         stratify=drives["failed"])
+Z = StandardScaler().fit(split[0]).transform(split[0])
+labels = split[2].to_numpy()
+
+weights, offset_b, curve = np.zeros(Z.shape[1]), 0.0, []
+for _ in range(4000):
+    probability = 1 / (1 + np.exp(-(Z @ weights + offset_b)))
+    curve.append(-np.mean(labels * np.log(probability + 1e-12)
+                          + (1 - labels) * np.log(1 - probability + 1e-12)))
+    residual = probability - labels
+    weights -= 0.5 * (Z.T @ residual) / len(labels)
+    offset_b -= 0.5 * residual.mean()
+curve = np.array(curve)
+
+# w = b = 0 gives every drive p = 0.5, so the first loss is log 2 by hand.
+same("3.4 the log loss a zero model starts at", curve[0], math.log(2),
+     tolerance=5e-5)
+same("3.4 the handout's printed starting value", curve[0], 0.6931,
+     tolerance=5e-5)
+same("3.4 where 4,000 iterations end", curve[-1], 0.0692, tolerance=5e-5)
+same("3.4 the share of the fall in the first 100 iterations",
+     (curve[0] - curve[100]) / (curve[0] - curve[-1]), 0.967, tolerance=5e-4)
+same("3.4 what the last 100 iterations are worth",
+     curve[3900] - curve[-1], 0.0, tolerance=5e-6)
+
 print(f"lesson 4: {checks} hand-worked numbers recomputed, all agree")
