@@ -115,7 +115,7 @@ it is what makes ten mathematically serious handouts feasible part-time.
 Course/            SYLLABUS.md, SCHEDULE.md, PREREQUISITES.md, template.pptx, Setup/
 Lessons/NN_topic/  Docs/ Slides/ Notebooks/ Quizzes/ Exercises/ Figures/ Resources/
 Assessment/        Exam/ Exercises/
-tools/             build.py, verify_lesson.py, make_template.py, postprocess_pptx.py, render_math.py, release.py
+tools/             build.py, verify_lesson.py, check_code_blocks.py, make_template.py, postprocess_pptx.py, render_math.py, release.py
 ```
 
 `Resources/` holds the supplementary reading described below. Every folder in the
@@ -391,7 +391,8 @@ when something is wrong, so it can gate one.
 
 The checks are in two groups, and the distinction matters more than the list.
 
-**Mechanical, and automatic.** Notebooks that carry no stored tracebacks and
+**Mechanical, and automatic.** Every call in a printed code block bound against
+the real signature, in the container; notebooks that carry no stored tracebacks and
 have been re-run since their last edit; pinned versions that match what the
 image actually ships; every referenced figure present, every generated figure
 reproducible from a notebook or `make_figures.py`, no orphaned equation images;

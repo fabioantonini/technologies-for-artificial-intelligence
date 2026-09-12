@@ -212,6 +212,21 @@ A block that carries its own `import` lines is a promise that it is complete. Pa
 into a fresh interpreter and see. The same goes for the loading snippet an exercise
 hands out: if the prose describes the data, the snippet has to produce that data.
 
+**Half of this is now automatic.** `tools/check_code_blocks.py`, run by
+`verify_lesson.py` inside the container, parses every printed block and binds each call
+against the real signature: too many positional arguments, a keyword that does not
+exist, a missing required one, a name a module does not export, a block that does not
+parse. It cannot run the fragments — a slide's four lines use variables built three
+slides earlier — so **what it does not check is still yours**: that the names a block
+leaves undefined are ones the reader has, and that the snippet produces the data the
+prose then describes. Both of the findings below are of that second kind.
+
+> **Caught in lesson 5, by the checker that did not exist then:** the deck printed
+> `SelectKBest(f_classif, 10)`, a `TypeError` since `k` became keyword-only, in the one
+> artefact students copy from — while the handout and notebook beside it both wrote
+> `k=10`. It survived a full review pass, because reading a call does not tell you its
+> signature.
+
 > **Caught in lesson 2:** the handout's `ColumnTransformer` block used
 > `numeric_columns` and `categorical_columns`, defined nowhere, and called
 > `LogisticRegression` without importing it — three `NameError`s in a block printing

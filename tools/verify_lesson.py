@@ -671,11 +671,37 @@ def check_worked_examples(lesson: Path, report: Report) -> None:
             report.note(line)
 
 
+def check_code_blocks(lesson: Path, report: Report) -> None:
+    """Bind every call the lesson prints against the real signature.
+
+    Reading a code block proves nothing - the signature is not in the reader's
+    head. Lesson 5's deck printed `SelectKBest(f_classif, 10)` through a full
+    review pass, in the one artefact students copy from, while the handout and
+    the notebook beside it both wrote `k=10`.
+
+    It runs in the container for the same reason the arithmetic does: the
+    question is what the *shipped* scikit-learn accepts, not what the host venv
+    has drifted to.
+    """
+    checker = ROOT / "tools" / "check_code_blocks.py"
+    if not checker.exists():
+        return
+    result = run_checker(checker, report, lesson.name[:2])
+    if result.returncode == 0:
+        for line in result.stdout.strip().splitlines():
+            report.note(line)
+        return
+    for line in result.stdout.strip().splitlines():
+        report.fail("printed code", line)
+    if not result.stdout.strip():
+        report.fail("printed code", (result.stderr or "").strip()[-300:])
+
+
 #: Where docker-compose bind-mounts this repository inside the image.
 WORKDIR = "/home/jovyan/work"
 
 
-def run_checker(checker: Path, report: Report):
+def run_checker(checker: Path, report: Report, *arguments: str):
     """Recompute the lesson's numbers on the stack that produced them.
 
     The container first, and the host only as a fallback. Every figure a
@@ -705,12 +731,13 @@ def run_checker(checker: Path, report: Report):
         # the repository is bind-mounted, the same file under another name.
         relative = checker.resolve().relative_to(ROOT).as_posix()
         return subprocess.run(
-            ["docker", "exec", "-w", WORKDIR, CONTAINER, "python", relative],
+            ["docker", "exec", "-w", WORKDIR, CONTAINER, "python", relative,
+             *arguments],
             capture_output=True, text=True)
 
     report.note("container not running; the arithmetic ran on the host stack, "
                 "which does not match the image's pinned versions")
-    return subprocess.run([sys.executable, str(checker)],
+    return subprocess.run([sys.executable, str(checker), *arguments],
                           capture_output=True, text=True, cwd=str(ROOT))
 
 
@@ -1057,6 +1084,7 @@ def verify(lesson: Path, run: bool) -> Report:
     check_quiz(lesson, report)
     check_acronyms(lesson, report)
     check_worked_examples(lesson, report)
+    check_code_blocks(lesson, report)
     check_cross_references(lesson, report)
     check_quoted_numbers(lesson, report)
     return report
