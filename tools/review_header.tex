@@ -24,3 +24,10 @@
 \setlength{\abovedisplayshortskip}{1pt plus 1pt}
 \setlength{\belowdisplayshortskip}{2pt plus 1pt}
 \setlength{\parskip}{2pt plus 1pt}
+
+% Derivations in a chat transcript strike terms out rather than restating the
+% line, which needs \cancel; amssymb carries the \checkmark and \mathbb that
+% the same messages reach for. Lesson 4's session used \cancel sixteen times
+% and stopped the build on the first one.
+\usepackage{cancel}
+\usepackage{amssymb}
