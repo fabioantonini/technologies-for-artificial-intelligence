@@ -35,6 +35,12 @@ FIGURE = re.compile(r'!\[\]\(([^)]+)\)')
 NUMBER = re.compile(r'\d{1,3}(?:[.,]\d{3})+(?:[.,]\d+)?|\d+[.,]\d+|\b\d{2,}\b')
 
 
+#: An ordinal written in either language. "98th percentile" and "98° percentile"
+#: are the same number, but the English suffix sits inside the word boundary and
+#: the Italian marker does not, so without this the two sides never match.
+ORDINAL = re.compile(r'(?<=\d)(?:th|st|nd|rd|°|º|ª)')
+
+
 def numbers(text: str) -> set:
     """Every quoted figure, reduced to one spelling.
 
@@ -48,7 +54,7 @@ def numbers(text: str) -> set:
     that is right far more often.
     """
     found = set()
-    for raw in NUMBER.findall(text):
+    for raw in NUMBER.findall(ORDINAL.sub("", text)):
         body = raw.replace(" ", "")
         parts = re.split(r'[.,]', body)
         if len(parts) == 1:
