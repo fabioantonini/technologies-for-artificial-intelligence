@@ -13,13 +13,73 @@ that switch downloads only the part you do not already have.
 
 ---
 
-## 1. Install Docker Desktop
+## 1. Install Docker
 
-Download it from [docker.com](https://www.docker.com/products/docker-desktop/) and
-start it. Windows, macOS and Linux are all fine.
+You need **8 GB of RAM** and about **10 GB of free disk space** — 4 GB for the
+`core` image and room for the `full` one in November. That much is the same
+everywhere; how you install differs by platform.
 
-You need **8 GB of RAM**, and about **10 GB of free disk space** — 4 GB for the
-`core` image and room for the `full` one in November.
+### Windows and macOS
+
+Download **Docker Desktop** from
+[docker.com](https://www.docker.com/products/docker-desktop/) and start it. That is
+the whole step: it installs the engine, the command line and `docker compose`
+together.
+
+### Linux
+
+Docker Desktop exists for Linux, but it is not the usual route — install **Docker
+Engine** instead, from Docker's own repository. The version your distribution ships
+is often older, and on Ubuntu it gives you `docker-compose` (with a hyphen), which is
+version 1 and not what this course uses.
+
+On **Ubuntu**, add the repository:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+  -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+echo "deb [arch=$(dpkg --print-architecture) \
+signed-by=/etc/apt/keyrings/docker.asc] \
+https://download.docker.com/linux/ubuntu \
+$(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+  | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+
+then install the engine, the command line and the compose plugin:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io \
+  docker-buildx-plugin docker-compose-plugin
+```
+
+On **Debian**, the same commands work with `ubuntu` changed to `debian` in both the
+key URL and the repository line. On **Fedora** and other Red Hat derivatives the
+equivalent is at
+[docs.docker.com/engine/install](https://docs.docker.com/engine/install/).
+
+**Then do the step everyone forgets.** Add yourself to the `docker` group, or every
+command in this document needs `sudo` in front of it:
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+**Log out and back in** for that to take effect — opening a new terminal window is
+not enough, and neither is `su - $USER`.
+
+Finally, check what you have:
+
+```bash
+docker compose version
+```
+
+It must print **v2** or later. If it prints `docker-compose version 1.x` you are
+looking at the old Python tool: this course uses `docker compose`, with a space.
 
 ---
 
@@ -103,6 +163,12 @@ and the environment is large. Subsequent starts are much faster.
 cloned, on your own machine. Containers are disposable; your work is not.
 
 **Do I need a GPU?** No. Every lab in this course runs on CPU by design.
+
+**Everything in my clone is suddenly owned by root (Linux).** You ran
+`docker compose up` under `sudo` before joining the `docker` group, so the container
+wrote its files as root and `git pull` now fails. From inside the repository folder,
+`sudo chown -R $USER:$USER .` repairs it; joining the group, as in step 1, stops it
+happening again.
 
 ---
 
