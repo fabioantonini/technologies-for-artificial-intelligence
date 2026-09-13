@@ -70,6 +70,21 @@ distinct is what lets the course be rigorous without slowing the lecture down.
 Plus `Quizzes/` (self-check), `Exercises/` (assessed homework) and
 `Resources/` (supplementary reading, not examinable - see below).
 
+**The concepts index** (`Docs/{topic}_concepts.md`) is the fourth, and it earns its
+place by doing a job none of the three does: it is a **map, not a summary**. Each
+entry is a term, one or two lines saying what it means, and a pointer to the handout
+section that treats it. The handout's own closing `## Summary` collects the
+*findings*; this collects the *vocabulary*, for a student hunting their way back into
+the text or checking before an exercise that there is no word they could not define.
+
+**It carries no numbers, deliberately.** Every figure in this course is gated -
+`worked_examples.py` recomputes it, `check_dispensa.py` compares it against the
+translation, `verify_lesson.py` checks it against the lesson that owns it. A prose
+file full of numbers would be one more place a figure can drift with nothing
+watching. With no numbers in it there is nothing to drift. What it does carry is a
+section pointer per entry, and `verify_lesson.check_concept_pointers` fails a lesson
+whose index points at a section its handout does not have.
+
 ### Every lesson fills three hours, and every lesson sets homework
 
 Two non-negotiables.
@@ -131,6 +146,7 @@ this rule prevents.
 |---|---|---|
 | Lesson folder | `{NN}_{topic_snake_case}` | `03_regression` |
 | Handout | `{topic_snake_case}.md` | `regression.md` |
+| Concepts index | `{topic_snake_case}_concepts.md` | `regression_concepts.md` |
 | Slides | `{topic_snake_case}_slides.md` | `regression_slides.md` |
 | Notebook | `{NN}_{topic_snake_case}.ipynb` | `01_gradient_descent_from_scratch.ipynb` |
 | Quiz | `{TopicName}-Quiz.ipynb` | `Regression-Quiz.ipynb` |

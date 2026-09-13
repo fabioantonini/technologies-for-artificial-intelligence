@@ -671,6 +671,31 @@ def check_worked_examples(lesson: Path, report: Report) -> None:
             report.note(line)
 
 
+def check_concept_pointers(lesson: Path, report: Report) -> None:
+    """Every section a concepts index points at must exist in the handout.
+
+    The index is deliberately free of numbers so that nothing in it can drift
+    against a recomputed figure. What it does carry is a pointer per entry, and
+    a pointer rots silently: renumber a handout section and the index sends a
+    student to a section that is now about something else, with nothing to say
+    so. This is the one thing about the file worth gating.
+    """
+    for index in sorted((lesson / "Docs").glob("*_concepts.md")):
+        handout = next((p for p in sorted((lesson / "Docs").glob("*.md"))
+                        if not p.name.endswith("_concepts.md")), None)
+        if handout is None:
+            report.fail("concepts", f"{index.name} has no handout beside it")
+            continue
+        sections = set(re.findall(r"^#{2,3} (\d+(?:\.\d+)?)[.\s]",
+                                  handout.read_text(encoding="utf8"), re.M))
+        for pointer in sorted(set(re.findall(r"§\s*(\d+(?:\.\d+)?)",
+                                             index.read_text(encoding="utf8")))):
+            if pointer not in sections:
+                report.fail("concepts",
+                            f"{index.name} points at section {pointer}, which "
+                            f"{handout.name} does not have")
+
+
 def check_code_blocks(lesson: Path, report: Report) -> None:
     """Bind every call the lesson prints against the real signature.
 
@@ -1085,6 +1110,7 @@ def verify(lesson: Path, run: bool) -> Report:
     check_acronyms(lesson, report)
     check_worked_examples(lesson, report)
     check_code_blocks(lesson, report)
+    check_concept_pointers(lesson, report)
     check_cross_references(lesson, report)
     check_quoted_numbers(lesson, report)
     return report
