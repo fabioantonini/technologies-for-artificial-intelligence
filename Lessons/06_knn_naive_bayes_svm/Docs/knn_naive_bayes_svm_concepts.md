@@ -9,7 +9,6 @@ An index, not a summary. Each entry says what a term means and where the handout
 treats it properly. Use this to find your way back into the text, or to check
 before an exercise that there is no word here you could not define.
 
----
 
 ## k-nearest neighbours
 
@@ -33,7 +32,6 @@ implementation compares the query against every training row. → § 2.3
 **The model is the dataset.** You cannot ship the model without shipping the
 training data — a legal question as much as a practical one. → § 2.3
 
----
 
 ## The curse of dimensionality
 
@@ -48,7 +46,6 @@ stops varying. → § 3.3
 costs a coefficient near zero. With k-nearest neighbours it costs a dimension in
 the distance, and dimensions are what the method is made of. → § 3.3
 
----
 
 ## Naive Bayes
 
@@ -78,7 +75,6 @@ worthless as probabilities, in either direction. → § 4.5
 **When to use it anyway.** Very high dimensions with little data, and as a baseline
 that trains in one pass. → § 4.6
 
----
 
 ## Support vector machines
 
@@ -112,7 +108,6 @@ infinite-dimensional feature space at the cost of one exponential per pair. → 
 lets the boundary dissolve into islands around individual points, including the
 mislabelled ones. → § 5.5
 
----
 
 ## Choosing
 

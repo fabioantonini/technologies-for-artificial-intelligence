@@ -9,7 +9,6 @@ An index, not a summary. Each entry says what a term means and where the handout
 treats it properly. Use this to find your way back into the text, or to check
 before an exercise that there is no word here you could not define.
 
----
 
 ## What changes without a target
 
@@ -20,7 +19,6 @@ describe structure rather than predict a label. → § 1
 labelled, and for a question like "which of these are alike" the labels are not even
 well defined until someone clusters and looks. → § 1
 
----
 
 ## k-means
 
@@ -52,7 +50,6 @@ ambiguous. → § 2.3
 corrected so that a random assignment scores zero. An external metric: it needs a
 ground truth. → § 2.3
 
----
 
 ## When round is the wrong shape
 
@@ -87,7 +84,6 @@ The bend between the dense and sparse regimes is where `eps` belongs. → § 3.3
 can fail outright on the next week's data, while re-reading it each time does not.
 → § 3.4
 
----
 
 ## Judging a clustering
 
@@ -98,7 +94,6 @@ algorithm's assumption fitted at all. → § 4
 **External metrics.** Compared against a separate labelling assumed correct. Real
 problems rarely have one as cleanly as synthetic data does. → § 4
 
----
 
 ## Principal component analysis
 
@@ -118,7 +113,6 @@ squares its conditioning problem. → § 5.3
 **Scree plot.** Explained variance per component, read for where it stops falling
 steeply. The judgement PCA does not make for you. → § 5.4
 
----
 
 ## Using what PCA leaves out
 

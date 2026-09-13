@@ -9,7 +9,6 @@ An index, not a summary. Each entry says what a term means and where the handout
 treats it properly. Use this to find your way back into the text, or to check
 before an exercise that there is no word here you could not define.
 
----
 
 ## Why a dense layer is the wrong shape
 
@@ -21,7 +20,6 @@ different weights, trained by different examples. → § 2
 buys is not memory but **evidence** — one example anywhere teaches the detector
 everywhere. → § 2
 
----
 
 ## The operation
 
@@ -45,7 +43,6 @@ dimensions are yours to choose, which is where parameter counts usually go wrong
 **Zero-sum kernel.** One whose weights add to zero, and which is therefore blind to
 absolute brightness and responds only to local contrast. → § 3.3
 
----
 
 ## What makes it work
 
@@ -74,7 +71,6 @@ treat one row differently from another, and on this problem nobody wanted any of
 them. A model that cannot express a wrong answer does not have to learn to avoid it.
 → § 6
 
----
 
 ## Teaching an invariance instead of asserting it
 
@@ -92,7 +88,6 @@ have added a few more fixed special cases. → § 7
 **Sample efficiency.** How much data a model needs to reach its ceiling. The right
 inductive bias shows up here more starkly than in any single score. → § 8
 
----
 
 ## Which assumption is actually doing the work
 
@@ -104,7 +99,6 @@ will not notice. → § 9
 Deciding *whether* something is present needs only the first; deciding *what shape* it
 is needs the second. → § 9
 
----
 
 ## Transfer learning
 
@@ -127,7 +121,6 @@ end. → § 10.2
 **Negative transfer.** A badly chosen source leaving the model worse than starting from
 noise, because its features are committed to reporting the wrong thing. → § 10.3
 
----
 
 ## What the course adds up to
 

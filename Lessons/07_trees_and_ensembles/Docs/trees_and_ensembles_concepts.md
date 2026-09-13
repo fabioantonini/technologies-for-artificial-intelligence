@@ -9,7 +9,6 @@ An index, not a summary. Each entry says what a term means and where the handout
 treats it properly. Use this to find your way back into the text, or to check
 before an exercise that there is no word here you could not define.
 
----
 
 ## A single tree
 
@@ -38,7 +37,6 @@ which is the better knob for a tree meant to be read. → § 4
 the data changes the tree's shape. The strongest split survives resampling; the
 weaker ones, which are most of the tree, do not. → § 4
 
----
 
 ## Averaging trees
 
@@ -73,7 +71,6 @@ summed over every split and tree. Suggestive, not definitive. → § 7
 decorrelates the trees also excludes the real features from most splits, so noise
 columns are handed splits with nothing better on the menu. → § 7
 
----
 
 ## Boosting
 
@@ -101,7 +98,6 @@ correction the ensemble makes. → § 10
 reducing training error for as long as it runs, and the damage per added tree is
 small enough to miss on a single run. → § 10
 
----
 
 ## Choosing
 

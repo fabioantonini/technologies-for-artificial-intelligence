@@ -9,7 +9,6 @@ An index, not a summary. Each entry says what a term means and where the handout
 treats it properly. Use this to find your way back into the text, or to check
 before an exercise that there is no word here you could not define.
 
----
 
 ## One unit, and what it cannot do
 
@@ -19,26 +18,25 @@ threshold with a sigmoid and it is Lesson 4's logistic regression unit. → § 2
 **A neuron is a line.** The set of inputs a unit is undecided about is a hyperplane.
 Everything one unit can express is "which side are you on, and how far". → § 2.1
 
-**Hidden layer.** A layer of such units whose outputs feed another layer rather than
-the answer. → § 3
+**Hidden layer.** A layer whose outputs feed another layer rather than the answer.
+→ § 3
 
 **Representation learning.** What a hidden layer actually does: it moves the data
 until the last layer's single line is enough. It classifies nothing. → § 3.3
 
 **Capacity against findability.** A solution existing and gradient descent finding it
-are different properties. Production networks are wider than their task needs because
-extra units are extra starting points. → § 3.4
+are different things. Networks are built wider than the task needs because extra
+units are extra starting points. → § 3.4
 
 **Universal approximation.** One hidden layer with enough units can approximate any
 continuous function on a bounded region. It says such a network *exists* — nothing
 about how many units, or whether training finds it. → § 3.5
 
----
 
 ## Running the network
 
-**Forward propagation.** Multiply by a weight matrix, add a bias, apply the
-activation, repeat. → § 4.1
+**Forward propagation.** A weight matrix, a bias, an activation — once per layer.
+→ § 4.1
 
 **Why the shapes matter.** This course puts examples in rows; many textbooks use
 columns, and every transpose flips. Mixing the two conventions mid-derivation is the
@@ -47,16 +45,15 @@ commonest way to produce algebra that looks right. → § 4.1
 **Why examples never mix.** The row index passes through every operation untouched,
 which is what makes mini-batching valid. → § 4.1
 
----
 
 ## Backpropagation
 
 **The idea.** The repeated sub-expressions of the chain rule, computed once each from
 right to left, at about the cost of one extra forward pass. → § 5.1
 
-**The backpropagated signal.** The derivative of the cost with respect to a layer's
-pre-activations. Given it for one layer you get that layer's weight gradients *and*
-the same quantity for the layer below. → § 5.1
+**The backpropagated signal.** The cost's derivative with respect to a layer's
+pre-activations. Given it for a layer you get that layer's weight gradients *and* the
+same quantity for the one below. → § 5.1
 
 **Why sigmoid and cross-entropy belong together.** The sigmoid's derivative cancels
 exactly against the logarithm's, leaving prediction minus truth — so a confidently
@@ -70,17 +67,15 @@ size. → § 5.4
 difference. Four lines, and the only defence against a wrong gradient that trains
 anyway. → § 5.5
 
----
 
 ## More than two classes
 
-**Softmax.** One score per class, exponentiated and normalised. For two classes it
-reduces to the sigmoid. → § 6.1
+**Softmax.** One score per class, exponentiated and normalised; two classes give back
+the sigmoid. → § 6.1
 
 **The same cancellation.** Softmax with categorical cross-entropy also collapses to
 prediction minus truth, for the same reason and not by coincidence. → § 6.2
 
----
 
 ## Why deep networks fail to train
 
@@ -102,7 +97,6 @@ side, so its derivative there is exactly one and it does not saturate. → § 7.
 zero, receives zero gradient, and never recovers. Wasted capacity rather than
 catastrophe, which is why it is easy to miss. → § 7.4
 
----
 
 ## Initialisation
 
@@ -114,10 +108,9 @@ bias. → § 8.1
 a saturated layer passes signal forward and nothing backward. → § 8.2
 
 **Glorot and He.** Set the weight variance to one over the number of inputs, or two
-over it for a rectified linear unit, so the signal's variance is preserved layer to
-layer instead of compounding. → § 8.2
+over it for a rectified linear unit, so the signal's variance survives depth instead
+of compounding. → § 8.2
 
----
 
 ## Training in practice
 
@@ -126,17 +119,16 @@ exactly like a network that is too small — and adding units makes it slower, n
 better. → § 9.1
 
 **Mini-batch gradient descent.** A few dozen to a few hundred examples per step: the
-estimate is noisy but unbiased, the arithmetic vectorises, and the noise helps escape
-shallow local minima. → § 9.2
+estimate is noisy but unbiased, the arithmetic vectorises, the noise helps escape
+shallow minima. → § 9.2
 
 **Momentum.** A running average of past gradients, so consistent directions accumulate
 and oscillating ones cancel. The direct repair for a stretched valley. → § 9.3
 
-**Adam.** Momentum plus a per-parameter step size, which is what makes it forgiving of
-a badly chosen global learning rate. Its value here was removing the bad case, not
-raising the mean. → § 9.3
+**Adam.** Momentum plus a per-parameter step size, which makes it forgiving of a badly
+chosen global learning rate. Its value here was removing the bad case, not raising the
+mean. → § 9.3
 
----
 
 ## Regularisation
 
@@ -148,8 +140,8 @@ bias-variance reasoning does not predict, and which is an open question. → § 
 network is not getting more answers wrong, it is getting more confident about the ones
 it already has wrong. Stop on the loss. → § 10.1
 
-**Early stopping.** Keep the weights from the best epoch. The cheapest regulariser
-there is, and the first to reach for. → § 10.2
+**Early stopping.** Keep the weights from the best epoch: the cheapest regulariser
+there is. → § 10.2
 
 **Weight decay ($L_2$).** Add a charge for weight size, so each step shrinks the weight
 slightly before the data moves it. Identical in form to Lesson 3's Ridge. → § 10.2
@@ -161,7 +153,6 @@ survivors, so no unit can rely on any particular other one being present. → §
 two standard deviations cannot be ranked by one run, however tidy the table looks.
 → § 10.3
 
----
 
 ## How much network
 
@@ -169,6 +160,6 @@ two standard deviations cannot be ranked by one run, however tidy the table look
 descent stops putting them to work — the binding constraint moves from capacity to
 the optimiser. → § 11.2
 
-**The measuring instrument's ceiling.** When labels are recorded imperfectly, a model's
-measured accuracy is its true agreement blended with the recorder's error rate. On real
-data only the lower number exists. → § 11.3
+**The measuring instrument's ceiling.** When labels are recorded imperfectly, measured
+accuracy blends true agreement with the recorder's error rate; only the lower number
+is observable. → § 11.3

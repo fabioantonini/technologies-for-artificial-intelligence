@@ -10,7 +10,6 @@ treats it properly; the handout's own Section 11 is where the *findings* are
 collected. Use this to find your way back into the text, or to check before an
 exercise that there is no word here you could not define.
 
----
 
 ## The model
 
@@ -29,7 +28,6 @@ over the whole real line, which is what a linear model can safely predict. → �
 odds. It multiplies the odds, not the probability — the commonest misreading in
 the lesson. → § 2.4
 
----
 
 ## The cost function
 
@@ -49,7 +47,6 @@ for the smallest correction where the largest is needed. → § 4.2
 convex does not mean solvable in closed form, and there is no normal equation for
 logistic regression. → § 4.3
 
----
 
 ## Reading a classifier
 
@@ -74,7 +71,6 @@ heavily. → § 6.3
 weighted gives each class its share of the data, which on an imbalanced problem
 means the majority class talking. → § 6.4
 
----
 
 ## Turning a score into a decision
 
@@ -97,7 +93,6 @@ blind to whether the probabilities themselves mean anything. → § 8.2
 is the whole negative class; precision is not. On a rare-event problem report the
 precision-recall curve beside it. → § 8.3
 
----
 
 ## Working with imbalance
 
@@ -109,7 +104,6 @@ the threshold by another name. → § 9
 examples. Same caution, plus one more: it must happen inside the
 cross-validation fold. → § 9
 
----
 
 ## More than two classes
 

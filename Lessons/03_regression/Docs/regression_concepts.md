@@ -9,7 +9,6 @@ An index, not a summary. Each entry says what a term means and where the handout
 treats it properly. Use this to find your way back into the text, or to check
 before an exercise that there is no word here you could not define.
 
----
 
 ## The model and its cost
 
@@ -28,7 +27,6 @@ which is the reason that makes it more than a convention. → § 2.2
 **Sensitivity to outliers.** A consequence of the same squaring: one absurd value
 contributes its error squared and drags the whole fit towards itself. → § 2.2
 
----
 
 ## Solving it exactly
 
@@ -50,7 +48,6 @@ stationary point is the global minimum. There are no local minima to get stuck i
 impossible; nearly redundant ones make it enormous and unstable, which is worse
 because nothing fails visibly. → § 3.3
 
----
 
 ## Solving it iteratively
 
@@ -69,7 +66,6 @@ wall and diverges. → § 4.3
 stretched the valley is, and near enough what sets the number of iterations you
 will need. → § 4.4
 
----
 
 ## Bending the line
 
@@ -88,7 +84,6 @@ it turns is the model you want. → § 5.2
 least squares finds involves large coefficients working in opposition, cancelling
 exactly where a training point sits and swinging freely between. → § 5.3
 
----
 
 ## Regularisation
 
@@ -115,7 +110,6 @@ has an answer where least squares has none. → § 6.2
 the axes, and a corner is where a coefficient is exactly zero. Corners protrude, so
 they get touched first. → § 6.3
 
----
 
 ## Reading the answer
 

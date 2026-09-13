@@ -9,7 +9,6 @@ An index, not a summary. Each entry says what a term means and where the handout
 treats it properly. Use this to find your way back into the text, or to check
 before an exercise that there is no word here you could not define.
 
----
 
 ## What learning is
 
@@ -34,7 +33,6 @@ you can compute, and what fitting actually minimises. → § 2.1
 **Empirical risk minimisation.** Choosing the model that makes the empirical risk
 small. Nearly every method in this course is an instance of it. → § 2.1
 
----
 
 ## Why it can go wrong
 
@@ -61,7 +59,6 @@ accuracy would move if you drew a different test set of the same size. → § 2.
 **Validation set.** The third split, used for choosing between models and
 settings, so that the test set stays untouched until the end. → § 2.5
 
----
 
 ## When not to reach for it
 
@@ -75,7 +72,6 @@ measured performance says little if deployment draws from another one. → § 3
 undone, and whether a human sees the output first, are properties of the
 application and the deployment, decidable before any model exists. → § 3
 
----
 
 ## The three kinds of learning
 
@@ -91,7 +87,6 @@ missing is something to check the answer against. → § 5.2
 part of it. Nobody annotates anything and the supervision is still genuine; this
 is how modern large models are trained. → § 5.3
 
----
 
 ## The workflow, and its order
 
@@ -109,7 +104,6 @@ remembering to. → § 6
 **Error analysis.** Asking where a model fails and whether the failure is
 systematic. Worth more than another decimal place of accuracy. → § 6
 
----
 
 ## Four ways a result misleads
 
@@ -127,7 +121,6 @@ detects it; knowing how the data was recorded does. → § 7
 **Single-split noise.** One split is one draw from a distribution. A result quoted
 with no indication of variability is incomplete. → § 7
 
----
 
 ## Limits worth stating on day one
 

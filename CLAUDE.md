@@ -72,8 +72,8 @@ Plus `Quizzes/` (self-check), `Exercises/` (assessed homework) and
 
 **The concepts index** (`Docs/{topic}_concepts.md`) is the fourth, and it earns its
 place by doing a job none of the three does: it is a **map, not a summary**. Each
-entry is a term, one or two lines saying what it means, and a pointer to the handout
-section that treats it. The handout's own closing `## Summary` collects the
+entry is a term, two or three lines saying what it means, and a pointer to the
+handout section that treats it. The handout's own closing `## Summary` collects the
 *findings*; this collects the *vocabulary*, for a student hunting their way back into
 the text or checking before an exercise that there is no word they could not define.
 

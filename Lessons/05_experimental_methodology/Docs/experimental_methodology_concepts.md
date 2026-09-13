@@ -9,7 +9,6 @@ An index, not a summary. Each entry says what a term means and where the handout
 treats it properly. Use this to find your way back into the text, or to check
 before an exercise that there is no word here you could not define.
 
----
 
 ## A score is a measurement
 
@@ -33,7 +32,6 @@ nobody had reason to look for. → § 2.3
 reporting one, because noise does not average out when it is used to decide — it
 decides. → § 3
 
----
 
 ## Cross-validation
 
@@ -61,7 +59,6 @@ several rows share a source — a patient, a document, a machine. → § 4.6
 **Time-ordered splits.** Training on a prefix and testing on what comes next,
 because real use always predicts forward. → § 4.6
 
----
 
 ## What error is made of
 
@@ -84,7 +81,6 @@ plus noise. An identity, not an approximation. → § 5.2
 moves as data grows — which is why a paper's result on a larger dataset may
 honestly fail to reproduce on yours. → § 5.4
 
----
 
 ## Learning curves
 
@@ -98,7 +94,6 @@ features help; more data does not. → § 6.1
 one. What to do depends on the *slope*: still rising means collect more, flattened
 means regularise or simplify. → § 6.1
 
----
 
 ## Leakage cross-validation cannot catch
 
@@ -120,7 +115,6 @@ choose. → § 7.4
 **Train, validation, test.** Fit on the first, choose on the second, report once on
 the third. The honest number is expected to be worse than the cheating one. → § 8
 
----
 
 ## Reproducibility
 

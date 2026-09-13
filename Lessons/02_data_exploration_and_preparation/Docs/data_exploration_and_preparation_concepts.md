@@ -9,7 +9,6 @@ An index, not a summary. Each entry says what a term means and where the handout
 treats it properly. Use this to find your way back into the text, or to check
 before an exercise that there is no word here you could not define.
 
----
 
 ## Looking before touching
 
@@ -25,7 +24,6 @@ to any relationship that is not a straight line. → § 2
 column entered twice: the model gets two coefficients and almost nothing to
 decide between them, so they swing between fits. → § 2
 
----
 
 ## Missing values
 
@@ -50,7 +48,6 @@ of $\sqrt{1-p}$. → § 3.2
 was missing, which keeps that fact available after the gap is filled. Earns its
 place only when no other column already carries it. → § 3.3
 
----
 
 ## Outliers
 
@@ -72,7 +69,6 @@ be negative. Catches mistakes no distributional rule can, and vice versa. → §
 **Winsorising.** Replacing a flagged value with the fence rather than deleting the
 row, so every other column of that row survives. → § 4.2
 
----
 
 ## Scaling
 
@@ -94,7 +90,6 @@ you need. → § 5.2
 direction at once, which is why the worst-scaled feature sets the pace for all of
 them. → § 5.2
 
----
 
 ## Categorical encoding
 
@@ -124,7 +119,6 @@ the same rows; add enough and the evidence per question runs out. → § 6.3
 **High cardinality.** A column with very many levels. One-hot encoding one of them
 adds a column per level, which is how you walk into the curse fastest. → § 6.3
 
----
 
 ## Building features
 
@@ -138,7 +132,6 @@ beyond either alone. → § 7
 **Binning.** Turning a continuous column into ordered categories, which lets a
 linear model follow a non-monotonic relationship piecewise. → § 7
 
----
 
 ## The rule that ties it together
 
