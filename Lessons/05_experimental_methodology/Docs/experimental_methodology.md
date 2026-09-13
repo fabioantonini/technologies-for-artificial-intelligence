@@ -2,7 +2,7 @@
 title: "Experimental Methodology"
 subtitle: "Lesson 5 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "23 October 2026 · reading time about 85 minutes"
+date: "23 October 2026 · reading time about 95 minutes"
 ---
 
 ## Lesson plan
@@ -116,10 +116,40 @@ that survive are the ones nobody had a reason to look for.
 Each test set here contains **seven failures**. Every AUC quoted above is
 computed from seven positive examples against 193 negatives.
 
-The rule of thumb worth carrying: **the precision of a classification metric is
-governed by the count of the rarer class, not by the size of the dataset.** Eight
-thousand drives with 3.8% failures gives a stable estimate; eight hundred does
-not, and the difference is 306 positives against 29.
+**Why seven is the number that matters, rather than two hundred.** Take recall,
+the fraction of failures the model catches. It is a proportion computed over the
+failures and over nobody else: each of the $m_+$ positive test rows is either
+caught or missed, so the count caught is a sum of $m_+$ independent yes/no
+draws, and the proportion estimated from it carries the standard error lesson 1,
+Section 2.4 derived for exactly this situation:
+
+$$\mathrm{SE} = \sqrt{\frac{p(1 - p)}{m_+}}$$
+
+**Look at what is not in that expression.** The healthy rows appear nowhere.
+Adding ten thousand of them leaves the error bar on recall precisely where it
+was, because recall was never measured on them. It is $m_+$, and only $m_+$,
+that buys precision — which is the arithmetic under the rule of thumb worth
+carrying: **the precision of a classification metric is governed by the count of
+the rarer class, not by the size of the dataset.**
+
+Put the three fleet sizes through it, at a recall of about 0.9:
+
+| Positives | $\mathrm{SE}$ of recall |
+|---|---|
+| 7, this test set | **0.113** |
+| 29, the whole cut-down fleet | 0.056 |
+| 306, the full fleet | 0.017 |
+
+Eight thousand drives with 3.8% failures gives a stable estimate; eight hundred
+does not, and the difference is 306 positives against 29 — a factor of ten in
+the count, and a factor of $\sqrt{10}$, about three, in the precision.
+
+**AUC is not a proportion of that kind**, but it is governed by the same count
+for the same reason. It is an average over the $m_+ \times m_-$
+positive–negative pairs, and those pairs are nowhere near independent: one
+positive example appears in $m_-$ of them, so a single unlucky positive moves
+many pairs at once. Seven positives are seven pieces of evidence however many
+healthy drives accompany them.
 
 If you remember one diagnostic question from this lesson, make it: *how many
 positive examples are in the test set?*
@@ -219,14 +249,28 @@ specific.
 That formula assumes the $k$ scores are independent. They are not: any two of
 the training sets share a fraction $(k-2)/(k-1)$ of their rows — for $k = 5$,
 three quarters of the data is common to any pair. Positively correlated
-measurements carry less information than independent ones, so
+measurements carry less information than independent ones — and what that costs
+is worth deriving rather than asserting, because the derivation says exactly
+where the missing term went.
+
+Write $\sigma^2$ for the variance of a single fold score and $\rho$ for the
+correlation between any two of them; the folds being interchangeable, one number
+serves for every pair. The variance of a sum collects every variance *and every
+covariance*:
+
+$$\operatorname{Var}\left(\sum_{j=1}^{k} \hat{R}_{S_j}\right)
+  = \sum_{j} \operatorname{Var}\left(\hat{R}_{S_j}\right)
+  + \sum_{i \neq j} \operatorname{Cov}\left(\hat{R}_{S_i}, \hat{R}_{S_j}\right)
+  = k\sigma^2 + k(k-1)\,\rho\sigma^2$$
+
+$k$ variances, and $k(k-1)$ covariances because every ordered pair of distinct
+folds contributes one, each equal to $\rho\sigma^2$ by the definition of
+correlation. Cross-validation reports the *mean* of those $k$ scores, and
+dividing a quantity by $k$ divides its variance by $k^2$:
 
 $$\operatorname{Var}\left(\hat{R}_{CV}\right)
-  = \frac{\sigma^2}{k} + \frac{k-1}{k}\,\rho\,\sigma^2$$
-
-where $\sigma^2$ is the variance of a single fold score and $\rho$ the
-correlation between any two of them — the folds being interchangeable, one
-number serves for every pair. Setting $\rho = 0$ recovers the familiar
+  = \frac{k\sigma^2 + k(k-1)\rho\sigma^2}{k^2}
+  = \frac{\sigma^2}{k} + \frac{k-1}{k}\,\rho\,\sigma^2$$ Setting $\rho = 0$ recovers the familiar
 $\sigma^2/k$, which is the assumption being made whenever it is used. The naive formula keeps
 only the first term. With $\rho$ appreciably above zero the second term
 dominates, and no unbiased estimator of this variance exists in general — a
@@ -317,6 +361,18 @@ Changing only the seed, forty times:
 **Cross-validation is about seven times more stable across seeds.** Note that
 both centre in the same place — it is not more optimistic, it is less arbitrary.
 
+**And the reason is not only the averaging.** Averaging $k$ measurements would
+buy a factor of at most $\sqrt{k}$, which is 2.2 here, and the observed factor
+is three times that. What the table really measures is how much the *seed* can
+move the answer, and the two procedures give it very different amounts of room.
+Changing the seed of a single split changes which quarter of the drives is
+tested — which seven of the 29 failures the score is computed from, and which
+rows the model was fitted on. It is a materially different experiment. Changing
+the seed of a cross-validation changes only which rows travel together: every
+row is still predicted exactly once, by a model that still trained on about the
+same number of rows, and all 29 failures still count towards the score. There is
+far less left for the seed to move.
+
 **What it costs** is $k$ fits instead of one. For this course that is seconds;
 for a large network it is a real decision, and the usual compromise is a single
 validation set large enough that its own error bar is tolerable.
@@ -357,8 +413,19 @@ over both the training set and the noise in the new observation $y$.
 $$\mathbb{E}\left[(y - \hat{f}(x))^2\right]
  = \mathbb{E}\left[(f(x) + \varepsilon - \hat{f}(x))^2\right]$$
 
-Because $\varepsilon$ is independent of the training set and has mean zero, the
-cross term vanishes:
+Expand that square, keeping $\varepsilon$ apart from the rest, and three terms
+appear:
+
+$$= \mathbb{E}\left[\varepsilon^2\right]
+ + 2\,\mathbb{E}\left[\varepsilon\left(f(x) - \hat{f}(x)\right)\right]
+ + \mathbb{E}\left[(f(x) - \hat{f}(x))^2\right]$$
+
+The first is $\sigma^2$, by the definition of the noise. The middle one is zero,
+and it is worth seeing why rather than being told: $\varepsilon$ is the noise in
+the *new* observation, while $\hat{f}$ was fitted on the training set, so the two
+are independent, the expectation of their product splits into the product of
+their expectations, and one of those factors is
+$\mathbb{E}[\varepsilon] = 0$. What survives is
 
 $$= \sigma^2 + \mathbb{E}\left[(f(x) - \hat{f}(x))^2\right]$$
 

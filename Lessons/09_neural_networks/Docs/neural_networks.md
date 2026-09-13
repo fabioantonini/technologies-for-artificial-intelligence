@@ -711,9 +711,25 @@ solve*.
 
 Zero is excluded, but scale is still free, and it is not a free parameter
 either. A unit computes $z = \sum_{i=1}^{n} w_i a_i$ over $n$ inputs. Taking
-the $w_i$ independent of the $a_i$, mutually independent, and zero-mean:
+the $w_i$ independent of the $a_i$, mutually independent, and zero-mean, that
+sum's variance follows in two steps.
 
-$$\mathrm{Var}(z) = n\,\mathrm{Var}(w)\,\mathbb{E}\big[a^2\big]$$
+**Independent terms add their variances**, so the sum of $n$ identically
+distributed products contributes $n$ copies of one product's variance:
+
+$$\mathrm{Var}(z) = \sum_{i=1}^{n} \mathrm{Var}(w_i a_i) = n\,\mathrm{Var}(wa)$$
+
+**And one product's variance is a product of expectations**, because $w$ has
+mean zero and is independent of $a$: $\mathbb{E}[wa] = \mathbb{E}[w]\mathbb{E}[a] = 0$,
+so the squared mean drops out of $\mathrm{Var}(wa) = \mathbb{E}[w^2a^2] - \mathbb{E}[wa]^2$
+and independence splits what is left:
+
+$$\mathrm{Var}(wa) = \mathbb{E}\big[w^2\big]\,\mathbb{E}\big[a^2\big]
+  = \mathrm{Var}(w)\,\mathbb{E}\big[a^2\big]
+  \qquad\Longrightarrow\qquad
+  \mathrm{Var}(z) = n\,\mathrm{Var}(w)\,\mathbb{E}\big[a^2\big]$$
+
+using $\mathbb{E}[w^2] = \mathrm{Var}(w)$ for the same zero-mean reason.
 
 If the incoming activations are also zero-mean, $\mathbb{E}[a^2] =
 \mathrm{Var}(a)$ and the variance is multiplied by $n\,\mathrm{Var}(w)$ at
@@ -722,8 +738,9 @@ every layer. Anything other than 1 compounds geometrically with depth. So
 $$\mathrm{Var}(w) = \frac{1}{n} \qquad \text{(Glorot / Xavier)}$$
 
 For the ReLU the derivation changes in one place. It zeroes the negative half,
-so for symmetric $z$, $\mathbb{E}[a^2] = \tfrac{1}{2}\mathrm{Var}(z)$, halving
-the variance at each layer. Compensating gives
+so $a^2$ equals $z^2$ exactly when $z > 0$ and is $0$ otherwise — and for a
+symmetric $z$ that is half the draws, so $\mathbb{E}[a^2] = \tfrac{1}{2}\mathbb{E}[z^2]
+= \tfrac{1}{2}\mathrm{Var}(z)$: half the variance survives each layer. Compensating gives
 
 $$\mathrm{Var}(w) = \frac{2}{n} \qquad \text{(He)}$$
 

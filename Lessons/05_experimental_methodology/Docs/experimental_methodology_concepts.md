@@ -24,6 +24,10 @@ size. → § 2.2
 classification metric — not the size of the dataset. The diagnostic question is
 *how many positives are in the test set?* → § 2.4
 
+**Why it is the rarer class.** A metric computed over the positives is a proportion
+over $m_+$ draws, so its standard error carries $m_+$ in the denominator and the
+healthy rows do not appear in it at all. → § 2.4
+
 **Why flattering results are dangerous.** A disappointing score makes you keep
 working; a delightful one makes you stop. The errors that survive are the ones
 nobody had reason to look for. → § 2.3
@@ -49,6 +53,10 @@ in the safe direction. → § 4.2
 **Why the usual error bar is optimistic.** The fold scores are not independent: any
 two training sets share most of their rows, and positively correlated measurements
 carry less information than independent ones. → § 4.3
+
+**The variance of a mean of correlated measurements.** The variance of a sum
+collects the covariances as well as the variances, which is the term
+$s/\sqrt{k}$ silently sets to zero. → § 4.3
 
 **Stratified folds.** Folds that keep each class in its overall proportion, so a
 rare class cannot land almost entirely in one of them. → § 4.4

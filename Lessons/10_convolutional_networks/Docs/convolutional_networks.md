@@ -135,8 +135,18 @@ With an $n \times n$ input, an $f \times f$ kernel, padding $p$ and stride $s$:
 
 $$\text{output size} = \left\lfloor \frac{n + 2p - f}{s} \right\rfloor + 1$$
 
-The floor is doing real work: when the stride does not divide the available
-positions evenly, the last incomplete window is simply not taken.
+**It is worth counting rather than memorising**, because every part of the
+expression is one step of the count. Padding adds $p$ pixels at each end, so a
+row is $n + 2p$ pixels long. A window placed at position $r$ covers pixels $r$
+through $r + f - 1$, so it fits only while $r + f - 1 \leq n + 2p - 1$: the
+**last legal start is $n + 2p - f$**. Starting at $0$ and stepping by $s$, the
+starts are $0, s, 2s, \dots$, and the number of them that do not pass that last
+one is $\lfloor (n + 2p - f)/s \rfloor$ — plus one, because the count includes
+the start at zero.
+
+So the $+1$ is the window at position zero, and the floor is doing real work:
+when the stride does not divide the available positions evenly, the last
+incomplete window is simply not taken.
 
 **Worked, on this lesson's images.** With $n = 24$:
 
@@ -200,9 +210,20 @@ shifts by the same amount. The response does not change, it moves.
 
 $$(\text{shift}_{d}\,I) * K = \text{shift}_{d}(I * K)$$
 
-This follows immediately from the definition — the sum at position $r + d$ of
-the shifted image runs over exactly the pixels the unshifted sum ran over at
-position $r$ — but it is worth checking rather than believing. Notebook 01
+This follows from the definition in one line. Write $I'$ for the shifted image,
+so that $I'[r, c] = I[r - d, c]$ — pixel $r$ of the shifted image is pixel
+$r - d$ of the original. Then at every position
+
+$$(I' * K)[r, c] = \sum_{i} I'[r + i, c]\,K[i]
+  = \sum_{i} I[r - d + i, c]\,K[i]
+  = (I * K)[r - d, c]$$
+
+which is the output shifted by $d$, and nothing else has changed: **the same
+$f$ pixels meet the same $f$ weights, only at a different address.** That is
+the whole property, and it holds because the kernel is the same at every
+position — which is exactly what a dense layer does not do.
+
+It is still worth checking rather than believing. Notebook 01
 computes both sides at four different offsets and, away from the borders where
 the shift wraps around, they agree **exactly, to the last bit**: the largest
 difference is $0$, not merely small.

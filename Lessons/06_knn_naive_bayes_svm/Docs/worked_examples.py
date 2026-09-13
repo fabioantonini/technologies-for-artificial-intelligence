@@ -88,6 +88,36 @@ same("3.2 'about 2% in two dimensions'", 100 * measured[2], 2, tolerance=1.5)
 same("3.2 '70% in one hundred dimensions'", 100 * measured[100], 70,
      tolerance=4)
 
+# ------------------------- Section 3.2, the mechanism behind the concentration
+
+# The prose now derives the ratio rather than asserting it: one squared
+# coordinate difference has mean mu and variance v that do not depend on n, so
+# the relative spread of the squared distance is sqrt(v/n)/mu. Both constants
+# are checked against a simulation of a single coordinate pair - not against the
+# distances above - and the prediction is then checked against distances
+# simulated afresh, so the formula and the geometry are two separate routes.
+
+one = rng.random(2_000_000) - rng.random(2_000_000)
+same("3.2 mu, the mean of one squared coordinate difference",
+     float((one ** 2).mean()), 1 / 6, tolerance=1e-3)
+same("3.2 v, its variance", float((one ** 2).var()), 7 / 180, tolerance=1e-3)
+
+mu, v = 1 / 6, 7 / 180
+same("3.2 the constant sqrt(v)/mu", np.sqrt(v) / mu, 1.18, tolerance=5e-3)
+
+for d, printed in ((2, 0.84), (100, 0.12)):
+    predicted = np.sqrt(v / d) / mu
+    same(f"3.2 predicted relative spread of d^2 at n={d}", predicted, printed,
+         tolerance=6e-3)
+    a, b = rng.random((60_000, d)), rng.random((60_000, d))
+    squared = ((a - b) ** 2).sum(axis=1)
+    same(f"3.2 simulated relative spread of d^2 at n={d}",
+         float(squared.std() / squared.mean()), printed, tolerance=6e-3)
+    if d == 100:
+        root = np.sqrt(squared)
+        same("3.2 relative spread of the distance itself at n=100",
+             float(root.std() / root.mean()), 0.059, tolerance=3e-3)
+
 # ------------------------------------------- Section 6, the spread of scores
 
 same("6 the gap between best and worst model", 0.947 - 0.613, 0.334,
@@ -114,5 +144,61 @@ for gamma, C, printed_train, printed_cv in ((0.1, 1, 0.936, 0.929),
 
 same("5.3 linear support-vector fraction", 947 / 1200, 0.79, tolerance=5e-3)
 same("5.3 RBF support-vector fraction", 278 / 1200, 0.23, tolerance=5e-3)
+
+# ------------------- Section 5.2, the margin, and 5.4, the dual and the kernel
+
+# Three claims the handout now derives instead of quoting. Each is checked
+# against a fitted model rather than against the algebra that produced it.
+
+from sklearn.metrics.pairwise import rbf_kernel                        # noqa: E402
+from scipy.special import factorial                                    # noqa: E402
+
+# Notebook 03's own two clouds, rebuilt from its generator rather than loaded,
+# so that these checks are about the figure section 5.1 actually shows.
+toy_rng = np.random.default_rng(3)
+Xs = np.vstack([toy_rng.normal([-1.6, 0.0], [0.6, 1.1], size=(40, 2)),
+                toy_rng.normal([+1.6, 0.0], [0.6, 1.1], size=(40, 2))])
+ys = np.r_[np.zeros(40, dtype=int), np.ones(40, dtype=int)]
+hard = SVC(kernel="linear", C=1_000).fit(Xs, ys)
+w, b = hard.coef_[0], hard.intercept_[0]
+
+same("5.1 points in the margin figure", len(Xs), 80, tolerance=0)
+same("5.1 support vectors among them", len(hard.support_), 3, tolerance=0)
+
+# 5.2, step 2: the canonical normalisation. The solver's own scaling should put
+# the closest points of each class at |w'x + b| = 1 exactly.
+edge = np.abs(Xs @ w + b).min()
+same("5.2 the closest point sits at |w'x + b| = 1", float(edge), 1.0,
+     tolerance=1e-3)
+
+# 5.2, step 2: the margin is 2/||w||. Measured, instead, as the gap between the
+# two classes along the direction w - geometry, with no formula in it.
+projection = (Xs @ w) / np.linalg.norm(w)
+gap = projection[ys == 1].min() - projection[ys == 0].max()
+same("5.2 the margin equals 2/||w||", 2 / np.linalg.norm(w), abs(float(gap)),
+     tolerance=1e-3)
+
+# 5.4: w is a weighted sum of the training points, w = sum a_i y_i x_i. The
+# multipliers times labels are what sklearn stores as dual_coef_.
+rebuilt = hard.dual_coef_[0] @ Xs[hard.support_]
+same("5.4 w rebuilt from the multipliers", float(np.abs(rebuilt - w).max()), 0.0,
+     tolerance=1e-6)
+same("5.4 the multipliers sum against the labels to zero",
+     float(hard.dual_coef_[0].sum()), 0.0, tolerance=1e-6)
+
+# 5.4: the RBF kernel is the claimed infinite series. Truncating it must
+# converge on what sklearn computes.
+# Points of modest size, so that the series converges before floating point
+# loses the cancellation between the huge series and the tiny prefactors.
+gamma = 0.3
+u, t = rng.uniform(-1, 1, (6, 2)), rng.uniform(-1, 1, (6, 2))
+series = np.zeros((6, 6))
+for k in range(30):
+    series += (2 * gamma) ** k / factorial(k) * (u @ t.T) ** k
+series *= np.exp(-gamma * (u ** 2).sum(1))[:, None]
+series *= np.exp(-gamma * (t ** 2).sum(1))[None, :]
+same("5.4 the RBF kernel equals its truncated power series",
+     float(np.abs(series - rbf_kernel(u, t, gamma=gamma)).max()), 0.0,
+     tolerance=1e-9)
 
 print(f"lesson 6: {checks} hand-worked numbers recomputed, all agree")

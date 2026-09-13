@@ -292,12 +292,25 @@ matrix reported correlations and not covariances.
 
 The variance of $X'$ is smaller than the true variance of $X$: the imputed
 entries contribute zero to the sum of squared deviations from the mean, while
-a genuine draw from $X$'s distribution would not. Precisely, if $\mathrm{Var}(X) = \sigma_X^2$
-and imputation is MCAR,
+a genuine draw from $X$'s distribution would not. Here is that bookkeeping in
+full, in two steps.
 
-$$\mathrm{Var}(X') = (1 - p)\,\sigma_X^2$$
+**The mean does not move.** Every filled entry was set to $\bar{X}$, which is
+already the average of the observed part, so averaging the column again returns
+the same $\bar{X}$. Whatever the variance is measured against, it is measured
+against the same centre as before.
 
-— the variance shrinks by exactly the missing fraction. Now consider the
+**The sum of squared deviations does move.** Of the $m$ rows, $pm$ now sit
+exactly at that centre and contribute zero; the remaining $(1-p)m$ contribute
+their genuine squared deviations, which average $\sigma_X^2$ under MCAR:
+
+$$\mathrm{Var}(X')
+  = \frac{1}{m}\left[\sum_{\text{observed}} (X_i - \bar{X})^2 + \sum_{\text{missing}} 0\right]
+  = \frac{(1-p)m}{m} \cdot \sigma_X^2
+  = (1 - p)\,\sigma_X^2$$
+
+— the variance shrinks by exactly the missing fraction, because exactly that
+fraction of the rows stopped contributing to it. Now consider the
 sample covariance between $X'$ and a fully observed $Y$. Since the imputed
 entries all take the constant value $\bar{X}$, they contribute nothing to the
 covariance sum beyond what a constant contributes (zero, once centred), so
@@ -699,10 +712,11 @@ every direction.
 
 *Two features with different variances, before and after scaling. Neither axis is a column of data: each is the coefficient the model gives one feature, so every point in the square is a candidate model, the grey rings join the models that fit equally badly — contour lines of the loss, like altitude on a map — and the star is the model with the lowest loss. The rust dots are successive steps. Left: not a bowl but a ravine — steep across, almost flat along — and one stride has to serve both directions, so the path bounces off the walls while creeping towards the centre; twenty-six steps in, it has still not arrived. Right: scaled, the same problem is round, and every step points at the minimum.*
 
-**What follows from that, stated rather than derived.** Most models in this
-course are fitted by **gradient descent**: start somewhere on the landscape and
-take repeated steps downhill, every step the same size. Two consequences follow
-from the picture alone.
+**What follows from that.** Most models in this course are fitted by **gradient
+descent**: start somewhere on the landscape and take repeated steps downhill,
+every step the same size. Two consequences follow from the picture alone — and
+both are derived, as algebra, in Lesson 3, Sections 4.3 and 4.4, once gradient
+descent itself has been built. Here the picture is what is needed.
 
 - **The steepest direction sets the pace for all of them.** A stride that is
   safe on the steep wall is the largest you may take, because a longer one
@@ -1263,8 +1277,15 @@ the correct answer for a column with nothing in it.
 above; it is the same statement in symbols. Write $n_c$ for the number of rows
 in category $c$, $\bar{y}_c$ for the leaky average over all of them, and
 $\bar{y}_c^{(-i)}$ for the honest average with row $i$ left out. The leaky
-average is a weighted blend of the honest one and the row's own label, and
-subtracting one from the other leaves
+average is a weighted blend of the honest one and the row's own label —
+$n_c - 1$ rows contributing their honest average and one row contributing
+$y_i$:
+
+$$\bar{y}_c = \frac{(n_c - 1)\,\bar{y}_c^{(-i)} + y_i}{n_c}$$
+
+Subtract $\bar{y}_c^{(-i)}$ from both sides, writing it as
+$n_c\bar{y}_c^{(-i)}/n_c$ so the two share a denominator, and the
+$(n_c - 1)$ and the $n_c$ cancel down to one:
 
 $$\bar{y}_c - \bar{y}_c^{(-i)} = \frac{y_i - \bar{y}_c^{(-i)}}{n_c}$$
 

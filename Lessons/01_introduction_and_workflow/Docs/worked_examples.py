@@ -202,4 +202,32 @@ same("2.3 sqrt(2 ln n) for 5000 columns", math.sqrt(2 * math.log(5000)), 4.13,
 same("2.3 so the largest draw is predicted near",
      (1 / math.sqrt(200)) * math.sqrt(2 * math.log(5000)), 0.29, tolerance=5e-3)
 
+# ------------- Sections 2.3 and 2.4, the two steps now written out
+#
+# 2.3: the test score is an unbiased estimate of the expected risk - measured
+# by drawing many test sets for one fixed model, never by evaluating a formula.
+# 2.4: and its standard error is sqrt(p(1-p)/m), measured the same way.
+
+import numpy as np                                                      # noqa: E402
+
+_rng1 = np.random.default_rng(20260925)
+TRUE_P = 0.83                       # the model's real accuracy on D
+for m_test in (100, 400, 1600):
+    draws = _rng1.random((40_000, m_test)) < TRUE_P
+    scored = draws.mean(axis=1)
+    same(f"2.3 a test set of {m_test} is unbiased for the true accuracy",
+         float(scored.mean()), TRUE_P, tolerance=2e-3)
+    same(f"2.4 and its standard error is sqrt(p(1-p)/{m_test})",
+         float(scored.std()), (TRUE_P * (1 - TRUE_P) / m_test) ** 0.5,
+         tolerance=max(1e-3, 0.02 * (TRUE_P * (1 - TRUE_P) / m_test) ** 0.5))
+
+# The variance of one yes/no draw, from the draws themselves.
+single = (_rng1.random(1_000_000) < TRUE_P).astype(float)
+same("2.4 one yes/no draw has variance p(1-p)", float(single.var()),
+     TRUE_P * (1 - TRUE_P), tolerance=2e-3)
+
+# And the handout's own example: 143 test rows at 0.986 give about one point.
+same("2.4 143 rows at 0.986 give a standard error near one point",
+     100 * (0.986 * (1 - 0.986) / 143) ** 0.5, 1.0, tolerance=0.15)
+
 print(f"lesson 1: {checks} hand-worked numbers recomputed, all agree")

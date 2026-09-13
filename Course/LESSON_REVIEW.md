@@ -130,6 +130,59 @@ pdftoppm -png -r 55 deck.pdf slide
 Overlapping annotations, a legend across a curve, a cropped axis label, a title
 wrapping to two lines: none of these fail a check, and all are obvious in the render.
 
+### 2.8 Every result is reached, not announced
+
+The handout is the one artefact that carries derivations, so a result it states
+without a route to it has nowhere else to be explained. This check is about
+*consequentiality*: whether a reader who accepts each sentence is carried to the next
+one, or has to supply a step the text skipped.
+
+It is not a licence to add material. Nothing new is taught — the same results, with
+the bridge between them written down.
+
+Four failures, in the order they are worth hunting for:
+
+**A result quoted instead of derived.** The worst kind, because it is invisible: the
+sentence reads as authoritative and the student cannot tell that a step is missing,
+only that they are lost a page later.
+
+> **Caught in lesson 6:** the margin "is $2/\lVert w \rVert$" — no distance formula, no
+> canonical normalisation, so the $\geq 1$ in the constraints arrived from nowhere. And
+> "its solution depends on the data only through inner products", the single fact the
+> entire kernel trick turns on, given by decree.
+
+**One algebraic step skipped.** Usually an expansion or a cancellation the author did
+in their head.
+
+> **Caught in lesson 5:** §5.2 jumps from $\mathbb{E}[(f + \varepsilon - \hat{f})^2]$
+> straight to $\sigma^2 + \mathbb{E}[(f - \hat{f})^2]$, leaving the reader to expand
+> the square and argue the cross term away.
+
+**A choice made without saying why that one.** A definition, a loss, a normalisation
+introduced as if it were the only candidate.
+
+**A silent monotone step.** Replacing a quantity by its logarithm, its square, its
+reciprocal, without the half-sentence saying the ordering is preserved.
+
+> **Caught in lesson 6:** §4.2 moves from the $\arg\max$ of a product to the
+> $\arg\max$ of its logarithm with no mention that the logarithm is increasing.
+
+**What the repair costs, and what it must not cost.** New algebra is new intermediate
+values, which is exactly how lesson 3's 165,200 happened. Every step added here goes
+into `Docs/worked_examples.py`, checked against a route that does not reuse it —
+against a fitted model, a simulation, or a second derivation. Lesson 6's rework added
+17 such checks: that the solver really does place the closest point at
+$\lvert w^\top x + b \rvert = 1$, that $2/\lVert w \rVert$ equals the gap measured
+geometrically, that `dual_coef_` rebuilds `coef_`, that the RBF kernel equals its
+truncated power series.
+
+Three things move with the text, and all three are gated: the lesson's notation table,
+the concepts index (new vocabulary earns an entry), and the Italian translation in
+`Review/`, which `tools/check_dispensa.py` will fail the moment a number appears in one
+language and not the other. The front matter's reading time is *not* gated and has to
+be updated by hand.
+
+
 ---
 
 ## 3. The notebooks, which everything else quotes
@@ -255,6 +308,60 @@ What has actually been through this pass, so nobody redoes it or assumes it was 
 | 8 | 28 Aug 2026 | **Complete, no wrong numbers.** 1,500 sessions with 180 bots leaves the 1,320 humans the text quotes, DBSCAN's 13 noise points really are all human, and the scree eigenvalues sum to the 8 standardised columns. Section 5.4 opened on the scree plot before saying what a scree plot is for; it now has an introduction and the figure follows the table. |
 | 9 | 28 Aug 2026 | **Complete, and careful.** No wrong numbers, and the handout does something none of the others do: it quotes the *median* end-to-end gradient ratio (3,547) across eight seeds, states the 2,734–4,607 range, and warns in the text against quoting the largest as though it were a law. Six figures placed under their prose; section 11.2 opened on two figures back to back and now says what question they answer. One speaker note said "the figure is in handout section 7.4" with a different figure on the next slide — disambiguated. |
 | 10 | 28 Aug 2026 | **Complete, no wrong numbers.** Every parameter count checks: 576×256+256 = 147,712 dense against 8×9+8 = 80 convolutional, so the slides' "147,632 missing parameters" and the ratio of 1,846 are both exact. Section 3.3 opened on a figure; it now says why one writes kernels down before learning them. |
+
+### What check 2.8 found: every result reached, across all ten
+
+One pass, 13 September 2026, prompted by a reader reporting that lessons 5 and 6 were
+hard to follow in places and that lessons 1 and 2 had the same feel. The finding is that
+the difficulty was **not** thinness: it was that the course is uneven about the *middle*
+of an argument. Lesson 9's backpropagation shows every intermediate step, checks the
+shapes and points out the cancellation; lesson 6's support vector machine, three lessons
+earlier, announced two results and derived neither.
+
+What was repaired, lesson by lesson.
+
+| Lesson | Section | What was announced, and is now reached |
+|---|---|---|
+| 1 | 2.3 | The unbiasedness of a test score, now in one line of linearity of expectation — and the sentence saying which equality fails when the test set is consulted early. |
+| 1 | 2.4 | $\sqrt{p(1-p)/m}$: one yes/no draw has variance $p(1-p)$, and averaging $m$ of them divides it by $m$. |
+| 2 | 3.2 | $\mathrm{Var}(X') = (1-p)\sigma^2$: the section promised "only the bookkeeping" and then omitted it. |
+| 2 | 5.2 | Removed "stated rather than derived". It was worse than that — lesson 3 claimed *lesson 2* had derived the stability threshold, which lesson 2 never states. Now an honest forward pointer. |
+| 2 | 9.2 | The target-encoding identity: the weighted-blend line the subtraction acts on. |
+| 3 | 4.3 | $\alpha < 2/c$, derived from the contraction factor $(1 - \alpha c)$, with all three learning-rate regimes read off one expression. |
+| 3 | 4.4 | Why iterations grow with the condition number: spend $1/c_{\max}$ and the shallow direction contracts by $1 - 1/\kappa$, so $t \approx \kappa$. |
+| 4 | 4.3 | "We state without full proof" is gone: the Hessian from section 3.4's gradient, then positive semi-definiteness in one line. |
+| 4 | 6.3 | What a harmonic mean *is*, and where $\beta^2$ comes from. |
+| 4 | 7.2 | The rearrangement into $t^*$. |
+| 5 | 2.4 | The rarer-class rule, from the standard error of a proportion over $m_+$ draws — with the AUC case argued separately rather than assumed. |
+| 5 | 4.3 | $\mathrm{Var}(\hat{R}_{CV})$, from the variance of a sum of correlated terms. |
+| 5 | 5.2 | The three-term expansion, and why the cross term dies. |
+| 5 | 4.7 | Why cross-validation is seven times more stable. **A first attempt at this was wrong** — it decomposed the factor into $\sqrt{k}$ and $\sqrt{29/7}$, whose product is 4.5, and then explained away a gap in the direction that arithmetic cannot produce. Replaced with the mechanism that is actually true: what the seed can move differs between the two procedures. |
+| 6 | 3.2 | Distance concentration: the centre grows like $n$, the spread like $\sqrt{n}$. |
+| 6 | 4.2 | The logarithm is increasing, so the $\arg\max$ does not move. |
+| 6 | 5.2 | Where $2/\lVert w \rVert$ comes from — distance to a hyperplane, then the canonical normalisation that puts the $1$ in the constraints. |
+| 6 | 5.4 | The dual: multipliers, $w = \sum_i a_i y_i x_i$, and the data appearing only inside inner products. Without it the kernel trick was a decree. Plus why the RBF is infinite-dimensional. |
+| 7 | 2.2 | Why $1 - \sum p_c^2$ is the chance two draws disagree. |
+| 7 | 7 | The binomial cancellation to $k/p$. |
+| 7 | 5.2 | Cross-referenced to lesson 5's §4.3 — the same arithmetic twice in the course, now said so. |
+| 8 | 6.1 | Why $V_k V_k^\top x$ is the *closest* point of the subspace: orthogonality, then Pythagoras — lesson 3's normal equation again. |
+| 9 | 8.2 | $\mathrm{Var}(z) = n\,\mathrm{Var}(w)\,\mathbb{E}[a^2]$, in its two steps, and the ReLU's half. |
+| 10 | 3.2 | The output-size formula counted rather than quoted: the last legal start is $n + 2p - f$. |
+| 10 | 4.1 | Equivariance in one line of index arithmetic. |
+
+**What it cost.** The handouts grew 1–4%, except lesson 5 (+10%) and lesson 6 (+30%,
+from the thinnest in the course to about the median). Reading times updated by hand for
+those two and for lesson 3. No slide changed: derivations belong in the handout, which
+is the whole reason it exists.
+
+**What gates it.** 70 new checks in `worked_examples.py`, taking the course from 585 to
+655 — every one reaching the new step by a route that does not reuse it — the SVM margin measured
+geometrically against $2/\lVert w\rVert$, `dual_coef_` rebuilding `coef_`, the RBF
+kernel against its truncated power series, the projection against a thousand rival
+points of its own subspace, Hessians by finite differences, standard errors by
+simulation. Lesson 2 is the one that gained none, and correctly: its repairs wrote out
+bookkeeping for identities its checks already covered, introducing no new number. Concepts indices gained entries for the new vocabulary, and all ten Italian
+translations in `Review/` were updated in the same pass, so `check_dispensa.py` still
+passes on every one.
 
 ### What check 2.1 found in lesson 3
 

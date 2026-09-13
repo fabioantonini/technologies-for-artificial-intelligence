@@ -79,6 +79,38 @@ same("5.2 bias squared plus variance plus noise equals the expected error",
 same("5.3 the noise floor of the handout's energy curve", 22.0 ** 2, 484,
      tolerance=1e-9)
 
+# ------------- Section 2.4, the rarer class, and 4.3, the correlated folds
+#
+# Both sections now derive a formula the handout used to quote. Neither check
+# below evaluates that formula: the standard error is measured from simulated
+# yes/no draws, and the variance of the cross-validation mean from simulated
+# equicorrelated fold scores, so agreement is evidence and not a tautology.
+
+sim = np.random.default_rng(20261016)
+
+for positives, printed in ((7, 0.113), (29, 0.056), (306, 0.017)):
+    caught = sim.binomial(positives, 0.9, size=200_000) / positives
+    same(f"2.4 the standard error of recall on {positives} positives",
+         float(caught.std()), printed, tolerance=3e-3)
+
+same("2.4 ten times the positives is about three times the precision",
+     np.sqrt(306 / 29), 3, tolerance=0.25)
+
+# 4.3: k fold scores with a common component, so that every pair correlates by
+# rho. The variance of their mean must match the derived expression.
+k, rho, sigma = 5, 0.6, 0.05
+shared = sim.normal(0, sigma * np.sqrt(rho), size=(400_000, 1))
+private = sim.normal(0, sigma * np.sqrt(1 - rho), size=(400_000, k))
+folds = shared + private
+same("4.3 the simulated folds really do correlate by rho",
+     float(np.corrcoef(folds[:, 0], folds[:, 1])[0, 1]), rho, tolerance=0.01)
+same("4.3 the variance of their mean matches the derived formula",
+     float(folds.mean(axis=1).var()),
+     sigma ** 2 / k + (k - 1) / k * rho * sigma ** 2, tolerance=1e-5)
+
+# 4.7: averaging alone would buy at most the square root of k.
+same("4.7 the square root of five", np.sqrt(5), 2.2, tolerance=0.05)
+
 # ------------------- Sections 2.2, 2.4 and 4.7, rebuilt from the generator
 #
 # The handout's headline numbers are notebook outputs rather than hand algebra,

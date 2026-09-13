@@ -413,8 +413,17 @@ check("  its accuracy is the majority class",
 # =====================================================================
 section("8. Glorot and He scaling (handout section 8.2)")
 
-# Var(z) = n Var(w) Var(a): simulate one layer and confirm the factor.
+# The intermediate step the handout now writes out: for zero-mean w drawn
+# independently of a, one product's variance is Var(w) E[a^2] - and the E[a^2]
+# rather than Var(a) matters, so a is given a non-zero mean here on purpose.
 rng = np.random.default_rng(2024)
+w_one = rng.normal(0, 0.7, 2_000_000)
+a_one = rng.normal(1.3, 0.9, 2_000_000)
+check("one product's variance is Var(w) E[a^2]",
+      (w_one * a_one).var() / (w_one.var() * np.mean(a_one ** 2)), 1.0, 0.01,
+      "a is deliberately not zero-mean")
+
+# Var(z) = n Var(w) Var(a): simulate one layer and confirm the factor.
 n_fan = 200
 a_in = rng.normal(0, 1.7, (40_000, n_fan))
 W_test = rng.normal(0, np.sqrt(1.0 / n_fan), (n_fan, 64))

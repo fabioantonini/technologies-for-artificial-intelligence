@@ -56,6 +56,10 @@ comparison. → § 2.3
 **Standard error of a proportion.** Roughly $\sqrt{p(1-p)/m}$: how much a measured
 accuracy would move if you drew a different test set of the same size. → § 2.4
 
+**Why it has that form.** One test row is a yes/no draw of variance $p(1-p)$, and
+averaging $m$ independent draws divides a variance by $m$. Lesson 5 asks what happens
+when they are not independent. → § 2.4
+
 **Validation set.** The third split, used for choosing between models and
 settings, so that the test set stays untouched until the end. → § 2.5
 

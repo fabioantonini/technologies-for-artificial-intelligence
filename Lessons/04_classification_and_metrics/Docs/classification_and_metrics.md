@@ -402,13 +402,30 @@ derivative cancels out. Squared error is not, so it does not.
 
 ### 4.3 Convexity
 
-There is a third reason, which we state without full proof.
+There is a third reason, and section 3.4 has already done most of the work for
+it.
 
-$J$ as defined in section 3.3 is **convex** in $(w, b)$: its Hessian is
-$\frac{1}{m}X^\top S X$ with $S = \operatorname{diag}\left(p^{(i)}(1 -
-p^{(i)})\right)$, and since every $p(1-p) > 0$ this matrix is positive
-semi-definite. Any local minimum is therefore global, and gradient descent
-cannot be trapped.
+$J$ as defined in section 3.3 is **convex** in $(w, b)$, which takes two steps
+to see. Section 3.4 gave the gradient,
+$\partial J/\partial w = \frac{1}{m}\sum_i (p^{(i)} - y^{(i)})\,x^{(i)}$.
+Differentiating it once more, the only thing that depends on $w$ is $p^{(i)}$,
+and by the chain rule through $z^{(i)} = w^\top x^{(i)} + b$ its derivative is
+$p^{(i)}(1 - p^{(i)})\,x^{(i)}$. So the matrix of second derivatives is
+
+$$H = \frac{1}{m}\sum_{i=1}^{m} p^{(i)}\left(1 - p^{(i)}\right)
+      x^{(i)} \left(x^{(i)}\right)^{\top}
+  = \frac{1}{m}X^\top S X,
+  \qquad S = \operatorname{diag}\left(p^{(i)}(1 - p^{(i)})\right)$$
+
+**Convexity is then one line.** A matrix is positive semi-definite when
+$u^\top H u \geq 0$ for every direction $u$, and here
+
+$$u^\top H u = \frac{1}{m}\sum_{i=1}^{m} p^{(i)}\left(1 - p^{(i)}\right)
+  \left(\left(x^{(i)}\right)^{\top} u\right)^2 \geq 0$$
+
+because every term is a positive number, $p(1-p)$, multiplying a square. There
+is no direction in which the surface curves downwards. Any local minimum is
+therefore global, and gradient descent cannot be trapped.
 
 Squared error composed with the sigmoid has no such guarantee, and is in general
 non-convex in $w$. So the choice of cost function is not a matter of taste: it
@@ -541,6 +558,18 @@ $$\text{specificity} = \frac{TN}{TN + FP} = 0.993 \qquad\qquad
 $$F_1 = \frac{2 \cdot \text{precision} \cdot \text{recall}}
              {\text{precision} + \text{recall}}$$
 
+That expression is the **harmonic mean** of the two, which is easier to
+recognise in the form it is defined by — invert both, average, invert back:
+
+$$\frac{2}{\frac{1}{\text{precision}} + \frac{1}{\text{recall}}}
+  = \frac{2 \cdot \text{precision} \cdot \text{recall}}
+          {\text{precision} + \text{recall}}$$
+
+multiplying numerator and denominator by the product of the two. Inverting is
+what makes it behave differently from an ordinary average: a small number has a
+large reciprocal, so the *worse* of the two dominates the sum in the
+denominator.
+
 **Why not the ordinary average?** Consider the model that flags every drive.
 Recall is a perfect 1.000; precision is 0.038.
 
@@ -554,14 +583,23 @@ perfect result on one axis pays for a catastrophe on the other. The harmonic
 mean is dominated by the smaller number: **a model is only as good as its weaker
 side.**
 
-The generalisation, when the two are not equally important:
+The generalisation, when the two are not equally important, is the same
+reciprocal average with the two reciprocals given unequal weights — $1$ and
+$\beta^2$ out of $1 + \beta^2$:
 
-$$F_\beta = \left(1 + \beta^2\right)
+$$F_\beta = \frac{1 + \beta^2}
+  {\frac{1}{\text{precision}} + \frac{\beta^2}{\text{recall}}}
+  = \left(1 + \beta^2\right)
   \frac{\text{precision} \cdot \text{recall}}
        {\beta^2 \cdot \text{precision} + \text{recall}}$$
 
-$\beta > 1$ weights recall more heavily — $F_2$ is the usual choice when misses
-are costly, as here. $\beta < 1$ favours precision.
+Setting $\beta = 1$ gives equal weights and recovers $F_1$, which is the check
+worth doing on any weighted formula. $\beta > 1$ puts more weight on recall's
+reciprocal, so a poor recall hurts more — $F_2$ is the usual choice when misses
+are costly, as here. $\beta < 1$ favours precision. The square is there so that
+$\beta$ reads as a ratio of importance rather than of reciprocals: at
+$\beta = 2$, recall is worth four times precision in the sum, which is the
+convention the name carries.
 
 ### 6.4 Averaging across classes
 
@@ -648,9 +686,12 @@ it has expected cost $(1 - p)\,C_{FP}$ — we pay for a replacement only if the
 drive was in fact healthy. Leaving it alone has expected cost $p\,C_{FN}$. Flag
 when flagging is cheaper:
 
-$$(1 - p)\,C_{FP} < p\,C_{FN}
-  \quad\Longleftrightarrow\quad
-  p > \frac{C_{FP}}{C_{FP} + C_{FN}} = t^*$$
+$$(1 - p)\,C_{FP} < p\,C_{FN}$$
+
+Multiply out the left-hand side and collect the two terms in $p$ on one side:
+$C_{FP} < p\,C_{FN} + p\,C_{FP} = p\left(C_{FN} + C_{FP}\right)$, so
+
+$$p > \frac{C_{FP}}{C_{FP} + C_{FN}} = t^*$$
 
 $$t^* = \frac{140}{140 + 2600} = 0.051$$
 
@@ -933,6 +974,7 @@ missing a healthy drive, macro is the honest one.**
 | $w$, $b$ | coefficients, intercept |
 | $m$, $n$ | number of examples, number of features |
 | $J$, $L$ | the cost over the dataset; the loss on one example |
+| $H$ | the matrix of second derivatives of $J$ |
 | $\sigma$ | the sigmoid |
 | $\pi$ | the positive rate in the data |
 | $t^*$ | the cost-optimal threshold |

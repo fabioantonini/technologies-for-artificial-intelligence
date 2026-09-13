@@ -62,9 +62,21 @@ that example. → § 4.1
 descent cannot choose for itself. Too small crawls, too large climbs the opposite
 wall and diverges. → § 4.3
 
+**The contraction factor $1 - \alpha c$.** What one step multiplies the distance to
+the minimum by, on a parabola of curvature $c$. Every regime of the learning rate is
+this one number being inside, on, or outside $(-1, 1)$. → § 4.3
+
+**The stability threshold $\alpha < 2/c$.** Where that factor leaves $(-1, 1)$, and
+therefore where descent stops converging. With several features the largest curvature
+binds. → § 4.3
+
 **Condition number.** The ratio of the steepest curvature to the shallowest: how
 stretched the valley is, and near enough what sets the number of iterations you
 will need. → § 4.4
+
+**Why iterations grow with it.** Spending the largest safe rate on the steep direction
+leaves the shallow one contracting by $1 - 1/\kappa$ per step, so the steps needed grow
+in proportion to $\kappa$. → § 4.4
 
 
 ## Bending the line

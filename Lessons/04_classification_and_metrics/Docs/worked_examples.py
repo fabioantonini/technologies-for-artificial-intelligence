@@ -227,4 +227,70 @@ same("3.4 the share of the fall in the first 100 iterations",
 same("3.4 what the last 100 iterations are worth",
      curve[3900] - curve[-1], 0.0, tolerance=5e-6)
 
+# ------------- Sections 4.3, 6.3 and 7.2, the three steps now written out
+
+# 4.3: the Hessian and its positive semi-definiteness. The formula is not
+# evaluated against itself - the second derivatives are measured numerically
+# from the cost, and the curvature is probed in random directions.
+import numpy as np                                                      # noqa: E402
+
+rng4 = np.random.default_rng(20261009)
+Xh = rng4.normal(size=(60, 3))
+yh = (rng4.random(60) < 0.4).astype(float)
+
+
+def cost(weights):
+    z = Xh @ weights
+    prob = 1 / (1 + np.exp(-z))
+    return -np.mean(yh * np.log(prob) + (1 - yh) * np.log(1 - prob))
+
+
+point = rng4.normal(size=3) * 0.5
+step = 1e-4
+numeric = np.empty((3, 3))
+for a in range(3):
+    for b_ in range(3):
+        ea, eb = np.zeros(3), np.zeros(3)
+        ea[a] = eb[b_] = step
+        numeric[a, b_] = (cost(point + ea + eb) - cost(point + ea)
+                          - cost(point + eb) + cost(point)) / step ** 2
+
+probs = 1 / (1 + np.exp(-(Xh @ point)))
+formula = Xh.T @ np.diag(probs * (1 - probs)) @ Xh / len(yh)
+same("4.3 the Hessian of the cost is X'SX/m",
+     float(np.abs(numeric - formula).max()), 0.0, tolerance=1e-4)
+same("4.3 and it has no negative eigenvalue",
+     float(np.linalg.eigvalsh(formula).min() >= 0), 1.0, tolerance=0)
+directions = rng4.normal(size=(2_000, 3))
+same("4.3 no direction curves downwards",
+     float(min((u @ formula @ u) for u in directions) >= 0), 1.0, tolerance=0)
+
+# 6.3: the harmonic mean written as an average of reciprocals, and F-beta
+# reducing to F1. Checked against sklearn rather than against the formula.
+from sklearn.metrics import fbeta_score                                 # noqa: E402
+
+same("6.3 the harmonic mean is the inverted average of the inverses",
+     2 / (1 / precision + 1 / recall),
+     2 * precision * recall / (precision + recall), tolerance=1e-12)
+
+predicted = np.array([1] * tp + [1] * fp + [0] * fn + [0] * tn)
+actual = np.array([1] * tp + [0] * fp + [1] * fn + [0] * tn)
+same("6.3 F-beta at beta = 1 is F1",
+     float(fbeta_score(actual, predicted, beta=1)),
+     2 * precision * recall / (precision + recall), tolerance=1e-9)
+for beta in (0.5, 2.0):
+    weighted = (1 + beta ** 2) / (1 / precision + beta ** 2 / recall)
+    same(f"6.3 the weighted-reciprocal form of F-beta at beta = {beta}",
+         float(fbeta_score(actual, predicted, beta=beta)), weighted,
+         tolerance=1e-9)
+
+# 7.2: the rearrangement, checked as the statement it makes about decisions -
+# below t* leaving the drive alone really is the cheaper of the two.
+star = cost_fp / (cost_fp + cost_fn)
+for probability, cheaper_to_flag in ((star - 0.01, False), (star + 0.01, True)):
+    flag = (1 - probability) * cost_fp
+    leave = probability * cost_fn
+    same(f"7.2 at p = {probability:.3f} flagging is the cheaper action: {cheaper_to_flag}",
+         float(flag < leave), float(cheaper_to_flag), tolerance=0)
+
 print(f"lesson 4: {checks} hand-worked numbers recomputed, all agree")

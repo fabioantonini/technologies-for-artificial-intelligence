@@ -119,6 +119,10 @@ steeply. The judgement PCA does not make for you. → § 5.4
 **Reconstruction.** Mapping a point onto the kept components and back: the closest
 point to it that lies on the subspace PCA selected. → § 6.1
 
+**Why it is the closest.** The residual is perpendicular to every kept component, so
+Pythagoras puts every rival point of the subspace further away — lesson 3's normal
+equation in new clothing. → § 6.1
+
 **Reconstruction error.** How far a point is from that subspace. Large for a point
 whose columns do not co-vary the way genuine points' do, even when every single value
 is ordinary. → § 6.1

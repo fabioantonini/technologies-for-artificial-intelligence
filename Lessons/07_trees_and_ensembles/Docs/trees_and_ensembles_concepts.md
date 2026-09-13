@@ -25,6 +25,9 @@ is pure. → § 2.2
 **Impurity reduction.** What a candidate split is worth: the parent's impurity minus
 the children's, weighted by how the group was divided. → § 2.2
 
+**Why $1 - \sum p_c^2$ counts disagreements.** Two draws agree on class $c$ with
+probability $p_c^2$; what is left over is the chance they disagree. → § 2.2
+
 **Depth as the bias-variance dial.** Shallow describes only the coarsest structure;
 deep enough isolates single points, and at full depth the training accuracy is
 exactly 1 on any dataset. → § 3

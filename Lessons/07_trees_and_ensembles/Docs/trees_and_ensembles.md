@@ -102,11 +102,22 @@ classes:
 $$G = 1 - \sum_{c=1}^{C} p_c^2$$
 
 where $p_c$ is the fraction of the group belonging to class $c$. For two
-classes this simplifies to $G = 1 - p^2 - (1-p)^2 = 2p(1-p)$, which is $0$
-when the group is pure ($p \in \{0, 1\}$) and maximal, $0.5$, at $p = 0.5$.
-$G$ is not a probability of misclassification — it is the probability that
-two examples drawn at random *with replacement* from the group, and labelled
-according to the group's own class frequencies, would disagree.
+classes this simplifies to $2p(1-p)$: expand $(1-p)^2$ as $1 - 2p + p^2$, and
+the two $p^2$ terms and the two $1$s cancel, leaving
+$G = 1 - p^2 - (1 - 2p + p^2) = 2p - 2p^2$. It is $0$ when the group is pure
+($p \in \{0, 1\}$) and maximal, $0.5$, at $p = 0.5$.
+
+**What that number is, exactly.** $G$ is not a probability of
+misclassification. It is the probability that two examples drawn at random
+*with replacement* from the group, and labelled according to the group's own
+class frequencies, would **disagree** — and the formula is that statement
+written out. Draw twice: the two draws agree on class $c$ with probability
+$p_c^2$, so they agree at all with probability $\sum_c p_c^2$, and they
+disagree with the rest:
+
+$$P(\text{disagree}) = 1 - \sum_{c=1}^{C} p_c^2 = G$$
+
+A pure group cannot disagree with itself, which is why $G = 0$ there.
 
 A candidate split divides a parent group of $m_P$ examples into a left child of
 $m_L$ examples and a right child of $m_R = m_P - m_L$. Its value is the
@@ -304,7 +315,10 @@ For $B$ trees averaged together:
 $$\mathrm{Var}\!\left(\frac{1}{B}\sum_{b=1}^{B} f_b\right) = \frac{1}{B^2}\left(\sum_{b=1}^{B}\mathrm{Var}(f_b) + \sum_{b \neq b'} \mathrm{Cov}(f_b, f_{b'})\right)$$
 
 There are $B$ variance terms, each $\sigma^2$, and $B(B-1)$ covariance
-terms, each $\rho\sigma^2$:
+terms, each $\rho\sigma^2$ — the same accounting lesson 5, Section 4.3 did for
+$k$ correlated fold scores, which is not a coincidence: averaging correlated
+measurements is one piece of arithmetic, and this is its second appearance in
+the course:
 
 $$= \frac{1}{B^2}\Big(B\sigma^2 + B(B-1)\,\rho\sigma^2\Big) = \frac{\sigma^2}{B} + \frac{B-1}{B}\,\rho\sigma^2 \xrightarrow{B \to \infty} \rho\sigma^2$$
 
@@ -398,6 +412,14 @@ specific column, including either real feature, is a candidate with
 probability
 
 $$\frac{\binom{p-1}{k-1}}{\binom{p}{k}} = \frac{k}{p} = \frac{4}{22} \approx 18.2\%$$
+
+The middle equality is worth one line of cancellation, since it is what makes
+the answer so simple: writing both binomials as factorials,
+
+$$\frac{(p-1)!}{(k-1)!\,(p-k)!} \cdot \frac{k!\,(p-k)!}{p!}
+  = \frac{k!}{(k-1)!} \cdot \frac{(p-1)!}{p!} = \frac{k}{p}$$
+
+— every factorial cancels except one factor at each end.
 
 and *excluded* with probability $\approx 81.8\%$. Four times out of five,
 neither real feature is even offered as a candidate at a given split, so the

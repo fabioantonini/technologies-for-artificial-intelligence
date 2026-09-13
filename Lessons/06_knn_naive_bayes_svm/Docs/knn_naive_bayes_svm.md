@@ -2,7 +2,7 @@
 title: "k-NN, Naive Bayes and Support Vector Machines"
 subtitle: "Lesson 6 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "30 October 2026 · reading time about 80 minutes"
+date: "30 October 2026 · reading time about 100 minutes"
 ---
 
 ## Lesson plan
@@ -193,9 +193,40 @@ the distance to its nearest neighbour and to its farthest. In two dimensions
 those are very different numbers, and that difference is exactly what makes
 "nearest" a meaningful word.
 
-Now add dimensions. Each new dimension contributes its own squared difference to
-every distance. Those contributions average out, and as the number of terms
-grows, all the distances converge on the same value.
+Now add dimensions, and follow a single distance while it happens. Squared
+distance is a sum with one term per dimension, and for points scattered
+independently those terms are independent draws from the same distribution:
+
+$$d(x, x')^2 = \sum_{j=1}^{n} (x_j - x'_j)^2$$
+
+Call the mean of one term $\mu$ and its variance $v$. Both are fixed by how a
+single coordinate is distributed — for coordinates uniform on $[0, 1]$ they are
+$\mu = 1/6$ and $v = 7/180$ — and, crucially, **neither depends on $n$**. Adding
+$n$ such terms adds their means, and because they are independent it adds their
+variances too:
+
+$$\mathbb{E}\left[d^2\right] = n\mu,
+  \qquad \operatorname{Var}\left(d^2\right) = nv,
+  \qquad \text{so} \quad \operatorname{sd}\left(d^2\right) = \sqrt{nv}$$
+
+**That is the entire mechanism: the centre grows like $n$ and the spread only
+like $\sqrt{n}$.** What the word "nearest" needs is not a large spread but a
+large spread *measured against the distances themselves*, and dividing one by
+the other shows what becomes of it:
+
+$$\frac{\operatorname{sd}(d^2)}{\mathbb{E}\left[d^2\right]}
+  = \frac{\sqrt{nv}}{n\mu}
+  = \frac{1}{\sqrt{n}} \cdot \frac{\sqrt{v}}{\mu}$$
+
+For the uniform cube $\sqrt{v}/\mu = 1.18$, so the relative spread is
+$1.18/\sqrt{n}$: **0.84 in two dimensions, 0.12 in one hundred.** Going back
+from $d^2$ to $d$ does not change the rate — at $n = 100$ the relative spread of
+the distance itself is 0.059, half that of its square.
+
+Every pairwise distance is a draw from that distribution, the nearest and the
+farthest among them included. Squeeze the distribution against its own centre
+and those two are squeezed together with it, so the ratio of the smaller to the
+larger is pushed towards 1:
 
 | Dimensions | nearest ÷ farthest |
 |---|---|
@@ -267,11 +298,17 @@ class. The classifier is then
 
 $$\hat{y} = \arg\max_c \; P(y = c) \prod_{j=1}^{n} P(x_j \mid y = c)$$
 
-In practice this is computed as a sum of logarithms, for the same underflow
-reason as lesson 4's log-likelihood: a product of hundreds of small
-probabilities is zero in floating point.
+In practice that product is never computed: hundreds of small probabilities
+multiplied together underflow to zero in floating point, exactly as lesson 4's
+log-likelihood did. The repair is available because the logarithm is
+**increasing** — whichever class makes the product largest makes its logarithm
+largest too, so swapping one for the other cannot change which class wins — and
+because the logarithm of a product is a sum of logarithms:
 
 $$\hat{y} = \arg\max_c \left[ \log P(y = c) + \sum_{j=1}^{n} \log P(x_j \mid y = c) \right]$$
+
+The two expressions pick the same class. The second adds $n + 1$ numbers of
+ordinary size instead of multiplying $n + 1$ tiny ones.
 
 **Why it is such a good bargain.** One $n$-dimensional estimation problem
 becomes $n$ one-dimensional ones. Training is a single pass computing means and
@@ -399,13 +436,58 @@ determine the answer; move any of the others and nothing changes.*
 
 ### 5.2 The optimisation, and the soft margin
 
-For labels written as $y_i \in \{-1, +1\}$, the margin of a separating
-hyperplane $w^\top x + b$ is $2 / \lVert w \rVert$, so maximising it means
-minimising $\lVert w \rVert$ subject to every point being correctly outside the
-slab:
+Write the boundary as the set of points where $w^\top x + b = 0$, and the labels
+as $y_i \in \{-1, +1\}$ rather than $\{0, 1\}$ — a relabelling with no content,
+chosen because it lets "correctly classified" be written as a single product
+being positive: $y_i(w^\top x_i + b) > 0$ says the sign of the prediction and the
+sign of the label agree.
+
+Turning "widest slab" into something a computer can minimise takes three steps.
+
+**Step 1 — how far a point is from the boundary.** First, $w$ is perpendicular to
+the boundary: if $x$ and $x'$ both lie on it then subtracting the two equations
+gives $w^\top(x - x') = 0$, so $w$ is orthogonal to every direction that runs
+along the boundary. To measure how far a point sits from it, then, project onto
+the unit vector $w / \lVert w \rVert$ pointing across it:
+
+$$\text{distance}(x) = \frac{\lvert w^\top x + b \rvert}{\lVert w \rVert}$$
+
+The numerator by itself is not a distance. Multiply $w$ and $b$ both by ten and
+it grows tenfold while the boundary — the place where the expression is zero —
+has not moved a millimetre. Dividing by $\lVert w \rVert$ is what removes that
+freedom.
+
+**Step 2 — spend the freedom on purpose.** That same freedom is a nuisance in an
+optimisation: infinitely many pairs $(w, b)$ describe one boundary, so the
+minimum would not be unique. Fix it by a choice — rescale $(w, b)$ so that the
+training points closest to the boundary satisfy
+$\lvert w^\top x_i + b \rvert = 1$ exactly. Any separating hyperplane can be
+written this way, so nothing is given up, and two things are bought:
+
+- **The constraints become clean.** Every point correctly outside the slab now
+  reads $y_i(w^\top x_i + b) \geq 1$, where the 1 means "at least as far out as
+  the closest points are".
+- **The margin becomes a formula.** Substituting $\lvert w^\top x_i + b \rvert = 1$
+  into Step 1, the closest points sit at distance $1 / \lVert w \rVert$, and the
+  slab reaches that far on both sides:
+
+$$\text{margin} = \frac{2}{\lVert w \rVert}$$
+
+**That is where the $2 / \lVert w \rVert$ comes from**, and it is worth noticing
+what has happened: with the scale pinned down, the width of the slab is decided
+by $\lVert w \rVert$ and by nothing else. A short $w$ is a wide margin.
+
+**Step 3 — maximise by minimising.** Maximising $2 / \lVert w \rVert$ is
+minimising $\lVert w \rVert$, and minimising $\lVert w \rVert$ is minimising
+$\tfrac{1}{2}\lVert w \rVert^2$ — the same minimiser, because squaring is
+increasing on non-negative numbers, with the square and the $\tfrac{1}{2}$ there
+only so that the derivative comes out as $w$. So:
 
 $$\min_{w, b} \ \tfrac{1}{2}\lVert w \rVert^2
   \quad \text{subject to} \quad y_i\left(w^\top x_i + b\right) \geq 1 \ \ \forall i$$
+
+A convex objective with linear constraints, which is the easiest kind of
+constrained problem there is: one minimum, and no local ones to get stuck in.
 
 Real data is not separable — ours has 4% of its labels flipped — and this
 problem then has no solution at all. The fix is to allow violations $\xi_i$ and
@@ -459,10 +541,53 @@ works, and run the linear method there. The obstacle is that useful spaces are
 enormous, sometimes infinite-dimensional, and computing $\phi(x)$ would be
 impossible.
 
-**The trick is that the SVM never needs $\phi(x)$.** Its solution depends on the
-data only through inner products between pairs of points, and for the right maps
-there is a function that returns the inner product *in the new space* while
-computing only with the original one:
+**The trick is that the SVM never needs $\phi(x)$** — and seeing why requires
+knowing the shape of its solution, so here it is. A constrained minimisation is
+attacked by attaching a multiplier to each constraint, one price per training
+point, charged when that point pushes against its own constraint. Writing $a_i$
+for the multiplier on point $i$ — most texts write $\alpha_i$, but this course
+reserves $\alpha$ for the learning rate — Section 5.2's problem becomes
+
+$$\mathcal{L}(w, b, a) = \tfrac{1}{2}\lVert w \rVert^2
+  - \sum_{i=1}^{m} a_i\left[y_i\left(w^\top x_i + b\right) - 1\right]$$
+
+to be minimised over $w$ and $b$ and maximised over the $a_i \geq 0$. Setting the
+two derivatives to zero:
+
+$$\frac{\partial \mathcal{L}}{\partial w} = w - \sum_{i} a_i y_i x_i = 0
+  \quad \Longrightarrow \quad w = \sum_{i} a_i y_i x_i,
+  \qquad \frac{\partial \mathcal{L}}{\partial b} = -\sum_{i} a_i y_i = 0$$
+
+**The first of those is the whole story: the best $w$ is a weighted sum of the
+training points themselves.** Substitute it back into $\mathcal{L}$, using
+$\sum_i a_i y_i = 0$ to delete the $b$ term, and what is left contains the data
+in exactly one form:
+
+$$\max_{a} \ \sum_{i} a_i
+  - \tfrac{1}{2}\sum_{i}\sum_{j} a_i a_j y_i y_j \langle x_i, x_j \rangle
+  \quad \text{subject to} \quad a_i \geq 0, \ \ \sum_i a_i y_i = 0$$
+
+The soft margin changes one thing: violations bounded by $C$ put a ceiling
+$a_i \leq C$ on each multiplier, which is the sense in which $C$ really is the
+price of a point.
+
+Two facts drop out, and both are things this lesson has already been using.
+
+**Support vectors are the model.** A multiplier is a price paid only where the
+constraint binds. Points sitting strictly outside the slab have $a_i = 0$ and
+vanish from every sum above — which is why, in Section 5.1's figure, three points
+of eighty decide the answer and the other seventy-seven can be moved freely.
+
+**Prediction needs inner products too, and nothing else.** Substituting $w$ into
+$w^\top x + b$:
+
+$$w^\top x + b = \sum_{i} a_i y_i \langle x_i, x \rangle + b$$
+
+So neither fitting nor predicting ever touches a coordinate except inside
+$\langle \cdot, \cdot \rangle$. Replace every one of those with a function that
+returns the inner product *in the new space* while computing only with the
+original coordinates, and the machine is running in $\phi$'s space without ever
+visiting it:
 
 $$K(x, x') = \langle \phi(x), \phi(x') \rangle$$
 
@@ -471,10 +596,27 @@ function**:
 
 $$K(x, x') = \exp\left(-\gamma \lVert x - x' \rVert^2\right)$$
 
-which corresponds to an infinite-dimensional feature space and costs one
-exponential per pair. We chose the lift in the picture above by knowing the
-answer; the RBF kernel does something equivalent without being told, which is
-why it works where nobody could guess the right coordinates.
+**Why that one is infinite-dimensional**, rather than merely large. Expand the
+squared norm as $\lVert x \rVert^2 - 2\langle x, x' \rangle + \lVert x' \rVert^2$
+and the kernel splits into a factor for each point and one joint factor:
+
+$$K(x, x') = e^{-\gamma \lVert x \rVert^2}\, e^{-\gamma \lVert x' \rVert^2}\,
+  e^{2\gamma \langle x, x' \rangle}$$
+
+and the joint factor is an exponential, whose power series never terminates:
+
+$$e^{2\gamma \langle x, x' \rangle}
+  = \sum_{k=0}^{\infty} \frac{(2\gamma)^k}{k!} \langle x, x' \rangle^k$$
+
+Each term is a polynomial kernel: expanded, $\langle x, x' \rangle^k$ is an inner
+product between the vectors of all degree-$k$ monomials in the coordinates, each
+carrying a fixed weight. The sum therefore has monomials of *every* degree, so
+$\phi(x)$ has infinitely many entries — and one exponential per pair buys all of
+them.
+
+We chose the lift in the picture above by knowing the answer; the RBF kernel does
+something equivalent without being told, which is why it works where nobody could
+guess the right coordinates.
 
 ### 5.5 Gamma, C, and overfitting you can see
 
@@ -573,9 +715,11 @@ lesson 2 insisted.
 | $d(x, x')$ | Euclidean distance between them |
 | $k$ | number of neighbours voting |
 | $m$, $n$ | number of examples, number of features |
+| $\mu$, $v$ | mean and variance of one squared coordinate difference |
 | $w$, $b$ | the hyperplane's coefficients and intercept |
 | $\xi_i$ | how far example $i$ violates the margin |
 | $C$ | the price of a margin violation |
 | $\gamma$ | how far one point's influence reaches, in an RBF kernel |
+| $a_i$ | the multiplier on example $i$'s margin constraint (usually written $\alpha_i$) |
 | $\phi$ | the map into the higher-dimensional space |
 | $K$ | the kernel, an inner product in that space |

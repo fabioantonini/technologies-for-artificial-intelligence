@@ -176,10 +176,21 @@ simply did two jobs at once, and the mark inherited the optimism.
 
 Now the reason a held-out set repairs this. Suppose we fix a function $f$ using the
 training data alone, and then evaluate it on a test set $T$ drawn from the same
-distribution $\mathcal{D}$ and never consulted while choosing $f$. Because $T$ is
-independent of $f$, each test example is an unbiased draw of the loss, and so
+distribution $\mathcal{D}$ and never consulted while choosing $f$.
 
-$$\mathbb{E}_{T \sim \mathcal{D}^{m}} \left[ \hat{R}_T(f) \right] = R(f)$$
+Because $f$ was fixed before $T$ was drawn, each test example is just a fresh draw
+from $\mathcal{D}$ as far as $f$ is concerned, so the loss it produces has expectation
+$R(f)$ — that is the definition of $R$. The test score averages $m$ of those, and the
+expectation of an average is the average of the expectations:
+
+$$\mathbb{E}_{T \sim \mathcal{D}^{m}} \left[ \hat{R}_T(f) \right]
+  = \frac{1}{m}\sum_{i=1}^{m} \mathbb{E}\left[L\left(f(x_i), y_i\right)\right]
+  = \frac{1}{m} \cdot m \cdot R(f) = R(f)$$
+
+**Every step of that turns on when $f$ was fixed.** Consult the test set while
+choosing $f$ and the first equality is the one that fails: the loss on a row the
+choice already used is no longer a draw from $\mathcal{D}$ in the required sense,
+because $f$ was bent towards that row.
 
 The empirical risk on the test set is an **unbiased estimator of the expected risk** —
 the quantity we said was not computable. That equation is what the test set buys, and
@@ -256,9 +267,22 @@ Two practical consequences follow, and both surprise people.
 
 **The estimate has a variance of its own.** An accuracy measured on $m$ test examples
 is a proportion — it is the empirical risk under the zero-one loss of Section 2.1,
-counted over $m$ independent draws — so its standard error is roughly
+counted over $m$ independent draws — and its error bar follows from that description
+in two steps.
 
-$$\mathrm{SE} \approx \sqrt{\frac{p(1-p)}{m}}$$
+Each test row is a yes/no outcome: the model is right, with probability $p$, or wrong.
+A single such draw has variance $p(1-p)$, which is largest at $p = 0.5$ and shrinks to
+nothing as $p$ approaches either end — a model that is right almost always is also
+*consistently* right. Accuracy is the average of $m$ independent draws of that kind,
+and averaging $m$ independent quantities divides the variance by $m$:
+
+$$\operatorname{Var}(\text{accuracy}) = \frac{p(1-p)}{m}
+  \qquad\Longrightarrow\qquad
+  \mathrm{SE} \approx \sqrt{\frac{p(1-p)}{m}}$$
+
+the standard error being the square root of the variance. (Lesson 5 returns to this
+division by $m$ and asks what happens when the $m$ measurements are *not*
+independent — the answer is a second term, and a much wider error bar.)
 
 In Notebook 01 the test set holds 143 examples and the accuracy comes out at 0.986.
 That gives a standard error of about **one percentage point**, so reporting "0.986" to

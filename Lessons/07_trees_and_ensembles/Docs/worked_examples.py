@@ -106,6 +106,24 @@ if root_feature != "debt_ratio" or abs(root_threshold - TRUE_DEBT_CEIL) > 0.02:
         f"    recomputing gives {root_feature} <= {root_threshold}")
 checks += 1
 
+# Section 2.2 now says what G *is*: the chance two draws from the group, labelled
+# by its own frequencies, disagree. Checked by drawing pairs, not by the formula.
+_rng7 = np.random.default_rng(20261106)
+for share in (0.387, 0.1, 0.5):
+    labels = _rng7.random(200_000) < share
+    partner = _rng7.random(200_000) < share
+    same(f"2.2 two draws at p={share} disagree as often as G says",
+         float(np.mean(labels != partner)), 2 * share * (1 - share),
+         tolerance=5e-3)
+
+# Section 7's cancellation: the share of subsets containing a fixed feature.
+from math import comb                                                   # noqa: E402
+for p_total, k_drawn in ((22, 4), (10, 3), (7, 1)):
+    same(f"7 one of {p_total} features is a candidate in {k_drawn} draws",
+         comb(p_total - 1, k_drawn - 1) / comb(p_total, k_drawn),
+         k_drawn / p_total, tolerance=1e-12)
+same("7 which for this forest is 18.2%", 100 * 4 / 22, 18.2, tolerance=0.05)
+
 # ------------------------------------- Section 3, depth is the bias-variance dial
 
 cv_depth8 = cross_val_score(DecisionTreeClassifier(max_depth=8, random_state=0), X, y, cv=folds)

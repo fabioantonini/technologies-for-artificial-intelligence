@@ -36,6 +36,9 @@ image. → § 3.1
 kernel jumps. A three-by-three kernel with one pixel of padding leaves the size
 unchanged; a stride of two halves it. → § 3.2
 
+**Counting the output size.** The last window can start at $n + 2p - f$; step by $s$
+from zero and count the starts, the $+1$ being the window at zero. → § 3.2
+
 **Kernel depth.** Always equal to the input's channel count — only the two spatial
 dimensions are yours to choose, which is where parameter counts usually go wrong.
 → § 5

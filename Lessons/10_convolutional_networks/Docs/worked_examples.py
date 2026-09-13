@@ -148,6 +148,17 @@ for n, f, p, s, expected in ((24, 3, 0, 1, 22), (24, 3, 1, 1, 24),
     check(f"n={n} f={f} p={p} s={s}: formula", float(formula), expected, 0)
     check(f"  the same, measured", float(measured), expected, 0)
 
+# Section 3.2 now derives the formula by counting window starts rather than
+# quoting it. Count them literally: every start that leaves room for the whole
+# window, stepping by s.
+for n, f, p, s in ((24, 3, 0, 1), (24, 5, 2, 1), (24, 3, 1, 2),
+                   (17, 4, 1, 3), (31, 7, 2, 5)):
+    starts = [r for r in range(0, n + 2 * p, s) if r + f - 1 <= n + 2 * p - 1]
+    check(f"n={n} f={f} p={p} s={s}: the last legal start is n+2p-f",
+          float(starts[-1] <= n + 2 * p - f), 1.0, 0)
+    check("  and counting the starts gives the formula",
+          float(len(starts)), float((n + 2 * p - f) // s + 1), 0)
+
 # The handout says the floor "is doing real work". Find a case where it does.
 truncating = [(n, f, p, s) for n in range(8, 40) for f in (2, 3, 5)
               for p in (0, 1) for s in (2, 3)

@@ -111,6 +111,10 @@ a saturated layer passes signal forward and nothing backward. → § 8.2
 over it for a rectified linear unit, so the signal's variance survives depth instead
 of compounding. → § 8.2
 
+**Propagating the variance.** Independent terms add their variances, and a zero-mean
+weight independent of its input contributes $\mathrm{Var}(w)\,\mathbb{E}[a^2]$ — the
+two steps that make $n\,\mathrm{Var}(w)$ the factor per layer. → § 8.2
+
 
 ## Training in practice
 

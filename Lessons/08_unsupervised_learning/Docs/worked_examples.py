@@ -384,4 +384,32 @@ at_most("6.1 the worst batch catches materially fewer than 37",
         min(caught_counts), 34)
 at_least("6.1 ... and the best catches at least 37", max(caught_counts), 37)
 
+# ------------- Section 6.1, the projection really is the nearest point
+#
+# The handout now derives what V_k V_k' x is, rather than asserting it. Checked
+# by search, not by the algebra: against a thousand other points of the same
+# subspace, the projection must be the closest, and the residual orthogonal.
+
+_rng8 = np.random.default_rng(20261113)
+basis = np.linalg.qr(_rng8.normal(size=(9, 3)))[0]          # V_k, orthonormal
+point = _rng8.normal(size=9)
+projected = basis @ (basis.T @ point)
+
+same("6.1 the residual is orthogonal to every component",
+     float(np.abs(basis.T @ (point - projected)).max()), 0.0, tolerance=1e-12)
+
+coords = basis.T @ point
+rivals = basis @ (coords + _rng8.normal(scale=0.4, size=(1_000, 3))).T
+nearest = min(float(np.linalg.norm(point - rivals[:, c]))
+              for c in range(rivals.shape[1]))
+same("6.1 no other point of the subspace is closer",
+     float(np.linalg.norm(point - projected) <= nearest), 1.0, tolerance=0)
+
+# And Pythagoras, on one rival, to the precision the derivation claims.
+rival = rivals[:, 0]
+same("6.1 the two legs add up to the hypotenuse",
+     float(np.linalg.norm(point - rival) ** 2),
+     float(np.linalg.norm(point - projected) ** 2
+           + np.linalg.norm(projected - rival) ** 2), tolerance=1e-10)
+
 print(f"{checks} numbers recomputed from raw inputs and confirmed against {HANDOUT}.")

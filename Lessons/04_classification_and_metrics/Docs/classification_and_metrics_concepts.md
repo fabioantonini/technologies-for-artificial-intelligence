@@ -47,6 +47,10 @@ for the smallest correction where the largest is needed. → § 4.2
 convex does not mean solvable in closed form, and there is no normal equation for
 logistic regression. → § 4.3
 
+**Positive semi-definite.** The property that says a surface curves upwards in every
+direction: $u^\top H u \geq 0$ for every $u$. For this cost each term of that sum is
+$p(1-p)$ times a square. → § 4.3
+
 
 ## Reading a classifier
 
@@ -66,6 +70,9 @@ denominator is the failures that existed. → § 6.2
 **F1 and F-beta.** The harmonic mean of precision and recall, so a perfect score
 on one axis cannot buy a pass on the other; $\beta > 1$ weights recall more
 heavily. → § 6.3
+
+**Harmonic mean.** Invert both numbers, average, invert back. Inverting is what lets
+the worse of the two dominate, since a small number has a large reciprocal. → § 6.3
 
 **Macro against weighted averaging.** Macro gives every class an equal say;
 weighted gives each class its share of the data, which on an imbalanced problem

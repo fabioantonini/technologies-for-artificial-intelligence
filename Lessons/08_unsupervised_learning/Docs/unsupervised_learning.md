@@ -686,6 +686,26 @@ $k$ eigenvectors as columns,
 
 $$\hat x_i = V_k V_k^\top x_i$$
 
+**Read that expression right to left and it explains itself.** $V_k^\top x_i$
+takes the $k$ coordinates of the point in the subspace's own basis — one dot
+product per component — and multiplying by $V_k$ rebuilds a point in the
+original $n$ dimensions from those $k$ numbers.
+
+**Why it is the *closest* such point**, rather than merely a point on the
+subspace, is lesson 3's normal equation arriving in new clothing. The residual
+$x_i - \hat x_i$ is orthogonal to the subspace, which is a one-line check using
+$V_k^\top V_k = I$ — the components are orthonormal:
+
+$$V_k^\top\left(x_i - V_k V_k^\top x_i\right)
+  = V_k^\top x_i - \left(V_k^\top V_k\right)V_k^\top x_i = 0$$
+
+So for any other point $z$ in the subspace, $x_i - \hat x_i$ is perpendicular to
+$\hat x_i - z$, and Pythagoras gives
+$\lVert x_i - z\rVert^2 = \lVert x_i - \hat x_i\rVert^2 + \lVert \hat x_i - z\rVert^2$
+— strictly larger unless $z = \hat x_i$. It is the same argument lesson 3 made
+about the shadow of the target on the space the features can reach: anything
+left over has to be perpendicular, or part of it could still have been used.
+
 A point that genuinely follows the correlation structure the top $k$
 components were fit to reconstructs almost exactly, because that structure
 is what those components describe. A point that violates it —

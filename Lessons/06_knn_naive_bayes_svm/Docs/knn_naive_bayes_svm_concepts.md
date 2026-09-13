@@ -38,6 +38,10 @@ training data — a legal question as much as a practical one. → § 2.3
 **Distance concentration.** As dimensions grow, every distance converges on the same
 value, and "nearest" stops being a meaningful claim. → § 3.2
 
+**Relative spread.** The spread of the distances measured against their own size,
+which is what "nearest" actually needs. Adding dimensions grows the centre faster
+than the spread, so the ratio vanishes. → § 3.2
+
 **What the curse is.** Not that high-dimensional problems are unlearnable — that
 methods built on *distance* lose their footing, because the quantity they depend on
 stops varying. → § 3.3
@@ -88,6 +92,14 @@ statement about generalisation, not about fit. → § 5.1
 **Support vectors.** The points touching the slab. They alone determine the answer;
 move any other point and nothing changes. → § 5.1
 
+**Distance to the boundary.** The value of $w^\top x + b$ divided by
+$\lVert w \rVert$ — the division being what removes the freedom to rescale $w$ and
+$b$ without moving the boundary. → § 5.2
+
+**Canonical normalisation.** Spending that freedom deliberately, by fixing the scale
+so the closest points satisfy $\lvert w^\top x + b \rvert = 1$. It is what makes the
+constraints read $\geq 1$ and the margin equal $2 / \lVert w \rVert$. → § 5.2
+
 **Soft margin.** Allowing violations and charging for them, because real data is not
 separable. → § 5.2
 
@@ -97,6 +109,13 @@ means less regularisation**. → § 5.2
 
 **A high support-vector fraction.** A free warning that the model is struggling to
 find room — that no slab separates anything. → § 5.3
+
+**Multipliers, and the dual form.** One price per training point, charged where its
+constraint binds. Solving for them shows the boundary to be a weighted sum of the
+training points, in which the data appears only inside inner products. → § 5.4
+
+**Why support vectors are the model.** A point strictly outside the slab carries a
+multiplier of zero, so it drops out of both the fit and the prediction. → § 5.4
 
 **The kernel trick.** Map into a space where a linear boundary works, and compute
 only the inner products there, never the map itself. → § 5.4

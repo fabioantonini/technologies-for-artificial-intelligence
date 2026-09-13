@@ -127,6 +127,54 @@ for absorbed in ("bedrooms", "bathrooms"):
     assert TRUE_COEFFICIENTS[absorbed] > 0, \
         "3.2 argues the omitted features push the area coefficient UP"
 
+# ------------- 4.3 and 4.4, the contraction factor and the iteration count
+#
+# Sections 4.3 and 4.4 now derive two things the handout used to assert: that
+# one step multiplies the distance to the minimum by (1 - alpha*c), and that the
+# iteration count grows in proportion to the condition number. Neither check
+# evaluates those formulas - both run the actual descent and measure what it
+# does, which is the only route that could contradict the algebra.
+
+def descend(curvatures, alpha, steps, start=1.0):
+    """Gradient descent on J = sum of c_j (theta_j - 0)^2 / 2, from theta = 1."""
+    theta = np.full(len(curvatures), float(start))
+    path = [theta.copy()]
+    for _ in range(steps):
+        theta = theta - alpha * np.asarray(curvatures) * theta
+        path.append(theta.copy())
+    return np.array(path)
+
+c = 4.0
+for alpha, printed in ((0.05, 1 - 0.05 * c), (0.2, 1 - 0.2 * c),
+                       (0.5, 1 - 0.5 * c)):
+    path = descend([c], alpha, 6)
+    ratio = path[3, 0] / path[2, 0] if path[2, 0] else 0.0
+    same(f"4.3 one step at alpha={alpha} multiplies the error by {printed:+.2f}",
+         ratio, printed, tolerance=1e-9)
+
+# alpha = 1/c lands on the minimum in a single step.
+same("4.3 alpha = 1/c arrives in one step", float(descend([c], 1 / c, 1)[1, 0]),
+     0.0, tolerance=1e-12)
+
+# alpha = 2/c flips sign and keeps its size; just above it, the error grows.
+edge = descend([c], 2 / c, 9)[:, 0]
+same("4.3 alpha = 2/c oscillates without shrinking", float(np.abs(edge).max()),
+     1.0, tolerance=1e-12)
+same("4.3 and it really does change sign each step",
+     float(np.sign(edge[3] * edge[4])), -1.0, tolerance=1e-12)
+same("4.3 just past 2/c the error grows instead",
+     float(abs(descend([c], 2.1 / c, 20)[-1, 0]) > 1), 1.0, tolerance=0)
+
+# 4.4: spend the largest safe rate on the steep direction and count the steps
+# the shallow one needs to shrink by a factor e. The claim is t is about kappa.
+for kappa in (10, 100, 1000):
+    c_max, c_min = 1.0, 1.0 / kappa
+    path = descend([c_max, c_min], 1 / c_max, 4 * kappa)
+    slow = np.abs(path[:, 1])
+    reached = int(np.argmax(slow < 1 / np.e))
+    same(f"4.4 at a condition number of {kappa}, e-folding takes about kappa steps",
+         reached / kappa, 1.0, tolerance=0.05)
+
 # ---------------- 4.4, what conditioning costs and what a penalty buys
 #
 # Rebuilt from the generator, and read off the singular values rather than the

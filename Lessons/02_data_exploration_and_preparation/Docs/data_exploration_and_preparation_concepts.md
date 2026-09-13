@@ -88,7 +88,8 @@ you need. → § 5.2
 
 **Learning rate.** The single step size gradient descent applies to every
 direction at once, which is why the worst-scaled feature sets the pace for all of
-them. → § 5.2
+them. The algebra behind both consequences is Lesson 3's, once descent itself has
+been built. → § 5.2
 
 
 ## Categorical encoding

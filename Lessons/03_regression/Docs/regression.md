@@ -2,7 +2,7 @@
 title: "Regression"
 subtitle: "Lesson 3 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "9 October 2026 · reading time about 75 minutes"
+date: "9 October 2026 · reading time about 80 minutes"
 ---
 
 ## Lesson plan
@@ -357,11 +357,32 @@ iteration and simply takes too many of them.
 the far side. The next step overshoots further. The cost *increases*, often
 explosively, and you see `nan` within a few dozen iterations.
 
-Lesson 2 derived the threshold: for a quadratic bowl of curvature $c$, the
-update converges only if $\alpha < 2/c$, and with several features the binding
-constraint is the largest curvature — the largest feature variance. This is the
-same fact from the other side: **the safe learning rate is set by your
-worst-scaled feature**, which is a good reason to scale them all.
+**Where the boundary between the two is**, exactly, for the one case simple
+enough to do by hand. Take a cost that is a parabola in a single coefficient,
+$J(\theta) = \tfrac{1}{2}c(\theta - \theta^*)^2$, with $c$ its curvature and
+$\theta^*$ its minimum. The gradient is $c(\theta - \theta^*)$, so one step of
+gradient descent gives
+
+$$\theta_{t+1} - \theta^* = (\theta_t - \theta^*) - \alpha c(\theta_t - \theta^*)
+  = (1 - \alpha c)(\theta_t - \theta^*)$$
+
+**The distance from the minimum is multiplied by $(1 - \alpha c)$ at every
+step** — the same factor every time, so after $t$ steps it has been multiplied
+by $(1 - \alpha c)^t$. That single expression contains all three regimes:
+
+| $\alpha$ | $1 - \alpha c$ | What happens |
+|---|---|---|
+| tiny | just below 1 | the error shrinks by a sliver per step: it crawls |
+| $1/c$ | 0 | one step lands exactly on the minimum |
+| $2/c$ | $-1$ | the error flips sign and keeps its size forever |
+| above $2/c$ | below $-1$ | the error grows every step: `nan` |
+
+So the update converges exactly when $\lvert 1 - \alpha c \rvert < 1$, which is
+to say $0 < \alpha < 2/c$. With several features the condition has to hold in
+every direction at once, and the binding one is the **largest** curvature — the
+largest feature variance. This is Lesson 2's argument from the other side:
+**the safe learning rate is set by your worst-scaled feature**, which is a good
+reason to scale them all.
 
 The practical recipe: start at 0.01 on scaled features, watch the cost, divide
 by three if it rises. Lesson 5 replaces the recipe with a search.
@@ -379,8 +400,20 @@ steep direction sets the limit — step further and it diverges — so the shall
 direction is stuck with a stride far too short for it, and crawls.
 
 The ratio of the steepest curvature to the shallowest is the **condition
-number** of the design matrix. It is, near enough, what sets the number of
-iterations you will need.
+number** $\kappa = c_{\max}/c_{\min}$ of the design matrix. It is, near enough,
+what sets the number of iterations you will need — and Section 4.3's factor says
+why, in three lines.
+
+The largest rate that is safe in the steep direction is about $1/c_{\max}$.
+Spend it, and in the shallow direction the error is multiplied each step by
+
+$$1 - \frac{c_{\min}}{c_{\max}} = 1 - \frac{1}{\kappa}$$
+
+which for a stretched valley is a number just below 1. Shrinking the error by a
+factor $e$ needs $t$ steps with $(1 - 1/\kappa)^t \approx e^{-t/\kappa}$, so
+$t \approx \kappa$. **The iteration count grows in proportion to the condition
+number**: ten times more stretched is ten times more steps, for the same
+accuracy in the direction that matters least.
 
 On the housing data, computed with `numpy.linalg.cond` on the six feature
 columns — not the design matrix of Section 3.1, which carries an extra column of
@@ -811,6 +844,7 @@ why is one of the derivations you will be asked for.
 | $m$, $n$ | number of examples, number of features |
 | $J$ | the cost being minimised |
 | $\alpha$ | the **learning rate**, and nothing else |
+| $c$, $\kappa$ | the curvature of the cost in one direction; the ratio of the largest to the smallest |
 | $\lambda$ | the **regularisation strength** — scikit-learn spells this one `alpha`, which is why the previous row says "and nothing else" |
 | $\bar{x}$, $\bar{y}$ | sample means |
 | $S_{xx}$, $S_{xy}$ | the centred sum of squares and the centred sum of cross-products |
