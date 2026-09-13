@@ -224,11 +224,14 @@ Handout section 2.2.
 
 # The reduction in impurity
 
-$$\Delta G = G(\text{parent}) - \left(\frac{m_L}{m_P}\, G(\text{left}) + \frac{m_R}{m_P}\, G(\text{right})\right)$$
+$$\Delta G = G_P - \left(\frac{m_L}{m_P}\, G_L + \frac{m_R}{m_P}\, G_R\right)$$
 
 ::: notes
-The two m terms are the sizes of the left and right children, and they add
-to the parent's. Read it as: what the parent's impurity was, minus what is
+Say what the subscripts are before reading the formula: P, L and R are the
+parent group and its two children, the same three the handout names in words,
+and the m terms are how many examples are in each. The two m terms are
+the sizes of the left and right children, and they add to the parent's. Read it
+as: what the parent's impurity was, minus what is
 left after the split, weighted by how the group was divided. The tree keeps whichever candidate
 split makes $\Delta G$ largest.
 
