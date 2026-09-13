@@ -1115,6 +1115,20 @@ label distribution, 0.6887 at a base rate of 0.5471, and the notebook measures
 the mechanism is exact, not statistical.
 
 Handout section 8.1.
+
+IF THE CLOCK IS AGAINST YOU, THESE ARE THE THREE TO DROP. This slide, the
+figure after it, and "How large? Propagate the variance" are the segment's
+initialisation block, and it is the only block notebook 3 does not use - that
+notebook opens on the learning rate and never mentions initialisation. The
+0.6887 they would have seen here was measured in notebook 01, two hours ago,
+so it is not new to them either. The handout carries both halves in full:
+section 8.1 derives the freeze exactly, 8.2 the variance argument.
+
+Dropping the three removes about a fifth of this segment's spoken content,
+which is the difference between the material it holds and the time it has.
+Say out loud that you are skipping them and why - "the handout does this
+properly and the notebook does not need it" - because a silent skip reads as
+running out of time, and this one is a decision.
 :::
 
 # Only the starting point differs
@@ -1132,6 +1146,9 @@ happens to help. It is what makes the units *different problems to solve*.
 Without it there is one unit in the layer, repeated thirty-two times.
 
 Handout section 8.1.
+
+Second of the three slides the note on "Zero cannot work" marks as droppable
+if the clock is against you.
 :::
 
 # How large? Propagate the variance
@@ -1156,6 +1173,10 @@ forward and nothing backward. That is the vanishing gradient arriving from the
 other direction, which is a nice thing to notice out loud.
 
 Handout section 8.2.
+
+Third of the three slides the note on "Zero cannot work" marks as droppable
+if the clock is against you. If you keep only one of the three, keep this
+one - He initialisation is the line they will actually type.
 :::
 
 # The learning rate, swept
