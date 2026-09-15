@@ -359,17 +359,28 @@ not. It is among the most common reasons a model fails after deployment.
 
 ### 4.7 How much it helps
 
-Changing only the seed, forty times:
+Cross-validation reduces the variance of the estimate. It does not abolish it:
+it has a random seed of its own, and shuffling differently cuts different folds
+and gives a different answer. So the honest comparison is **how far the number
+moves when nothing but the seed changes** — forty times, for a single split and
+for 5-fold cross-validation:
 
 | | Single 75/25 split | 5-fold cross-validation |
 |---|---|---|
 | worst | 0.9119 | 0.9439 |
 | best | 1.0000 | 0.9588 |
+| mean | 0.9600 | 0.9532 |
 | spread | 0.0881 | 0.0149 |
 | standard deviation | 0.0221 | 0.0032 |
 
-**Cross-validation is about seven times more stable across seeds.** Note that
-both centre in the same place — it is not more optimistic, it is less arbitrary.
+**Cross-validation is about seven times more stable across seeds.** And both
+centre in about the same place: 0.960 against 0.953, a gap of about two standard
+errors on forty draws, which reverses sign with a different forty seeds. It is
+not more optimistic, it is less arbitrary.
+
+![](cv_vs_single_split.png)
+
+*Forty seeds, the same bins for both, so the bar heights compare directly. The dashed lines are the two means, close together; what differs is the width — every cross-validated estimate lands between 0.944 and 0.959, a range the single split spreads out from 0.912 to 1.000.*
 
 **And the reason is not only the averaging.** Averaging $k$ measurements would
 buy a factor of at most $\sqrt{k}$, which is 2.2 here, and the observed factor
@@ -387,6 +398,12 @@ far less left for the seed to move.
 for a large network it is a real decision, and the usual compromise is a single
 validation set large enough that its own error bar is tolerable.
 
+**What it does not fix** is leakage. Cross-validation measures whatever
+procedure it is handed, using all the data. If a step was fitted on every row
+before the folds were cut, every fold is contaminated the same way, and the
+folds agree with one another about a wrong answer — which looks exactly like a
+trustworthy result. Section 7 shows it happening.
+
 ---
 
 ## 5. What the error is made of
@@ -400,7 +417,7 @@ ways.
 
 ![](many_universes.png)
 
-*Each faint line is the same model fitted to a *different* training sample. Left, the lines agree with each other and all miss the truth: that is bias. Right, they disagree wildly, worst where the data runs out: that is variance. In real life you drew one of these lines and never saw the others.*
+*Each faint line is the same model fitted to a different training sample. Left, the lines agree with each other and all miss the truth: that is bias. Right, they disagree wildly, worst where the data runs out: that is variance. In real life you drew one of these lines and never saw the others.*
 
 **They may agree with each other and all be wrong.** A straight line fitted to a
 curve gives nearly the same straight line every time, and every one of them

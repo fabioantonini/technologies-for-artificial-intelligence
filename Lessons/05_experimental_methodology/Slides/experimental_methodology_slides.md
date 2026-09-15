@@ -278,11 +278,20 @@ whenever the problem is interesting.
 | spread | 0.0881 | 0.0149 |
 
 ::: notes
-Forty seeds, changing nothing but the seed.
+Forty seeds, changing nothing but the seed. Cross-validation has a seed of its
+own - shuffle differently and the folds change - so it reduces the variance of
+the estimate, it does not abolish it.
 
-The spread falls from 0.088 to 0.015 - about seven times more stable. And note
-that both centre in the same place: cross-validation is not more pessimistic, it
-is less arbitrary.
+The spread falls from 0.088 to 0.015, and the standard deviation by a factor of
+about seven (0.0221 to 0.0032). Say which one "seven" refers to: a student who
+divides the two spreads on the slide gets six, and will ask.
+
+Then the centres, because someone will have noticed in notebook 1 that
+cross-validation came out lower: 0.953 against 0.960. That gap is about two
+standard errors on forty draws, and with a different forty seeds it reverses
+sign. So cross-validation is neither more optimistic nor more pessimistic here -
+it is less arbitrary. The histogram with both on the same bins is in notebook 1
+and in handout section 4.7.
 
 What it costs is k fits instead of one. For everything in this course that is
 seconds. For a large network it is a real decision, and the usual compromise is

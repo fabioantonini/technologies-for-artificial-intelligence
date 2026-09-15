@@ -160,23 +160,55 @@ same("2.2 and ten of the two hundred clear 0.99", int((scores > 0.99).sum()), 10
 same("2.2 so the spread is 0.115", scores.max() - scores.min(), 0.115, tolerance=1e-3)
 
 # 4.7: cross-validation over the same seeds, to compare spreads like for like.
-cv_means = []
-for seed in range(30):
+def cv_mean(seed):
     folds = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
     per_fold = []
-    for train_rows, test_rows in folds.split(fleet_X, fleet_y):
+    for train_rows, valid_rows in folds.split(fleet_X, fleet_y):
         fitted = make_pipeline(StandardScaler(),
                                LogisticRegression(max_iter=5000,
                                                   random_state=RANDOM_STATE)
                                ).fit(fleet_X.iloc[train_rows], fleet_y.iloc[train_rows])
         per_fold.append(roc_auc_score(
-            fleet_y.iloc[test_rows],
-            fitted.predict_proba(fleet_X.iloc[test_rows])[:, 1]))
-    cv_means.append(np.mean(per_fold))
-cv_means = np.array(cv_means)
-single = scores[:30]
+            fleet_y.iloc[valid_rows],
+            fitted.predict_proba(fleet_X.iloc[valid_rows])[:, 1]))
+    return np.mean(per_fold)
+
+
+def split_auc(seed):
+    Xa, Xb, ya, yb = train_test_split(fleet_X, fleet_y, test_size=0.25,
+                                      random_state=seed, stratify=fleet_y)
+    fitted = make_pipeline(StandardScaler(),
+                           LogisticRegression(max_iter=5000,
+                                              random_state=RANDOM_STATE)).fit(Xa, ya)
+    return roc_auc_score(yb, fitted.predict_proba(Xb)[:, 1])
+
+
+cv_means = np.array([cv_mean(seed) for seed in range(40)])
+single = scores[:40]
 
 same("4.7 cross-validation is about seven times more stable across seeds",
      single.std(ddof=1) / cv_means.std(ddof=1), 6.8, tolerance=1.5)
+same("4.7 every cross-validated estimate is at least 0.944", cv_means.min(), 0.944,
+     tolerance=5e-4)
+same("4.7 and at most 0.959", cv_means.max(), 0.959, tolerance=5e-4)
+same("4.7 the single split centres at 0.960", single.mean(), 0.960, tolerance=5e-4)
+same("4.7 cross-validation centres at 0.953", cv_means.mean(), 0.953, tolerance=5e-4)
+
+
+def gap_in_standard_errors(one, other):
+    gap = one.mean() - other.mean()
+    return gap / np.sqrt(one.var(ddof=1) / len(one) + other.var(ddof=1) / len(other))
+
+
+# "About two standard errors" is a claim that the gap is noise, so it is tested
+# the way noise behaves: on forty different seeds it must not keep its sign.
+first = gap_in_standard_errors(single, cv_means)
+same("4.7 the two centres are about two standard errors apart", first, 2.0,
+     tolerance=0.5)
+other_single = np.array([split_auc(seed) for seed in range(1000, 1040)])
+other_cv = np.array([cv_mean(seed) for seed in range(1000, 1040)])
+same("4.7 and the gap reverses sign with a different forty seeds",
+     np.sign(gap_in_standard_errors(other_single, other_cv)), -np.sign(first),
+     tolerance=0)
 
 print(f"lesson 5: {checks} hand-worked numbers recomputed, all agree")
