@@ -275,6 +275,7 @@ whenever the problem is interesting.
 |---|---|---|
 | worst | 0.9119 | 0.9439 |
 | best | 1.0000 | 0.9588 |
+| mean | 0.9600 | 0.9532 |
 | spread | 0.0881 | 0.0149 |
 
 ::: notes
