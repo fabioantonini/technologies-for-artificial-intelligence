@@ -189,9 +189,16 @@ The idea in a sentence: if one measurement is noisy, take several and average
 them. The difficulty is that you cannot afford several test sets - every row
 spent on testing is a row not spent on training.
 
-Cross-validation resolves it by rotating the role of the test block. Cut the
-data into k parts, train on k-1, test on the one left out, repeat until every
-part has been the test set exactly once.
+Cross-validation resolves it by rotating which part is held out. Cut the data
+into k parts, train on k-1, score on the one left out - the validation fold -
+and repeat until every part has been the validation fold exactly once.
+
+Say why it is labelled validation and not test, because the code will contradict
+the slide. Lesson 1's three roles: training fits, validation chooses, test
+reports once. This block is scored k times and, by the end of the lesson, is what
+a search chooses on. scikit-learn calls it test - test_index, mean_test_score -
+and there the word means only "not used to fit this fold's model", never the
+test set reported once. Handout section 4.1.
 
 Then the clause that makes it legitimate rather than a trick, and say it
 explicitly because students suspect otherwise: every row is predicted exactly
@@ -634,7 +641,7 @@ The result. Tight fold agreement, which is exactly what a trustworthy result
 looks like.
 
 Now the bug, which is on the first line: SelectKBest was shown EVERY row,
-including the rows that would later serve as test folds. It searched two
+including the rows that would later serve as validation folds. It searched two
 thousand columns for the ones that best matched labels it had already seen, and
 handed the winners to cross-validation.
 
@@ -675,7 +682,7 @@ This is the most useful idea in the lesson, so take the time.
 With two thousand columns and eight hundred rows, some columns correlate with
 the label purely by chance across the whole dataset. That accident is a property
 of this particular sample. It is present in every subset of it - every training
-fold and every test fold alike.
+fold and every validation fold alike.
 
 So a selector fitted honestly on four fifths finds those columns, and they still
 work on the remaining fifth, because the spurious correlation was never

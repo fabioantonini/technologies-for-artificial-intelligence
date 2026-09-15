@@ -3,7 +3,7 @@
     python Figures/make_figures.py
 
 Data figures come from the notebooks. These two are diagrams of a *procedure*
-rather than plots of numbers: how k-fold rotates the test block, and how nested
+rather than plots of numbers: how k-fold rotates the validation block, and how nested
 cross-validation puts a second loop around the first. Both are far easier to
 understand as a picture than as a paragraph, and both are the kind of thing
 that otherwise gets drawn badly on a whiteboard.
@@ -43,21 +43,21 @@ def save(fig, name):
 
 
 def kfold_diagram(k=5):
-    """The test block moving along, one row per fold."""
+    """The validation block moving along, one row per fold."""
     fig, ax = plt.subplots(figsize=(8.6, 3.8))
 
     for fold in range(k):
         y = k - fold - 1
         for block in range(k):
-            is_test = block == fold
+            is_valid = block == fold
             ax.add_patch(Rectangle(
                 (block, y), 0.94, 0.78,
-                facecolor=GOLD if is_test else "#DCE6F0",
+                facecolor=GOLD if is_valid else "#DCE6F0",
                 edgecolor=SLATE, linewidth=1.1))
-            ax.text(block + 0.47, y + 0.39, "test" if is_test else "train",
+            ax.text(block + 0.47, y + 0.39, "validation" if is_valid else "train",
                     ha="center", va="center", fontsize=9.5,
-                    color=INK if is_test else SLATE,
-                    fontweight="bold" if is_test else "normal")
+                    color=INK if is_valid else SLATE,
+                    fontweight="bold" if is_valid else "normal")
         ax.text(-0.25, y + 0.39, f"fold {fold + 1}", ha="right", va="center",
                 fontsize=10, color=SLATE)
 

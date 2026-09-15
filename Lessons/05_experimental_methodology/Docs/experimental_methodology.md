@@ -199,11 +199,12 @@ wearing the clothes of a result.**
 
 **The picture first.** If one measurement is noisy, take several and average
 them. The difficulty is that you cannot afford several test sets — you have one
-dataset, and every row spent on testing is a row not spent on training.
+dataset, and every row held out is a row not spent on training.
 
-Cross-validation resolves the tension by **rotating the role of the test set**.
-Cut the data into $k$ equal parts. Train on $k-1$ and test on the one left out.
-Repeat until every part has been the test set exactly once.
+Cross-validation resolves the tension by **rotating which part is held out**.
+Cut the data into $k$ equal parts. Train on $k-1$ and score the model on the one
+left out, the **validation fold**. Repeat until every part has been the
+validation fold exactly once.
 
 The result is $k$ scores, and — this is the part that makes it legitimate rather
 than a trick — **every row has been predicted exactly once, by a model that
@@ -211,7 +212,16 @@ never saw it.** It is not testing on training data with extra steps.
 
 ![](kfold_diagram.png)
 
-*The test block rotates. Every row is predicted exactly once, by a model trained without it — which is what makes this legitimate rather than testing on training data with extra steps.*
+*The validation block rotates. Every row is predicted exactly once, by a model trained without it — which is what makes this legitimate rather than testing on training data with extra steps.*
+
+**Why *validation* and not *test*.** Lesson 1 gave the three roles: training
+fits, validation chooses, test reports once. The block that rotates here is
+scored $k$ times, and from Section 7.3 on it is what a search chooses on — so it
+is a validation fold. The code will call it something else: scikit-learn's
+`KFold.split` returns `train_index, test_index`, and `GridSearchCV` reports
+`mean_test_score`. There *test* means only *not used to fit this fold's model*,
+never *the test set you report once*. When a final test set is needed it is set
+aside before cross-validation begins, and Section 7.4 shows where it goes.
 
 ### 4.2 What it estimates, precisely
 
@@ -599,7 +609,7 @@ cross_val_score(model, chosen, y, cv=folds, scoring="roc_auc")
 0.98 — which is exactly what a trustworthy result looks like.
 
 The error is on the first line. `SelectKBest` was shown every row, including
-those that would later serve as test folds. It searched 2,000 columns for the
+those that would later serve as validation folds. It searched 2,000 columns for the
 ones that best matched labels it had already seen, and handed the winners to
 cross-validation.
 
@@ -619,7 +629,7 @@ This is not a bug, and understanding why is the most useful idea in the lesson.
 **With 2,000 columns and 800 rows, some columns correlate with the label by
 accident across the whole dataset.** That accident is a property of this
 particular sample. It is present in every subset of it — in each training fold
-and in each test fold alike. A selector fitted honestly on four fifths of the
+and in each validation fold alike. A selector fitted honestly on four fifths of the
 data finds those columns, and they still "work" on the remaining fifth, because
 the spurious correlation was never fold-specific.
 
@@ -747,7 +757,7 @@ your result and your marker's result are the same result.
   positives are in the test set.
 - **Selecting on one split selects noise.** Three identical models each won a
   share of 200 splits: 91, 71, 38.
-- **Cross-validation** rotates the test set, estimates a *procedure*, is
+- **Cross-validation** rotates a validation fold, estimates a *procedure*, is
   slightly pessimistic, and its folds are correlated — so quote the spread, not
   a confidence interval.
 - **bias² + variance + noise is an identity**, verified to $3 \times 10^{-12}$.

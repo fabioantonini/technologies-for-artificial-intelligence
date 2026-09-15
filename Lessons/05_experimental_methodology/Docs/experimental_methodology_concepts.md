@@ -39,8 +39,8 @@ decides. → § 3
 
 ## Cross-validation
 
-**k-fold cross-validation.** Cut the data into $k$ parts, train on $k-1$ and test
-on the one left out, rotating until every row has been predicted exactly once by a
+**k-fold cross-validation.** Cut the data into $k$ parts, train on $k-1$ and score
+on the one left out, the validation fold, rotating until every row has been predicted exactly once by a
 model that never saw it. → § 4.1
 
 **What it estimates.** The performance of a *procedure* applied to a dataset of
@@ -106,7 +106,7 @@ means regularise or simplify. → § 6.1
 ## Leakage cross-validation cannot catch
 
 **Fold leakage.** A step fitted on all the data before the folds are cut, so the
-selection has already seen every test row. Cross-validation does not fail here; it
+selection has already seen every validation row. Cross-validation does not fail here; it
 is lied to. → § 7.1
 
 **Searching a large space on a small sample.** The residual optimism that survives
