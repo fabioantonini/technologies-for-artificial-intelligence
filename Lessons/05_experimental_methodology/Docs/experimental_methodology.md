@@ -567,7 +567,7 @@ the same diagnosis from data you actually have.
 
 ![](learning_curves.png)
 
-*Two diagnoses. Left: the curves meet, and meet low — bias, and more data will not help. Right: a gap of 0.15 that does not close — variance. Read the right-hand curve to the end, though, rather than stopping at its rise: it climbs from 0.76 to 0.86 by 250 examples and then flattens. Both halves are information, and Section 6.1 says what each one licenses.*
+*Two diagnoses. Left: the curves meet, and meet low — bias, and more data will not help. Right: a gap of 0.15 that does not close — variance. Read the right-hand curve to the end, though, rather than stopping at its rise: it climbs to 0.857 at 251 examples and then moves sideways, finishing below its own high point at 0.847. Both halves are information, and Section 6.1 says what each one licenses.*
 
 **The construction.** Train on 15% of the data, then 25%, and so on to 100%,
 plotting both the training score and the cross-validated score against the
@@ -578,7 +578,7 @@ Measured on the fleet, with two deliberately broken models:
 | Model | Training | Validation | Gap | Validation trend |
 |---|---|---|---|---|
 | One feature only | 0.715 | 0.718 | −0.002 | 0.718 → 0.718, flat |
-| 6 features + 150 noise columns | **1.000** | 0.847 | +0.153 | 0.760 → 0.847, rising |
+| 6 features + 150 noise columns | **1.000** | 0.847 | +0.153 | 0.760 → 0.857 by 251, then flat |
 
 ### 6.1 Reading them
 
@@ -611,9 +611,18 @@ that it will change nothing.
 
 ### 6.2 The one-line diagnostic
 
-> **Is the gap large, and is the validation curve still rising?** If yes, get
-> more data. If the curves have met and levelled off, more data is money spent
-> on nothing.
+> **Is the gap large, and is the validation curve still rising at the right
+> edge?** Both together are the only case in which more data is the answer. A
+> curve that has levelled off says more rows buy nothing — whether it levelled
+> off with the curves together (bias) or far apart (variance, which is what our
+> own figure shows).
+
+**And measure the slope against the band before believing it.** The right-hand
+curve ends on a segment that rises by 0.014, which the eye reads as a curve
+still climbing. Across the five folds that step is −0.030, +0.050, +0.006,
+−0.009, +0.053: an average of +0.014 with a standard deviation of 0.036. The
+curve's highest point is at 251 examples, 0.857, and it finishes *below* it at
+0.847. A slope smaller than the band drawn around it is not a slope.
 
 **The predictable mistake here** is prescribing data for a bias problem, and the
 instinct behind it is entirely sound — more data almost always helps, it is the

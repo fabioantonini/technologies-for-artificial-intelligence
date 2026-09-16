@@ -573,8 +573,17 @@ Left, one feature only: the curves MEET, and they meet LOW - 0.715 against 0.718
  -  and the validation curve is flat from the first point to the last.
 
 Right, six features plus 150 columns of pure noise: training exactly 1.000
-against validation 0.847, a gap of 0.15, and the validation curve still climbing
-at the right edge.
+against validation 0.847, a gap of 0.15.
+
+Then read the right-hand curve to the end, because this is where the room gets
+it wrong - and so did this deck until someone read the numbers. It climbs to
+0.857 at 251 examples and then stops: 0.834, 0.847, 0.835, 0.832, 0.847. It ends
+below its own high point.
+
+Someone will say it is still rising, because the last segment goes up by 0.014.
+Have the answer ready: across the five folds that step is -0.030, +0.050,
++0.006, -0.009, +0.053. It is a wiggle inside a band of about 0.04, not a trend.
+A slope smaller than its band is not a slope.
 
 Say that the right-hand setup is not contrived. It is what a wide feature table
 looks like when most columns carry nothing, which is most feature tables.
@@ -583,7 +592,8 @@ looks like when most columns carry nothing, which is most feature tables.
 # Which fix to buy
 
 - Curves **meet low** → bias. More data will **not** help
-- Wide gap, validation **still rising** → variance. More data **will**
+- Wide gap, validation **still rising** → more data **will**
+- Wide gap, validation **flat** → regularise, drop features. **Ours is this one**
 
 ::: notes
 This slide is the practical payoff of the entire second hour, so do not rush it.
@@ -598,7 +608,13 @@ Emphasise that this is the expensive mistake. Collecting data is the slowest and
 costliest item on the list, and the plot says in advance that it will buy
 nothing.
 
-High variance: the rising curve is itself the evidence that more data will help.
+High variance splits in two, and the slope is what splits it. A curve still
+rising is itself the evidence that more data will pay - the only case where
+"collect more" is a plan rather than a hope. A curve that has flattened, which
+is what our right-hand panel does after 251 examples, says the gap is real and
+more rows of the same kind have stopped buying anything: what is left is
+stronger regularisation, fewer features, a simpler model. Here the 150 noise
+columns are the problem, and no quantity of rows removes a column.
 
 Name the predictable mistake and defend the instinct: prescribing data for a
 bias problem is what almost everyone does, and the reasoning is sound - more

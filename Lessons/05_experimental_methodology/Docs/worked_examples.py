@@ -281,4 +281,57 @@ same("5.3 bias squared is smallest at degree 5",
 same("5.3 and degree 12's is the worst in the table",
      max(bias_by_degree, key=bias_by_degree.get), 12, tolerance=0)
 
+# --------------------------------------- Section 6, the shape of a curve
+#
+# Section 6.1 reads a slope, which is the kind of claim that survives being
+# wrong: every number around it stays correct. So the curve is rebuilt here and
+# the claim is tested as a claim - where the peak is, whether the end lies below
+# it, and whether the final step up is larger than the fold-to-fold scatter.
+import pandas as pd                                                    # noqa: E402
+from sklearn.model_selection import learning_curve                     # noqa: E402
+
+wide_rng = np.random.default_rng(0)
+wide_noise = pd.DataFrame(
+    wide_rng.normal(size=(len(fleet_X), 150)),
+    columns=[f"noise_{i}" for i in range(150)], index=fleet_X.index)
+wide_X = pd.concat([fleet_X, wide_noise], axis=1)
+
+counts, _, valid = learning_curve(
+    make_pipeline(StandardScaler(),
+                  LogisticRegression(max_iter=5000, C=1000.0,
+                                     random_state=RANDOM_STATE)),
+    wide_X, fleet_y, train_sizes=np.linspace(0.15, 1.0, 8),
+    cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=0),
+    scoring="roc_auc")
+valid_mean = valid.mean(axis=1)
+
+same("6.1 the validation curve peaks at 251 examples",
+     int(counts[valid_mean.argmax()]), 251, tolerance=0)
+same("6.1 at 0.857", valid_mean.max(), 0.857, tolerance=5e-4)
+same("6.1 and ends lower, at 0.847", valid_mean[-1], 0.847, tolerance=5e-4)
+same("6.1 so the end is below the peak",
+     float(valid_mean[-1] < valid_mean.argmax() * 0 + valid_mean.max()), 1.0,
+     tolerance=0)
+
+# The last segment rises by 0.014. Whether that is a slope is a question about
+# its scatter, so ask the five folds rather than the average.
+last_step = valid[-1] - valid[-2]
+same("6.1 the final step averages +0.014", last_step.mean(), 0.014, tolerance=5e-4)
+same("6.1 with folds disagreeing on its sign",
+     float(last_step.min() < 0 < last_step.max()), 1.0, tolerance=0)
+same("6.1 by more than the step itself",
+     float(last_step.std(ddof=1) > abs(last_step.mean())), 1.0, tolerance=0)
+
+# And the plateau is not a property of one fold seed.
+for fold_seed in (1, 2):
+    other = learning_curve(
+        make_pipeline(StandardScaler(),
+                      LogisticRegression(max_iter=5000, C=1000.0,
+                                         random_state=RANDOM_STATE)),
+        wide_X, fleet_y, train_sizes=np.linspace(0.15, 1.0, 8),
+        cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=fold_seed),
+        scoring="roc_auc")[2].mean(axis=1)
+    same(f"6.1 the curve still stops climbing well before the end, fold seed {fold_seed}",
+         float(int(counts[other.argmax()]) < counts[-1]), 1.0, tolerance=0)
+
 print(f"lesson 5: {checks} hand-worked numbers recomputed, all agree")
