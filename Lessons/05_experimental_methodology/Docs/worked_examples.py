@@ -211,4 +211,74 @@ same("4.7 and the gap reverses sign with a different forty seeds",
      np.sign(gap_in_standard_errors(other_single, other_cv)), -np.sign(first),
      tolerance=0)
 
+# ------------------------------------- Section 5.3, the two variance columns
+#
+# The handout's claim is a comparison, not a figure: a misspecified straight
+# line pivots with the sample of temperatures, so its variance beats a more
+# flexible model's, and holding the design fixed removes the effect. Both
+# columns are rebuilt here from the generator, and the ordering is then checked
+# again on a seed the notebook never used - a comparison that held on one draw
+# would be worth nothing.
+from methodology_data import (NOISE_SD, TEST_TEMPERATURE, TEST_TRUTH,  # noqa: E402
+                              sample_energy, sample_energy_at)
+from sklearn.linear_model import LinearRegression                     # noqa: E402
+from sklearn.preprocessing import PolynomialFeatures                  # noqa: E402
+
+BV_DEGREES = [1, 2, 3, 5, 9, 12]
+
+
+def universes(degree, redraw_temperatures, seed, n_train=25, n_samples=300):
+    rng = np.random.default_rng(seed)
+    # The fixed design spends its first draw on the temperatures; the redrawing
+    # one must not, or the two run on different streams and neither reproduces
+    # the notebook it is checking.
+    fixed_temperature = (None if redraw_temperatures
+                         else rng.uniform(-5, 38, n_train))
+    predictions = []
+    for _ in range(n_samples):
+        if redraw_temperatures:
+            temperature, energy = sample_energy(n_train, rng)
+        else:
+            temperature = fixed_temperature
+            energy = sample_energy_at(temperature, rng)
+        model = make_pipeline(PolynomialFeatures(degree),
+                              LinearRegression()).fit(temperature.reshape(-1, 1),
+                                                      energy)
+        predictions.append(model.predict(TEST_TEMPERATURE.reshape(-1, 1)))
+    predictions = np.array(predictions)
+    return (float(np.mean((predictions.mean(axis=0) - TEST_TRUTH) ** 2)),
+            float(np.mean(predictions.var(axis=0))))
+
+
+redrawn = {degree: universes(degree, True, 0) for degree in BV_DEGREES}
+fixed = {degree: universes(degree, False, 0)[1] for degree in BV_DEGREES}
+
+same("5.3 degree 1's bias squared", redrawn[1][0], 5250.8, tolerance=0.1)
+same("5.3 degree 1's variance, temperatures redrawn", redrawn[1][1], 723.8,
+     tolerance=0.1)
+same("5.3 which is larger than degree 2's 70.8", redrawn[2][1], 70.8,
+     tolerance=0.1)
+same("5.3 with the temperatures held fixed degree 1 falls to 33.9", fixed[1], 33.9,
+     tolerance=0.1)
+same("5.3 and degree 12 to 2,669.8", fixed[12], 2669.8, tolerance=0.1)
+same("5.3 the fixed-design variance climbs at every degree",
+     sum(1 for a, b in zip(BV_DEGREES, BV_DEGREES[1:]) if fixed[b] > fixed[a]),
+     len(BV_DEGREES) - 1, tolerance=0)
+
+# On another seed the digits move; what must survive is the comparison itself.
+other_redrawn = {degree: universes(degree, True, 11)[1] for degree in (1, 2)}
+other_fixed = {degree: universes(degree, False, 11)[1] for degree in BV_DEGREES}
+same("5.3 the straight line is still the noisier of the two on another seed",
+     float(other_redrawn[1] > other_redrawn[2]), 1.0, tolerance=0)
+same("5.3 and holding the design fixed still orders them the other way",
+     sum(1 for a, b in zip(BV_DEGREES, BV_DEGREES[1:])
+         if other_fixed[b] > other_fixed[a]), len(BV_DEGREES) - 1, tolerance=0)
+
+# 5.3's other asymmetry: bias squared is lowest in the middle, not at the end.
+bias_by_degree = {degree: redrawn[degree][0] for degree in BV_DEGREES}
+same("5.3 bias squared is smallest at degree 5",
+     min(bias_by_degree, key=bias_by_degree.get), 5, tolerance=0)
+same("5.3 and degree 12's is the worst in the table",
+     max(bias_by_degree, key=bias_by_degree.get), 12, tolerance=0)
+
 print(f"lesson 5: {checks} hand-worked numbers recomputed, all agree")

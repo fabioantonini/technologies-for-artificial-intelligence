@@ -467,8 +467,14 @@ as a schematic. Here it is measured.
 Noise is 484 in every row - point at the column and say that it never
 moves, because it is a property of the data and not of the model.
 
-Degree 1 is a bias problem: the largest bias² and the smallest variance. Stable
-and wrong.
+Degree 1 is a bias problem: bias² of 5,250, two orders of magnitude above the
+next row. Stable in shape and wrong everywhere.
+
+Do not say it has the smallest variance - it does not, 723.8 against degree 2's
+70.8, and it is on the slide. Every universe draws its own 25 temperatures, and
+a straight line that cannot follow the curve pivots according to where they
+fell. Handout section 5.3 measures what happens when the temperatures are held
+fixed instead: the variance column then climbs from the first row.
 
 Degree 12 is a variance problem, and the magnitude deserves a pause: 32 million,
 four orders of magnitude larger than anything else. On 25 points a degree-12
@@ -486,8 +492,20 @@ inherits the instability. Read the two together.
 ![](bias_variance_tradeoff.png)
 
 ::: notes
-Bias falls monotonically with complexity; variance rises; the total is a U whose
-minimum is the model you want.
+The classic picture, and the one place where the classic picture is usually
+drawn without anyone checking it. The textbook version: bias falling
+monotonically, variance rising, the total a U. Two of those three are not what
+the measurement gives.
+
+Bias² falls only as far as degree 5 - 5,250 down to 8.9 - and then climbs to
+153,537, for the reason on the previous slide: at that variance the average of
+the fits is not a meaningful curve. And variance starts at 723.8, drops to 70.8
+at degree 2, and only then rises.
+
+What does survive is the part the lesson needs: the total error is a U with its
+minimum at degree 2. Say that the cartoon is a well-specified model on a fixed
+design, and that real measurements are lumpier - it is a better lesson than the
+tidy version, and it is on the slide in front of them.
 
 The y-axis is logarithmic, and say why: otherwise degree 12 flattens everything
 else onto the baseline. That in itself tells them something about the scale of

@@ -493,8 +493,28 @@ variance 484:
 | 9 | 80.1 | 65,186.0 | 484.0 | 65,750.1 |
 | 12 | 153,537.3 | 32,174,344.9 | 484.0 | 32,328,366.2 |
 
-**Degree 1 is a bias problem** — the largest bias² in the table and the smallest
-variance. Stable and wrong.
+**Degree 1 is a bias problem** — its bias² is 5,250.8, two orders of magnitude
+above the next row, and its total error is the second worst in the table. Stable
+in shape and wrong everywhere.
+
+**Its variance is not the smallest, though, and that is worth a minute.** The
+textbook picture has variance rising with complexity from the very first point;
+here degree 1 measures 723.8 against degree 2's 70.8. Nothing is broken. Each of
+the 300 universes draws its own 25 temperatures, and a straight line *cannot*
+follow the curve, so which line it settles on depends on where those
+temperatures happened to fall: a sample weighted towards cold days tilts it one
+way, a sample weighted towards hot days the other. The line pivots from sample
+to sample even though it is the least flexible model in the table. Hold the 25
+temperatures fixed across universes and the effect disappears: notebook 2
+measures the same six models that way, and the variance column then climbs from
+the first row to the last — 33.9, 55.3, 81.9, 154.5, 709.2, 2,669.8 — with
+degree 1 the most stable model in the table, as the picture promises.
+
+**So the clean monotone curves of the textbook diagram are what a well-specified
+model does on a fixed design.** Measured on a misspecified one, bias² falls only
+as far as degree 5 and then climbs, and variance starts high before it starts
+rising. What survives is the shape that matters: a total error that is a U, with
+its minimum at degree 2.
 
 **Degree 12 is a variance problem**, and the magnitude is worth pausing on: 32
 million, four orders of magnitude larger than anything else. On 25 points a

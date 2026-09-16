@@ -73,6 +73,17 @@ def sample_energy(n_samples: int, rng: np.random.Generator):
     return temperature, energy
 
 
+def sample_energy_at(temperature, rng: np.random.Generator):
+    """Draw the energy readings for temperatures that are given, not redrawn.
+
+    Calling this with one fixed array of temperatures gives universes that
+    differ only in their measurement noise, which is the textbook's fixed
+    design. ``sample_energy`` redraws the temperatures too, and notebook 2
+    measures what that difference does to the variance of a misspecified model.
+    """
+    return true_curve(temperature) + rng.normal(0, NOISE_SD, len(temperature))
+
+
 #: A fixed grid to evaluate on, so every model in notebook 2 is judged at the
 #: same points and the numbers are comparable across degrees.
 TEST_TEMPERATURE = np.linspace(-4, 37, 220)
