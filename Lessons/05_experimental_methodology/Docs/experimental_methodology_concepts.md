@@ -37,6 +37,15 @@ reporting one, because noise does not average out when it is used to decide — 
 decides. → § 3
 
 
+**Parameters and hyperparameters.** The coefficients and intercept a fit computes
+from the data are parameters; the settings fixed before the fit — penalty strength,
+decision threshold, number of neighbours, tree depth — are hyperparameters, chosen
+by comparison rather than fitted. → § 3
+
+**`C` in scikit-learn.** The reciprocal of a penalty strength, so small `C` is heavy
+regularisation. It runs opposite to lesson 3's $\lambda$. → § 3
+
+
 ## Cross-validation
 
 **k-fold cross-validation.** Cut the data into $k$ parts, train on $k-1$ and score

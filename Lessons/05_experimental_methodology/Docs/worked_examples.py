@@ -334,4 +334,23 @@ for fold_seed in (1, 2):
     same(f"6.1 the curve still stops climbing well before the end, fold seed {fold_seed}",
          float(int(counts[other.argmax()]) < counts[-1]), 1.0, tolerance=0)
 
+# ------------------------------------------- Section 3, which C is the strong one
+#
+# The handout now warns that scikit-learn's C runs opposite to lesson 3's
+# lambda. That is a claim about the library, so ask the library: the coefficient
+# vector must shrink as C falls.
+norms = []
+for c_value in (0.01, 1.0, 100.0):
+    fitted = make_pipeline(StandardScaler(),
+                          LogisticRegression(max_iter=5000, C=c_value,
+                                             random_state=RANDOM_STATE)
+                          ).fit(fleet_X, fleet_y)
+    norms.append(float(np.linalg.norm(fitted[-1].coef_)))
+
+same("3 a smaller C really is the heavier penalty",
+     float(norms[0] < norms[1] < norms[2]), 1.0, tolerance=0)
+same("3 the heavy penalty shrinks the coefficient vector to 0.52", norms[0], 0.52,
+     tolerance=5e-3)
+same("3 against 2.45 with almost none", norms[2], 2.45, tolerance=5e-3)
+
 print(f"lesson 5: {checks} hand-worked numbers recomputed, all agree")

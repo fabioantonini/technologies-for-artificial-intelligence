@@ -10,17 +10,17 @@ date: "23 October 2026 · reading time about 95 minutes"
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
 | 0:00–0:10 | 10 | Exercise 4 discussed; the promise we broke | Slides 2–4 |
-| 0:10–0:30 | 20 | One split is a lottery | Slides 5–10 |
-| 0:30–0:52 | 22 | Cross-validation, and when it needs care | Slides 11–18 |
-| 0:52–1:14 | 22 | **Notebook 01** — the split lottery | Slide 19 |
-| 1:14–1:26 | 12 | **Break** | Slide 20 |
-| 1:26–1:50 | 24 | Bias, variance and the noise floor | Slides 21–27 |
-| 1:50–2:04 | 14 | Learning curves and what they prescribe | Slides 28–29 |
-| 2:04–2:24 | 20 | **Notebook 02** — measuring the decomposition | Slide 30 |
-| 2:24–2:46 | 22 | Leakage that survives cross-validation | Slides 31–38 |
-| 2:46–2:56 | 10 | The debt paid; seeds; reproducibility | Slides 39–43 |
-| 2:56–3:00 | 4 | **Notebook 03**; summary; homework | Slides 44–46 |
-| | **180** | **Total** | **46 slides, 3 notebooks** |
+| 0:10–0:30 | 20 | One split is a lottery | Slides 5–11 |
+| 0:30–0:52 | 22 | Cross-validation, and when it needs care | Slides 12–19 |
+| 0:52–1:14 | 22 | **Notebook 01** — the split lottery | Slide 20 |
+| 1:14–1:26 | 12 | **Break** | Slide 21 |
+| 1:26–1:50 | 24 | Bias, variance and the noise floor | Slides 22–28 |
+| 1:50–2:04 | 14 | Learning curves and what they prescribe | Slides 29–30 |
+| 2:04–2:24 | 20 | **Notebook 02** — measuring the decomposition | Slide 31 |
+| 2:24–2:46 | 22 | Leakage that survives cross-validation | Slides 32–39 |
+| 2:46–2:56 | 10 | The debt paid; seeds; reproducibility | Slides 40–44 |
+| 2:56–3:00 | 4 | **Notebook 03**; summary; homework | Slides 45–47 |
+| | **180** | **Total** | **47 slides, 3 notebooks** |
 
 ---
 
@@ -167,8 +167,33 @@ decides.
 
 *Left: how often each of the three models was declared best, against the dashed line that pure chance would give. Right: their actual distributions, sitting on top of one another. The right panel is the truth; the left is what a single experiment reports.*
 
-Take three logistic regressions differing only in the strength of the penalty,
-and let a single split pick the winner. Two hundred times:
+**First the word, because the rest of the lesson leans on it.** A fitted model
+holds two kinds of number. The ones the fit computes from the data — the
+coefficients $w$ and the intercept $b$ of lessons 3 and 4 — are its
+**parameters**. The ones that have to be fixed *before* the fit are its
+**hyperparameters**: the penalty strength $\lambda$ of lesson 3, the decision
+threshold of lesson 4, the number of neighbours in lesson 6, the depth of a tree
+in lesson 7.
+
+The distinction is not bookkeeping. A hyperparameter cannot be fitted the way a
+coefficient is, because minimising the training error would choose the value
+that fits the training data best — $\lambda = 0$ every time, and the largest
+tree available. So they are chosen by **comparison**: fit the model once per
+candidate value and see which one generalises. That comparison needs data the
+model did not train on, which is why the rest of this lesson is about how to
+spend it.
+
+**One warning about the notation, because scikit-learn inverts it.**
+`LogisticRegression` is regularised through `C`, which is the *reciprocal* of
+the penalty: small `C` means a strong penalty, large `C` means almost none. It
+runs in the opposite direction to lesson 3's $\lambda$, and the table below is
+in `C`, so its first row is the most heavily penalised model, not the least. On
+this data the difference is visible in the coefficients: fitted on all 800
+drives, `C = 0.01` gives a coefficient vector of length 0.52, and `C = 100` one
+of length 2.45.
+
+Take three logistic regressions differing only in that one hyperparameter, and
+let a single split pick the winner. Two hundred times:
 
 | Model | Mean AUC | Standard deviation | Times declared best |
 |---|---|---|---|
@@ -690,8 +715,10 @@ exactly once; fewer candidates; or more rows. Nothing else.
 ### 7.3 Hyperparameter search is the same problem
 
 
-Choosing between configurations is choosing, and choosing on data costs the same
-honesty. A grid of 25 combinations on that signal-free table:
+Section 3 chose between three values of one hyperparameter. A real search
+chooses between dozens, over several hyperparameters at once — and choosing is
+choosing, whatever it is called, so it costs the same honesty. A grid of 25
+combinations on that signal-free table:
 
 ![](leakage_ladder.png)
 

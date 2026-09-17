@@ -139,6 +139,35 @@ Worth connecting to lesson 4: this is the same reason precision collapsed there
 while AUC did not notice.
 :::
 
+# Parameters and hyperparameters
+
+- **Parameters** are fitted from the data: $w$, $b$
+- **Hyperparameters** are fixed before the fit: penalty $\lambda$, threshold,
+  neighbours, tree depth
+- They cannot be fitted the same way — training error always prefers $\lambda = 0$
+- So they are chosen by **comparison**, on data the model never trained on
+- scikit-learn's C is a **reciprocal** penalty: C = 0.01 is the strongest
+
+::: notes
+One slide, because every choice in the rest of the lesson is a choice of one of
+these, and the word has been used loosely since lesson 2.
+
+Parameters are what the fit computes: coefficients and intercept. Hyperparameters
+are what you fix before it starts - lesson 3's penalty, lesson 4's threshold,
+lesson 6's number of neighbours, lesson 7's tree depth.
+
+Then the sentence that makes the distinction matter rather than taxonomic: you
+cannot fit a hyperparameter by minimising training error, because that objective
+already knows its favourite answer - no penalty at all, and the biggest tree
+available. It would choose the most flexible model every time. So the only way
+to choose one is to compare, and comparison needs data the model has not seen.
+That is what the rest of today is about, and why it costs what it costs.
+
+Last bullet is the trap in the next table: C is the reciprocal of the penalty,
+so C = 0.01 is the most heavily regularised of the three, not the least.
+Handout section 3.
+:::
+
 # Now the expensive part: choosing
 
 | Model | Mean AUC | Times declared best |
@@ -148,6 +177,9 @@ while AUC did not notice.
 | C = 100 | 0.9544 | 38 |
 
 ::: notes
+Remind them of the reciprocal as they read the first column: the top row,
+C = 0.01, is the most heavily penalised model, not the least.
+
 Reporting a noisy number is bad. Choosing with one is worse, because noise does
 not average out when it is used to decide - it decides.
 
