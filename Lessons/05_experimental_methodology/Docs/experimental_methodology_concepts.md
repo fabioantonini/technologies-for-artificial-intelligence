@@ -37,10 +37,12 @@ reporting one, because noise does not average out when it is used to decide — 
 decides. → § 3
 
 
-**Parameters and hyperparameters.** The coefficients and intercept a fit computes
-from the data are parameters; the settings fixed before the fit — penalty strength,
-decision threshold, number of neighbours, tree depth — are hyperparameters, chosen
-by comparison rather than fitted. → § 3
+**Parameters and hyperparameters.** The coefficients and intercept a fit estimates
+from the data are parameters. What it does not estimate — penalty strength, number
+of neighbours, tree depth, and the decision threshold applied after the fit — are
+hyperparameters: they govern the fitting or the decision, and are chosen from
+outside by comparison. Not "fixed before the fit": the threshold is chosen after
+it. → § 3
 
 **`C` in scikit-learn.** The reciprocal of a penalty strength, so small `C` is heavy
 regularisation. It runs opposite to lesson 3's $\lambda$. → § 3

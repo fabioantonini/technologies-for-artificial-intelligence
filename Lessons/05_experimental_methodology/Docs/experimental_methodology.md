@@ -168,20 +168,27 @@ decides.
 *Left: how often each of the three models was declared best, against the dashed line that pure chance would give. Right: their actual distributions, sitting on top of one another. The right panel is the truth; the left is what a single experiment reports.*
 
 **First the word, because the rest of the lesson leans on it.** A fitted model
-holds two kinds of number. The ones the fit computes from the data — the
+holds two kinds of number. The ones the fit **estimates** from the data — the
 coefficients $w$ and the intercept $b$ of lessons 3 and 4 — are its
-**parameters**. The ones that have to be fixed *before* the fit are its
-**hyperparameters**: the penalty strength $\lambda$ of lesson 3, the decision
-threshold of lesson 4, the number of neighbours in lesson 6, the depth of a tree
-in lesson 7.
+**parameters**. The ones it does not estimate are its **hyperparameters**: they
+govern *how* the fitting is done, or how its output becomes a decision, and they
+are chosen from outside it. The penalty strength $\lambda$ of lesson 3, the
+number of neighbours in lesson 6 and the depth of a tree in lesson 7 govern the
+fitting; lesson 4's decision threshold governs the decision.
 
-The distinction is not bookkeeping. A hyperparameter cannot be fitted the way a
-coefficient is, because minimising the training error would choose the value
-that fits the training data best — $\lambda = 0$ every time, and the largest
-tree available. So they are chosen by **comparison**: fit the model once per
-candidate value and see which one generalises. That comparison needs data the
-model did not train on, which is why the rest of this lesson is about how to
-spend it.
+**Not "fixed before the fit", which is the tempting shorthand.** $\lambda$ does
+have to be fixed first, because the fit minimises a cost that contains it. The
+threshold is the counter-example: it is chosen *afterwards*, on the probabilities
+the fit has already produced. What the two have in common is not their timing but
+that neither is estimated the way a coefficient is.
+
+And neither could be. Estimating a hyperparameter by minimising the training
+error would choose the value that fits the training data best — $\lambda = 0$
+every time, the largest tree available, and a threshold tuned to the rows
+already seen. So they are chosen by **comparison** instead: fit or score the
+model once per candidate value and see which one generalises. That comparison
+needs data the model did not train on, which is why the rest of this lesson is
+about how to spend it.
 
 **One warning about the notation, because scikit-learn inverts it.**
 `LogisticRegression` is regularised through `C`, which is the *reciprocal* of

@@ -136,7 +136,12 @@ def strip_citations(text: str) -> str:
     noise here rather than provenance. Lesson 4's session left 53 of them.
     """
     text = re.sub("\ue200.*?\ue201", "", text, flags=re.S)
-    return re.sub("[\ue200-\ue20f]", "", text)
+    text = re.sub("[\ue200-\ue20f]", "", text)
+    # Where the session used a tool, the share payload leaves this sentence in
+    # place of its output - 14 of them in lesson 5, four in a row on one slide.
+    # It says nothing a reader of the document can use.
+    return re.sub(r'^[ \t]*The output of this plugin was redacted\.[ \t]*$\n?',
+                  "", text, flags=re.M)
 
 
 def messages(nodes: list) -> tuple[list[dict], int]:
@@ -243,6 +248,10 @@ def fix_math(text: str) -> str:
     text = re.sub(r'(?<!\\)\\\)', "$", text)
     text = re.sub(r'(?<!\\)\\\[', "\n$$\n", text)
     text = re.sub(r'(?<!\\)\\\]', "\n$$\n", text)
+    # A chat renderer accepts "\\not\\!\\perp" for "not independent"; TeX does
+    # not, because \\not wants a symbol and \\! is a kern. One occurrence
+    # stopped lesson 5's whole build.
+    text = re.sub(r'\\not(\\[!,;: ])+', r'\\not', text)
     text = re.sub(r'^[ \t]*(#{1,6})[ \t]+',
                   lambda m: "\n" + "#" * min(5, len(m.group(1)) + 2) + " ",
                   text, flags=re.M)

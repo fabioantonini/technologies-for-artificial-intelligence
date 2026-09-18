@@ -141,27 +141,33 @@ while AUC did not notice.
 
 # Parameters and hyperparameters
 
-- **Parameters** are fitted from the data: $w$, $b$
-- **Hyperparameters** are fixed before the fit: penalty $\lambda$, threshold,
-  neighbours, tree depth
-- They cannot be fitted the same way — training error always prefers $\lambda = 0$
-- So they are chosen by **comparison**, on data the model never trained on
+- **Parameters** — estimated by the fit: $w$, $b$
+- **Hyperparameters** — not estimated: penalty $\lambda$, neighbours, depth, threshold
+- Not "set before the fit": the threshold is chosen after it
+- Training error would prefer $\lambda = 0$, so they are chosen by
+  **comparison**, on unseen data
 - scikit-learn's C is a **reciprocal** penalty: C = 0.01 is the strongest
 
 ::: notes
 One slide, because every choice in the rest of the lesson is a choice of one of
 these, and the word has been used loosely since lesson 2.
 
-Parameters are what the fit computes: coefficients and intercept. Hyperparameters
-are what you fix before it starts - lesson 3's penalty, lesson 4's threshold,
-lesson 6's number of neighbours, lesson 7's tree depth.
+Parameters are what the fit estimates: coefficients and intercept.
+Hyperparameters are what it does not - lesson 3's penalty, lesson 6's neighbours,
+lesson 7's tree depth, and lesson 4's threshold.
+
+Third bullet is worth a sentence, because the obvious shorthand is wrong and a
+sharp student will catch it. "Fixed before the fit" is true of the penalty,
+which sits inside the cost being minimised, and false of the threshold, which is
+chosen afterwards on probabilities the fit has already produced. What they share
+is not timing: it is that neither is estimated the way a coefficient is.
 
 Then the sentence that makes the distinction matter rather than taxonomic: you
-cannot fit a hyperparameter by minimising training error, because that objective
-already knows its favourite answer - no penalty at all, and the biggest tree
-available. It would choose the most flexible model every time. So the only way
-to choose one is to compare, and comparison needs data the model has not seen.
-That is what the rest of today is about, and why it costs what it costs.
+cannot estimate a hyperparameter by minimising training error, because that
+objective already knows its favourite answer - no penalty at all, the biggest
+tree available, a threshold tuned to the rows already seen. So the only way to
+choose one is to compare, and comparison needs data the model has not seen. That
+is what the rest of today is about, and why it costs what it costs.
 
 Last bullet is the trap in the next table: C is the reciprocal of the penalty,
 so C = 0.01 is the most heavily regularised of the three, not the least.
