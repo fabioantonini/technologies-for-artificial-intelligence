@@ -1,9 +1,11 @@
-# The Replication Crisis, and Machine Learning's Version of It
+---
+title: "The Replication Crisis, and Machine Learning's Version of It"
+subtitle: "Supplementary reading, lesson 5 — Technologies for Artificial Intelligence"
+author: "Fabio Antonini — Università degli Studi dell'Aquila"
+date: "23 October 2026 · reading time about 25 minutes"
+---
 
-> **Supplementary reading — Lesson 5**
-> Estimated reading time: 25 minutes
-> Not examinable. It is the evidence that the mistakes in lesson 5 are not
-> beginners' mistakes.
+> Not examinable. It is the evidence that the mistakes in lesson 5 are not beginners' mistakes.
 
 ---
 

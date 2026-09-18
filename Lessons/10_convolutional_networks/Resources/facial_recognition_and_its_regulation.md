@@ -1,10 +1,11 @@
-# Facial Recognition and Its Regulation
+---
+title: "Facial Recognition and Its Regulation"
+subtitle: "Supplementary reading, lesson 10 — Technologies for Artificial Intelligence"
+author: "Fabio Antonini — Università degli Studi dell'Aquila"
+date: "27 November 2026 · reading time about 25 minutes"
+---
 
-> **Supplementary reading — Lesson 10**
-> Estimated reading time: 25 minutes
-> Not examinable. The distinction in Section 1 — between checking a claim and
-> searching a database — is arithmetic you already have from Lesson 4, and it is
-> the single thing most often got wrong by people who buy these systems.
+> Not examinable. The distinction in Section 1 — between checking a claim and searching a database — is arithmetic you already have from Lesson 4, and it is the single thing most often got wrong by people who buy these systems.
 
 ---
 

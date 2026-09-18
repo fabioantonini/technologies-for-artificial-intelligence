@@ -1,7 +1,10 @@
-# A History of Artificial Intelligence
+---
+title: "A History of Artificial Intelligence"
+subtitle: "Supplementary reading, lesson 1 — Technologies for Artificial Intelligence"
+author: "Fabio Antonini — Università degli Studi dell'Aquila"
+date: "25 September 2026 · reading time about 30 minutes"
+---
 
-> **Supplementary reading — Lesson 1**
-> Estimated reading time: 30 minutes
 > Not examinable in itself. The *pattern* it describes is.
 
 ---

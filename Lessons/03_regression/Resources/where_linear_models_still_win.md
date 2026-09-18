@@ -1,9 +1,11 @@
-# Where Linear Models Still Win
+---
+title: "Where Linear Models Still Win"
+subtitle: "Supplementary reading, lesson 3 — Technologies for Artificial Intelligence"
+author: "Fabio Antonini — Università degli Studi dell'Aquila"
+date: "9 October 2026 · reading time about 25 minutes"
+---
 
-> **Supplementary reading — Lesson 3**
-> Estimated reading time: 25 minutes
-> Not examinable. It explains why the simplest model in the course is also the
-> one you are most likely to meet in production.
+> Not examinable. It explains why the simplest model in the course is also the one you are most likely to meet in production.
 
 ---
 
