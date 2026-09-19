@@ -270,6 +270,33 @@ Worth adding: this framing is due to Arthur Samuel in the 1950s, and it is still
 cleanest one-sentence description of what changed.
 :::
 
+# What the data actually is
+
+- One tumour = 30 numbers: radius 17.99, texture 10.38, perimeter 122.80, ...
+- That row is one input x; its label y is `malignant`, coded 0
+- All 569 rows stacked is the design matrix X, 569 x 30
+- **m = 569 examples** (rows), **n = 30 features** (columns) — all course long
+
+::: notes
+Do this before any symbol appears, because "pairs (x, y) drawn from a
+distribution" is unreadable to someone who has never seen what is inside an x.
+
+Point at the numbers first. One tumour, thirty measurements taken from a
+digitised image of a tissue sample - radius, texture, perimeter, area and 26
+more. THAT list is x. The thing we want to predict, malignant or benign, is y.
+Notebook 01 prints exactly this table in its second cell, and it is the dataset
+we use for the whole workflow later today.
+
+Then the two letters, and say they never move: m counts examples, n counts
+features, rows are examples, columns are features. Every lesson of the course
+uses them this way, and lesson 3 will write the normal equation with them.
+
+Last sentence, and it sets up lesson 2: the thirty columns are not the tumour.
+They are what somebody decided to measure of it. Ask the room what else they
+would have measured - age, family history, time since the last scan - and let
+them notice that none of it is in the file. Handout section 2.1.
+:::
+
 # Making it precise
 
 - Inputs from a space `X`, outputs from a space `Y`

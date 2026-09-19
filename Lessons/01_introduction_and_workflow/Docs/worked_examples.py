@@ -230,4 +230,20 @@ same("2.4 one yes/no draw has variance p(1-p)", float(single.var()),
 same("2.4 143 rows at 0.986 give a standard error near one point",
      100 * (0.986 * (1 - 0.986) / 143) ** 0.5, 1.0, tolerance=0.15)
 
+# ----------------------------------------- Section 2.1, the shape of the data
+#
+# The section now prints a row of the file, and the letters m and n are defined
+# against it. Those digits are as checkable as any derived quantity, and they
+# are the first thing a reader meets.
+_frame = _data.frame
+same("2.1 the design matrix has 569 rows", _frame.shape[0], 569, tolerance=0)
+same("2.1 and 30 feature columns", _frame.shape[1] - 1, 30, tolerance=0)
+for _column, _printed in (("mean radius", 17.99), ("mean texture", 10.38),
+                          ("mean perimeter", 122.80), ("mean area", 1001.0)):
+    same(f"2.1 the first tumour's {_column}", float(_frame[_column].iloc[0]),
+         _printed, tolerance=5e-3)
+same("2.1 whose label is malignant, coded 0", int(_data.target[0]), 0, tolerance=0)
+same("2.1 and malignant is indeed class 0",
+     float(_data.target_names[0] == "malignant"), 1.0, tolerance=0)
+
 print(f"lesson 1: {checks} hand-worked numbers recomputed, all agree")

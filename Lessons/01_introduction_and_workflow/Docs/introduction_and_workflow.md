@@ -11,13 +11,13 @@ date: "25 September 2026 · reading time about 70 minutes"
 |---|---|---|
 | 0:00–0:15 | Course introduction and assessment | Slides 1–8 |
 | 0:15–0:25 | Environment check | `Course/Setup/` |
-| 0:25–0:50 | What learning from data means | Slides 9–20 |
-| 0:50–1:05 | A short history | Slides 21–30, `Resources/` |
+| 0:25–0:50 | What learning from data means | Slides 9–21 |
+| 0:50–1:05 | A short history | Slides 22–31, `Resources/` |
 | 1:05–1:15 | **Break** | |
-| 1:15–1:45 | The three kinds of learning | Slides 31–37, notebook 02 |
-| 1:45–2:30 | The end-to-end workflow, live | Slides 38–50, notebook 01 |
-| 2:30–2:55 | How models mislead | Slides 51–61, notebook 03 |
-| 2:55–3:00 | Homework set, questions | Slides 62–63 |
+| 1:15–1:45 | The three kinds of learning | Slides 32–38, notebook 02 |
+| 1:45–2:30 | The end-to-end workflow, live | Slides 39–51, notebook 01 |
+| 2:30–2:55 | How models mislead | Slides 52–62, notebook 03 |
+| 2:55–3:00 | Homework set, questions | Slides 63–64 |
 | | **Total** | **180 minutes** |
 
 ---
@@ -74,7 +74,40 @@ examples and let a procedure search for a rule consistent with them.
 
 ### 2.1 The formalisation
 
-This much can be made precise, and doing so pays off later.
+**First, what a piece of data actually is**, because the symbols below are
+easier to read once you have seen one.
+
+Notebook 01 works on 569 breast tumours. Each is described by 30 numbers
+computed from a digitised image of a tissue sample — the first four of them, for
+the first tumour in the file, are a mean radius of 17.99, a mean texture of
+10.38, a mean perimeter of 122.80 and a mean area of 1001.0, and 26 more follow.
+That list of thirty numbers **is** one input, written $x_1$. What we want to
+predict about it, `malignant`, is its label $y_1$; the dataset codes it as 0,
+with `benign` as 1.
+
+Stack all 569 of those rows and the table is the **design matrix** $X$, with
+shape $569 \times 30$:
+
+$$X = \begin{pmatrix}
+17.99 & 10.38 & 122.80 & \cdots & \\
+20.57 & 17.77 & 132.90 & \cdots & \\
+\vdots & \vdots & \vdots & \ddots &
+\end{pmatrix}
+\qquad
+y = \begin{pmatrix} 0 \\ 0 \\ \vdots \end{pmatrix}$$
+
+**One row per example, one column per feature.** The course writes $m$ for the
+number of examples and $n$ for the number of features, so here $m = 569$ and
+$n = 30$. Those two letters mean that in every lesson of this course, and they
+are never swapped; the full list of symbols is in *Notation used in this lesson*
+at the end of this handout.
+
+A **feature** is a column: one measured quantity, recorded for every example.
+The thirty columns are not the tumour, they are what somebody decided to measure
+of it — and deciding what to measure, and what to do with the columns you were
+given, is the whole of lesson 2.
+
+With that in hand the abstraction is short.
 
 We have an input space $\mathcal{X}$ (emails, tumour measurements, images) and an
 output space $\mathcal{Y}$ (spam or not, malignant or benign, a price). We assume
