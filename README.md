@@ -108,5 +108,17 @@ The image carries the **environment**. Course content reaches students through
 
 ---
 
+## Licence
+
+The teaching material — handouts, concepts indexes, slides, quizzes, exercises,
+supplementary readings and figures — is **CC BY-NC-SA 4.0**: study it, adapt it
+and share it, crediting the author and keeping the same licence. Commercial use,
+including paid training built on it, needs written permission. The source code —
+`tools/`, the notebooks' code, the data modules and the Docker configuration — is
+**MIT**, so it can be reused without those conditions. See [LICENSE](LICENSE) and
+[LICENSE-CODE](LICENSE-CODE).
+
+---
+
 Instructor: Fabio Antonini — fabio.antonini.1969@gmail.com ·
 [LinkedIn](https://www.linkedin.com/in/fabio-antonini-1a964a6/)
