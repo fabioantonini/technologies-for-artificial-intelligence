@@ -405,6 +405,17 @@ example and reciting its answer.
 Expected risk turns back up. The shaded region between the curves is overfitting: the
 model has learnt the sample rather than the pattern.
 
+Expect this question, because it is the right one to ask: if R(f) cannot be
+computed, what is the red curve? Answer in three steps. First, the two curves are
+not the same quantity measured on two datasets - empirical risk is an average over
+a sample you hold, expected risk is an average over the whole distribution, so
+there is no second R(f) "on the training data". Second, empirical risk can be
+computed on ANY sample, and on rows the fitting never touched it is an unbiased
+estimate of R(f) - that is what a test set buys, and section 2.3 is the argument.
+Third, the red curve is drawn, not measured: in a simulation where we choose the
+true function ourselves R(f) really is computable, and lesson 5's notebook 02
+measures exactly this shape over 300 generated datasets.
+
 The consequence for practice: performance on data you fitted to is ALWAYS optimistic and
 sometimes meaningless. Handout section 2.2 makes the argument in full.
 

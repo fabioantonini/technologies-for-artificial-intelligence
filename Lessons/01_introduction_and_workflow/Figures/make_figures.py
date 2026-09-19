@@ -124,10 +124,17 @@ def risk_gap():
     expected = empirical + 0.011 * (complexity - 1) ** 2.05
     best = complexity[np.argmin(expected)]
 
+    # The labels say which quantity each curve is, not which data it lives on:
+    # "expected risk (unseen data)" reads as though R(f) were the error on a
+    # second dataset. It is not - it is an expectation over the distribution,
+    # and a held-out sample only estimates it.
     fig, ax = plt.subplots(figsize=(7.4, 4.2))
-    ax.plot(complexity, empirical, lw=2.6, color=TEAL, label="Empirical risk (training data)")
-    ax.plot(complexity, expected, lw=2.6, color=RUST, label="Expected risk (unseen data)")
-    ax.axvline(best, ls=":", lw=1.6, color=SLATE)
+    ax.plot(complexity, empirical, lw=2.6, color=TEAL,
+            label="Empirical risk — computed on the training sample")
+    ax.plot(complexity, expected, lw=2.6, color=RUST,
+            label="Expected risk R(f) — not computable, only estimated")
+    # Stops below the legend: at full height it runs through the labels.
+    ax.axvline(best, ymin=0, ymax=0.56, ls=":", lw=1.6, color=SLATE)
     ax.annotate("the gap is overfitting",
                 xy=(8.6, (empirical[-1] + expected[-1]) / 2), xytext=(6.0, 0.78),
                 fontsize=10.5, color=INK,
@@ -140,7 +147,7 @@ def risk_gap():
     ax.set_title("What we minimise is not what we care about", fontsize=12.5, weight="bold")
     ax.set_xticks([]); ax.set_yticks([])
     ax.set_ylim(0, 1.05)
-    ax.legend(frameon=False, fontsize=10, loc="upper center")
+    ax.legend(frameon=False, fontsize=9.5, loc="upper center")
     ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
     save(fig, "risk_gap.png")

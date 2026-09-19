@@ -160,7 +160,19 @@ not the same number.
 
 ![](risk_gap.png)
 
-*The quantity we want and the quantity we can compute are not the same. Everything in this course is about keeping the gap between them small and honest.*
+*The quantity we want and the quantity we can compute are not the same. Read the legend carefully: the curves are two different quantities, not one quantity measured on two datasets. The blue one is an average over the sample in hand; the red one is an average over the whole distribution, which no dataset gives you. Everything in this course is about keeping the gap between them small and honest.*
+
+**Why the red curve can be discussed at all, if it cannot be computed.** Because
+$R(f)$ is what we are actually buying — the model will meet the world, not the
+training set — and because it can be *estimated without bias*. Empirical risk is
+defined on any sample, not only the training one: measure it on rows the fitting
+procedure never touched and, by the argument in Section 2.3, it is centred on
+$R(f)$. There is no separate "expected risk on the training data" and no separate
+one "on the test data"; there is one $R(f)$, a property of $f$ and $\mathcal{D}$,
+and two samples that estimate it with very different honesty. The one curve in this
+figure that is ever plotted from real data is the blue one; the red is drawn from
+theory here, and measured in lesson 5's notebook 02, where the true function is
+known by construction and $R(f)$ therefore computable.
 
 A sufficiently flexible $f$ can drive the empirical risk to zero by memorising the
 sample — storing every pair and reciting the answer. Its expected risk would be
