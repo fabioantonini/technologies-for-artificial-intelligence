@@ -358,6 +358,28 @@ def figures_dir(source: Path) -> Path:
     return source.parent / "Figures"
 
 
+#: Fenced blocks and inline spans, which are code and not maths. A shell
+#: variable is written "$REPO", and two of them in one line look exactly like
+#: inline maths: lesson 1's clone command lost both dollars and shipped a
+#: command that does not run.
+CODE = re.compile(r"```.*?```|`[^`\n]*`", re.S)
+
+
+def mask_code(text: str) -> tuple[str, list[str]]:
+    held: list[str] = []
+
+    def stash(match: re.Match) -> str:
+        held.append(match.group(0))
+        return f"\x00CODE{len(held) - 1}\x00"
+
+    return CODE.sub(stash, text), held
+
+
+def unmask_code(text: str, held: list[str]) -> str:
+    return re.sub(r"\x00CODE(\d+)\x00",
+                  lambda match: held[int(match.group(1))], text)
+
+
 def process(source: Path, dest: Path | None = None) -> tuple[int, int, list[str]]:
     """Convert the math in a slide source. Returns (unicode, images, warnings).
 
@@ -367,6 +389,7 @@ def process(source: Path, dest: Path | None = None) -> tuple[int, int, list[str]
     """
     dest = dest or source
     text = source.read_text(encoding="utf8")
+    text, held_code = mask_code(text)
     figures = figures_dir(source)
     stats = {"unicode": 0, "images": 0}
     warnings: list[str] = []
@@ -414,7 +437,7 @@ def process(source: Path, dest: Path | None = None) -> tuple[int, int, list[str]
             "rebuild produces"
         )
 
-    dest.write_text(text, encoding="utf8")
+    dest.write_text(unmask_code(text, held_code), encoding="utf8")
     return stats["unicode"], stats["images"], warnings
 
 
