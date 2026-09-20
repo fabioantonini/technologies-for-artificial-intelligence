@@ -7,18 +7,26 @@ date: "25 September 2026 · reading time about 70 minutes"
 
 ## Lesson plan
 
-| Time | Segment | Material |
-|---|---|---|
-| 0:00–0:15 | Course introduction and assessment | Slides 1–8 |
-| 0:15–0:25 | Environment check | `Course/Setup/` |
-| 0:25–0:50 | What learning from data means | Slides 9–21 |
-| 0:50–1:05 | A short history | Slides 22–31, `Resources/` |
-| 1:05–1:15 | **Break** | |
-| 1:15–1:45 | The three kinds of learning | Slides 32–38, notebook 02 |
-| 1:45–2:30 | The end-to-end workflow, live | Slides 39–51, notebook 01 |
-| 2:30–2:55 | How models mislead | Slides 52–62, notebook 03 |
-| 2:55–3:00 | Homework set, questions | Slides 63–64 |
-| | **Total** | **180 minutes** |
+| Time | Minutes | Segment | Material |
+|---|---|---|---|
+| 0:00–0:15 | 15 | Course introduction and assessment | Slides 1–8 |
+| 0:15–0:25 | 10 | Environment check | `Course/Setup/` |
+| 0:25–0:50 | 25 | What learning from data means | Slides 9–21 |
+| 0:50–1:05 | 15 | A short history | Slides 22–31, `Resources/` |
+| 1:05–1:15 | 10 | **Break** | — |
+| 1:15–1:30 | 15 | The three kinds of learning | Slides 32–37 |
+| 1:30–1:45 | 15 | **Notebook 02** — one dataset, three questions | Slide 38 |
+| 1:45–1:50 | 5 | The workflow, the map | Slide 39 |
+| 1:50–2:30 | 40 | **Notebook 01** — the workflow, live, with slides 41–52 | Slide 40 |
+| 2:30–2:35 | 5 | How models mislead: the frame | Slide 53 |
+| 2:35–2:55 | 20 | **Notebook 03** — four failures, live, with slides 55–64 | Slide 54 |
+| 2:55–3:00 | 5 | Homework set, questions | Slides 65–66 |
+| | **180** | **Total** | **66 slides, 3 notebooks** |
+
+Slide 1 is the title slide, so the numbers above match the page numbers in
+`Slides/introduction_and_workflow_slides.pdf`. Each notebook is announced by its
+own slide and worked live alongside the slides that follow it, rather than
+instead of them.
 
 ---
 
