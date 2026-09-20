@@ -1218,7 +1218,8 @@ which preprocessing steps needed to be inside the pipeline and demonstrating,
 with a number, what leaving one out would have cost.
 
 Also point them at the quiz - the reasoning-tagged questions are the closest
-thing to the exam they will see before the sample papers.
+thing to the exam there is, since the exam draws one of their own notebooks and
+asks why each decision was made.
 :::
 
 # Before next week

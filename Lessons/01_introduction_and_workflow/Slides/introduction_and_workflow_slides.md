@@ -139,8 +139,10 @@ Slides and notebooks arrive on the Friday; the handout follows by the Monday, si
 is study material rather than lecture support.
 
 The quizzes are self-check and ungraded, but three or four questions in each require
-reasoning about a derivation rather than recall - those are the closest thing to the
-exam they will see before the sample papers.
+reasoning about a derivation rather than recall. Those are the closest thing to the
+exam there is: at the exam one of their own exercise notebooks is drawn and the
+questions are of exactly that kind, "why did you do this" rather than "state the
+definition".
 :::
 
 # Getting the material
