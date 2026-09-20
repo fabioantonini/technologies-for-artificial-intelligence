@@ -208,6 +208,36 @@ would follow the bulk of the data and shrug at the outlier - which is what
 robust regression does, and why it exists.
 :::
 
+# A cost needs something to be compared against
+
+- Trivial answer for a regression: **always predict the mean**
+- On the 150 test houses: root mean squared error (RMSE) **96,440 €**, against
+  the model's **20,341 €**
+- **R² = 0.956** — the same comparison as one ratio, 0 is the mean, 1 is perfect
+- Quote the euros too: R² is divided by *this* test set's variance
+
+::: notes
+Lesson 1's habit, applied to regression for the first time. A classifier gets a
+majority-class baseline before it is allowed to speak; a regression gets the mean.
+
+Read the two root mean squared error (RMSE) numbers aloud before the ratio:
+96,440 euros against 20,341.
+Then say that R-squared is nothing more than that comparison written as one
+number - one minus the model's squared error over the mean's - so 0 means you
+matched the mean, 1 means perfect, and negative means worse than the mean, which
+does happen on a test set.
+
+The last bullet is the caution that keeps them out of trouble, and the handout
+measures it: keep this exact model and score it on the 55 test houses whose price
+is within half a standard deviation of the mean - a street where the houses
+resemble each other. R-squared falls from 0.956 to 0.448 while the RMSE IMPROVES,
+20,341 euros to 18,661, because predicting the mean is a good strategy when every
+house is worth about the same.
+
+So R-squared compares a model against the mean OF THE DATASET IT WAS MEASURED ON,
+and cannot compare two models measured on different data. Handout section 2.4.
+:::
+
 # The cost is a bowl
 
 ![](cost_surface.png)

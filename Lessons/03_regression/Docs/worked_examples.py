@@ -288,4 +288,42 @@ if table[100.0][1] >= table["none"][1]:
 checks += 1
 
 
+# ------------------------------- Section 2.4, the baseline and what R^2 is
+#
+# The section reports two RMSEs and a ratio. Rebuilt here from the generator and
+# from the definition of R^2 - never from sklearn's r2_score, so that the
+# notebook's library call and this check are two independent routes.
+_, X_held, _, y_held = train_test_split(
+    houses[features], houses["price"], test_size=0.25, random_state=RANDOM_STATE)
+
+_coefficients = least_squares(X_train[features], y_train)
+_fitted = _coefficients[0] + np.asarray(X_held, float) @ _coefficients[1:]
+_truth = np.asarray(y_held, float)
+_mean_only = np.full_like(_truth, y_train.mean())
+
+
+def _rmse(prediction):
+    return float(np.sqrt(((_truth - prediction) ** 2).mean()))
+
+
+same("2.4 always predicting the mean costs 96,440 euros", _rmse(_mean_only), 96_440,
+     tolerance=30)
+same("2.4 against the fitted model's 20,341", _rmse(_fitted), 20_341, tolerance=10)
+
+_ss_residual = float(((_truth - _fitted) ** 2).sum())
+_ss_total = float(((_truth - _truth.mean()) ** 2).sum())
+same("2.4 so R^2 is 0.956", 1 - _ss_residual / _ss_total, 0.956, tolerance=5e-4)
+
+# And the claim the section makes about R^2 being tied to the test set it was
+# measured on: keep the model, score it on the narrower half of the houses, and
+# R^2 must fall while the euros barely move.
+_narrow = np.abs(_truth - _truth.mean()) < 0.5 * np.std(_truth)
+_narrow_rmse = float(np.sqrt(((_truth[_narrow] - _fitted[_narrow]) ** 2).mean()))
+_narrow_r2 = float(1 - (((_truth[_narrow] - _fitted[_narrow]) ** 2).sum()
+                        / ((_truth[_narrow] - _truth[_narrow].mean()) ** 2).sum()))
+same("2.4 the narrower half holds 55 of the 150 test houses", int(_narrow.sum()), 55,
+     tolerance=0)
+same("2.4 on them R^2 falls to 0.448", _narrow_r2, 0.448, tolerance=5e-4)
+same("2.4 while the RMSE improves, to 18,661", _narrow_rmse, 18_661, tolerance=10)
+
 print(f"lesson 3: {checks} hand-worked numbers recomputed, all agree")

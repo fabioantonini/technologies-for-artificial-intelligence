@@ -10,22 +10,22 @@ date: "9 October 2026 · reading time about 80 minutes"
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
 | 0:00–0:08 | 8 | Exercise 2 discussed; the dataset | Slides 2–5 |
-| 0:08–0:23 | 15 | The model and its cost function | Slides 6–12 |
-| 0:23–0:37 | 14 | The exact solution, and when it fails | Slides 13–18 |
-| 0:37–0:48 | 11 | Gradient descent | Slides 19–23 |
-| 0:48–1:13 | 25 | **Notebook 01** — regression from scratch | Slide 24 |
-| 1:13–1:28 | 15 | **Break** | Slide 25 |
-| 1:28–1:45 | 17 | Curves, and the price of flexibility | Slides 26–33 |
-| 1:45–2:05 | 20 | **Notebook 02** — polynomials and overfitting | Slide 34 |
-| 2:05–2:26 | 21 | Ridge and Lasso | Slides 35–44 |
-| 2:26–2:35 | 9 | Reading coefficients honestly | Slides 45–48 |
-| 2:35–2:55 | 20 | **Notebook 03** — ridge, lasso, collinearity | Slide 49 |
-| 2:55–3:00 | 5 | Summary; homework set | Slides 50–51 |
-| | **180** | **Total** | **51 slides, 3 notebooks** |
+| 0:08–0:23 | 15 | The model, its cost, and what to compare it against | Slides 6–13 |
+| 0:23–0:37 | 14 | The exact solution, and when it fails | Slides 14–19 |
+| 0:37–0:48 | 11 | Gradient descent | Slides 20–24 |
+| 0:48–1:13 | 25 | **Notebook 01** — regression from scratch | Slide 25 |
+| 1:13–1:28 | 15 | **Break** | Slide 26 |
+| 1:28–1:45 | 17 | Curves, and the price of flexibility | Slides 27–34 |
+| 1:45–2:05 | 20 | **Notebook 02** — polynomials and overfitting | Slide 35 |
+| 2:05–2:26 | 21 | Ridge and Lasso | Slides 36–46 |
+| 2:26–2:35 | 9 | Reading coefficients honestly | Slides 47–50 |
+| 2:35–2:55 | 20 | **Notebook 03** — ridge, lasso, collinearity | Slide 51 |
+| 2:55–3:00 | 5 | Summary; homework set | Slides 52–53 |
+| | **180** | **Total** | **53 slides, 3 notebooks** |
 
 Slide 1 is the title slide, so the numbers above match the page numbers in
 `Slides/regression_slides.pdf`. The lecture segments come to 100 minutes across
-46 content slides — a shade under 28 slides per hour.
+48 content slides — a shade under 29 slides per hour.
 
 ---
 
@@ -140,6 +140,57 @@ would cut the cost by under 2% — you would barely see it move. Halving the
 15,000 error would cut it by **42%**. **Squared error spends its attention on
 the worst predictions**, and that is a design decision you are making whether or
 not you notice it.
+
+### 2.4 Against what? The baseline for a regression
+
+
+Lesson 1 made a habit of it: a score means nothing until you know what the
+trivial answer scores. For a classifier the trivial answer is *always the
+majority class*, and it gave 62.7% before any model was allowed to speak.
+
+Regression has the same trivial answer — **always predict the mean of the
+target, ignoring every input** — and the same reason for asking. On the 150 test
+houses of notebook 1:
+
+| Model | Root mean squared error (RMSE) |
+|---|---|
+| always predict the mean | 96,440 € |
+| the fitted six-feature model | **20,341 €** |
+
+The RMSE is the square root of the mean squared error, which puts the number back
+into the units of the target — euros here, and Section 5.2 uses it throughout.
+
+The same comparison written as one ratio is the **coefficient of determination**,
+$R^2$, which lesson 1 defined and this is the first place in the course that
+needs it:
+
+$$R^2 = 1 - \frac{\sum_i (y_i - \hat{y}_i)^2}{\sum_i (y_i - \bar{y})^2}
+= 1 - \frac{62{,}061{,}347{,}496}{1{,}395{,}086{,}153{,}600} = 0.956$$
+
+The numerator is the squared error the model still makes; the denominator is what
+the mean alone makes. So **1 is perfect, 0 means you matched the mean and learned
+nothing, and a negative value means you did worse than the mean** — which is not
+a bug, and does happen on a test set.
+
+**Report both, because they answer different questions.** The RMSE says *how far
+off* the model is, in euros, which is the number for whoever pays for the houses.
+$R^2$ says *against what*.
+
+**And one caution, which is why the euros should never be dropped.** $R^2$ is
+divided by the variance of the test set you happened to use, so it can be made to
+fall without touching the model. Keep the fitted model exactly as it is and score
+it on the 55 test houses whose price lies within half a standard deviation of the
+mean — a street where the houses resemble each other:
+
+| Test set | RMSE | $R^2$ |
+|---|---|---|
+| all 150 houses | 20,341 € | 0.956 |
+| the 55 similar ones | **18,661 €** | **0.448** |
+
+The model is unchanged and its euros **improved**; $R^2$ less than halved, because
+predicting the mean is a much better strategy when every house is worth roughly
+the same. $R^2$ compares a model against the mean **of the dataset it was measured
+on**, and therefore cannot compare two models measured on different data.
 
 ---
 

@@ -28,6 +28,16 @@ which is the reason that makes it more than a convention. → § 2.2
 contributes its error squared and drags the whole fit towards itself. → § 2.2
 
 
+**Baseline, for a regression.** Always predict the mean of the target. The
+regression counterpart of the majority-class classifier, and what $R^2$ measures a
+model against. → § 2.4
+
+**Coefficient of determination ($R^2$).** One minus the model's squared error over
+the squared error of always predicting the mean: 1 is perfect, 0 is the mean, and
+negative is worse than the mean. Divided by the variance of the test set used, so it
+does not compare models measured on different data. → § 2.4
+
+
 ## Solving it exactly
 
 **Design matrix.** The training data as a matrix, with a column of ones in front
