@@ -758,11 +758,11 @@ Handout section 5 has the full taxonomy.
 
 # Supervised
 
-The target is the quantity you want, recorded because somebody wanted it.
+The answer is recorded by somebody, outside the measurements.
 
 - Category → **classification**
 - Continuous → **regression**
-- Evaluated by **hiding the answer** on test rows it actually has
+- The cultivar is not a measurement — it is an answer written down
 
 ::: notes
 Lessons 3, 4, 6 and 7 are all supervised, so this is most of the course.
@@ -815,38 +815,27 @@ Nobody annotates anything, and the supervision is real.
 ![](self_supervision.png)
 
 ::: notes
-The one they will have heard about without a clean definition, so define it precisely.
+An intuition, not a method: they meet the technique properly in a later course,
+and today only needs them to recognise the idea.
 
-Say the formal point first, because it is one sentence and it settles the taxonomy:
-y is manufactured from x, so everything from the first hour applies unchanged - same
-expected risk, same empirical risk, same gap, same reason to hold data out. The only
-thing that changed is that the labels became free.
+Say it in one breath. Nobody labels anything; you take part of the input and treat it
+as the answer. The value is real - flavanoids is a genuine measurement in the table -
+but nobody asked for it to be predicted. You use it because it is already there, which
+is why the supervision is free.
 
-The reconstruction task is a PRETEXT: nobody wants a flavanoid predictor, which is what
-notebook 02 builds. The point is that solving it forces the model to represent how the
-parts of an input relate, and that representation transfers to tasks you do care about.
+Then the contrast with the previous slide, because it is the whole distinction: in
+supervised learning the answer lives OUTSIDE the measurements and somebody recorded it
+- the cultivar. Here the answer is ONE OF the measurements.
 
-Expect this question, and it is the best one in the section: the supervised regression
-earlier in the notebook ALSO predicted one column of the table from the other twelve,
-and colour intensity is present for every wine just as flavanoids is - so what makes
-one supervised and the other not? The code cannot tell them apart. What does is WHY
-the column is hidden. Colour intensity is hidden to EVALUATE: it is wanted for itself,
-and the test rows simulate the wines that will arrive without it - every supervised
-evaluation hides a value it has, because you cannot score without the truth.
-Flavanoids is hidden to TRAIN: hiding is how the targets are made, on any table at all.
-
-Then say plainly what the notebook does not show: the transfer. It fits one predictor
-and stops. The reason anyone bothers - that what was learned carries to a task you
-care about - is measured in lesson 10, section 10.
+The reconstruction is a pretext: nobody wants a flavanoid predictor. The reason anyone
+does it is that the model has to learn how the measurements relate, and that can be
+reused on a task you care about. Say plainly that the notebook stops before that step
+- a linear regression has nothing worth reusing.
 
 Scale the idea up - hide a word in a sentence, hide a patch of an image - and it is how
-modern large models are trained. Free supervision is precisely why they scale: text and
-images exist in enormous quantities and nobody has to annotate them.
-
-This is the honest one-paragraph answer to "how does ChatGPT learn?", and it is worth
-giving them, since they will be asked it at every family dinner.
-
-Walk it left to right: one column hidden, the rest used to predict it. Nobody labelled anything, yet there is a genuine target. Then scale the idea in their heads - hide a word in a sentence, a patch in an image - and they have the training principle behind every large model they have heard of.
+modern large models are trained. This is the honest one-paragraph answer to "how does
+ChatGPT learn?", and it is worth giving them, since they will be asked it at every
+family dinner.
 :::
 
 # One dataset, three questions
@@ -871,11 +860,11 @@ care about.
 
 # Where the target comes from
 
-| | Target | Why data is hidden | Cost | Measurable? |
-|---|---|---|---|---|
-| Supervised | What you want | **To evaluate** | Expensive | Yes |
-| Unsupervised | None | — | Free | Not directly |
-| Self-supervised | A pretext | **To train** | Free | Only the pretext |
+| | Where the answer comes from | Cost | Measurable? |
+|---|---|---|---|
+| Supervised | Recorded by somebody | Expensive | Yes |
+| Unsupervised | Nowhere | Free | Not directly |
+| Self-supervised | Part of the input | Free | Only the pretext |
 
 ::: notes
 Read the cost column aloud: it explains why self-supervision dominates wherever data is
@@ -891,7 +880,6 @@ often oversold.
 # Notebook 02, live
 
 - **Supervised**: predict the cultivar. Accuracy **0.981**
-- **Supervised**: predict colour intensity instead. R² **0.622**
 - **Unsupervised**: throw the labels away. Recovers the cultivars at **0.897**
 - **Self-supervised**: hide `flavanoids`, predict it. R² **0.816**
 
@@ -901,9 +889,9 @@ all three kinds appear on identical data, which is the whole argument of this
 segment made operational.
 
 The point to keep repeating as you scroll: nothing about the table changes between
-the four results. Same 178 wines, same 13 chemical measurements. What changes is
-which column is treated as the answer, and in the unsupervised case whether there
-is an answer at all.
+the three results. Same 178 wines, same 13 chemical measurements. What changes is
+where the answer comes from - recorded by somebody, nowhere at all, or one of the
+measurements themselves.
 
 Two moments worth stopping on.
 
@@ -912,13 +900,12 @@ is a happy accident of this dataset, where the chemical groups really are
 geometrically separated. Say plainly that this is not what clustering usually
 looks like, or they will leave expecting it.
 
-The self-supervised cell is mechanically identical to the regression cell two
-sections earlier - same estimator, same call. Ask the room what actually changed.
-The answer is only where the target came from: a person recorded the cultivar,
-whereas nobody produced the flavanoid column as a label, it was already in the
-table. That is the entire distinction the segment has been building to.
+The self-supervised cell against the supervised one: ask the room what is
+different about the two targets. The cultivar is an answer somebody wrote down, not
+a measurement; flavanoids is one of the measurements, used as an answer because it
+was there. That is the distinction the segment has been building to.
 
-If time is short, drop the R² aside and the n_init experiment; keep all four
+If time is short, drop the R² aside and the n_init experiment; keep all three
 results, because the comparison is the content. Handout section 5.
 :::
 

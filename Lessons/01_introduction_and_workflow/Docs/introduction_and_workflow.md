@@ -520,13 +520,9 @@ rather than one at a time.
 
 ### 5.1 Supervised learning
 
-Each example carries a target that was recorded **because somebody wanted it**:
-$(x_i, y_i)$ pairs. The model learns the mapping and can be checked against ground
-truth.
-
-Note what that does *not* say. It does not say a person wrote the label down — an
-instrument will do — and Section 5.3 shows why the distinction has to be put this
-way.
+Each example carries an answer that **somebody recorded**: $(x_i, y_i)$ pairs, where
+$y_i$ lives outside the measurements $x_i$. The model learns the mapping and can be
+checked against ground truth.
 
 When $\mathcal{Y}$ is a finite set of categories the task is **classification**; when
 it is continuous, **regression**. Lessons 3, 4, 6 and 7 are all supervised.
@@ -534,22 +530,11 @@ it is continuous, **regression**. Lessons 3, 4, 6 and 7 are all supervised.
 The cost is the labels. In practice this — not algorithms, not compute — is what
 limits most projects.
 
-Notebook 02 does both on the wine table. Predicting the cultivar — a category, so
-classification — reaches **0.981** accuracy. Swapping the target for colour
-intensity, a continuous quantity, makes the identical pipeline a regression, scored
-with $R^2$ at **0.622**. Nothing changed but which column was called the answer.
-
-The regression is supervised for a reason worth stating, because Section 5.3 runs the
-same code and is not: the colour reading is **wanted for its own sake**, as a gap to
-be filled in the wines that arrive without it.
-
-**And be honest about what the notebook can show.** In the table the reading is present
-for all 178 wines, so the missing ones are *simulated*: the column leaves the inputs
-because it is the answer, and the split makes 124 wines stand for those whose reading
-exists and 54 for those where it is hidden. That is not special to this example —
-**every supervised evaluation hides a value it actually has**, because a prediction
-cannot be scored without the true answer. Here, then, the column is hidden **to
-evaluate**.
+Notebook 02 predicts the cultivar of 178 wines from 13 chemical measurements and
+reaches **0.981** accuracy. It is worth noticing what kind of thing the target is:
+**the cultivar is not one of the measurements.** It is the grape variety, an answer
+written down about each wine rather than read off an instrument — which is exactly what
+makes this the clean case of supervision, and what Section 5.3 will contrast against.
 
 ### 5.2 Unsupervised learning
 
@@ -587,42 +572,20 @@ spends its first half on how to choose that number honestly.
 
 ### 5.3 Self-supervised learning
 
-**What this section and its notebook show, and what they do not.** Self-supervised
-learning has two halves. The first is that a usable target can be manufactured out of
-the input at no annotation cost. The second — the reason anyone does it — is that a
-model trained on that manufactured target learns something that **transfers** to a
-task you actually care about. Notebook 02 shows the first half only: it fits one
-predictor and stops, and a linear regression has no learned representation worth
-carrying anywhere. The second half is measured in Lesson 10, Section 10, where a
-network trained on one task and reused on another gains fourteen points with a hundred
-labelled images, and loses points once there are enough to train from scratch.
+**An intuition only — the method belongs to a later course.** It is worth having now,
+because it is how the large models everyone has heard of are trained.
 
-The first half, then. A target is manufactured from the input: hide part of each
-example and train the model to reconstruct it from the rest. Nobody annotates
-anything, yet the supervision is genuine.
+Nobody labels anything. Instead **part of the input is treated as the answer**: hide
+one piece of each example and train the model to recover it from the rest. The value
+hidden is real — it is a genuine measurement — but nobody asked for it to be predicted;
+it is used as a target only because it was already there, which is why the supervision
+costs nothing.
 
 Notebook 02 hides one measurement, `flavanoids`, and predicts it from the other
-twelve: $R^2 = 0.816$. Compare that cell with the regression in Section 5.1 and note
-that they are **mechanically identical** — the same estimator, the same call, the same
-kind of score, the same table, and only the name of one column different.
-
-**So the difference cannot be mechanical, and the usual shorthand does not supply
-it.** "A person labelled it" is false of both: an instrument measured colour intensity
-and flavanoids alike, and both columns are present for every wine. What separates them
-is **why the column is hidden**.
-
-**In Section 5.1 it is hidden to evaluate.** The colour reading is wanted for itself;
-the model is trained where it was recorded, and the reading is hidden on the test rows
-only to simulate the wines that will arrive without it.
-
-**Here it is hidden to train.** Nobody wants a flavanoid predictor. Hiding the column
-is how the training targets are *made* — which is why it can be done on any table,
-labelled or not, as often as we like, and why the technique scales. The prediction is
-a pretext; what would be worth keeping is whatever solving it forced the model to
-learn.
-
-> Supervised learning hides the answer to measure the model; self-supervised learning
-> hides part of the input to have something to learn from.
+twelve: $R^2 = 0.816$, where $R^2$ — defined in the notebook and used again in Lesson
+3 — is the fraction of the squared error of always guessing the mean that the model
+removed. Set it beside Section 5.1: there the answer lived *outside* the measurements
+and somebody had to record it; here the answer is *one of* the measurements.
 
 ![](self_supervision.png)
 
@@ -630,9 +593,12 @@ learn.
 
 The reconstruction task itself is of no interest — it is a *pretext*. The point is that
 solving it forces the model to represent how the parts of an input relate, and that
-representation transfers to tasks you do care about.
+what it learned can then be reused on a task you do care about. Notebook 02 stops
+before that step: a linear regression learns nothing worth reusing, so the part that
+gives the idea its point is not shown here. Lesson 10 measures a related idea,
+transfer learning, on images.
 
-Formally nothing new is happening. The target $y$ is manufactured from $x$, so
+Formally nothing new is happening. The target $y$ is taken from $x$ itself, so
 everything in Section 2 applies unchanged — the same expected risk, the same empirical
 risk, the same gap between them, the same reason for holding data out. What changes is
 only that the labels are free.
