@@ -540,12 +540,16 @@ intensity, a continuous quantity, makes the identical pipeline a regression, sco
 with $R^2$ at **0.622**. Nothing changed but which column was called the answer.
 
 The regression is supervised for a reason worth stating, because Section 5.3 runs the
-same code and is not: the colour reading is **missing for the rows we care about and
-wanted for its own sake**, so the prediction is the deliverable and at the moment it
-is needed the target is genuinely absent. In the notebook the column leaves the input
-table because it is the answer — a model may not read the answer it is asked for — and
-the split is what carries the story: **124 wines stand for those whose reading exists
-and 54 for those where it is missing.**
+same code and is not: the colour reading is **wanted for its own sake**, as a gap to
+be filled in the wines that arrive without it.
+
+**And be honest about what the notebook can show.** In the table the reading is present
+for all 178 wines, so the missing ones are *simulated*: the column leaves the inputs
+because it is the answer, and the split makes 124 wines stand for those whose reading
+exists and 54 for those where it is hidden. That is not special to this example —
+**every supervised evaluation hides a value it actually has**, because a prediction
+cannot be scored without the true answer. Here, then, the column is hidden **to
+evaluate**.
 
 ### 5.2 Unsupervised learning
 
@@ -583,9 +587,19 @@ spends its first half on how to choose that number honestly.
 
 ### 5.3 Self-supervised learning
 
-A target is manufactured from the input: hide part of each example and train the model
-to reconstruct it from the rest. Nobody annotates anything, yet the supervision is
-genuine.
+**What this section and its notebook show, and what they do not.** Self-supervised
+learning has two halves. The first is that a usable target can be manufactured out of
+the input at no annotation cost. The second — the reason anyone does it — is that a
+model trained on that manufactured target learns something that **transfers** to a
+task you actually care about. Notebook 02 shows the first half only: it fits one
+predictor and stops, and a linear regression has no learned representation worth
+carrying anywhere. The second half is measured in Lesson 10, Section 10, where a
+network trained on one task and reused on another gains fourteen points with a hundred
+labelled images, and loses points once there are enough to train from scratch.
+
+The first half, then. A target is manufactured from the input: hide part of each
+example and train the model to reconstruct it from the rest. Nobody annotates
+anything, yet the supervision is genuine.
 
 Notebook 02 hides one measurement, `flavanoids`, and predicts it from the other
 twelve: $R^2 = 0.816$. Compare that cell with the regression in Section 5.1 and note
@@ -594,17 +608,21 @@ kind of score, the same table, and only the name of one column different.
 
 **So the difference cannot be mechanical, and the usual shorthand does not supply
 it.** "A person labelled it" is false of both: an instrument measured colour intensity
-and flavanoids alike. Two questions about the *problem* separate them.
+and flavanoids alike, and both columns are present for every wine. What separates them
+is **why the column is hidden**.
 
-**Is the quantity wanted for its own sake?** In Section 5.1 the filled-in colour
-reading is the deliverable. Here nobody wants a flavanoid predictor — the prediction
-is a pretext, and what is kept is the representation that solving it forces the model
-to build.
+**In Section 5.1 it is hidden to evaluate.** The colour reading is wanted for itself;
+the model is trained where it was recorded, and the reading is hidden on the test rows
+only to simulate the wines that will arrive without it.
 
-**At prediction time, is the target there?** In Section 5.1 it is missing, which is why
-it is predicted. Here every wine has its flavanoid reading and we hide it on purpose —
-which can be done as often as we like, on as much data as we like. That is precisely
-why the technique scales, and it is the practical content of "the labels are free".
+**Here it is hidden to train.** Nobody wants a flavanoid predictor. Hiding the column
+is how the training targets are *made* — which is why it can be done on any table,
+labelled or not, as often as we like, and why the technique scales. The prediction is
+a pretext; what would be worth keeping is whatever solving it forced the model to
+learn.
+
+> Supervised learning hides the answer to measure the model; self-supervised learning
+> hides part of the input to have something to learn from.
 
 ![](self_supervision.png)
 

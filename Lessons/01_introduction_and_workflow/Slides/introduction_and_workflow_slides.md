@@ -762,7 +762,7 @@ The target is the quantity you want, recorded because somebody wanted it.
 
 - Category → **classification**
 - Continuous → **regression**
-- At prediction time it is **missing** — that is why you predict it
+- Evaluated by **hiding the answer** on test rows it actually has
 
 ::: notes
 Lessons 3, 4, 6 and 7 are all supervised, so this is most of the course.
@@ -828,12 +828,16 @@ parts of an input relate, and that representation transfers to tasks you do care
 
 Expect this question, and it is the best one in the section: the supervised regression
 earlier in the notebook ALSO predicted one column of the table from the other twelve,
-so what makes that one supervised and this one not? The code cannot tell them apart -
-only the problem can. Two questions do it. Is the quantity wanted for its own sake, or
-is it a pretext for a representation? And at prediction time, is the target missing -
-which is why you predict it - or do you hold it and hide it on purpose? Colour
-intensity was missing and wanted; flavanoids is present and hidden, which is exactly
-why this one scales to as much data as you like.
+and colour intensity is present for every wine just as flavanoids is - so what makes
+one supervised and the other not? The code cannot tell them apart. What does is WHY
+the column is hidden. Colour intensity is hidden to EVALUATE: it is wanted for itself,
+and the test rows simulate the wines that will arrive without it - every supervised
+evaluation hides a value it has, because you cannot score without the truth.
+Flavanoids is hidden to TRAIN: hiding is how the targets are made, on any table at all.
+
+Then say plainly what the notebook does not show: the transfer. It fits one predictor
+and stops. The reason anyone bothers - that what was learned carries to a task you
+care about - is measured in lesson 10, section 10.
 
 Scale the idea up - hide a word in a sentence, hide a patch of an image - and it is how
 modern large models are trained. Free supervision is precisely why they scale: text and
@@ -867,11 +871,11 @@ care about.
 
 # Where the target comes from
 
-| | Target | There when you predict? | Cost | Measurable? |
+| | Target | Why data is hidden | Cost | Measurable? |
 |---|---|---|---|---|
-| Supervised | What you want | **No** | Expensive | Yes |
+| Supervised | What you want | **To evaluate** | Expensive | Yes |
 | Unsupervised | None | — | Free | Not directly |
-| Self-supervised | A pretext | **Yes**, you hide it | Free | Only the pretext |
+| Self-supervised | A pretext | **To train** | Free | Only the pretext |
 
 ::: notes
 Read the cost column aloud: it explains why self-supervision dominates wherever data is
