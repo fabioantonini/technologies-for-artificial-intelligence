@@ -542,7 +542,10 @@ with $R^2$ at **0.622**. Nothing changed but which column was called the answer.
 The regression is supervised for a reason worth stating, because Section 5.3 runs the
 same code and is not: the colour reading is **missing for the rows we care about and
 wanted for its own sake**, so the prediction is the deliverable and at the moment it
-is needed the target is genuinely absent.
+is needed the target is genuinely absent. In the notebook the column leaves the input
+table because it is the answer — a model may not read the answer it is asked for — and
+the split is what carries the story: **124 wines stand for those whose reading exists
+and 54 for those where it is missing.**
 
 ### 5.2 Unsupervised learning
 
