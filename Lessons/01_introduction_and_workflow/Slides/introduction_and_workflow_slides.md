@@ -758,11 +758,11 @@ Handout section 5 has the full taxonomy.
 
 # Supervised
 
-Each example carries a label a person produced.
+The target is the quantity you want, recorded because somebody wanted it.
 
 - Category → **classification**
 - Continuous → **regression**
-- You can check answers against truth
+- At prediction time it is **missing** — that is why you predict it
 
 ::: notes
 Lessons 3, 4, 6 and 7 are all supervised, so this is most of the course.
@@ -826,6 +826,15 @@ The reconstruction task is a PRETEXT: nobody wants a flavanoid predictor, which 
 notebook 02 builds. The point is that solving it forces the model to represent how the
 parts of an input relate, and that representation transfers to tasks you do care about.
 
+Expect this question, and it is the best one in the section: the supervised regression
+earlier in the notebook ALSO predicted one column of the table from the other twelve,
+so what makes that one supervised and this one not? The code cannot tell them apart -
+only the problem can. Two questions do it. Is the quantity wanted for its own sake, or
+is it a pretext for a representation? And at prediction time, is the target missing -
+which is why you predict it - or do you hold it and hide it on purpose? Colour
+intensity was missing and wanted; flavanoids is present and hidden, which is exactly
+why this one scales to as much data as you like.
+
 Scale the idea up - hide a word in a sentence, hide a patch of an image - and it is how
 modern large models are trained. Free supervision is precisely why they scale: text and
 images exist in enormous quantities and nobody has to annotate them.
@@ -858,11 +867,11 @@ care about.
 
 # Where the target comes from
 
-| | Target | Cost | Measurable? |
-|---|---|---|---|
-| Supervised | A person | Expensive | Yes |
-| Unsupervised | None | Free | Not directly |
-| Self-supervised | The input | Free | Only the pretext |
+| | Target | There when you predict? | Cost | Measurable? |
+|---|---|---|---|---|
+| Supervised | What you want | **No** | Expensive | Yes |
+| Unsupervised | None | — | Free | Not directly |
+| Self-supervised | A pretext | **Yes**, you hide it | Free | Only the pretext |
 
 ::: notes
 Read the cost column aloud: it explains why self-supervision dominates wherever data is

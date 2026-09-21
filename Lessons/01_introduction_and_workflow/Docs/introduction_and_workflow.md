@@ -520,8 +520,13 @@ rather than one at a time.
 
 ### 5.1 Supervised learning
 
-Each example carries a label somebody produced: $(x_i, y_i)$ pairs. The model learns
-the mapping and can be checked against ground truth.
+Each example carries a target that was recorded **because somebody wanted it**:
+$(x_i, y_i)$ pairs. The model learns the mapping and can be checked against ground
+truth.
+
+Note what that does *not* say. It does not say a person wrote the label down — an
+instrument will do — and Section 5.3 shows why the distinction has to be put this
+way.
 
 When $\mathcal{Y}$ is a finite set of categories the task is **classification**; when
 it is continuous, **regression**. Lessons 3, 4, 6 and 7 are all supervised.
@@ -533,6 +538,11 @@ Notebook 02 does both on the wine table. Predicting the cultivar — a category,
 classification — reaches **0.981** accuracy. Swapping the target for colour
 intensity, a continuous quantity, makes the identical pipeline a regression, scored
 with $R^2$ at **0.622**. Nothing changed but which column was called the answer.
+
+The regression is supervised for a reason worth stating, because Section 5.3 runs the
+same code and is not: the colour reading is **missing for the rows we care about and
+wanted for its own sake**, so the prediction is the deliverable and at the moment it
+is needed the target is genuinely absent.
 
 ### 5.2 Unsupervised learning
 
@@ -576,10 +586,22 @@ genuine.
 
 Notebook 02 hides one measurement, `flavanoids`, and predicts it from the other
 twelve: $R^2 = 0.816$. Compare that cell with the regression in Section 5.1 and note
-that they are **mechanically identical** — the same estimator, the same call, the
-same kind of score. What differs is only where the target came from. A person
-recorded the cultivar; nobody produced the flavanoid column as a label, it was
-already in the table. That difference costs nothing and is the whole of the idea.
+that they are **mechanically identical** — the same estimator, the same call, the same
+kind of score, the same table, and only the name of one column different.
+
+**So the difference cannot be mechanical, and the usual shorthand does not supply
+it.** "A person labelled it" is false of both: an instrument measured colour intensity
+and flavanoids alike. Two questions about the *problem* separate them.
+
+**Is the quantity wanted for its own sake?** In Section 5.1 the filled-in colour
+reading is the deliverable. Here nobody wants a flavanoid predictor — the prediction
+is a pretext, and what is kept is the representation that solving it forces the model
+to build.
+
+**At prediction time, is the target there?** In Section 5.1 it is missing, which is why
+it is predicted. Here every wine has its flavanoid reading and we hide it on purpose —
+which can be done as often as we like, on as much data as we like. That is precisely
+why the technique scales, and it is the practical content of "the labels are free".
 
 ![](self_supervision.png)
 
