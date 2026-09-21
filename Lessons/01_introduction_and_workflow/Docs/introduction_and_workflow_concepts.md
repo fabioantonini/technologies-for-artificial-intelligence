@@ -79,17 +79,22 @@ application and the deployment, decidable before any model exists. → § 3
 
 ## The three kinds of learning
 
-**Supervised learning.** Each example carries a label somebody produced, so the
-model can be checked against ground truth. Classification when the target is a
-category, regression when it is continuous. → § 5.1
+**Supervised learning.** Each example carries a target recorded because somebody
+wanted it — by a person or an instrument — and missing at prediction time, which is
+why it is predicted. Classification when the target is a category, regression when it
+is continuous. → § 5.1
 
 **Unsupervised learning.** No targets: the goal is structure — groups, a
 lower-dimensional description, unusual points. There is still a loss; what is
 missing is something to check the answer against. → § 5.2
 
-**Self-supervised learning.** The target is manufactured from the input by hiding
-part of it. Nobody annotates anything and the supervision is still genuine; this
-is how modern large models are trained. → § 5.3
+**Self-supervised learning.** The target is manufactured from the input by hiding part
+of it, so it is held rather than missing, and nobody wants the prediction for itself.
+Mechanically identical to a supervised regression — the two are told apart by what the
+task is for, not by the code. → § 5.3
+
+**Pretext task.** A target invented to force a representation: solving it is not the
+goal, and its score is not a measure of anything wanted. → § 5.3
 
 
 ## The workflow, and its order
