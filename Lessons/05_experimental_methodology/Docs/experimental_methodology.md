@@ -2,7 +2,7 @@
 title: "Experimental Methodology"
 subtitle: "Lesson 5 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "23 October 2026 · reading time about 95 minutes"
+date: "30 October 2026 · reading time about 95 minutes"
 ---
 
 ## Lesson plan
@@ -871,7 +871,7 @@ questions open — and section 7.3 suggests how large the correction tends to be
 
 ### Homework
 
-`Exercises/05_experimental_methodology.md`, discussed at the start of Lesson 6, **Friday 30 October 2026**.
+`Exercises/05_experimental_methodology.md`, discussed at the start of Lesson 6, **Friday 6 November 2026**.
 
 ### Notation used in this lesson
 

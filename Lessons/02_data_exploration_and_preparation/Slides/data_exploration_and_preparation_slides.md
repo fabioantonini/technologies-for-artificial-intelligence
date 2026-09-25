@@ -2,7 +2,7 @@
 title: "Lesson 2: Data Exploration and Preparation"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "2 October 2026"
+date: "9 October 2026"
 ---
 
 # Before we start
@@ -1200,7 +1200,7 @@ Preview Lesson 3 in one sentence: with the data prepared honestly, we can
 finally fit something and look at what the fitting actually does.
 :::
 
-# Homework: we discuss it on Friday 9 October
+# Homework: we discuss it on Friday 16 October
 
 `Exercises/02_data_exploration_and_preparation.md`
 
@@ -1233,7 +1233,7 @@ Next: regression, the first model we derive completely.
 
 ::: notes
 Set the exercise explicitly and say when it is discussed - the first ten minutes
-of Lesson 3, Friday 9 October.
+of Lesson 3, Friday 16 October.
 
 Point out that it uses the same churn dataset, so the exploration they did
 today carries over, and that the marks are again on methodology: a pipeline

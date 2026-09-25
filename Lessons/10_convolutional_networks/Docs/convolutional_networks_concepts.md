@@ -2,7 +2,7 @@
 title: "Convolutional Networks, and Course Synthesis — Key Concepts"
 subtitle: "Lesson 10 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "27 November 2026 · a one-page index"
+date: "4 December 2026 · a one-page index"
 ---
 
 An index, not a summary. Each entry says what a term means and where the handout

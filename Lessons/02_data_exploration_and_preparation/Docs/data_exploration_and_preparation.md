@@ -2,7 +2,7 @@
 title: "Data: Exploration and Preparation"
 subtitle: "Lesson 2 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "2 October 2026 · reading time about 80 minutes"
+date: "9 October 2026 · reading time about 80 minutes"
 ---
 
 ## Lesson plan
@@ -1329,7 +1329,7 @@ rather than fitted inside it: its **hyperparameters**.
    two leaks.
 2. Take the quiz in `Quizzes/`.
 3. **Complete the homework** in `Exercises/02_data_exploration_and_preparation.md`,
-   discussed at the start of Lesson 3, **Friday 9 October 2026**.
+   discussed at the start of Lesson 3, **Friday 16 October 2026**.
 
 ---
 

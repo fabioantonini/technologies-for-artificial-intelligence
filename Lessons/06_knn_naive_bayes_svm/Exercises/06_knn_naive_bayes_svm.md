@@ -2,7 +2,7 @@
 title: "Exercise 6 — k-NN, Naive Bayes and Support Vector Machines"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 30 October 2026 · discussed at the start of lesson 7, Friday 6 November 2026"
+date: "Set 6 November 2026 · discussed at the start of lesson 7, Friday 13 November 2026"
 ---
 
 ## What this exercise is for

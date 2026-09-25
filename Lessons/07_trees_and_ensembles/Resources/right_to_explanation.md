@@ -2,7 +2,7 @@
 title: "The Right to an Explanation"
 subtitle: "Supplementary reading, lesson 7 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "6 November 2026 · reading time about 18 minutes"
+date: "13 November 2026 · reading time about 18 minutes"
 ---
 
 > Not examinable. It is what happens after section 11's leaderboard is handed to a lawyer instead of a data scientist.

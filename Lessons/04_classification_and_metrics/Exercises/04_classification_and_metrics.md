@@ -2,7 +2,7 @@
 title: "Exercise 4 — Classification and Evaluation Metrics"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 16 October 2026 · discussed at the start of lesson 5, Friday 23 October 2026"
+date: "Set 23 October 2026 · discussed at the start of lesson 5, Friday 30 October 2026"
 ---
 
 ## What this exercise is for

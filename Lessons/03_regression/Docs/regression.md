@@ -2,7 +2,7 @@
 title: "Regression"
 subtitle: "Lesson 3 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "9 October 2026 · reading time about 80 minutes"
+date: "16 October 2026 · reading time about 80 minutes"
 ---
 
 ## Lesson plan
@@ -876,7 +876,7 @@ suspicious of any interpretation phrased as an intervention.
    examinable.
 3. Take the quiz in `Quizzes/`.
 4. **Complete the homework** in `Exercises/03_regression.md`, discussed at the
-   start of Lesson 4, **Friday 16 October 2026**.
+   start of Lesson 4, **Friday 23 October 2026**.
 
 Lesson 4 keeps the same machinery and changes the target from a number to a
 category, which turns out to require a different cost function — and the reason

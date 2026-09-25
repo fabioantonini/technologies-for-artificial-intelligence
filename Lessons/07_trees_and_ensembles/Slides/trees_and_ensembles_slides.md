@@ -2,7 +2,7 @@
 title: "Lesson 7: Trees and Ensembles"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "6 November 2026"
+date: "13 November 2026"
 ---
 
 # Agenda
@@ -1090,12 +1090,12 @@ Handout summary and notation table.
 
 # Homework
 
-- **Exercise 7**, discussed at the start of **Friday 13 November**
+- **Exercise 7**, discussed at the start of **Friday 20 November**
 - `Exercises/07_trees_and_ensembles.md`
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten
-minutes of lesson 8, Friday 13 November.
+minutes of lesson 8, Friday 20 November.
 
 Remind them of the standing rule from lesson 5: every reported number needs
 a cross-validated spread, and any feature-importance claim needs the check

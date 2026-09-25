@@ -2,7 +2,7 @@
 title: "k-NN, Naive Bayes and Support Vector Machines"
 subtitle: "Lesson 6 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "30 October 2026 · reading time about 100 minutes"
+date: "6 November 2026 · reading time about 100 minutes"
 ---
 
 ## Lesson plan
@@ -705,7 +705,7 @@ lesson 2 insisted.
 
 ### Homework
 
-`Exercises/06_knn_naive_bayes_svm.md`, discussed at the start of Lesson 7, **Friday 6 November 2026**.
+`Exercises/06_knn_naive_bayes_svm.md`, discussed at the start of Lesson 7, **Friday 13 November 2026**.
 
 ### Notation used in this lesson
 

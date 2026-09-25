@@ -2,7 +2,7 @@
 title: "Neural Networks"
 subtitle: "Lesson 9 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "20 November 2026 · reading time about 100 minutes"
+date: "27 November 2026 · reading time about 100 minutes"
 ---
 
 ## Lesson plan
@@ -1148,7 +1148,7 @@ the architecture that encodes it is the convolutional network.
 ### Homework
 
 **Exercise 9** — see `Exercises/09_neural_networks.md`. Discussed at the start of lesson 10,
-**Friday 27 November 2026**.
+**Friday 4 December 2026**.
 
 ### Notation used in this lesson
 

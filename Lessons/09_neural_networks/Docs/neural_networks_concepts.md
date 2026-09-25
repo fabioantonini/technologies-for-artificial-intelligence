@@ -2,7 +2,7 @@
 title: "Neural Networks — Key Concepts"
 subtitle: "Lesson 9 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "20 November 2026 · a one-page index"
+date: "27 November 2026 · a one-page index"
 ---
 
 An index, not a summary. Each entry says what a term means and where the handout

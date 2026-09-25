@@ -13,7 +13,7 @@ the failure mode the previous course repository suffered from.
 
 Two images, not one. `:core` carries lessons 1 to 8; `:full` is built FROM it
 and adds TensorFlow for lessons 9 and 10, which is 1.3 GB nobody needs until
-20 November. Because full is built on core rather than beside it, a student who
+27 November. Because full is built on core rather than beside it, a student who
 already has core downloads only the TensorFlow layer.
 
 There is deliberately no `:latest`. With two images that name has no honest

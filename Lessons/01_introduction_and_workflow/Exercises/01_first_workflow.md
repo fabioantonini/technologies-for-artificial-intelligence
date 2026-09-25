@@ -2,7 +2,7 @@
 title: "Exercise 1 — Your first honest workflow"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 25 September 2026 · discussed at the start of lesson 2, Friday 2 October 2026"
+date: "Set 2 October 2026 · discussed at the start of lesson 2, Friday 9 October 2026"
 ---
 
 Roughly 2–3 hours. Work alone; discussing ideas with others is fine, sharing notebooks

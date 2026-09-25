@@ -3,7 +3,7 @@
 Course material for **Technologies for Artificial Intelligence**, first-year MSc in
 Computer Science, Università degli Studi dell'Aquila — autumn 2026.
 
-Ten lessons of three hours, every Friday from 25 September to 27 November 2026.
+Ten lessons of three hours, every Friday from 2 October to 4 December 2026.
 
 > A first course in machine learning for people who can already program: the methods,
 > the mathematics underneath them, and the experimental discipline to tell a result
@@ -46,16 +46,16 @@ the Monday after, since it is study material rather than lecture support.
 
 | # | Date | Lesson |
 |---|---|---|
-| 1 | 25 Sep | Introduction and the machine learning workflow |
-| 2 | 2 Oct | Data: exploration and preparation |
-| 3 | 9 Oct | Regression |
-| 4 | 16 Oct | Classification and evaluation metrics |
-| 5 | 23 Oct | Experimental methodology and model selection |
-| 6 | 30 Oct | k-NN, Naive Bayes and support vector machines |
-| 7 | 6 Nov | Trees and ensembles |
-| 8 | 13 Nov | Unsupervised learning |
-| 9 | 20 Nov | Neural networks |
-| 10 | 27 Nov | Convolutional networks and course synthesis |
+| 1 | 2 Oct | Introduction and the machine learning workflow |
+| 2 | 9 Oct | Data: exploration and preparation |
+| 3 | 16 Oct | Regression |
+| 4 | 23 Oct | Classification and evaluation metrics |
+| 5 | 30 Oct | Experimental methodology and model selection |
+| 6 | 6 Nov | k-NN, Naive Bayes and support vector machines |
+| 7 | 13 Nov | Trees and ensembles |
+| 8 | 20 Nov | Unsupervised learning |
+| 9 | 27 Nov | Neural networks |
+| 10 | 4 Dec | Convolutional networks and course synthesis |
 
 Large language models, transformers, RAG and agents are **not** covered — they belong
 to a separate course in the programme. [`Course/BRIDGE.md`](Course/BRIDGE.md) is a

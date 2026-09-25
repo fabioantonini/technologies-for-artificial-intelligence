@@ -2,7 +2,7 @@
 title: "Lesson 9: Neural Networks"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "20 November 2026"
+date: "27 November 2026"
 ---
 
 # Agenda
@@ -1457,12 +1457,12 @@ Handout section 12 and the summary.
 
 # Homework
 
-- **Exercise 9**, discussed at the start of **Friday 27 November**
+- **Exercise 9**, discussed at the start of **Friday 4 December**
 - `Exercises/09_neural_networks.md`
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten minutes
-of lesson 10, Friday 27 November.
+of lesson 10, Friday 4 December.
 
 Two standing requirements, both of which today's material makes easy to
 forget. Every reported difference needs the spread it was measured against  - 

@@ -2,7 +2,7 @@
 title: "Trees and Ensembles"
 subtitle: "Lesson 7 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "6 November 2026 · reading time about 85 minutes"
+date: "13 November 2026 · reading time about 85 minutes"
 ---
 
 ## Lesson plan
@@ -651,7 +651,7 @@ course has made that point with a different method each time.
 
 ### Homework
 
-`Exercises/07_trees_and_ensembles.md`, discussed at the start of Lesson 8, **Friday 13 November 2026**.
+`Exercises/07_trees_and_ensembles.md`, discussed at the start of Lesson 8, **Friday 20 November 2026**.
 
 ### Notation used in this lesson
 

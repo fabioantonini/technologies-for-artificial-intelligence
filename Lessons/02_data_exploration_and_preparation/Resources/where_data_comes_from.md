@@ -2,7 +2,7 @@
 title: "Where Data Comes From, and What It Costs"
 subtitle: "Supplementary reading, lesson 2 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "2 October 2026 · reading time about 25 minutes"
+date: "9 October 2026 · reading time about 25 minutes"
 ---
 
 > Not examinable. It is, however, the constraint that will decide which of your ideas you are allowed to build.

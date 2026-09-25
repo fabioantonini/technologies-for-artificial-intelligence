@@ -2,7 +2,7 @@
 title: "Lesson 10: Convolutional Networks and Course Synthesis"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "27 November 2026"
+date: "4 December 2026"
 ---
 
 # Agenda

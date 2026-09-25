@@ -2,7 +2,7 @@
 title: "Finding Neighbours at Scale"
 subtitle: "Supplementary reading, lesson 6 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "30 October 2026 · reading time about 25 minutes"
+date: "6 November 2026 · reading time about 25 minutes"
 ---
 
 > Not examinable. It is what happens to k-nearest neighbours when the dataset stops fitting in a notebook, and it is a large industry.

@@ -2,7 +2,7 @@
 title: "Regression — Key Concepts"
 subtitle: "Lesson 3 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "9 October 2026 · a one-page index"
+date: "16 October 2026 · a one-page index"
 ---
 
 An index, not a summary. Each entry says what a term means and where the handout

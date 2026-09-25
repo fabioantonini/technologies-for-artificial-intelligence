@@ -2,12 +2,12 @@
 title: "Lesson 1: Introduction and the ML Workflow"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "25 September 2026"
+date: "2 October 2026"
 ---
 
 # Welcome
 
-- 10 lessons, 3 hours each, every Friday until 27 November
+- 10 lessons, 3 hours each, every Friday until 4 December
 - A first course in **machine learning**, for people who can already program
 - Foundations, not products
 
@@ -1442,7 +1442,7 @@ end of a report.
 Keep this short and serious. Do not moralise - state it and move on.
 :::
 
-# Homework: we discuss it on Friday 2 October
+# Homework: we discuss it on Friday 9 October
 
 `Exercises/01_first_workflow.md`
 

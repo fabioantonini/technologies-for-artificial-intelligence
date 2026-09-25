@@ -2,7 +2,7 @@
 title: "Classifying People"
 subtitle: "Supplementary reading, lesson 4 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "16 October 2026 · reading time about 30 minutes"
+date: "23 October 2026 · reading time about 30 minutes"
 ---
 
 > Not examinable. The impossibility result in Section 3 is mathematics, though, and it is the kind you should not meet for the first time in a meeting.

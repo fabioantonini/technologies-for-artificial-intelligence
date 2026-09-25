@@ -2,7 +2,7 @@
 title: "Lesson 6: k-NN, Naive Bayes and Support Vector Machines"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "30 October 2026"
+date: "6 November 2026"
 ---
 
 # Before we start
@@ -1229,12 +1229,12 @@ Handout section 7 lists all of this with the section numbers.
 
 # Homework
 
-- **Exercise 6**, discussed at the start of **Friday 6 November**
+- **Exercise 6**, discussed at the start of **Friday 13 November**
 - A dataset, three families, and a defence of which one you chose
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten
-minutes of next Friday, 6 November.
+minutes of next Friday, 13 November.
 
 The marks are for the reasoning, not for the accuracy. A well-argued choice that
 scores slightly worse beats a lucky winner with no justification - and the

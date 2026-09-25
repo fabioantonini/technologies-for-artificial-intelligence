@@ -2,7 +2,7 @@
 title: "Introduction and the Machine Learning Workflow"
 subtitle: "Lesson 1 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "25 September 2026 · reading time about 70 minutes"
+date: "2 October 2026 · reading time about 70 minutes"
 ---
 
 ## Lesson plan
@@ -814,7 +814,7 @@ in the framing step, not in a paragraph at the end of a report.
    taxonomy, 03 for the failure modes.
 3. Take the quiz in `Quizzes/`.
 4. **Complete the homework** in `Exercises/01_first_workflow.md`. Nothing is
-   handed in: Lesson 2 opens by discussing it on **Friday 2 October 2026**.
+   handed in: Lesson 2 opens by discussing it on **Friday 9 October 2026**.
 
 ---
 

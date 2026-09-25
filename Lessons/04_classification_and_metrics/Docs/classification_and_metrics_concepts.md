@@ -2,7 +2,7 @@
 title: "Classification and Evaluation Metrics — Key Concepts"
 subtitle: "Lesson 4 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "16 October 2026 · a one-page index"
+date: "23 October 2026 · a one-page index"
 ---
 
 An index, not a summary. Each entry says what a term means and where the handout

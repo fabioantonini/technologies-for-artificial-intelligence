@@ -2,7 +2,7 @@
 title: "Unsupervised Learning"
 subtitle: "Lesson 8 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "13 November 2026 · reading time about 95 minutes"
+date: "20 November 2026 · reading time about 95 minutes"
 ---
 
 ## Lesson plan
@@ -902,7 +902,7 @@ same blind spot PCA's 2-D projection had.
 ### Homework
 
 `Exercises/08_unsupervised_learning.md`, discussed at the start of Lesson 9,
-**Friday 20 November 2026**.
+**Friday 27 November 2026**.
 
 ### Notation used in this lesson
 

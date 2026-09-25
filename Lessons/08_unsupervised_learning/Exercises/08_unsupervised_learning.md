@@ -2,7 +2,7 @@
 title: "Exercise 8 — Unsupervised Learning"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 13 November 2026 · discussed at the start of lesson 9, Friday 20 November 2026"
+date: "Set 20 November 2026 · discussed at the start of lesson 9, Friday 27 November 2026"
 ---
 
 ## What this exercise is for

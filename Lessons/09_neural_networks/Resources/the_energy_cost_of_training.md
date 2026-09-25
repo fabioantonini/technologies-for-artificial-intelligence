@@ -2,7 +2,7 @@
 title: "The Energy Cost of Training"
 subtitle: "Supplementary reading, lesson 9 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "20 November 2026 · reading time about 25 minutes"
+date: "27 November 2026 · reading time about 25 minutes"
 ---
 
 > Not examinable. The habit in Section 6 — refusing to repeat a carbon figure without knowing which assumptions were stacked to produce it — is not mathematics, but it is what separates a professional from someone quoting a headline.

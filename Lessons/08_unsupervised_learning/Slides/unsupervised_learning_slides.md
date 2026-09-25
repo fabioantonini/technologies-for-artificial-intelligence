@@ -2,7 +2,7 @@
 title: "Lesson 8: Unsupervised Learning"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "13 November 2026"
+date: "20 November 2026"
 ---
 
 # Agenda
@@ -1276,12 +1276,12 @@ Handout summary and notation table.
 
 # Homework
 
-- **Exercise 8**, discussed at the start of **Friday 20 November**
+- **Exercise 8**, discussed at the start of **Friday 27 November**
 - `Exercises/08_unsupervised_learning.md`
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten
-minutes of lesson 9, Friday 20 November.
+minutes of lesson 9, Friday 27 November.
 
 Remind them of the standing rule from lesson 5, still in force with no
 labels at all: every reported number needs a check against what the

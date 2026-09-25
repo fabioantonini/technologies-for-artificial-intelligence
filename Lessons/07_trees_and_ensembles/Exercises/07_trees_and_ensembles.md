@@ -2,7 +2,7 @@
 title: "Exercise 7 — Decision Trees and Ensembles"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 6 November 2026 · discussed at the start of lesson 8, Friday 13 November 2026"
+date: "Set 13 November 2026 · discussed at the start of lesson 8, Friday 20 November 2026"
 ---
 
 ## What this exercise is for

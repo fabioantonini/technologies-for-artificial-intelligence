@@ -2,7 +2,7 @@
 title: "Lesson 5: Experimental Methodology"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "23 October 2026"
+date: "30 October 2026"
 ---
 
 # Before we start
@@ -984,12 +984,12 @@ one they are most likely to be asked at the exam about whichever exercise is dra
 
 # Homework
 
-- **Exercise 5**, discussed at the start of **Friday 30 October**
+- **Exercise 5**, discussed at the start of **Friday 6 November**
 - A result that is too good. Find out why, then produce the honest number
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten
-minutes of next Friday, 30 October.
+minutes of next Friday, 6 November.
 
 The shape of it: they are given a notebook that reports an excellent score, and
 the score is wrong. They have to find the reason, fix it, report the honest

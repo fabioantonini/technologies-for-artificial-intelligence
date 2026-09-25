@@ -2,7 +2,7 @@
 title: "Trees and Ensembles — Key Concepts"
 subtitle: "Lesson 7 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "6 November 2026 · a one-page index"
+date: "13 November 2026 · a one-page index"
 ---
 
 An index, not a summary. Each entry says what a term means and where the handout

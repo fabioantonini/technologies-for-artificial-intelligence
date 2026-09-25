@@ -2,7 +2,7 @@
 title: "Segmentation and the Ethics of Inferred Categories"
 subtitle: "Supplementary reading, lesson 8 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "13 November 2026 · reading time about 25 minutes"
+date: "20 November 2026 · reading time about 25 minutes"
 ---
 
 > Not examinable. The distinction in Section 2 — that an inferred category has no ground truth to be wrong against — is not mathematics, but it is the kind of thing you should not meet for the first time in a product meeting.
