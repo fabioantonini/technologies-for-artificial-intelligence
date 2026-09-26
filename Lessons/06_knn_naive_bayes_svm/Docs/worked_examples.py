@@ -44,6 +44,35 @@ same("1.1 the majority baseline", max(y.mean(), 1 - y.mean()), 0.613,
      tolerance=5e-4)
 same("1.1 the noise ceiling", 1 - LABEL_NOISE, 0.96, tolerance=1e-9)
 
+# ------------------------------------------- Section 4.1, P(x) is recoverable
+
+# The priors come from the generator, the two likelihoods are the handout's
+# illustration. The probabilities are reached a second way, through the odds,
+# which never forms P(x) at all.
+healthy, faulty = 1 - y.mean(), y.mean()
+same("4.1 the healthy pumps", (y == 0).sum(), 465, tolerance=0)
+same("4.1 the healthy prior", healthy, 0.3875, tolerance=1e-9)
+scores = (0.12 * healthy, 0.03 * faulty)
+same("4.1 the healthy score", scores[0], 0.0465, tolerance=5e-5)
+same("4.1 the faulty score", scores[1], 0.0184, tolerance=5e-5)
+same("4.1 P(x), their sum", sum(scores), 0.0649, tolerance=5e-5)
+same("4.1 P(healthy | x) by normalising", scores[0] / sum(scores), 0.717,
+     tolerance=5e-4)
+odds = (0.12 / 0.03) * (healthy / faulty)
+same("4.1 P(healthy | x) through the odds", odds / (1 + odds), 0.717,
+     tolerance=5e-4)
+same("4.1 P(faulty | x)", 1 / (1 + odds), 0.283, tolerance=5e-4)
+
+# And the claim that predict_proba is exactly this normalisation.
+from scipy.special import logsumexp
+from sklearn.naive_bayes import GaussianNB
+
+nb = GaussianNB().fit(X, y)
+joint = nb.predict_joint_log_proba(X)
+gap = np.abs(np.exp(joint - logsumexp(joint, axis=1, keepdims=True))
+             - nb.predict_proba(X)).max()
+same("4.1 predict_proba is the normalised joint", gap, 0.0, tolerance=1e-12)
+
 # ------------------------------------------- Section 4.3, the assumption
 
 for label, printed in ((0, -0.006), (1, -0.049)):

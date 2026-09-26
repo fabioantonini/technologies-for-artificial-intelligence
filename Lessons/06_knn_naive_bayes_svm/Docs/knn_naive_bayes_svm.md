@@ -297,7 +297,24 @@ We want $P(y = c \mid x)$. Bayes' rule turns it into quantities we can estimate:
 $$P(y = c \mid x) = \frac{P(x \mid y = c)\,P(y = c)}{P(x)}$$
 
 $P(y = c)$ is the prior — a count. $P(x)$ is identical across classes, so it
-cannot change which class wins and can be dropped. Everything hard is in
+cannot change which class wins and can be dropped.
+
+**Dropped for choosing, not lost.** $P(x)$ is the probability of seeing this
+combination of readings whatever the class — by the law of total probability,
+the sum of the numerators, $\sum_c P(x \mid y = c)\,P(y = c)$. That is why
+dropping it costs nothing even when a probability is wanted: divide each
+class's score by the sum of the scores and the denominator is back, exactly.
+The tempting conclusion is that a model which drops $P(x)$ can no longer report
+a calibrated probability. It is reasonable, because a term has been thrown
+away, and wrong, because that term is recoverable from what is kept. The pumps
+are 465 healthy and 735 faulty out of 1,200, priors 0.3875 and 0.6125. Take
+illustrative likelihoods of 0.12 and 0.03 for one pump's readings: the scores
+are 0.0465 and 0.0184, their sum, 0.0649, is $P(x)$, and the probabilities are
+0.717 and 0.283.
+scikit-learn's `predict_proba` does exactly this, in logarithms. Where Naive
+Bayes does lose calibration is in the numerator, Section 4.5.
+
+Everything hard is in
 $P(x \mid y = c)$: **the probability of this exact combination of readings among
 examples of that class.**
 
