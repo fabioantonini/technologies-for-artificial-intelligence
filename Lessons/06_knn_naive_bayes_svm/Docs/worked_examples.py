@@ -195,6 +195,8 @@ from pump_data import ENVELOPE_RADIUS, PRESSURE_SD, VIBRATION_SD
 a = 1 / (2 * sd_h ** 2) - 1 / (2 * sd_f ** 2)
 K = np.log(p_f / p_h) - np.log(sd_f / sd_h).sum()
 semi = np.sqrt(-K / a)
+same("4.3 'every a_j is positive'", float((a > 0).all()), 1.0, tolerance=0)
+same("4.3 b is negative, so the ellipse exists", float(K < 0), 1.0, tolerance=0)
 same("4.3 the model's ellipse along vibration", semi[0], 3.17, tolerance=0.02)
 same("4.3 the model's ellipse along pressure", semi[1], 0.41, tolerance=5e-3)
 same("4.3 the true envelope along vibration", VIBRATION_SD * ENVELOPE_RADIUS, 3.5,

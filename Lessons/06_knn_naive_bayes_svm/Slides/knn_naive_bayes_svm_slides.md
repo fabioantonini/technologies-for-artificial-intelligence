@@ -858,8 +858,8 @@ follows whatever spurious structure it can find, with complete confidence.
 
 - Mean confidence when **correct: 0.567**. When **wrong: 0.555**
 - It cannot tell the difference between the two situations
-- With correlated features it fails the other way: 0.999 reported, with an
-  accuracy nothing like that
+- With features that repeat each other it fails the other way: 0.999 reported,
+  with an accuracy nothing like that
 - **The ranking may be useful while the probabilities are not**
 
 ::: notes
@@ -868,8 +868,10 @@ is wrong as when it is right, which means `predict_proba` carries no usable
 information about reliability here.
 
 The more common complaint runs in the opposite direction, so give it too: when
-features ARE correlated, multiplying their probabilities counts the same
-evidence repeatedly. Ten correlated words in a document are treated as ten
+features carry the SAME evidence about the class - near-copies of one another -
+multiplying their probabilities counts it repeatedly. Be precise here, because
+they have just seen two kinds of dependence that are not this: the pumps' ring
+and the XOR sensors. Ten correlated words in a document are treated as ten
 independent pieces of evidence, and the posterior saturates. Naive Bayes is
 famous for reporting 0.999 on problems it gets wrong a fifth of the time.
 

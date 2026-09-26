@@ -310,8 +310,7 @@ away, and wrong, because that term is recoverable from what is kept. The pumps
 are 465 healthy and 735 faulty out of 1,200, priors 0.3875 and 0.6125. Take
 illustrative likelihoods of 0.12 and 0.03 for one pump's readings: the scores
 are 0.0465 and 0.0184, their sum, 0.0649, is $P(x)$, and the probabilities are
-0.717 and 0.283.
-scikit-learn's `predict_proba` does exactly this, in logarithms. Where Naive
+0.717 and 0.283. scikit-learn's `predict_proba` does exactly this, in logarithms. Where Naive
 Bayes does lose calibration is in the numerator, Section 4.5.
 
 Everything hard is in
@@ -328,7 +327,8 @@ different direction.
 > **Given the class, the features are independent of one another.**
 
 **What it says, concretely.** Once you know whether a pump is faulty, reading
-its vibration tells you nothing more about its pressure:
+its vibration tells you nothing more about its pressure. Writing $x_1$ for the
+vibration and $x_2$ for the pressure:
 
 $$P(x_2 \mid x_1, y = c) = P(x_2 \mid y = c)$$
 
@@ -354,9 +354,9 @@ it.
 This is the mistake to expect. "Independent given the class" gets read as
 "independent", and a student who finds two correlated features concludes that
 the assumption is broken. It may not be: correlation the class explains is
-exactly what the assumption allows. The reverse happens too, and Section 4.4 is
-that case. On its two sensors the overall correlation is −0.057, as good as
-none, while within the healthy pumps it is **+0.821** and within the faulty
+exactly what the assumption allows. The reverse happens too, and the second
+pair of sensors met in Section 4.4 is that case: there the overall correlation
+is −0.057, as good as none, while within the healthy pumps it is **+0.821** and within the faulty
 **−0.826**: once the class is known, one sensor very nearly determines the
 other, and the assumption fails completely.
 
@@ -403,10 +403,10 @@ pumps it is ten:
 
 **The centres are the same; the widths are not.** Healthy pumps are a narrow
 bell around the design point and faulty ones a wide bell — the disc and the
-ring, seen one feature at a time. That is why Naive Bayes reaches 0.933 where
-logistic regression sits at the baseline: a linear model separates classes by
-placing a boundary between their means, and here there is nothing between the
-means to find. Naive Bayes compares widths.
+ring, seen one feature at a time. It is also why a linear model will get
+nowhere on these pumps: it separates classes by placing a boundary between their
+means, and here there is nothing between the means to find. Naive Bayes compares
+widths, and Section 4.3 measures what that buys.
 
 **Inference for one pump, step by step.** Given a new pump's readings
 $x = (x_1, x_2)$, the model does four things and nothing else:
@@ -425,8 +425,9 @@ $x = (x_1, x_2)$, the model does four things and nothing else:
 No training row is looked at: prediction uses the ten stored numbers only,
 which is the opposite of k-NN.
 
-Here it is with the pumps' numbers. Take a pump at 48 Hz and 5.6 bar, 6 Hz off the design point — about three and a half standard
-deviations out for a healthy pump, barely more than one for a faulty one:
+Here it is with the pumps' numbers. Take a pump at 48 Hz and 5.6 bar, 6 Hz off
+the design point — about three and a half standard deviations out for a healthy
+pump, barely more than one for a faulty one:
 
 | Class | log prior | log $P$(vibration) | log $P$(pressure) | Total |
 |---|---|---|---|---|
@@ -448,9 +449,9 @@ difference to this model: standardising a feature moves and stretches both
 classes' bells by the same amount, which shifts both log scores equally.
 
 **Why it is such a good bargain.** One $n$-dimensional estimation problem
-becomes $n$ one-dimensional ones. Training is a single pass computing means and
-variances. It needs very little data per feature, and adding features costs
-almost nothing.
+becomes $n$ one-dimensional ones, each fitted by the averages above. It needs
+very little data per feature, and adding a feature adds only two numbers per
+class.
 
 **Why it is almost never true.** Vibration and pressure are both driven by the
 operating point. "New" is not independent of "York" given the topic. Symptoms
@@ -505,10 +506,20 @@ not.
 **Wrong densities, nearly right boundary.** So why 0.933? Because of what the
 model does with its wrong densities. Section 4.2 found the two classes sharing a
 centre, each reading a narrow bell for healthy pumps and a wide one for faulty.
-With equal centres, the log-ratio of two such products is a weighted sum of
-squared distances from the centre plus a constant,
-$\sum_j a_j (x_j - \mu_j)^2 + \text{const}$, so the boundary where it changes sign
-is an **axis-aligned ellipse** — and the true envelope is exactly that shape.
+Subtract the healthy log score from the faulty one, using step 2 of the
+inference recipe with a common centre $\mu_j$. The squared distances survive
+with the difference of the two widths as their weight, and everything else is a
+constant:
+
+$$\log\frac{P(\text{faulty})\,P(x \mid \text{faulty})}{P(\text{healthy})\,P(x \mid \text{healthy})}
+  = \sum_j a_j (x_j - \mu_j)^2 + b,
+  \qquad a_j = \frac{1}{2\sigma_{j,\text{healthy}}^2} - \frac{1}{2\sigma_{j,\text{faulty}}^2}$$
+
+with $b$ collecting the log priors and the log widths. Every $a_j$ is positive,
+because the healthy bell is the narrower, so the faulty score gains on the
+healthy one as a pump moves away from the centre, in any direction. The
+boundary is where the two are equal, $\sum_j a_j (x_j - \mu_j)^2 = -b$: an
+**axis-aligned ellipse** — and the true envelope is exactly that shape.
 Walking out from the centre until the fitted model's prediction flips puts its
 ellipse at about **3.17 Hz by 0.41 bar**, against a true envelope of **3.5 by
 0.45**: the same proportions, about a tenth too small.
@@ -558,10 +569,11 @@ spurious structure it can find.
 Measured on the interacting data: mean confidence when correct **0.567**, mean
 confidence when wrong **0.555**. It cannot tell the difference.
 
-The more common complaint runs the other way, and it is not measured on this
-dataset — it needs correlated features, which the pump data does not have. When
-features *are* correlated, multiplying their probabilities counts the same
-evidence repeatedly, and Naive Bayes becomes wildly overconfident. Ten near-copies
+The more common complaint runs the other way, and it is not measured on either
+dataset here — it needs features that carry the same evidence about the class,
+near-copies of one another, which neither pair of sensors is. When features do
+repeat each other, multiplying their probabilities counts the same evidence
+repeatedly, and Naive Bayes becomes wildly overconfident. Ten near-copies
 of one informative column is enough: accuracy around 0.75, and two thirds of the
 predictions asserted above 0.999. Try it — it takes four lines.
 
