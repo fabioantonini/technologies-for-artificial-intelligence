@@ -13,6 +13,7 @@ rather than a copy.
 """
 
 import numpy as np
+import pandas as pd
 
 HANDOUT = "Lessons/06_knn_naive_bayes_svm/Docs/knn_naive_bayes_svm.md"
 checks = 0
@@ -113,6 +114,63 @@ same("4.2 interacting sensors, within healthy",
      Xi[yi == 0].corr().iloc[0, 1], 0.821, tolerance=5e-4)
 same("4.2 interacting sensors, within faulty",
      Xi[yi == 1].corr().iloc[0, 1], -0.826, tolerance=5e-4)
+
+# ------------------------- Section 4.2, what Gaussian Naive Bayes trains on
+
+# The ten parameters from the raw rows with numpy alone - not from the fitted
+# model - and the worked pump through scipy's normal density, so neither the
+# handout's arithmetic nor scikit-learn's is reused.
+from scipy.stats import norm
+
+same("4.2 K(2n + 1) parameters on the pumps", 2 * (2 * 2 + 1), 10, tolerance=0)
+readings = X.to_numpy()
+table = {}
+for c, name in ((0, "healthy"), (1, "faulty")):
+    rows = readings[y.to_numpy() == c]
+    table[c] = (len(rows) / len(readings), rows.mean(axis=0), rows.std(axis=0))
+same("4.2 healthy prior", table[0][0], 0.3875, tolerance=1e-9)
+same("4.2 faulty prior", table[1][0], 0.6125, tolerance=1e-9)
+for c, printed in ((0, (41.986, 1.695, 5.617, 0.219)),
+                   (1, (42.015, 4.636, 5.616, 0.576))):
+    _, mu_c, sd_c = table[c]
+    for got, want, what in zip((mu_c[0], sd_c[0], mu_c[1], sd_c[1]), printed,
+                               ("vibration mean", "vibration sd",
+                                "pressure mean", "pressure sd")):
+        same(f"4.2 class {c} {what}", got, want, tolerance=5e-4)
+
+pump_48 = np.array([48.0, 5.6])
+logs = {}
+for c, printed in ((0, (-0.948, -7.745, 0.598, -8.095)),
+                   (1, (-0.490, -3.286, -0.368, -4.144))):
+    prior_c, mu_c, sd_c = table[c]
+    terms = [np.log(prior_c)] + list(norm.logpdf(pump_48, mu_c, sd_c))
+    for got, want, what in zip(terms + [sum(terms)], printed,
+                               ("log prior", "log P(vibration)",
+                                "log P(pressure)", "total")):
+        same(f"4.2 pump at 48 Hz, class {c}, {what}", got, want, tolerance=5e-4)
+    logs[c] = sum(terms)
+same("4.2 the winning margin in log score", logs[1] - logs[0], 3.951,
+     tolerance=5e-4)
+same("4.2 P(faulty) at 48 Hz", 1 / (1 + np.exp(-(logs[1] - logs[0]))), 0.981,
+     tolerance=5e-4)
+gnb = GaussianNB().fit(X, y)
+same("4.2 ...and predict_proba agrees",
+     gnb.predict_proba(pd.DataFrame([pump_48], columns=X.columns))[0, 1], 0.981,
+     tolerance=5e-4)
+same("4.2 the design-point pump, P(healthy)",
+     gnb.predict_proba(pd.DataFrame([[42.0, 5.6]], columns=X.columns))[0, 0],
+     0.820, tolerance=5e-4)
+same("4.2 6 Hz in healthy standard deviations", (48 - table[0][1][0]) / table[0][2][0],
+     3.5, tolerance=0.1)
+same("4.2 ...and in faulty ones, 'barely more than one'",
+     (48 - table[1][1][0]) / table[1][2][0], 1.3, tolerance=0.1)
+same("4.2 the peak of the healthy pressure bell",
+     1 / (table[0][2][1] * np.sqrt(2 * np.pi)), 1.82, tolerance=5e-3)
+same("4.2 var_smoothing on the pumps", gnb.epsilon_, 1.4e-8, tolerance=5e-10)
+scaled = GaussianNB().fit((X - X.mean()) / X.std(), y)
+gap = np.abs(scaled.predict_proba((X - X.mean()) / X.std())
+             - gnb.predict_proba(X)).max()
+same("4.2 scaling makes no difference", gap, 0.0, tolerance=1e-6)
 
 # ------------------------------------------- Section 4.3, the assumption
 

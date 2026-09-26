@@ -57,6 +57,10 @@ the distance, and dimensions are what the method is made of. → § 3.3
 likelihood times a prior, dropping the denominator because it is the same for every
 class. → § 4.1
 
+**The evidence $P(x)$.** How likely these readings are whatever the class: the sum of
+the numerators. Dropped to choose the class, recovered exactly by normalising the
+scores, so dropping it costs no calibration. → § 4.1
+
 **Where the difficulty is.** Estimating the probability of an exact combination of
 readings — a density in as many dimensions as you have features. → § 4.1
 
@@ -66,8 +70,18 @@ another. → § 4.2
 **What it buys.** One $n$-dimensional estimation problem becomes $n$ one-dimensional
 ones, trained in a single pass, needing very little data per feature. → § 4.2
 
-**Independence *given the class*.** Not the same as independence overall, and the
-distinction is what makes the assumption testable on real data. → § 4.3
+**Independence *given the class*.** Not the same as independence overall: two
+features can be correlated across the data and independent inside each class, or the
+reverse. The distinction is what makes the assumption testable. → § 4.2, § 4.3
+
+**Gaussian Naive Bayes.** Each one-dimensional factor is a bell curve, with its own
+mean and variance for every feature in every class. → § 4.2
+
+**Training Naive Bayes.** Class priors, then a mean and a variance per feature per
+class, in one pass: averages, not optimisation, and nothing to converge. → § 4.2
+
+**A density is not a probability.** A narrow bell peaks above 1, so a log-density can
+be positive; only the comparison between classes matters. → § 4.2
 
 **Where it fails.** When the signal is an *interaction* — a rule about the two
 features together that neither shows alone. No quantity of data repairs it, because

@@ -14,12 +14,12 @@ date: "6 November 2026 · reading time about 100 minutes"
 | 0:30–0:52 | 22 | The curse of dimensionality | Slides 15–21 |
 | 0:52–1:14 | 22 | **Notebook 01** — k-NN and the curse | Slide 22 |
 | 1:14–1:26 | 12 | **Break** | Slide 23 |
-| 1:26–1:48 | 22 | Naive Bayes, and when its assumption holds | Slides 24–35 |
-| 1:48–2:06 | 18 | **Notebook 02** — where it fails | Slide 36 |
-| 2:06–2:32 | 26 | Margins, support vectors, the kernel trick | Slides 37–49 |
-| 2:32–2:50 | 18 | **Notebook 03** — kernels in practice | Slide 50 |
-| 2:50–3:00 | 10 | The three compared; homework | Slides 51–54 |
-| | **180** | **Total** | **53 slides, 3 notebooks** |
+| 1:26–1:50 | 24 | Naive Bayes, and when its assumption holds | Slides 24–37 |
+| 1:50–2:06 | 16 | **Notebook 02** — where it fails | Slide 38 |
+| 2:06–2:32 | 26 | Margins, support vectors, the kernel trick | Slides 39–51 |
+| 2:32–2:50 | 18 | **Notebook 03** — kernels in practice | Slide 52 |
+| 2:50–3:00 | 10 | The three compared; homework | Slides 53–56 |
+| | **180** | **Total** | **55 slides, 3 notebooks** |
 
 ---
 
@@ -380,6 +380,56 @@ $$\hat{y} = \arg\max_c \left[ \log P(y = c) + \sum_{j=1}^{n} \log P(x_j \mid y =
 
 The two expressions pick the same class. The second adds $n + 1$ numbers of
 ordinary size instead of multiplying $n + 1$ tiny ones.
+
+**What training computes: Gaussian Naive Bayes.** The factorisation leaves one
+choice open — what shape each one-dimensional density has. The Gaussian
+version, the one used throughout this lesson, gives every feature in every class
+its own bell curve:
+
+$$P(x_j \mid y = c) = \frac{1}{\sqrt{2\pi\sigma_{jc}^2}}
+  \exp\left[-\frac{(x_j - \mu_{jc})^2}{2\sigma_{jc}^2}\right]$$
+
+where $\mu_{jc}$ and $\sigma_{jc}^2$ are the mean and the variance of feature $j$
+among the training rows of class $c$. Training is therefore three kinds of
+average and nothing else: the class priors, then a mean and a variance per
+feature per class. For $n$ features and $K$ classes that is $K(2n + 1)$ numbers,
+found in one pass, with no gradient descent and nothing to converge. On the
+pumps it is ten:
+
+| Class | Prior | Vibration: mean | sd | Pressure: mean | sd |
+|---|---|---|---|---|---|
+| Healthy | 0.3875 | 41.986 Hz | **1.695** | 5.617 bar | **0.219** |
+| Faulty | 0.6125 | 42.015 Hz | **4.636** | 5.616 bar | **0.576** |
+
+**The centres are the same; the widths are not.** Healthy pumps are a narrow
+bell around the design point and faulty ones a wide bell — the disc and the
+ring, seen one feature at a time. That is why Naive Bayes reaches 0.933 where
+logistic regression sits at the baseline: a linear model separates classes by
+placing a boundary between their means, and here there is nothing between the
+means to find. Naive Bayes compares widths.
+
+Prediction is the log form above with these numbers in it. Take a pump at 48 Hz
+and 5.6 bar, 6 Hz off the design point — about three and a half standard
+deviations out for a healthy pump, barely more than one for a faulty one:
+
+| Class | log prior | log $P$(vibration) | log $P$(pressure) | Total |
+|---|---|---|---|---|
+| Healthy | −0.948 | −7.745 | +0.598 | −8.095 |
+| Faulty | −0.490 | −3.286 | −0.368 | **−4.144** |
+
+Faulty wins by 3.951 in log score, and normalising as in Section 4.1 — which in
+logarithms means $P(\text{faulty} \mid x) = 1/(1 + e^{-3.951})$ — gives
+**0.981**, the number `predict_proba` returns. The vibration term decided it. One
+entry looks wrong and is not: log $P$(pressure) is *positive*, because a density
+is not a probability and can exceed 1 — a bell with a standard deviation of
+0.219 bar peaks at $1/(0.219\sqrt{2\pi}) \approx 1.82$. The same model puts a
+pump exactly at the design point, 42 Hz and 5.6 bar, at **0.820** healthy.
+
+Two details of the implementation. scikit-learn adds a tiny amount to every
+variance, `var_smoothing` — $1.4 \times 10^{-8}$ here — so that a feature constant
+within a class cannot produce a division by zero. And scaling makes no
+difference to this model: standardising a feature moves and stretches both
+classes' bells by the same amount, which shifts both log scores equally.
 
 **Why it is such a good bargain.** One $n$-dimensional estimation problem
 becomes $n$ one-dimensional ones. Training is a single pass computing means and

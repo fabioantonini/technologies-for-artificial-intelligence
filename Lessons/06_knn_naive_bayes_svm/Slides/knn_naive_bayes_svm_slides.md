@@ -625,6 +625,53 @@ an estimation problem that is actually solvable. Notebook 02 measures what
 the assumption costs when it fails.
 :::
 
+# Gaussian: each factor is a bell curve
+
+$$P(x_j \mid y = c) = \frac{1}{\sqrt{2\pi\sigma_{jc}^2}}\exp\left[-\frac{(x_j - \mu_{jc})^2}{2\sigma_{jc}^2}\right]$$
+
+::: notes
+The factorisation leaves one choice open: what shape each one-dimensional
+density has. "Gaussian" answers it. Every feature, in every class, gets its own
+bell curve with its own centre mu and its own width sigma.
+
+So say plainly what training is, because students expect an optimisation and
+there is none. Training computes three kinds of average: the class priors, and
+a mean and a variance per feature per class. One pass over the data. No
+gradient descent, no learning rate, no iterations, nothing to converge.
+
+Ask the room how many numbers that is for the pumps - two features, two classes.
+Let them count: two priors, four means, four variances. Ten. The next slide
+shows all ten. Handout section 4.2.
+:::
+
+# Ten numbers, and the widths decide
+
+| Class | Prior | Vibration mean | Vibration sd | Pressure mean | Pressure sd |
+|---|---|---|---|---|---|
+| Healthy | 0.3875 | 41.986 Hz | **1.695** | 5.617 bar | **0.219** |
+| Faulty | 0.6125 | 42.015 Hz | **4.636** | 5.616 bar | **0.576** |
+
+::: notes
+Let them read the means first and find the surprise themselves: the two
+classes have the same centre, to a few hundredths of a hertz. What differs is
+the width. Healthy pumps are a narrow bell around the design point, faulty ones
+a wide bell - the disc and the ring, one feature at a time.
+
+This explains the result they are about to see. A linear model separates
+classes by putting a boundary between their means, and here there is nothing
+between the means to find, so logistic regression will sit at the baseline.
+Naive Bayes compares widths.
+
+One pump makes it concrete. At 48 Hz and 5.6 bar, 6 Hz off the design point,
+that is three and a half healthy standard deviations but barely more than one
+faulty one. The vibration term decides it: P(faulty) = 0.981. At the design
+point itself, 42 Hz and 5.6 bar, P(healthy) = 0.820.
+
+If someone spots in the handout that one log-density is positive, that is the
+moment to say a density is not a probability: a bell 0.22 bar wide peaks
+above 1. Handout section 4.2 works the pump through term by term.
+:::
+
 # A wonderful bargain, and almost never true
 
 - Training is **a single pass**; adding features costs almost nothing
@@ -812,15 +859,15 @@ in section 7.2, where the threshold depends on the probability being real.
 - Where the assumption holds, and one step away where it does not
 
 ::: notes
-Run notebooks/02. Eighteen minutes.
+Run notebooks/02. Sixteen minutes.
 
 The cell to protect is the one that prints 0.404 next to the 0.523 baseline. Let
 them see a below-chance score appear from correct code on solvable data before
 any explanation arrives.
 
-Have them compute the within-class correlations themselves on both datasets. Two
-lines, and it is the diagnostic they should carry: measure the assumption, do
-not assume it.
+The notebook prints the within-class correlations on both datasets. Before that
+cell runs, ask them to predict the signs for the interacting sensors: it is the
+diagnostic they should carry - measure the assumption, do not assume it.
 
 If time allows, the interesting exercise is to hand Naive Bayes the product of
 the two sensors as a third column and watch it recover. That is the whole story
