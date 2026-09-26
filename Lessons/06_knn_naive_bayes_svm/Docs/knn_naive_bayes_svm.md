@@ -14,12 +14,12 @@ date: "6 November 2026 · reading time about 100 minutes"
 | 0:30–0:52 | 22 | The curse of dimensionality | Slides 15–21 |
 | 0:52–1:14 | 22 | **Notebook 01** — k-NN and the curse | Slide 22 |
 | 1:14–1:26 | 12 | **Break** | Slide 23 |
-| 1:26–1:48 | 22 | Naive Bayes, and when its assumption holds | Slides 24–34 |
-| 1:48–2:06 | 18 | **Notebook 02** — where it fails | Slide 35 |
-| 2:06–2:32 | 26 | Margins, support vectors, the kernel trick | Slides 36–48 |
-| 2:32–2:50 | 18 | **Notebook 03** — kernels in practice | Slide 49 |
-| 2:50–3:00 | 10 | The three compared; homework | Slides 50–53 |
-| | **180** | **Total** | **52 slides, 3 notebooks** |
+| 1:26–1:48 | 22 | Naive Bayes, and when its assumption holds | Slides 24–35 |
+| 1:48–2:06 | 18 | **Notebook 02** — where it fails | Slide 36 |
+| 2:06–2:32 | 26 | Margins, support vectors, the kernel trick | Slides 37–49 |
+| 2:32–2:50 | 18 | **Notebook 03** — kernels in practice | Slide 50 |
+| 2:50–3:00 | 10 | The three compared; homework | Slides 51–54 |
+| | **180** | **Total** | **53 slides, 3 notebooks** |
 
 ---
 

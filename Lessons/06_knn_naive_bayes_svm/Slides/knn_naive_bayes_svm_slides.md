@@ -559,6 +559,28 @@ section 3.1 works the same rule through with counts if anyone wants it in
 numbers rather than symbols.
 :::
 
+# The decision drops the denominator
+
+$$\hat{y} = \mathrm{arg\,max}_c \; P(x \mid y = c)\,P(y = c)$$
+
+::: notes
+This is the classifier, before any assumption: score each class by the
+numerator and pick the largest. The denominator has gone because it is the
+same for every class.
+
+Expect someone to object that the number is then no longer a probability. The
+instinct is sound - a term has been thrown away - and the answer is that it is
+recoverable. The denominator is the sum of the numerators over the classes, so
+dividing each score by the sum of the scores gives the probability back
+exactly. That is what predict_proba does, in logarithms. Dropping it costs
+nothing in calibration; where Naive Bayes does lose calibration is inside the
+numerator, and we will see that in a few slides.
+
+Then point at the first factor: this is where all the difficulty now sits, and
+the next slide is the assumption that makes it estimable. Handout section 4.1
+carries a worked example with the pumps' priors.
+:::
+
 # The assumption: independent, given the class
 
 - **Given the class, the features are independent of one another**
