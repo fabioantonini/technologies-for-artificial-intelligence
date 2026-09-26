@@ -972,7 +972,8 @@ outlier far from it matters not at all.
 
 - Our labels are 4% flipped, so the strict problem has **no solution at all**
 - Let each point violate the margin by ξᵢ, and charge C for every unit of it
-- The constraint says: be on the correct side, or pay
+- ξᵢ = 0 outside the slab, between 0 and 1 inside it, above 1 on the wrong side
+- That is the **hinge loss**: exactly zero for a point with room to spare
 
 ::: notes
 The point worth stressing is why the soft margin is not a patch or a
@@ -983,6 +984,12 @@ the hard-margin problem is a teaching device.
 
 Our own labels are flipped at 4%, deliberately, so this is not a hypothetical
 for this dataset: the hard-margin problem on these pumps has no answer.
+
+Then read the three cases of the slack aloud, because they come back twice: in
+the weights the training produces, and in who gets a vote at prediction. Put it
+next to lesson 4's log loss: that one shrinks for a well-classified point but
+never reaches zero, so every row keeps pulling. The hinge reaches zero, and a
+point with zero loss drops out of the answer entirely.
 
 The next slide puts it in symbols. Handout section 5.2 has the derivation.
 :::
@@ -1153,6 +1160,30 @@ which is exactly why it works on problems where nobody could guess the right
 coordinates.
 :::
 
+# The kernel trick by hand: 25 = 25
+
+| Route | Computation | Result |
+|---|---|---|
+| Lift, then multiply | (1, 2.83, 4) · (9, 4.24, 1) = 9 + 12 + 4 | **25** |
+| Never lift | ((1, 2) · (3, 1))² = 5² | **25** |
+
+::: notes
+Make the trick concrete before the famous formula. The lift here lists every
+product of two coordinates: phi(x) = (x1², √2·x1·x2, x2²). Two points, a = (1, 2)
+and b = (3, 1).
+
+First row: lift both into three dimensions and take the ordinary inner product -
+9 + 12 + 4 = 25. Second row: never lift, take the inner product in the plane, 5,
+and square it - 25. Same number. The second route never left two dimensions, so
+the function (a · b)² IS the inner product in the lifted space. That is all a
+kernel is.
+
+Then connect it to the figure they just saw: the lifted space contains x1² and
+x2², and their sum is the squared distance from the centre - the coordinate we
+chose by hand. A flat plane there is a circle down here. The kernel found the
+lift we had to guess. Handout section 5.4.
+:::
+
 # The radial basis function, written out
 
 $$K(x, x') = \exp\left(-\gamma \|x - x'\|^2\right)$$
@@ -1171,10 +1202,66 @@ single training point's influence reaches. Small γ, wide reach, smooth boundary
 Large γ, each point influences only its immediate neighbourhood - and a boundary
 that can afford an island around every mislabelled pump.
 
+A number to anchor it: the similarity halves at a distance of sqrt(ln 2 / γ).
+For scikit-learn's default on the standardised pumps, γ = 0.5, that is about 1.2
+standard deviations.
+
 Worth naming the cost, since this is an engineering course: one exponential per
 pair of points, so the kernel matrix is m × m. That is why support vector
 machines are a poor fit above a hundred thousand rows, and it is a property of
 the method rather than of the implementation.
+:::
+
+# Training: one weight per pump
+
+- Weights adjusted **two at a time**; no learning rate, same answer every run
+- **922** pumps: weight 0, forgotten
+- **268** at the ceiling C = 1, **10** on the edge: the 278 support vectors
+- The model: 278 points, their weights, and b = +1.105
+
+::: notes
+Say what "fit" does, because after lesson 3 they will expect gradient descent.
+It is not. The SVM solves the dual: one weight per training point, found by a
+solver that picks two weights at a time - two, because the weights times the
+labels must sum to zero, so one cannot move alone - sets them to their best
+values with the rest fixed, and repeats until nothing improves. Convex, so
+there is one answer and it is found every time.
+
+Then the counts, which match the three cases of the slack from earlier. Weight
+zero: the 922 pumps safely on their own side, which the model now forgets.
+Weight at the ceiling C: the 268 inside the slab or on the wrong side - with
+C = 1 that weight is exactly 1, so each of them simply votes with its label.
+Between: the 10 sitting exactly on the edge.
+
+The model you ship is 278 points and their weights. Handout section 5.5.
+:::
+
+# The SVM on 48 Hz, 5.6 bar: +1.883
+
+| Term | Value |
+|---|---|
+| votes from faulty support vectors | +37.455 |
+| votes from healthy support vectors | −36.677 |
+| intercept b | +1.105 |
+| **total** | **+1.883** |
+
+::: notes
+Inference is a vote, in four steps. Standardise the pump with the training
+scaler. Compute its RBF similarity to each of the 278 support vectors. Add up
+weight times label times similarity - label +1 for faulty, -1 for healthy - and
+add b. Read the sign. Nothing else goes in: the total is exactly what
+decision_function returns.
+
+The same pump Naive Bayes called faulty at 0.981, reached by a completely
+different route.
+
+The point to make: the neighbourhood decides. The 56 support vectors within
+about 1.2 standard deviations contribute a net +1.141 towards faulty; the
+other 222 only -0.363. But not one neighbour - the five nearest disagree, because
+pumps just outside the envelope are faulty and some just inside carry flipped
+labels. So the SVM is k-NN again, with a smooth similarity instead of a hard k,
+only the support vectors voting, and learned weights. And the output is a score,
+not a probability. Handout section 5.5.
 :::
 
 # The highest training score, the lowest honest one
@@ -1237,7 +1324,7 @@ plot it.
 - Margins, support vectors, and what γ does to the boundary
 
 ::: notes
-Run notebooks/03. Eighteen minutes.
+Run notebooks/03. Sixteen minutes.
 
 The cell to protect is the γ sweep with the boundary drawn at each setting. Let
 them turn γ up themselves and watch the bubbles form - it is the most direct
@@ -1248,7 +1335,7 @@ by side. Two numbers, and it makes the diagnostic real rather than a claim on a
 slide.
 
 If time runs short, skip the C sweep and set it as reading: the table is in
-handout section 5.5.
+handout section 5.6.
 :::
 
 # The three compared, on identical data

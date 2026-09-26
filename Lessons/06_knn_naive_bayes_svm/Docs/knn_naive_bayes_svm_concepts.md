@@ -122,8 +122,8 @@ $b$ without moving the boundary. → § 5.2
 so the closest points satisfy $\lvert w^\top x + b \rvert = 1$. It is what makes the
 constraints read $\geq 1$ and the margin equal $2 / \lVert w \rVert$. → § 5.2
 
-**Soft margin.** Allowing violations and charging for them, because real data is not
-separable. → § 5.2
+**Soft margin, and the hinge loss.** Violations allowed and charged: nothing for a
+point outside the slab on its own side, then a straight-line rise. → § 5.2
 
 **$C$, the price of an error.** Large $C$ makes violations expensive and the model
 contort; small $C$ buys a wider, calmer boundary. Note the direction: **large $C$
@@ -139,15 +139,18 @@ training points, in which the data appears only inside inner products. → § 5.
 **Why support vectors are the model.** A point strictly outside the slab carries a
 multiplier of zero, so it drops out of both the fit and the prediction. → § 5.4
 
-**The kernel trick.** Map into a space where a linear boundary works, and compute
-only the inner products there, never the map itself. → § 5.4
+**The kernel trick.** A kernel returns two points' inner product after a lift,
+computed without lifting; so the lift itself is never needed. → § 5.4
 
-**Radial basis function (RBF) kernel.** The standard choice, corresponding to an
-infinite-dimensional feature space at the cost of one exponential per pair. → § 5.4
+**Radial basis function (RBF) kernel.** A similarity, 1 for identical points and
+falling with distance; an infinite-dimensional space for one exponential. → § 5.4
+
+**Training and inference.** One weight per point, found two at a time with no
+learning rate; a prediction is the support vectors' similarity-weighted vote. → § 5.5
 
 **$\gamma$.** How far a single training point's influence reaches. Large $\gamma$
 lets the boundary dissolve into islands around individual points, including the
-mislabelled ones. → § 5.5
+mislabelled ones. → § 5.6
 
 
 ## Choosing

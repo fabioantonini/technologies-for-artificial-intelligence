@@ -16,10 +16,10 @@ date: "6 November 2026 · reading time about 100 minutes"
 | 1:14–1:26 | 12 | **Break** | Slide 23 |
 | 1:26–1:50 | 24 | Naive Bayes, and when its assumption matters | Slides 24–38 |
 | 1:50–2:06 | 16 | **Notebook 02** — where it fails | Slide 39 |
-| 2:06–2:32 | 26 | Margins, support vectors, the kernel trick | Slides 40–52 |
-| 2:32–2:50 | 18 | **Notebook 03** — kernels in practice | Slide 53 |
-| 2:50–3:00 | 10 | The three compared; homework | Slides 54–57 |
-| | **180** | **Total** | **56 slides, 3 notebooks** |
+| 2:06–2:34 | 28 | Margins, support vectors, the kernel trick | Slides 40–55 |
+| 2:34–2:50 | 16 | **Notebook 03** — kernels in practice | Slide 56 |
+| 2:50–3:00 | 10 | The three compared; homework | Slides 57–60 |
+| | **180** | **Total** | **59 slides, 3 notebooks** |
 
 ---
 
@@ -718,6 +718,21 @@ charge for them:
 $$\min_{w, b, \xi} \ \tfrac{1}{2}\lVert w \rVert^2 + C\sum_{i=1}^{m} \xi_i
   \quad \text{subject to} \quad y_i\left(w^\top x_i + b\right) \geq 1 - \xi_i, \ \ \xi_i \geq 0$$
 
+**What $\xi_i$ measures.** A point outside the slab on its own side has
+$\xi_i = 0$ and costs nothing. A point inside the slab but still on the right side
+of the boundary has $0 < \xi_i < 1$. A point on the wrong side of the boundary has
+$\xi_i > 1$. At the optimum each $\xi_i$ is as small as its constraint allows,
+which is
+
+$$\xi_i = \max\left(0,\ 1 - y_i\left(w^\top x_i + b\right)\right)$$
+
+the **hinge loss**: zero for any point classified with room to spare, then rising
+in a straight line as the point strays. That zero is the difference from lesson
+4's log loss, which shrinks for a well-classified point but never reaches zero,
+so every row keeps pulling on the answer. Under the hinge, points that are safely
+right stop mattering altogether — the fact Section 5.4 turns into the method's
+defining property.
+
 **$C$ is the price of a training error.** Large $C$ makes violations expensive,
 so the model contorts to classify everything: narrow margin, low bias, high
 variance. Small $C$ buys a wider, calmer boundary at the cost of some errors.
@@ -763,12 +778,23 @@ works, and run the linear method there. The obstacle is that useful spaces are
 enormous, sometimes infinite-dimensional, and computing $\phi(x)$ would be
 impossible.
 
-**The trick is that the SVM never needs $\phi(x)$** — and seeing why requires
-knowing the shape of its solution, so here it is. A constrained minimisation is
-attacked by attaching a multiplier to each constraint, one price per training
-point, charged when that point pushes against its own constraint. Writing $a_i$
-for the multiplier on point $i$ — most texts write $\alpha_i$, but this course
-reserves $\alpha$ for the learning rate — Section 5.2's problem becomes
+**The trick is that the SVM never needs $\phi(x)$.** Three facts carry it. Each
+is stated first in words, then shown.
+
+**Fact 1 — the answer is a weighted vote of the training points.** The best $w$
+is not some new vector the optimisation invents: it is built out of the training
+points themselves, each with a weight $a_i \geq 0$ and the sign of its label,
+
+$$w = \sum_{i=1}^{m} a_i y_i x_i$$
+
+The picture: the boundary is held in place by the points that press against it,
+like a tent held by its pegs, and $w$ records how hard each one presses.
+
+*Where it comes from.* A constrained minimisation is attacked by attaching a
+multiplier to each constraint, one price per training point, charged when that
+point pushes against its own constraint. Writing $a_i$ for the multiplier on point
+$i$ — most texts write $\alpha_i$, but this course reserves $\alpha$ for the
+learning rate — Section 5.2's problem becomes
 
 $$\mathcal{L}(w, b, a) = \tfrac{1}{2}\lVert w \rVert^2
   - \sum_{i=1}^{m} a_i\left[y_i\left(w^\top x_i + b\right) - 1\right]$$
@@ -780,47 +806,77 @@ $$\frac{\partial \mathcal{L}}{\partial w} = w - \sum_{i} a_i y_i x_i = 0
   \quad \Longrightarrow \quad w = \sum_{i} a_i y_i x_i,
   \qquad \frac{\partial \mathcal{L}}{\partial b} = -\sum_{i} a_i y_i = 0$$
 
-**The first of those is the whole story: the best $w$ is a weighted sum of the
-training points themselves.** Substitute it back into $\mathcal{L}$, using
-$\sum_i a_i y_i = 0$ to delete the $b$ term, and what is left contains the data
-in exactly one form:
+The first is Fact 1. Substitute it back into $\mathcal{L}$, using
+$\sum_i a_i y_i = 0$ to delete the $b$ term, and what is left is a problem in the
+weights alone — the **dual**:
 
 $$\max_{a} \ \sum_{i} a_i
   - \tfrac{1}{2}\sum_{i}\sum_{j} a_i a_j y_i y_j \langle x_i, x_j \rangle
-  \quad \text{subject to} \quad a_i \geq 0, \ \ \sum_i a_i y_i = 0$$
+  \quad \text{subject to} \quad 0 \leq a_i \leq C, \ \ \sum_i a_i y_i = 0$$
 
-The soft margin changes one thing: violations bounded by $C$ put a ceiling
-$a_i \leq C$ on each multiplier, which is the sense in which $C$ really is the
-price of a point.
+The ceiling $a_i \leq C$ is what the soft margin adds: no single point can press
+harder than the price of a violation, which is the sense in which $C$ really is
+the price of a point.
 
-Two facts drop out, and both are things this lesson has already been using.
+**Fact 2 — most of the weights are zero.** A multiplier is a price paid only
+where the constraint binds, so the weights come in three kinds, matching the
+three cases of $\xi_i$:
 
-**Support vectors are the model.** A multiplier is a price paid only where the
-constraint binds. Points sitting strictly outside the slab have $a_i = 0$ and
-vanish from every sum above — which is why, in Section 5.1's figure, three points
-of eighty decide the answer and the other seventy-seven can be moved freely.
+| Where the point sits | $\xi_i$ | Weight $a_i$ |
+|---|---|---|
+| Outside the slab, on its own side | 0 | $0$ — it drops out |
+| Exactly on the edge of the slab | 0 | between $0$ and $C$ |
+| Inside the slab, or on the wrong side | $> 0$ | $C$, the ceiling |
 
-**Prediction needs inner products too, and nothing else.** Substituting $w$ into
-$w^\top x + b$:
+The points with non-zero weight are the **support vectors**, and they are the
+whole model: the rest vanish from every sum above. That is why, in Section 5.1's
+figure, three points of eighty decide the answer and the other seventy-seven can
+be moved freely.
+
+**Fact 3 — the data only ever appears as inner products.** Look at the dual: the
+training points enter only through $\langle x_i, x_j \rangle$. And prediction,
+with Fact 1 substituted into $w^\top x + b$, is
 
 $$w^\top x + b = \sum_{i} a_i y_i \langle x_i, x \rangle + b$$
 
-So neither fitting nor predicting ever touches a coordinate except inside
-$\langle \cdot, \cdot \rangle$. Replace every one of those with a function that
-returns the inner product *in the new space* while computing only with the
-original coordinates, and the machine is running in $\phi$'s space without ever
-visiting it:
+— inner products again. Neither fitting nor predicting ever touches a coordinate
+except inside $\langle \cdot, \cdot \rangle$. Replace each of those with a
+function that returns the inner product *in the new space* while computing only
+with the original coordinates,
 
 $$K(x, x') = \langle \phi(x), \phi(x') \rangle$$
 
-The standard choice, and scikit-learn's default, is the **radial basis
-function**:
+and the whole method runs in $\phi$'s space without ever visiting it. That
+function is a **kernel**.
+
+**A kernel, checked by hand.** Take the lift that lists every product of two
+coordinates, $\phi(x) = (x_1^2,\ \sqrt{2}\,x_1 x_2,\ x_2^2)$, and two points
+$a = (1, 2)$ and $b = (3, 1)$. Lifting both and multiplying:
+$\phi(a) = (1,\ 2\sqrt{2},\ 4)$, $\phi(b) = (9,\ 3\sqrt{2},\ 1)$, and
+$\phi(a) \cdot \phi(b) = 9 + 12 + 4 = 25$. Never lifting at all: $a \cdot b = 5$,
+and $5^2 = 25$. The same number, and the second route touched only the original
+coordinates — so $K(a, b) = (a \cdot b)^2$ *is* the inner product in the
+three-dimensional space, computed without going there.
+
+Notice what that space contains: $x_1^2$ and $x_2^2$, whose sum is the squared
+distance from the centre — the very coordinate the figure above chose by hand. A
+plane in this space draws a circle or an ellipse in the original one. The kernel
+found the lift we had to guess.
+
+**The kernel scikit-learn uses by default** is the **radial basis function**:
 
 $$K(x, x') = \exp\left(-\gamma \lVert x - x' \rVert^2\right)$$
 
-**Why that one is infinite-dimensional**, rather than merely large. Expand the
-squared norm as $\lVert x \rVert^2 - 2\langle x, x' \rangle + \lVert x' \rVert^2$
-and the kernel splits into a factor for each point and one joint factor:
+Read it as a **similarity**: 1 for two identical points, falling towards 0 as
+they move apart. It halves at a distance of $\sqrt{\ln 2 / \gamma}$; for the
+default on the standardised pumps, $\gamma = 0.5$, that is about 1.2 standard
+deviations. Every quantity the SVM computes is now a sum of similarities to
+training points.
+
+**Why the RBF space is infinite-dimensional** — a paragraph that can be skipped
+on a first reading. Expand the squared norm as
+$\lVert x \rVert^2 - 2\langle x, x' \rangle + \lVert x' \rVert^2$ and the kernel
+splits into a factor for each point and one joint factor:
 
 $$K(x, x') = e^{-\gamma \lVert x \rVert^2}\, e^{-\gamma \lVert x' \rVert^2}\,
   e^{2\gamma \langle x, x' \rangle}$$
@@ -830,21 +886,81 @@ and the joint factor is an exponential, whose power series never terminates:
 $$e^{2\gamma \langle x, x' \rangle}
   = \sum_{k=0}^{\infty} \frac{(2\gamma)^k}{k!} \langle x, x' \rangle^k$$
 
-Each term is a polynomial kernel: expanded, $\langle x, x' \rangle^k$ is an inner
-product between the vectors of all degree-$k$ monomials in the coordinates, each
-carrying a fixed weight. The sum therefore has monomials of *every* degree, so
-$\phi(x)$ has infinitely many entries — and one exponential per pair buys all of
-them.
+Each term is a kernel of the kind just checked by hand — $\langle x, x' \rangle^2$
+was the case $k = 2$ — so the sum carries products of the coordinates of *every*
+degree, and $\phi(x)$ has infinitely many entries. One exponential per pair buys
+all of them.
 
 We chose the lift in the picture above by knowing the answer; the RBF kernel does
 something equivalent without being told, which is why it works where nobody could
 guess the right coordinates.
 
-### 5.5 Gamma, C, and overfitting you can see
+### 5.5 Training and inference, step by step
 
-$\gamma$ sets how far a single training point's influence reaches. Small
-$\gamma$: wide reach, smooth boundary. Large $\gamma$: each point influences
-only its immediate neighbourhood, and the boundary can dissolve into islands.
+**Training** means finding the weights $a_i$ of Fact 1 by solving the dual. The
+solver behind scikit-learn's `SVC` starts with every weight at zero, repeatedly
+picks a pair of weights that can still improve the objective — a pair, because
+$\sum_i a_i y_i = 0$ means one cannot move alone — sets that pair to its best
+values with all the others held fixed, and stops when no pair can improve. There
+is no learning rate and no epoch, and because the problem is convex the answer is
+the same on every run. The price is the kernel values between pairs of training
+points, which is why the method slows sharply as the dataset grows past tens of
+thousands of rows.
+
+What comes out, for the RBF model on the standardised pumps ($\gamma = 0.5$,
+$C = 1$):
+
+| Weight | Pumps | Meaning |
+|---|---|---|
+| $a_i = 0$ | 922 | outside the slab: forgotten |
+| $0 < a_i < C$ | 10 | exactly on the edge of the slab |
+| $a_i = C$ | 268 | inside the slab or on the wrong side |
+
+plus an intercept $b = +1.105$. The model is the 278 support vectors, their
+weights and $b$; the other 922 pumps can be deleted. And with $C = 1$, 268 of the
+278 weights are exactly 1: almost every support vector simply votes with its
+label.
+
+**Inference** is that vote, in four steps:
+
+1. Standardise the new pump with the scaler fitted on the training data.
+2. Compute its RBF similarity to each of the 278 support vectors.
+3. Add up weight × label × similarity over the support vectors, with labels
+   $+1$ for faulty and $-1$ for healthy, then add $b$.
+4. The sign is the class: positive faulty, negative healthy.
+
+The pump from Section 4.2, at 48 Hz and 5.6 bar:
+
+| Term | Value |
+|---|---|
+| votes from faulty support vectors | +37.455 |
+| votes from healthy support vectors | −36.677 |
+| intercept $b$ | +1.105 |
+| **total** | **+1.883** — faulty |
+
+The total is exactly what `decision_function` returns. The 56 support vectors
+with a similarity above one half — those within about 1.2 standard deviations —
+contribute a net **+1.141** towards faulty, the other 222 only −0.363 between
+them: **the neighbourhood decides.** Not a single neighbour, though. The five
+nearest support vectors disagree — pumps just outside the envelope are faulty and
+some just inside carry flipped labels — so the closest votes nearly cancel, and it
+is the balance across the neighbourhood, plus the intercept, that sets the sign.
+Naive Bayes, by a completely different route, called the same pump faulty.
+
+This is k-nearest neighbours again, with three differences: a smooth similarity
+in place of a hard cut-off at $k$, only the support vectors voting, and their
+weights learned. The cost follows: 278 similarities per prediction against
+k-NN's 1,200 distances. And the output is a score whose sign is the class, not a
+probability.
+
+### 5.6 Gamma, C, and overfitting you can see
+
+$\gamma$ sets how far a single training point's influence reaches — Section 5.4's
+half-similarity distance, $\sqrt{\ln 2 / \gamma}$. At $\gamma = 0.1$ a support
+vector's vote halves over 2.63 standard deviations, at $\gamma = 1$ over 0.83,
+and at $\gamma = 50$ over 0.12: small $\gamma$ gives a wide reach and a smooth
+boundary, large $\gamma$ lets each point speak only for its immediate
+neighbourhood, and the boundary can dissolve into islands.
 
 ![](svm_gamma_c.png)
 
@@ -922,7 +1038,10 @@ lesson 2 insisted.
 - **The margin is a criterion distinct from the error**, and support vectors are
   the model. A high support-vector fraction is a free warning.
 - **The kernel trick separates by changing coordinates**, through inner products
-  in a space never computed.
+  in a space never computed: 25 both ways on a two-point example.
+- **An SVM is trained as one weight per point**, with no learning rate, and
+  predicts by a similarity-weighted vote of its support vectors — k-NN with
+  learned weights: 278 voters, +1.883 for the 48 Hz pump.
 - **Choosing the family beats tuning the wrong one**: 0.613 to 0.947 on
   identical data.
 

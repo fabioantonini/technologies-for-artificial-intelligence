@@ -326,7 +326,7 @@ same("6 the gap between best and worst model", 0.947 - 0.613, 0.334,
 
 # ------------------------------------------- Section 5.3, support vectors
 
-# 5.4's table went into three figure titles and the handout, and was printed
+# 5.6's table went into three figure titles and the handout, and was printed
 # nowhere, so nothing compared the two. Recomputed here from the generator.
 from sklearn.model_selection import cross_val_score, StratifiedKFold   # noqa: E402
 from sklearn.pipeline import make_pipeline                             # noqa: E402
@@ -338,9 +338,9 @@ for gamma, C, printed_train, printed_cv in ((0.1, 1, 0.936, 0.929),
                                             (1, 1, 0.950, 0.944),
                                             (50, 1000, 0.995, 0.902)):
     svm = make_pipeline(StandardScaler(), SVC(kernel="rbf", gamma=gamma, C=C))
-    same(f"5.4 training score at gamma={gamma}, C={C}",
+    same(f"5.6 training score at gamma={gamma}, C={C}",
          svm.fit(X, y).score(X, y), printed_train, tolerance=1e-3)
-    same(f"5.4 cross-validated score at gamma={gamma}, C={C}",
+    same(f"5.6 cross-validated score at gamma={gamma}, C={C}",
          cross_val_score(svm, X, y, cv=svm_folds).mean(), printed_cv, tolerance=1e-3)
 
 same("5.3 linear support-vector fraction", 947 / 1200, 0.79, tolerance=5e-3)
@@ -401,5 +401,64 @@ series *= np.exp(-gamma * (t ** 2).sum(1))[None, :]
 same("5.4 the RBF kernel equals its truncated power series",
      float(np.abs(series - rbf_kernel(u, t, gamma=gamma)).max()), 0.0,
      tolerance=1e-9)
+
+# 5.2: the hinge loss equals the smallest slack the soft-margin constraint
+# allows. On the fitted pump model, y*f(x) from decision_function against the
+# three cases of xi the handout lists.
+pumps_svm = make_pipeline(StandardScaler(), SVC()).fit(X, y)
+signed = np.where(y.to_numpy() == 1, 1, -1) * pumps_svm.decision_function(X)
+hinge = np.maximum(0, 1 - signed)
+alpha_abs = np.zeros(len(X)); alpha_abs[pumps_svm[-1].support_] = np.abs(pumps_svm[-1].dual_coef_[0])
+# points with zero weight have zero hinge (to solver tolerance), at-ceiling ones positive
+same("5.2 zero weight means zero hinge loss",
+     float(hinge[alpha_abs == 0].max()), 0.0, tolerance=2e-3)
+same("5.2 weight at C means a positive hinge loss",
+     float((hinge[np.isclose(alpha_abs, 1.0)] > -1e-3).all()), 1.0, tolerance=0)
+
+# 5.4: the kernel checked by hand - both routes.
+a_pt, b_pt = np.array([1.0, 2.0]), np.array([3.0, 1.0])
+lift = lambda v: np.array([v[0] ** 2, np.sqrt(2) * v[0] * v[1], v[1] ** 2])
+same("5.4 phi(a) . phi(b)", lift(a_pt) @ lift(b_pt), 25.0, tolerance=1e-9)
+same("5.4 (a . b)^2", (a_pt @ b_pt) ** 2, 25.0, tolerance=1e-9)
+same("5.4 the lifted products 9 + 12 + 4",
+     lift(a_pt)[0] * lift(b_pt)[0] + lift(a_pt)[1] * lift(b_pt)[1]
+     + lift(a_pt)[2] * lift(b_pt)[2], 9 + 12 + 4, tolerance=1e-9)
+
+# 5.4 and 5.6: where the RBF similarity halves, checked against the kernel itself.
+std_pumps = pumps_svm[0].transform(X)
+gamma_scale = 1 / (std_pumps.shape[1] * std_pumps.var())
+same("5.4 gamma='scale' on the standardised pumps", gamma_scale, 0.5, tolerance=1e-6)
+for g, printed in ((0.5, 1.2), (0.1, 2.63), (1, 0.83), (50, 0.12)):
+    half = np.sqrt(np.log(2) / g)
+    same(f"5.4 similarity halves at gamma={g}", half, printed,
+         tolerance=0.05 if printed == 1.2 else 5e-3)
+    same(f"5.4 ...and the kernel is 0.5 there, gamma={g}",
+         float(rbf_kernel([[0, 0]], [[half, 0]], gamma=g)[0, 0]), 0.5, tolerance=1e-9)
+
+# 5.5: the fitted model's weights, counted.
+svc = pumps_svm[-1]
+weights_abs = np.abs(svc.dual_coef_[0])
+same("5.5 weight zero", len(X) - len(svc.support_), 922, tolerance=0)
+same("5.5 weight at the ceiling", int(np.isclose(weights_abs, svc.C).sum()), 268, tolerance=0)
+same("5.5 weight strictly between", int((~np.isclose(weights_abs, svc.C)).sum()), 10, tolerance=0)
+same("5.5 the intercept", svc.intercept_[0], 1.105, tolerance=5e-4)
+
+# 5.5: the worked pump - the vote summed by hand against decision_function.
+q = pumps_svm[0].transform(pd.DataFrame([[48.0, 5.6]], columns=X.columns))[0]
+sim = rbf_kernel(svc.support_vectors_, q[None, :], gamma=gamma_scale)[:, 0]
+vote = svc.dual_coef_[0] * sim
+same("5.5 faulty votes", vote[vote > 0].sum(), 37.455, tolerance=5e-4)
+same("5.5 healthy votes", vote[vote < 0].sum(), -36.677, tolerance=5e-4)
+same("5.5 the total, by hand", vote.sum() + svc.intercept_[0], 1.883, tolerance=5e-4)
+same("5.5 ...and decision_function",
+     pumps_svm.decision_function(pd.DataFrame([[48.0, 5.6]], columns=X.columns))[0],
+     1.883, tolerance=5e-4)
+near = sim > 0.5
+same("5.5 support vectors above one half", int(near.sum()), 56, tolerance=0)
+same("5.5 their net vote", vote[near].sum(), 1.141, tolerance=5e-4)
+same("5.5 the other 222", int((~near).sum()), 222, tolerance=0)
+same("5.5 their net vote", vote[~near].sum(), -0.363, tolerance=5e-4)
+top5 = np.argsort(-sim)[:5]
+same("5.5 the five nearest disagree", float(len(set(np.sign(vote[top5])))), 2.0, tolerance=0)
 
 print(f"lesson 6: {checks} hand-worked numbers recomputed, all agree")
