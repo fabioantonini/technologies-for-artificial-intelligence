@@ -811,8 +811,20 @@ independence assumption is unable to represent. Handout section 4.4.
 Left panel: the two sensors together. Four clean groups, and a perfectly
 learnable rule - any method that can draw a non-linear boundary will find it.
 
+Colours first, because someone will ask: teal is healthy, rust is faulty,
+everywhere. In the left panel each class owns two opposite quadrants - healthy
+has both sensors high or both low, faulty one high and one low.
+
 Middle and right: each sensor on its own, which is ALL Naive Bayes ever gets.
-The two class distributions sit almost exactly on top of one another.
+Solid outlines are the data. Each sensor is either low or high, so each outline
+has two humps - and healthy and faulty have the SAME two humps, because each
+class is about half low and half high on each sensor alone.
+
+The dashed curves are what the model fits: one bell per sensor per class. A
+single bell cannot follow two humps, so it sits in the valley between them, and
+the two classes' bells almost coincide - centre near 0, sd about 1.1 for both.
+Contrast the pumps a few slides ago: bells with a shared centre but widths of
+1.7 against 4.6 Hz, and the widths carried the class. Here nothing does.
 
 That is the slide in one sentence: the information is real, it is entirely in
 the relationship between the columns, and factorising the density throws that

@@ -225,6 +225,31 @@ if not 0.8 < spread < 1.3:
     raise SystemExit(f"4.4 the spread is {spread:.2f}, not 'near 1' as claimed")
 checks += 1
 
+# The quadrant table, counted with numpy from the raw sensors.
+a_high = Xi["sensor_a"].to_numpy() > 0
+b_high = Xi["sensor_b"].to_numpy() > 0
+lab = yi.to_numpy()
+for qa, qb, printed in ((True, True, (273, 9)), (True, False, (10, 359)),
+                        (False, True, (11, 253)), (False, False, (278, 7))):
+    here = (a_high == qa) & (b_high == qb)
+    same(f"4.4 quadrant A={'high' if qa else 'low'} B={'high' if qb else 'low'}, healthy",
+         (here & (lab == 0)).sum(), printed[0], tolerance=0)
+    same(f"4.4 quadrant A={'high' if qa else 'low'} B={'high' if qb else 'low'}, faulty",
+         (here & (lab == 1)).sum(), printed[1], tolerance=0)
+# 'about half each' on sensor A, per class
+for c in (0, 1):
+    frac = a_high[lab == c].mean()
+    if not 0.4 < frac < 0.62:
+        raise SystemExit(f"4.4 sensor A is high for {frac:.2f} of class {c}, not 'about half'")
+    checks += 1
+# The bells on sensor A, by numpy's mean and population sd
+for c, (centre, sd) in ((0, (-0.012, 1.090)), (1, (0.167, 1.112))):
+    col = Xi["sensor_a"].to_numpy()[lab == c]
+    same(f"4.4 sensor A bell centre, class {c}", col.mean(), centre, tolerance=5e-4)
+    same(f"4.4 sensor A bell sd, class {c}", col.std(), sd, tolerance=5e-4)
+same("4.4 the pumps' widths 'almost threefold'", table[1][2][0] / table[0][2][0],
+     2.74, tolerance=0.01)
+
 # ------------------------- Section 3.2, distance concentration, independently
 
 # Deliberately not the notebook's setup: different seed, different point count.

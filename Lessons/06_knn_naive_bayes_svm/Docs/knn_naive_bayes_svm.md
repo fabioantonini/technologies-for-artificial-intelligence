@@ -540,9 +540,44 @@ between demand and delivery.
 
 ![](interaction_marginals.png)
 
-*Left: together, the two sensors show four clear groups and a perfectly
-learnable rule. Middle and right: what Naive Bayes gets to see — each sensor
-alone, where the two classes sit almost exactly on top of one another.*
+*Left: together, the two sensors show four clear groups, each class owning two
+opposite quadrants. Middle and right: what Naive Bayes gets to see — each sensor
+alone. Solid outlines are the data, two humps each and the same two humps for
+both classes; dashed curves are the single bell per class that Naive Bayes fits,
+the two almost on top of each other.*
+
+**Reading the figure.** Teal is healthy and rust is faulty throughout. In the
+left panel each class owns two opposite quadrants — healthy pumps have both
+sensors high or both low, faulty ones one high and the other low:
+
+| | B high | B low |
+|---|---|---|
+| **A high** | 273 healthy, 9 faulty | 10 healthy, 359 faulty |
+| **A low** | 11 healthy, 253 faulty | 278 healthy, 7 faulty |
+
+The few pumps in the wrong quadrant are the label noise. Now look at sensor A
+alone, which is what the middle panel does. Among healthy pumps it is high for
+273 + 10 and low for 11 + 278 — about half each. Among faulty pumps it is high
+for 9 + 359 and low for 253 + 7 — about half again, if less evenly. So both
+outlines have the same two humps, at −1 and +1, and the same is true of sensor B.
+**Each sensor alone says almost nothing about the class; everything is in the
+combination.**
+
+The dashed curves are what Naive Bayes makes of that. It fits **one** bell per
+sensor per class, and a single bell cannot follow two humps, so each sits in the
+valley between them:
+
+| Bell fitted on sensor A | Centre | sd |
+|---|---|---|
+| Healthy | −0.012 | 1.090 |
+| Faulty | +0.167 | 1.112 |
+
+Set this beside the pumps of Section 4.2. There the two classes' bells also
+shared a centre, but their widths differed almost threefold — 1.695 against
+4.636 Hz — and the widths carried the class. Here centre and width both
+coincide, and nothing carries it. The one difference left, the 0.17 between the
+centres, comes from the sample holding more faulty pumps with A high (359) than
+with B high (253).
 
 | Model | Accuracy |
 |---|---|
@@ -555,11 +590,11 @@ alone, where the two classes sit almost exactly on top of one another.*
 
 **0.404 — below chance, and well below the majority baseline.**
 
-Being below chance looks impossible, and the explanation is worth having. The
-class means on each sensor differ by about 0.17 against a spread near 1, purely
-as an artefact of a finite sample. That accident is the *only* per-feature
-evidence available, Naive Bayes has nothing else to multiply, and in this sample
-it points the wrong way.
+Being below chance looks impossible, and the explanation is the 0.17 just
+found. The class means on each sensor differ by about that much against a spread
+near 1, purely as an artefact of a finite sample. That accident is the *only*
+per-feature evidence available, Naive Bayes has nothing else to multiply, and in
+this sample it points the wrong way.
 
 **A model with no signal does not sit politely at 50%.** It follows whatever
 spurious structure it can find.
