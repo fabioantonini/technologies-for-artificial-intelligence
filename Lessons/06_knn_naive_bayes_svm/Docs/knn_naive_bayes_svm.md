@@ -201,9 +201,30 @@ $$d(x, x')^2 = \sum_{j=1}^{n} (x_j - x'_j)^2$$
 
 Call the mean of one term $\mu$ and its variance $v$. Both are fixed by how a
 single coordinate is distributed — for coordinates uniform on $[0, 1]$ they are
-$\mu = 1/6$ and $v = 7/180$ — and, crucially, **neither depends on $n$**. Adding
-$n$ such terms adds their means, and because they are independent it adds their
-variances too:
+$\mu = 1/6$ and $v = 7/180$ — and, crucially, **neither depends on $n$**.
+
+**Where the two numbers come from.** Both belong to a single pair of
+coordinates, so one dimension is enough, and the only thing to know is how the
+gap between two random points on a line is distributed. Write $D = x_j - x'_j$.
+The mean needs nothing but variances: $D$ has mean zero, so
+$\mathbb{E}[D^2] = \operatorname{Var}(D)$, and for independent points the
+variances add. A uniform coordinate on $[0, 1]$ has variance
+$\mathbb{E}[x^2] - \mathbb{E}[x]^2 = 1/3 - 1/4 = 1/12$, so
+$\mu = 1/12 + 1/12 = 1/6$. The variance needs the fourth power,
+$v = \mathbb{E}[D^4] - \mu^2$, and for that the shape of $D$. A small gap can
+arise from many positions of the pair, a gap near 1 only from one point at each
+end, so $D$ has the triangular density $1 - |t|$ on $[-1, 1]$. It is symmetric,
+so integrate over $[0, 1]$ and double:
+
+$$\mathbb{E}\left[D^4\right] = 2\int_0^1 t^4 (1 - t)\,dt
+  = 2\left(\tfrac{1}{5} - \tfrac{1}{6}\right) = \tfrac{1}{15},
+  \qquad v = \tfrac{1}{15} - \tfrac{1}{36} = \tfrac{7}{180} \approx 0.039$$
+
+The same density gives the mean by a second route,
+$2\int_0^1 t^2 (1 - t)\,dt = 2(1/3 - 1/4) = 1/6$.
+
+Adding $n$ such terms adds their means, and because they are independent it
+adds their variances too:
 
 $$\mathbb{E}\left[d^2\right] = n\mu,
   \qquad \operatorname{Var}\left(d^2\right) = nv,

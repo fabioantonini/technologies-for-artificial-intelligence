@@ -102,6 +102,23 @@ same("3.2 mu, the mean of one squared coordinate difference",
      float((one ** 2).mean()), 1 / 6, tolerance=1e-3)
 same("3.2 v, its variance", float((one ** 2).var()), 7 / 180, tolerance=1e-3)
 
+# The handout also derives both constants exactly. Redo that algebra in exact
+# fractions, from the uniform's moments E[x^k] = 1/(k+1) and from the
+# triangular density's integrals 2 * int t^k (1 - t) dt = 2/((k+1)(k+2)).
+from fractions import Fraction as F
+
+var_uniform = F(1, 3) - F(1, 2) ** 2
+same("3.2 the variance of a uniform coordinate", var_uniform, F(1, 12),
+     tolerance=0)
+triangular = lambda k: 2 * F(1, (k + 1) * (k + 2))
+same("3.2 mu from the variances", 2 * var_uniform, F(1, 6), tolerance=0)
+same("3.2 mu from the triangular density", triangular(2), F(1, 6), tolerance=0)
+same("3.2 E[D^4] from the triangular density", triangular(4), F(1, 15),
+     tolerance=0)
+same("3.2 v exactly", triangular(4) - triangular(2) ** 2, F(7, 180),
+     tolerance=0)
+same("3.2 v as printed, 'about 0.039'", 7 / 180, 0.039, tolerance=5e-4)
+
 mu, v = 1 / 6, 7 / 180
 same("3.2 the constant sqrt(v)/mu", np.sqrt(v) / mu, 1.18, tolerance=5e-3)
 
