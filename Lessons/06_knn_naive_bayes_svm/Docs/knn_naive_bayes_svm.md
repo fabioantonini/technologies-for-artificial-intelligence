@@ -327,7 +327,40 @@ different direction.
 
 > **Given the class, the features are independent of one another.**
 
-If that holds, the joint density factorises:
+**What it says, concretely.** Once you know whether a pump is faulty, reading
+its vibration tells you nothing more about its pressure:
+
+$$P(x_2 \mid x_1, y = c) = P(x_2 \mid y = c)$$
+
+written $x_1 \perp x_2 \mid y = c$. Counts make the difference from plain
+independence visible. Take, as an illustration, 1,000 pumps, 600 faulty and 400
+healthy. Among the faulty, 80% vibrate high and 70% run at low pressure; among
+the healthy, 10% and 20%; and within each class the two readings are
+independent:
+
+| | High vibration | Low pressure | Both |
+|---|---|---|---|
+| Faulty (600) | 480 | 420 | 600 × 0.8 × 0.7 = 336 |
+| Healthy (400) | 40 | 80 | 400 × 0.1 × 0.2 = 8 |
+| All (1,000) | 520 | 500 | 344 |
+
+Inside a class the assumption holds: of the 480 faulty pumps vibrating high,
+336 — **70%** — run at low pressure, exactly the rate among all faulty pumps.
+Across the whole fleet it does not: of the 520 pumps vibrating high, 344 —
+**66%** — run at low pressure, against **50%** overall. The two readings are
+correlated because both point towards "faulty", and the class explains all of
+it.
+
+This is the mistake to expect. "Independent given the class" gets read as
+"independent", and a student who finds two correlated features concludes that
+the assumption is broken. It may not be: correlation the class explains is
+exactly what the assumption allows. The reverse happens too, and Section 4.4 is
+that case. On its two sensors the overall correlation is −0.057, as good as
+none, while within the healthy pumps it is **+0.821** and within the faulty
+**−0.826**: once the class is known, one sensor very nearly determines the
+other, and the assumption fails completely.
+
+If the assumption holds, the joint density factorises:
 
 $$P(x \mid y = c) = \prod_{j=1}^{n} P(x_j \mid y = c)$$
 

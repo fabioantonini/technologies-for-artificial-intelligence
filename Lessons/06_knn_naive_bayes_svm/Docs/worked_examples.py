@@ -73,6 +73,47 @@ gap = np.abs(np.exp(joint - logsumexp(joint, axis=1, keepdims=True))
              - nb.predict_proba(X)).max()
 same("4.1 predict_proba is the normalised joint", gap, 0.0, tolerance=1e-12)
 
+# ------------------------------ Section 4.2, what the assumption says, counted
+
+# The illustration's table, rebuilt pump by pump rather than by the handout's
+# products: one row per pump, the two readings drawn exactly at the stated rates
+# and independently within each class, then counted.
+fleet = []
+for n_class, p_vib, p_low in ((600, 0.8, 0.7), (400, 0.1, 0.2)):
+    vib = np.arange(n_class) < p_vib * n_class
+    for i in range(n_class):
+        # within a class every vibration value meets every pressure value in
+        # proportion, which is what independence given the class means
+        fleet.append((vib[i], (i % 10) < p_low * 10))
+fleet = np.array(fleet)
+high, low = fleet[:, 0], fleet[:, 1]
+faulty_rows = np.arange(len(fleet)) < 600
+same("4.2 faulty and vibrating high", (high & faulty_rows).sum(), 480, tolerance=0)
+same("4.2 faulty and at low pressure", (low & faulty_rows).sum(), 420, tolerance=0)
+same("4.2 healthy and vibrating high", (high & ~faulty_rows).sum(), 40, tolerance=0)
+same("4.2 healthy and at low pressure", (low & ~faulty_rows).sum(), 80, tolerance=0)
+same("4.2 faulty with both", (high & low & faulty_rows).sum(), 336, tolerance=0)
+same("4.2 healthy with both", (high & low & ~faulty_rows).sum(), 8, tolerance=0)
+same("4.2 all vibrating high", high.sum(), 520, tolerance=0)
+same("4.2 all at low pressure", low.sum(), 500, tolerance=0)
+same("4.2 all with both", (high & low).sum(), 344, tolerance=0)
+same("4.2 low pressure among faulty pumps vibrating high",
+     100 * low[high & faulty_rows].mean(), 70, tolerance=0.5)
+same("4.2 ...equal to the rate among all faulty pumps",
+     100 * low[faulty_rows].mean(), 70, tolerance=0.5)
+same("4.2 low pressure among all pumps vibrating high",
+     100 * low[high].mean(), 66, tolerance=0.5)
+same("4.2 low pressure overall", 100 * low.mean(), 50, tolerance=0.5)
+
+# The reverse case, on the interacting sensors, from the generator itself.
+Xi, yi = load_interacting()
+same("4.2 interacting sensors, overall correlation",
+     Xi.corr().iloc[0, 1], -0.057, tolerance=5e-4)
+same("4.2 interacting sensors, within healthy",
+     Xi[yi == 0].corr().iloc[0, 1], 0.821, tolerance=5e-4)
+same("4.2 interacting sensors, within faulty",
+     Xi[yi == 1].corr().iloc[0, 1], -0.826, tolerance=5e-4)
+
 # ------------------------------------------- Section 4.3, the assumption
 
 for label, printed in ((0, -0.006), (1, -0.049)):
