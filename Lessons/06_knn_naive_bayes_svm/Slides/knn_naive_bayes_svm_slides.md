@@ -672,6 +672,33 @@ moment to say a density is not a probability: a bell 0.22 bar wide peaks
 above 1. Handout section 4.2 works the pump through term by term.
 :::
 
+# 48 Hz, 5.6 bar: faulty, 0.981
+
+| Class | log prior | log P(vibration) | log P(pressure) | Total |
+|---|---|---|---|---|
+| Healthy | −0.948 | −7.745 | +0.598 | −8.095 |
+| Faulty | −0.490 | −3.286 | −0.368 | **−4.144** |
+
+::: notes
+This is inference, and it is worth saying how little it is. For each class, take
+the log prior and add one number per reading: the log of that class's bell,
+evaluated at the reading. Compare the totals. That is the prediction. No
+training row is consulted - only the ten stored numbers - which is the exact
+opposite of k-NN, where prediction is the whole cost.
+
+Walk the pump across. Vibration decides it: 48 Hz is 6 Hz from the centre, three
+and a half standard deviations for the narrow healthy bell, so its log density
+is −7.745; for the wide faulty bell it is barely more than one, −3.286.
+Pressure is at the centre, so it favours the narrow bell slightly - and its
+healthy log density is positive, +0.598, because a density is not a
+probability and a narrow bell peaks above 1.
+
+Faulty has the larger total, so faulty is the prediction. The probability in
+the title is the normalisation from slide 26 in log form: the gap between the
+totals, 3.951, through the logistic function, 1 / (1 + e^(−3.951)) = 0.981.
+Handout section 4.2 lists the four steps.
+:::
+
 # A wonderful bargain, and almost never true
 
 - Training is **a single pass**; adding features costs almost nothing
@@ -718,36 +745,37 @@ work? If the assumption is false, what happened?
 
 Then be explicit that we are about to check, rather than speculate. This is the
 habit worth transferring: when a model does better than you expected, find out
-which of your assumptions was accidentally satisfied. That tells you whether the
-result will survive on the next dataset.
+whether it worked because its assumption held or despite it failing. That tells
+you whether the result will survive on the next dataset.
 
 Handout section 4.3.
 :::
 
-# Because here the assumption is true
+# Uncorrelated, but not independent
 
-| Correlation between the two readings | Value |
-|---|---|
-| overall | −0.046 |
-| within healthy pumps | **−0.006** |
-| within faulty pumps | **−0.049** |
+| Within class | Readings | Squared distances |
+|---|---|---|
+| healthy pumps | −0.006 | +0.168 |
+| faulty pumps | −0.049 | **−0.420** |
 
 ::: notes
-Measured directly, and remember the assumption concerns independence GIVEN THE
-CLASS - so the second and third rows are the ones that count, not the first.
+Show the middle column first and let the room draw the conclusion everyone
+draws: within each class the readings are uncorrelated, so the assumption
+holds. It is the natural check, and for bell-shaped data it would settle it.
 
-Within each class the two readings are essentially uncorrelated: −0.006 among
-healthy pumps is as close to zero as a sample of this size will ever produce.
-The assumption is not approximately satisfied here; it is satisfied.
+Then the trap. Correlation only sees straight-line dependence. Healthy pumps
+fill a disc and faulty ones a ring; on a ring, a pump far out in vibration must
+be central in pressure. That dependence is symmetric, so the straight-line
+summary averages it to zero. Square each reading's distance from the design
+point and it appears: −0.420 among the faulty pumps. The assumption is false.
 
-Say why that is more useful than the 0.933. A score tells you what happened
-once. Knowing WHY it happened tells you when to expect it again - and it gives
-them a check they can run in two lines before trusting Naive Bayes on anything.
-
-The obvious caution, since somebody will raise it: zero correlation is not
-independence. Correlation only detects linear dependence. For Gaussian Naive
-Bayes with Gaussian-ish features it is the right check; in general it is
-necessary and not sufficient.
+So why 0.933? Because the densities are wrong but the boundary they imply is
+right. With both classes centred on the same point, comparing a narrow bell
+with a wide one gives an axis-aligned ellipse, and the true envelope is an
+axis-aligned ellipse. The fitted model's edge sits at about 3.17 Hz by 0.41
+bar against a true 3.5 by 0.45 - the same shape, a tenth small. A false
+assumption is cheap when it leaves the boundary the right shape. The next
+slide is the case where it does not. Handout section 4.3.
 :::
 
 # One step away: when the signal is an interaction
@@ -856,7 +884,7 @@ in section 7.2, where the threshold depends on the probability being real.
 
 # Notebook 2, live
 
-- Where the assumption holds, and one step away where it does not
+- Where breaking the assumption is cheap, and one step away where it is fatal
 
 ::: notes
 Run notebooks/02. Sixteen minutes.
@@ -1286,8 +1314,9 @@ distance is operating on a quantity that has stopped varying.
 
 If they remember one habit from today, make it the diagnostic pair: before
 reaching for a model, look at the shape of the data; after fitting one, check
-whether the assumption it depends on is actually satisfied on your data. Two
-lines of code gave us the −0.006 that explained the 0.933.
+whether the assumption it depends on is actually satisfied on your data - and
+check it properly. The −0.006 said yes; the squared distances said no; and the
+ellipse the model drew explained the 0.933.
 
 And the correction to the instinct that this lesson exists to install: more
 features is not free. It is nearly free for a linear model and it is expensive
@@ -1307,8 +1336,8 @@ minutes of next Friday, 13 November.
 
 The marks are for the reasoning, not for the accuracy. A well-argued choice that
 scores slightly worse beats a lucky winner with no justification - and the
-argument has to reference the data, in the way that the −0.006 justified Naive
-Bayes on the pumps this afternoon.
+argument has to reference the data, in the way that the squared distances and
+the fitted ellipse explained Naive Bayes on the pumps this afternoon.
 
 Remind them that everything must be cross-validated and reported with a spread,
 in the format lesson 5 set. Scaling goes inside the pipeline; that will be

@@ -107,7 +107,9 @@ Support each explanation with a **measurement**, not an assertion. Suggestions,
 though you may find better ones:
 
 - for the claim that the features are or are not independent given the class:
-  compute the within-class correlations and quote them;
+  compute the within-class correlations and quote them — remembering that a
+  correlation well away from zero proves dependence, while one near zero rules
+  out only the straight-line kind (the handout's section 4.3);
 - for a claim about the curse of dimensionality: sweep `k` and show what
   happens, or reduce the number of channels and show the effect;
 - for a claim that no single feature carries the signal: fit a model on the
@@ -169,6 +171,6 @@ you then investigated is worth more here than a cautious one.
 
 Email fabio.antonini.1969@gmail.com. There is no lesson between the day this
 is set and the morning it is due, so the inbox is the only channel. If you are stuck on Part 3, notebook 2 of this
-lesson does exactly this kind of measurement — it claims Naive Bayes works
-because its assumption holds, and then measures the within-class correlation to
-show it.
+lesson does exactly this kind of measurement — it finds the within-class
+correlations near zero, shows the readings are dependent all the same, and then
+measures why Naive Bayes works anyway.

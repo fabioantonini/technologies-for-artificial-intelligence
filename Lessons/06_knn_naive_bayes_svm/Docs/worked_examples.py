@@ -179,6 +179,35 @@ for label, printed in ((0, -0.006), (1, -0.049)):
          X[y == label].corr().iloc[0, 1], printed, tolerance=5e-4)
 same("4.3 overall correlation", X.corr().iloc[0, 1], -0.046, tolerance=5e-4)
 
+# Uncorrelated but dependent: the squared standardised distances, by numpy.
+far = ((readings - readings.mean(axis=0)) / readings.std(axis=0, ddof=1)) ** 2
+for label, printed in ((0, 0.168), (1, -0.420)):
+    rows = far[y.to_numpy() == label]
+    same(f"4.3 correlation of squared distances, class {label}",
+         np.corrcoef(rows[:, 0], rows[:, 1])[0, 1], printed, tolerance=5e-4)
+
+# The implied boundary, by the algebra the handout gives rather than by the
+# notebook's walk: with shared centres the log-ratio is sum_j a_j d_j^2 + K,
+# so the ellipse's semi-axis along reading j is sqrt(-K / a_j).
+from pump_data import ENVELOPE_RADIUS, PRESSURE_SD, VIBRATION_SD
+
+(p_h, _, sd_h), (p_f, _, sd_f) = table[0], table[1]
+a = 1 / (2 * sd_h ** 2) - 1 / (2 * sd_f ** 2)
+K = np.log(p_f / p_h) - np.log(sd_f / sd_h).sum()
+semi = np.sqrt(-K / a)
+same("4.3 the model's ellipse along vibration", semi[0], 3.17, tolerance=0.02)
+same("4.3 the model's ellipse along pressure", semi[1], 0.41, tolerance=5e-3)
+same("4.3 the true envelope along vibration", VIBRATION_SD * ENVELOPE_RADIUS, 3.5,
+     tolerance=1e-9)
+same("4.3 the true envelope along pressure", PRESSURE_SD * ENVELOPE_RADIUS, 0.45,
+     tolerance=1e-9)
+same("4.3 'the same proportions'", semi[0] / semi[1],
+     VIBRATION_SD / PRESSURE_SD, tolerance=0.2)
+for j in (0, 1):
+    same(f"4.3 'about a tenth too small', axis {j}",
+         semi[j] / (VIBRATION_SD, PRESSURE_SD)[j], 0.9, tolerance=0.02)
+same("4.3 the noise ceiling", 1 - LABEL_NOISE, 0.96, tolerance=1e-9)
+
 # ------------------------------------------- Section 4.4, the interaction
 
 Xi, yi = load_interacting()

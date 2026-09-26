@@ -74,6 +74,14 @@ ones, trained in a single pass, needing very little data per feature. → § 4.2
 features can be correlated across the data and independent inside each class, or the
 reverse. The distinction is what makes the assumption testable. → § 4.2, § 4.3
 
+**Uncorrelated is not independent.** A correlation near zero rules out only
+straight-line dependence; a symmetric one, like a ring, averages to zero and is still
+there. → § 4.3
+
+**Wrong densities, right boundary.** A false assumption costs little when the
+boundary the model implies still has the true shape — on the pumps, an ellipse.
+→ § 4.3
+
 **Gaussian Naive Bayes.** Each one-dimensional factor is a bell curve, with its own
 mean and variance for every feature in every class. → § 4.2
 

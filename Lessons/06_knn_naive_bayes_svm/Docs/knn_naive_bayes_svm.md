@@ -14,12 +14,12 @@ date: "6 November 2026 · reading time about 100 minutes"
 | 0:30–0:52 | 22 | The curse of dimensionality | Slides 15–21 |
 | 0:52–1:14 | 22 | **Notebook 01** — k-NN and the curse | Slide 22 |
 | 1:14–1:26 | 12 | **Break** | Slide 23 |
-| 1:26–1:50 | 24 | Naive Bayes, and when its assumption holds | Slides 24–37 |
-| 1:50–2:06 | 16 | **Notebook 02** — where it fails | Slide 38 |
-| 2:06–2:32 | 26 | Margins, support vectors, the kernel trick | Slides 39–51 |
-| 2:32–2:50 | 18 | **Notebook 03** — kernels in practice | Slide 52 |
-| 2:50–3:00 | 10 | The three compared; homework | Slides 53–56 |
-| | **180** | **Total** | **55 slides, 3 notebooks** |
+| 1:26–1:50 | 24 | Naive Bayes, and when its assumption matters | Slides 24–38 |
+| 1:50–2:06 | 16 | **Notebook 02** — where it fails | Slide 39 |
+| 2:06–2:32 | 26 | Margins, support vectors, the kernel trick | Slides 40–52 |
+| 2:32–2:50 | 18 | **Notebook 03** — kernels in practice | Slide 53 |
+| 2:50–3:00 | 10 | The three compared; homework | Slides 54–57 |
+| | **180** | **Total** | **56 slides, 3 notebooks** |
 
 ---
 
@@ -408,8 +408,24 @@ logistic regression sits at the baseline: a linear model separates classes by
 placing a boundary between their means, and here there is nothing between the
 means to find. Naive Bayes compares widths.
 
-Prediction is the log form above with these numbers in it. Take a pump at 48 Hz
-and 5.6 bar, 6 Hz off the design point — about three and a half standard
+**Inference for one pump, step by step.** Given a new pump's readings
+$x = (x_1, x_2)$, the model does four things and nothing else:
+
+1. For each class, start from the log prior, $\log P(y = c)$.
+2. For each reading, add the log of *that class's* bell at the reading,
+   $\log P(x_j \mid y = c) = -\tfrac{1}{2}\log(2\pi\sigma_{jc}^2) - (x_j - \mu_{jc})^2 / (2\sigma_{jc}^2)$.
+   The second term is a penalty growing with the squared distance from the
+   class's centre, measured in the class's own standard deviations; the first
+   is a charge for a wide bell, which spreads its density thinly.
+3. Predict the class with the larger total.
+4. If a probability is wanted, normalise as in Section 4.1. With two classes
+   that is $P(\text{faulty} \mid x) = 1/(1 + e^{-\Delta})$, where $\Delta$ is the
+   faulty total minus the healthy one.
+
+No training row is looked at: prediction uses the ten stored numbers only,
+which is the opposite of k-NN.
+
+Here it is with the pumps' numbers. Take a pump at 48 Hz and 5.6 bar, 6 Hz off the design point — about three and a half standard
 deviations out for a healthy pump, barely more than one for a faulty one:
 
 | Class | log prior | log $P$(vibration) | log $P$(pressure) | Total |
@@ -443,7 +459,7 @@ co-occur.
 The interesting question is therefore not whether the assumption holds, but
 **when being wrong about it costs you nothing**.
 
-### 4.3 On the pumps, the assumption happens to hold
+### 4.3 On the pumps, the assumption is false and costs almost nothing
 
 | Model | Accuracy |
 |---|---|
@@ -462,9 +478,47 @@ class*, which is not the same as independence overall:
 | within healthy pumps | **−0.006** |
 | within faulty pumps | **−0.049** |
 
-**Within each class the readings are essentially uncorrelated.** Naive Bayes is
-doing well here because its assumption is true here — which is far more useful
-to know than the score, because it tells you when to expect the score to hold.
+**Within each class the readings are essentially uncorrelated** — and it is
+tempting to stop there and declare the assumption true. It is not.
+
+**Uncorrelated is not independent.** Correlation detects only straight-line
+dependence, and the dependence here is not a straight line. Healthy pumps fill a
+disc around the design point and faulty ones the ring around it. On a ring, a
+pump whose vibration is far from the design point must have a pressure close to
+it, or it would fall outside the ring. That is a strong dependence, but a
+symmetric one — far-out vibration goes with central pressure on both sides —
+so the straight-line summary averages it to zero. Square each reading's
+standardised distance from the design point, turning "far out" into "large",
+and it appears:
+
+| Correlation of the squared distances | |
+|---|---|
+| within healthy pumps | +0.168 |
+| within faulty pumps | **−0.420** |
+
+Among faulty pumps, when one reading is far out the other is pulled in. The
+assumption is false on these pumps. This is the mistake to expect, and it is a
+reasonable one: a correlation near zero is the check everyone reaches for, and
+for bell-shaped data it would settle the matter. For a disc and a ring it does
+not.
+
+**Wrong densities, nearly right boundary.** So why 0.933? Because of what the
+model does with its wrong densities. Section 4.2 found the two classes sharing a
+centre, each reading a narrow bell for healthy pumps and a wide one for faulty.
+With equal centres, the log-ratio of two such products is a weighted sum of
+squared distances from the centre plus a constant,
+$\sum_j a_j (x_j - \mu_j)^2 + \text{const}$, so the boundary where it changes sign
+is an **axis-aligned ellipse** — and the true envelope is exactly that shape.
+Walking out from the centre until the fitted model's prediction flips puts its
+ellipse at about **3.17 Hz by 0.41 bar**, against a true envelope of **3.5 by
+0.45**: the same proportions, about a tenth too small.
+
+The densities Naive Bayes multiplies are wrong; the boundary they imply is nearly
+right. The cost of the false assumption is the gap from 0.933 to k-NN's 0.944,
+under a ceiling of 0.96 set by the label noise. This is Section 4.2's closing
+question answered on data — being wrong about the assumption is cheap when the
+boundary it implies still has the right shape. Section 4.4 is the case where it
+does not.
 
 ### 4.4 One step away, worse than guessing
 
@@ -813,9 +867,10 @@ lesson 2 insisted.
 - **The curse of dimensionality is about distance, not difficulty.** Fifty noise
   columns took k-NN below the baseline. In 100 dimensions the nearest point is
   **70%** as far away as the farthest.
-- **Naive Bayes assumes independence given the class.** On the pumps that holds
-  (−0.006 within class) and it scores 0.933; where the signal is an interaction
-  it scores **0.404**, below chance.
+- **Naive Bayes assumes independence given the class.** On the pumps it is false
+  — uncorrelated (−0.006) but not independent (−0.420 on the squares) — and costs
+  almost nothing, because the boundary it implies is the right ellipse: 0.933.
+  Where the signal is an interaction it scores **0.404**, below chance.
 - **Its probabilities are not calibrated**, in either direction.
 - **The margin is a criterion distinct from the error**, and support vectors are
   the model. A high support-vector fraction is a free warning.
