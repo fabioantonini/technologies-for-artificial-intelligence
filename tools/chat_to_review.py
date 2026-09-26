@@ -476,7 +476,12 @@ def compose(turns: list[dict], slides: list[dict], deck_title: str,
             # Title the section with the question: a table of contents full of
             # identical "Domanda" entries cannot be navigated during a lecture,
             # which is the one thing this document is for.
-            flat = " ".join(turn["text"].split())
+            # Only the prose goes into the title: a formula cut at 70 characters
+            # is unbalanced TeX, and in lesson 1 a quoted ```math block reached
+            # the table of contents and stopped the build.
+            prose = re.sub(r"```.*?(```|$)|\$\$.*?(\$\$|$)|\$[^$\n]*\$|`",
+                           " ", turn["text"], flags=re.S)
+            flat = " ".join(prose.split())
             label = (flat[:70].rstrip() + "…") if len(flat) > 70 else flat
             out.append(f"\n\\newpage\n\n## Domanda — {label or 'sulla figura'}\n")
             body = turn["text"].strip() or "*(domanda posta su un'immagine allegata)*"
