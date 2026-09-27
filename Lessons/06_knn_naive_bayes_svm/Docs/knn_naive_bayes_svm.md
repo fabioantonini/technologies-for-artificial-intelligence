@@ -434,9 +434,33 @@ pump, barely more than one for a faulty one:
 | Healthy | −0.948 | −7.745 | +0.598 | −8.095 |
 | Faulty | −0.490 | −3.286 | −0.368 | **−4.144** |
 
-Faulty wins by 3.951 in log score, and normalising as in Section 4.1 — which in
-logarithms means $P(\text{faulty} \mid x) = 1/(1 + e^{-3.951})$ — gives
-**0.981**, the number `predict_proba` returns. The vibration term decided it. One
+Faulty has the larger total, so faulty is the prediction.
+
+**From log scores to a probability.** Each total is the logarithm of a Bayes
+numerator, so exponentiating gives the scores back: $e^{-4.144} \approx 0.01585$
+for faulty and $e^{-8.095} \approx 0.000305$ for healthy. Normalising as in
+Section 4.1 divides one by their sum, which is $P(x)$:
+
+$$P(\text{faulty} \mid x) = \frac{e^{T_\text{faulty}}}{e^{T_\text{faulty}} + e^{T_\text{healthy}}}
+  = \frac{0.01585}{0.01616} \approx 0.981$$
+
+Divide the top and the bottom by $e^{T_\text{faulty}}$, and only the gap between
+the two totals survives:
+
+$$P(\text{faulty} \mid x) = \frac{1}{1 + e^{T_\text{healthy} - T_\text{faulty}}}
+  = \frac{1}{1 + e^{-\Delta}}, \qquad
+  \Delta = T_\text{faulty} - T_\text{healthy} = -4.144 - (-8.095) = 3.951$$
+
+so $1/(1 + e^{-3.951}) = 1/1.0192 \approx$ **0.981**, the number `predict_proba`
+returns. Three things follow. **Only the gap matters**: $\Delta$ is the log-odds,
+and faulty is $e^{3.951} \approx 52$ times as likely as healthy. **The function
+is lesson 4's sigmoid** (its Section 2.2), fed the difference between two Naive
+Bayes scores instead of a linear combination of the features. And **the second
+form is the one to compute**: with hundreds of features the totals can reach
+−800, where $e^{-800}$ is exactly zero in floating point and the first form reads
+0/0, while $\Delta$ stays an ordinary number.
+
+The vibration term decided it. One
 entry looks wrong and is not: log $P$(pressure) is *positive*, because a density
 is not a probability and can exceed 1 — a bell with a standard deviation of
 0.219 bar peaks at $1/(0.219\sqrt{2\pi}) \approx 1.82$. The same model puts a
@@ -478,6 +502,31 @@ class*, which is not the same as independence overall:
 | overall | −0.046 |
 | within healthy pumps | **−0.006** |
 | within faulty pumps | **−0.049** |
+
+**What the three rows are.** Each is the Pearson correlation between vibration
+and pressure, computed on a different group: all 1,200 pumps, the 465 healthy
+ones alone, the 735 faulty ones alone. It runs from −1 to +1; $\pm 1$ means the
+points lie on a straight line, 0 means no straight-line trend at all. The first
+row is there for contrast. The assumption is about each class separately, so the
+second and third rows are the ones that test it.
+
+**How close to zero is "essentially zero".** Even two readings with no relation
+at all never give exactly 0 on a finite sample: the sample correlation wobbles
+around zero with a standard deviation of about $1/\sqrt{n}$. That is the yardstick:
+
+| Group | $n$ | Expected wobble, $1/\sqrt{n}$ | Measured | Measured ÷ wobble |
+|---|---|---|---|---|
+| Healthy | 465 | 0.046 | −0.006 | 0.13 |
+| Faulty | 735 | 0.037 | −0.049 | 1.3 |
+
+Both sit well inside the noise a true correlation of zero would produce. In the
+units that matter: among faulty pumps $r^2 = 0.049^2 \approx 0.0024$, so a straight
+line through vibration explains about 0.24% of the variation in pressure —
+nothing. Nor is zero an accident. The generator places pumps at a uniformly
+random angle around the design point, in a disc for healthy pumps and a ring for
+faulty ones, so any straight-line tilt in one direction is matched by the
+opposite tilt; the true within-class correlation is exactly 0, and the measured
+values are that zero plus sampling noise.
 
 **Within each class the readings are essentially uncorrelated** — and it is
 tempting to stop there and declare the assumption true. It is not.

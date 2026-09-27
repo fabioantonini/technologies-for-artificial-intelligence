@@ -153,6 +153,15 @@ same("4.2 the winning margin in log score", logs[1] - logs[0], 3.951,
      tolerance=5e-4)
 same("4.2 P(faulty) at 48 Hz", 1 / (1 + np.exp(-(logs[1] - logs[0]))), 0.981,
      tolerance=5e-4)
+# The two routes from the log totals to the probability, and the claims around them.
+e_f, e_h = np.exp(logs[1]), np.exp(logs[0])
+same("4.2 e^(T_faulty)", e_f, 0.01585, tolerance=5e-6)
+same("4.2 e^(T_healthy)", e_h, 0.000305, tolerance=5e-7)
+same("4.2 their sum, P(x)", e_f + e_h, 0.01616, tolerance=5e-6)
+same("4.2 normalised directly", e_f / (e_f + e_h), 0.981, tolerance=5e-4)
+same("4.2 1 + e^(-3.951)", 1 + np.exp(-3.951), 1.0192, tolerance=5e-5)
+same("4.2 the odds, e^3.951", np.exp(3.951), 52, tolerance=0.5)
+same("4.2 e^(-800) underflows to zero", float(np.exp(-800.0)), 0.0, tolerance=0)
 gnb = GaussianNB().fit(X, y)
 same("4.2 ...and predict_proba agrees",
      gnb.predict_proba(pd.DataFrame([pump_48], columns=X.columns))[0, 1], 0.981,
@@ -178,6 +187,26 @@ for label, printed in ((0, -0.006), (1, -0.049)):
     same(f"4.3 within-class correlation, class {label}",
          X[y == label].corr().iloc[0, 1], printed, tolerance=5e-4)
 same("4.3 overall correlation", X.corr().iloc[0, 1], -0.046, tolerance=5e-4)
+
+# The yardstick: 1/sqrt(n) per class, the ratios, r^2 - and a simulation of
+# independent readings confirming that 1/sqrt(n) is the wobble to expect.
+for label, n_printed, wobble_printed, ratio_printed in ((0, 465, 0.046, 0.13),
+                                                        (1, 735, 0.037, 1.3)):
+    n_c = int((y == label).sum())
+    r_c = X[y == label].corr().iloc[0, 1]
+    same(f"4.3 class {label} size", n_c, n_printed, tolerance=0)
+    same(f"4.3 class {label} wobble 1/sqrt(n)", 1 / np.sqrt(n_c), wobble_printed,
+         tolerance=5e-4)
+    same(f"4.3 class {label} measured / wobble", abs(r_c) * np.sqrt(n_c),
+         ratio_printed, tolerance=0.05)
+    sim_rng = np.random.default_rng(600 + label)
+    null = [np.corrcoef(sim_rng.normal(size=n_c), sim_rng.normal(size=n_c))[0, 1]
+            for _ in range(4000)]
+    same(f"4.3 class {label} simulated wobble", float(np.std(null)),
+         1 / np.sqrt(n_c), tolerance=0.003)
+r_faulty = X[y == 1].corr().iloc[0, 1]
+same("4.3 r^2 among faulty pumps", r_faulty ** 2, 0.0024, tolerance=5e-5)
+same("4.3 ...as a percentage", 100 * r_faulty ** 2, 0.24, tolerance=5e-3)
 
 # Uncorrelated but dependent: the squared standardised distances, by numpy.
 far = ((readings - readings.mean(axis=0)) / readings.std(axis=0, ddof=1)) ** 2
