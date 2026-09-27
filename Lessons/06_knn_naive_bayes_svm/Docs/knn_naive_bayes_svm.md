@@ -14,12 +14,12 @@ date: "6 November 2026 · reading time about 100 minutes"
 | 0:30–0:52 | 22 | The curse of dimensionality | Slides 15–21 |
 | 0:52–1:14 | 22 | **Notebook 01** — k-NN and the curse | Slide 22 |
 | 1:14–1:26 | 12 | **Break** | Slide 23 |
-| 1:26–1:50 | 24 | Naive Bayes, and when its assumption matters | Slides 24–38 |
-| 1:50–2:06 | 16 | **Notebook 02** — where it fails | Slide 39 |
-| 2:06–2:34 | 28 | Margins, support vectors, the kernel trick | Slides 40–55 |
-| 2:34–2:50 | 16 | **Notebook 03** — kernels in practice | Slide 56 |
-| 2:50–3:00 | 10 | The three compared; homework | Slides 57–60 |
-| | **180** | **Total** | **59 slides, 3 notebooks** |
+| 1:26–1:50 | 24 | Naive Bayes, and when its assumption matters | Slides 24–39 |
+| 1:50–2:06 | 16 | **Notebook 02** — where it fails | Slide 40 |
+| 2:06–2:34 | 28 | Margins, support vectors, the kernel trick | Slides 41–56 |
+| 2:34–2:50 | 16 | **Notebook 03** — kernels in practice | Slide 57 |
+| 2:50–3:00 | 10 | The three compared; homework | Slides 58–61 |
+| | **180** | **Total** | **60 slides, 3 notebooks** |
 
 ---
 
@@ -427,7 +427,18 @@ which is the opposite of k-NN.
 
 Here it is with the pumps' numbers. Take a pump at 48 Hz and 5.6 bar, 6 Hz off
 the design point — about three and a half standard deviations out for a healthy
-pump, barely more than one for a faulty one:
+pump, barely more than one for a faulty one. The figure shows what that does to
+the two bells:
+
+![](nb_bells_one_pump.png)
+
+*Follow the dashed line at 48 Hz up the left panel: the narrow healthy bell has
+fallen almost to nothing, the wide faulty one is still well up — 86 times
+higher. At 42 Hz the narrow bell is on top. On the right, 5.6 bar is central for
+both classes and barely discriminates; the narrow healthy bell peaks near 1.82,
+above 1.*
+
+The same heights, as logarithms and with the priors added:
 
 | Class | log prior | log $P$(vibration) | log $P$(pressure) | Total |
 |---|---|---|---|---|

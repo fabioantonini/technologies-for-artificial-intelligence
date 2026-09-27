@@ -665,11 +665,33 @@ Naive Bayes compares widths.
 One pump makes it concrete. At 48 Hz and 5.6 bar, 6 Hz off the design point,
 that is three and a half healthy standard deviations but barely more than one
 faulty one. The vibration term decides it: P(faulty) = 0.981. At the design
-point itself, 42 Hz and 5.6 bar, P(healthy) = 0.820.
+point itself, 42 Hz and 5.6 bar, P(healthy) = 0.820. The next slide draws it.
 
 If someone spots in the handout that one log-density is positive, that is the
 moment to say a density is not a probability: a bell 0.22 bar wide peaks
 above 1. Handout section 4.2 works the pump through term by term.
+:::
+
+# 48 Hz: one bell is 86 times the other
+
+![](nb_bells_one_pump.png)
+
+::: notes
+The previous slide's numbers, drawn. Left, vibration: both bells are centred on
+42 Hz, and the only difference is width. Follow the dashed line at 48 Hz up. The
+narrow healthy bell has fallen almost to nothing there - 6 Hz is three and a
+half of its standard deviations - while the wide faulty bell, for which 6 Hz is
+barely more than one, is still well up: 86 times higher.
+
+Then the other dashed line, at 42 Hz, the design point: there the narrow bell is
+on top, and that pump comes out healthy, 0.820.
+
+Right, pressure: 5.6 bar is central for both classes, so this reading barely
+discriminates - and the narrow healthy bell peaks at about 1.82, which is why
+its log-density comes out positive on the next slide. A density is not a
+probability.
+
+The next slide puts these heights, as logarithms, in a table.
 :::
 
 # 48 Hz, 5.6 bar: faulty, 0.981

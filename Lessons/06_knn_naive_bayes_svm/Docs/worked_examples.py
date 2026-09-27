@@ -149,6 +149,12 @@ for c, printed in ((0, (-0.948, -7.745, 0.598, -8.095)),
                                 "log P(pressure)", "total")):
         same(f"4.2 pump at 48 Hz, class {c}, {what}", got, want, tolerance=5e-4)
     logs[c] = sum(terms)
+# The figure's heights: the faulty vibration bell against the healthy one at 48 Hz.
+h48 = norm.pdf(48.0, table[1][1][0], table[1][2][0]) / norm.pdf(48.0, table[0][1][0], table[0][2][0])
+same("4.2 at 48 Hz the faulty bell is 86 times the healthy", h48, 86, tolerance=0.5)
+same("4.2 at 42 Hz the healthy bell is on top",
+     float(norm.pdf(42.0, table[0][1][0], table[0][2][0]) > norm.pdf(42.0, table[1][1][0], table[1][2][0])),
+     1.0, tolerance=0)
 same("4.2 the winning margin in log score", logs[1] - logs[0], 3.951,
      tolerance=5e-4)
 same("4.2 P(faulty) at 48 Hz", 1 / (1 + np.exp(-(logs[1] - logs[0]))), 0.981,
