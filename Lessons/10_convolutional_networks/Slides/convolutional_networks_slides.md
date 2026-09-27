@@ -739,7 +739,7 @@ of them use architectures that undo this pooling later. Handout section 4.2.
 # Three things pooling does
 
 - Turns equivariance into **invariance**: one pixel of shift often changes nothing
-- Enlarges the receptive field: 3×3 after pooling covers 6×6 of the image
+- Enlarges the receptive field: 3×3 after pooling covers 8×8 of the image
 - Discards spatial precision, which is a **cost** when *where* is the answer
 - **Global** max pooling: one number per kernel, over the whole map
 
@@ -748,7 +748,11 @@ Separate the three, because they are usually presented as one benefit and only
 the first is the reason we are using it today.
 
 Invariance is the goal here: after pooling, moving the defect by a pixel often
-produces a literally identical output. Receptive field growth is the reason
+produces a literally identical output.
+
+On the receptive field, count it once with them: a 3×3 kernel after a 2×2
+pooling spans 6×6 of the map it pooled, and the first 3×3 layer underneath adds
+one pixel on each side, so 8×8 of the image. Handout section 4.2. Receptive field growth is the reason
 depth works at all - stack pooling and small kernels and a 3×3 window at layer
 four sees most of the die, for nine weights. Precision loss is the bill.
 

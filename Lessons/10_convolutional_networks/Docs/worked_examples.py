@@ -376,6 +376,14 @@ check("the two-hidden-layer dense baseline",
 check("32 kernels of 3x3 over 16 channels", 32 * (9 * 16) + 32, 4_640, 0)
 check("the dense head, 272 + 17", (16 * 16 + 16) + (16 + 1), 289, 0)
 check("dense baseline against the convolutional network", 213_761 / 1_537, 139, 0.5)
+check("the binomial sd of a 2% rate over 4,000 dies", (0.02 * 0.98 / 4000) ** 0.5, 0.0022, 5e-5)
+check("2.55% in those standard deviations", (0.0255 - 0.02) / (0.02 * 0.98 / 4000) ** 0.5, 2.5, 0.05)
+# receptive field: conv 3x3 (r=3, jump 1) -> pool 2x2 (r=3+1=4, jump 2) -> conv 3x3 (r=4+2*2=8)
+r, jump = 3, 1
+r, jump = r + (2 - 1) * jump, jump * 2
+r = r + (3 - 1) * jump
+check("receptive field of the second 3x3 layer, in image pixels", r, 8, 0)
+check("...of which the pooled 3x3 alone spans", 3 * 2, 6, 0)
 check("lesson 9's one-hidden-layer digit network",
       PIXELS_LESSON_9 * 64 + 64 + 64 * 10 + 10, 4_810, 0,
       "8x8 inputs, not this lesson's 24x24")

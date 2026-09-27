@@ -67,8 +67,10 @@ left and a scratch in the bottom right are the same event, graded the same way.
 
 The grading station is imperfect at a published rate of 2%, which puts a
 ceiling on this lesson exactly as lesson 9's test rig did. The batch used in
-notebook 01 drew 2.55% — a high draw at 2.5 standard deviations, not a bug,
-and the reason every score below is read against the ceiling **realised on the
+notebook 01 drew 2.55%. Over 4,000 dies the number of wrong grades is binomial,
+with a standard deviation for the rate of $\sqrt{0.02 \times 0.98 / 4000} = 0.0022$,
+so $(0.0255 - 0.02)/0.0022 = 2.5$ standard deviations high — a high draw, not a
+bug, and the reason every score below is read against the ceiling **realised on the
 set it was measured on** rather than against the design figure.
 
 > **Try this:** before reading further, look at the twelve dies above and
@@ -257,9 +259,11 @@ Pooling does three things, and they are worth separating:
 
 1. **It converts equivariance into invariance.** Move the defect a pixel and
    after pooling the output is often literally identical.
-2. **It enlarges the receptive field.** After pooling, a 3×3 kernel in the next
-   layer covers 6×6 of the original image for the same nine weights. Stack
-   enough and a small kernel sees most of the die.
+2. **It enlarges the receptive field.** After a 2×2 pooling each cell summarises
+   two pixels in each direction, so a 3×3 kernel in the next layer spans 6×6 of
+   the map before pooling — and, with this lesson's first 3×3 layer beneath it,
+   $6 + 2 = 8$, an 8×8 window of the original image, for the same nine weights.
+   Stack enough and a small kernel sees most of the die.
 3. **It discards spatial precision**, which is a cost, not a benefit, whenever
    *where* is part of the answer — segmentation, detection, keypoints. For a
    pass/fail grade it is free.
@@ -293,7 +297,7 @@ get wrong: each of its 16 kernels is $3 \times 3 \times 8$ — three by three
 *across all eight input channels* — so $16 \times (9 \times 8) + 16 = 1{,}168$.
 A kernel's depth always matches the input's channel count, and only its two
 spatial dimensions are chosen. A third layer of 32 such kernels on these 16
-channels would cost $32 	imes (9 	imes 16) + 32 = 4{,}640$. The dense head at
+channels would cost $32 \times (9 \times 16) + 32 = 4{,}640$. The dense head at
 the end is only 272 + 17 = 289 parameters, because it sits after the global
 pooling rather than on the pixels.
 
