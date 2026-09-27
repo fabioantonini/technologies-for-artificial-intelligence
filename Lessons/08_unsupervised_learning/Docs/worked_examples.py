@@ -162,6 +162,8 @@ same("2.2 worst of 30 k-means++ starts", pp_results.max(), 1088.3, tolerance=15.
 if not pp_results.max() < naive_results.max():
     raise SystemExit(f"{HANDOUT}: 2.2 k-means++'s worst case should beat naive's worst case")
 checks += 1
+same("2.2 naive starts reaching the best partition", int(np.isclose(naive_results, naive_results.min(), atol=0.05).sum()), 29, tolerance=0)
+same("2.2 k-means++ starts reaching it", int(np.isclose(pp_results, pp_results.min(), atol=0.05).sum()), 29, tolerance=0)
 
 # ============================================================ Section 2.3
 # The elbow / silhouette table and the final k=4 ARI.
@@ -230,7 +232,9 @@ same("5.2 correlation r between spend and visit frequency", r, 0.171, tolerance=
 same("5.2 largest eigenvalue near 1+r", eigvals2[0], 1 + r, tolerance=1e-3)
 same("5.2 smallest eigenvalue near 1-r", eigvals2[1], 1 - r, tolerance=1e-3)
 same("5.2 handout's rounded largest eigenvalue", eigvals2[0], 1.171, tolerance=0.01)
-same("5.2 handout's rounded smallest eigenvalue", eigvals2[1], 0.829, tolerance=0.01)
+same("5.2 1 - r, as the handout rounds it", 1 - r, 0.829, tolerance=5e-4)
+same("5.2 eigh's smallest eigenvalue, as printed", eigvals2[1], 0.830, tolerance=5e-4)
+same("5.2 the diagonal np.cov leaves", 2000 / 1999, 1.0005, tolerance=5e-5)
 
 feature_names = [c for c in accounts.columns if c != "is_anomaly"]
 X_acc = accounts[feature_names].values
@@ -411,5 +415,29 @@ same("6.1 the two legs add up to the hypotenuse",
      float(np.linalg.norm(point - rival) ** 2),
      float(np.linalg.norm(point - projected) ** 2
            + np.linalg.norm(projected - rival) ** 2), tolerance=1e-10)
+
+# 4: silhouette against ARI on the sessions, both clusterings
+Zs = StandardScaler().fit_transform(sessions[["session_duration_min", "pages_viewed"]].values)
+if True:
+    truth = sessions["true_group"].values
+    km2 = KMeans(n_clusters=2, n_init=10, random_state=0).fit(Zs)
+    db2 = DBSCAN(eps=0.30, min_samples=10).fit(Zs)
+    keep = db2.labels_ != -1
+    same("4 k-means silhouette on the sessions", silhouette_score(Zs, km2.labels_), 0.401, tolerance=5e-4)
+    same("4 DBSCAN silhouette, noise excluded", silhouette_score(Zs[keep], db2.labels_[keep]), -0.106, tolerance=5e-4)
+    same("4 k-means ARI", adjusted_rand_score(truth, km2.labels_), -0.046, tolerance=5e-4)
+    same("4 DBSCAN ARI", adjusted_rand_score(truth, db2.labels_), 0.941, tolerance=5e-4)
+
+# 5.2 and 6.1: customer 13, reconstructed from the first component alone
+Z2 = StandardScaler().fit_transform(segments[["annual_spend_eur", "visits_per_month"]].values)
+w2, V2 = np.linalg.eigh(np.cov(Z2, rowvar=False)); v1 = V2[:, np.argmax(w2)]; v1 = v1 * np.sign(v1[0])
+v2 = V2[:, np.argmin(w2)]
+i13 = int(np.argmax(np.abs(Z2 @ v2)))
+same("6.1 the customer furthest off the diagonal", i13, 13, tolerance=0)
+x13 = Z2[i13]; xh = v1 * (v1 @ x13)
+for got, want, what in ((x13[0], 2.12, "x spend"), (x13[1], -1.45, "x visits"), (xh[0], 0.335, "reconstruction")):
+    same(f"6.1 customer 13, {what}", got, want, tolerance=5e-3)
+same("6.1 customer 13, reconstruction error", (x13 - xh) @ (x13 - xh), 6.37, tolerance=5e-3)
+same("6.1 the residual is perpendicular", abs((x13 - xh) @ v1), 0.0, tolerance=1e-12)
 
 print(f"{checks} numbers recomputed from raw inputs and confirmed against {HANDOUT}.")

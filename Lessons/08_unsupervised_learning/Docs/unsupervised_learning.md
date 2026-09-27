@@ -10,17 +10,17 @@ date: "20 November 2026 · reading time about 95 minutes"
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
 | 0:00–0:10 | 10 | Exercise 7 discussed; what changes when there is no $y$ | Slides 2–6 |
-| 0:10–0:35 | 25 | k-means: the objective, Lloyd's algorithm, k-means++, choosing $k$ | Slides 7–23 |
-| 0:35–0:55 | 20 | **Notebook 01** — k-means from scratch | Slide 24 |
-| 0:55–1:10 | 15 | When round clusters are the wrong assumption: hierarchical clustering | Slides 25–31 |
-| 1:10–1:22 | 12 | **Break** | Slide 32 |
-| 1:22–1:40 | 18 | DBSCAN: density instead of shape, and whether `eps` transfers | Slides 33–40 |
-| 1:40–2:00 | 20 | **Notebook 02** — hierarchical clustering and DBSCAN | Slide 41 |
-| 2:00–2:10 | 10 | Validating a clustering with no labels to check against | Slides 42–45 |
-| 2:10–2:35 | 25 | Principal component analysis (PCA), derived twice: eigendecomposition and the singular value decomposition (SVD) | Slides 46–58 |
-| 2:35–2:55 | 20 | **Notebook 03** — PCA, anomaly detection, t-SNE | Slide 59 |
-| 2:55–3:00 | 5 | t-SNE in one slide; homework | Slides 60–62 |
-| | **180** | **Total** | **61 slides, 3 notebooks** |
+| 0:10–0:35 | 25 | k-means: the objective, Lloyd's algorithm, k-means++, choosing $k$ | Slides 7–24 |
+| 0:35–0:55 | 20 | **Notebook 01** — k-means from scratch | Slide 25 |
+| 0:55–1:10 | 15 | When round clusters are the wrong assumption: hierarchical clustering | Slides 26–32 |
+| 1:10–1:22 | 12 | **Break** | Slide 33 |
+| 1:22–1:40 | 18 | DBSCAN: density instead of shape, and whether `eps` transfers | Slides 34–41 |
+| 1:40–2:00 | 20 | **Notebook 02** — hierarchical clustering and DBSCAN | Slide 42 |
+| 2:00–2:10 | 10 | Validating a clustering with no labels to check against | Slides 43–46 |
+| 2:10–2:35 | 25 | Principal component analysis (PCA), derived twice: eigendecomposition and the singular value decomposition (SVD) | Slides 47–60 |
+| 2:35–2:55 | 20 | **Notebook 03** — PCA, anomaly detection, t-SNE | Slide 61 |
+| 2:55–3:00 | 5 | t-SNE in one slide; homework | Slides 62–64 |
+| | **180** | **Total** | **63 slides, 3 notebooks** |
 
 ---
 
@@ -171,8 +171,9 @@ On the 2,000-customer dataset, running Lloyd's algorithm from 30
 independent naive random starts gave a best final WCSS of **374.1** and a
 worst of **1,390.4** — the worst run left the algorithm stuck in a local
 minimum **3.7 times worse** than the best, using the identical update rule
-on the identical data. This is not a rare pathology; it happened on the
-very first attempt (worst of 30, not one in a thousand).
+on the identical data. It is not frequent — 29 of the 30 starts reached the
+best partition — but one start in thirty is plenty over a year of reruns,
+and a single run gives no sign of whether it was the unlucky one.
 
 **k-means++** addresses this directly at initialisation time, before Lloyd's
 algorithm ever runs: the first centre is a uniformly random point, and
@@ -184,11 +185,18 @@ $$P(x_i \text{ chosen next}) = \frac{d(x_i)^2}{\sum_{i'} d(x_{i'})^2}, \qquad d(
 A point already close to an existing centre is unlikely to be picked
 again; a point far from every existing centre — plausibly the seed of a
 cluster not yet represented — is favoured. Across the same 30 seeds,
-k-means++ starts ranged from 374.1 to 1,088.3, narrowing the worst case
-by roughly 300 units and, more importantly, reaching the global optimum on
-the very first attempt with default settings — which is why
-`sklearn.cluster.KMeans` uses k-means++ by default, together with 10
-independent restarts, keeping the best.
+k-means++ starts ranged from 374.1 to 1,088.3: they too reached the best
+partition in 29 of 30 runs, and their one bad run was about 300 units less
+bad. On this data k-means++ made the bad case less bad rather than rarer —
+which is why `sklearn.cluster.KMeans` uses k-means++ by default *together
+with* 10 independent restarts, keeping the best.
+
+![](kmeans_init_spread.png)
+
+*Where each of the 60 runs ended. Both kinds of start pile up on the best
+partition, 374.1; each strands exactly one run — the naive one at 1,390.4,
+the k-means++ one at 1,088.3. Restarts, not the initialisation alone, are
+what make the stranded run harmless.*
 
 The from-scratch implementation in notebook 01, run once from a
 k-means++ start, matches scikit-learn's 10-restart result to within
@@ -232,10 +240,6 @@ is a genuine optimum to search over, not only a shape to eyeball.
 | 6 | 286.5 | 0.525 |
 | 7 | 244.5 | 0.528 |
 | 8 | 210.4 | 0.474 |
-
-*The elbow and silhouette curves on the customer-segment data. WCSS falls
-sharply through $k=4$ and flattens after; silhouette peaks at $k=4$ before
-declining. Section 4 works through a dataset where the two disagree.*
 
 ![](elbow_silhouette.png)
 
@@ -336,10 +340,11 @@ can find at all:
 
 ![](dendrogram.png)
 
-*Ward-linkage merges on a random sample of 60 sessions. A branch peeling
-off single points one at a time, rather than splitting into two
-comparably sized halves, is the visual signature of chaining — visible
-here even at this small sample.*
+*Ward-linkage merges on a random sample of 60 sessions. At every level Ward
+joins compact, comparably sized groups into balanced branches — the shape its
+variance objective produces, and the reason it cannot follow a dense core
+inside a diffuse ring. Cutting the tree with a horizontal line gives the
+clusters: the number of branches the line crosses is $k$.*
 
 Cutting all four linkage rules at two clusters and checking each against
 the true bot/human split:
@@ -396,8 +401,8 @@ shows a sharp bend between the two regimes.
 
 *10th-nearest-neighbour distance, sorted, for all 1,500 sessions. The
 curve stays low and flat through most of the range and bends sharply
-upward near the end — `eps = 0.30` sits just past the bend, in the flat
-region.*
+upward near the end. The dashed `eps = 0.30` sits where the climb begins,
+a little above the knee this week's curve gives, 0.258 (section 3.4).*
 
 At `eps = 0.30`, `min_samples = 10`:
 
@@ -522,18 +527,25 @@ produced is internally self-consistent.
 qualification, sounds like a strong, general endorsement of the
 clustering. It is only ever an endorsement *relative to what the metric
 can see* — the shape of the clusters it was given, not whether the
-clustering algorithm's underlying assumption fits the data. Section 3
-computed a silhouette score for k-means on the bot/human data too (not
-shown above, but worth computing as an exercise): it will come out
-positive and unremarkable-looking, precisely because k-means always
-produces round-looking clusters by construction, and silhouette is
-measuring roundness, not correctness.
+clustering algorithm's underlying assumption fits the data. Section 3's
+bot/human data shows how far apart the two can be, measured on both
+clusterings:
 
-> **Try this:** compute the silhouette score for k-means' $k=2$ clustering
-> on the bot/human session data, and compare it with the DBSCAN result's
-> equivalent (scikit-learn's `silhouette_score` excludes noise points).
-> Does the internal metric alone give any hint that k-means' ARI is
-> effectively zero?
+| Clustering of the sessions | Silhouette (internal) | ARI (external) |
+|---|---|---|
+| k-means, $k = 2$ | **0.401** | −0.046 |
+| DBSCAN, noise excluded | **−0.106** | 0.941 |
+
+By the internal metric the useless split looks like the better clustering:
+two compact halves score well on a measure of compactness, and DBSCAN's
+correct answer — a dense core inside a diffuse ring — scores below zero,
+because a ring is not compact. The silhouette is measuring roundness, and
+only the external ARI, which needs a ground truth, sees which answer is
+right.
+
+> **Try this:** compute the silhouette for the Ward and complete-linkage
+> clusterings of section 3.2. Where do they fall against k-means' 0.401,
+> and does any of them hint that its ARI is at or below zero?
 
 ---
 
@@ -603,14 +615,25 @@ For any $2\times 2$ matrix of this symmetric form, $\begin{pmatrix} 1 & r \\
 r & 1\end{pmatrix}$, the eigenvalues are $1+r$ and $1-r$, with eigenvectors
 $\frac{1}{\sqrt 2}(1,1)$ and $\frac{1}{\sqrt 2}(1,-1)$ respectively — a fact
 checkable directly from $\Sigma v = \lambda v$ without any numerical
-solver. Substituting $r = 0.171$: eigenvalues $1.171$ and $0.829$,
-matching `numpy.linalg.eigh`'s output on this data to three decimal places
-(the small remaining difference is `numpy.cov`'s sample covariance using
-$m-1$ in its denominator, so the diagonal of $\Sigma$ is not exactly $1$).
+solver. Substituting $r = 0.171$: eigenvalues $1.171$ and $0.829$.
+`numpy.linalg.eigh` on the same data gives 1.171 and 0.830 — the last digit
+differs because `numpy.cov` divides by $m-1$ while the standardisation
+divided by $m$, so the diagonal of $\Sigma$ is 1.0005 rather than exactly
+1.
 The first component points along $(1,1)/\sqrt2$ — the "spend and visit
 often together" direction — which makes sense: customers who spend more
 tend also to visit more often, so the direction of greatest joint
 variation is the diagonal, not either axis alone.
+
+![](pca_two_columns.png)
+
+*Left: the two components on the standardised spend and visit data, each
+arrow two standard deviations long along its own direction — PC1 along the
+diagonal with variance 1.171, PC2 across it with 0.830. Right: the customer
+furthest off the diagonal (customer 13) and its reconstruction from PC1
+alone, the closest point on the line. The dashed residual meets the line at
+a right angle; its squared length, 6.37, is the reconstruction error section
+6 uses to find anomalies.*
 
 ### 5.3 The same answer from the SVD
 
@@ -705,6 +728,10 @@ $\lVert x_i - z\rVert^2 = \lVert x_i - \hat x_i\rVert^2 + \lVert \hat x_i - z\rV
 — strictly larger unless $z = \hat x_i$. It is the same argument lesson 3 made
 about the shadow of the target on the space the features can reach: anything
 left over has to be perpendicular, or part of it could still have been used.
+Section 5.2's figure shows it in two dimensions: customer 13 at $(2.12, -1.45)$
+reconstructs to $(0.335, 0.335)$ on the first component, the residual is
+perpendicular to it to within floating-point error, and its squared length is
+6.37.
 
 A point that genuinely follows the correlation structure the top $k$
 components were fit to reconstructs almost exactly, because that structure

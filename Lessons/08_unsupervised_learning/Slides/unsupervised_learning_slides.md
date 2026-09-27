@@ -274,8 +274,7 @@ a guarantee, since section 2.2 is about exactly the case where it is not.
   2,000-customer data
 - Best final WCSS: **374.1**. Worst: **1,390.4**, **3.7 times worse**,
   same data, same update rule
-- This happened on the very **first** attempt (worst of 30), not a rare
-  one-in-a-thousand pathology
+- One start in 30 ended there; the other 29 all found **374.1**
 - The naive fix ($k$ points picked uniformly at random) gives no way to
   tell in advance which kind of run you got
 
@@ -319,15 +318,17 @@ Handout section 2.2.
 
 - Same 30 seeds, k-means++ instead of naive random
 - Range narrows to **374.1–1,088.3**: the worst case gains ~300 units
-- Reaches the **global optimum on the first attempt**
+- Also **29 of 30** at the optimum: the bad case is less bad, not rarer
 - `sklearn.cluster.KMeans` uses k-means++ plus 10 restarts by default
 - Notebook 01 matches its WCSS to $10^{-4}$
 
 ::: notes
-Read the range change against the previous slide's 374.1–1,390.4  - 
-narrower, and reaching the optimum immediately rather than only sometimes.
-This is why k-means++ is the library default rather than an optional
-extra.
+Read the range change against the previous slide's 374.1–1,390.4: the
+worst case is about 300 units less bad. Be honest about what it did not
+do - k-means++ also reached the optimum in 29 of 30 runs, exactly as the
+naive starts did. On this data it made the bad case less bad, not rarer,
+which is why the library default is k-means++ AND ten restarts, keeping
+the best.
 
 The $10^{-4}$ agreement is worth naming explicitly as a genuine check, not
 an assumption - the from-scratch and scikit-learn implementations are
@@ -335,6 +336,23 @@ searching for the same optimum from starts drawn the same way, and the
 notebook confirms it rather than takes it on faith.
 
 Handout section 2.2.
+:::
+
+# Sixty starts: where each one ended
+
+![](kmeans_init_spread.png)
+
+::: notes
+Every one of the 60 runs from the last two slides, as a dot: naive starts
+on top, k-means++ below, the dashed line at the best partition found,
+374.1.
+
+Let them see the pile-up first: 29 of each on the line. Then the two
+stragglers - 1,390.4 for the naive start, 1,088.3 for k-means++. That is
+the whole story of initialisation on this data: rare, and not rare enough to
+ignore, because a single run gives no sign of whether it was the straggler.
+Restarting and keeping the best is what makes it harmless. Handout section
+2.2.
 :::
 
 # Choosing $k$
@@ -601,13 +619,15 @@ Handout section 3.2.
 ![](dendrogram.png)
 
 ::: notes
-A branch peeling off single points one at a time, rather than splitting
-into two comparably sized halves, is the visual signature of chaining  - 
-point it out directly on the figure, even at this small 60-session sample.
+Ward joins compact, comparably sized groups at every level - look how
+balanced the branches are. That is its variance objective at work, the same
+one k-means has, and it is exactly why Ward cannot follow a dense core
+inside a diffuse ring: it keeps making round pieces.
 
-This is a preview of what the full 1,500-session numbers on the next slide
-make precise: chaining is not a rare edge case here, it is what several of
-the four linkage rules do on the whole dataset.
+Show how to read it: draw a horizontal line across the tree, and the number
+of branches it crosses is k. Then contrast with what the next slide shows
+for single and average linkage on all 1,500 sessions - chaining, one cluster
+of 1,499 and one of 1 - which this balanced Ward tree does not do.
 
 Handout section 3.2.
 :::
@@ -723,8 +743,9 @@ Handout section 3.3.
 stays low and flat through most of the range and bends sharply upward near
 the end.
 
-`eps = 0.30` sits just past the bend, in the flat region - point at
-exactly where on the curve that is. This is the value used on the next
+`eps = 0.30` sits where the climb begins, a little above the knee this
+week's curve gives, 0.258 - point at exactly where on the curve that is,
+because section 3.4 comes back to that gap. This is the value used on the next
 slide's results.
 
 Handout section 3.3.
@@ -917,20 +938,19 @@ Handout section 4.
 
 # What silhouette can't see
 
-- A silhouette of 0.69, reported alone, sounds like strong endorsement
-- It endorses only **what the metric can see**: the shape, not the
-  assumption behind it
-- k-means on the bot/human data (ARI $\approx -0.046$) still scores
-  positive
-- Silhouette measures **roundness**, not correctness, and k-means always
-  looks round by construction
+- It endorses only **what the metric can see**: the shape
+- k-means on the sessions: silhouette **0.401**, ARI −0.046
+- DBSCAN, correct: silhouette **−0.106**, ARI 0.941
+- Silhouette measures **roundness**, not correctness
 
 ::: notes
 This is the handout's named predictable mistake, and it deserves to be
 said slowly. Ask the room directly: if you only had the silhouette score
 and not the ARI, would you have any hint that k-means' clustering on the
 session data is worthless? The honest answer is no - the internal metric
-alone gives no warning.
+alone gives no warning. Worse, it points the wrong way: k-means'
+useless split scores 0.401, DBSCAN's correct one -0.106, because two
+compact halves are rounder than a core inside a ring.
 
 That is the whole reason external validation matters whenever any signal
 for it exists, even a rough one, and it is why this section sits between
@@ -1059,15 +1079,16 @@ Handout section 5.2.
 | | Value |
 |---|---|
 | Correlation (off-diagonal of $\Sigma$) | 0.171 |
-| Eigenvalues | $1.171$ and $0.829$ |
+| Eigenvalues, $1 \pm r$ | $1.171$ and $0.829$ |
 | First component direction | $(1,1)/\sqrt{2}$ |
 
 ::: notes
 Two standardised features from section 2 - spend and visit frequency. For
 this symmetric $2\times2$ form, the eigenvalues are exactly $1+r$ and
 $1-r$ for correlation $r$, checkable directly from $\Sigma v = \lambda v$
-with no numerical solver - with $r = 0.171$: 1.171 and 0.829, matching
-`numpy.linalg.eigh` to three decimal places.
+with no numerical solver - with $r = 0.171$: 1.171 and 0.829.
+`numpy.linalg.eigh` gives 1.171 and 0.830; the last digit moves because
+np.cov divides by m - 1, so the diagonal is 1.0005 rather than 1.
 
 The direction $(1,1)/\sqrt{2}$ is the "spend and visit often together"
 diagonal, not either axis alone - say why that makes sense: customers who
@@ -1075,6 +1096,24 @@ spend more also tend to visit more, so the greatest joint variation runs
 along the diagonal between the two original features.
 
 Handout section 5.2.
+:::
+
+# Two columns, drawn
+
+![](pca_two_columns.png)
+
+::: notes
+Left: the two components on spend and visits, each arrow two standard
+deviations long. PC1 runs along the diagonal with variance 1.171, PC2
+across it with 0.830 - the previous slide's numbers, as directions.
+
+Right: previewing the anomaly section. The customer furthest off the
+diagonal, customer 13, and its reconstruction from PC1 alone - the closest
+point on the line. The residual meets the line at a right angle; that is
+what makes the reconstruction the closest point, and its squared length,
+6.37, is the reconstruction error. In section 6 the same measurement, in
+eight dimensions with three components kept, catches 37 of 40 disguised
+accounts. Handout sections 5.2 and 6.1.
 :::
 
 # The same answer, more stably: the SVD
