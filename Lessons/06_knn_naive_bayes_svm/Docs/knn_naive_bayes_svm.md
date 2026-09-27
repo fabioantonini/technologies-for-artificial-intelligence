@@ -529,7 +529,19 @@ opposite tilt; the true within-class correlation is exactly 0, and the measured
 values are that zero plus sampling noise.
 
 **Within each class the readings are essentially uncorrelated** — and it is
-tempting to stop there and declare the assumption true. It is not.
+tempting to stop there and declare the assumption true. It is not, because two
+different claims are in play, and only one of them holds:
+
+| Claim, within each class | True here? | What it means |
+|---|---|---|
+| The readings are **uncorrelated** | Yes | no straight line ties vibration to pressure |
+| The readings are **independent** | **No** | knowing the vibration changes what to expect of the pressure |
+
+Naive Bayes assumes the second. Independence asks far more than a flat straight
+line: $P(\text{pressure} \mid \text{vibration}, y = c)$ must equal
+$P(\text{pressure} \mid y = c)$, the *whole* distribution of pressure unchanged
+whatever the vibration. Correlation checks only whether its average drifts along
+a line.
 
 **Uncorrelated is not independent.** Correlation detects only straight-line
 dependence, and the dependence here is not a straight line. Healthy pumps fill a
@@ -547,7 +559,14 @@ and it appears:
 | within faulty pumps | **−0.420** |
 
 Among faulty pumps, when one reading is far out the other is pulled in. The
-assumption is false on these pumps. This is the mistake to expect, and it is a
+same dependence is plainer as a spread. On standardised readings, the pressure
+of a faulty pump has a standard deviation of **0.784** when its vibration is
+extreme — the fifth of faulty pumps furthest out — and **1.309** when it is not.
+Its average does not move, which is why the correlation is zero; its spread
+falls by two fifths. A pump already far out in vibration is in the ring whatever its
+pressure, so the pressure can sit near the centre; one central in vibration can
+only reach the ring through a pressure far out. The assumption is false on these
+pumps. This is the mistake to expect, and it is a
 reasonable one: a correlation near zero is the check everyone reaches for, and
 for bell-shaped data it would settle the matter. For a disc and a ring it does
 not.

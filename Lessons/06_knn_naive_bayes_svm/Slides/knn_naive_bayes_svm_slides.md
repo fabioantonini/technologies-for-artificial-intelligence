@@ -767,7 +767,11 @@ Then the trap. Correlation only sees straight-line dependence. Healthy pumps
 fill a disc and faulty ones a ring; on a ring, a pump far out in vibration must
 be central in pressure. That dependence is symmetric, so the straight-line
 summary averages it to zero. Square each reading's distance from the design
-point and it appears: −0.420 among the faulty pumps. The assumption is false.
+point and it appears: −0.420 among the faulty pumps. Or say it as a spread: the
+pressure of a faulty pump has a standard deviation of 0.784 when its vibration
+is extreme and 1.309 when it is not - same average, very different spread. Put
+the distinction on the board in two lines: uncorrelated, yes; independent, no.
+Naive Bayes assumes the second. The assumption is false.
 
 So why 0.933? Because the densities are wrong but the boundary they imply is
 right. With both classes centred on the same point, comparing a narrow bell

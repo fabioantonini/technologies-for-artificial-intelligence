@@ -215,6 +215,20 @@ for label, printed in ((0, 0.168), (1, -0.420)):
     same(f"4.3 correlation of squared distances, class {label}",
          np.corrcoef(rows[:, 0], rows[:, 1])[0, 1], printed, tolerance=5e-4)
 
+# The same dependence as a spread: pressure among faulty pumps, split by
+# whether the vibration is in the furthest fifth. Recomputed with numpy.
+zr = (readings - readings.mean(axis=0)) / readings.std(axis=0, ddof=1)
+zf = zr[y.to_numpy() == 1]
+ext = np.abs(zf[:, 0]) > np.quantile(np.abs(zf[:, 0]), 0.8)
+same("4.3 faulty pressure spread, vibration extreme", zf[ext, 1].std(ddof=1), 0.784,
+     tolerance=5e-4)
+same("4.3 faulty pressure spread, otherwise", zf[~ext, 1].std(ddof=1), 1.309,
+     tolerance=5e-4)
+same("4.3 'its average does not move' (extreme)", abs(zf[ext, 1].mean()), 0.0,
+     tolerance=0.15)
+same("4.3 'its spread falls by two fifths'", zf[ext, 1].std(ddof=1) / zf[~ext, 1].std(ddof=1),
+     0.6, tolerance=0.02)
+
 # The implied boundary, by the algebra the handout gives rather than by the
 # notebook's walk: with shared centres the log-ratio is sum_j a_j d_j^2 + K,
 # so the ellipse's semi-axis along reading j is sqrt(-K / a_j).
