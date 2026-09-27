@@ -14,12 +14,12 @@ date: "6 November 2026 · reading time about 100 minutes"
 | 0:30–0:52 | 22 | The curse of dimensionality | Slides 15–21 |
 | 0:52–1:14 | 22 | **Notebook 01** — k-NN and the curse | Slide 22 |
 | 1:14–1:26 | 12 | **Break** | Slide 23 |
-| 1:26–1:50 | 24 | Naive Bayes, and when its assumption matters | Slides 24–39 |
-| 1:50–2:06 | 16 | **Notebook 02** — where it fails | Slide 40 |
-| 2:06–2:34 | 28 | Margins, support vectors, the kernel trick | Slides 41–56 |
-| 2:34–2:50 | 16 | **Notebook 03** — kernels in practice | Slide 57 |
-| 2:50–3:00 | 10 | The three compared; homework | Slides 58–61 |
-| | **180** | **Total** | **60 slides, 3 notebooks** |
+| 1:26–1:50 | 24 | Naive Bayes, and when its assumption matters | Slides 24–40 |
+| 1:50–2:06 | 16 | **Notebook 02** — where it fails | Slide 41 |
+| 2:06–2:34 | 28 | Margins, support vectors, the kernel trick | Slides 42–59 |
+| 2:34–2:50 | 16 | **Notebook 03** — kernels in practice | Slide 60 |
+| 2:50–3:00 | 10 | The three compared; homework | Slides 61–64 |
+| | **180** | **Total** | **64 slides, 3 notebooks** |
 
 ---
 
@@ -605,6 +605,10 @@ Walking out from the centre until the fitted model's prediction flips puts its
 ellipse at about **3.17 Hz by 0.41 bar**, against a true envelope of **3.5 by
 0.45**: the same proportions, about a tenth too small.
 
+![](nb_boundary_vs_envelope.png)
+
+*The solid ellipse is where the fitted model changes its mind, the dashed one the envelope the pumps were generated from: same shape and orientation, the model's a little smaller. The densities are wrong; the boundary they imply is nearly right.*
+
 The densities Naive Bayes multiplies are wrong; the boundary they imply is nearly
 right. The cost of the false assumption is the gap from 0.933 to k-NN's 0.944,
 under a ceiling of 0.96 set by the label noise. This is Section 4.2's closing
@@ -813,6 +817,10 @@ in a straight line as the point strays. That zero is the difference from lesson
 so every row keeps pulling on the answer. Under the hinge, points that are safely
 right stop mattering altogether — the fact Section 5.4 turns into the method's
 defining property.
+
+![](hinge_vs_log_loss.png)
+
+*Loss against the margin $y \cdot f(x)$. Right of 1 — outside the slab on its own side — the hinge is exactly zero, while the log loss keeps a small charge: 0.127 at a margin of 2, 0.049 at 3. That zero is where support vectors come from.*
 
 **$C$ is the price of a training error.** Large $C$ makes violations expensive,
 so the model contorts to classify everything: narrow margin, low bias, high
@@ -1028,6 +1036,10 @@ some just inside carry flipped labels — so the closest votes nearly cancel, an
 is the balance across the neighbourhood, plus the intercept, that sets the sign.
 Naive Bayes, by a completely different route, called the same pump faulty.
 
+![](svm_vote_one_pump.png)
+
+*Each support vector sized and shaded by its similarity to the pump (the star). The 56 inside the dashed half-similarity ellipse carry most of the weight; teal and rust mix right beside the star, which is why the nearest votes nearly cancel and the neighbourhood's balance decides.*
+
 This is k-nearest neighbours again, with three differences: a smooth similarity
 in place of a hard cut-off at $k$, only the support vectors voting, and their
 weights learned. The cost follows: 278 similarities per prediction against
@@ -1042,6 +1054,10 @@ vector's vote halves over 2.63 standard deviations, at $\gamma = 1$ over 0.83,
 and at $\gamma = 50$ over 0.12: small $\gamma$ gives a wide reach and a smooth
 boundary, large $\gamma$ lets each point speak only for its immediate
 neighbourhood, and the boundary can dissolve into islands.
+
+![](rbf_reach.png)
+
+*RBF similarity against distance, one curve per $\gamma$. Where each crosses the dotted line at one half is its reach: 2.63, 1.18, 0.83 and 0.12 standard deviations.*
 
 ![](svm_gamma_c.png)
 

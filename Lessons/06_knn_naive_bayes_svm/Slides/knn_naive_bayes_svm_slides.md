@@ -804,6 +804,22 @@ assumption is cheap when it leaves the boundary the right shape. The next
 slide is the case where it does not. Handout section 4.3.
 :::
 
+# Wrong densities, right boundary
+
+![](nb_boundary_vs_envelope.png)
+
+::: notes
+The previous slide's argument, drawn. Dots are the pumps; the solid black
+ellipse is where the fitted Naive Bayes model changes its mind; the dashed gold
+one is the envelope the data was generated from.
+
+Let them compare the two shapes before saying anything: same orientation, same
+proportions, the model's about a tenth smaller - 3.17 Hz by 0.41 bar against 3.5
+by 0.45. The assumption is false, the densities it multiplies are wrong, and the
+boundary they imply is nearly right. That is why 0.933 sits so close to k-NN's
+0.944. Handout section 4.3.
+:::
+
 # One step away: when the signal is an interaction
 
 - A second pair of sensors on the same fleet
@@ -1017,6 +1033,24 @@ never reaches zero, so every row keeps pulling. The hinge reaches zero, and a
 point with zero loss drops out of the answer entirely.
 
 The next slide puts it in symbols. Handout section 5.2 has the derivation.
+:::
+
+# The hinge stops at zero
+
+![](hinge_vs_log_loss.png)
+
+::: notes
+What each point pays, against its margin y times f(x): large and positive when
+it is safely on its own side, negative on the wrong side.
+
+Walk the three zones left to right. Wrong side: both losses are large. Inside the
+slab: the hinge still charges, falling in a straight line. Right of 1, outside
+the slab: the hinge is exactly zero, and the log loss from lesson 4 is still
+charging - 0.127 at a margin of 2, 0.049 at 3.
+
+The sentence to land: a point with zero loss stops pulling on the answer. That
+is where support vectors come from - and why logistic regression never has any.
+Handout section 5.2.
 :::
 
 # A wide slab, minus what the violations cost
@@ -1289,6 +1323,24 @@ only the support vectors voting, and learned weights. And the output is a score,
 not a probability. Handout section 5.5.
 :::
 
+# One pump's vote, drawn
+
+![](svm_vote_one_pump.png)
+
+::: notes
+The table on the previous slide, drawn. Every support vector is sized and
+shaded by its similarity to the pump, the gold star at 48 Hz and 5.6 bar; the
+dashed ellipse is where similarity falls to one half, about 1.2 standard
+deviations; the black line is the SVM's boundary.
+
+Point out where the weight is: the 56 support vectors inside the dashed ellipse
+carry most of it, the ones across the disc have faded out. Then point at the
+star's immediate neighbours - teal and rust together, boundary pumps and flipped
+labels. That is why the five nearest nearly cancel, and why it is the
+neighbourhood's balance, not one neighbour, that makes it faulty. Handout
+section 5.5.
+:::
+
 # The highest training score, the lowest honest one
 
 | Setting | Training | Cross-validated |
@@ -1317,6 +1369,21 @@ data it has already been shown without learning anything transferable.
 The reason this table is on the slide rather than in the handout is that the
 next slide shows the same three settings as pictures - so the failure is visible
 as well as measurable, which is rare.
+:::
+
+# How far one vote reaches
+
+![](rbf_reach.png)
+
+::: notes
+Gamma as a distance rather than a symbol. Each curve is the RBF similarity
+against the distance between two pumps; where it crosses the dotted line is the
+distance at which a support vector's vote has halved: 2.63 standard deviations
+at gamma 0.1, 1.18 at the default 0.5, 0.83 at 1, and 0.12 at 50.
+
+Ask them to predict the next slide from this one: at gamma 50 a point speaks only
+for a neighbourhood a tenth of a standard deviation wide. What will the boundary
+look like? Islands. Handout section 5.6.
 :::
 
 # Overfitting you can see

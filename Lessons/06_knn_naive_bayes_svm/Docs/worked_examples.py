@@ -470,6 +470,11 @@ same("5.2 zero weight means zero hinge loss",
 same("5.2 weight at C means a positive hinge loss",
      float((hinge[np.isclose(alpha_abs, 1.0)] > -1e-3).all()), 1.0, tolerance=0)
 
+# 5.2's figure: the log loss at margins 2 and 3, against a hinge of zero.
+for margin, printed in ((2, 0.127), (3, 0.049)):
+    same(f"5.2 log loss at margin {margin}", np.log1p(np.exp(-margin)), printed, tolerance=5e-4)
+    same(f"5.2 hinge at margin {margin}", max(0.0, 1.0 - margin), 0.0, tolerance=0)
+
 # 5.4: the kernel checked by hand - both routes.
 a_pt, b_pt = np.array([1.0, 2.0]), np.array([3.0, 1.0])
 lift = lambda v: np.array([v[0] ** 2, np.sqrt(2) * v[0] * v[1], v[1] ** 2])
