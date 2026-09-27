@@ -224,6 +224,12 @@ same("4.3 faulty pressure spread, vibration extreme", zf[ext, 1].std(ddof=1), 0.
      tolerance=5e-4)
 same("4.3 faulty pressure spread, otherwise", zf[~ext, 1].std(ddof=1), 1.309,
      tolerance=5e-4)
+raw_f = readings[y.to_numpy() == 1]
+same("4.3 extreme pumps", int(ext.sum()), 147, tolerance=0)
+same("4.3 extreme means beyond, in Hz", np.quantile(np.abs(zf[:, 0]), 0.8) * readings[:, 0].std(ddof=1),
+     6.2, tolerance=0.05)
+same("4.3 spread in bar, extreme", raw_f[ext, 1].std(ddof=1), 0.37, tolerance=5e-3)
+same("4.3 spread in bar, otherwise", raw_f[~ext, 1].std(ddof=1), 0.62, tolerance=5e-3)
 same("4.3 'its average does not move' (extreme)", abs(zf[ext, 1].mean()), 0.0,
      tolerance=0.15)
 same("4.3 'its spread falls by two fifths'", zf[ext, 1].std(ddof=1) / zf[~ext, 1].std(ddof=1),

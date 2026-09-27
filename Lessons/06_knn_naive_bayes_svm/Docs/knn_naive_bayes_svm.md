@@ -561,7 +561,9 @@ and it appears:
 Among faulty pumps, when one reading is far out the other is pulled in. The
 same dependence is plainer as a spread. On standardised readings, the pressure
 of a faulty pump has a standard deviation of **0.784** when its vibration is
-extreme — the fifth of faulty pumps furthest out — and **1.309** when it is not.
+extreme — the fifth of faulty pumps furthest out, 147 of them, more than 6.2 Hz
+from the centre — and **1.309** when it is not: in bar, **0.37** against
+**0.62**.
 Its average does not move, which is why the correlation is zero; its spread
 falls by two fifths. A pump already far out in vibration is in the ring whatever its
 pressure, so the pressure can sit near the centre; one central in vibration can
