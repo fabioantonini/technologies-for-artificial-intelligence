@@ -490,7 +490,7 @@ the concrete number from notebook 01: 143 test examples at 0.986 accuracy carrie
 standard error of about one percentage point, so the third decimal place is noise. If
 anyone presses on the interval, concede it: 0.986 of 143 is two errors, the normal
 approximation is not admissible there - it returns an upper limit of 100.5% - and the
-honest lower bound is 95.0%, not 96.5%. Handout section 2.4 works it through.
+honest lower bound is 95.0%, not the approximation's 96.7%. Handout section 2.4 works it through.
 With a few hundred examples both sides hurt at once, which is what cross-validation
 exists for - lesson 5.
 

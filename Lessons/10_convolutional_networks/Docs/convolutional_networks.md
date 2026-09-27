@@ -94,7 +94,7 @@ by different examples.
 | convolutional, 16 kernels of 3×3 | 160 |
 | convolutional, 32 kernels of 5×5 | 832 |
 
-Eighty against a hundred and forty-seven thousand, a ratio of 1,846. But
+Eighty against a hundred and forty-seven thousand — 147,632 fewer, a ratio of 1,846. But
 compression is the least interesting thing here, and reading the table that
 way misses the point twice over.
 
@@ -292,7 +292,10 @@ Check the second convolutional layer's count, because it is the one students
 get wrong: each of its 16 kernels is $3 \times 3 \times 8$ — three by three
 *across all eight input channels* — so $16 \times (9 \times 8) + 16 = 1{,}168$.
 A kernel's depth always matches the input's channel count, and only its two
-spatial dimensions are chosen.
+spatial dimensions are chosen. A third layer of 32 such kernels on these 16
+channels would cost $32 	imes (9 	imes 16) + 32 = 4{,}640$. The dense head at
+the end is only 272 + 17 = 289 parameters, because it sits after the global
+pooling rather than on the pixels.
 
 Against it, a dense network of the kind Lesson 9 built, sized for these images:
 two hidden layers of 256 units on the 576 input pixels, then one output —
@@ -732,7 +735,7 @@ build one of these systems from being able to say whether it is any good.
 - A convolutional layer applies **the same** kernel everywhere. The saving in
   parameters is a side effect; the point is that one example teaches the
   detector at every position.
-- 1,537 parameters against 213,761, and the small one scores **1.0000 against
+- 1,537 parameters against 213,761 — a factor of 139 — and the small one scores **1.0000 against
   the true grade** — its visible 0.9800 is the grading station's error and
   nothing else.
 - **Move a defect to a half of the die where none was seen in training and the

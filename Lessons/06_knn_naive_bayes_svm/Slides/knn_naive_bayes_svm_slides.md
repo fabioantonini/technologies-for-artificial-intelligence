@@ -668,8 +668,7 @@ faulty one. The vibration term decides it: P(faulty) = 0.981. At the design
 point itself, 42 Hz and 5.6 bar, P(healthy) = 0.820. The next slide draws it.
 
 If someone spots in the handout that one log-density is positive, that is the
-moment to say a density is not a probability: a bell 0.22 bar wide peaks
-above 1. Handout section 4.2 works the pump through term by term.
+moment to say a density is not a probability: a bell with a standard deviation of 0.219 bar peaks at about 1.82. Handout section 4.2 works the pump through term by term.
 :::
 
 # 48 Hz: one bell is 86 times the other
@@ -850,8 +849,7 @@ class is about half low and half high on each sensor alone.
 The dashed curves are what the model fits: one bell per sensor per class. A
 single bell cannot follow two humps, so it sits in the valley between them, and
 the two classes' bells almost coincide - centre near 0, sd about 1.1 for both.
-Contrast the pumps a few slides ago: bells with a shared centre but widths of
-1.7 against 4.6 Hz, and the widths carried the class. Here nothing does.
+Contrast the pumps a few slides ago: bells with a shared centre but widths of 1.695 against 4.636 Hz, and the widths carried the class. Here nothing does.
 
 That is the slide in one sentence: the information is real, it is entirely in
 the relationship between the columns, and factorising the density throws that

@@ -347,9 +347,9 @@ other direction.
 normal approximation needs enough events on both sides to be trusted — the usual rule of
 thumb asks for at least five. But 0.986 of 143 is **two errors**, and
 $m\,p(1-p) \approx 2$. Push the approximation anyway and it returns an interval running
-up to **100.5%**: it admits accuracies above 100%, which settles the matter without any
+from **96.7%** up to **100.5%**: it admits accuracies above 100%, which settles the matter without any
 further argument. A method that does not lean on the approximation puts the lower bound
-at **95.0%** instead — a point and a half below what the approximation promised, and in
+at **95.0%** instead — 1.6 points below what the approximation promised, and in
 the flattering direction. Lesson 5 takes up how such an interval is properly built. What
 belongs here is the habit: ask whether a formula is admissible before quoting the number
 it gives you.

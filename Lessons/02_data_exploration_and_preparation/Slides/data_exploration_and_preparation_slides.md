@@ -352,13 +352,13 @@ monthly_charges. The z-score rule flags 20 - all of them, nothing else. Tukey
 flags 32 - the same 20, plus 12 ordinary customers.
 
 Ask the room to predict which rule was damaged by the contamination, then give
-them the number: the billing errors inflate s from 17.2 to 171.3, dragging the
-z-score fence from 115 out to 593. The rule was genuinely crippled. It got
+them the number: the billing errors inflate s from 17.23 to 171.25, dragging the
+z-score fence from 115.0 out to 593.0. The rule was genuinely crippled. It got
 every error anyway, because the smallest of them is 780 - still past the
 ruined fence.
 
 Meanwhile the twelve Tukey extras are real people on real tariffs: eight
-paying 15 to 17, four paying 112 to 128, outside fences of 17.3 and 110.
+paying 15.0 to 16.7, four paying 111.6 to 128.4, outside fences of 17.3 and 110.0.
 
 The line to land, and it is the whole point of the slide: a detector's output
 does not report the detector's health. The z-score rule was right by luck.
@@ -905,8 +905,8 @@ times the months stayed, with tenure clipped at zero first - and the three AUCs
 are what does the work in the room.
 
 Do not let anyone in the room call three thousandths a win, and do not call it
-one yourself. Quote the four decimals: at three, 0.751 against 0.755 sounds
-like a difference of 0.004, and the difference is 0.0034. It is a legitimate
+one yourself. Quote the four decimals, 0.7514 against 0.7548: at three, 0.751
+against 0.755 sounds like a difference of 0.004, and the difference is 0.0034. It is a legitimate
 result, not a failed experiment - the hypothesis that what a customer has been
 worth so far predicts whether they leave was reasonable, it was tested, and the
 data declined it. Feature engineering is a hypothesis about the domain, not a

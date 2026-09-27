@@ -321,7 +321,7 @@ Forty seeds, changing nothing but the seed. Cross-validation has a seed of its
 own - shuffle differently and the folds change - so it reduces the variance of
 the estimate, it does not abolish it.
 
-The spread falls from 0.088 to 0.015, and the standard deviation by a factor of
+The spread falls from 0.0881 to 0.0149, and the standard deviation by a factor of
 about seven (0.0221 to 0.0032). Say which one "seven" refers to: a student who
 divides the two spreads on the slide gets six, and will ask.
 
@@ -795,7 +795,7 @@ honesty. Twenty-five combinations on the same signal-free table.
 The number a practitioner reports is best_score_, and it is the MAXIMUM of 25
 noisy estimates. The maximum of a set of noisy numbers is biased upward even
 when every one measures the same quantity - and here they nearly do, since the
-average candidate is 0.73 and the worst is 0.68.
+average candidate is 0.7265 and the worst is 0.6840.
 
 So 0.7999 is not the performance of the chosen configuration. It is the
 performance of whichever configuration got luckiest.
@@ -831,7 +831,7 @@ afterwards, and you report the nested figure.
 ::: notes
 The summary of the whole last hour, on one axis. Same data, containing nothing.
 
-0.500 is the truth. 0.670 is nested cross-validation. 0.800 is what the search
+0.500 is the truth. 0.6699 is nested cross-validation. 0.7999 is what the search
 reports. 0.931 is selection before cross-validation.
 
 Say clearly: nobody in this picture wrote dishonest code. The difference between

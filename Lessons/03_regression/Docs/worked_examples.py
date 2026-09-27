@@ -326,4 +326,14 @@ same("2.4 the narrower half holds 55 of the 150 test houses", int(_narrow.sum())
 same("2.4 on them R^2 falls to 0.448", _narrow_r2, 0.448, tolerance=5e-4)
 same("2.4 while the RMSE improves, to 18,661", _narrow_rmse, 18_661, tolerance=10)
 
+# 2.3: the three houses' errors, and what halving the smallest or the largest
+# does to the squared-error cost.
+errors = np.array([-3_000.0, 13_000.0, -15_000.0])
+cost = (errors ** 2).sum()
+same("2.3 the small error's share of the cost", 100 * 3_000 ** 2 / cost, 2, tolerance=0.3)
+for k, printed in ((0, 1.7), (2, 42)):
+    halved = errors.copy(); halved[k] /= 2
+    same(f"2.3 halving error {k} cuts the cost by", 100 * (1 - (halved ** 2).sum() / cost),
+         printed, tolerance=0.05 if printed == 1.7 else 0.5)
+
 print(f"lesson 3: {checks} hand-worked numbers recomputed, all agree")

@@ -374,6 +374,8 @@ check("and the ratio", (PIXELS_HERE * 256 + 256) / 80, 1_846, 1)
 check("the two-hidden-layer dense baseline",
       (PIXELS_HERE * 256 + 256) + (256 * 256 + 256) + (256 + 1), 213_761, 0)
 check("32 kernels of 3x3 over 16 channels", 32 * (9 * 16) + 32, 4_640, 0)
+check("the dense head, 272 + 17", (16 * 16 + 16) + (16 + 1), 289, 0)
+check("dense baseline against the convolutional network", 213_761 / 1_537, 139, 0.5)
 check("lesson 9's one-hidden-layer digit network",
       PIXELS_LESSON_9 * 64 + 64 + 64 * 10 + 10, 4_810, 0,
       "8x8 inputs, not this lesson's 24x24")

@@ -136,7 +136,7 @@ The cost is $\frac{1}{2 \times 3}(9.0 \times 10^6 + 1.69 \times 10^8 + 2.25
 
 Notice how the arithmetic behaves. The 3,000 euro error contributes 2% of that
 total; the two large ones contribute the other 98%. Halving the small error
-would cut the cost by under 2% — you would barely see it move. Halving the
+would cut the cost by only **1.7%** — you would barely see it move. Halving the
 15,000 error would cut it by **42%**. **Squared error spends its attention on
 the worst predictions**, and that is a design decision you are making whether or
 not you notice it.

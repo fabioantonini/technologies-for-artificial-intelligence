@@ -555,7 +555,8 @@ Take the stupidest possible model - flag every single drive - and score it.
 Recall is a perfect 1.0. Precision is 0.038.
 
 The ordinary average gives that model 0.519, which looks respectable. Anyone
-scanning a results table would not blink at 0.52.
+scanning a results table would not
+blink at 0.519.
 
 The harmonic mean gives it 0.073, which is the truth.
 
@@ -648,7 +649,8 @@ failures and replace 284 healthy drives to do it. At 0.90 every alarm is
 justified and we catch fewer than a quarter.
 
 Now the accuracy column, which is the slide's real argument. From 0.10 upwards
-it moves by three percentage points while recall falls from 0.80 to 0.18. And
+it moves by three and a half percentage points, 0.942 to 0.977, while recall
+falls from 0.803 to 0.184. And
 its maximum is at 0.5 - the threshold that misses 33 of the 76 failures.
 
 Say the consequence plainly: tune on accuracy and it will quietly recommend

@@ -69,6 +69,10 @@ from scipy import stats  # noqa: E402  - kept local to this section
 
 exact_low = stats.binomtest(correct, n_test).proportion_ci(method="exact")[0]
 same("2.4 the exact lower bound is 95.0%", exact_low, 0.950, tolerance=5e-4)
+same("2.4 the approximate interval starts at 96.7%",
+     accuracy - 1.96 * standard_error, 0.967, tolerance=5e-4)
+same("2.4 the exact bound sits 1.6 points below it",
+     100 * (accuracy - 1.96 * standard_error - exact_low), 1.6, tolerance=0.05)
 
 # Route 2: the same bound found from its definition, with no library beyond
 # math - the p at which observing 141 or more successes out of 143 has
