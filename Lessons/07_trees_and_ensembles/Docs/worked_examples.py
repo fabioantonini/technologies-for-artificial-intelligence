@@ -306,12 +306,58 @@ for model, score, printed_fraction in (
         ("majority baseline", 0.613, 0.659),
         ("logistic regression", 0.748, 0.805),
         ("unconstrained tree", 0.852, 0.916),
-        ("tree at max_depth 8", 0.883, 0.949),
-        ("gradient boosting, 30 trees", 0.898, 0.965),
+        ("tree at max_depth 8", 0.882, 0.949),
+        ("gradient boosting, 30 trees", 0.897, 0.965),
         ("bagging, 100 trees", 0.904, 0.972),
         ("random forest, 100 trees", 0.911, 0.979)):
     same(f"11 {model} reaches that fraction of the ceiling",
          score / 0.93, printed_fraction, tolerance=1e-3)
+
+# ---------------------------------------- 2.2, the root split's gain, by counting
+yy = y.to_numpy(); left = X["debt_ratio"].to_numpy() <= 0.82
+G2 = lambda q: 2 * q * (1 - q)
+same("2.2 left child size", int(left.sum()), 971, tolerance=0)
+same("2.2 right child size", int((~left).sum()), 229, tolerance=0)
+same("2.2 left p", yy[left].mean(), 0.256, tolerance=5e-4)
+same("2.2 right p", yy[~left].mean(), 0.939, tolerance=5e-4)
+same("2.2 parent G", G2(yy.mean()), 0.4743, tolerance=5e-5)
+same("2.2 left G", G2(yy[left].mean()), 0.3814, tolerance=5e-5)
+same("2.2 right G", G2(yy[~left].mean()), 0.1148, tolerance=5e-5)
+weighted = left.mean() * G2(yy[left].mean()) + (~left).mean() * G2(yy[~left].mean())
+same("2.2 weighted children", weighted, 0.3305, tolerance=5e-5)
+same("2.2 the gain", G2(yy.mean()) - weighted, 0.1438, tolerance=5e-5)
+# a second route: sklearn's own impurity decrease for a depth-1 tree
+stump = DecisionTreeClassifier(max_depth=1, random_state=0).fit(X, y)
+t = stump.tree_
+gain_sk = t.impurity[0] - (t.weighted_n_node_samples[1] * t.impurity[1]
+                           + t.weighted_n_node_samples[2] * t.impurity[2]) / t.weighted_n_node_samples[0]
+same("2.2 the gain, from scikit-learn's stump", gain_sk, 0.1438, tolerance=5e-5)
+
+# ---------------------------------------- 5.1, the bootstrap count distribution
+from math import exp, factorial
+for k, printed in ((0, 0.368), (1, 0.368), (2, 0.184), (3, 0.061)):
+    same(f"5.1 limit share drawn {k} times", exp(-1) / factorial(k), printed, tolerance=5e-4)
+same("5.1 'about one in four' drawn twice or more", 1 - 2 * exp(-1), 0.25, tolerance=0.02)
+
+# ---------------------------------------- 5.2, the floor at rho = 0.5
+same("5.2 a hundred trees at rho 0.5", 1 / 100 + 99 / 100 * 0.5, 0.505, tolerance=1e-9)
+
+# ---------------------------------------- 7, both real features left out
+same("7 C(20,4)", comb(20, 4), 4845, tolerance=0)
+same("7 C(22,4)", comb(22, 4), 7315, tolerance=0)
+same("7 neither real feature offered", comb(20, 4) / comb(22, 4), 0.662, tolerance=5e-4)
+sim = np.random.default_rng(7)
+hits = np.mean([not ({0, 1} & set(sim.choice(22, 4, replace=False))) for _ in range(40000)])
+same("7 ...and by simulation", hits, 0.662, tolerance=0.01)
+
+# ---------------------------------------- 9, the starting score and first residuals
+p0 = yy.mean()
+same("9 F0, the base rate's log-odds", np.log(p0 / (1 - p0)), -0.461, tolerance=5e-4)
+same("9 first residual, defaulter", 1 - p0, 0.613, tolerance=5e-4)
+same("9 first residual, repayer", -p0, -0.387, tolerance=5e-4)
+init = GradientBoostingClassifier(n_estimators=1, random_state=0).fit(X, y)
+same("9 F0, from scikit-learn's initial estimator",
+     float(init.init_.predict_proba(X.iloc[:1])[0, 1]), 0.387, tolerance=5e-4)
 
 print(f"{checks} numbers recomputed from raw inputs and confirmed against "
       f"{HANDOUT}.")

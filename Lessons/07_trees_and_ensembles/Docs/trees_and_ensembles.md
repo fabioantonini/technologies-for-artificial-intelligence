@@ -10,16 +10,16 @@ date: "13 November 2026 · reading time about 85 minutes"
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
 | 0:00–0:10 | 10 | Exercise 6 discussed; the choice this lesson offers | Slides 2–5 |
-| 0:10–0:32 | 22 | Decision trees: splitting on Gini impurity | Slides 6–15 |
-| 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 16–21 |
-| 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 22 |
-| 1:12–1:24 | 12 | **Break** | Slide 23 |
-| 1:24–1:44 | 20 | Bagging and random forests | Slides 24–32 |
-| 1:44–2:02 | 18 | **Notebook 02** — bagging and random forests | Slide 33 |
-| 2:02–2:24 | 22 | Gradient boosting | Slides 34–43 |
-| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 44 |
-| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 45–50 |
-| | **180** | **Total** | **50 slides, 3 notebooks** |
+| 0:10–0:32 | 22 | Decision trees: splitting on Gini impurity | Slides 6–16 |
+| 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 17–22 |
+| 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 23 |
+| 1:12–1:24 | 12 | **Break** | Slide 24 |
+| 1:24–1:44 | 20 | Bagging and random forests | Slides 25–35 |
+| 1:44–2:02 | 18 | **Notebook 02** — bagging and random forests | Slide 36 |
+| 2:02–2:24 | 22 | Gradient boosting | Slides 37–46 |
+| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 47 |
+| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 48–53 |
+| | **180** | **Total** | **53 slides, 3 notebooks** |
 
 ---
 
@@ -141,6 +141,26 @@ ceiling the data was built with — and the from-scratch implementation below
 confirms this is exactly the split scikit-learn's `DecisionTreeClassifier`
 also finds, to the fourth decimal place of resulting accuracy, at every
 depth tested.
+
+What that split buys, in the formula above. It sends 971 applicants left, of
+whom $p = 0.256$ defaulted, and 229 right, of whom $p = 0.939$ did:
+
+| Group | Applicants | $p$ | $G = 2p(1-p)$ |
+|---|---|---|---|
+| Parent | 1,200 | 0.387 | 0.4743 |
+| Left, `debt_ratio <= 0.82` | 971 | 0.256 | 0.3814 |
+| Right | 229 | 0.939 | 0.1148 |
+
+$$\Delta G = 0.4743 - \left(\tfrac{971}{1200} \times 0.3814 + \tfrac{229}{1200} \times 0.1148\right)
+  = 0.4743 - 0.3305 = 0.1438$$
+
+![](gini_root_split.png)
+
+*The Gini curve $2p(1-p)$ with the parent (black) and the two children (teal
+and rust). The children's size-weighted average (gold) lies on the straight
+line between them, and the curve bulges above every such line — so any split
+that separates the classes at all lowers the weighted impurity. The gap, 0.144,
+is the gain; the tree takes the split whose gap is largest.*
 
 > **Try this:** using `Notebooks/loan_data.py`, compute $G$ for the group of
 > applicants with `income_k < 28` (the income-floor rule alone) and compare
@@ -285,6 +305,17 @@ $(1 - 1/1200)^{1200} = 0.3677$, already within $0.0002$ of the limit, and a
 single simulated bootstrap draw left out 36.6% of rows — close to both, with
 the residual gap being exactly the sampling noise a single draw carries.
 
+The same reasoning gives the whole distribution of how often a row is drawn:
+in the limit, a fraction $e^{-1}/k!$ of rows appears exactly $k$ times — 36.8%
+never, 36.8% once, 18.4% twice, 6.1% three times.
+
+![](bootstrap_counts.png)
+
+*One bootstrap sample of the 1,200 loans (blue) against the limit $e^{-1}/k!$
+(gold). The first bar is the out-of-bag share; the rest are rows the tree sees
+once or several times. About one row in four is drawn two or more times, and
+that duplication is what makes each tree different from its neighbour.*
+
 Every OOB row is free validation data for the one tree that did not see it.
 Averaging each tree's OOB predictions gives the **OOB score**, at no extra
 split of the data. On this dataset a 300-tree random forest's OOB score was
@@ -330,6 +361,14 @@ touch **bias** — averaging unbiased-but-noisy trees gives an unbiased
 average, and averaging trees that share a systematic error preserves that
 error exactly. Bagging is a variance tool. It does nothing for a tree that
 is too shallow to represent the rule in the first place.
+
+![](variance_floor.png)
+
+*The variance of an average of $B$ trees, as a share of one tree's, for four
+values of $\rho$. Uncorrelated trees average it away; correlated ones stop at
+the dotted floor however many are added — at $\rho = 0.5$, a hundred trees still
+keep 0.505 of one tree's variance. Lowering $\rho$ is the only way through the
+floor, and it is what section 6 does.*
 
 **Worked example.** Across 30 independent 70/30 train/test splits of the
 loan data, a single unconstrained tree's test accuracy has mean **0.856**
@@ -421,10 +460,15 @@ $$\frac{(p-1)!}{(k-1)!\,(p-k)!} \cdot \frac{k!\,(p-k)!}{p!}
 
 — every factorial cancels except one factor at each end.
 
-and *excluded* with probability $\approx 81.8\%$. Four times out of five,
-neither real feature is even offered as a candidate at a given split, so the
-tree must choose its best option among whichever noise columns happened to
-be drawn — and among 1,200 finite, noisy rows, some noise column will show a
+So any one column is *excluded* from a given split with probability
+$1 - 4/22 \approx 81.8\%$. For both real features to be left out together, all
+four candidates must come from the 20 noise columns, which happens with
+probability
+
+$$\frac{\binom{20}{4}}{\binom{22}{4}} = \frac{4{,}845}{7{,}315} \approx 0.662$$
+
+— about two splits in three offer no real feature at all, and the tree must
+choose its best option among whichever noise columns happened to be drawn — and among 1,200 finite, noisy rows, some noise column will show a
 nonzero $\Delta G$ purely by chance, every time. Each such gain is small, but
 it is not zero, and enough of them accumulate across hundreds of trees and
 thousands of splits to produce the shares measured above.
@@ -518,6 +562,14 @@ Boosting for classification is fitting a sequence of small trees to that
 same quantity, one correction at a time, rather than adjusting a fixed set
 of linear coefficients against it in one continuous descent.
 
+**Where it starts, and the first residuals.** The starting score is the
+best constant, the log-odds of the base rate: $p = 0.387$ defaulted, so
+$F_0 = \log(0.387 / 0.613) = -0.461$, which the logistic function turns back
+into 0.387 for every applicant. The first tree is then fit to $y - p$: **+0.613**
+for every applicant who defaulted and **−0.387** for every one who repaid.
+Where that tree finds a group of mostly defaulters, it raises their score;
+each later tree works on what the earlier ones left.
+
 A default `GradientBoostingClassifier` — 100 trees, learning rate 0.1 —
 reaches **0.902 ± 0.020** cross-validated accuracy on the loan data,
 already ahead of any single tree.
@@ -536,7 +588,7 @@ construction.
 | 5 | 0.840 | 0.846 ± 0.025 |
 | 10 | 0.888 | 0.870 ± 0.024 |
 | 20 | 0.930 | 0.895 ± 0.027 |
-| **30** | 0.948 | **0.898 ± 0.020** |
+| **30** | 0.948 | **0.897 ± 0.020** |
 | 80 | 0.978 | 0.893 ± 0.012 |
 | 200 | 1.000 | 0.895 ± 0.017 |
 | 800 | 1.000 | 0.890 ± 0.019 |
@@ -585,8 +637,8 @@ Every method from this lesson, on the same five folds:
 | Majority baseline | 0.613 | 0.659 |
 | Logistic regression | 0.748 | 0.805 |
 | Single tree, unconstrained | 0.852 | 0.916 |
-| Single tree, `max_depth = 8` | 0.883 | 0.949 |
-| Gradient boosting, 30 trees | 0.898 | 0.965 |
+| Single tree, `max_depth = 8` | 0.882 | 0.949 |
+| Gradient boosting, 30 trees | 0.897 | 0.965 |
 | Bagging, 100 trees | 0.904 | 0.972 |
 | **Random forest, 100 trees** | **0.911** | **0.979** |
 
@@ -599,7 +651,7 @@ ensemble — bagging, the random forest, gradient boosting — lands within
 about a point and a half of the others and closer to the ceiling than either
 single tree, tuned or not: which ensembling *strategy* you pick matters far
 less than whether you ensemble at all. Second, the single tuned tree is not
-far behind them, at 0.883 against the random forest's 0.911, and it is the
+far behind them, at 0.882 against the random forest's 0.911, and it is the
 only model on this table a person could read start to finish — the
 accuracy-interpretability trade this lesson opened with, restated as
 numbers. Third, the unconstrained tree is the worst model on this list

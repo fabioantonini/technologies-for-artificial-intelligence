@@ -15,7 +15,7 @@ Section 11 of the handout put every model from this lesson on one table and
 drew two conclusions: the ensembles beat any single tree by a point or a
 point and a half, and the single depth-tuned tree was "the only model on
 this table a person could read start to finish." Read as a modelling
-result, 0.883 versus 0.911 is a footnote. Read as a legal and
+result, 0.882 versus 0.911 is a footnote. Read as a legal and
 organisational fact, it is the whole story: a bank that deploys the random
 forest instead of the tree has traded three points of accuracy for a
 system that, when a customer asks why their loan was refused, has no
@@ -143,7 +143,7 @@ about this applicant, and something a human reviewing it under Article
 22(3) can meaningfully agree or disagree with.
 
 A 100-tree random forest, the model section 11 crowned the winner at 0.911
-against the tree's 0.883, has no such sentence. Its prediction is a vote
+against the tree's 0.882, has no such sentence. Its prediction is a vote
 among a hundred trees, each grown on a different bootstrap resample with a
 different random feature subset at each split — section 6's whole
 mechanism for decorrelating the trees is also what makes any one

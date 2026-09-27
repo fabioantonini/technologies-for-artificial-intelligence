@@ -267,6 +267,7 @@ Handout section 2.2.
 - $p = 0.387$ defaulted, so the parent group's impurity is **0.474**
 - Exhaustive search finds `debt_ratio <= 0.82` as the best root split
 - Recognisably the **debt ceiling** the data was built with
+- 971 applicants left (0.256 defaulted), 229 right (0.939): gain **0.144**
 
 ::: notes
 Walk the numbers once: parent impurity 0.474, and the winning split is the
@@ -281,6 +282,23 @@ of how the search was coded, since nothing in the algorithm knows the
 generating rule.
 
 Handout section 2.2.
+:::
+
+# The root split, on the Gini curve
+
+![](gini_root_split.png)
+
+::: notes
+The previous slide's arithmetic, drawn. The curve is 2p(1-p): zero for a pure
+group, 0.5 for a fifty-fifty one. The black dot is all 1,200 applicants at
+p = 0.387, impurity 0.474. The split sends 971 left, at p = 0.256, and 229
+right, at p = 0.939 - teal and rust.
+
+The gold square is the two children averaged by size, 0.3305, and it sits on
+the dotted straight line between them. Point at the bulge: the curve lies above
+every such line, so any split that separates the classes at all lowers the
+weighted impurity. The gap, 0.144, is the gain, and the tree takes whichever
+split makes it largest. Handout section 2.2.
 :::
 
 # Checked against scikit-learn
@@ -543,6 +561,20 @@ slide: it is validation data for exactly the one tree that never saw it.
 Handout section 5.1.
 :::
 
+# One bootstrap sample, counted
+
+![](bootstrap_counts.png)
+
+::: notes
+How often each of the 1,200 loans turns up in one bootstrap sample, blue,
+against the limit e^-1 / k!, gold. The first bar is the out-of-bag share: 0.366
+here, 0.368 in the limit. The rest are rows drawn once, twice, three times.
+
+The point to make: about one row in four appears two or more times. Every tree
+sees a different mix of repeats and absences, and that is where their
+disagreement - the raw material of bagging - comes from. Handout section 5.1.
+:::
+
 # Out-of-bag: free validation
 
 - Every out-of-bag row is validation data for the tree that missed it
@@ -595,6 +627,21 @@ too shallow to represent the rule in the first place. It cleans up noise, it
 does not add capability.
 
 Handout section 5.2.
+:::
+
+# Averaging stops at a floor
+
+![](variance_floor.png)
+
+::: notes
+The previous slide's formula as curves: the variance of an average of B trees,
+as a share of one tree's, for rho = 0, 0.2, 0.5 and 0.8.
+
+Only the rho = 0 curve goes to zero. Every other one flattens onto its dotted
+floor: at rho = 0.5, ten trees keep 0.550 of one tree's variance and a hundred
+keep 0.505. Ask the room what the curves say about adding trees past fifty -
+almost nothing - and what the only remaining lever is: lower rho. That is the
+random forest, two slides on. Handout section 5.2.
 :::
 
 # Bagging, measured
@@ -856,6 +903,11 @@ quantity. The answer: lesson 4 moves a fixed number of coefficients;
 boosting adds entirely new trees, so the model's structure itself grows
 with training rather than staying fixed.
 
+Give them the first step in numbers, because it makes y - p concrete. The
+ensemble starts at the base rate's log-odds, F0 = log(0.387 / 0.613) = -0.461,
+which predicts 0.387 for everyone. The first tree is fit to y - p: +0.613 for
+every applicant who defaulted, -0.387 for every one who repaid.
+
 Handout section 9.
 :::
 
@@ -886,7 +938,7 @@ Handout section 9.
 | 5 | 0.840 | 0.846 ± 0.025 |
 | 10 | 0.888 | 0.870 ± 0.024 |
 | 20 | 0.930 | 0.895 ± 0.027 |
-| **30** | 0.948 | **0.898 ± 0.020** |
+| **30** | 0.948 | **0.897 ± 0.020** |
 | 80 | 0.978 | 0.893 ± 0.012 |
 | 200 | 1.000 | 0.895 ± 0.017 |
 | 800 | 1.000 | 0.890 ± 0.019 |
@@ -975,8 +1027,8 @@ the table is in handout section 10.
 | Majority baseline | 0.613 |
 | Logistic regression | 0.748 |
 | Single tree, unconstrained | 0.852 |
-| Single tree, `max_depth = 8` | 0.883 |
-| Gradient boosting, 30 trees | 0.898 |
+| Single tree, `max_depth = 8` | 0.882 |
+| Gradient boosting, 30 trees | 0.897 |
 | Bagging, 100 trees | 0.904 |
 | **Random forest, 100 trees** | **0.911** |
 | *noise ceiling* | *≈ 0.93* |
@@ -999,7 +1051,7 @@ Handout section 11.
 
 - Every ensemble lands within a point and a half of the others: **which
   strategy** matters far less than **whether you ensemble at all**
-- The tuned single tree is close behind, 0.883 against 0.911, and the only
+- The tuned single tree is close behind, 0.882 against 0.911, and the only
   model here a person can read
 - The **unconstrained tree is the worst model on the list**, despite being
   the most flexible one
