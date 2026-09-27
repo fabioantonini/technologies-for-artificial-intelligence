@@ -104,13 +104,6 @@ express is "which side of this line are you on, and how far".
 
 ### 2.2 What one line is worth on the acceptance data
 
-
-The right-hand panel draws something Meridian's engineers never see. The gain
-tolerance is 0.50 dB against a production spread of 0.40, and the phase
-tolerance is 3.75° against a spread of 3.00 — both exactly 1.25 spreads. So
-once each axis is standardised the accept region is a **circle of radius
-1.25**, and the fraction of units inside it is
-
 ![](acceptance_data.png)
 
 *Meridian's 2,250 training sensors. Left: the raw measurements, in decibels
@@ -119,10 +112,24 @@ production spread, with the rule that generated the labels drawn on top. The
 accept region is a circle — and the wrong-coloured points scattered along it
 are the 3% of verdicts the test rig recorded incorrectly.*
 
-$$P\big(\lVert z \rVert < 1.25\big) = 1 - e^{-1.25^2/2} = 1 - e^{-0.78125} = 0.5422$$
+The right-hand panel draws something Meridian's engineers never see. The gain
+tolerance is 0.50 dB against a production spread of 0.40, and the phase
+tolerance is 3.75° against a spread of 3.00 — both exactly 1.25 spreads. So
+once each axis is standardised the accept region is a **circle of radius
+1.25**, and the fraction of units inside it can be computed exactly.
 
-for a standard two-dimensional normal, against 0.5497 measured on the 3,000
-generated units.
+For a standard two-dimensional normal the density is
+$\tfrac{1}{2\pi}e^{-(z_1^2 + z_2^2)/2}$, which depends only on the distance
+$r$ from the centre. In polar coordinates the area element is $r\,dr\,dt$,
+so integrating the angle out leaves a radial density $r\,e^{-r^2/2}$ — and
+that integrates in closed form, because $r\,e^{-r^2/2}$ is the derivative of
+$-e^{-r^2/2}$:
+
+$$P\big(\lVert z \rVert < s\big) = \int_0^{s} r\,e^{-r^2/2}\,dr = 1 - e^{-s^2/2},
+  \qquad
+  P\big(\lVert z \rVert < 1.25\big) = 1 - e^{-0.78125} = 0.5422$$
+
+against 0.5497 measured on the 3,000 generated units.
 
 Now fit logistic regression to it. The result:
 
@@ -201,8 +208,10 @@ centres through by hand:
 | $+1$ | $-1$ | $0$ | 0 | 0 | $-1$ | 0.2689 | 0 |
 | $-1$ | $+1$ | $0$ | 0 | 0 | $-1$ | 0.2689 | 0 |
 
-Every row is right, and the network's decision rule is exactly
-$|a + b| > 1.1$. Run it over all 800 units — noise included, nothing trained
+Every row is right, and the network's decision rule follows from the last
+column: $\hat{y} > 0.5$ exactly when $10(h_1 + h_2) - 1 > 0$, that is
+$h_1 + h_2 > 0.1$ — and since $h_1 + h_2 = |a + b| - 1$ whenever either unit
+is active, the rule is exactly $|a + b| > 1.1$. Run it over all 800 units — noise included, nothing trained
 — and it scores **0.9938**: five units wrong out of eight hundred.
 
 This is worth dwelling on. The network was not fitted to anything. Its weights
@@ -437,9 +446,15 @@ defence is four lines and it is not optional:
 
 $$\frac{\partial J}{\partial \theta_i} \approx \frac{J(\theta + h e_i) - J(\theta - h e_i)}{2h}$$
 
-Expanding both terms as Taylor series, the $O(h)$ and $O(h^2)$ terms cancel
-and the error is $O(h^2)$, against $O(h)$ for the one-sided version. With
-$h = 10^{-5}$ in double precision that leaves rounding as the limit.
+Why the two-sided version: expand both terms as Taylor series,
+$J(\theta \pm h e_i) = J \pm h J' + \tfrac{h^2}{2} J'' \pm \tfrac{h^3}{6} J''' + \dots$
+Subtracting, the even-order terms cancel,
+$J(\theta + h e_i) - J(\theta - h e_i) = 2hJ' + \tfrac{h^3}{3}J''' + \dots$, and
+dividing by $2h$ leaves $J' + \tfrac{h^2}{6}J'''$: an error of order $h^2$. The
+one-sided $\big(J(\theta + h e_i) - J(\theta)\big)/h$ keeps the
+$\tfrac{h}{2}J''$ term, an error of order $h$. With $h = 10^{-5}$ that is
+$10^{-10}$ against $10^{-5}$, and in double precision the $10^{-10}$ is already
+down at the level of rounding.
 
 ![](gradient_check.png)
 
@@ -466,7 +481,10 @@ probability distribution:
 $$\mathrm{softmax}(z)_k = \frac{e^{z_k}}{\sum_{j=1}^{K} e^{z_j}}$$
 
 Positive by construction, summing to one, and monotone in each $z_k$. For
-$K = 2$ it reduces to the sigmoid. The loss is categorical cross-entropy,
+$K = 2$ it reduces to the sigmoid: dividing top and bottom by $e^{z_1}$,
+$e^{z_1}/(e^{z_1} + e^{z_2}) = 1/(1 + e^{-(z_1 - z_2)}) = \sigma(z_1 - z_2)$ — only
+the difference of the two scores matters, exactly as in lesson 6's Naive Bayes
+normalisation. The loss is categorical cross-entropy,
 which for a one-hot $y$ is just $-\log \hat{y}_c$ for the true class $c$.
 
 In practice the exponentials are computed as
@@ -476,9 +494,12 @@ otherwise easy to hit.
 
 ### 6.2 The same cancellation, one dimension up
 
-The softmax Jacobian is
+The softmax Jacobian follows from the quotient rule. Write
+$\hat{y}_k = e^{z_k}/S$ with $S = \sum_j e^{z_j}$, and note $\partial S/\partial z_l = e^{z_l}$:
 
-$$\frac{\partial \hat{y}_k}{\partial z_l} = \hat{y}_k\big(\delta_{kl} - \hat{y}_l\big)$$
+$$\frac{\partial \hat{y}_k}{\partial z_l}
+  = \frac{\delta_{kl}\,e^{z_k} S - e^{z_k} e^{z_l}}{S^2}
+  = \hat{y}_k\big(\delta_{kl} - \hat{y}_l\big)$$
 
 where $\delta_{kl}$ is 1 if $k = l$ and 0 otherwise. With
 $L = -\sum_k y_k \log \hat{y}_k$,
@@ -551,15 +572,15 @@ From section 5.2, $\sigma'(z) = \sigma(z)(1 - \sigma(z))$. Writing
 $s = \sigma(z) \in (0,1)$, the function $s(1-s)$ is a downward parabola with
 its maximum at $s = \tfrac{1}{2}$, giving
 
+$$\max_z \sigma'(z) = \tfrac{1}{2}\cdot\tfrac{1}{2} = \tfrac{1}{4}$$
+
+attained at $z = 0$ and nowhere else.
+
 ![](activation_functions.png)
 
 *Left: three activations. Right: their derivatives — the quantity
 backpropagation multiplies by once per layer. The sigmoid's never exceeds ¼,
-and that horizontal line is the subject of this section.*
-
-$$\max_z \sigma'(z) = \tfrac{1}{2}\cdot\tfrac{1}{2} = \tfrac{1}{4}$$
-
-attained at $z = 0$ and nowhere else. Now look again at the backward
+and that horizontal line is the subject of this section.* Now look again at the backward
 recursion:
 
 $$\delta^{[l]} = \left(\delta^{[l+1]}\big(W^{[l+1]}\big)^{\top}\right) \odot g'\big(Z^{[l]}\big)$$
@@ -583,14 +604,14 @@ the gradient by about four.**
 
 Notebook 02 measures the per-layer shrinkage across eight seeds:
 
+$$3.90,\ 3.97,\ 4.14,\ 4.05,\ 3.92,\ 4.31,\ 4.06,\ 3.86$$
+
 ![](vanishing_gradients.png)
 
 *Gradient norms at every weight matrix of an untrained six-hidden-layer
 network, on a logarithmic scale; the band spans eight random initialisations.
 The sigmoid falls by three and a half orders of magnitude from output to
 input. tanh and the ReLU are flat.*
-
-$$3.90,\ 3.97,\ 4.14,\ 4.05,\ 3.92,\ 4.31,\ 4.06,\ 3.86$$
 
 All eight land between 3.9 and 4.3 — scattered around 4, as predicted. The
 end-to-end ratio between the last weight matrix and the first has a median of
@@ -993,7 +1014,7 @@ could $H$ lines possibly fence a circle?
 For a regular $H$-sided polygon this can be computed exactly rather than
 searched for. In polar coordinates a regular polygon of apothem $a$ has
 boundary $r(t) = a/\cos t$ for $|t| \le \pi/H$, repeated $H$ times. For a
-standard two-dimensional normal, $P(r < s) = 1 - e^{-s^2/2}$, so the polygon
+standard two-dimensional normal, $P(r < s) = 1 - e^{-s^2/2}$ (section 2.2), so the polygon
 and the true circle of radius $R$ disagree, at angle $t$, on an annulus of
 probability $\big|e^{-\min^2/2} - e^{-\max^2/2}\big|$ where $\min$ and $\max$
 are the smaller and larger of $R$ and $r(t)$. Integrating over one sector:
@@ -1066,8 +1087,8 @@ worth.
 **Past six units the binding constraint changes.** The fence curve keeps
 climbing toward 0.97 as more sides become available; the trained network does
 not follow, settling just below 0.95. The lines are there and gradient descent
-does not put them to work. That gap is the optimiser — which is what
-section 9.3 then closes.
+does not put them to work. That gap is the optimiser — the one section 9.3's
+Adam narrowed, by removing the bad runs rather than raising the good ones.
 
 **The score you can see is not the score you have.** The last column is the
 same networks measured against `truly_within_tolerance` instead of the

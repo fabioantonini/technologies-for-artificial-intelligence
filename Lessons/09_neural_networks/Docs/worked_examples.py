@@ -554,6 +554,35 @@ check("  accuracy cost of half the layer dying", 0.9667 - 0.9583, 0.0084, 5e-5)
 
 
 # =====================================================================
+section("Derivations the handout now shows")
+# 2.2: the radial density integrates to 1 - exp(-s^2/2)
+radial, _ = integrate.quad(lambda r: r * np.exp(-r ** 2 / 2), 0, 1.25)
+check("2.2 integral of r exp(-r^2/2) from 0 to 1.25", radial, 0.5422, 5e-5)
+# 3.2: the hand-built network's rule, |a + b| > 1.1, by scanning a + b
+ab = np.linspace(-3, 3, 60001)
+h_sum = np.maximum(0, ab - 1) + np.maximum(0, -ab - 1)
+positive = 10 * h_sum - 1 > 0
+edge = np.abs(ab[positive]).min()
+check("3.2 the decision rule's edge, |a + b|", edge, 1.1, 1e-4)
+# 5.5: central against one-sided difference error, on a smooth test function
+f = lambda t: np.sin(t) * np.exp(0.3 * t); fp = lambda t: np.cos(t) * np.exp(0.3 * t) + 0.3 * f(t)
+h = 1e-3
+central = abs((f(0.7 + h) - f(0.7 - h)) / (2 * h) - fp(0.7))
+one_sided = abs((f(0.7 + h) - f(0.7)) / h - fp(0.7))
+check("5.5 central error is order h^2 (ratio to h^2 of order 1)", float(central / h ** 2 < 1), 1.0, 0)
+check("5.5 one-sided error is order h (ratio to h of order 1)", float(0.01 < one_sided / h < 10), 1.0, 0)
+# 6.1: softmax of two scores is the sigmoid of their difference
+z1, z2 = 1.7, -0.4
+check("6.1 softmax(z)_1 = sigmoid(z1 - z2)", np.exp(z1) / (np.exp(z1) + np.exp(z2)), 1 / (1 + np.exp(-(z1 - z2))), 1e-12)
+# 6.2: the softmax Jacobian, analytic against finite differences
+zz = np.array([0.3, -1.2, 2.0, 0.5])
+sm = lambda v: np.exp(v - v.max()) / np.exp(v - v.max()).sum()
+yh = sm(zz); jac = np.diag(yh) - np.outer(yh, yh)
+num = np.column_stack([(sm(zz + 1e-6 * np.eye(4)[l]) - sm(zz - 1e-6 * np.eye(4)[l])) / 2e-6 for l in range(4)])
+check("6.2 softmax Jacobian against finite differences", float(np.abs(jac - num).max()), 0.0, 1e-8)
+
+
+# =====================================================================
 section("Result")
 print(f"\n  {CHECKS} hand-worked numbers recomputed from the raw inputs.")
 if FAILURES:
