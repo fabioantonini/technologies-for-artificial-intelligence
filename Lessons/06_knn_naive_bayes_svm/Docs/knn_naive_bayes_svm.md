@@ -374,7 +374,8 @@ multiplied together underflow to zero in floating point, exactly as lesson 4's
 log-likelihood did. The repair is available because the logarithm is
 **increasing** — whichever class makes the product largest makes its logarithm
 largest too, so swapping one for the other cannot change which class wins — and
-because the logarithm of a product is a sum of logarithms:
+because the logarithm of a product is a sum of logarithms (natural logarithms
+throughout, so that $e$ undoes them):
 
 $$\hat{y} = \arg\max_c \left[ \log P(y = c) + \sum_{j=1}^{n} \log P(x_j \mid y = c) \right]$$
 

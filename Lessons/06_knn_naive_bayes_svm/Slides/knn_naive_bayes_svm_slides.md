@@ -693,13 +693,18 @@ probability.
 The next slide puts these heights, as logarithms, in a table.
 :::
 
-# Add the logs, do not multiply
+# Add the natural logs: same winner
 
-$$\hat{y} = \mathrm{arg\,max}_c \left[\log P(y = c) + \sum_{j} \log P(x_j \mid y = c)\right]$$
+$$\ln\left[P(y = c) \prod_{j} P(x_j \mid y = c)\right] = \ln P(y = c) + \sum_{j} \ln P(x_j \mid y = c)$$
 
 ::: notes
-Until now the classifier has been a product: prior times one density per
-reading. Say why nobody computes it that way. With hundreds of features the
+Inside the bracket on the left is the classifier as slides 26 and 28 built it:
+prior times one density per reading, the class with the largest product
+winning. The equation says its log is a sum, and the title says why that is
+allowed: ln is increasing, so the class with the largest product is also the
+class with the largest log. The logs
+are natural logs - base e - which matters two slides on, when we undo them with
+e. Say why nobody computes the left-hand side directly. With hundreds of features the
 product is hundreds of small numbers multiplied together, and it underflows to
 exactly zero in floating point - 0.5 to the power 300 is already 5 times 10 to
 the minus 91, and real likelihoods are far smaller than 0.5. Every class then
@@ -718,17 +723,24 @@ times 0.692 = 0.01585; in logs, −4.144. The next slide is exactly those number
 Handout section 4.2.
 :::
 
-# 48 Hz, 5.6 bar: faulty, 0.981
+# 48 Hz, 5.6 bar: scores and their logs
 
-| Class | log prior | log P(vibration) | log P(pressure) | Total |
-|---|---|---|---|---|
-| Healthy | −0.948 | −7.745 | +0.598 | −8.095 |
-| Faulty | −0.490 | −3.286 | −0.368 | **−4.144** |
+| Class | | Prior | Vibration density | Pressure density | Product, or sum of logs |
+|---|---|---|---|---|---|
+| Healthy | value | 0.3875 | 0.000433 | 1.818 | 0.000305 |
+| Healthy | ln | −0.948 | −7.745 | +0.598 | −8.095 |
+| Faulty | value | 0.6125 | 0.0374 | 0.692 | 0.01585 |
+| Faulty | ln | −0.490 | −3.286 | −0.368 | **−4.144** |
 
 ::: notes
-This is inference, and it is worth saying how little it is. For each class, take
-the log prior and add one number per reading: the log of that class's bell,
-evaluated at the reading. Compare the totals. That is the prediction. No
+This is inference, and it is worth saying how little it is. Read each class as
+two rows. The value row is the product form: the prior from slide 30, and the
+height of that class's bell at each reading - the dots on slide 31 - each
+density conditional on the class. Multiply across and you get the score. The ln
+row is the same numbers logged, and the sum across is the log score. The last
+column is the point of the previous slide: e^(−8.095) is 0.000305, so the sum of
+logs and the product carry the same information. Compare the totals: that is
+the prediction. No
 training row is consulted - only the ten stored numbers - which is the exact
 opposite of k-NN, where prediction is the whole cost.
 
@@ -750,7 +762,7 @@ four steps.
 |---|---|---|
 | 1. Log total, previous slide | −8.095 | −4.144 |
 | 2. Undo the log: e^total = prior × densities | 0.000305 | 0.01585 |
-| 3. Divide each by the sum, 0.01616 = P(x) | **0.019** | **0.981** |
+| 3. Divide by their sum: 0.01616 = P(x), by total probability | **0.019** | **0.981** |
 
 ::: notes
 Three steps, one row each, and both classes side by side so they can see the
@@ -761,9 +773,11 @@ gives back the Bayes numerator, prior times the two densities - the product
 from two slides ago, 0.3875 times 0.000433 times 1.818 = 0.000305 for healthy,
 and 0.01585 for faulty. These are the unnormalised scores of slide 26.
 
-Row 3 is slide 26's normalisation, now with numbers. The sum of the two
-scores, 0.01616, is P(x), the denominator Bayes' rule had and we dropped to
-choose the class. Dividing each score by it gives probabilities that add to
+Row 3 is slide 26's normalisation, now with numbers. Why the sum of the two
+scores is P(x): by the law of total probability a pump's readings arise either
+from a healthy pump or from a faulty one, so P(x) = P(healthy) P(x | healthy) +
+P(faulty) P(x | faulty) - the two scores added. It is the denominator of slide
+25's Bayes' rule, the one we dropped to choose the class. Dividing each score by it gives probabilities that add to
 one: 0.000305 / 0.01616 = 0.019 for healthy, 0.01585 / 0.01616 = 0.981 for
 faulty. Ask them to check the two add to one before moving on.
 
@@ -773,10 +787,11 @@ that is the form software uses. Handout section 4.2.
 
 # Why the gap is enough
 
-- Divide by the faulty score: P(faulty) = 1 / (1 + healthy / faulty)
-- The ratio is e^(−8.095 + 4.144) = e^(−3.951) = 0.0192: **only the gap counts**
-- P(faulty) = 1 / 1.0192 = **0.981**; P(healthy) = 1 / (1 + e^3.951) = **0.019**
-- As odds, e^3.951 ≈ 52: **52 to 1**, so 52/53 and 1/53
+- Divide by the faulty score: 1 / (1 + healthy score ÷ faulty score)
+- e^a ÷ e^b = e^(a − b), so the ratio is e^(−3.951) = 0.0192
+- P(faulty) = 1 / 1.0192 = **0.981**; P(healthy) = 1 − 0.981 = **0.019**
+- Odds: 0.01585 ÷ 0.000305 ≈ **52 to 1**
+- With many features e^total = 0; the gap never underflows
 
 ::: notes
 Same result as the previous slide, reached without ever computing the two
