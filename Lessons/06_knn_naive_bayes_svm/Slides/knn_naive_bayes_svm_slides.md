@@ -693,6 +693,31 @@ probability.
 The next slide puts these heights, as logarithms, in a table.
 :::
 
+# Add the logs, do not multiply
+
+$$\hat{y} = \mathrm{arg\,max}_c \left[\log P(y = c) + \sum_{j} \log P(x_j \mid y = c)\right]$$
+
+::: notes
+Until now the classifier has been a product: prior times one density per
+reading. Say why nobody computes it that way. With hundreds of features the
+product is hundreds of small numbers multiplied together, and it underflows to
+exactly zero in floating point - 0.5 to the power 300 is already 5 times 10 to
+the minus 91, and real likelihoods are far smaller than 0.5. Every class then
+scores zero and nothing can be compared.
+
+Two facts fix it. The logarithm is increasing, so whichever class has the
+larger product also has the larger log: the arg max does not change. And the
+log of a product is the sum of the logs. So: add one log per reading to the log
+prior, and compare the sums. This is lesson 4's log-likelihood, for the same
+reason.
+
+Show it on the 48 Hz pump before the table, so the table is not a surprise.
+Healthy: 0.3875 times 0.000433 times 1.818 = 0.000305; in logs, −0.948 − 7.745 +
+0.598 = −8.095, and e^(−8.095) is the same 0.000305. Faulty: 0.6125 times 0.0374
+times 0.692 = 0.01585; in logs, −4.144. The next slide is exactly those numbers.
+Handout section 4.2.
+:::
+
 # 48 Hz, 5.6 bar: faulty, 0.981
 
 | Class | log prior | log P(vibration) | log P(pressure) | Total |
