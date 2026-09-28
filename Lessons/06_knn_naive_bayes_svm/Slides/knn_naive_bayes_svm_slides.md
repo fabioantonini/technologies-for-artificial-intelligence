@@ -872,7 +872,7 @@ Handout section 4.3.
 
 # Uncorrelated, but not independent
 
-| Within class | Readings | Squared distances |
+| Correlation, within the class | vibration and pressure | their squared distances from the design point |
 |---|---|---|
 | healthy pumps | −0.006 | +0.168 |
 | faulty pumps | −0.049 | **−0.420** |
