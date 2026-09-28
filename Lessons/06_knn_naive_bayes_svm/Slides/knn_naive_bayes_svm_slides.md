@@ -744,37 +744,63 @@ become the 0.981 in the title is the next slide. Handout section 4.2 lists the
 four steps.
 :::
 
-# From the two totals to 0.981
+# From the two totals to probabilities
 
-- Each total is a log score: log prior + log P(vibration) + log P(pressure)
-- The gap: −4.144 − (−8.095) = **3.951**, in favour of faulty
-- P(faulty) = 1 / (1 + e^(−3.951)) = 1 / 1.0192 = **0.981**
-- As odds: e^3.951 ≈ 52, so **52 to 1**, and 52 / 53 = 0.981
+| Step | Healthy | Faulty |
+|---|---|---|
+| 1. Log total, previous slide | −8.095 | −4.144 |
+| 2. Undo the log: e^total = prior × densities | 0.000305 | 0.01585 |
+| 3. Divide each by the sum, 0.01616 = P(x) | **0.019** | **0.981** |
 
 ::: notes
-The step students do not see on their own. Each total is a logarithm: undo it
-and you get back the Bayes numerator, prior times likelihood - e^(−4.144) =
-0.01585 for faulty, e^(−8.095) = 0.000305 for healthy. These are the two scores
-of slide 26, and the probability is one divided by their sum: the last bullet,
-0.01585 over 0.01616, is 0.981.
+Three steps, one row each, and both classes side by side so they can see the
+two probabilities come out of the same arithmetic.
 
-Now divide the top and the bottom of that fraction by the faulty score - the
-fraction does not change. The ratio of the two scores is e^(healthy total) /
-e^(faulty total) = e^(healthy total − faulty total), so what is left is
-1 / (1 + e^(−3.951)): only the GAP between the totals survives.
+Row 1 is the table they just read. Row 2 undoes the logarithm: e to the total
+gives back the Bayes numerator, prior times the two densities - the product
+from two slides ago, 0.3875 times 0.000433 times 1.818 = 0.000305 for healthy,
+and 0.01585 for faulty. These are the unnormalised scores of slide 26.
 
-Then give them the reading that makes it obvious: that gap is the log-odds, and
-e^3.951 is about 52. Faulty is 52 times as likely as healthy - odds of 52 to 1 -
-and 52 to 1 is a probability of 52/53 = 0.981, the way anyone would compute it
-for a bet. 1 / (1 + e^(−Δ)) is just odds over odds plus one, rewritten. The same
-0.981 also comes out of normalising directly, 0.01585 / (0.01585 + 0.000305).
+Row 3 is slide 26's normalisation, now with numbers. The sum of the two
+scores, 0.01616, is P(x), the denominator Bayes' rule had and we dropped to
+choose the class. Dividing each score by it gives probabilities that add to
+one: 0.000305 / 0.01616 = 0.019 for healthy, 0.01585 / 0.01616 = 0.981 for
+faulty. Ask them to check the two add to one before moving on.
 
-Point out whose function this is: 1 / (1 + e^(−z)) is lesson 4's sigmoid, fed the
-difference between two Naive Bayes scores instead of a linear combination of
-features. And say why the gap form is the one to compute: with hundreds of
-features the totals reach −800, e^(−800) is zero in floating point, and the
-direct fraction becomes 0/0, while the gap stays an ordinary number. Handout
-section 4.2, "From log scores to a probability".
+The next slide shows the same numbers computed from the gap alone, and why
+that is the form software uses. Handout section 4.2.
+:::
+
+# Why the gap is enough
+
+- Divide by the faulty score: P(faulty) = 1 / (1 + healthy / faulty)
+- The ratio is e^(−8.095 + 4.144) = e^(−3.951) = 0.0192: **only the gap counts**
+- P(faulty) = 1 / 1.0192 = **0.981**; P(healthy) = 1 / (1 + e^3.951) = **0.019**
+- As odds, e^3.951 ≈ 52: **52 to 1**, so 52/53 and 1/53
+
+::: notes
+Same result as the previous slide, reached without ever computing the two
+scores. Walk the first bullet slowly: dividing the numerator and the
+denominator of 0.01585 / (0.01585 + 0.000305) by 0.01585 leaves the fraction
+unchanged and turns it into 1 / (1 + 0.000305 / 0.01585).
+
+The second bullet is where the gap appears. The two scores are e to their
+totals, and a ratio of exponentials is an exponential of the difference,
+e^a / e^b = e^(a - b). So the ratio of the scores is e^(−8.095 + 4.144) =
+e^(−3.951) = 0.0192. Neither total matters on its own - only how far apart
+they are.
+
+Why software uses this form, and it is the answer to "why the gap": with two
+features the scores are ordinary numbers and the previous slide works fine.
+With hundreds of features the totals reach −800, e^(−800) is exactly zero in
+floating point, and the direct fraction becomes 0/0. The gap stays an ordinary
+number, so the probability can always be computed.
+
+Then the reading that makes it obvious. The gap is the log-odds: e^3.951 is
+about 52, so faulty is 52 times as likely as healthy. Odds of 52 to 1 split
+the probability 52/53 = 0.981 and 1/53 = 0.019, the way anyone would for a bet.
+1 / (1 + e^(−Δ)) is lesson 4's sigmoid - odds over odds plus one, rewritten.
+Handout section 4.2, "From log scores to a probability".
 :::
 
 # A wonderful bargain, and almost never true

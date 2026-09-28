@@ -14,12 +14,12 @@ date: "6 November 2026 · reading time about 100 minutes"
 | 0:30–0:52 | 22 | The curse of dimensionality | Slides 15–21 |
 | 0:52–1:14 | 22 | **Notebook 01** — k-NN and the curse | Slide 22 |
 | 1:14–1:26 | 12 | **Break** | Slide 23 |
-| 1:26–1:50 | 24 | Naive Bayes, and when its assumption matters | Slides 24–42 |
-| 1:50–2:06 | 16 | **Notebook 02** — where it fails | Slide 43 |
-| 2:06–2:34 | 28 | Margins, support vectors, the kernel trick | Slides 44–61 |
-| 2:34–2:50 | 16 | **Notebook 03** — kernels in practice | Slide 62 |
-| 2:50–3:00 | 10 | The three compared; homework | Slides 63–66 |
-| | **180** | **Total** | **66 slides, 3 notebooks** |
+| 1:26–1:50 | 24 | Naive Bayes, and when its assumption matters | Slides 24–43 |
+| 1:50–2:06 | 16 | **Notebook 02** — where it fails | Slide 44 |
+| 2:06–2:34 | 28 | Margins, support vectors, the kernel trick | Slides 45–62 |
+| 2:34–2:50 | 16 | **Notebook 03** — kernels in practice | Slide 63 |
+| 2:50–3:00 | 10 | The three compared; homework | Slides 64–67 |
+| | **180** | **Total** | **67 slides, 3 notebooks** |
 
 ---
 
@@ -455,6 +455,10 @@ Section 4.1 divides one by their sum, which is $P(x)$:
 $$P(\text{faulty} \mid x) = \frac{e^{T_\text{faulty}}}{e^{T_\text{faulty}} + e^{T_\text{healthy}}}
   = \frac{0.01585}{0.01616} \approx 0.981$$
 
+and for the other class, from the same denominator,
+$P(\text{healthy} \mid x) = 0.000305 / 0.01616 \approx 0.019$ — the two adding to
+one, as probabilities of the only two classes must.
+
 Divide the top and the bottom by $e^{T_\text{faulty}}$ — which leaves the
 fraction unchanged — and the ratio of the two scores becomes a single
 exponential, since $e^{a}/e^{b} = e^{a-b}$. Only the gap between the two totals
@@ -468,7 +472,8 @@ so $1/(1 + e^{-3.951}) = 1/1.0192 \approx$ **0.981**, the number `predict_proba`
 returns. Three things follow. **Only the gap matters**: $\Delta$ is the log-odds,
 and faulty is $e^{3.951} \approx 52$ times as likely as healthy. Read that way the
 formula is the everyday one for odds: 52 to 1 is a probability of
-$52/(52 + 1) = 52/53 \approx 0.981$, and $1/(1 + e^{-\Delta}) = e^{\Delta}/(e^{\Delta} + 1)$
+$52/(52 + 1) = 52/53 \approx 0.981$ for faulty and $1/53 \approx 0.019$ for
+healthy, and $1/(1 + e^{-\Delta}) = e^{\Delta}/(e^{\Delta} + 1)$
 is exactly odds over odds plus one. **The function
 is lesson 4's sigmoid** (its Section 2.2), fed the difference between two Naive
 Bayes scores instead of a linear combination of the features. And **the second
