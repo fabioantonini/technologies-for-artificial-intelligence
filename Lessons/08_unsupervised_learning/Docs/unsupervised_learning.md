@@ -20,7 +20,7 @@ date: "20 November 2026 · reading time about 95 minutes"
 | 2:10–2:35 | 25 | Principal component analysis (PCA), derived twice: eigendecomposition and the singular value decomposition (SVD) | Slides 47–60 |
 | 2:35–2:55 | 20 | **Notebook 03** — PCA, anomaly detection, t-SNE | Slide 61 |
 | 2:55–3:00 | 5 | t-SNE in one slide; homework | Slides 62–64 |
-| | **180** | **Total** | **63 slides, 3 notebooks** |
+| | **180** | **Total** | **64 slides, 3 notebooks** |
 
 ---
 

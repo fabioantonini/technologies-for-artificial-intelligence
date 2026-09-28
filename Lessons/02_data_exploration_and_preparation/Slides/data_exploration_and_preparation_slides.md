@@ -974,7 +974,7 @@ four columns, and short by exactly one is the signature of a single dependence.
 They believe numpy where they might not believe the algebra.
 
 If the room is moving fast, section 7 is where to slow down: ColumnTransformer
-is the piece they will reuse in every exercise and in the project, and getting
+is the piece they will reuse in every exercise, and getting
 the column selectors right is fiddlier than it looks.
 
 And leave time for section 8, which is the one they will get wrong on their own
@@ -1174,7 +1174,7 @@ accident. Ask them to predict the direction and rough size of each gap before
 running the cell.
 
 If time is short, the target encoding case is the one to keep: it is the
-subtlest and the one most likely to appear in their own project.
+subtlest and the one most likely to appear in their own exercises.
 :::
 
 # What we did today
@@ -1240,7 +1240,6 @@ today carries over, and that the marks are again on methodology: a pipeline
 that is correct but modest beats a better score obtained by preparing the full
 dataset before splitting.
 
-Remind them the Lesson 1 exercise is due today if anyone has not handed it in,
-and that the project topic must be confirmed by Lesson 4 - which is two weeks
-away, so now is the time to be reading dataset descriptions.
+Remind them that nothing is handed in: every exercise is kept, because one of
+the ten is drawn at the exam and discussed from their own notebook.
 :::

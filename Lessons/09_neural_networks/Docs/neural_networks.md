@@ -21,7 +21,7 @@ date: "27 November 2026 · reading time about 100 minutes"
 | 2:27–2:40 | 13 | Initialisation, optimisers, regularisation | Slides 52–63 |
 | 2:40–2:58 | 18 | **Notebook 03** — training in practice | Slide 64 |
 | 2:58–3:00 | 2 | Homework | Slides 65–66 |
-| | **180** | **Total** | **65 slides, 3 notebooks** |
+| | **180** | **Total** | **66 slides, 3 notebooks** |
 
 ---
 

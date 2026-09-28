@@ -1108,7 +1108,7 @@ different cost function, for a reason that is one of the exam derivations.
 Fit, regularise, and **explain which coefficients you believe**.
 
 ::: notes
-Set it explicitly with the deadline. It uses a new dataset - bike sharing demand
+Set it explicitly and say when it is discussed. It uses a new dataset - bike sharing demand
  -  so the exploration is theirs to do.
 
 Flag the two tasks that carry the most marks. Task 4 asks them to justify a
@@ -1117,7 +1117,5 @@ before lesson 5 and is meant to be: the point is to feel the need for
 cross-validation before being handed it. Task 6 asks which coefficients they
 trust and why, which is section 7 of the handout applied.
 
-As always: no marks for accuracy.
-
-Also remind them the project topic must be confirmed by lesson 4 - next week.
+As always: no marks for accuracy, at the exam or anywhere else.
 :::

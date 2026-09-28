@@ -25,7 +25,7 @@ date: "9 October 2026 · reading time about 80 minutes"
 
 ## 1. From "nothing is learned before the split" to everything else
 
-Exercise 1 is due today. Before starting anything new, it is worth naming what
+Exercise 1 is discussed today. Before starting anything new, it is worth naming what
 that exercise actually tested: not whether your model scored well, but whether
 you split the data before touching it and kept the scaler inside a pipeline.
 Every idea in today's lesson is that same rule, applied to operations you have

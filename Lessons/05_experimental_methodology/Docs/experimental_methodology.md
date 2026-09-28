@@ -18,8 +18,8 @@ date: "30 October 2026 · reading time about 95 minutes"
 | 1:50–2:04 | 14 | Learning curves and what they prescribe | Slides 29–30 |
 | 2:04–2:24 | 20 | **Notebook 02** — measuring the decomposition | Slide 31 |
 | 2:24–2:46 | 22 | Leakage that survives cross-validation | Slides 32–39 |
-| 2:46–2:56 | 10 | The debt paid; seeds; reproducibility | Slides 40–44 |
-| 2:56–3:00 | 4 | **Notebook 03**; summary; homework | Slides 45–47 |
+| 2:46–2:56 | 10 | The debt paid; seeds; reproducibility | Slides 40–43 |
+| 2:56–3:00 | 4 | **Notebook 03**; summary; homework | Slides 44–47 |
 | | **180** | **Total** | **47 slides, 3 notebooks** |
 
 ---

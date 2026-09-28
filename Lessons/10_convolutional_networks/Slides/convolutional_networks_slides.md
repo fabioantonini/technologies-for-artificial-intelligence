@@ -1497,7 +1497,7 @@ is 0.98, and a model reported at 0.98 may be perfect rather than merely good.
 - The convolutional one went 0.9800 to 0.9847, because it cannot ask *where*
 - An assumption that is true beats flexibility that is not
 - The representation is doing most of the work; the only question is who builds it
-- Thank you, and good luck with the project
+- Thank you, and good luck at the exam
 
 ::: notes
 Close on the number. A dense network scoring 0.8567 on defects in the half of
@@ -1520,5 +1520,6 @@ still an argument about which inductive bias to encode and what to measure it
 against, so the questions you have practised for ten weeks are the ones that
 transfer.
 
-Thank them, remind them of the project deadline and the office hours, and stop.
+Thank them, remind them that the exam draws one of the ten exercises and asks them
+to talk through their own notebook, point them to the office hours, and stop.
 :::

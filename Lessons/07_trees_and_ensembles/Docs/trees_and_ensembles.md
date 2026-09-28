@@ -10,16 +10,16 @@ date: "13 November 2026 · reading time about 85 minutes"
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
 | 0:00–0:10 | 10 | Exercise 6 discussed; the choice this lesson offers | Slides 2–5 |
-| 0:10–0:32 | 22 | Decision trees: splitting on Gini impurity | Slides 6–16 |
-| 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 17–22 |
-| 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 23 |
-| 1:12–1:24 | 12 | **Break** | Slide 24 |
-| 1:24–1:44 | 20 | Bagging and random forests | Slides 25–35 |
-| 1:44–2:02 | 18 | **Notebook 02** — bagging and random forests | Slide 36 |
-| 2:02–2:24 | 22 | Gradient boosting | Slides 37–46 |
-| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 47 |
-| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 48–53 |
-| | **180** | **Total** | **53 slides, 3 notebooks** |
+| 0:10–0:32 | 22 | Decision trees: splitting on Gini impurity | Slides 6–17 |
+| 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 18–23 |
+| 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 24 |
+| 1:12–1:24 | 12 | **Break** | Slide 25 |
+| 1:24–1:44 | 20 | Bagging and random forests | Slides 26–36 |
+| 1:44–2:02 | 18 | **Notebook 02** — bagging and random forests | Slide 37 |
+| 2:02–2:24 | 22 | Gradient boosting | Slides 38–47 |
+| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 48 |
+| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 49–54 |
+| | **180** | **Total** | **54 slides, 3 notebooks** |
 
 ---
 

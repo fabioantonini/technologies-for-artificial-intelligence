@@ -11,17 +11,17 @@ date: "4 December 2026 · reading time about 100 minutes"
 |---|---|---|---|
 | 0:00–0:10 | 10 | Exercise 9 discussed; the promise lesson 9 left open | Slides 2–7 |
 | 0:10–0:28 | 18 | Meridian's wafers; why a dense layer is the wrong shape | Slides 8–16 |
-| 0:28–0:45 | 17 | The convolution: definition, output size, kernels by hand | Slides 17–25 |
-| 0:45–1:05 | 20 | **Notebook 01** — convolution from scratch | Slide 26 |
-| 1:05–1:17 | 12 | **Break** | Slide 27 |
-| 1:17–1:35 | 18 | Equivariance, pooling, and the architecture | Slides 28–36 |
-| 1:35–1:50 | 15 | A defect where none has been seen; augmentation | Slides 37–44 |
-| 1:50–2:12 | 22 | **Notebook 02** — convolutional networks on wafers | Slide 45 |
-| 2:12–2:25 | 13 | Transfer learning, and when it makes things worse | Slides 46–53 |
-| 2:25–2:43 | 18 | **Notebook 03** — transfer and synthesis | Slide 54 |
-| 2:43–2:57 | 14 | Ten lessons on one problem; where the field goes | Slides 55–62 |
-| 2:57–3:00 | 3 | Homework, and the project | Slides 63–64 |
-| | **180** | **Total** | **64 slides, 3 notebooks** |
+| 0:28–0:45 | 17 | The convolution: definition, output size, kernels by hand | Slides 17–26 |
+| 0:45–1:05 | 20 | **Notebook 01** — convolution from scratch | Slide 27 |
+| 1:05–1:17 | 12 | **Break** | Slide 28 |
+| 1:17–1:35 | 18 | Equivariance, pooling, and the architecture | Slides 29–37 |
+| 1:35–1:50 | 15 | A defect where none has been seen; augmentation | Slides 38–45 |
+| 1:50–2:12 | 22 | **Notebook 02** — convolutional networks on wafers | Slide 46 |
+| 2:12–2:25 | 13 | Transfer learning, and when it makes things worse | Slides 47–54 |
+| 2:25–2:43 | 18 | **Notebook 03** — transfer and synthesis | Slide 55 |
+| 2:43–2:57 | 14 | Ten lessons on one problem; where the field goes | Slides 56–63 |
+| 2:57–3:00 | 3 | Homework, and the close | Slides 64–65 |
+| | **180** | **Total** | **65 slides, 3 notebooks** |
 
 ---
 
