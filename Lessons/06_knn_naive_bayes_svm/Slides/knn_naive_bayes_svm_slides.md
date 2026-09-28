@@ -902,6 +902,14 @@ when it is not - 0.37 against 0.62 bar, same average, very different spread. Put
 the distinction on the board in two lines: uncorrelated, yes; independent, no.
 Naive Bayes assumes the second. The assumption is false.
 
+Someone will then ask why we used it at all. Answer it directly: nobody checks
+the assumption before fitting. It is a simplification bought for ten numbers,
+and the model is judged, like any other, by its validation score. That score
+asks for less than the assumption does: to classify, the right class has only
+to come out on top - the sign of the log-score gap - not the densities to be
+right. Naive Bayes can be optimal in that sense with independence badly violated
+(Domingos and Pazzani, 1997).
+
 So why 0.933? Because the densities are wrong but the boundary they imply is
 right. With both classes centred on the same point, comparing a narrow bell
 with a wide one gives an axis-aligned ellipse, and the true envelope is an

@@ -508,6 +508,22 @@ The interesting question is therefore not whether the assumption holds, but
 
 ### 4.3 On the pumps, the assumption is false and costs almost nothing
 
+**Why use a model whose assumption may be false?** Because the assumption is not
+something anyone checks before fitting. Independence given the class is not a
+precondition to verify first; it is a simplification accepted for what it buys:
+for each class, one bell per reading — ten numbers in all, priors included —
+instead of a joint density of vibration and pressure that would need far more
+data to estimate. Like every modelling choice in this course, it is then judged
+by the honest score it earns on data it did not see, which is lesson 5's
+discipline, not by whether the assumption holds. And that score measures
+something weaker than the assumption. To classify, the model has only to rank the
+right class first — the sign of the gap between the two log scores — not to get
+either density right. Domingos and Pazzani (1997) showed that Naive Bayes can be
+the optimal classifier by that criterion, the one that counts only right and
+wrong decisions, even where independence is badly violated. This section finds
+both halves on the pumps: the assumption is false, and the ranking survives it.
+Section 4.4 is the case where it does not.
+
 | Model | Accuracy |
 |---|---|
 | Majority baseline | 0.613 |
