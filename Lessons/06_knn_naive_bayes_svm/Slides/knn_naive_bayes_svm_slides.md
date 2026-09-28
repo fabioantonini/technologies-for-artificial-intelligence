@@ -714,10 +714,36 @@ Pressure is at the centre, so it favours the narrow bell slightly - and its
 healthy log density is positive, +0.598, because a density is not a
 probability and a narrow bell peaks above 1.
 
-Faulty has the larger total, so faulty is the prediction. The probability in
-the title is the normalisation from slide 26 in log form: the gap between the
-totals, 3.951, through the logistic function, 1 / (1 + e^(−3.951)) = 0.981.
-Handout section 4.2 lists the four steps.
+Faulty has the larger total, so faulty is the prediction. How the two totals
+become the 0.981 in the title is the next slide. Handout section 4.2 lists the
+four steps.
+:::
+
+# From the two totals to 0.981
+
+- Each total is a log score: log prior + log P(vibration) + log P(pressure)
+- The gap: −4.144 − (−8.095) = **3.951**, in favour of faulty
+- P(faulty) = 1 / (1 + e^(−3.951)) = 1 / 1.0192 = **0.981**
+- Check: e^(−4.144) / (e^(−4.144) + e^(−8.095)) = 0.01585 / 0.01616 = 0.981
+
+::: notes
+The step students do not see on their own. Each total is a logarithm: undo it
+and you get back the Bayes numerator, prior times likelihood - e^(−4.144) =
+0.01585 for faulty, e^(−8.095) = 0.000305 for healthy. These are the two scores
+of slide 26, and the probability is one divided by their sum: the last bullet,
+0.01585 over 0.01616, is 0.981.
+
+Now divide the top and the bottom of that fraction by the faulty score. What is
+left is 1 / (1 + e^(healthy total − faulty total)) - only the GAP between the
+totals survives. That gap, 3.951, is the log-odds: faulty is e^3.951, about 52
+times, as likely as healthy.
+
+Point out whose function this is: 1 / (1 + e^(−z)) is lesson 4's sigmoid, fed the
+difference between two Naive Bayes scores instead of a linear combination of
+features. And say why the gap form is the one to compute: with hundreds of
+features the totals reach −800, e^(−800) is zero in floating point, and the
+direct fraction becomes 0/0, while the gap stays an ordinary number. Handout
+section 4.2, "From log scores to a probability".
 :::
 
 # A wonderful bargain, and almost never true
