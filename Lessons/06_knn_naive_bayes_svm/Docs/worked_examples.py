@@ -167,6 +167,8 @@ same("4.2 their sum, P(x)", e_f + e_h, 0.01616, tolerance=5e-6)
 same("4.2 normalised directly", e_f / (e_f + e_h), 0.981, tolerance=5e-4)
 same("4.2 1 + e^(-3.951)", 1 + np.exp(-3.951), 1.0192, tolerance=5e-5)
 same("4.2 the odds, e^3.951", np.exp(3.951), 52, tolerance=0.5)
+same("4.2 odds 52 to 1 as a probability", 52 / 53, 0.981, tolerance=5e-4)
+same("4.2 odds / (odds + 1) equals the sigmoid", np.exp(3.951) / (np.exp(3.951) + 1), 1 / (1 + np.exp(-3.951)), tolerance=1e-12)
 same("4.2 e^(-800) underflows to zero", float(np.exp(-800.0)), 0.0, tolerance=0)
 gnb = GaussianNB().fit(X, y)
 same("4.2 ...and predict_proba agrees",

@@ -724,7 +724,7 @@ four steps.
 - Each total is a log score: log prior + log P(vibration) + log P(pressure)
 - The gap: −4.144 − (−8.095) = **3.951**, in favour of faulty
 - P(faulty) = 1 / (1 + e^(−3.951)) = 1 / 1.0192 = **0.981**
-- Check: e^(−4.144) / (e^(−4.144) + e^(−8.095)) = 0.01585 / 0.01616 = 0.981
+- As odds: e^3.951 ≈ 52, so **52 to 1**, and 52 / 53 = 0.981
 
 ::: notes
 The step students do not see on their own. Each total is a logarithm: undo it
@@ -733,10 +733,16 @@ and you get back the Bayes numerator, prior times likelihood - e^(−4.144) =
 of slide 26, and the probability is one divided by their sum: the last bullet,
 0.01585 over 0.01616, is 0.981.
 
-Now divide the top and the bottom of that fraction by the faulty score. What is
-left is 1 / (1 + e^(healthy total − faulty total)) - only the GAP between the
-totals survives. That gap, 3.951, is the log-odds: faulty is e^3.951, about 52
-times, as likely as healthy.
+Now divide the top and the bottom of that fraction by the faulty score - the
+fraction does not change. The ratio of the two scores is e^(healthy total) /
+e^(faulty total) = e^(healthy total − faulty total), so what is left is
+1 / (1 + e^(−3.951)): only the GAP between the totals survives.
+
+Then give them the reading that makes it obvious: that gap is the log-odds, and
+e^3.951 is about 52. Faulty is 52 times as likely as healthy - odds of 52 to 1 -
+and 52 to 1 is a probability of 52/53 = 0.981, the way anyone would compute it
+for a bet. 1 / (1 + e^(−Δ)) is just odds over odds plus one, rewritten. The same
+0.981 also comes out of normalising directly, 0.01585 / (0.01585 + 0.000305).
 
 Point out whose function this is: 1 / (1 + e^(−z)) is lesson 4's sigmoid, fed the
 difference between two Naive Bayes scores instead of a linear combination of

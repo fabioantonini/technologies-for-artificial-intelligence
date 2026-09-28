@@ -455,8 +455,10 @@ Section 4.1 divides one by their sum, which is $P(x)$:
 $$P(\text{faulty} \mid x) = \frac{e^{T_\text{faulty}}}{e^{T_\text{faulty}} + e^{T_\text{healthy}}}
   = \frac{0.01585}{0.01616} \approx 0.981$$
 
-Divide the top and the bottom by $e^{T_\text{faulty}}$, and only the gap between
-the two totals survives:
+Divide the top and the bottom by $e^{T_\text{faulty}}$ — which leaves the
+fraction unchanged — and the ratio of the two scores becomes a single
+exponential, since $e^{a}/e^{b} = e^{a-b}$. Only the gap between the two totals
+survives:
 
 $$P(\text{faulty} \mid x) = \frac{1}{1 + e^{T_\text{healthy} - T_\text{faulty}}}
   = \frac{1}{1 + e^{-\Delta}}, \qquad
@@ -464,7 +466,10 @@ $$P(\text{faulty} \mid x) = \frac{1}{1 + e^{T_\text{healthy} - T_\text{faulty}}}
 
 so $1/(1 + e^{-3.951}) = 1/1.0192 \approx$ **0.981**, the number `predict_proba`
 returns. Three things follow. **Only the gap matters**: $\Delta$ is the log-odds,
-and faulty is $e^{3.951} \approx 52$ times as likely as healthy. **The function
+and faulty is $e^{3.951} \approx 52$ times as likely as healthy. Read that way the
+formula is the everyday one for odds: 52 to 1 is a probability of
+$52/(52 + 1) = 52/53 \approx 0.981$, and $1/(1 + e^{-\Delta}) = e^{\Delta}/(e^{\Delta} + 1)$
+is exactly odds over odds plus one. **The function
 is lesson 4's sigmoid** (its Section 2.2), fed the difference between two Naive
 Bayes scores instead of a linear combination of the features. And **the second
 form is the one to compute**: with hundreds of features the totals can reach
