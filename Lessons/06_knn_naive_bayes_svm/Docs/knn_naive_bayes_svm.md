@@ -580,6 +580,32 @@ and it appears:
 | within healthy pumps | +0.168 |
 | within faulty pumps | **−0.420** |
 
+**Why the square, and not the cube.** The transformation has to treat "far out
+to the left" and "far out to the right" alike, because the dependence is about
+distance from the centre, not direction. That asks for an *even* function,
+$f(-z) = f(z)$: the square maps $-2$ and $+2$ both to 4. The cube is *odd* — it
+maps them to $-8$ and $+8$, keeps the sign, and so the two far tails go on
+cancelling exactly as they did for the plain correlation. Measured on the same
+standardised readings:
+
+| Transformation | Healthy | Faulty |
+|---|---|---|
+| $z$ (none) | −0.006 | −0.049 |
+| $z^3$ (odd) | −0.058 | −0.022 |
+| $z^2$ (even) | +0.168 | **−0.420** |
+| $\lvert z \rvert$ (even) | +0.211 | **−0.454** |
+| $z^4$ (even) | +0.060 | −0.288 |
+
+The cube sees nothing, like the raw readings; every even transformation sees the
+dependence. The absolute value works as well as the square, and the fourth power
+less well, because it lets a few extreme points dominate. The square is the
+natural choice among them because it is the geometry the data was built with —
+the disc and the ring are $z_1^2 + z_2^2$ below or above a radius — and the same
+coordinate section 5.4's kernel lift will use. The limitation is worth stating:
+the square worked because we knew the dependence was radial. On real data nobody
+tells you which transformation to try, which is why a correlation near zero never
+licenses the word "independent".
+
 Among faulty pumps, when one reading is far out the other is pulled in. The
 same dependence is plainer as a spread. On standardised readings, the pressure
 of a faulty pump has a standard deviation of **0.784** when its vibration is

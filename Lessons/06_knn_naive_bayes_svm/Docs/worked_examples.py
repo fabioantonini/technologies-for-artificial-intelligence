@@ -232,6 +232,18 @@ for label, printed in ((0, 0.168), (1, -0.420)):
     same(f"4.3 correlation of squared distances, class {label}",
          np.corrcoef(rows[:, 0], rows[:, 1])[0, 1], printed, tolerance=5e-4)
 
+# Why the square: odd and even transformations of the standardised readings
+zz = (readings - readings.mean(axis=0)) / readings.std(axis=0, ddof=1)
+yv = y.to_numpy()
+for name, f, printed in (("z^3", lambda v: v ** 3, (-0.058, -0.022)),
+                         ("z^2", lambda v: v ** 2, (0.168, -0.420)),
+                         ("|z|", np.abs, (0.211, -0.454)),
+                         ("z^4", lambda v: v ** 4, (0.060, -0.288))):
+    for c in (0, 1):
+        g = f(zz[yv == c])
+        same(f"4.3 correlation of {name}, class {c}", np.corrcoef(g[:, 0], g[:, 1])[0, 1],
+             printed[c], tolerance=5e-4)
+
 # The same dependence as a spread: pressure among faulty pumps, split by
 # whether the vibration is in the furthest fifth. Recomputed with numpy.
 zr = (readings - readings.mean(axis=0)) / readings.std(axis=0, ddof=1)

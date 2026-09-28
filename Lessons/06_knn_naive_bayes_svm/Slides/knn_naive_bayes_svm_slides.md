@@ -882,6 +882,15 @@ Show the middle column first and let the room draw the conclusion everyone
 draws: within each class the readings are uncorrelated, so the assumption
 holds. It is the natural check, and for bell-shaped data it would settle it.
 
+If someone asks why the square and not the cube - and someone should - the
+answer is symmetry. The dependence is about how far from the centre, not which
+side, so the transformation must map far-left and far-right alike: an even
+function. The square does (−2 and +2 both give 4); the cube is odd, keeps the
+sign, and its correlation among the faulty pumps is −0.022, as blind as the raw
+readings. The absolute value works too, −0.454. The square is the natural pick
+because the disc and the ring are defined by z1² + z2², and it is the coordinate
+the kernel lift will use later. Handout section 4.3.
+
 Then the trap. Correlation only sees straight-line dependence. Healthy pumps
 fill a disc and faulty ones a ring; on a ring, a pump far out in vibration must
 be central in pressure. That dependence is symmetric, so the straight-line
