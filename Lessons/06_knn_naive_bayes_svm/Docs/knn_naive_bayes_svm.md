@@ -1039,8 +1039,17 @@ guess the right coordinates.
 
 ### 5.5 Training and inference, step by step
 
-**Training** means finding the weights $a_i$ of Fact 1 by solving the dual. The
-solver behind scikit-learn's `SVC` starts with every weight at zero, repeatedly
+**Training** means finding the weights $a_i$ of Fact 1 by solving the dual, with
+the kernel substituted for the inner product:
+
+$$\max_{a} \ \sum_{i} a_i - \tfrac{1}{2}\sum_{i}\sum_{j} a_i a_j y_i y_j\, K(x_i, x_j)
+  \quad \text{subject to} \quad 0 \leq a_i \leq C, \ \ \sum_i a_i y_i = 0$$
+
+Both $i$ and $j$ range over the $m$ **training** points, so this needs only
+$K(x_i, x_j)$ — the $m \times m$ kernel matrix, one entry per pair of pumps
+already seen. There is no new point anywhere in this expression: training never
+touches the pump it will later be asked to classify. The solver behind
+scikit-learn's `SVC` starts with every weight at zero, repeatedly
 picks a pair of weights that can still improve the objective — a pair, because
 $\sum_i a_i y_i = 0$ means one cannot move alone — sets that pair to its best
 values with all the others held fixed, and stops when no pair can improve. There
@@ -1063,7 +1072,13 @@ weights and $b$; the other 922 pumps can be deleted. And with $C = 1$, 268 of th
 278 weights are exactly 1: almost every support vector simply votes with its
 label.
 
-**Inference** is that vote, in four steps:
+**Inference** is where the new point finally appears, in the other formula from
+Fact 3: $\sum_i a_i y_i\, K(x_i, x) + b$, now summed only over the 278 support
+vectors and with $x$ the pump to classify. Training built the kernel matrix
+$K(x_i, x_j)$ among pumps it already knew; inference evaluates $K(x_i, x)$
+between each surviving support vector and the one pump it has never seen. Same
+function, two different second arguments — that is the whole distinction. In
+four steps:
 
 1. Standardise the new pump with the scaler fitted on the training data.
 2. Compute its RBF similarity to each of the 278 support vectors.

@@ -1427,11 +1427,18 @@ the method rather than of the implementation.
 
 ::: notes
 Say what "fit" does, because after lesson 3 they will expect gradient descent.
-It is not. The SVM solves the dual: one weight per training point, found by a
-solver that picks two weights at a time - two, because the weights times the
-labels must sum to zero, so one cannot move alone - sets them to their best
-values with the rest fixed, and repeats until nothing improves. Convex, so
-there is one answer and it is found every time.
+It is not. The SVM solves the dual with the kernel substituted in: one weight
+per training point, found by a solver that picks two weights at a time - two,
+because the weights times the labels must sum to zero, so one cannot move
+alone - sets them to their best values with the rest fixed, and repeats until
+nothing improves. Convex, so there is one answer and it is found every time.
+
+Name the distinction the previous slide left open. The objective being solved
+here only ever evaluates K(x_i, x_j) between pairs of training pumps - the
+kernel matrix, m by m. The new pump, the one this model will eventually
+classify, appears nowhere in training. K(x_i, x), with a free x, is the
+prediction formula two slides on: same function, but its second argument is
+now the pump being classified rather than another training point.
 
 Then the counts, which match the three cases of the slack from earlier. Weight
 zero: the 922 pumps safely on their own side, which the model now forgets.
