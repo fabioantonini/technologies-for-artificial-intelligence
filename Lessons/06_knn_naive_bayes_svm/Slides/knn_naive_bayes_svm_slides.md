@@ -1323,15 +1323,47 @@ computing the coordinates of every point in such a space is impossible.
 The trick in one sentence: the SVM never needs the coordinates, only the angles
 and lengths between points, and those can be obtained without ever going there.
 
-Do not prove it - handout section 5.4 shows where the inner products come from
-in the dual formulation. The claim to state and let land is that a function of
-two ordinary two-dimensional vectors returns their inner product in a space of
-infinite dimension, at the cost of one exponential.
+Do not prove it here - the next slide gives the one line that makes this claim
+true, and handout section 5.4 has the full three-fact argument behind that
+line. The claim to state and let land now is that a function of two ordinary
+two-dimensional vectors returns their inner product in a space of infinite
+dimension, at the cost of one exponential.
 
 And close the loop from the previous slide: we chose the lift in the picture by
 knowing the answer. The RBF kernel does something equivalent without being told,
 which is exactly why it works on problems where nobody could guess the right
 coordinates.
+:::
+
+# The boundary is a weighted vote of the pumps
+
+$$w = \sum_{i=1}^{m} a_i\, y_i\, x_i, \qquad a_i \geq 0$$
+
+::: notes
+This is the rewriting the previous slide's claim depends on, and it is worth
+giving before the trick, not after - it is called the **dual formulation**,
+and that phrase from the handout is otherwise just a name with nothing behind
+it.
+
+Say it in one sentence first: instead of solving for $w$ directly, the
+optimisation turns out to hand back $w$ as a weighted sum of the training
+points themselves, one weight $a_i$ per pump. The picture: the boundary is a
+tent held up by the points pressing against it, and $a_i$ is how hard pump $i$
+presses. A pump comfortably on its own side of the slab presses on nothing, so
+its weight is exactly zero. Only the pumps on or inside the slab - the support
+vectors from Section 5.1 - get a positive weight, which is where that 79%
+against 23% came from.
+
+Now the payoff, and this is the sentence that makes the next slide make sense.
+Substitute this $w$ back into the boundary, $w^\top x + b$, and every $x_i$ is
+still there, but only ever multiplied against another point: $x_i \cdot x_j$
+in training, $x_i \cdot x$ in prediction. Nowhere does a coordinate appear on
+its own. That is the whole reason a kernel is enough - a function that returns
+that one number, the inner product in the lifted space, is all either
+computation ever asks for.
+
+Do not derive $a_i$ here - the three-fact argument, from the constrained
+optimisation to this formula, is handout section 5.4.
 :::
 
 # The kernel trick by hand: 25 = 25
