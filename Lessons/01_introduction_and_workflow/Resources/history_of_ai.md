@@ -232,7 +232,7 @@ saying so is not a criticism — it is the most important fact about the last de
 
 The transformer architecture (Vaswani et al., 2017) removes the sequential bottleneck
 in recurrent networks, enabling training at unprecedented scale. Combined with
-self-supervised objectives — predict the hidden token, the technique from notebook 02 —
+self-supervised objectives — predict the hidden token, the technique from notebook 01 —
 it produces systems trained on internet-scale corpora without annotation.
 
 The capabilities surprised most researchers. The accompanying claims would have been

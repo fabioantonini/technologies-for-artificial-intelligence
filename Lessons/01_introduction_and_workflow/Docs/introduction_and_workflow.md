@@ -15,9 +15,9 @@ date: "2 October 2026 · reading time about 70 minutes"
 | 0:50–1:05 | 15 | A short history | Slides 22–31, `Resources/` |
 | 1:05–1:15 | 10 | **Break** | — |
 | 1:15–1:30 | 15 | The three kinds of learning | Slides 32–37 |
-| 1:30–1:45 | 15 | **Notebook 02** — one dataset, three questions | Slide 38 |
+| 1:30–1:45 | 15 | **Notebook 01** — one dataset, three questions | Slide 38 |
 | 1:45–1:50 | 5 | The workflow, the map | Slide 39 |
-| 1:50–2:30 | 40 | **Notebook 01** — the workflow, live, with slides 41–52 | Slide 40 |
+| 1:50–2:30 | 40 | **Notebook 02** — the workflow, live, with slides 41–52 | Slide 40 |
 | 2:30–2:35 | 5 | How models mislead: the frame | Slide 53 |
 | 2:35–2:55 | 20 | **Notebook 03** — four failures, live, with slides 55–64 | Slide 54 |
 | 2:55–3:00 | 5 | Homework set, questions | Slides 65–66 |
@@ -85,7 +85,7 @@ examples and let a procedure search for a rule consistent with them.
 **First, what a piece of data actually is**, because the symbols below are
 easier to read once you have seen one.
 
-Notebook 01 works on 569 breast tumours. Each is described by 30 numbers
+Notebook 02 works on 569 breast tumours. Each is described by 30 numbers
 computed from a digitised image of a tissue sample — the first four of them, for
 the first tumour in the file, are a mean radius of 17.99, a mean texture of
 10.38, a mean perimeter of 122.80 and a mean area of 1001.0, and 26 more follow.
@@ -150,7 +150,7 @@ simplest choice for a classifier is the **zero-one loss**: $L(\hat{y}, y) = 0$ w
 $\hat{y} = y$, and $1$ otherwise. Under it the expected risk is the probability of
 being wrong and the empirical risk is the error rate on the sample — so **accuracy is
 $1 - \hat{R}_S(f)$**, and every score the notebooks print is an empirical risk wearing
-a friendlier name. Notebook 01 reaches 0.986 on its 143 test examples: two mistakes, so
+a friendlier name. Notebook 02 reaches 0.986 on its 143 test examples: two mistakes, so
 $\hat{R}_T(f) = 2/143 = 0.014$.
 
 **And the choice is not cosmetic.** $L$ is where you state what counts as a bad
@@ -337,7 +337,7 @@ the standard error being the square root of the variance. (Lesson 5 returns to t
 division by $m$ and asks what happens when the $m$ measurements are *not*
 independent — the answer is a second term, and a much wider error bar.)
 
-In Notebook 01 the test set holds 143 examples and the accuracy comes out at 0.986.
+In Notebook 02 the test set holds 143 examples and the accuracy comes out at 0.986.
 That gives a standard error of about **one percentage point**, so reporting "0.986" to
 three decimal places claims a precision we do not have: the third digit is noise. This
 is the same observation that Section 7 makes about single splits, arriving from the
@@ -512,7 +512,7 @@ distinction that matters; the algorithms often overlap.
 
 *One dataset, three questions. What changes is not the data but what you ask of it.*
 
-**Notebook 02 runs all three on one table**, and it is the only place in this lesson
+**Notebook 01 runs all three on one table**, and it is the only place in this lesson
 where they can be compared without anything else changing: 178 Italian wines, 13
 chemical measurements each, from three different cultivars. Every result quoted in
 this section comes from it, and the numbers are worth reading against each other
@@ -530,7 +530,7 @@ it is continuous, **regression**. Lessons 3, 4, 6 and 7 are all supervised.
 The cost is the labels. In practice this — not algorithms, not compute — is what
 limits most projects.
 
-Notebook 02 predicts the cultivar of 178 wines from 13 chemical measurements and
+Notebook 01 predicts the cultivar of 178 wines from 13 chemical measurements and
 reaches **0.981** accuracy. It is worth noticing what kind of thing the target is:
 **the cultivar is not one of the measurements.** It is the grape variety, an answer
 written down about each wine rather than read off an instrument — which is exactly what
@@ -556,7 +556,7 @@ anything you care about is a judgement you must make, and it cannot be delegated
 metric. That is the difficulty — and it is a problem of validation, not of
 optimisation.
 
-Notebook 02 makes that concrete by cheating deliberately. It throws the cultivar
+Notebook 01 makes that concrete by cheating deliberately. It throws the cultivar
 labels away, runs k-means, and then — only as a teaching check, never as something
 available in a real unsupervised problem — compares the groups it found against the
 labels it hid. They agree at **0.897**. That is a happy accident of this dataset,
@@ -581,7 +581,7 @@ hidden is real — it is a genuine measurement — but nobody asked for it to be
 it is used as a target only because it was already there, which is why the supervision
 costs nothing.
 
-Notebook 02 hides one measurement, `flavanoids`, and predicts it from the other
+Notebook 01 hides one measurement, `flavanoids`, and predicts it from the other
 twelve: $R^2 = 0.816$, where $R^2$ — defined in the notebook and used again in Lesson
 3 — is the fraction of the squared error of always guessing the mean that the model
 removed. Set it beside Section 5.1: there the answer lived *outside* the measurements
@@ -593,7 +593,7 @@ and somebody had to record it; here the answer is *one of* the measurements.
 
 The reconstruction task itself is of no interest — it is a *pretext*. The point is that
 solving it forces the model to represent how the parts of an input relate, and that
-what it learned can then be reused on a task you do care about. Notebook 02 stops
+what it learned can then be reused on a task you do care about. Notebook 01 stops
 before that step: a linear regression learns nothing worth reusing, so the part that
 gives the idea its point is not shown here. Lesson 10 measures a related idea,
 transfer learning, on images.
@@ -667,7 +667,7 @@ for the end. Lesson 5 makes this precise.
 ## 7. How models mislead
 
 A reported score is a summary, and a summary is something with information removed.
-Before the four failure modes, it is worth seeing what Notebook 01's headline number
+Before the four failure modes, it is worth seeing what Notebook 02's headline number
 left out: 0.986 is four separate counts added together, and only two of the four are
 successes.
 

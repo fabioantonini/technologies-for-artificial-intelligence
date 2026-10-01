@@ -290,7 +290,7 @@ distribution" is unreadable to someone who has never seen what is inside an x.
 Point at the numbers first. One tumour, thirty measurements taken from a
 digitised image of a tissue sample - radius, texture, perimeter, area and 26
 more. THAT list is x. The thing we want to predict, malignant or benign, is y.
-Notebook 01 prints exactly this table in its second cell, and it is the dataset
+Notebook 02 prints exactly this table in its second cell, and it is the dataset
 we use for the whole workflow later today.
 
 Then the two letters, and say they never move: m counts examples, n counts
@@ -377,7 +377,7 @@ trees, neural networks. Different function classes, same principle.
 Say what L is, or it stays a placeholder all lesson. Simplest choice, the zero-one
 loss: 0 when right, 1 when wrong. Then the empirical risk IS the error rate, and
 accuracy is one minus it - so every score in today's notebooks is an empirical risk
-under a friendlier name. Notebook 01: 0.986 on 143 examples is two mistakes, an
+under a friendlier name. Notebook 02: 0.986 on 143 examples is two mistakes, an
 empirical risk of 0.014.
 
 And say that choosing L is a modelling decision, not a technicality: it is where you
@@ -486,7 +486,7 @@ standard error is how far the measured accuracy would typically move if you drew
 different test set of the same size, and it shrinks as one over the square root of m,
 the number of TEST examples - so quadrupling the test set halves the error bar, and
 that is the only way to buy precision. Give them
-the concrete number from notebook 01: 143 test examples at 0.986 accuracy carries a
+the concrete number from notebook 02: 143 test examples at 0.986 accuracy carries a
 standard error of about one percentage point, so the third decimal place is noise. If
 anyone presses on the interval, concede it: 0.986 of 143 is two errors, the normal
 approximation is not admissible there - it returns an upper limit of 100.5% - and the
@@ -750,7 +750,7 @@ The taxonomy divides by **where the target comes from**, not by algorithm.
 ::: notes
 Correct the common misconception immediately, before it takes hold. It is not about
 which algorithm you use: the same estimator can serve more than one setting, and they
-will see exactly that in notebook 02 where the supervised regression and the
+will see exactly that in notebook 01 where the supervised regression and the
 self-supervised task run identical code.
 
 Handout section 5 has the full taxonomy.
@@ -843,7 +843,7 @@ family dinner.
 ![](kinds_of_learning.png)
 
 ::: notes
-Work notebook 02 here, live. The same 178 wines appear in all three panels.
+Work notebook 01 here, live. The same 178 wines appear in all three panels.
 
 Left: what the algorithm sees when there are no labels - just points in space. Middle:
 labels supplied by a person. Right: groups found by geometry alone.
@@ -877,14 +877,14 @@ practical problem than the choice of algorithm, and it is why unsupervised resul
 often oversold.
 :::
 
-# Notebook 02, live
+# Notebook 1, live
 
 - **Supervised**: predict the cultivar. Accuracy **0.981**
 - **Unsupervised**: throw the labels away. Recovers the cultivars at **0.897**
 - **Self-supervised**: hide `flavanoids`, predict it. R² **0.816**
 
 ::: notes
-Open notebook 02 and run it. Twenty minutes, and it is the only place today where
+Open notebook 01 and run it. Twenty minutes, and it is the only place today where
 all three kinds appear on identical data, which is the whole argument of this
 segment made operational.
 
@@ -917,7 +917,7 @@ results, because the comparison is the content. Handout section 5.
 Say the order is not a convention: several steps are only valid in this order, and step
 3 is the one that cannot move - hence the colour.
 
-This is the map for notebook 01, which the next slide starts. Tell them to open it
+This is the map for notebook 02, which the next slide starts. Tell them to open it
 and follow along rather than watch.
 
 Handout section 6 has each step in full. The two they will be tempted to skip are 1 and
@@ -925,7 +925,7 @@ Handout section 6 has each step in full. The two they will be tempted to skip ar
 result and a number.
 :::
 
-# Notebook 1, live
+# Notebook 2, live
 
 A question, a dataset, a split, a baseline, a model, and a number you can defend.
 

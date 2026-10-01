@@ -12,7 +12,7 @@ is not.
 
 ## Goal
 
-Run the workflow from notebook 01 yourself on a dataset you have not seen, and — this
+Run the workflow from notebook 02 yourself on a dataset you have not seen, and — this
 is the part that carries the marks — **justify the decisions** rather than only making
 them. By the end you should be able to say what your number means and what it does not.
 
