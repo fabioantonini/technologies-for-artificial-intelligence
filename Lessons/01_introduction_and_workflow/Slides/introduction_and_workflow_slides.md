@@ -10,6 +10,7 @@ date: "2 October 2026"
 - 10 lessons, 3 hours each, every Friday until 4 December
 - A first course in **machine learning**, for people who can already program
 - Foundations, not products
+- Course team on Microsoft Teams: code **`v0t2gvu`**
 
 ::: notes
 Introduce yourself briefly, then establish the two facts that shape everything: this is
@@ -24,6 +25,10 @@ Practical notes to give now: the repository is public to them via git, everythin
 offline in Docker, and there is no cost attached to any part of this course. Nobody
 needs an application programming interface (API) key, a cloud account or a
 graphics processing unit (GPU).
+
+Ask them to join the course team on Microsoft Teams now, with the code on the
+slide - v0t2gvu, zero not the letter o - so that announcements reach everyone from
+the first week.
 :::
 
 # What we will cover
