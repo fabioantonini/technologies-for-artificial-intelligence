@@ -286,7 +286,7 @@ cleanest one-sentence description of what changed.
 - One tumour = 30 numbers: radius 17.99, texture 10.38, perimeter 122.80, ...
 - That row is one input x; its label y is `malignant`, coded 0
 - All 569 rows stacked is the design matrix X, 569 x 30
-- **m = 569 examples** (rows), **n = 30 features** (columns) — all course long
+- **m = 569 examples** (rows), **n = 30 features** (columns), all course long
 
 ::: notes
 Do this before any symbol appears, because "pairs (x, y) drawn from a
@@ -767,7 +767,7 @@ The answer is recorded by somebody, outside the measurements.
 
 - Category → **classification**
 - Continuous → **regression**
-- The cultivar is not a measurement — it is an answer written down
+- The cultivar is not a measurement: it is an answer written down
 
 ::: notes
 Lessons 3, 4, 6 and 7 are all supervised, so this is most of the course.
@@ -1040,11 +1040,16 @@ The caption under the test set is the whole discipline: touched once, at the ver
 
 Predict the majority class. Nothing else.
 
-**62.7%**
+**62.9%** on the test set
 
 Everything from here is measured against that.
 
 ::: notes
+If someone remembers 62.7% from the class-balance step: that is the share of benign
+tumours in all 569. The baseline is scored like the model, on the 143 test tumours,
+where 90 are benign - 62.9%, the 0.629 the result slide quotes. The stratified split
+keeps the two close; they differ only because 143 is a small sample.
+
 Without this, "96% accuracy" has no scale at all. With it, they can see whether the
 model is worth anything.
 

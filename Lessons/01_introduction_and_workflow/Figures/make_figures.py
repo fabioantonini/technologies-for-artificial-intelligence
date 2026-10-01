@@ -130,9 +130,9 @@ def risk_gap():
     # and a held-out sample only estimates it.
     fig, ax = plt.subplots(figsize=(7.4, 4.2))
     ax.plot(complexity, empirical, lw=2.6, color=TEAL,
-            label="Empirical risk — computed on the training sample")
+            label="Empirical risk: computed on the training sample")
     ax.plot(complexity, expected, lw=2.6, color=RUST,
-            label="Expected risk R(f) — not computable, only estimated")
+            label="Expected risk R(f): not computable, only estimated")
     # Stops below the legend: at full height it runs through the labels.
     ax.axvline(best, ymin=0, ymax=0.56, ls=":", lw=1.6, color=SLATE)
     ax.annotate("the gap is overfitting",
