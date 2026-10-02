@@ -435,6 +435,12 @@ negative tenure is not extreme, it is impossible. That distinction - impossible
 versus unusual - is the lesson of the whole section, and it lands better from
 their own screen than from the projector.
 
+Two cells now open with "Your prediction": the correlation left after filling
+40% with the mean, and how many points each outlier rule flags. Give them a
+minute to write a number in the cell before running it. The point is to commit
+to an answer, not to be right; the most useful wrong answer in the room is
+"the IQR rule, because it flagged more".
+
 Watch for the group that finishes early. Point them at the "try this" in the
 notebook: change the missing fraction and watch the correlation attenuate as
 the derivation predicts.
@@ -980,6 +986,11 @@ the column selectors right is fiddlier than it looks.
 And leave time for section 8, which is the one they will get wrong on their own
 data: the engineered feature gains 0.0034, then loses 0.0075 once tenure is
 cleaned first. Ask them why before telling them.
+
+Two prediction cells to give a minute each: what learning rate 2.0 does on the
+raw features (most expect "slower"; it oscillates for ever), and what accuracy
+the full pipeline reaches against the 0.806 baseline (0.820, which is the cue
+for why accuracy is the wrong scale here).
 :::
 
 # Same rule, broken three ways
@@ -1168,10 +1179,20 @@ Trace the imputation leak. Watch the encoding leak manufacture 0.89 from noise.
 today, each measured against an honest pipeline on the same data. The third
 way of breaking the rule, on the earlier diagram, was Lesson 1's.
 
-The numbers matter less than the pattern - both leaks inflate the score,
-neither raises an error, and both are things a competent person does by
-accident. Ask them to predict the direction and rough size of each gap before
-running the cell.
+The numbers matter less than the pattern - neither leak raises an error, and
+both are things a competent person does by accident. They differ in what they
+do to the score: the imputation leak contaminates 94 of 128 rows and barely moves
+the AUC (+0.0007, negative in 14 of 20 splits), so it cannot be caught by its
+effect; the encoding leak adds 0.14 out of a column with no signal. Three cells
+ask for a prediction first - how many rows borrow from the test set, how much
+that leak is worth, what AUC an empty column reaches - give each a minute.
+
+Close with section 6, five minutes: everyone sets MY_SEED to their birthday as
+DDMM, runs the cell and calls out the three numbers; tally them on the board.
+Expect leak 1 at roughly 70-80% of the rows every time, the leaky encoding always
+about 0.11-0.15 above the honest one, and the honest AUC itself moving between
+about 0.74 and 0.80 from one birthday to the next - lesson 5's lottery, seen a
+week early.
 
 If time is short, the target encoding case is the one to keep: it is the
 subtlest and the one most likely to appear in their own exercises.
