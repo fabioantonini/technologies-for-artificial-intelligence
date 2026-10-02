@@ -337,9 +337,9 @@ split makes it largest. Handout section 2.2.
 
 # Checked against scikit-learn
 
-- The from-scratch implementation agrees with scikit-learn's
-  `DecisionTreeClassifier` to the **fourth decimal place** of resulting
-  accuracy, at every depth tested
+- The from-scratch implementation and scikit-learn's
+  `DecisionTreeClassifier` make **the same prediction for all 1,200
+  applicants**, at every depth tested
 - Not a coincidence: both search the same space by the same greedy rule
 - From here on, the notebooks use scikit-learn's implementation: the same
   algorithm, compiled, not a different one
@@ -349,6 +349,14 @@ This is the check notebook 1 runs live, and it matters for trust rather
 than for novelty: once the from-scratch version is shown to agree with
 scikit-learn exactly, every later result in the lesson - obtained with
 scikit-learn - inherits that confidence.
+
+Two questions to pre-empt. Why predictions and not accuracy? Because two
+different trees can get the same number of applicants wrong while getting
+different applicants wrong; identical predictions, one by one, rule that out.
+And why on the training data, after lesson 5? Because this checks the code,
+not the model: the question is whether two programs build the same tree from
+the same rows, and the rows they learned from are exactly the right ones to
+ask it on. No accuracy here is a claim about new applicants.
 
 Point out the "Try this" box in the handout: computing Gini impurity for
 the income-floor subgroup alone and comparing it against the full dataset's

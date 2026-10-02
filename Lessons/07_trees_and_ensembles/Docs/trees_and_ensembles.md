@@ -152,8 +152,11 @@ $G(\text{parent}) = 2 \times 0.387 \times 0.613 = 0.474$. The best root split
 found by exhaustive search is `debt_ratio <= 0.82` — recognisably the debt
 ceiling the data was built with — and the from-scratch implementation below
 confirms this is exactly the split scikit-learn's `DecisionTreeClassifier`
-also finds, to the fourth decimal place of resulting accuracy, at every
-depth tested.
+also finds. More than that: at every depth tested the two make the same
+prediction for every one of the 1,200 applicants. The check runs on the
+training data on purpose — it tests the code, whether two programs build the
+same tree from the same rows, not how well the tree will do on applicants it
+has not seen.
 
 What that split buys, in the formula above. It sends 971 applicants left, of
 whom $p = 0.256$ defaulted, and 229 right, of whom $p = 0.939$ did:
@@ -686,7 +689,7 @@ course has made that point with a different method each time.
 
 - A decision tree splits greedily on Gini impurity, $G = 1 - \sum_c p_c^2$,
   one feature and threshold at a time — verified here against
-  scikit-learn's implementation to the fourth decimal place.
+  scikit-learn's implementation, prediction by prediction.
 - Depth is the bias-variance dial. Cross-validated accuracy peaked at
   **depth 8** (0.882); an unconstrained tree reached training accuracy
   **1.000** and lost 3 points of cross-validated accuracy for it.
