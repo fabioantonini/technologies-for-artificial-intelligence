@@ -101,7 +101,8 @@ The recursion is easiest to see run. Three rounds of it on the loan data:
 inside each group". On top, the cuts in the plane of the data, the ones added in
 that round in gold; underneath, the tree asking the same questions, each leaf
 with its applicants and default rate. Step 2 asks a different question in each
-group, because each is searched on its own. Step 3 shows greed: one cut sets
+group, because each is searched on its own. Step 3 shows greed: one cut, at 0.948 — a
+thousandth above the one at 0.947, so the two gold lines overlap — sets
 aside a single applicant from 68, another splits 160 into 90% and 97% default and
 changes no prediction, and neither interior island has been found yet.*
 

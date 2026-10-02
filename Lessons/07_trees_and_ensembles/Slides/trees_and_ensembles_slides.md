@@ -159,7 +159,10 @@ debt again on the right - because each group is searched on its own, without
 regard to the other. That is "independently" in the sentence.
 
 Step 3 is where to slow down, because it shows greed. On the right, one split
-sets aside a single applicant from 68 others; another divides 160 applicants
+sets aside a single applicant from 68 others - the cut at 0.948, a thousandth
+above the 0.947 one, so in the plane the two gold lines lie on top of each
+other. Someone will ask why debt is asked twice: it is not the same question,
+and the tree spent a split on the one applicant between them who repaid; another divides 160 applicants
 into 90% and 97% default - both still predicted "default", so the cut changes
 no decision at all. Each was the best available move at that node; the tree
 has no way to ask whether it was worth making. And neither interior island has
