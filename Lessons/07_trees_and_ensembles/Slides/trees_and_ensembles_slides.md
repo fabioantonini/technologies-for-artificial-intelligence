@@ -138,6 +138,37 @@ information to find them is right there in the data.
 Handout section 2.1.
 :::
 
+# The algorithm, drawn
+
+![](tree_growth.png)
+
+::: notes
+The previous slide's sentence, run three times on the loan data. Each column
+is one more round; on top the cuts in the plane, the new ones in gold, and
+underneath the tree that asks the same questions. Point at the two halves of
+each column in turn: every gold line on top is a gold box underneath.
+
+Step 1: of every possible single question, debt ratio at or below 0.82 is the
+one that leaves the two groups purest - 971 applicants at 26% default against
+229 at 94%. Do not say why it is the best yet; the next slides give the number
+that ranks it.
+
+Step 2 is the word "recursive" made visible. The tree now asks a question
+inside each group, and the two questions are different - income on the left,
+debt again on the right - because each group is searched on its own, without
+regard to the other. That is "independently" in the sentence.
+
+Step 3 is where to slow down, because it shows greed. On the right, one split
+sets aside a single applicant from 68 others; another divides 160 applicants
+into 90% and 97% default - both still predicted "default", so the cut changes
+no decision at all. Each was the best available move at that node; the tree
+has no way to ask whether it was worth making. And neither interior island has
+appeared yet: three rounds were spent on the easy strips. Hold that thought -
+it is the "what greedy misses" slide in ten minutes.
+
+The printout of every node is in notebook 1, section 2. Handout section 2.1.
+:::
+
 # How pure is a group of examples?
 
 - A leaf that is all one class needs no more questions

@@ -10,16 +10,16 @@ date: "13 November 2026 · reading time about 85 minutes"
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
 | 0:00–0:10 | 10 | Exercise 6 discussed; the choice this lesson offers | Slides 2–5 |
-| 0:10–0:32 | 22 | Decision trees: splitting on Gini impurity | Slides 6–17 |
-| 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 18–23 |
-| 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 24 |
-| 1:12–1:24 | 12 | **Break** | Slide 25 |
-| 1:24–1:44 | 20 | Bagging and random forests | Slides 26–36 |
-| 1:44–2:02 | 18 | **Notebook 02** — bagging and random forests | Slide 37 |
-| 2:02–2:24 | 22 | Gradient boosting | Slides 38–47 |
-| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 48 |
-| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 49–54 |
-| | **180** | **Total** | **54 slides, 3 notebooks** |
+| 0:10–0:32 | 22 | Decision trees: splitting on Gini impurity | Slides 6–18 |
+| 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 19–24 |
+| 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 25 |
+| 1:12–1:24 | 12 | **Break** | Slide 26 |
+| 1:24–1:44 | 20 | Bagging and random forests | Slides 27–37 |
+| 1:44–2:02 | 18 | **Notebook 02** — bagging and random forests | Slide 38 |
+| 2:02–2:24 | 22 | Gradient boosting | Slides 39–48 |
+| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 49 |
+| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 50–55 |
+| | **180** | **Total** | **55 slides, 3 notebooks** |
 
 ---
 
@@ -92,6 +92,18 @@ coefficient, no gradient with respect to a parameter vector. A tree is a
 sequence of yes/no questions, chosen greedily, and "greedily" matters: at
 every step the tree takes whichever split helps most *right now*, with no
 mechanism for looking ahead to a split that would help more two levels down.
+
+The recursion is easiest to see run. Three rounds of it on the loan data:
+
+![](tree_growth.png)
+
+*Each column is one more round of "find the best question, apply it, repeat
+inside each group". On top, the cuts in the plane of the data, the ones added in
+that round in gold; underneath, the tree asking the same questions, each leaf
+with its applicants and default rate. Step 2 asks a different question in each
+group, because each is searched on its own. Step 3 shows greed: one cut sets
+aside a single applicant from 68, another splits 160 into 90% and 97% default and
+changes no prediction, and neither interior island has been found yet.*
 
 ### 2.2 Impurity, and the gain a split buys
 
