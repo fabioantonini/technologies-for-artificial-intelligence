@@ -55,3 +55,7 @@ Lessons/*/Review/
 # ask. Private working material, not a course artefact — students receive the
 # handouts, which carry the same mathematics written for them.
 Instructor/
+
+# The same kind of note kept beside a lesson while preparing it. It was tracked
+# by mistake until October 2026; keep it local.
+Lessons/*/notes.txt
