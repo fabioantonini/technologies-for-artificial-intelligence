@@ -1165,6 +1165,34 @@ operating point. Today they need to see that the trade-off exists and that it is
 the model's decision to make.
 :::
 
+# Precision and recall, counted
+
+| | what it counts | threshold 0.5 |
+|---|---|---|
+| true positives (TP) | malignant, flagged | 52 |
+| false negatives (FN) | malignant, missed | 1 |
+| false positives (FP) | benign, flagged | 1 |
+| **recall** = TP / (TP + FN) | malignant tumours we caught | 52 / 53 = **0.981** |
+| **precision** = TP / (TP + FP) | alerts that were right | 52 / 53 = **0.981** |
+
+::: notes
+The previous slide in words, this one in counts. Name the three counts against the
+confusion matrix two slides back - the class we care about, malignant, is the
+"positive" one - then read the two formulas as sentences: recall divides by
+everything that really was malignant, the row; precision divides by everything we
+flagged, the column. Same numerator, different denominator. That is the whole
+difference, and the one students mix up.
+
+Someone will notice the two values are identical and ask why. It is a coincidence
+of this threshold: one malignancy missed and one false alarm, so both denominators
+are 53. Move the threshold and they part company: at 0.10 the missed malignancy is
+caught - recall 53 / 53 = 1.000 - but eleven benign tumours join the alerts, and
+precision falls to 53 / 64 = 0.828. That is the next slide, drawn.
+
+Notebook 02, cell after the confusion matrix, prints the same numbers in its
+classification report. Handout section 7.
+:::
+
 # The trade-off, drawn
 
 ![](precision_recall_tradeoff.png)

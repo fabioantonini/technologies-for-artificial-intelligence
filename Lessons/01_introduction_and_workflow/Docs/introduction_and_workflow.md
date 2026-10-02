@@ -17,11 +17,11 @@ date: "2 October 2026 · reading time about 70 minutes"
 | 1:15–1:30 | 15 | The three kinds of learning | Slides 32–37 |
 | 1:30–1:45 | 15 | **Notebook 01** — one dataset, three questions | Slide 38 |
 | 1:45–1:50 | 5 | The workflow, the map | Slide 39 |
-| 1:50–2:30 | 40 | **Notebook 02** — the workflow, live, with slides 41–52 | Slide 40 |
-| 2:30–2:35 | 5 | How models mislead: the frame | Slide 53 |
-| 2:35–2:55 | 20 | **Notebook 03** — four failures, live, with slides 55–64 | Slide 54 |
-| 2:55–3:00 | 5 | Homework set, questions | Slides 65–66 |
-| | **180** | **Total** | **66 slides, 3 notebooks** |
+| 1:50–2:30 | 40 | **Notebook 02** — the workflow, live, with slides 41–53 | Slide 40 |
+| 2:30–2:35 | 5 | How models mislead: the frame | Slide 54 |
+| 2:35–2:55 | 20 | **Notebook 03** — four failures, live, with slides 56–65 | Slide 55 |
+| 2:55–3:00 | 5 | Homework set, questions | Slides 66–67 |
+| | **180** | **Total** | **67 slides, 3 notebooks** |
 
 Slide 1 is the title slide, so the numbers above match the page numbers in
 `Slides/introduction_and_workflow_slides.pdf`. Each notebook is announced by its
@@ -674,6 +674,22 @@ successes.
 ![](confusion_matrix.png)
 
 *What a single accuracy figure hides: four outcomes collapsed into one number. Lesson 4 takes this apart properly.*
+
+Two of the four counts give the two numbers this lesson needs. Call malignant — the
+class that matters — positive. **True positives** (TP) are malignant tumours the
+model flagged, **false negatives** (FN) malignant tumours it called benign, **false
+positives** (FP) benign tumours it flagged. Then
+
+$$\text{recall} = \frac{TP}{TP + FN}, \qquad \text{precision} = \frac{TP}{TP + FP}$$
+
+Same numerator, different denominator. Recall divides by the row of the matrix,
+every tumour that really was malignant: *how many of them did we catch?* Precision
+divides by the column, every tumour we flagged: *how many of our alerts were right?*
+Here the model catches 52 of the 53 malignancies and raises 53 alerts of which 52
+are right, so both come to $52/53 = 0.981$ — equal only because the one miss and the
+one false alarm happen to balance. Move the threshold and they part: at 0.10 the
+missed malignancy is caught, recall $53/53 = 1.000$, but eleven benign tumours join
+the alerts and precision falls to $53/64 = 0.828$.
 
 Those four counts are not a property of the model alone. They are what the model
 produces *once a threshold has been chosen*, and on this problem nobody chose it.

@@ -165,6 +165,25 @@ same("7 at the 0.5 default, false alarms", _cost(0.50)[1], 1, tolerance=0)
 same("7 dropping to 0.10 misses nothing", _cost(0.10)[0], 0, tolerance=0)
 same("7 and costs this many false alarms", _cost(0.10)[1], 11, tolerance=0)
 same("7 raising to 0.90 raises no false alarm", _cost(0.90)[1], 0, tolerance=0)
+
+
+def _counts(threshold: float) -> tuple[int, int, int]:
+    """(true positives, false negatives, false positives), malignant positive."""
+    flagged = _p >= threshold
+    return (int((flagged & _malignant).sum()), int((~flagged & _malignant).sum()),
+            int((flagged & ~_malignant).sum()))
+
+
+# The formulas of section 7, from counts recomputed here rather than read off
+# the classification report.
+_tp, _fn, _fp = _counts(0.50)
+same("7 at 0.5: true positives", _tp, 52, tolerance=0)
+same("7 at 0.5: recall 52/53", _tp / (_tp + _fn), 0.981, tolerance=5e-4)
+same("7 at 0.5: precision 52/53", _tp / (_tp + _fp), 0.981, tolerance=5e-4)
+_tp, _fn, _fp = _counts(0.10)
+same("7 at 0.10: recall 53/53", _tp / (_tp + _fn), 1.000, tolerance=5e-4)
+same("7 at 0.10: alerts raised", _tp + _fp, 64, tolerance=0)
+same("7 at 0.10: precision 53/64", _tp / (_tp + _fp), 0.828, tolerance=5e-4)
 same("7 and costs this many missed malignancies", _cost(0.90)[0], 7, tolerance=0)
 
 # ------------------------------- Section 2.3, why the selector lands in the tail
