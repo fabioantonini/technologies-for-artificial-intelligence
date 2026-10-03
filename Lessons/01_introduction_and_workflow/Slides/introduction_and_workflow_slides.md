@@ -1167,7 +1167,7 @@ the model's decision to make.
 
 # Precision and recall, counted
 
-| | what it counts | threshold 0.5 |
+| | what it counts | our model |
 |---|---|---|
 | true positives (TP) | malignant, flagged | 52 |
 | false negatives (FN) | malignant, missed | 1 |
@@ -1183,14 +1183,41 @@ everything that really was malignant, the row; precision divides by everything w
 flagged, the column. Same numerator, different denominator. That is the whole
 difference, and the one students mix up.
 
-Someone will notice the two values are identical and ask why. It is a coincidence
-of this threshold: one malignancy missed and one false alarm, so both denominators
-are 53. Move the threshold and they part company: at 0.10 the missed malignancy is
-caught - recall 53 / 53 = 1.000 - but eleven benign tumours join the alerts, and
-precision falls to 53 / 64 = 0.828. That is the next slide, drawn.
+Someone will notice the two values are identical and ask why. It is a
+coincidence: one malignancy missed and one false alarm, so both denominators are
+53. The next slide shows where those labels come from - and that they can be
+moved, at which point the two numbers part company.
 
 Notebook 02, cell after the confusion matrix, prints the same numbers in its
 classification report. Handout section 7.
+:::
+
+# Behind every label, a probability
+
+- The model does not output a label: it outputs **the probability** that the
+  tumour is malignant
+- `predict()` turns it into a label by comparing it with **0.5**
+- The missed malignancy got **0.11**: called benign
+- The false alarm, a benign tumour, got **0.62**: called malignant
+- 0.5 is a default. Nobody chose it
+
+::: notes
+This is the step the confusion matrix hid. Until now the model has been treated as
+something that answers "malignant" or "benign"; it does not. It answers with a
+number between 0 and 1 - in scikit-learn, `predict_proba` - and `predict` is that
+number compared with 0.5. Where the probability comes from is lesson 4's subject
+(logistic regression ends in a sigmoid); today it is enough that it exists.
+
+Ground it in the two errors they have just counted. The one malignancy we missed
+was not missed by a confused model: the model gave it 0.11, so the comparison
+with 0.5 called it benign. The one false alarm was a benign tumour the model gave
+0.62. Those are the 1 and the 1 of the matrix.
+
+Then the question that sets up the next slide: if the label is a comparison with
+0.5, what happens when we compare with something else? At 0.10 the missed
+malignancy is caught - recall 53 / 53 = 1.000 - but eleven benign tumours join the
+alerts and precision falls to 53 / 64 = 0.828. Nothing about the model changed;
+only the line moved. Handout section 7.
 :::
 
 # The trade-off, drawn

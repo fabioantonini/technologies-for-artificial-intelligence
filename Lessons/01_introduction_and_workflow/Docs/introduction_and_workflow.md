@@ -17,11 +17,11 @@ date: "2 October 2026 · reading time about 70 minutes"
 | 1:15–1:30 | 15 | The three kinds of learning | Slides 32–37 |
 | 1:30–1:45 | 15 | **Notebook 01** — one dataset, three questions | Slide 38 |
 | 1:45–1:50 | 5 | The workflow, the map | Slide 39 |
-| 1:50–2:30 | 40 | **Notebook 02** — the workflow, live, with slides 41–53 | Slide 40 |
-| 2:30–2:35 | 5 | How models mislead: the frame | Slide 54 |
-| 2:35–2:55 | 20 | **Notebook 03** — four failures, live, with slides 56–65 | Slide 55 |
-| 2:55–3:00 | 5 | Homework set, questions | Slides 66–67 |
-| | **180** | **Total** | **67 slides, 3 notebooks** |
+| 1:50–2:30 | 40 | **Notebook 02** — the workflow, live, with slides 41–54 | Slide 40 |
+| 2:30–2:35 | 5 | How models mislead: the frame | Slide 55 |
+| 2:35–2:55 | 20 | **Notebook 03** — four failures, live, with slides 57–66 | Slide 56 |
+| 2:55–3:00 | 5 | Homework set, questions | Slides 67–68 |
+| | **180** | **Total** | **68 slides, 3 notebooks** |
 
 Slide 1 is the title slide, so the numbers above match the page numbers in
 `Slides/introduction_and_workflow_slides.pdf`. Each notebook is announced by its
@@ -687,12 +687,20 @@ every tumour that really was malignant: *how many of them did we catch?* Precisi
 divides by the column, every tumour we flagged: *how many of our alerts were right?*
 Here the model catches 52 of the 53 malignancies and raises 53 alerts of which 52
 are right, so both come to $52/53 = 0.981$ — equal only because the one miss and the
-one false alarm happen to balance. Move the threshold and they part: at 0.10 the
+one false alarm happen to balance.
+
+**Where the labels come from.** The model never outputs a label. For each tumour it
+outputs a probability that the tumour is malignant — `predict_proba` in
+scikit-learn — and `predict` turns that into a label by comparing it with 0.5. Where
+the probability comes from is lesson 4's subject; here it is enough that it exists.
+The malignancy we missed is a tumour the model gave 0.11, so the comparison called
+it benign; the false alarm is a benign tumour it gave 0.62.
+
+So those four counts are not a property of the model alone. They are what the model
+produces *once a threshold has been chosen*, and on this problem nobody chose it:
+0.5 is the default. Move it and precision and recall part company. At 0.10 the
 missed malignancy is caught, recall $53/53 = 1.000$, but eleven benign tumours join
 the alerts and precision falls to $53/64 = 0.828$.
-
-Those four counts are not a property of the model alone. They are what the model
-produces *once a threshold has been chosen*, and on this problem nobody chose it.
 
 ![](precision_recall_tradeoff.png)
 
