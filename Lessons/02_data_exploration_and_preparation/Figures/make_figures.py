@@ -54,7 +54,9 @@ def missingness_mechanisms():
     """MCAR, MAR and MNAR - what the probability of being missing depends on."""
     fig, axes = plt.subplots(1, 3, figsize=(12.5, 3.6))
     titles = [
-        "MCAR", "MAR", "MNAR",
+        "MCAR\nmissing completely at random",
+        "MAR\nmissing at random",
+        "MNAR\nmissing not at random",
     ]
     subtitles = [
         "depends on nothing",
@@ -76,7 +78,10 @@ def missingness_mechanisms():
                                      mutation_scale=15, color=SLATE, lw=1.8))
         ax.text(5.0, 1.3, subtitle, ha="center", va="center", fontsize=10.5,
                 color=INK, linespacing=1.4)
-        ax.set_title(title, fontsize=13.5, weight="bold", color=colour, pad=10)
+        acronym, words = title.split("\n")
+        ax.set_title(f"{acronym}\n", fontsize=13.5, weight="bold", color=colour, pad=10)
+        ax.text(0.5, 1.02, words, transform=ax.transAxes, ha="center", va="bottom",
+                fontsize=11, color=colour)
 
     fig.suptitle("Three reasons a value can be missing", fontsize=13, y=1.05)
     fig.tight_layout()

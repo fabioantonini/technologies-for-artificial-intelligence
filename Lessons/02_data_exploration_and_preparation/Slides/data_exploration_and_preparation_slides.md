@@ -162,9 +162,9 @@ Say plainly: this is the dangerous one, and it does not appear in today's
 dataset, which is itself worth noting - most real ones have some.
 :::
 
-# age: MCAR
+# age: missing completely at random
 
-Some customers just left it blank. Nothing systematic.
+MCAR, for short: some customers just left it blank. Nothing systematic.
 
 - Safe to impute with a fixed statistic
 - The bias question is not "is this fair": it is "what does filling it cost"
@@ -202,9 +202,10 @@ The practical rule to state: mean imputation is fine when gaps are few, and quie
 The algebra is Handout Section 3.2: the correlation is multiplied by the square root of one minus the missing fraction. Write it on the board if the room wants it - the figure is what they will remember.
 :::
 
-# num_support_calls: MAR
+# Support calls: missing at random
 
-Missing more often for long-tenure customers, not by chance.
+MAR, for short: missing more often for long-tenure customers - a column we can
+see explains it.
 
 - Treating it as MCAR reweights the sample the wrong way
 - A **missingness indicator** column preserves the signal even after filling
@@ -229,7 +230,7 @@ Four options, and the choice is a question about WHY the data is missing rather 
 
 The one worth dwelling on is the fourth: adding a binary indicator keeps the MAR signal itself available to the model - the fact that long-tenure customers are more often missing a call count may be more informative than the count would have been.
 
-Then the line at the bottom: every option except dropping the column learns a statistic, so all of them belong inside the training fold. That is the thread the whole lesson pulls on.
+Then the line at the bottom: every option except dropping the column learns a statistic, so all of them are fitted on the training data only. That is the thread the whole lesson pulls on.
 :::
 
 # Choosing among the four
@@ -477,7 +478,8 @@ than during the leakage section.
 - **Training** = choosing the model's numbers to make Lesson 1's average loss
   small
 - **Gradient descent** does it by repeated small steps downhill on that loss
-- One step size, along every axis, every iteration. Can it suit both columns?
+- One step size - the **learning rate** - along every axis, every iteration. Can it
+  suit both columns?
 
 ::: notes
 Reconnect to Lesson 1 before anything else, because the vocabulary is already
@@ -553,6 +555,10 @@ condition number from 285 to 3.4.
 ![](gd_convergence_scaled_vs_unscaled.png)
 
 ::: notes
+Say which number is which before anyone asks: the title's 100:1 is how the two
+features were built, spreads of 1 and 10; the sample of 1,000 points measures
+110:1, which is the figure notebook 2 prints and the toolbox slide quotes.
+
 Left panel: each feature set at its OWN safe rate - standardised still gets
 there faster, because it tolerates a larger rate. Right panel is the sharper
 point: give the RAW features the rate the standardised ones handle comfortably
@@ -573,7 +579,7 @@ a mechanism.
 
 # StandardScaler vs MinMaxScaler
 
-Two standard choices, both fitted on training data only.
+(x − μ)/σ and (x − min)/(max − min), both fitted on training data only.
 
 ![](scaling_comparison.png)
 
@@ -678,6 +684,10 @@ Handout Section 6.2.
   the labels, which is where leakage gets in
 
 ::: notes
+A warning on the letter: k here counts the levels of a category. Slide 16 used k
+for the z-score cut-off, 3. Same letter, two jobs, both declared in the handout's
+notation table - say so out loud once.
+
 This is the encoding to spend time on, because it is what scikit-learn's
 OneHotEncoder does and what the pipeline later in the notebook uses.
 
@@ -874,9 +884,11 @@ thing the easy thing.
 
 # The model, on churn
 
-- Baseline: **0.806**
-- Model (numeric + the low-cardinality categoricals, no zip): **0.820** accuracy, **0.751** AUC (area under the receiver operating characteristic curve)
-- In code: `LogisticRegression` against `DummyClassifier`; AUC from `roc_auc_score`
+- Accuracy: baseline **0.806**, model **0.820** (numeric + low-cardinality
+  categoricals, no zip)
+- Area under the receiver operating characteristic curve (AUC): **0.751**, the
+  chance a random churner scores above a random non-churner; 0.5 is a coin flip
+- In code: `LogisticRegression` against `DummyClassifier`, `roc_auc_score`
 
 Modest accuracy gain. Why?
 
@@ -972,7 +984,7 @@ fold-awareness; a learned one does.
 
 | section, and its slides | you call → the number to come back with |
 |---|---|
-| why scale, 24-27 | gradient descent by hand → ratio **110:1**; rate **2.0** scaled, **0.1** raw; raw at 2.0 swings **0.69 to 8.29** |
+| why scale, 24-27 | gradient descent by hand → ratio **110:1** (built as 100:1); rate **2.0** scaled, **0.1** raw; raw at 2.0 swings **0.69 to 8.29** |
 | encoding, 28-33 | `pd.get_dummies`, `np.linalg.matrix_rank` → **4 columns, rank 3** |
 | the pipeline, 36-38 | `train_test_split`, then `ColumnTransformer` + `Pipeline`: `SimpleImputer`, `StandardScaler`, `OneHotEncoder`, `LogisticRegression` |
 | the result, 39-40 | `DummyClassifier`, `accuracy_score`, `roc_auc_score`, `ConfusionMatrixDisplay` |
@@ -1032,7 +1044,8 @@ of f, and f must be independent of the test set.
 
 # Leak 1: impute before splitting
 
-`KNNImputer` fills a gap using **other rows' values**.
+`KNNImputer` fills a gap with the average of the five most similar rows: its
+**donors**.
 
 Fit it on train + test, and some of those rows are in the test set.
 
@@ -1050,7 +1063,7 @@ it was simply shown data it should not have seen.
 
 Notebook 3 measures the gap. Connect it back to Lesson 1: this is the same
 independence argument, applied to a step nobody thinks of as learning. The
-imputer learns; therefore it belongs inside the training fold.
+imputer learns; therefore it is fitted on the training data only.
 :::
 
 # The smoking gun
@@ -1127,6 +1140,11 @@ unremarkable lines of preprocessing instead of an obviously wrong one.
 $$\bar y_c - \bar y_c^{(-i)} = \frac{y_i - \bar y_c^{(-i)}}{n_c}$$
 
 ::: notes
+Name the symbols first, pointing at each: ȳ_c is the churn rate of zip code c over
+all its customers, row i included; ȳ_c with (−i) is the same rate with row i left
+out; y_i is row i's own label; n_c is how many customers zip code c has - not n,
+the number of features.
+
 Read the equation out as a sentence: the "leave-in" encoding differs from the
 honest leave-one-out encoding by the row's own disagreement with its group,
 divided by how many people are in it.
@@ -1162,9 +1180,10 @@ risk are the same underlying fact.
 
 # The fix
 
-`sklearn.preprocessing.TargetEncoder`: cross-fitted inside the pipeline.
+`sklearn.preprocessing.TargetEncoder`, inside the pipeline.
 
-Each row's encoded value comes from **other** folds, never its own label.
+It splits the training rows into five parts and encodes each row from the
+**other four**: never from its own label.
 
 ::: notes
 Smoothing pulls each group's mean towards the global mean, weighted by group
@@ -1182,7 +1201,8 @@ rule for one case; today it turns out to be the same rule every time.
 
 # The rule, restated
 
-Everything that **learns from data** belongs inside the fold it is fitted on.
+Everything that **learns from data** is fitted on the training rows only, inside
+the pipeline.
 
 A mean. A median. A set of neighbours. A per-category average. A set of bin
 edges.

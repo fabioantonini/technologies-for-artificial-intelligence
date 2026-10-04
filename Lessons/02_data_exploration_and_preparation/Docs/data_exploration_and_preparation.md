@@ -36,7 +36,7 @@ Lesson 1 established one central fact — the test set exists to give an
 unbiased estimate of $R(f)$, and that estimate stays unbiased only if $f$ was
 chosen without ever consulting the test rows — and one central tool for
 enforcing it: the `Pipeline`, which fits `StandardScaler` on training data
-alone because it sits inside a `fit()` call restricted to the training fold.
+alone because it sits inside a `fit()` call restricted to the training data.
 Today the tool becomes the main character. Real datasets rarely arrive as
 clean numeric matrices ready for `StandardScaler`. They arrive with gaps,
 errors, mismatched units, and categories with no numeric meaning, and every
@@ -375,7 +375,7 @@ that had a gap gets the same fixed shift applied to its prediction; a tree can
 split on it, sending the rows that were missing down one branch. Nothing has to
 be taught to use it — that is the whole reason for putting the fact *in the
 table* rather than in a comment. `SimpleImputer(add_indicator=True)` appends
-these columns for you, inside the pipeline, fitted on the training fold like
+these columns for you, inside the pipeline, fitted on the training data like
 everything else.
 
 What it can carry is this: once the gap is filled, the model **cannot tell an
@@ -426,7 +426,7 @@ left of it. That is MNAR, no imputation recovers the value, and a column saying
 Whichever you choose, Section 8 states the constraint that applies to every
 option except dropping columns outright: the statistic used to fill a gap —
 a mean, a median, a set of neighbours — is *learned from data*, and must be
-learned from the training fold only.
+learned from the training data only.
 
 ---
 
@@ -1102,7 +1102,7 @@ the path, so the imputation strategy above would be
 on we will want to refer to them.
 
 **`handle_unknown="ignore"` decides what happens to a category the encoder never
-saw.** Without it, a region absent from the training fold raises an error at
+saw.** Without it, a region absent from the training data raises an error at
 prediction time; with it, that row is encoded as all zeros. Note the consequence,
 because it is not obvious and nothing warns you: with `drop="first"` the dropped
 reference category is *also* all zeros, so an unseen category and the reference
@@ -1128,7 +1128,7 @@ where discipline alone silently fails.
 > version exactly. They should; the pipeline changes nothing about what
 > happens, only what can accidentally go wrong.
 
-**What that pipeline actually scores.** Fitted on the training fold and asked
+**What that pipeline actually scores.** Fitted on the training data and asked
 about the held-out customers, it reaches 0.820 accuracy against the 0.806 you
 get by predicting "no churn" every time — fourteen thousandths — and an AUC of 0.751. Those two
 numbers disagree about how good this model is, and the **confusion matrix** —
@@ -1268,9 +1268,9 @@ feature and the answer are the same number.
 
 **The fix follows from the sentence.** Never let a row's own label vote on its
 own encoded value. `sklearn.preprocessing.TargetEncoder` does this by
-cross-fitting: each training row's encoded value is computed from the *other*
-folds of the training data, which is "leave yourself out" done a fold at a time
-for speed. Used inside a `Pipeline` fitted on `X_train` alone, it recovers an
+cross-fitting: it splits the training rows into five parts, called **folds**,
+and computes each row's encoded value from the *other four*, which is "leave
+yourself out" done a fold at a time for speed. Used inside a `Pipeline` fitted on `X_train` alone, it recovers an
 AUC of **0.751** — indistinguishable from not using `zip_code` at all, which is
 the correct answer for a column with nothing in it.
 
@@ -1301,7 +1301,7 @@ $\bar{y}_c = y_i$, the case notebook 3 prints.
 
 **One honest caveat.** This describes the realistic bug: an encoding computed
 once over training and test data together. An encoding computed on the training
-fold alone is still slightly optimistic *for the training rows*, by the same
+data alone is still slightly optimistic *for the training rows*, by the same
 arithmetic — but those values are only ever fitted to, never scored on, so that
 particular bias does not reach the test number. It matters more for models
 flexible enough to exploit it, such as Lesson 7's boosted trees, than for a
@@ -1311,8 +1311,8 @@ single linear coefficient.
 
 
 Everything that learns from data — a mean, a median, a set of neighbours, a
-per-category target average, a set of bin edges — belongs inside the fold it
-is fitted on. This is not a longer list of special cases to remember; it is
+per-category target average, a set of bin edges — is fitted on the training
+data only, inside the pipeline. This is not a longer list of special cases to remember; it is
 one test, applied to every preprocessing step in this lesson: *does fitting
 this step compute anything from the rows it is given?* If yes, it goes inside
 the pipeline. Lesson 5 returns to leakage a third time, in the context of
@@ -1350,6 +1350,8 @@ rather than fitted inside it: its **hyperparameters**.
 | $p$ | the fraction of a column's values that are missing (Section 3.2) |
 | $P(\cdot)$ | a probability |
 | $k$ | the number of categories in a column (Section 6); **and**, in Section 4 only, the z-score cut-off, $k = 3$ |
+| $n_c$ | the number of rows in category $c$ (Section 9.2) - not $n$, the number of features |
+| $\bar{y}_c$, $\bar{y}_c^{(-i)}$ | the target average of category $c$, with row $i$ included and with it left out (Section 9.2) |
 
 ## Further reading
 
