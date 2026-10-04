@@ -834,6 +834,8 @@ The answer is recorded by somebody, outside the measurements.
 - Category → **classification**
 - Continuous → **regression**
 - The cultivar is not a measurement: it is an answer written down
+- In code: a classifier such as `LogisticRegression`, a regressor such as
+  `LinearRegression`
 
 ::: notes
 Lessons 3, 4, 6 and 7 are all supervised, so this is most of the course.
@@ -854,6 +856,7 @@ No targets at all. Find structure.
 - Groups → clustering
 - Fewer dimensions → dimensionality reduction
 - Odd points → anomaly detection
+- In code: `KMeans` for groups, `PCA` for fewer dimensions
 
 ::: notes
 Lesson 8.
@@ -950,12 +953,19 @@ often oversold.
 
 # Notebook 1, live
 
-- **Supervised**: predict the cultivar. Accuracy **0.981**
-- **Unsupervised**: throw the labels away. Recovers the cultivars at **0.897**
-- **Self-supervised**: hide `flavanoids`, predict it. R² **0.816**
-  (1 = perfect, 0 = no better than always guessing the mean)
+| question | you call, and what it scores |
+|---|---|
+| the data: 178 wines, 13 measurements | `load_wine` |
+| **supervised**: predict the cultivar | `make_pipeline(StandardScaler(), LogisticRegression())` → `accuracy_score` **0.981** |
+| **unsupervised**: labels thrown away | `KMeans(n_clusters=3)`, drawn with `PCA` → `adjusted_rand_score` **0.897** |
+| **self-supervised**: hide `flavanoids`, predict it | `LinearRegression` → `r2_score` **0.816** (1 perfect, 0 = guessing the mean) |
+| before either model with a target | `train_test_split` |
 
 ::: notes
+The table is the map for the notebook: each row is one of the three questions, the
+call that answers it, and the number it reaches. Point at the middle column before
+they start - every name in it is a cell they are about to run.
+
 Open notebook 01 and run it. Twenty minutes, and it is the only place today where
 all three kinds appear on identical data, which is the whole argument of this
 segment made operational.
@@ -999,9 +1009,21 @@ result and a number.
 
 # Notebook 2, live
 
-A question, a dataset, a split, a baseline, a model, and a number you can defend.
+| step, and its slide | you call |
+|---|---|
+| look, 46 | `load_breast_cancer` |
+| split, 47 | `train_test_split(X, y, test_size=0.25, stratify=y)` |
+| baseline, 48 | `DummyClassifier`, always the majority class |
+| model, 49 | `make_pipeline(StandardScaler(), LogisticRegression())`, then `.fit()` |
+| result, 51 | `.score(X_test, y_test)` |
+| errors, 52-55 | `ConfusionMatrixDisplay`, `classification_report`, `predict_proba` |
 
 ::: notes
+A question, a dataset, a split, a baseline, a model, and a number you can defend.
+The table is that sentence with the code attached: each step, the call that performs
+it, and the slide where the idea was introduced. Students who get lost in a cell can
+find their way back to the slide from here.
+
 45 minutes, and it runs alongside the next twelve slides rather than instead of
 them: each step of the workflow is a slide and then the cell that performs it.
 
@@ -1111,6 +1133,8 @@ Predict the majority class. Nothing else.
 
 Everything from here is measured against that.
 
+In code: `DummyClassifier(strategy="most_frequent")`
+
 ::: notes
 If someone remembers 62.7% from the class-balance step: that is the share of benign
 tumours in all 569. The baseline is scored like the model, on the 143 test tumours,
@@ -1183,6 +1207,7 @@ it costs on a real dataset, and lesson 5 gives it its name.
 
 - Baseline: 0.629
 - Model: **0.986**
+- In code: `baseline.score(X_test, y_test)`, then `model.score(X_test, y_test)`
 
 Done?
 
@@ -1216,6 +1241,7 @@ them separately.
 - **Recall** (malignant): how many malignant tumours we caught
 - **Precision** (malignant): how often an alert is correct
 - They trade off against each other
+- In code: `classification_report(y_test, y_pred)` prints both
 
 ::: notes
 Define both against the confusion matrix still in their heads from the last slide,
@@ -1267,7 +1293,7 @@ classification report. Handout section 7.
 # Behind every label, a probability
 
 - The model does not output a label: it outputs **the probability** that the
-  tumour is malignant
+  tumour is malignant, `predict_proba()`
 - `predict()` turns it into a label by comparing it with **0.5**
 - The missed malignancy got **0.11**: called benign
 - The false alarm, a benign tumour, got **0.62**: called malignant
@@ -1364,9 +1390,20 @@ shipped products.
 
 # Notebook 3, live
 
-Four failures, four plausible numbers, and not one bug among them.
+| failure, and its slides | you call |
+|---|---|
+| the model, every time, 49 | `make_pipeline(StandardScaler(), LogisticRegression())` |
+| leakage, 60-62 | `SelectKBest(f_classif, k=20)`, outside the pipeline and then inside it |
+| imbalance, 63-64 | `make_classification`; `accuracy_score` against `recall_score`, `confusion_matrix` |
+| shortcut, 65-66 | `load_breast_cancer`; `SimpleImputer` when the column is missing |
+| single-split noise, 67 | `train_test_split(random_state=seed)` against `cross_val_score` |
 
 ::: notes
+Four failures, four plausible numbers, and not one bug among them. The table pairs
+each failure with the calls that produce it and the slide that explains it; note
+that the leakage row uses the same `SelectKBest` twice, once in the wrong place and
+once in the right one.
+
 25 minutes, again alongside the slides that follow rather than instead of them.
 
 Say what to watch for before they start, because the notebook is deliberately
@@ -1419,6 +1456,8 @@ Every step that **learns anything** must be fitted on the training data only.
 
 Scaling. Imputation. Encoding. Selection. Tuning.
 
+In code: `StandardScaler`, `SimpleImputer`, `SelectKBest`... all inside `make_pipeline`
+
 ::: notes
 The practical takeaway from the whole leakage section, and the thing to put on the board
 if anything goes on the board today.
@@ -1441,6 +1480,7 @@ methodology marks regardless of the result obtained.
 
 - Accuracy: **0.986**
 - Recall on positives: **0.000**
+- In code: `recall_score` beside `accuracy_score`, every time
 
 ::: notes
 The trained model in the notebook reaches 0.987 accuracy - barely above the trivial one

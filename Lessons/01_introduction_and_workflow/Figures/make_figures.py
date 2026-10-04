@@ -593,6 +593,13 @@ def error_costs():
     save(fig, "error_costs.png")
 
 
+def code_strip(ax, x, y, call):
+    """The call that performs what the figure shows, under it, as an anchor."""
+    ax.text(x, y, f"In code:  {call}", ha="center", va="center", fontsize=10.5,
+            family="monospace", color=INK,
+            bbox=dict(boxstyle="round,pad=0.35", facecolor="#EEF2F5", edgecolor="none"))
+
+
 def split_scheme():
     """Step 3: what the test set is for, and when it is allowed to be touched."""
     fig, ax = plt.subplots(figsize=(10, 3.2))
@@ -625,6 +632,10 @@ def split_scheme():
 
     ax.set_title("Split first, then never look right again until you are finished",
                  fontsize=12.5, weight="bold")
+    code_strip(ax, 5.0, -0.35,
+               "X_train, X_test, y_train, y_test = "
+               "train_test_split(X, y, test_size=0.25, stratify=y)")
+    ax.set_ylim(-0.75, 4)
     fig.tight_layout()
     save(fig, "split_scheme.png")
 

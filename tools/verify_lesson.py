@@ -429,6 +429,7 @@ def check_slides(lesson: Path, report: Report) -> None:
                         f"slide {index} ({title[:34]}) has thin speaker notes")
 
     check_lesson_plan(lesson, len(slides), notes_by_slide, report)
+    check_code_anchors(lesson, text, report)
 
 
 def check_lesson_plan(lesson: Path, slide_count: int,
@@ -486,6 +487,50 @@ def check_notes_timings(plan: str, notes_by_slide: dict, report: Report) -> None
             report.fail("lesson plan",
                         f"slide {first}'s notes say {stated.group(1)} minutes, "
                         f"the plan gives that segment {budget}")
+
+
+# ----------------------------------------------------------- code anchors
+
+#: Lessons whose slides have been given their code anchors. In these, a name
+#: the notebooks import and no slide shows is a failure; elsewhere it is a note,
+#: so a lesson not yet reached is visible without blocking the course. A lesson
+#: joins the week its anchors are written.
+ANCHORED = {"01", "02"}
+NOTES_DIV = re.compile(r"^::: notes\n.*?^:::$", re.S | re.M)
+SKLEARN_IMPORT = re.compile(r"^\s*from sklearn[\w.]* import \(?([^)\n]+)", re.M)
+
+
+def check_code_anchors(lesson: Path, slides_source: str, report: Report) -> None:
+    """Every scikit-learn name a notebook imports must appear on a slide.
+
+    In lesson 1 the notebooks used 22 such names and the slides showed 4, so
+    the class met `train_test_split` for the first time inside a code cell,
+    with no slide to tie it back to the split it performs. Each name is meant
+    to appear where its concept is introduced and in the toolbox table on the
+    slide that opens its notebook. Only the slide body counts: speaker notes
+    are not what a student sees.
+    """
+    names: set[str] = set()
+    for path in sorted((lesson / "Notebooks").glob("*.ipynb")):
+        nb = json.loads(path.read_text(encoding="utf8"))
+        code = "\n".join("".join(c.get("source", [])) for c in nb.get("cells", [])
+                         if c.get("cell_type") == "code")
+        imported = {n.strip() for match in SKLEARN_IMPORT.finditer(code)
+                    for n in match.group(1).split(",")
+                    if re.fullmatch(r"\s*[A-Za-z_]\w*\s*", n)}
+        # A name imported and never called is not something a student meets.
+        body_code = SKLEARN_IMPORT.sub("", code)
+        names |= {n for n in imported if re.search(rf"\b{re.escape(n)}\b", body_code)}
+    body = NOTES_DIV.sub("", slides_source)
+    missing = sorted(n for n in names if not re.search(rf"\b{re.escape(n)}\b", body))
+    if not missing:
+        return
+    detail = (f"{len(missing)} of the {len(names)} scikit-learn names the notebooks "
+              f"import appear on no slide: {', '.join(missing)}")
+    if lesson.name[:2] in ANCHORED:
+        report.fail("code anchors", detail)
+    else:
+        report.note(f"{lesson.name}: {detail}")
 
 
 # --------------------------------------------------------------- acronyms
