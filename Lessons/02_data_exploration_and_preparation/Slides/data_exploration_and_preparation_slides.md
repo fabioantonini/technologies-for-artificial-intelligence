@@ -11,7 +11,7 @@ Exercise 1 was set last week. We discuss it now.
 
 - The wine-quality workflow, end to end
 - What counts is **methodology**, not accuracy
-- A show of hands on how you framed it
+- A show of hands: did you predict a class, or a number?
 
 ::: notes
 The fifteen minutes on what lesson 1 clarified come before this slide; the
@@ -31,8 +31,9 @@ Then move to today's material.
 # What today builds on
 
 - Lesson 1's rule: **nothing is learned before the split**
-- Lesson 1's tool: `Pipeline`, so the rule is structural, not just discipline
-- Today: apply both to data that is actually messy
+- Lesson 1's tool: `Pipeline`, which enforces that rule in the code instead of
+  relying on memory
+- Today: both, on messy data - gaps, extreme values, text categories
 
 ::: notes
 Recap in one sentence each, then land the framing for the whole lesson:
@@ -50,7 +51,7 @@ Handout Section 1 makes this explicit.
 - Outliers
 - Scaling and encoding
 - Feature engineering and pipelines
-- Leakage, in a form nothing warns you about
+- Leakage that raises no error and looks like a good result
 
 ::: notes
 Agenda slide. Flag the last item now as the one to remember in five years -
@@ -63,11 +64,12 @@ and encoding, then the leakage section closes the lesson before homework.
 
 # One dataset, all lesson long
 
-2000 synthetic telecom customers. Will they **churn**?
+2000 synthetic telecom customers. Will they **churn** (cancel their contract)?
 
 - Numeric: tenure, monthly charges, age, support calls
-- Categorical: contract type, region, zip code (493 levels)
-- Missing values, outliers, and one column built to carry **no signal**
+- Categorical: contract type, region, zip code (493 different values)
+- Missing values, extreme values, and one column built to have **no relation**
+  to churn
 
 ::: notes
 Explain why synthetic: every real messy teaching dataset sits behind a
@@ -86,11 +88,11 @@ few minutes. Keep the asymmetry in mind for Lesson 4.
 
 # Look before you touch anything
 
-`.info()`, `.describe()`, class balance, first: always.
+First, always: `.info()`, `.describe()`, and the share of each class.
 
-- 2000 rows, 8 columns, mixed types
-- Churn rate: **19.4%** → baseline accuracy 80.6%
-- `tenure_months` max: 999. Not a typo in the slide.
+- 2000 rows, 8 columns, numbers and text
+- Churn rate **19.4%**: always predicting "no churn" is right 80.6% of the time
+- `tenure_months` reaches 999 months, 83 years: an error in the data
 
 ::: notes
 Read the three numbers off the slide and stop. The plot on the next slide is
@@ -101,7 +103,7 @@ Ask, before turning over: what will a histogram of tenure look like, if one
 customer in the file has 999 months?
 :::
 
-# Two of these four have no shape left to read
+# Outliers squash two of these four
 
 ![](numeric_distributions.png)
 
@@ -164,10 +166,11 @@ dataset, which is itself worth noting - most real ones have some.
 
 # age: missing completely at random
 
-MCAR, for short: some customers just left it blank. Nothing systematic.
+MCAR, for short: some customers left it blank, for no reason related to any
+column.
 
-- Safe to impute with a fixed statistic
-- The bias question is not "is this fair": it is "what does filling it cost"
+- Filling the gaps with the mean leaves the mean of `age` unbiased
+- So is filling free? The next slide shows what it costs
 
 ::: notes
 Bridge to the derivation. Ask: if the missingness is completely random, is mean
@@ -188,7 +191,8 @@ fine when the gaps are few, and quietly destructive when they are many.
 
 # What mean imputation actually costs
 
-Every correlation involving the imputed column shrinks, even under MCAR.
+Filling with the mean weakens every correlation `age` has with other columns,
+even under MCAR.
 
 ![](correlation_attenuation.png)
 
@@ -260,13 +264,15 @@ The branch worth warning about is dropping rows. It is the easiest to do
 and the only one that can quietly change what the sample represents.
 :::
 
-# An outlier is far from the rest - not necessarily wrong
+# Extreme does not mean wrong
 
 - `tenure_months` runs **-3 to 999**; ordinary customers sit at 0 to 72
 - Three reasons: a **recording error**, a **rare but genuine** value, a
   **different population**
-- The arithmetic cannot tell which: 3,344.7 may be a typo or a corporate account
-- Two rules follow - standard deviations, then quartiles - and both only **flag**
+- A monthly charge of 3,344.7 may be a typo or a corporate account: the numbers
+  alone cannot tell
+- Two rules follow, one on standard deviations, one on quartiles: both only
+  **flag** a value for a person to check
 
 ::: notes
 Pay off the 999 from slide 6: they have already seen it, and now it gets a name.
@@ -299,7 +305,7 @@ a bell curve. It also computes its own ruler from the data being measured,
 which is the crack the section prises open.
 :::
 
-# Rule 2: distance measured in quartiles
+# Rule 2: interquartile range (IQR)
 
 $$\left[\,Q_1 - 1.5\,\mathrm{IQR},\ \ Q_3 + 1.5\,\mathrm{IQR}\,\right]$$
 
@@ -334,7 +340,7 @@ neighbourhood, not to agree, and even on perfect data Tukey's is the readier
 of the two to call something an outlier. The next slide draws it.
 :::
 
-# Same neighbourhood, not the same answer
+# Close fences, very different counts
 
 ![](outlier_fences.png)
 
@@ -356,7 +362,7 @@ Say this is a design choice with an assumption baked in, and the next slide is
 what happens when the assumption fails.
 :::
 
-# The robust rule is the one that got it wrong
+# Quartile rule: 12 false alarms
 
 ![](outlier_scatter.png)
 
@@ -393,7 +399,8 @@ know yet - next slide.
 `tenure_months` of **-3** is impossible. Neither rule flags it.
 
 - -3 is not *extreme* relative to a column spanning 0–72
-- It is not *unusual*. It is *invalid*: a different question entirely
+- It is not unusual, it is impossible: no tenure is negative. Checking validity
+  needs a rule about the domain, not about the distribution
 
 ::: notes
 This is the slide worth remembering over the two formulas. Statistical rules
@@ -409,9 +416,10 @@ different mistakes, and neither substitutes for the other. Handout Section
 
 # Once something is flagged
 
-Detection finds candidates. What to do next is a **domain** decision.
+The rules only find candidates. What to do with them is decided by someone who
+knows the **domain**.
 
-- **Cap** it at the fence: 3,344.7 becomes 110.0 (*Winsorising*)
+- **Cap** it at the rule's upper limit: 3,344.7 becomes 110.0 (*winsorising*)
 - **Remove** the row
 - **Correct** it, if the true value is recoverable
 - **Leave** it: unusual is not the same as wrong
@@ -486,8 +494,8 @@ than during the leakage section.
 - **Training** = choosing the model's numbers to make Lesson 1's average loss
   small
 - **Gradient descent** does it by repeated small steps downhill on that loss
-- One step size - the **learning rate** - along every axis, every iteration. Can it
-  suit both columns?
+- The same step size - the **learning rate** - is used for every column at every
+  step. Can one size suit both?
 
 ::: notes
 Reconnect to Lesson 1 before anything else, because the vocabulary is already
@@ -523,7 +531,7 @@ long training takes, and sometimes whether it converges at all. The derivation
 is deliberately NOT here: it belongs with gradient descent itself, Lesson 3.
 :::
 
-# A ravine, not a bowl
+# Unequal scales: a narrow valley
 
 ![](condition_number_geometry.png)
 
@@ -603,7 +611,8 @@ transform appears, because it is the thread the whole lesson hangs from.
 
 # Every encoding makes a claim about the categories
 
-A model does arithmetic, and `"month-to-month"` offers none.
+A model needs numbers, and `"month-to-month"` is text: encoding turns it into
+numbers.
 
 | `contract_type` | rows | churn rate |
 |---|---|---|
@@ -636,9 +645,9 @@ Handout Section 6.
 
 | Encoding | A one-year customer becomes | What that asserts |
 |---|---|---|
-| **One-hot** | `[0, 1, 0]` | simply different: no order, no distances |
+| **One-hot** | `[0, 1, 0]` | all different, none closer to another |
 | **Ordinal** | `1` | ordered, **and** equally spaced |
-| **Target** | `0.137` | the level's own average outcome stands in for it |
+| **Target** | `0.137` | replaced by the churn rate of its own category |
 
 ::: notes
 One customer, one contract, three numbers. Read the table a row at a time and
@@ -657,7 +666,7 @@ score will answer it.
 Handout Section 6.
 :::
 
-# Equal steps, unequal meaning
+# Ordinal: equal steps, unequal churn
 
 ![](encoding_comparison.png)
 
@@ -682,14 +691,14 @@ about.
 Handout Section 6.2.
 :::
 
-# One-hot claims nothing, and pays in columns
+# One-hot: no order assumed, but wide
 
-- A column with $k$ levels becomes $k$ binary columns, one 1 per row:
-  `OneHotEncoder`
-- It asserts no order and no distance - which is why it is the default
+- A column with $k$ categories becomes $k$ columns of 0s and 1s, a single 1 per
+  row: `OneHotEncoder`
+- No order between categories, all equally far apart: that is why it is the default
 - The price is width: `zip_code` would add **493** columns to 2,000 rows
-- Target encoding compresses any cardinality into one column - computed from
-  the labels, which is where leakage gets in
+- Target encoding uses one column however many categories there are, but it is
+  computed from the target - which is how leakage gets in
 
 ::: notes
 A warning on the letter: k here counts the levels of a category. Slide 16 used k
@@ -716,10 +725,10 @@ many, which the next slide proves.
 Handout Section 6.1 and 6.2.
 :::
 
-# All k dummies plus an intercept cannot both be free
+# One one-hot column too many
 
-Most models carry a column of ones - the **intercept** - so they can fit a
-baseline level.
+Most models include a constant column of ones, the **intercept**. The $k$
+one-hot columns (*dummies*) also always add up to 1:
 
 $$\sum_{j=1}^{k} \text{dummy}_j = 1 = \text{intercept}$$
 
@@ -749,7 +758,7 @@ Handout Section 6.1 carries the proof for whoever wants it now. The next slide
 shows the redundancy as a number.
 :::
 
-# Rank deficient by exactly one
+# 4 columns, but only rank 3
 
 ![](dummy_variable_trap.png)
 
@@ -780,8 +789,9 @@ what regularisation does, and Lesson 3 returns to it.
 
 One-hot `zip_code`: **493** new columns, mostly zero.
 
-- Distance-based methods (Lesson 6): everything looks equidistant
-- More parameters to estimate, same sample size → more variance
+- Methods based on distances (Lesson 6): all points end up roughly equally far
+  apart
+- More coefficients to estimate from the same 2,000 rows: noisier estimates
 
 ::: notes
 Handout Section 6.3. Deliberately quick - the point is to motivate why target
@@ -819,9 +829,10 @@ about. Do not resolve the tension yet; let it hang until after the break-free
 run into notebook 2's pipeline section.
 :::
 
-# Restating Lesson 1's argument
+# Preprocessing is part of f
 
-$f$ includes **every** learned parameter, not just "the model part".
+$f$ is the whole pipeline: **every** number learned from data - the scaler's
+means, the imputer's fill values - not only the model's coefficients.
 
 $$\mathbb{E}_{T \sim \mathcal{D}^m}\left[\hat{R}_T(f)\right] = R(f)$$
 
@@ -898,7 +909,7 @@ thing the easy thing.
   chance a random churner scores above a random non-churner; 0.5 is a coin flip
 - In code: `LogisticRegression` against `DummyClassifier`, `roc_auc_score`
 
-Modest accuracy gain. Why?
+Accuracy barely beats the baseline. Why?
 
 ::: notes
 Let the room answer why the accuracy gain is modest. The dataset is 80/20 imbalanced, so accuracy is dominated by the majority class - exactly as Lesson 1 warned, and the first time they meet it on data they prepared themselves.
@@ -934,13 +945,12 @@ cases. Accuracy on its own would have reported this as progress.
 
 # Feature engineering
 
-Ratios, interactions, binning: a linear model cannot invent these itself.
+New columns built from existing ones, which a linear model cannot build itself.
 
-`total_paid` = charge × months stayed. AUC: 0.7514 → 0.7548, under four
-thousandths. Clean `tenure_months` first and the same feature scores
-**0.7439** - the gain was living in the 999s.
+`total_paid` = charge × months stayed: AUC 0.7514 → 0.7548. Fix the 999s in
+`tenure_months` first and it scores **0.7439**: the gain came from the errors.
 
-In code: `FunctionTransformer(add_total_paid)`, a step inside the pipeline
+In code: `FunctionTransformer(add_total_paid)`, inside the pipeline
 
 ::: notes
 The formula was on this slide as a rendered equation and came out at 23pt, the
@@ -1055,7 +1065,8 @@ of f, and f must be independent of the test set.
 `KNNImputer` fills a gap with the average of the five most similar rows: its
 **donors**.
 
-Fit it on train + test, and some of those rows are in the test set.
+Fit it on training and test rows together, and some donors are test rows: test
+information enters the training data.
 
 ::: notes
 Walk the mechanism before the number. KNNImputer fills a gap using other rows'
@@ -1079,7 +1090,8 @@ imputer learns; therefore it is fitted on the training data only.
 **94 of 128** training rows with missing age had a **test-set row** among
 the five donors used to fill it.
 
-In code: `nan_euclidean_distances`, the imputer's own metric, names the donors.
+In code: `nan_euclidean_distances`, the distance the imputer itself uses, finds
+the donors.
 
 Nothing raised an error.
 
@@ -1112,7 +1124,7 @@ time. This is the argument for the pipeline, made in numbers.
 # Leak 2: encode before splitting
 
 Replace `zip_code` with the **average churn rate of its own customers**,
-computed before anybody has split anything.
+computed on all 2,000 customers, before the split.
 
 ::: notes
 zip_code has no real relationship with churn - the data was generated that way
@@ -1143,7 +1155,7 @@ This is Lesson 1's 77%-on-coin-flip-labels story again, produced by two
 unremarkable lines of preprocessing instead of an obviously wrong one.
 :::
 
-# Your own disagreement, divided by your group size
+# How much of its own label a row sees
 
 $$\bar y_c - \bar y_c^{(-i)} = \frac{y_i - \bar y_c^{(-i)}}{n_c}$$
 
@@ -1212,8 +1224,8 @@ rule for one case; today it turns out to be the same rule every time.
 Everything that **learns from data** is fitted on the training rows only, inside
 the pipeline.
 
-A mean. A median. A set of neighbours. A per-category average. A set of bin
-edges.
+For example: a mean, a median, the nearest neighbours, a churn rate per
+category, the edges of bins.
 
 ::: notes
 One test, not a growing list of special cases: does fitting this step compute
@@ -1268,7 +1280,7 @@ subtlest and the one most likely to appear in their own exercises.
 - Diagnosed *why* values are missing, not just *how many*
 - Two outlier rules, and what neither can tell you
 - Scaling, encoding, engineering: all inside `Pipeline`
-- Two leaks that look nothing like leaking
+- Two leaks that raise no error and look like good results
 
 ::: notes
 Draw the thread together explicitly. Lesson 1 said nothing is learned before
@@ -1310,7 +1322,7 @@ asks why each decision was made.
 # Before next week
 
 - Work the three notebooks in order
-- Read the handout: the derivations are examinable
+- Read the handout: it has the derivations behind today's slides
 - Take the quiz
 - **Do the exercise**
 
