@@ -218,6 +218,23 @@ and it is the central difficulty of the field.
 
 *The same twenty-two points fitted three times. The dashed line is the pattern the data really came from, which no method gets to see. Left, a straight line is too rigid to follow it. Right, a degree-18 polynomial passes almost exactly through every sample point and shoots off the scale between them — its empirical risk is nearly zero and it has learnt the noise, not the pattern. The middle one is what we want, and nothing in the training error distinguishes it from the right-hand one.*
 
+**Why the blue curve can only fall, and the condition hidden in "only".** The three
+families in that figure are nested: a straight line is a degree-4 polynomial whose top
+three coefficients are zero, and a degree-4 polynomial is a degree-18 one in the same
+way. A larger family can always reproduce the best member of a smaller one, so its best
+training error cannot be higher. On those twenty-two points the training mean squared
+error the best member reaches falls from **0.259** at degree 1 to **0.054** at
+degree 4 and **0.014** at degree 18.
+
+The argument is about the *best* member of each family, though, and it holds only if
+the fitting procedure finds it. Ask `np.polyfit` for degree 21 — twenty-two coefficients
+for twenty-two points, enough to pass through every one of them exactly — and it returns
+a training error of **0.0152**, *higher* than the 0.0149 it returns at degree 20. The
+powers $x^0$ to $x^{21}$ on $[0, 1]$ are so nearly parallel that the solver loses the
+exact answer to rounding; lesson 3 measures this as the condition number. Write the same
+family in a better-conditioned basis and degree 21 reaches zero, as it must. The fall is
+a property of the families; what a solver delivers can fall short of it.
+
 So the practical question is never "how well does the model do on the data I fitted
 it to?" — that number is always optimistic and sometimes meaningless. It is "how well
 will it do on data it has never seen?"
@@ -364,6 +381,13 @@ the standard error being the square root of the variance. (Lesson 5 returns to t
 division by $m$ and asks what happens when the $m$ measurements are *not*
 independent — the answer is a second term, and a much wider error bar.)
 
+**Which $p$?** The formula needs the model's *true* accuracy, $p = P(f(X) = Y)$ — under
+the zero-one loss that is $1 - R(f)$, and it is exactly as unknown as $R(f)$ itself.
+What we hold is the *measured* accuracy, $\hat{p} = 141/143$; the hat marks an estimate,
+as it does on $\hat{R}$. So the standard error is computed by putting $\hat{p}$ where
+the formula wants $p$: a second approximation on top of the first, harmless when there
+are plenty of errors to count and one more reason for caution here, where there are two.
+
 In Notebook 02 the test set holds 143 examples and the accuracy comes out at 0.986.
 That gives a standard error of about **one percentage point**, so reporting "0.986" to
 three decimal places claims a precision we do not have: the third digit is noise. This
@@ -387,6 +411,17 @@ better model. With thousands of examples, holding out 20-30% costs little and bu
 reliable number. With a few hundred, both sides hurt at once, which is precisely the
 situation cross-validation is designed for. Lesson 5 takes it up.
 
+**Two properties, two controls.** Sections 2.3 and 2.4 together say how to read the one
+number a test set gives you. **Independence controls the bias**: a test set that nothing
+was tuned on is not systematically optimistic. **Size controls the variance**: 143 rows
+leave an error bar of about a point either way. Neither does the other's job — a huge
+test set that was consulted while choosing the model is precisely wrong, and a pristine
+one of ten rows is honestly useless. So 0.986 is not a property of the model. It is
+the result of measuring that model on one particular independent sample, and the
+sentence that reports it fairly is "on an independent test set of 143 examples we
+measured 0.986, give or take about a point". What independence buys is honesty, not
+certainty.
+
 ### 2.5 One simplification we are making today
 
 This lesson speaks of a training set and a test set. In practice three roles are
@@ -407,6 +442,14 @@ no comparison. As soon as you compare ten candidates and report the best, you ha
 *selected* using whatever data you compared them on — and if that was the test set, the
 winning number is optimistic again, for exactly the reason in Section 2.3. The
 selection is a decision, and decisions are what the test set must stay independent of.
+
+**"Once" is not a claim that the measurement is precise** — Section 2.4 has just shown it
+is not. It is a claim about what looking does. Score model A on the test set, adjust
+something, score B, adjust again, score C, and stop because C scored highest. No step
+was dishonest, and yet C was chosen *by the test set*, which has quietly become a
+validation set; the number reported for C inherits the optimism of Section 2.3. The
+rule is not "look once because one look is enough". It is "every look that changes
+something is a choice, and the test set must not make choices".
 
 Everything in Lesson 5 elaborates these three sections.
 
@@ -500,8 +543,13 @@ and 10. Press coverage promises machines that will walk, talk and be conscious.
 
 **1969 — the first winter begins.** Minsky and Papert prove the perceptron cannot
 represent XOR. The limitation is real but narrower than the reception suggests — it
-applies to a single layer, and multi-layer networks were not yet trainable. Funding
-collapses for a decade.
+applies to a single layer, and multi-layer networks were not yet trainable. One hidden
+layer of two units is enough to represent XOR: one unit computes OR,
+$h_1 = [x_1 + x_2 \ge 0.5]$, another computes AND, $h_2 = [x_1 + x_2 \ge 1.5]$, and the
+output fires when the first is on and the second off, $y = [h_1 - h_2 \ge 0.5]$, where
+$[\cdot]$ is 1 when the condition holds and 0 otherwise. Run the four inputs through it
+and it returns 0, 1, 1, 0. What was missing in 1969 was not a network that *could* do
+it but a way to *learn* such weights. Funding collapses for a decade.
 
 **1986 — backpropagation popularised.** Rumelhart, Hinton and Williams give a practical
 way to train multi-layer networks, removing the objection. Enthusiasm returns; a second
@@ -881,8 +929,8 @@ in the framing step, not in a paragraph at the end of a report.
 | $L$ | the loss on a single example |
 | $R$, $\hat{R}$ | the expected risk, the empirical risk |
 | $\mathcal{D}$ | the unknown distribution the data is drawn from |
-| $p$ | a measured accuracy, read as a proportion (Section 2.4) |
-| $\mathrm{SE}$ | the standard error of that proportion |
+| $p$, $\hat{p}$ | the true accuracy, the accuracy measured on a test set (Section 2.4) |
+| $\mathrm{SE}$ | the standard error of a measured accuracy |
 
 These carry the same meanings in every lesson of the course. Where a later lesson
 needs a symbol for something else, it says so in its own table.

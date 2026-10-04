@@ -292,4 +292,53 @@ _right = sum((r > _best_cut) == m for r, m in zip(_r_test, _m_test))
 same("2.1 and test accuracy on the 143 it never saw", _right / len(_r_test), 0.888, tolerance=5e-4)
 same("2.1 the full model's 0.986 is 141 of 143", 141 / 143, 0.986, tolerance=5e-4)
 
+# ----------------------------- Section 2.2, nested families and the solver
+#
+# The figure's twenty-two points, regenerated from make_figures.py's seed. The
+# best training error of each family is reached twice: by numpy's scaled
+# Polynomial.fit, and by a least-squares solve on a Chebyshev design matrix built
+# here. The two share no intermediate value. The degree-20 and degree-21 numbers
+# are a claim about np.polyfit itself, so polyfit is the route for those.
+import warnings
+import numpy as np
+from numpy.polynomial import Polynomial, chebyshev
+
+_rng = np.random.default_rng(3)
+_x = np.sort(_rng.uniform(0, 1, 22))
+_y = np.sin(2.2 * np.pi * _x) * 0.8 + _rng.normal(0, 0.22, 22)
+
+
+def _best_mse(degree: int) -> float:
+    route_1 = np.mean((Polynomial.fit(_x, _y, degree)(_x) - _y) ** 2)
+    design = chebyshev.chebvander(2 * _x - 1, degree)
+    coef = np.linalg.lstsq(design, _y, rcond=None)[0]
+    route_2 = np.mean((design @ coef - _y) ** 2)
+    same(f"2.2 degree {degree}: the two routes to the best fit agree", route_1, route_2, tolerance=1e-6)
+    return route_1
+
+
+same("2.2 best training error at degree 1", _best_mse(1), 0.259, tolerance=5e-4)
+same("2.2 at degree 4", _best_mse(4), 0.054, tolerance=5e-4)
+same("2.2 at degree 18", _best_mse(18), 0.014, tolerance=5e-4)
+same("2.2 and degree 21 interpolates all 22 points", _best_mse(21), 0.0, tolerance=1e-9)
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    _poly = {d: np.mean((np.polyval(np.polyfit(_x, _y, d), _x) - _y) ** 2) for d in (20, 21)}
+same("2.2 np.polyfit at degree 20", _poly[20], 0.0149, tolerance=5e-5)
+same("2.2 np.polyfit at degree 21", _poly[21], 0.0152, tolerance=5e-5)
+same("2.2 which is higher than at degree 20", float(_poly[21] > _poly[20]), 1.0, tolerance=0)
+
+# ------------------------------------ Section 4, XOR with one hidden layer
+#
+# The three threshold units the handout writes down, run on the four inputs and
+# compared with XOR computed as inequality of the two bits.
+for _a in (0, 1):
+    for _b in (0, 1):
+        _h1 = int(_a + _b >= 0.5)
+        _h2 = int(_a + _b >= 1.5)
+        same(f"4 the network on ({_a}, {_b}) computes XOR", int(_h1 - _h2 >= 0.5), int(_a != _b), tolerance=0)
+
+# --------------------------------- Section 2.4, p-hat is the measured 141/143
+same("2.4 the measured accuracy p-hat", 141 / 143, accuracy, tolerance=5e-4)
+
 print(f"lesson 1: {checks} hand-worked numbers recomputed, all agree")
