@@ -9,16 +9,17 @@ date: "9 October 2026 · reading time about 80 minutes"
 
 | Time | Segment | Material |
 |---|---|---|
-| 0:00–0:08 | Recap of Exercise 1, today's map | Slides 1–5 |
-| 0:08–0:35 | Exploratory analysis, missing values, outliers | Slides 6–21 |
-| 0:35–0:55 | Notebook 01, live | Slide 22 |
-| 0:55–1:10 | **Break** | Slide 23 |
-| 1:10–1:32 | Scaling and encoding | Slides 24–35 |
-| 1:32–1:44 | Pipelines, the model, feature engineering | Slides 36–41 |
-| 1:44–2:04 | Notebook 02, live | Slide 42 |
-| 2:04–2:24 | Leakage in preprocessing | Slides 43–52 |
-| 2:24–2:46 | Notebook 03, live | Slide 53 |
-| 2:46–3:00 | Recap, homework set, questions | Slides 54–56 |
+| 0:00–0:15 | Lesson 1, what we clarified since: accuracy, learning as a search, reading a test score, thresholds, XOR | Lesson 1 handout, Sections 2, 4 and 7 |
+| 0:15–0:23 | Recap of Exercise 1, today's map | Slides 1–5 |
+| 0:23–0:48 | Exploratory analysis, missing values, outliers | Slides 6–21 |
+| 0:48–1:08 | Notebook 01, live | Slide 22 |
+| 1:08–1:18 | **Break** | Slide 23 |
+| 1:18–1:38 | Scaling and encoding | Slides 24–35 |
+| 1:38–1:50 | Pipelines, the model, feature engineering | Slides 36–41 |
+| 1:50–2:10 | Notebook 02, live | Slide 42 |
+| 2:10–2:28 | Leakage in preprocessing | Slides 43–52 |
+| 2:28–2:50 | Notebook 03, live | Slide 53 |
+| 2:50–3:00 | Recap, homework set, questions | Slides 54–56 |
 | | **Total** | **180 minutes** |
 
 ---

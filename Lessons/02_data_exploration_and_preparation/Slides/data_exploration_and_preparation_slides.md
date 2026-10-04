@@ -14,6 +14,10 @@ Exercise 1 was set last week. We discuss it now.
 - A show of hands on how you framed it
 
 ::: notes
+The fifteen minutes on what lesson 1 clarified come before this slide; the
+exercise discussion follows them, and the seed part of it lands better for
+having just seen that a test score is one measurement.
+
 Open with the exercise, briefly - two or three minutes, not a review session.
 Nothing is collected, so this is the whole of the feedback: ask for a show of
 hands, who treated quality as binary and who kept it as an integer regression
@@ -53,7 +57,7 @@ Agenda slide. Flag the last item now as the one to remember in five years -
 everything before it is the machinery that makes the leakage discussion
 precise rather than hand-wavy.
 
-Timing: roughly 35 minutes to the first notebook, then a break, then scaling
+Timing: roughly 25 minutes to the first notebook, then a break, then scaling
 and encoding, then the leakage section closes the lesson before homework.
 :::
 
@@ -449,7 +453,7 @@ the derivation predicts.
 # Break
 
 ::: notes
-15 minutes. Back for scaling, encoding and the pipeline.
+10 minutes. Back for scaling, encoding and the pipeline.
 
 Use the break to check who is stuck in the notebook - the second half assumes
 everyone has a working ColumnTransformer, and it is much cheaper to fix now
