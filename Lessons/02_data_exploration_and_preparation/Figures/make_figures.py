@@ -386,7 +386,7 @@ def condition_number_geometry():
 def missing_data_decision():
     """Four options, and the question that chooses between them."""
     fig, ax = plt.subplots(figsize=(10.6, 4.0))
-    ax.set_xlim(0, 12); ax.set_ylim(0, 5.4); ax.axis("off")
+    ax.set_xlim(0, 12); ax.set_ylim(-0.4, 5.4); ax.axis("off")
 
     ax.add_patch(FancyBboxPatch((4.1, 4.2), 3.8, 0.85,
                                 boxstyle="round,pad=0.03,rounding_size=0.08",
@@ -398,7 +398,7 @@ def missing_data_decision():
         (0.3, "Drop rows", "few gaps,\nand MCAR", TEAL),
         (3.2, "Drop column", "too empty\nto be useful", SLATE),
         (6.1, "Impute", "mean, median,\nkNN, regression", BLUE),
-        (9.0, "Add indicator", "when the gap says what\nno other column can", RUST),
+        (9.0, "Add indicator", "only if being missing\ntells the model\nsomething new", RUST),
     ]
     for x, label, when, colour in options:
         ax.add_patch(FancyBboxPatch((x, 2.2), 2.6, 0.85,
@@ -412,7 +412,7 @@ def missing_data_decision():
                                      arrowstyle="-|>", mutation_scale=12,
                                      color=SLATE, lw=1.3))
 
-    ax.text(6.0, 0.55,
+    ax.text(6.0, 0.05,
             "the mechanism decides, and every option except dropping the column\n"
             "learns a statistic, so it is fitted on the training data only",
             ha="center", fontsize=10.5, color=INK, linespacing=1.6)

@@ -204,12 +204,11 @@ The algebra is Handout Section 3.2: the correlation is multiplied by the square 
 
 # Support calls: missing at random
 
-MAR, for short: missing more often for long-tenure customers - a column we can
-see explains it.
+MAR, for short: long-tenure customers leave it blank more often.
 
-- Treating it as MCAR reweights the sample the wrong way
-- A **missingness indicator** would record the gap - but `tenure_months` already
-  tells the model what the gap would: here it gains nothing
+- Dropping those rows would remove mostly long-tenure customers
+- A **missingness indicator** (1 if missing, 0 if not) adds nothing here:
+  `tenure_months` already tells the model which rows tend to have a gap
 
 ::: notes
 The predictable answer is "add an indicator, it keeps the MAR signal", and the
@@ -219,8 +218,10 @@ they churn at 12.5% against 19.7%, so the fact of the gap is informative.
 But under MAR the gap is explained by a column we already hold - that is the
 definition - so the model already has what the indicator would tell it. Notebook
 and handout agree: adding it moves the area under the curve from 0.751 to 0.741,
-no gain, well inside split-to-split noise. The indicator earns its place when the
-gap says something no other column does, and that is MNAR. Handout Section 3.3.
+no gain, well inside split-to-split noise. The indicator is worth adding only if
+being missing tells the model something the other columns cannot - typically
+when the value is missing not at random (MNAR), because whether it is missing
+depends on the missing value itself. Handout Section 3.3.
 :::
 
 # What to do about a gap
@@ -229,8 +230,8 @@ gap says something no other column does, and that is MNAR. Handout Section 3.3.
 - **Drop the column**: if it is missing too often to help
 - **Impute**: mean/median or most-frequent with `SimpleImputer`, neighbours
   with `KNNImputer`
-- **Add a missingness indicator**: only when the gap says what no other column
-  does - above all when missing not at random (MNAR)
+- **Add a missingness indicator**: only if *being missing* tells the model
+  something the other columns cannot - typically when missing not at random (MNAR)
 
 ::: notes
 Four options, and the choice is a question about WHY the data is missing rather than about how much is missing.
