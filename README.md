@@ -18,6 +18,7 @@ Ten lessons of three hours, every Friday from 2 October to 4 December 2026.
 3. [**Schedule**](Course/SCHEDULE.md) — dates and what each lesson covers
 4. [**Syllabus**](Course/SYLLABUS.md) — aims, outcomes, assessment
 5. [**Assessment**](Assessment/) — how the exam works, and what it asks of you
+6. [**Bibliography**](Course/BIBLIOGRAPHY.md) — optional books that explain the same material in another voice
 
 New material appears on the day of each lesson. Run `git pull` to get it.
 
