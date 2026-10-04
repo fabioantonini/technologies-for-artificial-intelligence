@@ -379,20 +379,86 @@ Empirical risk. Minimising it is empirical risk minimisation, and essentially ev
 method in this course is an instance of it - linear regression, logistic regression,
 trees, neural networks. Different function classes, same principle.
 
-Say what L is, or it stays a placeholder all lesson. Simplest choice, the zero-one
-loss: 0 when right, 1 when wrong. Then the empirical risk IS the error rate, and
-accuracy is one minus it - so every score in today's notebooks is an empirical risk
-under a friendlier name. Notebook 02: 0.986 on 143 examples is two mistakes, an
-empirical risk of 0.014.
+Say what L is, or it stays a placeholder all lesson - the next slide does it with
+the simplest choice, and that choice turns this formula into accuracy.
 
 And say that choosing L is a modelling decision, not a technicality: it is where you
 state what counts as a bad mistake, before any model exists. Zero-one says every error
 costs the same, which is almost never true. Lesson 3 uses squared error, lesson 4 uses
 cross-entropy and then prices the two kinds of mistake separately. Handout 2.1.
 
-Ask the room: what could go wrong with minimising this instead of the thing we actually
-want? Give them a moment. Someone usually says "it might not generalise", which is
-exactly right and is the next slide.
+:::
+
+# Accuracy: the share of right answers
+
+- With the zero-one loss - 1 for a wrong answer, 0 for a right one - the empirical
+  risk is the **error rate**
+- **Accuracy** = right answers ÷ all answers = 1 − error rate
+- 141 right out of 143: accuracy **0.986**, error rate **0.014**
+- Every mistake counts the same, which is what we will see it hide
+
+::: notes
+The word has been used since the first slide and never pinned down, so pin it now,
+and pin it to the formula on the previous slide. Take the simplest loss there is:
+0 when the answer is right, 1 when it is wrong. Then the average loss over the
+sample is just the fraction of wrong answers - the error rate - and accuracy is one
+minus it. Every accuracy in today's notebooks is an empirical risk under a
+friendlier name.
+
+The number they will see in notebook 02: the model gets 141 of the 143 test tumours
+right, 141 / 143 = 0.986, so the error rate is 2 / 143 = 0.014.
+
+Flag the last bullet now and come back to it: the zero-one loss charges a malignant
+tumour sent home exactly what it charges a benign one sent to biopsy. That is the
+confusion-matrix slide later today, and lesson 4's subject. Handout 2.1.
+:::
+
+# Learning, in one line
+
+$$\hat{f} = \mathrm{arg\,min}_{f \in \mathcal{F}}\; \hat{R}_S(f)$$
+
+::: notes
+The whole of "learning" in one formula, and it reads left to right as a sentence.
+F is the family: every model we are willing to consider - all the threshold rules
+on the next slide, all the weighted sums of the 30 features in notebook 02. R-hat is
+the empirical risk from two slides back, the training error. And arg min means "the
+member of the family where that error is smallest" - not the smallest error itself,
+the model that achieves it. f-hat, with the hat, is that model: an estimate, picked
+from data, of the f we really want.
+
+So two decisions are made before any data arrives - which family F, which loss
+inside R-hat - and the data makes the third: which member of F wins. The next slide
+shows the arg min being taken, one candidate at a time. Handout 2.1.
+:::
+
+# Learning is a search
+
+![](learning_search.png)
+
+::: notes
+What "fit" actually does, on the smallest model there is. One feature - the mean
+radius of the tumour - and one family of rules: call a tumour malignant if its
+radius is above a threshold t. Every value of t is a different candidate model.
+
+Top: the 426 training tumours along the radius axis, malignant above, benign below.
+Bottom: the training error rate of every one of the 355 candidate thresholds - a
+threshold halfway between each pair of neighbouring values. Learning, here, is
+literally this: try them all, keep the one with the fewest mistakes. It is t = 15.04,
+with training error 0.108, so training accuracy 0.892. On the 143 test tumours it
+never saw it scores 0.888.
+
+Then generalise in one sentence each. The real model in notebook 02 does the same
+thing - choose a family, score every member on the training data, keep the best -
+with all 30 features, a far richer family (weighted sums of the features), and a
+smarter search than trying every candidate one by one; lesson 3 shows that search.
+It gets to 0.986.
+
+Ask the room: what could go wrong with minimising the training error instead of the
+error we actually care about, on new tumours? Give them a moment. Here the two
+numbers are close, 0.892 and 0.888, because a one-threshold family is too small to
+memorise anything. Someone usually says "with a richer family it might not
+generalise", which is exactly right and is the next slide. Notebook 02, section 5;
+handout 2.1.
 :::
 
 # The gap that explains everything
@@ -511,7 +577,7 @@ no choices: one model, no tuning.
 - The data is **not representative** of deployment
 - Errors are **certain, unrecoverable and unreviewed**
 - The data encodes an **injustice** you would automate
-- A **simple baseline** already suffices
+- A **simple baseline** already suffices: always give the most common answer
 
 ::: notes
 Unfashionable and immediately useful - handout section 3.
@@ -887,6 +953,7 @@ often oversold.
 - **Supervised**: predict the cultivar. Accuracy **0.981**
 - **Unsupervised**: throw the labels away. Recovers the cultivars at **0.897**
 - **Self-supervised**: hide `flavanoids`, predict it. R² **0.816**
+  (1 = perfect, 0 = no better than always guessing the mean)
 
 ::: notes
 Open notebook 01 and run it. Twenty minutes, and it is the only place today where
@@ -1071,6 +1138,11 @@ model.fit(X_train, y_train)
 ```
 
 ::: notes
+LogisticRegression is the model, and today it can stay a black box with one
+property worth saying: it belongs to the family of slide 20, weighted sums of the
+features, searched for the weights with the fewest training mistakes. Lesson 4 opens
+the box.
+
 Explain WHY, not just what.
 
 StandardScaler LEARNS something - a mean and a standard deviation per feature. That
@@ -1343,13 +1415,19 @@ at the end of the notebook.
 
 # The rule
 
-Every step that **learns anything** must be fitted inside the training fold.
+Every step that **learns anything** must be fitted on the training data only.
 
 Scaling. Imputation. Encoding. Selection. Tuning.
 
 ::: notes
 The practical takeaway from the whole leakage section, and the thing to put on the board
 if anything goes on the board today.
+
+Two of the five words are not today's: imputation (filling missing values) and
+encoding (turning categories into numbers) are next week's subject, and tuning is
+lesson 5's. Name them now so the rule is already in place when they arrive - each
+one learns something from the data, which is the only property the rule cares
+about.
 
 Pipelines enforce it structurally, which is why we used one from the first notebook.
 

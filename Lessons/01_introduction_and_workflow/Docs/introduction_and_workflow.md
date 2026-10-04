@@ -11,17 +11,17 @@ date: "2 October 2026 · reading time about 70 minutes"
 |---|---|---|---|
 | 0:00–0:15 | 15 | Course introduction and assessment | Slides 1–8 |
 | 0:15–0:25 | 10 | Environment check | `Course/Setup/` |
-| 0:25–0:50 | 25 | What learning from data means | Slides 9–21 |
-| 0:50–1:05 | 15 | A short history | Slides 22–31, `Resources/` |
+| 0:25–0:50 | 25 | What learning from data means | Slides 9–24 |
+| 0:50–1:05 | 15 | A short history | Slides 25–34, `Resources/` |
 | 1:05–1:15 | 10 | **Break** | — |
-| 1:15–1:30 | 15 | The three kinds of learning | Slides 32–37 |
-| 1:30–1:45 | 15 | **Notebook 01** — one dataset, three questions | Slide 38 |
-| 1:45–1:50 | 5 | The workflow, the map | Slide 39 |
-| 1:50–2:30 | 40 | **Notebook 02** — the workflow, live, with slides 41–54 | Slide 40 |
-| 2:30–2:35 | 5 | How models mislead: the frame | Slide 55 |
-| 2:35–2:55 | 20 | **Notebook 03** — four failures, live, with slides 57–66 | Slide 56 |
-| 2:55–3:00 | 5 | Homework set, questions | Slides 67–68 |
-| | **180** | **Total** | **68 slides, 3 notebooks** |
+| 1:15–1:30 | 15 | The three kinds of learning | Slides 35–40 |
+| 1:30–1:45 | 15 | **Notebook 01** — one dataset, three questions | Slide 41 |
+| 1:45–1:50 | 5 | The workflow, the map | Slide 42 |
+| 1:50–2:30 | 40 | **Notebook 02** — the workflow, live, with slides 44–57 | Slide 43 |
+| 2:30–2:35 | 5 | How models mislead: the frame | Slide 58 |
+| 2:35–2:55 | 20 | **Notebook 03** — four failures, live, with slides 60–69 | Slide 59 |
+| 2:55–3:00 | 5 | Homework set, questions | Slides 70–71 |
+| | **180** | **Total** | **71 slides, 3 notebooks** |
 
 Slide 1 is the title slide, so the numbers above match the page numbers in
 `Slides/introduction_and_workflow_slides.pdf`. Each notebook is announced by its
@@ -142,7 +142,12 @@ instead:
 
 $$\hat{R}_S(f) = \frac{1}{m} \sum_{i=1}^{m} L(f(x_i), y_i)$$
 
-and choose the $f$ that makes it small. This is *empirical risk minimisation*, and
+and choose, from a family $\mathcal{F}$ of candidate models, the one that makes it
+smallest:
+
+$$\hat{f} = \arg\min_{f \in \mathcal{F}} \hat{R}_S(f)$$
+
+This is *empirical risk minimisation*, and
 essentially every method in this course is an instance of it.
 
 **What $L$ actually is.** So far it is a placeholder, and it should not stay one. The
@@ -160,6 +165,28 @@ event, and Section 3 prices exactly that. Lesson 3 replaces zero-one with square
 for continuous targets, Lesson 4 with cross-entropy, and Lesson 4 goes further and
 gives the two kinds of mistake separate prices. Changing $L$ changes which $f$ wins,
 which is why it is a modelling decision and not a technicality.
+
+**What "choose the $f$ that makes it small" looks like.** Learning is a search: fix a
+family of candidate models, measure each one's empirical risk on the training data,
+keep the one with the smallest. The smallest family that makes the point has one
+feature and one parameter — *call a tumour malignant if its mean radius exceeds $t$* —
+so every value of $t$ is a candidate. Notebook 02 tries all 355 thresholds that fall
+between neighbouring training values and keeps the one with the fewest mistakes on
+the 426 training tumours: $t = 15.04$, training error 0.108, so training accuracy
+— the share of answers that are right — 0.892. On the 143 test tumours it never saw,
+0.888.
+
+![](learning_search.png)
+
+*Top, the training tumours along one feature, malignant above and benign below, and
+the threshold the search kept. Bottom, the training error of every candidate
+threshold: learning is walking along this curve and keeping its lowest point.*
+
+The model that reaches 0.986 later in the notebook does exactly the same thing with
+all 30 features, a much richer family — weighted sums of the features — and a
+smarter search than trying every candidate one by one, which is Lesson 3's subject.
+Here training and test accuracy are close, because a one-threshold family is too
+small to memorise anything. A richer family is where that stops being true.
 
 ### 2.2 The gap that explains the whole course
 

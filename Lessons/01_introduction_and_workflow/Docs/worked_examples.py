@@ -269,4 +269,27 @@ same("2.1 whose label is malignant, coded 0", int(_data.target[0]), 0, tolerance
 same("2.1 and malignant is indeed class 0",
      float(_data.target_names[0] == "malignant"), 1.0, tolerance=0)
 
+# ----------------------------------- Section 2.1, learning as a search
+#
+# The one-threshold family, searched by brute force on the training rows of the
+# same seed-42 split. Written without the notebook's variable names, and scored
+# by counting mistakes rather than by averaging a boolean, so it reaches the
+# handout's numbers by a second route.
+_r_train = _X_train["mean radius"].to_numpy()
+_m_train = (_y_train == 0).to_numpy()
+_sorted = sorted(set(_r_train.tolist()))
+_cuts = [(a + b) / 2 for a, b in zip(_sorted, _sorted[1:])]
+_mistakes = [sum((r > c) != m for r, m in zip(_r_train, _m_train)) for c in _cuts]
+_best_cut = _cuts[_mistakes.index(min(_mistakes))]
+same("2.1 candidate thresholds between neighbouring training values", len(_cuts), 355, tolerance=0)
+same("2.1 training tumours", len(_r_train), 426, tolerance=0)
+same("2.1 the threshold the search keeps", _best_cut, 15.04, tolerance=6e-3)
+same("2.1 its training error", min(_mistakes) / len(_r_train), 0.108, tolerance=5e-4)
+same("2.1 so training accuracy", 1 - min(_mistakes) / len(_r_train), 0.892, tolerance=5e-4)
+_r_test = _X_test["mean radius"].to_numpy()
+_m_test = (_y_test == 0).to_numpy()
+_right = sum((r > _best_cut) == m for r, m in zip(_r_test, _m_test))
+same("2.1 and test accuracy on the 143 it never saw", _right / len(_r_test), 0.888, tolerance=5e-4)
+same("2.1 the full model's 0.986 is 141 of 143", 141 / 143, 0.986, tolerance=5e-4)
+
 print(f"lesson 1: {checks} hand-worked numbers recomputed, all agree")
