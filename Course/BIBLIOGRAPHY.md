@@ -24,13 +24,14 @@ Dutton.
 > with the equations kept in. It goes with lessons 1, 3, 6, 8 and 9, for the *why*
 > behind the methods rather than the code.
 
-Chollet, F. (2021). *Deep learning with Python* (2nd ed.). Manning Publications.
+Chollet, F., & Watson, M. (2025). *Deep learning with Python* (3rd ed.). Manning
+Publications.
 
 > Neural networks with Keras, by the author of Keras. Chapters 2–4 (the
-> mathematical building blocks, Keras and TensorFlow, a first classification and
-> regression) go with lesson 9; chapter 5 (generalisation, evaluation, overfitting)
-> with lesson 5; chapter 8 (convolutional networks for computer vision) with
-> lesson 10.
+> mathematical building blocks; TensorFlow, PyTorch, JAX and Keras; classification
+> and regression) go with lesson 9; chapter 5 (fundamentals of machine learning:
+> generalisation, evaluation, overfitting) with lesson 5; chapters 8–9 (image
+> classification and convolutional network architectures) with lesson 10.
 
 Géron, A. (2022). *Hands-on machine learning with Scikit-Learn, Keras, and
 TensorFlow: Concepts, tools, and techniques to build intelligent systems* (3rd
