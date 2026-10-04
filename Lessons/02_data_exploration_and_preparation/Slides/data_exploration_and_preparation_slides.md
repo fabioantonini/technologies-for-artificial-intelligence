@@ -491,11 +491,10 @@ than during the leakage section.
 # Why scale?
 
 - `tenure_months`: 0–72. `monthly_charges`: 15–128
-- **Training** = choosing the model's numbers to make Lesson 1's average loss
-  small
-- **Gradient descent** does it by repeated small steps downhill on that loss
-- The same step size - the **learning rate** - is used for every column at every
-  step. Can one size suit both?
+- **Training**: choose w₁, w₂ to minimise Lesson 1's average loss, a paraboloid
+  over (w₁, w₂). Lesson 1's slide 20 drew it for one number, the threshold
+- **Gradient descent** walks downhill on it with one step size, the **learning
+  rate**, for every column. Can it suit both?
 
 ::: notes
 Reconnect to Lesson 1 before anything else, because the vocabulary is already
@@ -536,6 +535,15 @@ is deliberately NOT here: it belongs with gradient descent itself, Lesson 3.
 ![](condition_number_geometry.png)
 
 ::: notes
+Bridge from Lesson 1 first. Its slide 20 plotted the training error against one
+number, the threshold t, and the best t was the bottom of that curve. Here the
+model has two numbers, w1 and w2, so the same average loss becomes a surface
+over the plane of (w1, w2), and this figure is that surface seen from above:
+each ring is a contour line, joining coefficient pairs with the same loss. The
+figure draws an exact paraboloid, the shape of a squared-error loss for a linear
+model; the logistic loss of the churn model is only approximately this shape,
+close to its minimum.
+
 Do this one entirely on the picture; there is no algebra on this slide by choice.
 
 Read the axes first, and do not skip this - a contour plot of a loss surface is

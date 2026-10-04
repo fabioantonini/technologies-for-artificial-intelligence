@@ -692,12 +692,20 @@ hold — as small as possible. It left open how. For most of this course the
 answer is **gradient descent**: the model is a set of numbers, one coefficient
 per feature plus an intercept, every choice of those numbers has a risk, and
 training starts from some choice and repeatedly nudges all of them downhill by
-the same amount — the **step size**. One step size serves the whole model, not
+the same amount — the **step size**, also called the **learning rate** and
+written $\alpha$. One step size serves the whole model, not
 one per feature, and that single number is the whole difficulty below.
 
 **The picture first.** Think of that risk as a landscape and of each
 coefficient as one compass direction, so that every point of the landscape is a
-candidate model and its height is how badly that model fits. If one feature
+candidate model and its height is how badly that model fits. Lesson 1 drew
+this landscape for a model with a single number: in its Section 2.1 the training
+error of every threshold $t$ formed a curve, and learning picked the lowest point.
+With two coefficients $w_1$ and $w_2$ the curve becomes a surface over the plane of
+$(w_1, w_2)$, and the figure below shows it from above, as contour lines. For a
+linear model with a squared-error loss that surface is exactly a paraboloid, which
+is what the figure draws; the logistic loss of the churn model has that shape only
+approximately, close to its minimum. If one feature
 varies over thousands and another over units, the landscape is not a bowl but a
 **narrow ravine**: steep across, almost flat along.
 
@@ -1344,6 +1352,8 @@ rather than fitted inside it: its **hyperparameters**.
 | $\text{missing}^{(i)}_j$ | whether that cell is blank (Section 3.1) |
 | $x_i$ | in Section 4 only, and **not** a row: the $i$-th value of the single column being screened for outliers |
 | $m$, $n$ | number of examples, number of features |
+| $w_1$, $w_2$ | the coefficients of a two-feature model (Section 5.2) |
+| $\alpha$ | the learning rate, the step size of gradient descent (Section 5.2) |
 | $\mu$, $\sigma$ | a feature's mean and standard deviation |
 | $\bar{x}$ | a sample mean |
 | $\rho$ | the correlation between two variables |

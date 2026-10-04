@@ -377,7 +377,7 @@ def condition_number_geometry():
         ax.set_xlim(-2.4, 2.4); ax.set_ylim(-2.4, 2.4)
         ax.set_xticks([]); ax.set_yticks([])
         ax.set_aspect("equal")
-    fig.suptitle("One stride length, two very different directions", fontsize=12.5,
+    fig.suptitle("The average loss as a function of the two coefficients, seen from above", fontsize=12.5,
                  weight="bold", y=1.02)
     fig.tight_layout()
     save(fig, "condition_number_geometry.png")
