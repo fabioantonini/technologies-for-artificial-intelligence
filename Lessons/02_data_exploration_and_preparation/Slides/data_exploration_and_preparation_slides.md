@@ -220,7 +220,8 @@ itself is filled with a number. Handout Section 3.3.
 
 - **Drop rows**: only if few, and only if MCAR
 - **Drop the column**: if it is missing too often to help
-- **Impute**: mean/median, most-frequent, `KNNImputer`
+- **Impute**: mean/median or most-frequent with `SimpleImputer`, neighbours
+  with `KNNImputer`
 - **Add a missingness indicator**: keeps MAR signal alive
 
 ::: notes
@@ -427,9 +428,19 @@ changed the population your model is trained on.
 
 # Notebook 1, live
 
-Exploration, missingness mechanisms, both outlier rules: from scratch.
+| section, and its slides | you call (pandas, no model yet) |
+|---|---|
+| first look, 6 | `df.info()`, `df.describe()` |
+| distributions, 7 | `df.hist()` |
+| missingness, 8-12 | `df.isna().mean()`, and the mean before and after filling |
+| outliers from scratch, 15-19 | `.mean()` and `.std()` for rule 1, `.quantile([0.25, 0.75])` for rule 2 |
+| correlations, categories | `df.corr()`, `.value_counts()` |
 
 ::: notes
+Exploration, missingness mechanisms, both outlier rules: from scratch. The table
+is the notebook's map - no scikit-learn yet, only the pandas calls that do the
+looking, each next to the slides where the idea was introduced.
+
 Work through notebook 1 now, 20 minutes. Let them drive; walk the room rather
 than presenting.
 
@@ -659,7 +670,8 @@ Handout Section 6.2.
 
 # One-hot claims nothing, and pays in columns
 
-- A column with $k$ levels becomes $k$ binary columns, one 1 per row
+- A column with $k$ levels becomes $k$ binary columns, one 1 per row:
+  `OneHotEncoder`
 - It asserts no order and no distance - which is why it is the default
 - The price is width: `zip_code` would add **493** columns to 2,000 rows
 - Target encoding compresses any cardinality into one column - computed from
@@ -864,6 +876,7 @@ thing the easy thing.
 
 - Baseline: **0.806**
 - Model (numeric + the low-cardinality categoricals, no zip): **0.820** accuracy, **0.751** AUC (area under the receiver operating characteristic curve)
+- In code: `LogisticRegression` against `DummyClassifier`; AUC from `roc_auc_score`
 
 Modest accuracy gain. Why?
 
@@ -906,6 +919,8 @@ Ratios, interactions, binning: a linear model cannot invent these itself.
 `total_paid` = charge × months stayed. AUC: 0.7514 → 0.7548, under four
 thousandths. Clean `tenure_months` first and the same feature scores
 **0.7439** - the gain was living in the 999s.
+
+In code: `FunctionTransformer(add_total_paid)`, a step inside the pipeline
 
 ::: notes
 The formula was on this slide as a rendered equation and came out at 23pt, the
@@ -955,14 +970,19 @@ fold-awareness; a learned one does.
 
 # Notebook 2, live
 
-Four numbers to come back with:
-
-- Variance ratio **110:1** - learning rate **2.0** scaled, **0.1** raw
-- That rate on raw features: loss swings **0.69 to 8.29**, for ever
-- k dummies + intercept: **4 columns, rank 3**
-- `Pipeline`, then `total_paid`: **0.7514 → 0.7548 → 0.7439**
+| section, and its slides | you call → the number to come back with |
+|---|---|
+| why scale, 24-27 | gradient descent by hand → ratio **110:1**; rate **2.0** scaled, **0.1** raw; raw at 2.0 swings **0.69 to 8.29** |
+| encoding, 28-33 | `pd.get_dummies`, `np.linalg.matrix_rank` → **4 columns, rank 3** |
+| the pipeline, 36-38 | `train_test_split`, then `ColumnTransformer` + `Pipeline`: `SimpleImputer`, `StandardScaler`, `OneHotEncoder`, `LogisticRegression` |
+| the result, 39-40 | `DummyClassifier`, `accuracy_score`, `roc_auc_score`, `ConfusionMatrixDisplay` |
+| feature engineering, 41 | `FunctionTransformer` → **0.7514 → 0.7548 → 0.7439** |
 
 ::: notes
+The right-hand column carries the four numbers to come back with, each next to the
+calls that produce it. The rest of the table is the map: every scikit-learn name
+the notebook uses, beside the slides that introduced the idea.
+
 20 minutes. Let them work; circulate.
 
 Say what the eight sections are for before they start, because the notebook is
@@ -1037,6 +1057,8 @@ imputer learns; therefore it belongs inside the training fold.
 
 **94 of 128** training rows with missing age had a **test-set row** among
 the five donors used to fill it.
+
+In code: `nan_euclidean_distances`, the imputer's own metric, names the donors.
 
 Nothing raised an error.
 
@@ -1176,9 +1198,19 @@ tuning, where the same test applies once more.
 
 # Notebook 3, live
 
-Trace the imputation leak. Watch the encoding leak manufacture 0.89 from noise.
+| leak, and its slides | you call → what it shows |
+|---|---|
+| imputation, 44-46 | `KNNImputer` fitted on every row; `nan_euclidean_distances`, its own metric, names the donors → **94 of 128** |
+| encoding, 47-50 | churn rate per `zip_code`, before `train_test_split` → AUC **0.891** from a column with no signal |
+| the fix, 51 | `TargetEncoder` inside the `ColumnTransformer` → the honest **0.751** |
+| your own split | `clone` both models, refit on a split of your own |
+| scored with | `roc_auc_score` throughout |
 
 ::: notes
+Trace the imputation leak. Watch the encoding leak manufacture 0.89 from noise.
+The table puts each leak beside the calls that commit it and the slides that
+explain it; the fix row is the one to leave on screen.
+
 22 minutes. This notebook is the payoff of the lesson: the two leaks of
 today, each measured against an honest pipeline on the same data. The third
 way of breaking the rule, on the earlier diagram, was Lesson 1's.
