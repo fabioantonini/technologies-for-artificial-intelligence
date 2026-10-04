@@ -398,7 +398,7 @@ def missing_data_decision():
         (0.3, "Drop rows", "few gaps,\nand MCAR", TEAL),
         (3.2, "Drop column", "too empty\nto be useful", SLATE),
         (6.1, "Impute", "mean, median,\nkNN, regression", BLUE),
-        (9.0, "Add indicator", "keeps the MAR\nsignal itself", RUST),
+        (9.0, "Add indicator", "when the gap says what\nno other column can", RUST),
     ]
     for x, label, when, colour in options:
         ax.add_patch(FancyBboxPatch((x, 2.2), 2.6, 0.85,
@@ -414,7 +414,7 @@ def missing_data_decision():
 
     ax.text(6.0, 0.55,
             "the mechanism decides, and every option except dropping the column\n"
-            "learns a statistic, so it belongs inside the training fold",
+            "learns a statistic, so it is fitted on the training data only",
             ha="center", fontsize=10.5, color=INK, linespacing=1.6)
     ax.set_title("Which one you pick is a question about why the data is missing",
                  fontsize=12.5, weight="bold")

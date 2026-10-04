@@ -208,13 +208,19 @@ MAR, for short: missing more often for long-tenure customers - a column we can
 see explains it.
 
 - Treating it as MCAR reweights the sample the wrong way
-- A **missingness indicator** column preserves the signal even after filling
+- A **missingness indicator** would record the gap - but `tenure_months` already
+  tells the model what the gap would: here it gains nothing
 
 ::: notes
-The fix that MCAR imputation does not need: add a binary column recording
-whether the value was missing. It lets a model use the fact of missingness -
-which, under MAR, is genuinely informative about tenure - even after the gap
-itself is filled with a number. Handout Section 3.3.
+The predictable answer is "add an indicator, it keeps the MAR signal", and the
+reasoning is sound as far as it goes: the gap rows are the long-tenure ones, and
+they churn at 12.5% against 19.7%, so the fact of the gap is informative.
+
+But under MAR the gap is explained by a column we already hold - that is the
+definition - so the model already has what the indicator would tell it. Notebook
+and handout agree: adding it moves the area under the curve from 0.751 to 0.741,
+no gain, well inside split-to-split noise. The indicator earns its place when the
+gap says something no other column does, and that is MNAR. Handout Section 3.3.
 :::
 
 # What to do about a gap
@@ -223,12 +229,13 @@ itself is filled with a number. Handout Section 3.3.
 - **Drop the column**: if it is missing too often to help
 - **Impute**: mean/median or most-frequent with `SimpleImputer`, neighbours
   with `KNNImputer`
-- **Add a missingness indicator**: keeps MAR signal alive
+- **Add a missingness indicator**: only when the gap says what no other column
+  does - above all when missing not at random (MNAR)
 
 ::: notes
 Four options, and the choice is a question about WHY the data is missing rather than about how much is missing.
 
-The one worth dwelling on is the fourth: adding a binary indicator keeps the MAR signal itself available to the model - the fact that long-tenure customers are more often missing a call count may be more informative than the count would have been.
+The one worth dwelling on is the fourth, because its usual justification is half right. An indicator keeps the fact of the gap in the table after the gap is filled; that fact only helps if no other column already carries it. Under MCAR it carries nothing; under MAR the column that explains the gap is already there; under MNAR the blank may be the only trace left, and that is where the indicator earns its place.
 
 Then the line at the bottom: every option except dropping the column learns a statistic, so all of them are fitted on the training data only. That is the thread the whole lesson pulls on.
 :::
@@ -243,10 +250,10 @@ missingness look related to anything, and what does the column cost if it
 goes.
 
 Point out that three of the four branches end somewhere defensible, and
-that the indicator branch is the one people forget. Adding a column that
-records that a value was missing costs nothing and keeps the signal alive
-when the fact of the gap is itself informative - which for anything
-recorded by a human it usually is.
+that the indicator branch is the one people reach for by reflex. It is cheap,
+but it adds information only when the gap tells the model something no other
+column does: on this dataset it does not, and the area under the curve goes
+0.751 to 0.741 with it.
 
 The branch worth warning about is dropping rows. It is the easiest to do
 and the only one that can quietly change what the sample represents.

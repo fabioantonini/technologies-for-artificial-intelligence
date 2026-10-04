@@ -362,9 +362,9 @@ so, and this section is the quantitative version of the same warning.
   `KNNImputer` or a small regression model when the relationship with other
   columns is worth preserving.
 - **Add a missingness indicator.** A binary column recording *whether* a value
-  was missing keeps the MAR signal (the fact that long-tenure customers are
-  more often missing a call count) available to the model even after the gap
-  itself has been filled with a number.
+  was missing keeps that fact in the table after the gap itself has been filled
+  with a number. Whether the fact tells the model anything it does not already
+  know is a separate question, and on this dataset the answer is no - below.
 
 **How the indicator is actually used, since it is the least obvious of the
 four.** It is not metadata and it is not a note to yourself: it is an ordinary

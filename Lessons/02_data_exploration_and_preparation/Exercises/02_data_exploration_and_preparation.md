@@ -71,7 +71,7 @@ it catches that the statistical rules miss.
 
 Choose and justify a treatment for each column with missing values. If you
 use an indicator column for a MAR column, say why. Whatever you choose, it
-must be **fitted on the training fold only** — say in one sentence where in
+must be **fitted on the training data only** — say in one sentence where in
 your code that is enforced.
 
 ### 5. The honest pipeline

@@ -229,6 +229,11 @@ Eight kinds of gap, each with what it looked like:
    > Lesson 1's "training error falls monotonically with flexibility" holds for nested
    > families and a solver that finds the best member; np.polyfit at degree 21 does
    > not. "Touched once" was read as "because the measurement is precise".
+   > Lesson 2's slides said a missingness indicator "keeps MAR signal alive" while
+   > its own handout measured 0.751 → 0.741 with one and concluded the opposite;
+   > the audit missed it, and the instructor's own study session caught it. When the
+   > handout qualifies a rule, check that the slide stating the rule carries the
+   > qualification.
 8. **Code the notebook runs that no slide names.** `verify_lesson.py` checks this
    one (`check_code_anchors`): every scikit-learn name a notebook calls must appear on
    a slide, in the toolbox table of its "Notebook N, live" slide and as an "In code:"
