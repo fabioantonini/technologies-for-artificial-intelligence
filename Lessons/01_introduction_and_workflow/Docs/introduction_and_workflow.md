@@ -180,7 +180,17 @@ the 426 training tumours: $t = 15.04$, training error 0.108, so training accurac
 
 *Top, the training tumours along one feature, malignant above and benign below, and
 the threshold the search kept. Bottom, the training error of every candidate
-threshold: learning is walking along this curve and keeping its lowest point.*
+threshold: learning is walking along this curve and keeping its lowest point. The two
+panels share their horizontal axis because the parameter is itself a radius value: on
+top the axis holds each tumour's radius, the data; at the bottom it holds the candidate
+threshold $t$, the parameter being chosen.*
+
+**The same rule as a linear model.** "Malignant if mean radius $> t$" is "malignant if
+$w_1 \cdot \text{radius} + b > 0$" with $w_1 = 1$ and $b = -t$. The coefficient is
+fixed, so the one number being searched for is the intercept: $b = -15.04$. Fixing
+$w_1 = 1$ loses nothing. Any positive $w_1$ gives the same rule — $w_1 = 2$ with
+$b = -30.08$ still says "radius above 15.04" — so with a single feature only the ratio
+$-b/w_1$ matters, and that ratio is the threshold.
 
 The model that reaches 0.986 later in the notebook does exactly the same thing with
 all 30 features, a much richer family — weighted sums of the features — and a

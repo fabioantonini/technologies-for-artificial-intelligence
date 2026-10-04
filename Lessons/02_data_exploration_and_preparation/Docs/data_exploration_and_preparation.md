@@ -691,10 +691,21 @@ makes the empirical risk $\hat{R}_S(f)$ — the average loss over the rows we
 hold — as small as possible. It left open how. For most of this course the
 answer is **gradient descent**: the model is a set of numbers, one coefficient
 per feature plus an intercept, every choice of those numbers has a risk, and
-training starts from some choice and repeatedly nudges all of them downhill by
-the same amount — the **step size**, also called the **learning rate** and
-written $\alpha$. One step size serves the whole model, not
-one per feature, and that single number is the whole difficulty below.
+training starts from some choice and repeatedly nudges all of them downhill,
+each in proportion to how steeply the risk falls in its direction, scaled by one
+number — the **step size**, also called the **learning rate** and written
+$\alpha$. One step size serves the whole model, not one per feature, and that
+single number is the whole difficulty below. In symbols, one step is
+
+$$w \leftarrow w - \alpha\,\nabla \hat{R}_S(w)$$
+
+where $w$ holds the coefficients; $\nabla \hat{R}_S(w)$ is the gradient, the
+vector of partial derivatives $\partial \hat{R}_S / \partial w_j$, which points
+the way the average loss rises fastest; the minus sign turns it downhill; and
+$\alpha$ sets how far each step goes. Lesson 3 derives this rule and writes it
+$\theta \leftarrow \theta - \alpha \nabla J(\theta)$, with $\theta$ collecting
+every parameter, the intercept included, and $J$ the cost being minimised: the
+same rule in the notation of the lesson that builds it.
 
 **The picture first.** Think of that risk as a landscape and of each
 coefficient as one compass direction, so that every point of the landscape is a

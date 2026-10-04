@@ -380,6 +380,11 @@ def condition_number_geometry():
     fig.suptitle("The average loss as a function of the two coefficients, seen from above", fontsize=12.5,
                  weight="bold", y=1.02)
     fig.tight_layout()
+    fig.text(0.5, -0.03,
+             r"each rust dot is one step:  $w \leftarrow w - \alpha\,\nabla \hat{R}(w)$,"
+             "  the same learning rate $\\alpha$ in both directions",
+             ha="center", va="top", fontsize=11, color=INK,
+             bbox=dict(boxstyle="round,pad=0.35", facecolor="#EEF2F5", edgecolor="none"))
     save(fig, "condition_number_geometry.png")
 
 

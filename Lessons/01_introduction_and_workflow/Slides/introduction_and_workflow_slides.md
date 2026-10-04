@@ -436,6 +436,16 @@ shows the arg min being taken, one candidate at a time. Handout 2.1.
 ![](learning_search.png)
 
 ::: notes
+Before reading the curve, say what the two axes are, because they share one
+scale and are not the same thing. Top: each training tumour's radius - the data.
+Bottom: the candidate threshold t - the parameter being chosen. They can share an
+axis only because this parameter is itself a radius value. Written as a linear
+model the rule is "malignant if w1 * radius + b > 0" with w1 fixed at 1, so the
+number being searched for is the intercept, b = -t = -15.04. Any positive w1 gives
+the same rule (w1 = 2, b = -30.08 is still "radius above 15.04"), so with one
+feature only the threshold matters. In lesson 2 the parameters are two coefficients,
+and this curve becomes a surface.
+
 What "fit" actually does, on the smallest model there is. One feature - the mean
 radius of the tumour - and one family of rules: call a tumour malignant if its
 radius is above a threshold t. Every value of t is a different candidate model.

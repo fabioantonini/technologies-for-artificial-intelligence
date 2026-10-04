@@ -493,8 +493,8 @@ than during the leakage section.
 - `tenure_months`: 0–72. `monthly_charges`: 15–128
 - **Training**: choose w₁, w₂ to minimise Lesson 1's average loss, a paraboloid
   over (w₁, w₂). Lesson 1's slide 20 drew it for one number, the threshold
-- **Gradient descent** walks downhill on it with one step size, the **learning
-  rate**, for every column. Can it suit both?
+- **Gradient descent** repeats w ← w − α∇R̂(w): a step downhill, its size set by
+  the **learning rate** α, for every column. Can one α suit both?
 
 ::: notes
 Reconnect to Lesson 1 before anything else, because the vocabulary is already
@@ -511,6 +511,13 @@ starts from some numbers, works out for each one whether nudging it up or down
 lowers the loss, and moves them all at once - each by the same step size, times
 how steeply the loss falls in that direction. One step size for the whole model,
 not one per feature. That is the sentence the next slide draws.
+
+Read the update rule on the slide aloud, symbol by symbol. ∇R̂(w) is the gradient:
+the direction in which the average loss rises fastest, one component per
+coefficient. The minus sign turns it round, downhill. α, the learning rate, is how
+far each step goes. Lesson 3 writes the same rule as θ ← θ − α∇J(θ), where θ
+collects every parameter including the intercept and J is the cost being
+minimised; same rule, the notation of a lesson that derives it.
 
 Ask, before turning over: if two features live on very different scales, can a
 single step size be right for both directions at once? Let the room reason

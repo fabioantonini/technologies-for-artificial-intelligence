@@ -292,6 +292,14 @@ _right = sum((r > _best_cut) == m for r, m in zip(_r_test, _m_test))
 same("2.1 and test accuracy on the 143 it never saw", _right / len(_r_test), 0.888, tolerance=5e-4)
 same("2.1 the full model's 0.986 is 141 of 143", 141 / 143, 0.986, tolerance=5e-4)
 
+# The threshold rule rewritten as w1 * radius + b > 0 with w1 = 1: the intercept is
+# -t. And any positive w1, with b scaled to match, labels every tumour the same way.
+same("2.1 as a linear rule with w1 = 1, the intercept b = -t", -_best_cut, -15.04, tolerance=6e-3)
+same("2.1 w1 = 2 needs b = -30.08", -2 * _best_cut, -30.08, tolerance=1.2e-2)
+_as_w1 = [1.0 * r + (-_best_cut) > 0 for r in _r_train]
+_as_w2 = [2.0 * r + (-2 * _best_cut) > 0 for r in _r_train]
+same("2.1 and labels all 426 training tumours identically", float(_as_w1 == _as_w2), 1.0, tolerance=0)
+
 # ----------------------------- Section 2.2, nested families and the solver
 #
 # The figure's twenty-two points, regenerated from make_figures.py's seed. The
