@@ -720,7 +720,7 @@ faster than we annoy technicians?
 
 # What the area means
 
-- **AUC = the probability that a random failing drive scores above a random healthy one**
+- **Area under the curve (AUC) = the probability that a random failing drive scores above a random healthy one**
 - Ours: 0.949
 
 ::: notes
@@ -782,7 +782,7 @@ model, a disaster. Let that sit for a second before explaining.
 
 # Why the two disagree
 
-- FPR divides by **all healthy drives**: an enormous, growing denominator
+- False positive rate (FPR) divides by **all healthy drives**: an enormous, growing denominator
 - Precision divides by **the alarms raised**, where the false ones dominate
 
 ::: notes

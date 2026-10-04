@@ -555,7 +555,13 @@ def strip_maths(text: str) -> str:
 
 def check_acronyms(lesson: Path, report: Report) -> None:
     for path in artefacts(lesson):
-        body = strip_maths(markdown_of(path))
+        text = markdown_of(path)
+        if path.name.endswith("_slides.md"):
+            # Only what is projected counts. Lesson 2 spelled out MCAR in the
+            # speaker notes alone, and the room saw the bare letters on three
+            # slides while this check passed.
+            text = NOTES_DIV.sub("", text)
+        body = strip_maths(text)
         for acronym, expansions in ACRONYMS.items():
             match = re.search(rf"\b{acronym}\b", body)
             if not match:

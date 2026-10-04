@@ -182,6 +182,73 @@ the concepts index (new vocabulary earns an entry), and the Italian translation 
 language and not the other. The front matter's reading time is *not* gated and has to
 be updated by hand.
 
+### 2.9 The gap audit: read the deck as a student who has only the deck
+
+**Run it the week before the lesson is taught, every lesson.** Every other check here
+was written from reading the material. This one was written from teaching it: lesson
+1 went into a room on 2 October 2026, and in the following three days the questions
+students asked, and the moments they stopped following, exposed gaps that two full
+reviews had passed. Auditing lesson 2 against the same list before it was taught found
+eight of them.
+
+Read the slide **bodies** only, in order, notes closed, and ask of each slide whether
+a student who missed the spoken part could follow it. The handout usually has the
+answer; the slides usually do not, and the slides are what is on the wall when the
+question is asked.
+
+Eight kinds of gap, each with what it looked like:
+
+1. **A term used before it is defined.** Most often a metric, because it feels too
+   familiar to define.
+   > Lesson 1 said "accuracy" from its first slide and defined it nowhere. Lesson 2
+   > quoted every result of its second half as an AUC, and only the handout said what
+   > an AUC is.
+2. **An acronym expanded only in the notes.** `verify_lesson.py` now checks the slide
+   body alone, which is the mechanical half of this; a figure that shows bare letters
+   is the half it cannot see.
+   > Lesson 2's MCAR, MAR and MNAR were spelled out in the notes and nowhere the room
+   > could see them, including the figure that introduced them.
+3. **A named method without its formula.** A student shown the name and the result
+   cannot check the result.
+   > Lesson 1 named precision and recall without TP / (TP + FN). Lesson 2 compared
+   > StandardScaler with MinMaxScaler without (x − μ)/σ or (x − min)/(max − min).
+4. **A process described but never stated, or never shown.** The formal statement,
+   then the smallest concrete instance of it.
+   > Lesson 1 never said what "learning" is: it needed f̂ = arg min R̂(f) on one slide
+   > and a threshold searched across 355 candidates on the next.
+5. **A step whose origin is not said.** Something appears, and nobody says where it
+   came from.
+   > Lesson 1's confusion matrix arrived as labels, and the probability behind each
+   > label, compared with an unchosen 0.5, came only in the notes.
+6. **One symbol or one number for two things, or two names for one.**
+   > Lesson 1 used p for both the true and the measured accuracy. Lesson 2 used k for
+   > the z-score cut-off and for a count of categories; said "100:1" on one slide and
+   > "110:1" on another for the same ratio, built and measured; and called the same
+   > quantity "step size" and "learning rate".
+7. **A claim without its condition.**
+   > Lesson 1's "training error falls monotonically with flexibility" holds for nested
+   > families and a solver that finds the best member; np.polyfit at degree 21 does
+   > not. "Touched once" was read as "because the measurement is precise".
+8. **Code the notebook runs that no slide names.** `verify_lesson.py` checks this
+   one (`check_code_anchors`): every scikit-learn name a notebook calls must appear on
+   a slide, in the toolbox table of its "Notebook N, live" slide and as an "In code:"
+   line where the concept is introduced. Add the lesson to `ANCHORED` when its anchors
+   are written.
+   > Lesson 1's notebooks called 22 scikit-learn names and its slides showed 4;
+   > `train_test_split` was met for the first time inside a code cell.
+
+**How to repair, and what not to break.**
+- Prefer folding a gap into an existing slide over adding one. No new slide means no
+  renumbering of the plan table, the toolbox slide references or the Review
+  documents.
+- A display equation stays alone on its slide; its symbols are named in the notes.
+- The build's "runs past the bottom" failure is the usual price of a fix; shorten a
+  neighbouring bullet rather than drop the fix.
+- A fix to the handout's wording goes into `Review/dispensa_it.md` too.
+- Keep the misconception slides: a slide that states the predictable wrong answer
+  on purpose, corrected by the next one, is not a gap. Lesson 2's "MCAR: safe to
+  impute" is one.
+
 
 ---
 

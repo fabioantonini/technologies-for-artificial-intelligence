@@ -414,9 +414,10 @@ image actually ships; every referenced figure present, every generated figure
 reproducible from a notebook or `make_figures.py`, no orphaned equation images;
 inline maths that survives the Unicode conversion; no empty or untitled slides;
 speaker notes on every content slide; a lesson plan summing to 180 minutes and
-citing slides that exist; acronyms expanded on first use in each artefact;
-cross-references that resolve; and a number one lesson quotes from another
-still matching what that lesson says.
+citing slides that exist; acronyms expanded on first use in each artefact - on
+the slide body, not only in the notes; every scikit-learn name a notebook calls
+shown on a slide; cross-references that resolve; and a number one lesson quotes
+from another still matching what that lesson says.
 
 **Arithmetic, and yours to write.** Every lesson carries
 `Docs/worked_examples.py`, which recomputes each number the handout works out by
@@ -444,6 +445,21 @@ Two habits follow, for content the checker cannot reach:
 - **A number in prose is checked against the cell that produced it.** If the
   handout says a coefficient came out at 1.66, that digit must appear in a
   committed notebook output, not in your memory of the run.
+
+### Audit the deck for gaps the week before it is taught
+
+Every lesson, one week ahead: read the slide bodies with the notes closed, as a
+student who has only the deck, against the eight kinds of gap in
+`Course/LESSON_REVIEW.md` §2.9 - a term or metric used before it is defined, an
+acronym spelled out only in the notes, a named method without its formula, a
+process never stated or never shown, a step whose origin is not said, one symbol
+or number for two things, a claim without its condition, and code the notebook
+runs that no slide names.
+
+The list was not written at a desk. It is what lesson 1 exposed in the three days
+after it was taught, in a room, after two full reviews had passed it; run against
+lesson 2 before its lecture it found eight more. The same week, write the lesson's
+code anchors and add it to `ANCHORED` in `tools/verify_lesson.py`.
 
 ### Look at what you built
 
