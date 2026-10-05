@@ -12,7 +12,9 @@ does the rest:
 
 ``run`` prints the examples; with ``--write`` it splices each one into the
 topics file under its slide, between markers, so a rerun replaces rather than
-duplicates, and rebuilds the PDF.
+duplicates, and rebuilds the PDF. Where the lesson has a slide-by-slide
+commentary written from the instructor's study session (``lN-commentary.md``),
+that document replaces the topics and receives the examples instead.
 
 Review/ is outside the repository - the examples are teaching notes for the
 instructor, built from invented values small enough for the board - so only
@@ -118,7 +120,10 @@ def run(script: str) -> None:
     """Print the examples; with --write, splice them in and rebuild the PDF."""
     script = Path(script).resolve()
     number = re.match(r"l(\d+)_examples", script.stem).group(1)
-    topics = script.with_name(f"l{number}-topics.md")
+    # A lesson whose study session has been written up keeps one document, the
+    # commentary, which absorbs the topics; the examples follow it there.
+    commentary = script.with_name(f"l{number}-commentary.md")
+    topics = commentary if commentary.exists() else script.with_name(f"l{number}-topics.md")
     for slide, body in sorted(EXAMPLES.items()):
         print(f"\n===== slide {slide}\n{body}")
     if "--write" in sys.argv:
