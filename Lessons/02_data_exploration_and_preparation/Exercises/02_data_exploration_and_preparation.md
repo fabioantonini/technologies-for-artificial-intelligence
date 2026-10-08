@@ -81,7 +81,10 @@ numeric columns, encodes the low-cardinality categoricals, and fits a
 `LogisticRegression`. Do **not** include `zip_code` yet. Report baseline
 accuracy, model accuracy, and model area under the receiver operating
 characteristic curve (AUC) on the test set, and explain in one
-or two sentences why AUC is the more informative number here.
+or two sentences why AUC is the more informative number here. The AUC is the
+probability that the model scores a randomly chosen churner above a randomly
+chosen non-churner: 0.5 is a coin flip, 1 a perfect ranking (handout Section 7;
+lesson 4 builds it properly).
 
 ### 6. Build a leak on purpose
 

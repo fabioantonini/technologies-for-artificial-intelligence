@@ -397,7 +397,10 @@ column's indicator separates nothing, which is what MCAR means.
 
 **And now the part that is worth more than the rule.** Fit the Section 8
 pipeline twice, once with `add_indicator=True` and once without, and the area
-under the curve goes **0.751 → 0.741**. It does not help. The reason is not
+under the receiver operating characteristic curve (AUC) goes **0.751 → 0.741**.
+(The AUC is the probability that the model scores a randomly chosen churner above
+a randomly chosen non-churner: 0.5 is a coin flip, 1 a perfect ranking. Section 7
+says more, and lesson 4 builds it properly.) It does not help. The reason is not
 that the indicator carries nothing; the table above shows that it does. It is
 that what it knows — *this is a long-tenure customer* — the model **already
 has**, in the `tenure_months` column sitting next to it. The indicator is a
