@@ -15,8 +15,8 @@ Exercise 1 was set last week. We discuss it now.
 
 ::: notes
 The fifteen minutes on what lesson 1 clarified come before this slide; the
-exercise discussion follows them, and the seed part of it lands better for
-having just seen that a test score is one measurement.
+exercise discussion follows them, and its part about the ten seeds is easier to
+discuss right after seeing that a test score is one measurement.
 
 Open with the exercise, briefly - two or three minutes, not a review session.
 Nothing is collected, so this is the whole of the feedback: ask for a show of
@@ -36,7 +36,7 @@ Then move to today's material.
 - Today: both, on messy data - gaps, extreme values, text categories
 
 ::: notes
-Recap in one sentence each, then land the framing for the whole lesson:
+Recap in one sentence each, then state the idea that frames the whole lesson:
 Pipeline stops being "the scaling trick" and becomes the central tool of the
 lesson, because everything from here on - imputing, encoding, engineering -
 is another thing that learns from data and must sit inside it.
@@ -55,8 +55,8 @@ Handout Section 1 makes this explicit.
 
 ::: notes
 Agenda slide. Flag the last item now as the one to remember in five years -
-everything before it is the machinery that makes the leakage discussion
-precise rather than hand-wavy.
+everything before it is what makes the leakage discussion precise rather than
+vague.
 
 Timing: roughly 25 minutes to the first notebook, then a break, then scaling
 and encoding, then the leakage section closes the lesson before homework.
@@ -154,7 +154,7 @@ nothing. A blank field for no
 systematic reason.
 
 MAR, missing at random: depends on something you DO observe. Our num_support_calls is MAR
-against tenure - long-standing customers' early call history predates the
+with respect to tenure - long-standing customers' early call history predates the
 customer relationship management (CRM) system. Conditional on tenure, the gap carries no further information.
 
 MNAR, missing not at random: depends on the value itself, even unobserved. A customer who leaves
@@ -275,7 +275,7 @@ and the only one that can quietly change what the sample represents.
   **flag** a value for a person to check
 
 ::: notes
-Pay off the 999 from slide 6: they have already seen it, and now it gets a name.
+Come back to the 999 from slide 6: they have already seen it, and now it gets a name.
 
 Put the three reasons to the room before reading them out - ask what could make
 a customer's monthly charge 3,344.7 when everyone else is under 128. Someone
@@ -284,8 +284,8 @@ is the point of the third bullet.
 
 The last bullet is the promise the next six slides keep: rule 1 in standard
 deviations, rule 2 in quartiles, then the slide where they disagree and the
-slide where the robust one is the one that got it wrong. Nothing here deletes a
-row - what to do once something is flagged is Section 4.2, and it has no
+slide where the quartile rule raises 12 false alarms. Nothing here deletes a
+row - what to do once something is flagged is handout Section 4.2, and it has no
 automatic answer.
 
 Handout Section 4 opening.
@@ -301,8 +301,9 @@ standard deviations from the mean - we use k = 3 throughout.
 
 Say what it assumes, because everything in the next three slides follows from
 it: measuring in standard deviations only means "surprising" if the column is
-a bell curve. It also computes its own ruler from the data being measured,
-which is the crack the section prises open.
+a bell curve. It also computes its own ruler, the mean and the standard deviation,
+from the data being measured - including the outliers - and that is the weakness
+the next slides expose.
 :::
 
 # Rule 2: interquartile range (IQR)
@@ -335,9 +336,9 @@ for being the tail. Say what that means for the twenty real billing errors in
 this dataset: neither rule can tell the two kinds apart, which is why a flag is
 a candidate and never a verdict.
 
-The moral to state out loud: the two rules were built to sit in the same
-neighbourhood, not to agree, and even on perfect data Tukey's is the readier
-of the two to call something an outlier. The next slide draws it.
+The moral to state out loud: the two rules were built to put their thresholds in
+a similar place, not to flag the same points, and even on perfect data Tukey's
+rule flags more of them. The next slide draws it.
 :::
 
 # Close fences, very different counts
@@ -355,8 +356,8 @@ two rules flag 0.27% and 0.70% of a normal column, a factor of 2.6.
 
 The reason is the steepness of the tail. Move a fence in by a third of a
 standard deviation and you nearly triple the area beyond it. So resist saying
-"the two rules agree here": they sit in the same neighbourhood, and out in the
-tail a neighbourhood is a factor of 2.6.
+"the two rules agree here": their thresholds are close, but out in the tail two
+thresholds 0.3 standard deviations apart flag 2.6 times as many points.
 
 Say this is a design choice with an assumption baked in, and the next slide is
 what happens when the assumption fails.
@@ -382,8 +383,8 @@ paying 15.0 to 16.7, four paying 111.6 to 128.4, outside fences of 17.3 and 110.
 
 The line to land, and it is the whole point of the slide: a detector's output
 does not report the detector's health. The z-score rule was right by luck.
-Push those errors down towards 200 and its fence sails straight past them,
-exactly as the theory says. So the lesson is not "prefer IQR" - it is
+Push those errors down towards 200 and the inflated fence ends up beyond them,
+so it misses them, exactly as the theory says. So the lesson is not "prefer IQR" - it is
 "recompute s without the candidates and see what moved". Handout Section 4.2.
 
 Point at the left panel's bottom band: those scattered red dots down in the
@@ -438,7 +439,8 @@ scale is misleading". Removing says
 what it should have been". Leaving it says "the model should handle this".
 
 The one that gets chosen by default, without anyone deciding, is removal - and
-it is the one that silently reweights the sample. Handout Section 4.2 closes on
+it is the one that changes, without anyone noticing, which customers the sample
+represents. Handout Section 4.2 closes on
 exactly this. If a rule flags 3% of your rows and you drop them all, you have
 changed the population your model is trained on.
 :::
@@ -526,13 +528,13 @@ about it first.
 Be honest about this dataset, because a sharp student will check: once the
 outliers of Section 4 are removed, these two columns have comparable spreads -
 the ratio of their standard deviations is about 0.8. They are not a dramatic
-case, which is exactly why notebook 2 builds a toy pair with a 110:1 variance
-ratio to make the effect unambiguous. The point is not that churn data is
+case, which is exactly why notebook 2 builds a toy pair with a 100:1 variance
+ratio (110:1 as drawn) to make the effect unambiguous. The point is not that churn data is
 pathological; it is that you cannot count on it not being.
 
 The punchline, which handout Section 5.2 states: the safe step size is set by
 the feature with the largest spread, so progress along the smallest-spread
-direction is throttled by their ratio. Scaling is not cosmetic - it changes how
+direction is slowed down by their ratio. Scaling is not cosmetic - it changes how
 long training takes, and sometimes whether it converges at all. The derivation
 is deliberately NOT here: it belongs with gradient descent itself, Lesson 3.
 :::
@@ -563,15 +565,15 @@ model with the lowest loss - what training is looking for. The rust dots are
 successive steps, and the line joining them is the search.
 
 Left: the two features have different spreads, so the loss surface is a narrow
-ravine - steep across, almost flat along. One step size has to serve both. Long
+valley - steep across, almost flat along. One step size has to serve both. Long
 enough to advance along the flat direction and it overshoots the steep one and
-bounces from wall to wall; short enough to be safe on the steep one and it
+bounces from one side of the valley to the other; short enough to be safe on the steep one and it
 crawls along the flat one. Count the dots out loud: twenty-six steps and it is
 still not at the star.
 
-Right: after scaling, the ravine is a bowl and every step points at the minimum.
+Right: after scaling, the valley is a round bowl and every step points at the minimum.
 
-Give them the handle without the derivation: how stretched the ravine is - the
+Give them the name without the derivation: how stretched the valley is - the
 ratio of the largest feature variance to the smallest - is called the condition
 number, and the number of steps you need grows with it.
 
@@ -597,9 +599,9 @@ and it does not converge slowly, it never converges at all.
 
 Be precise about the failure if anyone asks, because "diverges" is the word
 people reach for and it is not what this is. The loss does not climb away to
-infinity - it swings between 0.69 and 8.29 and stays there, bouncing off one
-wall of the ravine into the other. Run it for 2000 steps and it is still in the
-same band. Worse than slow, not better: a slow run finishes.
+infinity - it swings between 0.69 and 8.29 and stays there, bouncing from one
+side of the valley to the other. Run it for 2000 steps and it is still in the
+same band. Worse than slow: a slow run at least finishes.
 
 This is a controlled toy (notebook 2), built to a 100:1 variance ratio and
 landing at 110 once drawn, so the effect is unambiguous. On the real churn columns, once cleaned,
@@ -650,8 +652,8 @@ categories. The claim is the part to get right - the code is three lines either
 way.
 
 Point at the churn column before moving on. It does double duty: it is what
-target encoding will use as the number, and it is the evidence that will convict
-ordinal encoding two slides from now.
+target encoding will use as the number, and it is the evidence that shows what is
+wrong with ordinal encoding two slides from now.
 
 Handout Section 6.
 :::
@@ -686,8 +688,8 @@ Handout Section 6.
 ![](encoding_comparison.png)
 
 ::: notes
-Left panel against right panel - that is the whole slide, and it is the answer
-to the question left hanging.
+Left panel against right panel - that is the whole slide, and it answers the
+question asked on the previous slide.
 
 Ordinal spaces the levels 0, 1, 2: equal steps by construction. The churn rates
 those levels stand in for fall 0.266, 0.137, 0.071, so the first step is 0.129
@@ -730,7 +732,7 @@ the safe default.
 Then the cost, which is the honest trade: k columns. Three is nothing;
 493 on 2,000 rows is the curse of dimensionality, two slides from here.
 
-The last bullet is the hook, not a conclusion. Target encoding is the obvious
+The last bullet raises a question rather than closing one. Target encoding is the obvious
 escape from the width problem and it is the more dangerous of the two
 encodings in this entire lesson. Do not resolve it - the leakage section does.
 
@@ -835,13 +837,11 @@ horizontal axis is how many customers share one zip code, the vertical axis is
 how many zip codes that happens to. The tallest bar stands at 3 and 4 - about
 a hundred codes each - and the whole thing stops at 12.
 
-Then point at the zip_code row/column - or its absence, since it is not even
-numeric yet - and say: notebook 1's correlation check already suggests this
-column carries nothing. One-hot encoding it would add 493 mostly-empty
-columns. The natural alternative - replace each code with the average churn
-rate of its customers - is exactly the technique the leakage section is
-about. Do not resolve the tension yet; let it hang until after the break-free
-run into notebook 2's pipeline section.
+Then say: notebook 1's correlation check already suggested this column carries
+nothing. One-hot encoding it would add 493 mostly-empty columns. The natural
+alternative - replace each code with the average churn rate of its customers - is
+exactly the technique the leakage section is about. Leave the question open here;
+the leakage section answers it.
 :::
 
 # Preprocessing is part of f
@@ -852,10 +852,8 @@ means, the imputer's fill values - not only the model's coefficients.
 $$\mathbb{E}_{T \sim \mathcal{D}^m}\left[\hat{R}_T(f)\right] = R(f)$$
 
 ::: notes
-Say the condition out loud, because it is no longer written on the slide and it
-is the whole content: this equality holds ONLY IF f is independent of T. It was
-on the slide and made the formula too small to read from the back; it belongs in
-your mouth, not in the image.
+Say the condition out loud, because it is not written on the slide and it is the
+whole content: this equality holds ONLY IF f is independent of T.
 
 Handout Section 8.1. Lesson 1's unbiasedness argument never mentioned "the
 model" specifically - it is about f, whatever function maps raw inputs to
@@ -929,7 +927,7 @@ Accuracy barely beats the baseline. Why?
 ::: notes
 Let the room answer why the accuracy gain is modest. The dataset is 80/20 imbalanced, so accuracy is dominated by the majority class - exactly as Lesson 1 warned, and the first time they meet it on data they prepared themselves.
 
-The matrix shows where the errors sit: read the bottom-left cell, the churners the model missed. The area under the receiver operating characteristic curve - AUC, which Lesson 4 builds properly - at 0.751 is unaffected by the imbalance and says there is real signal that accuracy is hiding.
+The next slide's matrix shows where the errors sit. The area under the receiver operating characteristic curve (AUC), which Lesson 4 builds properly, is read as the chance that a random churner is scored above a random non-churner: 0.5 is a coin flip. At 0.751 it says there is real signal that accuracy is hiding, because it compares churners with non-churners instead of counting rows, so the 80/20 imbalance does not drag it the way it drags accuracy.
 
 Had we reported only accuracy, this model would look barely better than the baseline and someone would reasonably conclude the features were useless.
 :::
@@ -968,11 +966,9 @@ New columns built from existing ones, which a linear model cannot build itself.
 In code: `FunctionTransformer(add_total_paid)`, inside the pipeline
 
 ::: notes
-The formula was on this slide as a rendered equation and came out at 23pt, the
-smallest in the course: the column names are long enough that no amount of
-trimming saves it. It is one sentence to say - total_paid is the monthly charge
-times the months stayed, with tenure clipped at zero first - and the three AUCs
-are what does the work in the room.
+Say the formula in one sentence - total_paid is the monthly charge times the
+months stayed, with tenure clipped at zero first - and let the three AUCs do the
+work.
 
 Do not let anyone in the room call three thousandths a win, and do not call it
 one yourself. Quote the four decimals, 0.7514 against 0.7548: at three, 0.751
@@ -1009,8 +1005,9 @@ before trusting a construction.
 
 The point to land: any engineered feature that involves a statistic LEARNED
 from data - bin edges from quantiles, a scaled interaction - is subject to
-the same rule as scaling. A pure arithmetic combination (this product) needs no
-fold-awareness; a learned one does.
+the same rule as scaling. A pure arithmetic combination (this product) learns
+nothing and can be computed anywhere; a learned one must be fitted on the
+training rows only.
 :::
 
 # Notebook 2, live
@@ -1095,7 +1092,7 @@ the imputer never touches a label; it copies feature values. That is enough:
 those values are what the model then fits on. The imputer did nothing wrong;
 it was simply shown data it should not have seen.
 
-Notebook 3 measures the gap. Connect it back to Lesson 1: this is the same
+Notebook 3 counts how often it happens. Connect it back to Lesson 1: this is the same
 independence argument, applied to a step nobody thinks of as learning. The
 imputer learns; therefore it is fitted on the training data only.
 :::
@@ -1131,9 +1128,10 @@ what to fill it with. Nearly three quarters of the affected training rows had a
 test row among the five donors it consulted.
 
 The sentence to leave hanging is the one from the slide before: nothing
-raised an error. The notebook ran, the score improved, and the improvement
-was the test set leaking into the training data one imputed value at a
-time. This is the argument for the pipeline, made in numbers.
+raised an error. The notebook ran, the score barely moved - +0.0007, and
+negative in 14 of 20 splits - and test information had still reached the
+training data one imputed value at a time. So the score cannot reveal this
+leak; only the method can. This is the argument for the pipeline, made in numbers.
 :::
 
 # Leak 2: encode before splitting
@@ -1160,8 +1158,9 @@ was computed from the labels".
 ![](target_encoding_leak.png)
 
 ::: notes
-Baseline without zip: AUC 0.751. Honest encoding (sklearn's TargetEncoder,
-cross-fitted inside the pipeline): 0.751 - indistinguishable, correctly,
+Baseline without zip: AUC 0.751. Honest encoding (sklearn's TargetEncoder inside
+the pipeline, each training row encoded from the other four parts of the training
+rows): 0.751 - indistinguishable, correctly,
 since zip carries nothing. Leaky encoding, computed before the split: 0.891.
 
 Let that number sit. It looks like a genuinely better model. It is not one -
@@ -1225,8 +1224,9 @@ Smoothing pulls each group's mean towards the global mean, weighted by group
 size, so a one-customer zip code barely moves from the overall rate. It
 reduces the leak but does not remove it.
 
-Say clearly what actually removes it: fitting the encoder inside the training
-fold, exactly as with every other learned step. Smoothing is a refinement on
+Say clearly what actually removes it: fitting the encoder on the training rows
+only, inside the pipeline, exactly as with every other learned step - with
+TargetEncoder also making sure no row is encoded from its own label. Smoothing is a refinement on
 top of that, not a substitute for it.
 
 This is the third time today the same rule has appeared - imputation, scaling,
@@ -1324,10 +1324,10 @@ Set it explicitly. The exercise reuses churn_data.py with a different seed,
 so results will not match today's numbers exactly - that is intentional,
 it stops copy-pasted answers from working.
 
-Remind them: as in Exercise 1, there are no marks for accuracy. Marks are for
-methodological correctness, and specifically here for correctly identifying
-which preprocessing steps needed to be inside the pipeline and demonstrating,
-with a number, what leaving one out would have cost.
+Remind them: as in Exercise 1, accuracy is not what counts, and nothing is marked
+during the course. If this exercise is the one drawn at the exam, what is
+discussed is methodological correctness: which preprocessing steps needed to be
+inside the pipeline, and, with a number, what leaving one out would have cost.
 
 Also point them at the quiz - the reasoning-tagged questions are the closest
 thing to the exam there is, since the exam draws one of their own notebooks and
@@ -1348,7 +1348,7 @@ Set the exercise explicitly and say when it is discussed - the first ten minutes
 of Lesson 3, Friday 16 October.
 
 Point out that it uses the same churn dataset, so the exploration they did
-today carries over, and that the marks are again on methodology: a pipeline
+today carries over, and that what counts is again methodology: a pipeline
 that is correct but modest beats a better score obtained by preparing the full
 dataset before splitting.
 

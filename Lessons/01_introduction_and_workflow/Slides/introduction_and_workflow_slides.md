@@ -137,8 +137,9 @@ Explain the division of labour, because it is unusual and it matters.
 
 Derivations are NOT on the slides. They are in the handout, to be read afterwards. In
 the room we do results, intuition and code. This is what lets the lecture move at a
-sensible pace while the course stays rigorous - and it is why the exam can ask them to
-reproduce a derivation.
+sensible pace while the course stays rigorous - and it is why the handout matters at
+the exam: "why did you choose this metric?" about their own notebook is answered
+with the derivations, not with the code.
 
 Slides and notebooks arrive on the Friday; the handout follows by the Monday, since it
 is study material rather than lecture support.
@@ -213,7 +214,7 @@ it is orientation, and that section is where the real subject of the course appe
 
 Timing: roughly 50 minutes to the break, then the three kinds of learning, then the
 workflow worked live, then the failure modes. Homework is set in the last five minutes
-- do not let it slip, it is due next Friday.
+- do not let it slip; nothing is handed in, and it is discussed next Friday.
 :::
 
 # A problem you cannot specify
@@ -229,7 +230,7 @@ Work this conversationally. Ask the room for rules and write two or three on the
 then break each one: "buy now" - what about a legitimate shop newsletter? Sender
 blacklists - what about a compromised account belonging to a colleague?
 
-Get them to feel the frustration before offering the alternative. The point to land, and
+Get them to feel the frustration before offering the alternative. The point to make, and
 it is handout section 2: the program is not hard to write, the RULE is impossible to
 state. You recognise spam instantly and cannot articulate how.
 
@@ -360,7 +361,7 @@ $$R(f) = \mathbb{E}_{(x,y) \sim \mathcal{D}} \left[ L(f(x), y) \right]$$
 ::: notes
 Name it: expected risk, sometimes called true risk or generalisation error.
 
-Then deliver the punchline and pause on it - we cannot compute this. D is unknown, the
+Then say the key point and pause on it - we cannot compute this. D is unknown, the
 expectation is over data that has not been collected, and no amount of cleverness gets
 around it.
 
@@ -481,9 +482,11 @@ handout 2.1.
 ::: notes
 The central slide of the lesson. Walk the figure carefully.
 
-Empirical risk falls monotonically as the model gets more flexible - more parameters
-always fit the sample better, and with enough of them you reach zero by storing every
-example and reciting its answer.
+Empirical risk falls as the model gets more flexible - more parameters fit the sample
+better, and with enough of them you reach zero by storing every example and reciting
+its answer. Say the condition if anyone presses: it falls for families that contain
+one another, when the solver finds the best member; handout section 2.2 shows
+np.polyfit at degree 21 returning a worse training error than at degree 20.
 
 Expected risk turns back up. The shaded region between the curves is overfitting: the
 model has learnt the sample rather than the pattern.
@@ -1055,7 +1058,7 @@ broken one shows up.
 - **Which error is worse?**
 
 ::: notes
-The step everyone skips, and the one the exercise marks hardest.
+The step everyone skips, and the one the exercise discussion probes hardest.
 
 Our example: predicting whether a breast tumour is malignant from measurements of cell
 nuclei. A model here would be a screening aid, never a diagnosis - say that clearly, it
@@ -1181,8 +1184,8 @@ Explain WHY, not just what.
 
 StandardScaler LEARNS something - a mean and a standard deviation per feature. That
 makes it part of the model, not preparation of the data. Inside a pipeline it learns
-them from the training fold every time the pipeline is fitted, including inside each
-cross-validation fold in lesson 5.
+them from the training data every time the pipeline is fitted, including on each
+training part of the cross-validation in lesson 5.
 
 Write the two steps separately and one day you will scale using statistics computed over
 the whole dataset. Nothing warns you: no error, no exception, just a better number than
@@ -1256,8 +1259,8 @@ them separately.
 ::: notes
 Define both against the confusion matrix still in their heads from the last slide,
 and keep them the right way round: recall divides by the row of things that really
-were malignant, precision by the column of things we flagged. The next slide makes
-the trade physical.
+were malignant, precision by the column of things we flagged. The next slides make
+the trade-off concrete.
 
 Push recall towards 1.0 by flagging anything suspicious, and precision collapses - the
 clinic drowns in unnecessary biopsies. Demand high precision and you start missing
@@ -1374,7 +1377,7 @@ And: we never looked at the test set to make a decision.
 Name where each omission gets addressed: tuning and stability in lesson 5, model
 families in 6 and 7.
 
-Then land the last line, which is the point of the slide: that discipline is the reason
+Then end on the last line, which is the point of the slide: that discipline is the reason
 the 0.986 is worth anything at all. Every one of the four failures we are about to see
 comes from breaking it in some form.
 :::
@@ -1453,7 +1456,7 @@ the ones that correlate with the labels of rows that later become the test set. 
 selection encoded information about the test labels, and the model inherited it.
 
 Nobody wrote a bug. Selection feels harmless because it fits no model - but it LEARNS
-from data, so it belongs inside the training fold.
+from data, so it must be fitted on the training data only.
 
 Then ask what happens with 20000 features instead of 5000. The illusion gets STRONGER,
 because there are more opportunities for a spurious correlation. That is the "try this"
@@ -1480,8 +1483,8 @@ about.
 
 Pipelines enforce it structurally, which is why we used one from the first notebook.
 
-Tell them the exercise checks this: scaling the full dataset before splitting caps the
-methodology marks regardless of the result obtained.
+Tell them the exercise discussion looks for exactly this: scaling the full dataset
+before splitting is a methodological error, whatever result it gives.
 :::
 
 # 99% accuracy, detecting nothing
@@ -1641,18 +1644,20 @@ Keep this short and serious. Do not moralise - state it and move on.
 
 Wine quality: run the workflow yourself, and **justify every decision**.
 
-- No marks for accuracy
-- Marks for methodology, and for saying what your number does not mean
+- Accuracy is not what counts
+- Methodology is, and saying what your number does not mean
 
 ::: notes
-Set it explicitly - do not let anyone leave without knowing it exists and when it is due.
+Set it explicitly - do not let anyone leave without knowing it exists and when it is
+discussed.
 
 Walk the tasks briefly. Task 1 is framing, and there is no single right answer: quality
 is an integer from 3 to 9, so they must decide how to treat it and defend the choice.
 Task 7 - repeat the split with ten seeds - connects directly to the figure they just saw.
 
-Remind them: scaling the full dataset before splitting loses the methodology marks
-regardless of the score. And there are no marks for accuracy anywhere in this course.
+Remind them: scaling the full dataset before splitting is a methodological error
+whatever the score, and it is what the discussion will look for. Accuracy is never
+what counts in this course.
 
 Also point them at the quiz - 20 questions, ungraded, and the ones marked "reasoning"
 are the closest thing there is to the exam, because they ask why rather than what.
