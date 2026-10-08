@@ -125,8 +125,8 @@ constraints read $\geq 1$ and the margin equal $2 / \lVert w \rVert$. → § 5.2
 **Soft margin, and the hinge loss.** Violations allowed and charged: nothing for a
 point outside the slab on its own side, then a straight-line rise. → § 5.2
 
-**$C$, the price of an error.** Large $C$ makes violations expensive and the model
-contort; small $C$ buys a wider, calmer boundary. Note the direction: **large $C$
+**$C$, the price of an error.** Large $C$ makes violations expensive, so the model accepts a narrower margin to
+classify more training points; small $C$ buys a wider, calmer boundary. Note the direction: **large $C$
 means less regularisation**. → § 5.2
 
 **A high support-vector fraction.** A free warning that the model is struggling to

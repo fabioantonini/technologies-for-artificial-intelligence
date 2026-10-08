@@ -11,17 +11,18 @@ date: "6 November 2026"
 - The score that was too good, and what the honest number cost you
 
 ::: notes
-Nothing to collect. What matters is the diagnosis, not the final figure, so ask
-the room what it found and listen for what it missed.
+Nothing is collected. What matters is how each student found the problems, not
+the final score, so ask the room what they found and listen for what they
+missed.
 
-There was more than one problem planted. Ask out loud how many people found the
-second one, and how many stopped after the first - stopping after the first is
-the realistic failure, because once a score drops from excellent to plausible
+The exercise hid more than one problem on purpose. Ask out loud how many people found the
+second one, and how many stopped after the first - stopping after the first is the common failure, because once a score drops from excellent to plausible
 the pressure to keep looking disappears.
 
-Then the sentence that links last week to today: everything from now on is
-evaluated with the apparatus you built in lesson 5. Today adds three model
-families, and each of them offers new ways to be wrong while looking right.
+Then the sentence that links last week to today: everything from now on is evaluated with the tools built in lesson 5:
+cross-validation, baselines, training scores read against validation scores.
+Today adds three families of models, and each of them can produce a result that
+looks right and is not, in a way of its own.
 :::
 
 # Today: the first lesson that offers a choice
@@ -33,17 +34,18 @@ families, and each of them offers new ways to be wrong while looking right.
 - Which family to reach for, and why that beats tuning
 
 ::: notes
-Agenda, and one framing sentence that is worth saying deliberately.
+The agenda, and one sentence about the whole lesson that is worth saying slowly.
 
 Lessons 3 and 4 built linear models and spent most of their effort on fitting
 them honestly. Lesson 5 built the apparatus for telling whether a model works.
-None of that told them WHICH MODEL TO REACH FOR. This is the first lesson that
-offers a choice, and the choosing is the content.
+None of that told them WHICH KIND OF MODEL TO USE. This is the first lesson that
+offers a choice, and learning how to choose is what the lesson is about.
 
 Stress that these are not three ways of doing the same thing. They attack
-classification from three unrelated directions: one makes no assumptions and
-does no fitting at all, one makes an assumption that is usually false and wins
-anyway, one changes the criterion and then changes the space. The differences
+classification from three unrelated directions: k-NN makes no assumptions and does no fitting at all; Naive Bayes makes an
+assumption that is usually false and works well anyway; the SVM changes the
+criterion for choosing a boundary, and then changes the coordinates the data is
+described in. The differences
 between them are the point, not the accuracy figures.
 
 Handout section 1 sets this out in a paragraph each.
@@ -64,8 +66,9 @@ running too slow just as easily as by running too hot.
 Ask the room what that does to the shape of the two classes before you advance.
 Somebody will get it: healthy in the middle, faulty all around.
 
-The 4% flipped labels are lesson 5's noise floor arriving in a classification
-problem. No model here can exceed roughly **0.96**, and that is the number every
+The 4% flipped labels play the part of lesson 5's irreducible noise: a model
+that learned the true rule perfectly would still get those pumps wrong. So no
+model here can exceed roughly **0.96**, and that is the number every
 score today should be compared against - not against 1.000, and not against
 each other in isolation.
 
@@ -80,17 +83,17 @@ Handout section 1.1.
 Give them a moment before saying anything. Then ask for a straight line that
 separates these two classes, and let them try.
 
-The healthy pumps form a disc around the design point; the faulty ones form the
-annulus around them. There is no line. Not a badly chosen line - no line at all,
+The healthy pumps form a disc around the design point; the faulty ones form a ring around them. There is no line. Not a badly chosen line - no line at all,
 because the class you want to isolate is completely surrounded.
 
 Worth naming what is unusual here, since most textbook pictures are blobs side
-by side: the geometry comes from the physics, not from an attempt to be awkward.
+by side: the shape comes from how pumps fail, not from a wish to make the problem hard.
 Any "within tolerance versus out of tolerance" problem has this shape, and that
 covers a large fraction of industrial classification.
 
 The scattered wrong-coloured points inside each region are the 4% flipped
-labels. Point at two of them now - they come back at k = 1.
+labels. Point at two of them now - they come back when k-NN uses a single neighbour,
+k = 1.
 :::
 
 # What a straight boundary costs
@@ -108,14 +111,13 @@ has not been narrowly beaten by the baseline. It has learned NOTHING AT ALL. It
 predicts "faulty" for every pump, because with a straight boundary that is
 genuinely the best answer available to it.
 
-Then point at the standard deviation, which is the real tell: **± 0.000**. A
+Then point at the standard deviation, which is the clearest sign: **± 0.000**. A
 model that gives everything the same answer is perfectly consistent across
 folds. Give them that as a diagnostic to keep - a suspiciously stable
 cross-validation score often means a model that is not using its input.
 
-Connect back to lesson 5's habit: quote the baseline first, always. Without the
-0.613 in the row above, 0.613 looks like a mediocre result rather than an absent
-one.
+Connect back to lesson 5's habit: quote the baseline first, always. Without the 0.613 in the row above, the model's 0.613 would look like a
+mediocre result rather than what it is: no learning at all.
 :::
 
 # k-nearest neighbours: the whole algorithm
@@ -124,6 +126,7 @@ one.
   majority vote
 - There is no training step: "fitting" means **storing the data**
 - Called a **lazy learner**: an unusually honest name for an algorithm
+- In code: `KNeighborsClassifier(n_neighbors=5)`
 
 ::: notes
 The whole method is one sentence, and it is worth pausing on how strange that
@@ -131,11 +134,11 @@ is after three weeks of optimisation. There is no cost function, no gradient, no
 parameters. Nothing is estimated.
 
 Ask the room what could possibly go wrong with a method that makes no
-assumptions. The answer is the next fifteen minutes: making no assumptions means
-having no way to ignore anything, and that turns out to be expensive.
+assumptions. The next fifteen minutes answer it: a method with no assumptions
+has no way to ignore a useless column, and that turns out to be expensive.
 
-Two decisions hide inside that sentence - what "closest" means, and what k is  - 
-and both are consequential. Take them in that order.
+The sentence hides two decisions - what "closest" means, and how many
+neighbours k to use - and both change the result. Take them in that order.
 
 Handout section 2.1.
 :::
@@ -149,9 +152,9 @@ Euclidean distance, almost always. Do not dwell on the formula; dwell on what it
 implies, which is the next slide.
 
 The observation that matters: every feature contributes to that sum through its
-own units. There is nothing in the expression that knows Hz from bar. The method
-has no other channel through which the data reaches it - no coefficients, no
-weights, no notion that one column might matter more than another.
+own units. There is nothing in the expression that knows Hz from bar. Distance is the only way the data reaches the method: there are no
+coefficients, no weights, nothing that could say one column matters more than
+another.
 
 Say that plainly: for k-NN, the distance IS the model. Anything that distorts
 the distance distorts everything.
@@ -164,9 +167,10 @@ Handout section 2.1 has it with the scaling argument attached.
 - Vibration runs over **tens of Hz**; pressure over **a couple of bar**
 - Unscaled, a one-bar pressure difference is invisible beside a ten-Hz one
 - Lesson 2's scaling argument, arriving with **immediate consequences**
+- In code: `make_pipeline(StandardScaler(), KNeighborsClassifier(5))`
 
 ::: notes
-This is where lesson 2 stops being hygiene and starts being the difference
+In lesson 2 scaling looked like good housekeeping; here it is the difference
 between a working model and a broken one.
 
 Work the arithmetic out loud. Two pumps differing by 10 Hz and 0 bar are 10
@@ -174,13 +178,12 @@ apart. Two differing by 0 Hz and 1 bar are 1 apart. So the algorithm considers
 the second pair ten times more similar - for no reason other than the units
 somebody chose when the sensors were installed.
 
-The consequence: without standardisation, vibration picks every neighbour by
-itself and pressure is decorative. Change the pressure sensor to millibar and
+The consequence: without standardisation, vibration alone decides which pumps are neighbours,
+and pressure has almost no effect. Change the pressure sensor to millibar and
 the model's answers change. That should feel unacceptable, and it is.
 
-Practical instruction: k-NN goes in a Pipeline with StandardScaler, always, and
-the scaler is fitted inside the fold - which is last week's lesson, not a new
-one.
+Practical instruction: k-NN goes in a Pipeline with StandardScaler, always, and the scaler is fitted on the training part of each fold only, as lesson 5
+required.
 :::
 
 # k is the bias-variance dial, made visible
@@ -192,8 +195,8 @@ one.
 - At k = 1 the training accuracy is **exactly 1.000**. Always, on any dataset
 
 ::: notes
-Lesson 5 decomposed error into bias and variance and had to build 300 parallel
-universes to show it. Here you watch the same trade-off by turning one integer,
+Lesson 5 split the error into bias and variance, and had to train the model on
+300 different training sets to show it. Here you watch the same trade-off by turning one integer,
 and that is why this slide is worth more time than its size suggests.
 
 The k = 1 claim is the one to make them prove to themselves. Ask why the
@@ -201,9 +204,8 @@ training accuracy is exactly 1.000 at k = 1, and wait. The answer is that every
 training point is its own nearest neighbour, at distance zero. So it votes for
 itself and wins.
 
-That is the purest illustration in the whole course of lesson 5's point: a
-training score can be perfect and measure absolutely nothing. Not
-approximately nothing - nothing, by construction, independent of the data.
+That is the purest illustration in the whole course of lesson 5's point: a training score can be perfect and say nothing about how the model does on new
+data. Here the perfect score is guaranteed by how k = 1 works, whatever the data.
 
 Handout section 2.2.
 :::
@@ -221,17 +223,18 @@ Handout section 2.2.
 ::: notes
 Read the first row, then the last, then the middle.
 
-Row one: training 1.000, honest 0.912. The gap is the whole of lesson 5 in two
-numbers on one line.
+Row one: training 1.000, honest 0.912. The difference between them is lesson 5's
+warning about training scores, in a single row.
 
 The best value is k = 5, at 0.944 - wide enough to average out the flipped
 labels, narrow enough to still follow the boundary. Note that it is not
 dramatically better than 15 or 51: the choice of k is forgiving over a wide
-range, which is worth saying because they will otherwise grid-search it to death.
+range, which is worth saying because otherwise they will spend a long search on a
+choice that hardly matters.
 
 The last row is the interesting failure. At k = 401 the training score has
 collapsed too, which distinguishes it from overfitting: this model is bad
-everywhere, not just on data it has not seen. That is what bias looks like.
+everywhere, not just on data it has not seen. That is what high bias looks like: a model too simple to follow the data.
 
 Compare 0.944 against the ceiling of 0.96, not against 1.000.
 :::
@@ -248,13 +251,13 @@ Then the two horizontal lines, which are the honest frame for reading any score
 in this lesson: the noise ceiling at 0.96, which nothing can exceed, and the
 majority baseline at 0.613, which everything should.
 
-The gap between the two curves is variance, and watch it close as k grows.
-Where they meet and then both fall together, you have run out of variance and
-started buying bias. The minimum of the honest curve sits just before that.
+A large gap between the two curves is a symptom of high variance; watch it
+close as k grows. Where the curves meet and then fall together, the variance is
+gone and bias has taken over: the model has become too smooth. The minimum of the honest curve sits just before that.
 
 Ask them which end of this plot they would have picked by looking at the
-training curve alone. The answer is the far left, which is the worst honest
-model on the plot bar one.
+training curve alone. The answer is the far left, k = 1, one of the worst models on the plot by its
+cross-validated score.
 :::
 
 # The same data at three values of k
@@ -269,13 +272,12 @@ islands are the mislabelled 4% - the model has carved out a small territory for
 each one. That is variance made visible.
 
 k = 15: a clean disc, close to the envelope that actually generated the data.
-This is roughly the truth.
+This is close to the envelope the data was generated from.
 
 k = 401 is the one worth the time, because it does not do what people expect.
 It has not collapsed to a single class. The boundary has INFLATED past the true
 envelope and now swallows faulty pumps. With 401 votes taken over a large
-neighbourhood, the majority class wins in regions where it should not. The model
-has stopped following the boundary and started averaging over it.
+neighbourhood, the majority class wins in regions where it should not. The model no longer follows the boundary; it averages the votes across it.
 
 Handout section 2.2 carries the same three panels.
 :::
@@ -289,9 +291,9 @@ Handout section 2.2 carries the same three panels.
 
 ::: notes
 The first cost is engineering. For 1,200 pumps it is nothing. For ten million
-rows answering a thousand queries a second it is the entire problem, and it is
-why approximate nearest-neighbour indexes are a small industry. Mention that the
-scikit-learn default uses a k-d tree or ball tree, which helps in low dimensions
+rows answering a thousand queries a second it is the entire problem, and it is why there is a whole family of software for finding approximate nearest
+neighbours quickly. Mention that scikit-learn by default uses a k-d tree or a
+ball tree (data structures that avoid comparing the query with every row), which helps in low dimensions
 and stops helping in high ones - for reasons that are the next segment.
 
 The second cost is easy to miss and matters more often. Every other model in
@@ -352,7 +354,8 @@ Point out that the damage is already serious at 12 columns: 0.938 down to 0.762
 for ten empty columns. Twelve features is not a large table. Nobody would look
 at a twelve-column dataset and think "high-dimensional".
 
-The mechanism is on the next three slides, and it is geometry, not statistics.
+The reason is on the next slides, and it is a property of distances in many
+dimensions, not of this dataset.
 :::
 
 # Why: distances stop varying
@@ -375,14 +378,14 @@ chosen at random".
 
 Now add dimensions. Every new coordinate contributes its own squared difference
 to every pairwise distance. Those contributions are independent draws from the
-same distribution, so by the law of large numbers their average concentrates,
-and every distance converges on the same value.
+same distribution, so by the law of large numbers their sum grows while its spread, relative to its
+size, shrinks: every distance ends up close to the same value.
 
 Say explicitly that this has nothing to do with k-NN, or with machine learning
 at all. It is a fact about high-dimensional Euclidean space. k-NN is simply the
 first method we have met that depends on it.
 
-Handout section 3.2 does it properly.
+Handout section 3.2 has the derivation.
 :::
 
 # The nearest point stops being near
@@ -396,8 +399,8 @@ from every other point.
 
 The shape is the thing to notice: the damage is done early. Most of the rise
 happens in the first fifty dimensions, well below anything anyone would call
-high-dimensional. By the time you are worrying about a thousand features it is
-long over.
+high-dimensional. By the time you are worrying about a thousand features, most of the damage has
+already happened.
 
 Connect it back to the previous table so nobody treats this as a separate
 curiosity. The reason 52 columns took k-NN below the baseline is drawn on this
@@ -471,8 +474,8 @@ Neural networks work happily in thousands of dimensions. So do linear models
 with regularisation. What breaks is specifically the family of methods whose
 mechanism is a distance, because a quantity that no longer varies can no longer
 discriminate. Name the three that appear in this course: k-NN today, k-means in
-lesson 8, and the RBF kernel later this afternoon - which is why the RBF SVM
-also degraded in that table, though more slowly.
+lesson 8, and the RBF kernel later this afternoon, which measures similarity through the
+same Euclidean distance.
 
 **Now the predictable mistake, and defend the instinct first.** Adding features
 because they might help is good practice with a linear model: an irrelevant
@@ -480,24 +483,32 @@ feature earns a coefficient near zero and costs you almost nothing. That
 reasoning is sound, and it is what they have been taught for three lessons. With
 k-NN the same feature costs you a dimension in the distance, and dimensions are
 what the method is made of. The habit is right; transferring it one lesson later
-does real damage. Say that the fix is to select features BEFORE the distance,
-inside the pipeline - which is last week's rule again.
+does real damage. Say that the fix is to choose the features before any distance is computed, as
+a step inside the pipeline, so that the choice is made on the training part of
+each fold only - lesson 5's rule again.
 :::
 
 # Notebook 1, live
 
-- k-NN on the pumps, choosing k, and the curse measured
+| section, and its slides | you call (→ the number to come back with) |
+|---|---|
+| the straight line, 4-6 | `LogisticRegression` scored by `cross_val_score` over `StratifiedKFold` folds → 0.613 |
+| k-NN, scaled first, 7-9 | `make_pipeline(StandardScaler(), KNeighborsClassifier(k))` |
+| choosing k, 10-13 | `cross_val_score` for each k → 0.944 at k = 5 |
+| columns of noise, 15-16 | the same pipeline on `load_with_noise(d)` → 0.602 at 52 columns |
+| distances stop varying, 17-20 | NumPy only: nearest ÷ farthest → 0.701 in 100 dimensions |
 
 ::: notes
-Run notebooks/01. Twenty-two minutes.
+k-NN on the pumps, choosing k, and the curse of dimensionality measured. Run
+notebook 01. Twenty-two minutes.
 
-Have them run the unscaled version first, before the Pipeline appears, so they
+Have them run the unscaled version first, before the pipeline appears, so they
 watch the score drop and can attribute it to the units rather than to the
 method.
 
-The cell to protect if time runs short is the noise-column sweep. Let them add
-the columns themselves and watch the score cross the baseline - it changes
-behaviour in a way that reading the table does not.
+If time runs short, do not skip the noise-column sweep. Let them add the columns
+themselves and watch the score cross the baseline - seeing it happen convinces
+more than reading the table.
 
 If somebody finishes early, the interesting extension is to ask what happens
 with 50 noise columns and 12,000 rows instead of 1,200. The curse is partly a
@@ -524,7 +535,7 @@ back awake.
 ::: notes
 Say the strategy in words before the symbols appear. We want a quantity we
 cannot estimate directly. Bayes' rule trades it for quantities we might be able
-to estimate. That is the whole move.
+to estimate. That exchange is the whole idea.
 
 Walk the right-hand side once. The prior is the class frequency - a count, no
 difficulty. The denominator is the same number for every class, so it cannot
@@ -536,8 +547,9 @@ two-dimensional density and we could estimate it from 1,200 rows. With twenty
 features it is a twenty-dimensional density, and no quantity of data populates a
 twenty-dimensional space.
 
-Point out that this is the curse again, arriving from a completely different
-direction - density estimation rather than distance. Handout section 4.1.
+Point out that this is the curse of dimensionality again, from a different
+direction: an hour ago it broke distances, here it breaks the estimation of a
+density. Handout section 4.1.
 :::
 
 # Bayes' rule, applied to a class
@@ -572,9 +584,9 @@ Expect someone to object that the number is then no longer a probability. The
 instinct is sound - a term has been thrown away - and the answer is that it is
 recoverable. The denominator is the sum of the numerators over the classes, so
 dividing each score by the sum of the scores gives the probability back
-exactly. That is what predict_proba does, in logarithms. Dropping it costs
-nothing in calibration; where Naive Bayes does lose calibration is inside the
-numerator, and we will see that in a few slides.
+exactly. That is what predict_proba does, in logarithms. Dropping it does not make the probabilities less reliable. Where Naive Bayes's
+probabilities do go wrong is inside the numerator, because of the assumption,
+and we will see that in a few slides.
 
 Then point at the first factor: this is where all the difficulty now sits, and
 the next slide is the assumption that makes it estimable. Handout section 4.1
@@ -586,6 +598,7 @@ carries a worked example with the pumps' priors.
 - **Given the class, the features are independent of one another**
 - The joint density then factorises into n one-dimensional densities
 - Each factor is estimated from the rows of that class alone
+- In code: `GaussianNB()`
 
 ::: notes
 One assumption, stated in one line, and everything follows from it.
@@ -600,9 +613,9 @@ ones. A one-dimensional density needs very little data. Training becomes a
 single pass computing a mean and a variance per feature per class - there is no
 iteration, no optimisation, nothing to converge.
 
-Mention that in practice this is computed as a sum of logarithms, for the same
-underflow reason as lesson 4's log-likelihood: a product of several hundred
-small probabilities is exactly zero in floating point. Handout section 4.2 has
+Mention that in practice this is computed as a sum of logarithms, for the same reason lesson 4 used the log-likelihood: a product of several
+hundred small probabilities is too small for the computer to store, and becomes
+exactly zero (this is called underflow). Handout section 4.2 has
 the log form.
 :::
 
@@ -616,8 +629,7 @@ the left; n one-dimensional densities on the right.
 
 Why that matters is a counting argument, and it is worth making concrete.
 To estimate the left-hand side directly you would need enough pumps to fill
-an n-dimensional space - the curse of dimensionality from an hour ago,
-arriving in a new disguise. To estimate the right-hand side you need enough
+an n-dimensional space - the curse of dimensionality from an hour ago, in a new form. To estimate the right-hand side you need enough
 pumps to fit n separate histograms, which is a completely different demand.
 
 That is the whole bargain: an assumption that is usually false, traded for
@@ -668,7 +680,9 @@ faulty one. The vibration term decides it: P(faulty) = 0.981. At the design
 point itself, 42 Hz and 5.6 bar, P(healthy) = 0.820. The next slide draws it.
 
 If someone spots in the handout that one log-density is positive, that is the
-moment to say a density is not a probability: a bell with a standard deviation of 0.219 bar peaks at about 1.82. Handout section 4.2 works the pump through term by term.
+moment to say a density is not a probability: it is a probability per unit of
+pressure, and a bell with a standard deviation of 0.219 bar has to peak at about
+1.82 for its total area to be 1. Handout section 4.2 works the pump through term by term.
 :::
 
 # 48 Hz: one bell is 86 times the other
@@ -703,10 +717,8 @@ prior times one density per reading, the class with the largest product
 winning. The equation says its log is a sum, and the title says why that is
 allowed: ln is increasing, so the class with the largest product is also the
 class with the largest log. The logs
-are natural logs - base e - which matters two slides on, when we undo them with
-e. Say why nobody computes the left-hand side directly. With hundreds of features the
-product is hundreds of small numbers multiplied together, and it underflows to
-exactly zero in floating point - 0.5 to the power 300 is already 5 times 10 to
+are natural logs - base e - which matters two slides later, when we undo them with e. Say why nobody computes the left-hand side directly. With hundreds of features the
+product is hundreds of small numbers multiplied together, and it becomes too small to store, exactly zero in floating point (underflow) - 0.5 to the power 300 is already 5 times 10 to
 the minus 91, and real likelihoods are far smaller than 0.5. Every class then
 scores zero and nothing can be compared.
 
@@ -733,7 +745,8 @@ Handout section 4.2.
 | Faulty | ln | −0.490 | −3.286 | −0.368 | **−4.144** |
 
 ::: notes
-This is inference, and it is worth saying how little it is. Read each class as
+This table is the whole of prediction (inference), and it is worth saying how
+little computation it needs. Read each class as
 two rows. The value row is the product form: the prior from slide 30, and the
 height of that class's bell at each reading - the dots on slide 31 - each
 density conditional on the class. Multiply across and you get the score. The ln
@@ -811,7 +824,8 @@ With hundreds of features the totals reach −800, e^(−800) is exactly zero in
 floating point, and the direct fraction becomes 0/0. The gap stays an ordinary
 number, so the probability can always be computed.
 
-Then the reading that makes it obvious. The gap is the log-odds: e^3.951 is
+Then the reading that makes it intuitive. The gap is the log-odds, the logarithm
+of how many times more likely faulty is than healthy: e^3.951 is
 about 52, so faulty is 52 times as likely as healthy. Odds of 52 to 1 split
 the probability 52/53 = 0.981 and 1/53 = 0.019, the way anyone would for a bet.
 1 / (1 + e^(−Δ)) is lesson 4's sigmoid - odds over odds plus one, rewritten.
@@ -841,8 +855,8 @@ same disease arrive in clusters.
 Then the framing that makes the rest of this segment worth doing, and put it as
 a question to the room: given that the assumption is essentially always false,
 why does anybody use this? The answer is that the assumption being false and the
-CLASSIFIER being wrong are different things. Argmax only needs the ordering
-right, not the probabilities. Handout section 4.2 closes on exactly this.
+CLASSIFIER being wrong are different things. To choose a class, the model only needs the right class to get the highest
+score, not the probabilities to be right. Handout section 4.2 closes on exactly this.
 :::
 
 # On the pumps, it scores 0.933
@@ -891,7 +905,8 @@ readings. The absolute value works too, −0.454. The square is the natural pick
 because the disc and the ring are defined by z1² + z2², and it is the coordinate
 the kernel lift will use later. Handout section 4.3.
 
-Then the trap. Correlation only sees straight-line dependence. Healthy pumps
+Then show why that conclusion is wrong. Correlation only sees straight-line
+dependence. Healthy pumps
 fill a disc and faulty ones a ring; on a ring, a pump far out in vibration must
 be central in pressure. That dependence is symmetric, so the straight-line
 summary averages it to zero. Square each reading's distance from the design
@@ -903,18 +918,17 @@ the distinction on the board in two lines: uncorrelated, yes; independent, no.
 Naive Bayes assumes the second. The assumption is false.
 
 Someone will then ask why we used it at all. Answer it directly: nobody checks
-the assumption before fitting. It is a simplification bought for ten numbers,
-and the model is judged, like any other, by its validation score. That score
-asks for less than the assumption does: to classify, the right class has only
-to come out on top - the sign of the log-score gap - not the densities to be
-right. Naive Bayes can be optimal in that sense with independence badly violated
+the assumption before fitting. It is a simplification accepted in exchange for a model of ten numbers,
+and the model is judged, like any other, by its validation score. That score asks for less than the assumption does. To classify correctly, the
+right class only has to get the higher score - the sign of the gap between the
+two log scores - and the densities do not have to be right. Naive Bayes can be optimal in that sense with independence badly violated
 (Domingos and Pazzani, 1997).
 
 So why 0.933? Because the densities are wrong but the boundary they imply is
 right. With both classes centred on the same point, comparing a narrow bell
 with a wide one gives an axis-aligned ellipse, and the true envelope is an
 axis-aligned ellipse. The fitted model's edge sits at about 3.17 Hz by 0.41
-bar against a true 3.5 by 0.45 - the same shape, a tenth small. A false
+bar against a true 3.5 by 0.45 - the same shape, about a tenth smaller. A false
 assumption is cheap when it leaves the boundary the right shape. The next
 slide is the case where it does not. Handout section 4.3.
 :::
@@ -943,7 +957,7 @@ boundary they imply is nearly right. That is why 0.933 sits so close to k-NN's
   other is a mismatch between demand and delivery
 
 ::: notes
-Change one thing about the problem and watch the method fall apart. Describe the
+Change one thing about the problem and watch the method fail. Describe the
 physics before the geometry, because the rule is completely reasonable
 engineering.
 
@@ -1013,13 +1027,14 @@ Second, and take the time: 0.404 is BELOW CHANCE. Below the majority baseline of
 possible - a model with no information should surely sit at 50%.
 
 The explanation is worth having in full. The class means on each sensor differ
-by about 0.17, against a spread near 1, purely as an artefact of a finite sample.
+by about 0.17, against a spread near 1, only by chance, because the sample is finite.
 That accident is the ONLY per-feature evidence available. Naive Bayes has
 nothing else to multiply, so it follows it - and in this sample it points the
 wrong way.
 
 The sentence to land: a model with no signal does not sit politely at 50%. It
-follows whatever spurious structure it can find, with complete confidence.
+follows whatever accidental structure it can find in the sample. It is not even
+confident about it, which is the next slide.
 :::
 
 # Its probabilities are not probabilities
@@ -1040,7 +1055,7 @@ features carry the SAME evidence about the class - near-copies of one another -
 multiplying their probabilities counts it repeatedly. Be precise here, because
 they have just seen two kinds of dependence that are not this: the pumps' ring
 and the XOR sensors. Ten correlated words in a document are treated as ten
-independent pieces of evidence, and the posterior saturates. Naive Bayes is
+independent pieces of evidence, and the probability is pushed all the way to 0 or 1. Naive Bayes is
 famous for reporting 0.999 on problems it gets wrong a fifth of the time.
 
 Then lesson 5's distinction, which this is the textbook case of: ranking and
@@ -1054,12 +1069,19 @@ in section 7.2, where the threshold depends on the probability being real.
 
 # Notebook 2, live
 
-- Where breaking the assumption is cheap, and one step away where it is fatal
+| section, and its slides | you call (→ the number to come back with) |
+|---|---|
+| on the pumps, 37 | `GaussianNB` beside `KNeighborsClassifier` and `LogisticRegression` → 0.933 |
+| what training computed, 29-35 | `.theta_`, `.var_`, `.class_prior_`, `predict_proba` → 0.981 at 48 Hz |
+| checking the assumption, 38-39 | `X[y == c].corr()`, within each class → −0.420 |
+| the interacting sensors, 40-42 | the same models, plus `SVC` → 0.404 |
+| confidence, right and wrong, 43 | `train_test_split`, then `predict_proba` → 0.567 against 0.555 |
 
 ::: notes
-Run notebooks/02. Sixteen minutes.
+Where breaking the assumption is cheap, and one step away where it is fatal. Run
+notebook 02. Sixteen minutes.
 
-The cell to protect is the one that prints 0.404 next to the 0.523 baseline. Let
+If time runs short, keep the cell that prints 0.404 next to the 0.523 baseline. Let
 them see a below-chance score appear from correct code on solvable data before
 any explanation arrives.
 
@@ -1079,8 +1101,8 @@ of feature engineering versus model choice in one cell.
 - Minimising the error therefore cannot choose between them
 - The SVM picks the widest **slab**: push it out until it touches the nearest
   point of each class
-- A boundary passing close to a point is one small perturbation from getting it
-  wrong
+- A boundary passing close to a point is one small perturbation from getting
+  it wrong
 
 ::: notes
 Start with the problem rather than the solution. Draw two well-separated blobs
@@ -1094,9 +1116,10 @@ The SVM breaks it differently: take the boundary with the most room around it.
 
 The intuition, and this is the sentence to say slowly: maximising the distance to
 the closest points chooses the boundary that tolerates the most movement in the
-data before it changes its mind. That is a statement about GENERALISATION, not
-about fit - which is unusual, because almost everything else in this course
-optimises fit and controls generalisation indirectly.
+data before it changes its mind. That is a statement about GENERALISATION, not about fit - which is unusual,
+because almost everything else in this course fits the training data as well as
+possible and protects generalisation only indirectly, through a penalty or a
+validation score.
 
 Handout section 5.1.
 :::
@@ -1136,7 +1159,7 @@ The point worth stressing is why the soft margin is not a patch or a
 convenience. With even one mislabelled point inside the other class, the strict
 problem is INFEASIBLE - there is no solution, not a bad one. Real data always
 contains such points. So the soft margin is the only version anyone ever runs;
-the hard-margin problem is a teaching device.
+the strict (hard-margin) version is only a teaching device.
 
 Our own labels are flipped at 4%, deliberately, so this is not a hypothetical
 for this dataset: the hard-margin problem on these pumps has no answer.
@@ -1173,8 +1196,8 @@ Handout section 5.2.
 $$\min_{w, b, \xi} \ \tfrac{1}{2}\|w\|^2 + C\sum_i \xi_i$$
 
 ::: notes
-The constraint is not on the slide any more - it made the line wide enough to
-land at 28pt - so state it: subject to y_i(w'x_i + b) >= 1 - xi_i, every point
+The constraint is not on the slide - with it the line became too wide to read -
+so state it: subject to y_i(w'x_i + b) >= 1 - xi_i, every point
 on the right side of the slab by a margin, or paying xi_i for the shortfall.
 Handout section 5.2 writes it out.
 
@@ -1192,10 +1215,10 @@ derivative tidy, exactly as in lesson 3's cost function.
 
 # C is the price of a training error
 
-- **Large C**: violations are expensive, so the model contorts to classify
-  everything. Narrow margin, low bias, high variance
+- **Large C**: violations are expensive, so the model accepts a narrower
+  margin to classify more training points. Low bias, high variance
 - **Small C**: a wider, calmer boundary, at the cost of some errors
-- The same dial as k in k-NN and λ in lesson 3, in a third costume
+- C plays the role that k played in k-NN and λ in lesson 3
 - Note the direction: **large C means less regularisation**
 
 ::: notes
@@ -1211,6 +1234,13 @@ same inverted convention - it is the reciprocal of the penalty there too.
 
 Ask them which way they would expect C to run before you tell them. Most guess
 wrong, and having guessed wrong once is what makes it stick.
+
+Be precise about what a large C does to the boundary. With a linear kernel the
+boundary and the two edges of the slab stay three parallel straight lines: a
+larger C can only make the slab narrower, or shift and rotate it, to classify
+more training points. It never bends it. With the RBF kernel the boundary can
+also bend around individual points, and slide 64 shows how far that goes when C
+and gamma are both large.
 :::
 
 # The best straight line is still a straight line
@@ -1231,20 +1261,19 @@ line works, choosing the best one optimally still gets you nothing. A better
 criterion cannot rescue an inadequate hypothesis class.
 
 Then the RBF row, which is the same algorithm with one argument changed, at
-0.947 - the best number in the whole lesson, and within a hair of the 0.96
-ceiling.
+0.947 - the best number in the whole lesson, and close to the 0.96 ceiling.
 
-The support-vector column says the same thing in a second language, and that is
+The support-vector column says the same thing in a different way, and that is
 the next slide.
 :::
 
 # A high support-vector fraction is a free warning
 
-- The linear model needs **79%** of the training set to define its boundary
+- The linear model, `SVC(kernel="linear")`, needs **79%** of the training set
 - The RBF model needs **23%**
 - Almost every point sits on or inside the margin: there is no slab that
   separates anything
-- The count falls out of `fit` at no cost, and you should look at it
+- The count comes free with `fit`, as `len(model.support_)`: look at it
 
 ::: notes
 Explain what 79% actually means geometrically. A support vector is a point on
@@ -1257,8 +1286,7 @@ the edge matter.
 
 Give them the diagnostic to keep, since it costs nothing: after fitting an SVM,
 look at `len(model.support_)` over the number of training rows. High means the
-model is struggling to find room, which usually means the kernel is wrong for
-the geometry. It is a warning available BEFORE you cross-validate anything.
+model is struggling to find room, which usually means the kernel cannot draw the shape the classes need. It is a warning available BEFORE you cross-validate anything.
 
 Worth adding that it also predicts prediction cost - every support vector is one
 kernel evaluation per query, so a model needing 79% of the data has thrown away
@@ -1320,8 +1348,8 @@ computing the coordinates of every point in such a space is impossible.
   for an **infinite-dimensional** space
 
 ::: notes
-The trick in one sentence: the SVM never needs the coordinates, only the angles
-and lengths between points, and those can be obtained without ever going there.
+The trick in one sentence: the SVM never needs the coordinates, only the inner products between points,
+which carry their lengths and the angles between them, and those can be obtained without ever going there.
 
 Do not prove it here - the next slide gives the one line that makes this claim
 true, and handout section 5.4 has the full three-fact argument behind that
@@ -1433,11 +1461,11 @@ because the weights times the labels must sum to zero, so one cannot move
 alone - sets them to their best values with the rest fixed, and repeats until
 nothing improves. Convex, so there is one answer and it is found every time.
 
-Name the distinction the previous slide left open. The objective being solved
+Make explicit a distinction the earlier slides left open. The objective being solved
 here only ever evaluates K(x_i, x_j) between pairs of training pumps - the
 kernel matrix, m by m. The new pump, the one this model will eventually
-classify, appears nowhere in training. K(x_i, x), with a free x, is the
-prediction formula two slides on: same function, but its second argument is
+classify, appears nowhere in training. K(x_i, x), with x standing for any pump, is the prediction formula on the next
+slide: same function, but its second argument is
 now the pump being classified rather than another training point.
 
 Then the counts, which match the three cases of the slack from earlier. Weight
@@ -1551,13 +1579,14 @@ together.
 Left, γ = 0.1: a smooth boundary, slightly too smooth, and the two scores agree.
 Middle, γ = 1: close to the true envelope, and the best honest score.
 
-Right is the one to sit on. The boundary has broken into bubbles - small islands
+Spend time on the right panel. The boundary has broken into bubbles - small islands
 around individual points, including the mislabelled ones. That is what a 0.995
 training score looks like from the outside: the model has drawn a private
 territory around each flipped label so that it can get it right.
 
-Ask them what happens to a new pump landing in the gap between two bubbles. That
-is the 0.902.
+Ask them what happens to a new pump landing in the gap between two bubbles: it
+is judged by whichever stray point happens to be nearest, and that is where the
+0.902 comes from.
 
 The reason this slide matters more than the table: they have seen overfitting as
 a curve on a plot since lesson 5. Here it is a shape in the input space, and the
@@ -1567,17 +1596,24 @@ plot it.
 
 # Notebook 3, live
 
-- Margins, support vectors, and what γ does to the boundary
+| section, and its slides | you call (→ the number to come back with) |
+|---|---|
+| the widest slab, 45-48 | `SVC(kernel="linear")`, `.n_support_`, `decision_function` → 3 of 80 points |
+| a straight line still fails, 51-52 | `cross_val_score`, linear against RBF kernel → 947 against 278 support vectors |
+| the kernel trick, 53-58 | NumPy only: (a · b)² against the lifted product → 25 = 25 |
+| training and one prediction, 59-61 | `.support_`, `.dual_coef_`, `.intercept_` → +1.883 |
+| gamma and C, 62-64 | `SVC(gamma=..., C=...)` in the pipeline → 0.944 at γ = 1 |
 
 ::: notes
-Run notebooks/03. Sixteen minutes.
+Margins, support vectors, and what γ does to the boundary. Run notebook 03.
+Sixteen minutes.
 
-The cell to protect is the γ sweep with the boundary drawn at each setting. Let
+If time runs short, keep the γ sweep with the boundary drawn at each setting. Let
 them turn γ up themselves and watch the bubbles form - it is the most direct
 experience of overfitting available in this course.
 
-Have them print the support-vector fraction for the linear and RBF kernels side
-by side. Two numbers, and it makes the diagnostic real rather than a claim on a
+Have them print the fraction of support vectors for the linear and RBF kernels
+side by side. Two numbers, and it makes the diagnostic real rather than a claim on a
 slide.
 
 If time runs short, skip the C sweep and set it as reading: the table is in
@@ -1650,7 +1686,7 @@ rather than a preference.
 - **No line separates the pumps**: 0.613, the base rate
 - **k is the bias-variance dial**, made visible
 - **In 100 dimensions the nearest point is 70% as far as the farthest**
-- **Naive Bayes**: 0.933 where independence holds, **0.404** where it does not
+- **Naive Bayes**: 0.933 where its false assumption is cheap, **0.404** where not
 - **Choosing the family beats tuning the wrong one**: 0.613 to 0.947
 
 ::: notes
@@ -1681,14 +1717,15 @@ Handout section 7 lists all of this with the section numbers.
 Set it explicitly and say out loud when it comes back: the first ten
 minutes of next Friday, 13 November.
 
-The marks are for the reasoning, not for the accuracy. A well-argued choice that
-scores slightly worse beats a lucky winner with no justification - and the
+If this exercise is drawn at the exam, what counts is the reasoning, not the
+accuracy. A well-argued choice that scores slightly worse beats a lucky winner
+with no justification - and the
 argument has to reference the data, in the way that the squared distances and
 the fitted ellipse explained Naive Bayes on the pumps this afternoon.
 
 Remind them that everything must be cross-validated and reported with a spread,
-in the format lesson 5 set. Scaling goes inside the pipeline; that will be
-checked.
+in the format lesson 5 set. Scaling goes inside the pipeline; at the exam that is one of the first things
+looked at.
 
 Next week: decision trees and ensembles. A fourth family, with a different
 answer again to the same question - how do you draw a boundary that is not a

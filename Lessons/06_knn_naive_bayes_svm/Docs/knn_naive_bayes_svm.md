@@ -276,8 +276,7 @@ It is **not** that high-dimensional problems are inherently unlearnable. Lesson
 
 It is that **methods built on distance lose their footing**, because the
 quantity they depend on stops varying. That includes k-NN, k-means (lesson 8),
-and RBF kernels — which is why the RBF SVM also degraded in the table above,
-though more slowly.
+and RBF kernels, which measure similarity through the same Euclidean distance.
 
 **The predictable mistake, and why the instinct is sound.** Adding features
 because they might help is good practice with a linear model, where an
@@ -876,8 +875,10 @@ defining property.
 *Loss against the margin $y \cdot f(x)$. Right of 1 — outside the slab on its own side — the hinge is exactly zero, while the log loss keeps a small charge: 0.127 at a margin of 2, 0.049 at 3. That zero is where support vectors come from.*
 
 **$C$ is the price of a training error.** Large $C$ makes violations expensive,
-so the model contorts to classify everything: narrow margin, low bias, high
-variance. Small $C$ buys a wider, calmer boundary at the cost of some errors.
+so the model accepts a narrower margin to classify more training points: low
+bias, high variance. With a linear kernel the slab stays straight - a larger
+$C$ narrows it, shifts it or rotates it, and never bends it; with the RBF
+kernel the boundary can also bend around individual points (Section 5.6). Small $C$ buys a wider, calmer boundary at the cost of some errors.
 
 It is the same dial as $k$ in Section 2 and $\lambda$ in lesson 3, in a third
 costume — and note the direction, which catches people out: **large $C$ means

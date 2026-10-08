@@ -509,7 +509,7 @@ def check_notes_timings(plan: str, notes_by_slide: dict, report: Report) -> None
 #: the notebooks import and no slide shows is a failure; elsewhere it is a note,
 #: so a lesson not yet reached is visible without blocking the course. A lesson
 #: joins the week its anchors are written.
-ANCHORED = {"01", "02"}
+ANCHORED = {"01", "02", "06"}
 NOTES_DIV = re.compile(r"^::: notes\n.*?^:::$", re.S | re.M)
 SKLEARN_IMPORT = re.compile(r"^\s*from sklearn[\w.]* import \(?([^)\n]+)", re.M)
 
