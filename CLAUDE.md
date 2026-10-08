@@ -78,20 +78,21 @@ handout section that treats it. The handout's own closing `## Summary` collects 
 the text or checking before an exercise that there is no word they could not define.
 
 **It carries no numbers, deliberately.** Every figure in this course is gated -
-`worked_examples.py` recomputes it, `check_dispensa.py` compares it against the
-translation, `verify_lesson.py` checks it against the lesson that owns it. A prose
+`worked_examples.py` recomputes it, `verify_lesson.py` checks it against the lesson
+that owns it. A prose
 file full of numbers would be one more place a figure can drift with nothing
 watching. With no numbers in it there is nothing to drift. What it does carry is a
 section pointer per entry, and `verify_lesson.check_concept_pointers` fails a lesson
 whose index points at a section its handout does not have.
 
-**The commentary** (`Docs/{topic}_commentary.md`), being piloted on lesson 2 since
-8 October 2026, is a fifth: a slide-by-slide companion in a second voice, with the
+**The commentary** (`Docs/{topic}_commentary.md`) is a fifth, written for every
+lesson - lessons 1 and 2 since 8 October 2026, the others as each is studied: a slide-by-slide companion in a second voice, with the
 questions each slide tends to raise answered under it. It grows out of the
 instructor's study session on the deck, rewritten for students; it is not
 examinable and adds nothing the handout and notebooks do not already carry. It
-takes the place of the Italian translation of the handout rather than adding a
-document. Two rules keep it honest. Its figures are the lesson's own `Figures/`,
+takes the place of the Italian translation of the handout, which stopped being
+produced on 8 October 2026: the existing `Review/dispensa_it.md` files are kept, no
+longer updated, and deleted when the course ends. Two rules keep it honest. Its figures are the lesson's own `Figures/`,
 never screenshots of slides. And it is gated: `verify_lesson.check_commentary`
 fails a number it cannot find in the handout, the deck or a notebook output unless
 the file's `numbers-not-from-data` comment lists it with a reason, and its worked
@@ -286,9 +287,9 @@ The ones so far:
 | 4 | **96.20%** accuracy from a model that finds none of the 76 failures |
 | 5 | **0.885 to 1.000** — 200 legitimate splits of the same data, one of them reporting a perfect classifier |
 | 6 | **0.613 to 0.947** — a linear model stuck exactly at the baseline where a kernel reaches the noise ceiling |
-| 7 | **36.8%** of the rows left out of every bootstrap sample, which is where a free validation score comes from |
-| 8 | **0.941 against −0.046** — DBSCAN and k-means scored against the same truth, on the same data |
-| 9 | **3,500** — what six sigmoid layers do to a gradient, and why the network never leaves chance |
+| 7 | **54%** of a random forest's importance landed on 20 columns of pure noise |
+| 8 | **37 of 40** disguised accounts caught by reconstruction error, invisible to any 2-D scatter |
+| 9 | **about four** — what each sigmoid layer divides the gradient by; six of them lose a factor of about 3,500, and the network never leaves chance |
 | 10 | **0.857 to 0.462** — what permuting the pixels costs a dense network, and nothing at all to a convolutional one |
 
 ### Expand every acronym on first use

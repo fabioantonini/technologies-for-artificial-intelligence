@@ -460,10 +460,24 @@ def check_lesson_plan(lesson: Path, slide_count: int,
 
 
 #: A row of the plan: its two clock times and the slides it covers.
+#: The Material column is the last one; lesson 1's plan carries an extra Minutes
+#: column before the segment, which the old pattern silently failed to match.
 PLAN_ROW = re.compile(
-    r"\|\s*(\d):(\d\d)[-–](\d):(\d\d)\s*\|[^|]*\|\s*Slides? (\d+)(?:[-–](\d+))?")
-#: "22 minutes", "20 minutes." - what a notebook slide's notes tell the lecturer.
-STATED = re.compile(r"\b(\d{1,3})\s+minutes\b")
+    r"\|\s*(\d):(\d\d)[-–](\d):(\d\d)\s*\|(?:[^|\n]*\|)+?\s*Slides? (\d+)(?:[-–](\d+))?\s*\|\s*$",
+    re.M)
+#: "22 minutes", "Twenty minutes." - what a notebook slide's notes tell the
+#: lecturer. Words count too: half of lesson 1's notes spelled the number out.
+WORD_NUMBERS = {w: i for i, w in enumerate(
+    "zero one two three four five six seven eight nine ten eleven twelve thirteen "
+    "fourteen fifteen sixteen seventeen eighteen nineteen twenty".split())}
+WORD_NUMBERS.update({"twenty-two": 22, "twenty-five": 25, "thirty": 30, "forty": 40,
+                     "forty-five": 45, "fifty": 50, "sixty": 60})
+STATED = re.compile(r"\b(\d{1,3}|" + "|".join(sorted(WORD_NUMBERS, key=len, reverse=True))
+                    + r")\s+minutes\b", re.I)
+
+
+def _minutes(token: str) -> int:
+    return int(token) if token.isdigit() else WORD_NUMBERS[token.lower()]
 
 
 def check_notes_timings(plan: str, notes_by_slide: dict, report: Report) -> None:
@@ -483,7 +497,7 @@ def check_notes_timings(plan: str, notes_by_slide: dict, report: Report) -> None
             continue
         budget = (int(h2) * 60 + int(m2)) - (int(h1) * 60 + int(m1))
         stated = STATED.search(notes_by_slide.get(int(first), ""))
-        if stated and int(stated.group(1)) != budget:
+        if stated and _minutes(stated.group(1)) != budget:
             report.fail("lesson plan",
                         f"slide {first}'s notes say {stated.group(1)} minutes, "
                         f"the plan gives that segment {budget}")

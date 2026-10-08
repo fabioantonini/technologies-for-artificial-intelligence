@@ -176,10 +176,10 @@ $\lvert w^\top x + b \rvert = 1$, that $2/\lVert w \rVert$ equals the gap measur
 geometrically, that `dual_coef_` rebuilds `coef_`, that the RBF kernel equals its
 truncated power series.
 
-Three things move with the text, and all three are gated: the lesson's notation table,
-the concepts index (new vocabulary earns an entry), and the Italian translation in
-`Review/`, which `tools/check_dispensa.py` will fail the moment a number appears in one
-language and not the other. The front matter's reading time is *not* gated and has to
+Two things move with the text, and both are gated: the lesson's notation table and
+the concepts index (new vocabulary earns an entry). The Italian translation in
+`Review/` is no longer kept in step since 8 October 2026; the commentary in `Docs/`
+is, when a slide's wording changes. The front matter's reading time is *not* gated and has to
 be updated by hand.
 
 ### 2.9 The gap audit: read the deck as a student who has only the deck
@@ -249,7 +249,8 @@ Eight kinds of gap, each with what it looked like:
 - A display equation stays alone on its slide; its symbols are named in the notes.
 - The build's "runs past the bottom" failure is the usual price of a fix; shorten a
   neighbouring bullet rather than drop the fix.
-- A fix to the handout's wording goes into `Review/dispensa_it.md` too.
+- A fix that changes what a slide says goes into the lesson's commentary in `Docs/`
+  too; `verify_lesson.check_commentary` catches a number that no longer matches.
 - Keep the misconception slides: a slide that states the predictable wrong answer
   on purpose, corrected by the next one, is not a gap. Lesson 2's "MCAR: safe to
   impute" is one.

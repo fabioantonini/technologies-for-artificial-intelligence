@@ -409,7 +409,7 @@ That gap is the most common cause of a model failing after deployment.
 - The split lottery, the three identical models, k-fold by hand
 
 ::: notes
-Run notebooks/01. Twenty minutes.
+Run notebooks/01. Twenty-two minutes.
 
 Have them run the five-seed cell first and watch seed 3 return 1.000 before you
 say anything about it.
@@ -420,10 +420,10 @@ it is the one that changes behaviour rather than just adding knowledge.
 
 # Break
 
-- Ten minutes
+- Twelve minutes
 
 ::: notes
-Ten minutes. The second half is bias-variance, which needs them awake.
+Twelve minutes. The second half is bias-variance, which needs them awake.
 :::
 
 # Where does the error come from?

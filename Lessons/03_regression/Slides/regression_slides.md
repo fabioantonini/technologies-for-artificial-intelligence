@@ -517,7 +517,7 @@ divide by three if it rises. Lesson 5 replaces the recipe with a search.
 The model, the cost, the exact solution, the iterative one: from scratch.
 
 ::: notes
-30 minutes. Let them drive.
+25 minutes. Let them drive.
 
 The two moments worth pausing on together. First, the agreement between their
 four-line normal equation and scikit-learn to twelve decimal places - it lands
@@ -1066,7 +1066,7 @@ what would happen if you moved a house.
 Ridge on the disaster, the regularisation paths, the collinear case.
 
 ::: notes
-30 minutes. The collinear section is the one to make sure everyone reaches - it
+20 minutes. The collinear section is the one to make sure everyone reaches - it
 is the argument they will use in their own projects when a stakeholder asks what
 the model says drives the outcome.
 

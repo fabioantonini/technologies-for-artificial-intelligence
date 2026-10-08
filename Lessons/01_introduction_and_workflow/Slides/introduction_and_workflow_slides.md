@@ -979,7 +979,7 @@ The table is the map for the notebook: each row is one of the three questions, t
 call that answers it, and the number it reaches. Point at the middle column before
 they start - every name in it is a cell they are about to run.
 
-Open notebook 01 and run it. Twenty minutes, and it is the only place today where
+Open notebook 01 and run it. Fifteen minutes, and it is the only place today where
 all three kinds appear on identical data, which is the whole argument of this
 segment made operational.
 
@@ -1037,7 +1037,7 @@ The table is that sentence with the code attached: each step, the call that perf
 it, and the slide where the idea was introduced. Students who get lost in a cell can
 find their way back to the slide from here.
 
-45 minutes, and it runs alongside the next twelve slides rather than instead of
+40 minutes, and it runs alongside the next twelve slides rather than instead of
 them: each step of the workflow is a slide and then the cell that performs it.
 
 Three moments to stop on together. The split, because it happens before anything
@@ -1417,7 +1417,7 @@ each failure with the calls that produce it and the slide that explains it; note
 that the leakage row uses the same `SelectKBest` twice, once in the wrong place and
 once in the right one.
 
-25 minutes, again alongside the slides that follow rather than instead of them.
+20 minutes, again alongside the slides that follow rather than instead of them.
 
 Say what to watch for before they start, because the notebook is deliberately
 undramatic: every cell runs, nothing raises, and every number it prints would
