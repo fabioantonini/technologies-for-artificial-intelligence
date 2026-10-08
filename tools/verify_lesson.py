@@ -555,8 +555,8 @@ def check_commentary(lesson: Path, report: Report) -> None:
     voice, so it quotes the lesson's numbers a second time - one more place a
     figure can drift with nothing watching. The study-session text it grew out
     of quoted an R-squared no notebook had printed for weeks. So: every number
-    in it must be found, at its own precision, in the handout, the deck or a
-    notebook; or be listed, with a reason, in its ``numbers-not-from-data``
+    in it must be found, at its own precision, in the handout, the deck, the
+    lesson's Resources/ or figure code, or a notebook; or be listed, with a reason, in its ``numbers-not-from-data``
     comment, every entry of which must still occur in the text. Worked examples
     are exempt here and checked by their own script instead.
     """
@@ -592,6 +592,10 @@ def check_commentary(lesson: Path, report: Report) -> None:
     sources = [p.read_text(encoding="utf8") for p in sorted((lesson / "Docs").glob("*.md"))
                if p != path]
     sources += [p.read_text(encoding="utf8") for p in (lesson / "Slides").glob("*_slides.md")]
+    # The reading in Resources/ and the code that draws the conceptual figures
+    # are where a lesson's history and diagram numbers live.
+    sources += [p.read_text(encoding="utf8") for p in (lesson / "Resources").glob("*.md")]
+    sources += [p.read_text(encoding="utf8") for p in (lesson / "Figures").glob("*.py")]
     for nb_path in sorted((lesson / "Notebooks").glob("*.ipynb")):
         for cell in json.loads(nb_path.read_text(encoding="utf8")).get("cells", []):
             sources.append("".join(cell.get("source", [])))

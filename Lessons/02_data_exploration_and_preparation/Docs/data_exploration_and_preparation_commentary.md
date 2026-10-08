@@ -5,6 +5,7 @@ author: "Fabio Antonini — Università degli Studi dell'Aquila"
 date: "Not examinable · reading time about 90 minutes"
 header-includes:
   - \usepackage{needspace}
+  - \sloppy
 ---
 
 > **What this document is.** A companion to the slides of lesson 2: for every slide,
@@ -14,7 +15,7 @@ header-includes:
 > the derivations. It is **not examinable**: nothing here is needed for the exam that
 > is not already in the handout and the notebooks.
 >
-> Slide numbers and titles are the ones in `Slides/data_exploration_and_preparation_slides.pdf`.
+> Slide numbers and titles are the ones in the lesson's slide deck, in `Slides/`.
 > Every number quoted from the lesson's data comes from a committed notebook output.
 
 <!-- examples-note:begin -->
@@ -808,7 +809,10 @@ lot; a comparable change through $x_2$ needs a much larger change in $w_2$. Seen
 the space of coefficients, the loss therefore changes very fast along one direction
 and very slowly along the other, and the contours become long, thin ellipses. The
 chain is:
-$$\text{different feature scales} \rightarrow \text{different sensitivity to each coefficient} \rightarrow \text{different curvature of the loss} \rightarrow \text{a narrow valley in } (w_1, w_2).$$
+1. different feature scales, so
+2. a different sensitivity of the loss to each coefficient, so
+3. a different curvature of the loss in each direction, so
+4. a narrow valley in the plane of $(w_1, w_2)$.
 
 Without scaling the path bounces between the walls of the valley while creeping
 along its floor. After scaling the surface is close to a round bowl, and a single
@@ -1266,12 +1270,11 @@ just tidier code: it makes the methodology correct by construction.
 The slide uses short names: `num_pipe`, `cat_pipe`, `num_cols`, `cat_cols`, `clf`.
 In the notebook:
 
-- `num_pipe` is itself a pipeline,
-  `Pipeline([("impute", SimpleImputer(strategy="median")), ("scale", StandardScaler())])`:
-  raw value → median imputation → standardisation;
-- `cat_pipe` is `Pipeline([("impute", SimpleImputer(strategy="most_frequent")),
-  ("onehot", OneHotEncoder(drop="first", handle_unknown="ignore"))])`: raw category →
-  most frequent category → one-hot;
+- `num_pipe` is itself a pipeline of two steps, `SimpleImputer(strategy="median")`
+  and then `StandardScaler()`: raw value → median imputation → standardisation;
+- `cat_pipe` is a pipeline of `SimpleImputer(strategy="most_frequent")` and then
+  `OneHotEncoder(drop="first", handle_unknown="ignore")`: raw category → most
+  frequent category → one-hot;
 - `num_cols` and `cat_cols` are **lists of column names**, not transformers:
   `tenure_months`, `monthly_charges`, `age`, `num_support_calls`, and
   `contract_type`, `region`;
@@ -1433,8 +1436,8 @@ went into a training row, and the model will be graded on those same customers.
 
 ## Slide 45 — The smoking gun
 
-Notebook 3 rebuilds the donors explicitly, with the distance the imputer itself uses
-(`nan_euclidean_distances`). Of the **128** training rows with a missing age, **94**
+Notebook 3 rebuilds the donors explicitly, using the same distance as the imputer,
+`nan_euclidean_distances`. Of the **128** training rows with a missing age, **94**
 had at least one test row among their five donors: $94/128 \simeq 73\%$. Not a rare or
 marginal contamination, but almost three quarters of the filled values. And nothing
 raised an error.
