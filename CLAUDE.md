@@ -85,6 +85,30 @@ watching. With no numbers in it there is nothing to drift. What it does carry is
 section pointer per entry, and `verify_lesson.check_concept_pointers` fails a lesson
 whose index points at a section its handout does not have.
 
+**The commentary** (`Docs/{topic}_commentary.md`), being piloted on lesson 2 since
+8 October 2026, is a fifth: a slide-by-slide companion in a second voice, with the
+questions each slide tends to raise answered under it. It grows out of the
+instructor's study session on the deck, rewritten for students; it is not
+examinable and adds nothing the handout and notebooks do not already carry. It
+takes the place of the Italian translation of the handout rather than adding a
+document. Two rules keep it honest. Its figures are the lesson's own `Figures/`,
+never screenshots of slides. And it is gated: `verify_lesson.check_commentary`
+fails a number it cannot find in the handout, the deck or a notebook output unless
+the file's `numbers-not-from-data` comment lists it with a reason, and its worked
+examples are computed by `Docs/commentary_examples.py`, which the verifier runs.
+
+**The commentary** (`Docs/{topic}_commentary.md`), being piloted on lesson 2 since
+8 October 2026, is a fifth: a slide-by-slide companion in a second voice, with the
+questions each slide tends to raise answered under it. It grows out of the
+instructor's study session on the deck, rewritten for students; it is not
+examinable and adds nothing the handout and notebooks do not already carry. It
+takes the place of the Italian translation of the handout rather than adding a
+document. Two rules keep it honest. Its figures are the lesson's own `Figures/`,
+never screenshots of slides. And it is gated: `verify_lesson.check_commentary`
+fails a number it cannot find in the handout, the deck or a notebook output unless
+the file's `numbers-not-from-data` comment lists it with a reason, and its worked
+examples are computed by `Docs/commentary_examples.py`, which the verifier runs.
+
 ### Every lesson fills three hours, and every lesson sets homework
 
 Two non-negotiables.
@@ -147,6 +171,8 @@ this rule prevents.
 | Lesson folder | `{NN}_{topic_snake_case}` | `03_regression` |
 | Handout | `{topic_snake_case}.md` | `regression.md` |
 | Concepts index | `{topic_snake_case}_concepts.md` | `regression_concepts.md` |
+| Commentary | `{topic_snake_case}_commentary.md` | `regression_commentary.md` |
+| Commentary | `{topic_snake_case}_commentary.md` | `regression_commentary.md` |
 | Slides | `{topic_snake_case}_slides.md` | `regression_slides.md` |
 | Notebook | `{NN}_{topic_snake_case}.ipynb` | `01_gradient_descent_from_scratch.ipynb` |
 | Quiz | `{TopicName}-Quiz.ipynb` | `Regression-Quiz.ipynb` |

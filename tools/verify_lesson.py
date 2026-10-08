@@ -533,6 +533,95 @@ def check_code_anchors(lesson: Path, slides_source: str, report: Report) -> None
         report.note(f"{lesson.name}: {detail}")
 
 
+# ------------------------------------------------------------- commentary
+
+#: A number: 2,000 / 0.751 / 3,344.7 / 493. Thousands separators are dropped.
+NUMBER = re.compile(r"(?<![\w.])(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+\.\d+|\d+)(?![\w])")
+#: Numbers that name a place rather than state a value: slide 39, lesson 4.
+PLACE = re.compile(r"(?i)\b(slides?|lessons?|sections?|exercises?|notebooks?|"
+                   r"chapters?|part)\s+\d+(\s*(to|and|-|–)\s*\d+)?")
+#: The commentary's own list of numbers that are not from the lesson's data.
+ALLOWED = re.compile(r"<!-- numbers-not-from-data\n(.*?)-->", re.S)
+
+
+def _numbers(text: str) -> list[str]:
+    return [m.group(1).replace(",", "") for m in NUMBER.finditer(text)]
+
+
+def check_commentary(lesson: Path, report: Report) -> None:
+    """A commentary's examples are computed, and its data numbers exist somewhere.
+
+    The commentary (``Docs/*_commentary.md``) explains the slides in a second
+    voice, so it quotes the lesson's numbers a second time - one more place a
+    figure can drift with nothing watching. The study-session text it grew out
+    of quoted an R-squared no notebook had printed for weeks. So: every number
+    in it must be found, at its own precision, in the handout, the deck or a
+    notebook; or be listed, with a reason, in its ``numbers-not-from-data``
+    comment, every entry of which must still occur in the text. Worked examples
+    are exempt here and checked by their own script instead.
+    """
+    found = sorted((lesson / "Docs").glob("*_commentary.md"))
+    if not found:
+        return
+    path = found[0]
+    examples = lesson / "Docs" / "commentary_examples.py"
+    if examples.exists():
+        result = subprocess.run([sys.executable, str(examples), "--check"],
+                                capture_output=True, text=True, cwd=examples.parent)
+        if result.returncode != 0:
+            tail = (result.stderr or result.stdout).strip().splitlines()
+            report.fail("commentary", tail[-1] if tail else "examples check failed")
+        else:
+            report.note(result.stdout.strip().splitlines()[-1])
+
+    text = path.read_text(encoding="utf8")
+    allowed_block = ALLOWED.search(text)
+    allowed = set()
+    if allowed_block:
+        for line in allowed_block.group(1).splitlines():
+            head = line.split(":", 1)[0]
+            allowed |= set(_numbers(head))
+    body = ALLOWED.sub("", text)
+    body = re.sub(r"\A---\n.*?\n---\n", "", body, flags=re.S)
+    body = re.sub(r"<!-- example:begin -->.*?<!-- example:end -->", "", body, flags=re.S)
+    body = re.sub(r"<!-- examples-note:begin -->.*?<!-- examples-note:end -->", "",
+                  body, flags=re.S)
+    body = FIGURE_REF.sub("", body)
+    body = PLACE.sub("", body)
+
+    sources = [p.read_text(encoding="utf8") for p in sorted((lesson / "Docs").glob("*.md"))
+               if p != path]
+    sources += [p.read_text(encoding="utf8") for p in (lesson / "Slides").glob("*_slides.md")]
+    for nb_path in sorted((lesson / "Notebooks").glob("*.ipynb")):
+        for cell in json.loads(nb_path.read_text(encoding="utf8")).get("cells", []):
+            sources.append("".join(cell.get("source", [])))
+            for out in cell.get("outputs", []):
+                sources.append("".join(out.get("text", [])))
+                sources.append("".join(out.get("data", {}).get("text/plain", [])))
+    values = set()
+    for source in sources:
+        for token in _numbers(source):
+            values.add(float(token))
+
+    def known(token: str) -> bool:
+        x = float(token)
+        places = len(token.split(".")[1]) if "." in token else 0
+        return any(abs(round(v, places) - x) < 1e-9 for v in values)
+
+    unmatched = sorted({t for t in _numbers(body)
+                        if ("." in t or int(t) > 20) and t not in allowed and not known(t)},
+                       key=float)
+    if unmatched:
+        report.fail("commentary", f"{path.name}: {len(unmatched)} number(s) found in no "
+                    f"handout, slide or notebook output, and not listed as not from "
+                    f"the data: {', '.join(unmatched)}")
+    present = set(_numbers(body))
+    stale = sorted(allowed - present, key=float)
+    if stale:
+        report.fail("commentary", f"{path.name}: listed as not from the data but no "
+                    f"longer in the text: {', '.join(stale)}")
+
+
 # --------------------------------------------------------------- acronyms
 
 def normalise(text: str) -> str:
@@ -1159,6 +1248,7 @@ def verify(lesson: Path, run: bool) -> Report:
     check_deck_overflow(lesson, report)
     check_quiz(lesson, report)
     check_acronyms(lesson, report)
+    check_commentary(lesson, report)
     check_worked_examples(lesson, report)
     check_code_blocks(lesson, report)
     check_concept_pointers(lesson, report)

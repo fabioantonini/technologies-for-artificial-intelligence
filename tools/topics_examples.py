@@ -84,8 +84,10 @@ def note(topics: Path, script: str) -> None:
                   text, flags=re.S)
     slides = sorted(EXAMPLES)
     count = NUMBERS.get(len(slides), str(len(slides)))
+    where = ("small enough to work through by hand" if topics.parent.name == "Docs"
+             else "small enough to do at the board")
     body = (f"> **Worked examples** sit under {count} slides ({', '.join(map(str, slides))}):\n"
-            f"> a handful of invented values each, small enough to do at the board. Their\n"
+            f"> a handful of invented values each, {where}. Their\n"
             f"> numbers are not the lesson's data; every one is computed by `{script}`,\n"
             f"> beside this file, which also writes them here.")
     # After the opening blockquote, the first run of lines starting with ">".
@@ -116,18 +118,50 @@ def build(topics: Path) -> bool:
     return result.returncode == 0 and not missing
 
 
-def run(script: str) -> None:
-    """Print the examples; with --write, splice them in and rebuild the PDF."""
-    script = Path(script).resolve()
+def target_of(script: Path) -> Path:
+    """The document a lesson's examples belong in.
+
+    ``Review/lN_examples.py`` writes into the instructor's ``lN-commentary.md``
+    if there is one, else ``lN-topics.md``. ``Docs/commentary_examples.py`` is
+    the same machinery promoted into the repository, beside the students'
+    ``{topic}_commentary.md``.
+    """
+    if script.stem == "commentary_examples":
+        found = sorted(script.parent.glob("*_commentary.md"))
+        if len(found) != 1:
+            raise SystemExit(f"{script.parent}: expected one *_commentary.md, found {len(found)}")
+        return found[0]
     number = re.match(r"l(\d+)_examples", script.stem).group(1)
     # A lesson whose study session has been written up keeps one document, the
     # commentary, which absorbs the topics; the examples follow it there.
     commentary = script.with_name(f"l{number}-commentary.md")
-    topics = commentary if commentary.exists() else script.with_name(f"l{number}-topics.md")
+    return commentary if commentary.exists() else script.with_name(f"l{number}-topics.md")
+
+
+def run(script: str) -> None:
+    """Print the examples; with --write, splice them in (and rebuild a Review
+    PDF); with --check, exit non-zero if the document's examples are stale."""
+    script = Path(script).resolve()
+    target = target_of(script)
+    if "--check" in sys.argv:
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            # Same folder name as the original: note() words itself by it.
+            copy = Path(tmp) / target.parent.name / target.name
+            copy.parent.mkdir()
+            copy.write_text(target.read_text(encoding="utf-8"), encoding="utf-8")
+            splice(copy)
+            note(copy, script.name)
+            if copy.read_text(encoding="utf-8") != target.read_text(encoding="utf-8"):
+                raise SystemExit(f"{target.name}: worked examples differ from what "
+                                 f"{script.name} computes - run it with --write")
+        print(f"{target.name}: {len(EXAMPLES)} worked examples match {script.name}")
+        return
     for slide, body in sorted(EXAMPLES.items()):
         print(f"\n===== slide {slide}\n{body}")
     if "--write" in sys.argv:
-        splice(topics)
-        note(topics, script.name)
-        print(f"\n{len(EXAMPLES)} examples spliced into {topics.name}")
-        build(topics)
+        splice(target)
+        note(target, script.name)
+        print(f"\n{len(EXAMPLES)} examples spliced into {target.name}")
+        if target.parent.name == "Review":
+            build(target)
