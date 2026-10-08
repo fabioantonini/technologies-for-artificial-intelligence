@@ -172,7 +172,7 @@ this rule prevents.
 | Handout | `{topic_snake_case}.md` | `regression.md` |
 | Concepts index | `{topic_snake_case}_concepts.md` | `regression_concepts.md` |
 | Commentary | `{topic_snake_case}_commentary.md` | `regression_commentary.md` |
-| Commentary | `{topic_snake_case}_commentary.md` | `regression_commentary.md` |
+| Notebook guide | `Notebooks/notebook_guide.md` | what each notebook shows, and its two-minute version |
 | Slides | `{topic_snake_case}_slides.md` | `regression_slides.md` |
 | Notebook | `{NN}_{topic_snake_case}.ipynb` | `01_gradient_descent_from_scratch.ipynb` |
 | Quiz | `{TopicName}-Quiz.ipynb` | `Regression-Quiz.ipynb` |
