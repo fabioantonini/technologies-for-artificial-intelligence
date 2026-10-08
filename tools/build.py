@@ -11,6 +11,7 @@ Per lesson:
     Docs/*.md       ->  .pdf   the handout
     Exercises/*.md  ->  .pdf   assessed work, so students want it printable
     Resources/*.md  ->  .pdf   supplementary reading
+    Notebooks/*.md  ->  .pdf   the guide to the lesson's notebooks
 
 Course-level, built once rather than per lesson:
 
@@ -51,7 +52,7 @@ PDF_ENGINES = ("xelatex", "lualatex", "pdflatex", "tectonic")
 
 # Per-lesson folders whose markdown becomes a PDF. Slides are handled
 # separately because they go through the pptx chain first.
-PROSE_FOLDERS = ("Docs", "Exercises", "Resources")
+PROSE_FOLDERS = ("Docs", "Exercises", "Resources", "Notebooks")
 
 COURSE_DOCS = (
     "Course/*.md",
