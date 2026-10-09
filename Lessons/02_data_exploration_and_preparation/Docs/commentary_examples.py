@@ -382,5 +382,46 @@ on real group sizes.
 
 
 
+# --------------------------------------------------------------- slide 39
+@example(39)
+def auc_by_pairs():
+    # Two churners and three non-churners, with the model's churn scores.
+    churners = [0.7, 0.4]
+    stayers = [0.6, 0.3, 0.2]
+    pairs = [(c, s) for c in churners for s in stayers]
+    right = sum(c > s for c, s in pairs)
+    auc = F(right, len(pairs))
+    # The same number by the library's route, from labels and scores.
+    from sklearn.metrics import roc_auc_score
+    labels = [1] * len(churners) + [0] * len(stayers)
+    assert abs(roc_auc_score(labels, churners + stayers) - float(auc)) < 1e-12
+    # A model that gives everyone the same score ranks nobody: ties count half.
+    assert roc_auc_score(labels, [0.5] * len(labels)) == 0.5
+    rows = "\n".join(f"| churner, {c} | " + " | ".join("yes" if c > s else "no" for s in stayers)
+                     + f" | {sum(c > s for s in stayers)} |" for c in churners)
+    return f"""
+### Worked example — the AUC by counting pairs
+
+Two churners and three customers who stayed, with the score the model gives each
+of them. Every pair of one churner and one stayer is a small test: did the model
+score the churner higher? There are {len(churners)} × {len(stayers)} = {len(pairs)}
+pairs.
+
+| churner's score | above stayer 0.6? | above 0.3? | above 0.2? | pairs right |
+|---|---|---|---|---|
+{rows}
+
+{right} of {len(pairs)} pairs are ordered correctly, so the AUC is {right}/{len(pairs)}
+= **{fmt(float(auc), 2)}**. scikit-learn's `roc_auc_score`, given the five labels and
+the five scores, returns the same number.
+
+Two readings follow. A model that ordered the customers at random would get about
+half the pairs right: 0.5. And the majority baseline, which answers "stays" for
+everyone, gives every customer the same score, so it orders no pair at all: its
+AUC is 0.5, although its accuracy on the churn data is 0.806. That is why the AUC
+shows signal that accuracy hides.
+"""
+
+
 if __name__ == "__main__":
     run(__file__)

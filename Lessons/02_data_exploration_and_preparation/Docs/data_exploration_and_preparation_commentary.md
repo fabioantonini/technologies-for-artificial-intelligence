@@ -20,7 +20,7 @@ header-includes:
 
 <!-- examples-note:begin -->
 
-> **Worked examples** sit under eleven slides (11, 16, 17, 26, 27, 29, 30, 33, 44, 49, 51):
+> **Worked examples** sit under twelve slides (11, 16, 17, 26, 27, 29, 30, 33, 39, 44, 49, 51):
 > a handful of invented values each, small enough to work through by hand. Their
 > numbers are not the lesson's data; every one is computed by `commentary_examples.py`,
 > beside this file, which also writes them here.
@@ -1322,6 +1322,34 @@ exactly, it does not depend on the share of each class the way accuracy does,
 because it compares churners with non-churners rather than counting all rows
 together. It is not immune to every change in the data, such as a shift in who the
 customers are.
+
+<!-- example:begin -->
+
+\Needspace{27\baselineskip}
+
+### Worked example — the AUC by counting pairs
+
+Two churners and three customers who stayed, with the score the model gives each
+of them. Every pair of one churner and one stayer is a small test: did the model
+score the churner higher? There are 2 × 3 = 6
+pairs.
+
+| churner's score | above stayer 0.6? | above 0.3? | above 0.2? | pairs right |
+|---|---|---|---|---|
+| churner, 0.7 | yes | yes | yes | 3 |
+| churner, 0.4 | no | yes | yes | 2 |
+
+5 of 6 pairs are ordered correctly, so the AUC is 5/6
+= **0.83**. scikit-learn's `roc_auc_score`, given the five labels and
+the five scores, returns the same number.
+
+Two readings follow. A model that ordered the customers at random would get about
+half the pairs right: 0.5. And the majority baseline, which answers "stays" for
+everyone, gives every customer the same score, so it orders no pair at all: its
+AUC is 0.5, although its accuracy on the churn data is 0.806. That is why the AUC
+shows signal that accuracy hides.
+
+<!-- example:end -->
 
 ---
 
