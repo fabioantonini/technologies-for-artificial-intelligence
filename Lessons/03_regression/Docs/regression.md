@@ -23,8 +23,8 @@ date: "16 October 2026 · reading time about 80 minutes"
 | 2:55–3:00 | 5 | Summary; homework set | Slides 52–53 |
 | | **180** | **Total** | **53 slides, 3 notebooks** |
 
-Slide 1 is the title slide, so the numbers above match the page numbers in
-`Slides/regression_slides.pdf`. The lecture segments come to 100 minutes across
+Slide 1 is the title slide, so the numbers above match the page numbers of the
+slide PDF in `Slides/`. The lecture segments come to 100 minutes across
 48 content slides — a shade under 29 slides per hour.
 
 ---
@@ -502,7 +502,8 @@ number of **4.2 × 10⁹**. Nothing is singular, no warning is raised, and the f
 perfectly deterministic: run it three times in the same container and the coefficients
 agree to the last digit.
 
-Run it on a different linear-algebra backend and the largest coefficient moves from
+Run it on a different linear-algebra backend (the numerical library NumPy calls
+underneath to solve the system) and the largest coefficient moves from
 **247,514 to 3,097,038,010** — a factor of **12,500**, on identical code and identical
 data. Both are correct least-squares answers to the same question, and the question
 simply does not have a stable answer: the ravine is so flat along one direction that
@@ -519,8 +520,8 @@ smallest eigenvalue:
 | 1 | 232 |
 | 100 | 3.3 |
 
-Section 6.4's table is the consequence, and it is worth looking at twice: when that
-lesson was re-run on a different stack, **only the unpenalised row moved**. The three
+Section 6.4's table is the consequence, and it is worth looking at twice: when that notebook was re-run on a different software installation, **only the
+unpenalised row moved**. The three
 penalised rows came back identical to the digit. A penalty of 0.01 — small enough that
 Section 6.4 describes it as barely constraining the fit — already buys fifteen orders
 of magnitude of conditioning.
@@ -629,7 +630,7 @@ $$J_{\text{ridge}}(w) = \text{MSE}(w) + \lambda\sum_{j=1}^{n} w_j^2 \qquad\qquad
 *Training error falls with every degree added; test error turns around. The gap between the two curves is the overfitting, and the turning point is what regularisation exists to find without hunting for it by hand.*
 
 Ridge (also called $L_2$ or Tikhonov regularisation) charges the sum of squares;
-Lasso charges the sum of absolute values. The parameter $\alpha \geq 0$ sets the
+Lasso charges the sum of absolute values. The parameter $\lambda \geq 0$ sets the
 exchange rate between fitting the data and keeping coefficients small; at
 $\lambda = 0$ both reduce to ordinary least squares.
 
@@ -703,16 +704,18 @@ Draw the affordable region in two dimensions. Charging squares gives a circle;
 charging absolute values gives a diamond standing on its corners. The best fit
 you can afford sits where the region first touches the contours of the error.
 
-A circle is smooth, so that contact happens at a generic point with both
-coefficients non-zero. A diamond has **corners, and its corners lie on the
+A circle is smooth, so that contact happens at an ordinary point of its edge,
+where both coefficients are non-zero. A diamond has **corners, and its corners lie on the
 axes** — a corner is a point where one coefficient is exactly zero. Corners
 stick out, so they get touched first.
 
 That is the entire reason Lasso produces zeros and Ridge does not. Now the
 same thing formally.
 
-Rewrite each as a **constrained** problem, which is equivalent by Lagrange
-duality: minimise the squared error subject to a budget on the coefficients.
+Rewrite each as a **constrained** problem: minimise the squared error subject to
+a budget $t$ on the coefficients. The two forms are equivalent (a result called
+Lagrange duality): for every penalty strength $\lambda$ there is a budget $t$
+that gives the same solution, and the other way round.
 
 $$\text{Ridge: } \min_w \text{MSE}(w) \ \text{ s.t. } \sum_j w_j^2 \leq t \qquad\qquad \text{Lasso: } \min_w \text{MSE}(w) \ \text{ s.t. } \sum_j |w_j| \leq t$$
 
@@ -721,8 +724,8 @@ a **diamond** with corners on the axes. The squared-error contours are ellipses
 centred on the least-squares solution, and the constrained optimum is where the
 smallest ellipse first touches the region.
 
-A disc has no corners: the contact point is almost always in a generic position
-with both coordinates non-zero. A diamond has corners, and its corners sit
+A disc has no corners: the contact point is almost always an ordinary point of
+its edge, with both coordinates non-zero. A diamond has corners, and its corners sit
 **exactly on the axes** — a corner is where one coordinate is zero. An expanding
 ellipse is disproportionately likely to touch a corner first, because the corner
 protrudes.
@@ -737,7 +740,7 @@ Notebook 3 applies Ridge to the degree-12 disaster from Section 5:
 
 ![](alpha_trade_off.png)
 
-*The trade, swept over ten orders of magnitude and computed rather than transcribed. Test error falls from 57 at λ = 10⁻⁸ to 14.6 at λ = 10⁻⁴, then climbs to 228. Two things to read off it: the minimum is nowhere near the round number you would have guessed, and the floor is broad — anything between 10⁻⁶ and 10⁻² is within a few kWh of the best. That flatness is why a penalty can be searched for rather than solved for, and Lesson 5 is how.*
+*The trade, swept over ten orders of magnitude. Test error falls from 57 at λ = 10⁻⁸ to 14.6 at λ = 10⁻⁴, then climbs to 228. Two things to read off it: the minimum is nowhere near the round number you would have guessed, and the floor is broad — anything between 10⁻⁶ and 10⁻² is within a few kWh of the best. That flatness is why a penalty can be searched for rather than solved for, and Lesson 5 is how.*
 
 | Model | Training RMSE | Test RMSE | Largest \|w\| |
 |---|---|---|---|
@@ -872,15 +875,15 @@ suspicious of any interpretation phrased as an intervention.
 ## 8. Before the next lesson
 
 1. Work the three notebooks in order. Notebook 1 is the one to do slowly.
-2. Read Sections 3.1, 4.1 and 6.3 with a pen — those three derivations are
-   examinable.
+2. Read Sections 3.1, 4.1 and 6.3 with a pen — those three derivations carry
+   the lesson, and the exercise assumes them.
 3. Take the quiz in `Quizzes/`.
 4. **Complete the homework** in `Exercises/03_regression.md`, discussed at the
    start of Lesson 4, **Friday 23 October 2026**.
 
 Lesson 4 keeps the same machinery and changes the target from a number to a
-category, which turns out to require a different cost function — and the reason
-why is one of the derivations you will be asked for.
+category, which turns out to require a different cost function — and Lesson 4
+derives why.
 
 ---
 

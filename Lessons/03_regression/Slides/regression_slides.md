@@ -11,10 +11,9 @@ date: "16 October 2026"
 - The pipeline you built is the one we fit models into from now on
 
 ::: notes
-Nothing to collect - ask two or three people what they built, and name the
-recurring mistake if it came up.
-The recurring mistake to name, if it appeared: fitting the scaler or the imputer
-before splitting. It is the exact thing lesson 2 warned about, and seeing it in
+Nothing is collected. Ask two or three people what they built. If the common
+mistake appeared, name it: fitting the scaler or the imputer before splitting
+the data. It is the exact thing lesson 2 warned about, and seeing it in
 their own work is more instructive than any slide.
 
 Then the connection forward: everything from today onwards goes inside that
@@ -31,7 +30,7 @@ prepared data.
 - Ridge and Lasso
 
 ::: notes
-Agenda. Flag that this is the first lesson where we fit something, and that
+The agenda. Say that this is the first lesson where we fit a model, and that
 regression is a deliberate first choice for three reasons: it has an exact
 solution, so we can see what fitting means with no machinery in the way; it has
 an iterative one too, which is the same algorithm that trains neural networks in
@@ -72,7 +71,7 @@ three hours arguing for.
 
 Two things to point at. The cloud clearly slopes, so a line is a reasonable
 first guess; and the spread around that slope is wide, which is the 18,000 euros
-of noise we put in. That spread is the floor: no model, however clever, can
+of noise we put in. That spread is a floor: no model, however clever, can
 predict these prices better than the noise allows.
 
 Ask the room to eyeball the slope in euros per square metre before you show any
@@ -88,7 +87,7 @@ Each feature contributes a fixed amount per unit, and the contributions add up.
 - Every kilometre out: the same −6,500 €
 
 ::: notes
-Read it as a sentence, then attack it. Is the hundred-and-first square metre
+Read it as a sentence, then question it. Is the hundred-and-first square metre
 really worth what the fiftieth was? Is a garage worth the same in the centre as
 in the suburbs, where there is street parking anyway?
 
@@ -134,8 +133,7 @@ maximum likelihood estimator. That connects to the residual histogram in
 notebook 1.
 
 Then the consequence, which is not optional: squared error is sensitive to
-outliers, because one absurd value contributes its error squared. Lesson 2's
-outlier work is a prerequisite for this lesson, not a preliminary.
+outliers, because one absurd value contributes its error squared. Lesson 2's work on outliers is needed for this lesson, not an optional warm-up.
 :::
 
 # The cost function: mean squared error
@@ -203,9 +201,9 @@ direction: one absurd outlier contributes its error squared, so it can drag the
 entire fit towards itself. If you did not clean the data, least squares will
 faithfully optimise for the mistake.
 
-Ask what would change if we minimised absolute error instead. Answer: the fit
-would follow the bulk of the data and shrug at the outlier - which is what
-robust regression does, and why it exists.
+Ask what would change if we minimised absolute error instead. Answer: the fit would follow the bulk of the data and pay much less attention to
+the outlier - which is what robust regression (a family of methods built to
+resist outliers) does, and why it exists.
 :::
 
 # A cost needs something to be compared against
@@ -217,8 +215,8 @@ robust regression does, and why it exists.
 - Quote the euros too: R² is divided by *this* test set's variance
 
 ::: notes
-Lesson 1's habit, applied to regression for the first time. A classifier gets a
-majority-class baseline before it is allowed to speak; a regression gets the mean.
+Lesson 1's habit, applied to regression for the first time. A classifier gets a majority-class baseline before its score is taken seriously; a regression
+gets the mean.
 
 Read the two root mean squared error (RMSE) numbers aloud before the ratio:
 96,440 euros against 20,341.
@@ -288,8 +286,8 @@ houses: X transpose X, determinant 22,400, the inverse, and out comes 2,536
 euros per square metre against a true 2,400. Three data points, two parameters,
 6% error. Worth doing on the board if the room is engaged.
 
-Also mention the second derivative is X transpose X, which is positive
-semi-definite, so the cost is convex and any stationary point is global. That is
+Also mention that the second derivative is X transpose X, which is positive
+semi-definite (it is never negative in any direction), so the cost is convex and any stationary point is global. That is
 the formal version of "the bowl has one bottom".
 :::
 
@@ -372,8 +370,8 @@ For the second: notebook 3 constructs exactly this, an area column in metres and
 the same in feet.
 
 For the third, give the number from notebook 3: a coefficient that moves from
-9,261 to 45,307 across four random splits of the same dataset. The matrix was
-invertible every time. The answer was garbage every time.
+9,261 to 45,307 across four random splits of the same dataset. The matrix was invertible every time. The coefficients were meaningless every
+time.
 :::
 
 # How stretched is the valley?
@@ -385,8 +383,8 @@ The **condition number** compares the steepest direction with the shallowest.
 - Add `area_sqft` beside `area_sqm`: **2,286**
 
 ::: notes
-This is the number behind "nearly redundant", and it is the most transferable
-idea in the first half of the lesson.
+This is the number behind "nearly redundant", and it is the idea from the first
+half of the lesson that is most useful outside it.
 
 The picture: a round bowl is easy to walk down because every direction behaves
 the same. Two nearly-identical columns produce a ravine instead - steep across,
@@ -394,7 +392,7 @@ almost flat along. The flat direction is the one where moving one coefficient up
 and the other down changes the predictions barely at all, which is precisely why
 the fit cannot decide between them.
 
-Then the payoff, which lands twice. For the exact solution, a stretched valley
+Then the consequence, which appears twice. For the exact solution, a stretched valley
 is what makes the inverse enormous and the answer unstable. For gradient descent
  -  next section - one step size has to serve every direction at once, so the
 steep direction sets the limit and the shallow one crawls. The condition number
@@ -475,8 +473,7 @@ Handout section 4.2.
 ::: notes
 Both panels are from notebook 1, and they are the same run seen two ways.
 
-Left: the cost against iteration. It drops off a cliff in the first few dozen
-steps and then flattens into a long tail that is still creeping at 4,000. Point
+Left: the cost against iteration. It falls steeply in the first few dozen steps and then flattens into a long tail that is still creeping at 4,000. Point
 at the flat part and say what it means - the model was essentially fitted very
 early, and almost all the iterations bought almost nothing.
 
@@ -501,7 +498,8 @@ Left: too small, correct but slow - the cost falls every iteration and simply
 takes too many of them. Middle: about right. Right: too large, and it climbs out
 of the valley.
 
-The threshold is not folklore. Lesson 2 derived it: for a bowl of curvature c,
+The threshold is not a rule of thumb. Handout section 4.3 derives it: for a bowl
+of curvature c,
 convergence requires alpha below 2/c, and with several features the binding
 constraint is the largest curvature - the largest feature variance.
 
@@ -517,11 +515,10 @@ divide by three if it rises. Lesson 5 replaces the recipe with a search.
 The model, the cost, the exact solution, the iterative one: from scratch.
 
 ::: notes
-25 minutes. Let them drive.
+25 minutes. Let them work through it themselves.
 
 The two moments worth pausing on together. First, the agreement between their
-four-line normal equation and scikit-learn to twelve decimal places - it lands
-better than any assurance from the front. Second, the coefficient table at the
+four-line normal equation and scikit-learn to twelve decimal places - it convinces more than any assurance from the lecturer. Second, the coefficient table at the
 end, which is the setup for the last section of the lesson.
 
 Watch for anyone whose gradient descent diverges. That is the "try this" at the
@@ -551,7 +548,8 @@ Ask what a straight line would do here. Someone will say it averages through the
 middle - right, and it will be too high in the centre and too low at both ends,
 wrong in a structural way rather than slightly imprecise.
 
-Notebook 2 has this dataset: 30 days of measurements, which is deliberately few.
+Notebook 2 has this dataset: 30 days of measurements, of which 21 are used for
+training - deliberately few.
 :::
 
 # A relationship a line cannot follow
@@ -600,7 +598,7 @@ Contrast with notebook 1, where the residuals were a formless cloud with a sprea
 matching the known noise. That is what "the model got everything" looks like.
 
 Give them the habit: after fitting anything, plot the residuals against each
-feature. A pattern is a message.
+feature. A pattern means the model has missed something.
 :::
 
 # What "nothing left" looks like
@@ -621,7 +619,7 @@ cloud means you are done. That is the whole diagnostic, and it costs one line of
 code after every fit.
 
 Give them the habit explicitly - plot residuals against each feature, every
-time. A pattern is a message.
+time. A pattern means the model has missed something.
 :::
 
 # So use more flexibility?
@@ -842,8 +840,7 @@ towards more penalty. Handout section 6.4.
 The same table as a picture. Both ends are failures, and they fail for opposite
 reasons.
 
-This shape has a name - the bias-variance trade-off - and lesson 5 gives it the
-treatment it deserves along with the machinery to find the bottom of that curve
+This shape has a name - the bias-variance trade-off - and lesson 5 treats it fully, with the tools to find the bottom of that curve
 honestly. Today the point is only that the bottom exists and is not where either
 extreme is.
 
@@ -935,8 +932,8 @@ everything is on a common scale - then distance and age, and by 40,000 only area
 survives.
 
 Nobody told it which features matter. It was told to keep the total size small,
-and this is the arrangement that buys the most accuracy per euro of coefficient
-spent.
+and this is the arrangement that buys the most accuracy for each unit of
+coefficient size it spends.
 
 The warning: the selection depends entirely on lambda, so "Lasso chose these
 features" is never a complete statement.
@@ -1044,7 +1041,7 @@ coefficients, and are both right: they included different features, so their
 ![](coefficient_trust.png)
 
 ::: notes
-From notebook 1, and this is the most transferable slide of the lesson.
+From notebook 1, and this is the slide of the lesson most useful outside it.
 
 The x axis is how correlated each feature is with area; the y axis is how far its
 estimated coefficient landed from the truth. The three features uncorrelated with
@@ -1067,8 +1064,8 @@ Ridge on the disaster, the regularisation paths, the collinear case.
 
 ::: notes
 20 minutes. The collinear section is the one to make sure everyone reaches - it
-is the argument they will use in their own projects when a stakeholder asks what
-the model says drives the outcome.
+is the argument they will need whenever someone asks what a model says drives
+the outcome.
 
 The "try this" swaps Ridge for Lasso on the redundant columns. Ask them to
 predict which way lasso resolves it before running, then to explain why the two
@@ -1086,7 +1083,7 @@ landed.
 - **365** against billions: what a penalty of 0.01 costs, and buys
 
 ::: notes
-Draw the thread. Lesson 2 prepared data honestly; today we fitted something to
+Connect the lessons. Lesson 2 prepared data honestly; today we fitted something to
 it and found that fitting well and explaining well are different goals.
 
 The one sentence to leave them with: the model that fits your training data best
@@ -1098,7 +1095,7 @@ error from 24,656 to 22.8. One number, chosen well, bought all of that.
 
 Preview lesson 4 in a sentence: same machinery, but the target becomes a
 category instead of a number - and that single change turns out to require a
-different cost function, for a reason that is one of the exam derivations.
+different cost function, for a reason lesson 4 derives.
 :::
 
 # Homework: we discuss it on Friday 23 October
@@ -1111,11 +1108,11 @@ Fit, regularise, and **explain which coefficients you believe**.
 Set it explicitly and say when it is discussed. It uses a new dataset - bike sharing demand
  -  so the exploration is theirs to do.
 
-Flag the two tasks that carry the most marks. Task 4 asks them to justify a
+Point out the two tasks that carry the most marks. Task 4 asks them to justify a
 choice of lambda without looking at the test set, which is genuinely awkward
 before lesson 5 and is meant to be: the point is to feel the need for
 cross-validation before being handed it. Task 6 asks which coefficients they
 trust and why, which is section 7 of the handout applied.
 
-As always: no marks for accuracy, at the exam or anywhere else.
+As always: at the exam, accuracy alone earns nothing; the reasoning does.
 :::
