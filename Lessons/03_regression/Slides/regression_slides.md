@@ -84,7 +84,9 @@ number mean something when it arrives.
 
 # What a linear model claims
 
-Each feature contributes a fixed amount per unit, and the contributions add up.
+Each feature contributes a fixed amount per unit, and the contributions add up:
+ŷ = w₁x₁ + w₂x₂ + … + wₙxₙ + b, one coefficient w per feature plus an intercept b.
+
 
 - Every square metre: the same 2,400 €
 - Every kilometre out: the same −6,500 €
@@ -123,7 +125,8 @@ choose squaring.
 
 - **Differentiable everywhere**: no corner at zero
 - **Punishes one large error more** than several small ones
-- Under Gaussian noise, it **is** maximum likelihood
+- Under Gaussian noise it is **maximum likelihood**: the coefficients that
+  make the observed prices most probable
 
 ::: notes
 Give the three in increasing order of depth. The first is convenience. The
@@ -213,13 +216,12 @@ resist outliers) does, and why it exists.
 
 # A cost needs something to be compared against
 
-- Trivial answer for a regression: **always predict the mean**,
-  `DummyRegressor(strategy="mean")`
-- On the 150 test houses: root mean squared error (RMSE) **96,440 €**, against
-  the model's **20,341 €**
-- **R² = 0.956** (`r2_score`) — the same comparison as one ratio, 0 is the
-  mean, 1 is perfect
-- Quote the euros too: R² is divided by *this* test set's variance
+- Trivial answer: **always predict the mean**, `DummyRegressor()`
+- Root mean squared error, RMSE = √MSE, on the 150 test houses: **96,440 €**
+  for the mean, **20,341 €** for the model
+- R² = 1 − Σ(y − ŷ)² ÷ Σ(y − ȳ)² = **0.956** (`r2_score`): 0 is the mean,
+  1 is perfect
+- Quote the euros too: R² depends on *this* test set's variance
 
 ::: notes
 Lesson 1's habit, applied to regression for the first time. A classifier gets a majority-class baseline before its score is taken seriously; a regression
@@ -303,6 +305,7 @@ the formal version of "the bowl has one bottom".
 | Quantity | Value |
 |---|---|
 | the three houses | 80, 120, 200 m² → 240k, 320k, 540k |
+| X, and θ | a column of 1s (for b) beside the areas; θ = (b, w) |
 | XᵀX | rows (3, 400) and (400, 60,800) |
 | Xᵀy | (1,100, 165,600) |
 | determinant | 22,400 |
@@ -340,7 +343,7 @@ Handout section 3.2 carries every intermediate step.
 
 - The second derivative is XᵀX, never negative in any direction
 - So the cost is **convex**: one bottom, no local traps
-- Any stationary point is *the* answer, not *an* answer
+- Any stationary point (zero gradient) is *the* answer, not *an* answer
 - In code: `LinearRegression().fit(X, y)` solves the same problem
 
 ::: notes
@@ -384,7 +387,8 @@ time.
 
 # How stretched is the valley?
 
-The **condition number** compares the steepest direction with the shallowest.
+The **condition number** κ = steepest curvature ÷ shallowest curvature: how many
+times steeper the steepest direction of the bowl is than the shallowest.
 
 - Housing features as recorded: **285**
 - The same features, standardised: **3.4**
@@ -415,6 +419,10 @@ exactly the same reason. Handout section 4.4.
 You are on a hillside in fog.
 
 You cannot see the valley, but you can feel which way the ground slopes.
+
+So: step against the slope, by an amount set by the **learning rate** α, and
+repeat until the cost stops falling.
+
 
 ::: notes
 The intuition before any notation. Take a step downhill, feel again, repeat.
@@ -449,9 +457,9 @@ Handout 4.2 works one step by hand: after a single update the slope has moved
 163 times further than the intercept.
 :::
 
-# One step, from w = 0 and b = 0
+# One step on two houses, from w = 0 and b = 0
 
-| α = 10⁻⁵ | Gradient | After one step |
+| 80 m² at 240k, 200 m² at 540k; α = 10⁻⁵ | Gradient | After one step |
 |---|---|---|
 | slope w | −63,600 | 0.636 |
 | intercept b | −390 | 0.0039 |
@@ -555,7 +563,8 @@ Energy consumption against temperature: heating in the cold, cooling in the heat
 
 No straight line follows that.
 
-In code: `PolynomialFeatures(degree=2)` adds the column t² for the model to use.
+In code: `PolynomialFeatures(degree=2)` adds the squared temperature, t², as a
+second column.
 
 
 ::: notes
@@ -657,7 +666,7 @@ time.
 
 # Root mean squared error (RMSE), by degree
 
-| Degree | Train RMSE | Test RMSE |
+| Degree | Train RMSE (kWh) | Test RMSE (kWh) |
 |---|---|---|
 | 1 | 113.3 | 212.1 |
 | 3 | 17.5 | **16.9** |
@@ -780,7 +789,8 @@ Lesson 2 introduced scaling for optimisation speed. Here it is correctness.
 
 - The **intercept is never penalised**: it is not a claim about any feature
 - Features **must be scaled first**, or the penalty is arbitrary
-- In code: `make_pipeline(StandardScaler(), Ridge(alpha=0.01))`
+- In code: `make_pipeline(StandardScaler(), Ridge(alpha=0.01))`; scikit-learn
+  calls λ `alpha`
 
 ::: notes
 Both of these are things students get wrong, and both produce results that look
@@ -807,7 +817,7 @@ Handout section 6.1.
 
 # What a penalty buys
 
-| Model | Train | Test | max \|w\| |
+| Model | Train RMSE | Test RMSE | max \|w\| |
 |---|---|---|---|
 | none | 13.6 | 24,655.7 | 3,097,038,010 |
 | λ = 0.01 | 18.0 | **22.8** | 365 |
@@ -885,6 +895,13 @@ Everything else is identical - same derivation, same projection idea, same four
 lines of NumPy. Ridge is not a different method; it is least squares with the
 floor tilted.
 
+Two small print points, for anyone who checks it against the cost on the earlier
+slide. Written with theta, the formula penalises the intercept too; in practice
+the intercept's entry of I is set to zero, or the data are centred first so the
+intercept drops out, which is what scikit-learn does. And with the cost written
+as MSE plus lambda times the sum of squares, the lambda in this formula is that
+lambda times 2m. Handout section 6.2 shows where the factor comes from.
+
 Note that Lasso has no such formula. The absolute value has a corner, so it
 cannot be differentiated at zero, and the solution has to be found iteratively.
 That inconvenience is inseparable from the property that makes Lasso useful  - 
@@ -897,7 +914,7 @@ Handout section 6.2 derives it in three lines.
 
 - Least squares fails when a direction costs nothing: the valley is flat
 - The penalty makes **every** direction cost something
-- Every eigenvalue shifts up by λ, so none of them can be zero
+- Every eigenvalue of XᵀX shifts up by λ, so none of them can be zero
 
 ::: notes
 Come back to the ravine picture from before the break. The reason two identical
@@ -969,7 +986,7 @@ features" is never a complete statement.
 |---|---|
 | 1,000 | all six |
 | 10,000 | five: `garage` dropped |
-| 20,000 | three: `area`, `bedrooms`, `bathrooms` |
+| 20,000 | three: `area_sqm`, `bedrooms`, `bathrooms` |
 | 40,000 | one: `area_sqm` |
 
 ::: notes

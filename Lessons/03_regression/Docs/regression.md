@@ -675,6 +675,12 @@ $\lVert X\theta - y\rVert^2 + \lambda\lVert\theta\rVert^2$ instead — no $1/2m$
 and the solution is exactly $(X^\top X + \lambda I)^{-1}X^\top y$, which is the
 form most textbooks print.
 
+**And the intercept.** Written with $\theta$, this penalty also charges the
+intercept, which Section 6.1 said is never penalised. In practice the entry of
+$I$ that belongs to the intercept is set to zero, or the features and the target
+are centred first so that the intercept drops out of the problem; scikit-learn
+does the second. The formula above keeps the full $I$ only to stay short.
+
 Neither convention is more correct, and the models they produce are identical
 once $\lambda$ is rescaled. But it does mean **a penalty strength is only
 meaningful alongside the cost function it belongs to**: `Ridge(alpha=1)` in
