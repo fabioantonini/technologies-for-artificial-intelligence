@@ -184,7 +184,8 @@ be updated by hand.
 
 ### 2.9 The gap audit: read the deck as a student who has only the deck
 
-**Run it the week before the lesson is taught, every lesson.** Every other check here
+**Run it on the Friday the previous lesson is taught, every lesson**, so that the
+instructor's study of the deck starts on its final version. Every other check here
 was written from reading the material. This one was written from teaching it: lesson
 1 went into a room on 2 October 2026, and in the following three days the questions
 students asked, and the moments they stopped following, exposed gaps that two full

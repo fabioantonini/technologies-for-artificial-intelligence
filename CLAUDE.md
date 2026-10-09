@@ -461,9 +461,15 @@ Two habits follow, for content the checker cannot reach:
   handout says a coefficient came out at 1.66, that digit must appear in a
   committed notebook output, not in your memory of the run.
 
-### Audit the deck for gaps the week before it is taught
+### Get lesson X ready on the Friday lesson X − 1 is taught
 
-Every lesson, one week ahead: read the slide bodies with the notes closed, as a
+Every check a lesson needs is done on the Friday its predecessor is taught, so
+that the instructor's study of lesson X starts that Friday afternoon on material
+that is already final: the gap audit below, the code anchors, the plain-language
+pass of the notes and the handout. Decided on 9 October 2026, after a gap in
+lesson 3 surfaced during its study rather than before it.
+
+The gap audit: read the slide bodies with the notes closed, as a
 student who has only the deck, against the eight kinds of gap in
 `Course/LESSON_REVIEW.md` §2.9 - a term or metric used before it is defined, an
 acronym spelled out only in the notes, a named method without its formula, a
@@ -473,7 +479,7 @@ runs that no slide names.
 
 The list was not written at a desk. It is what lesson 1 exposed in the three days
 after it was taught, in a room, after two full reviews had passed it; run against
-lesson 2 before its lecture it found eight more. The same week, write the lesson's
+lesson 2 before its lecture it found eight more. The same day, write the lesson's
 code anchors and add it to `ANCHORED` in `tools/verify_lesson.py`.
 
 ### Look at what you built
