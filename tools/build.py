@@ -354,6 +354,20 @@ def main() -> int:
                 m, f = build_handout(source, engine)
                 made, failed = made + m, failed + f
 
+        # The in-class workshop is not a lesson, so it sits in its own folder:
+        # one guide, built like a handout, and one short deck.
+        workshop = sorted((ROOT / "Workshop").glob("*.md"))
+        if workshop:
+            print("workshop")
+            for source in workshop:
+                m, f = (
+                    build_slides(source, engine)
+                    if source.stem.endswith("_slides")
+                    else build_handout(source, engine)
+                )
+                made, failed = made + m, failed + f
+
+
     print(f"\n{made} file(s) written, {failed} failed")
     return 1 if failed else 0
 
