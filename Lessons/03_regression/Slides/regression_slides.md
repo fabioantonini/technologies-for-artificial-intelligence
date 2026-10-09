@@ -47,6 +47,9 @@ room usually assumes "simple" means "obsolete".
 
 **And we know the coefficients that generated it.**
 
+In code: `train_test_split(X, y, test_size=0.25)` keeps 150 houses for testing.
+
+
 ::: notes
 Synthetic, deliberately. Every estimate today can be checked against the truth,
 which no real dataset allows.
@@ -181,6 +184,8 @@ Handout section 2.3 has this table. The next slide is what it is really for.
 - The 3,000 € error contributes about **2%** of the total
 - The two large errors contribute the other **98%**
 - Halving the 15,000 € error cuts the cost by **42%**
+- In code: `mean_squared_error(y, y_pred)`, the mean of the squared errors
+  without the ½
 
 ::: notes
 This is the point of the worked example, and it is a design decision rather
@@ -208,10 +213,12 @@ resist outliers) does, and why it exists.
 
 # A cost needs something to be compared against
 
-- Trivial answer for a regression: **always predict the mean**
+- Trivial answer for a regression: **always predict the mean**,
+  `DummyRegressor(strategy="mean")`
 - On the 150 test houses: root mean squared error (RMSE) **96,440 €**, against
   the model's **20,341 €**
-- **R² = 0.956** — the same comparison as one ratio, 0 is the mean, 1 is perfect
+- **R² = 0.956** (`r2_score`) — the same comparison as one ratio, 0 is the
+  mean, 1 is perfect
 - Quote the euros too: R² is divided by *this* test set's variance
 
 ::: notes
@@ -334,6 +341,7 @@ Handout section 3.2 carries every intermediate step.
 - The second derivative is XᵀX, never negative in any direction
 - So the cost is **convex**: one bottom, no local traps
 - Any stationary point is *the* answer, not *an* answer
+- In code: `LinearRegression().fit(X, y)` solves the same problem
 
 ::: notes
 Short slide, big consequence. Setting a gradient to zero finds a flat spot; it
@@ -512,10 +520,17 @@ divide by three if it rises. Lesson 5 replaces the recipe with a search.
 
 # Notebook 1, live
 
-The model, the cost, the exact solution, the iterative one: from scratch.
+| section, and its slides | you call (→ the number to come back with) |
+|---|---|
+| one feature, 4-5 | `train_test_split` → 450 houses to fit, 150 to test |
+| the exact answer, 14-17 | the normal equation in NumPy, then `LinearRegression` → 2,785 €/m², agreeing to 1.82e-12 |
+| the iterative answer, 20-24 | NumPy only: gradient descent → the same answer, slowly |
+| all six features, 49-50 | `LinearRegression` → area 2,421, bedrooms −16.6% |
+| the baseline, 12 | `DummyRegressor(strategy="mean")`, `r2_score` → 96,440 € against 20,341 €, R² 0.956 |
 
 ::: notes
-25 minutes. Let them work through it themselves.
+The model, the cost, the exact solution and the iterative one, built from
+scratch. 25 minutes. Let them work through it themselves.
 
 The two moments worth pausing on together. First, the agreement between their
 four-line normal equation and scikit-learn to twelve decimal places - it convinces more than any assurance from the lecturer. Second, the coefficient table at the
@@ -539,6 +554,9 @@ coefficient table out, and it is much cheaper to fix now.
 Energy consumption against temperature: heating in the cold, cooling in the heat.
 
 No straight line follows that.
+
+In code: `PolynomialFeatures(degree=2)` adds the column t² for the model to use.
+
 
 ::: notes
 Set the problem before the solution. Draw the U shape in the air: consumption
@@ -691,10 +709,15 @@ have a test set to spend.
 
 # Notebook 2, live
 
-Fit the curve, push the degree up, and watch the test error turn.
+| section, and its slides | you call (→ the number to come back with) |
+|---|---|
+| a relationship that bends, 27-28 | `train_test_split` → 21 days to fit, 9 to test |
+| linear in the coefficients, 29-31 | `PolynomialFeatures`, `StandardScaler` and `LinearRegression`, chained by `make_pipeline` |
+| too much flexibility, 32-34 | `mean_squared_error`, square-rooted → test RMSE 16.9 at degree 3, 24,655.7 at 12 |
+| why the wiggles appear, 36 | the fitted coefficients → largest 3,097,038,010 at degree 12 |
 
 ::: notes
-20 minutes. This is the shortest of the three notebooks and the most visual.
+Fit the curve, push the degree up, and watch the test error turn. 20 minutes. This is the shortest of the three notebooks and the most visual.
 
 Have them run the degree sweep first and stop at the table, then predict which
 degree wins before scrolling. Most rooms guess too high - the instinct that more
@@ -757,6 +780,7 @@ Lesson 2 introduced scaling for optimisation speed. Here it is correctness.
 
 - The **intercept is never penalised**: it is not a claim about any feature
 - Features **must be scaled first**, or the penalty is arbitrary
+- In code: `make_pipeline(StandardScaler(), Ridge(alpha=0.01))`
 
 ::: notes
 Both of these are things students get wrong, and both produce results that look
@@ -1060,9 +1084,14 @@ what would happen if you moved a house.
 
 # Notebook 3, live
 
-Ridge on the disaster, the regularisation paths, the collinear case.
+| section, and its slides | you call (→ the number to come back with) |
+|---|---|
+| Ridge on the degree-12 fit, 37-41 | `Ridge(alpha=0.01)` after `PolynomialFeatures` and `StandardScaler` → largest coefficient 365 |
+| regularisation paths, 44-46 | `make_pipeline(StandardScaler(), Ridge(alpha=...))`, the same with `Lasso` → only area left at 40,000 |
+| the collinear case, 47-48 | `LinearRegression` against `Ridge(alpha=10)` on four splits → 9,261 to 45,307, then about 40,000 |
 
 ::: notes
+Ridge on the degree-12 fit, the regularisation paths, and the collinear case.
 20 minutes. The collinear section is the one to make sure everyone reaches - it
 is the argument they will need whenever someone asks what a model says drives
 the outcome.
