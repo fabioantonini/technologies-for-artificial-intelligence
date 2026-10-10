@@ -545,6 +545,12 @@ the previous repository.
 The image is republished only when **dependencies** change, not per lesson. New
 lessons reach students through `git pull`.
 
+Both images are published for **linux/amd64 and linux/arm64** since v0.1.2
+(10 October 2026): before that an Apple-silicon Mac ran them under emulation and
+one student's container never started. The script builds from `git archive` of
+HEAD, so commit the dependency change first; and every transitive dependency is
+pinned, so a rebuild reproduces the published environment package for package.
+
 ---
 
 ## Conventions for content
