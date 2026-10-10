@@ -821,7 +821,7 @@ Notebook 1 fits all six features and compares against the truth:
 
 ![](coefficient_trust.png)
 
-*The table above, drawn. Each point is one feature: how far its estimated coefficient lands from the truth, against how strongly it correlates with `area_sqm`. The three features that share nothing with area are recovered to within 1%; the two that share a great deal are out by 9% and 17%. `garage` is the honest exception — uncorrelated and still 9.6% out — and it is there to stop the line being read as a law.*
+*The table above, drawn. Each point is one feature: how far its estimated coefficient lands from the truth, against how strongly it correlates with `area_sqm`. Two of the three features that share nothing with area are recovered to within 1%; the two that share a great deal are out by 9% and 17%. `garage` is the honest exception — uncorrelated and still 9.6% out — and it is there to stop the line being read as a law.*
 
 | Feature | True | Estimated | Error | Correlation with area |
 |---|---|---|---|---|
@@ -832,9 +832,13 @@ Notebook 1 fits all six features and compares against the truth:
 | `bathrooms` | 14,000 | 15,229 | +8.8% | 0.49 |
 | `bedrooms` | 9,000 | 7,503 | **−16.6%** | **0.77** |
 
-Read the first and last columns together. The three features **uncorrelated**
-with area are recovered to within 1%. The two correlated with it are out by 9%
-and 17%, and the worst estimate belongs to the most correlated feature.
+Read the first and last columns together. Two of the three features
+**uncorrelated** with area, `age_years` and `distance_km`, are recovered to
+within 1%. The two correlated with it are out by 9% and 17%, and the worst
+estimate belongs to the most correlated feature. `garage` is the exception,
+uncorrelated and still 9.6% out: a yes-or-no column varies little from house to
+house, so the 18,000 euros of noise weigh more on its coefficient. Correlation
+is one source of uncertainty in a coefficient, not the only one.
 
 **A coefficient is only as trustworthy as the independence of its feature.** With
 450 rows and 18,000 euros of noise, this is the precision the data supports — and

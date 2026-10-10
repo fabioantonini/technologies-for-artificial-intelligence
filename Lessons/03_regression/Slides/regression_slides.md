@@ -1085,8 +1085,10 @@ coefficients, and are both right: they included different features, so their
 From notebook 1, and this is the slide of the lesson most useful outside it.
 
 The x axis is how correlated each feature is with area; the y axis is how far its
-estimated coefficient landed from the truth. The three features uncorrelated with
-area - distance, age, garage - are recovered to within 1%. Bathrooms, at 0.49,
+estimated coefficient landed from the truth. Two of the three features uncorrelated
+with area, distance and age, are recovered to within 1%; garage is the exception,
+9.6% out, because a yes-or-no column varies little and the noise weighs more on
+its coefficient. Bathrooms, at 0.49,
 is out by 9%. Bedrooms, at 0.77, is out by 17%.
 
 State the rule: a coefficient is only as trustworthy as its feature is
