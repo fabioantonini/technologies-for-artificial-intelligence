@@ -34,8 +34,8 @@ Instruments; the third is real handwritten digits. Handout section 1.
 # Exercise 8, before we start
 
 - What counts is **what the metric could see**, not the score itself
-- The gap to watch for: a silhouette reported as endorsement of a clustering, when
-  it can only endorse roundness
+- The gap to watch for: a silhouette score taken as proof that a clustering is
+  right, when it only rewards round, well-separated groups
 - Today the same obligation returns in a new form: a network will reach a
   high training accuracy very quickly, and that number on its own says
   almost nothing
@@ -87,7 +87,7 @@ Handout section 1.
 
 ::: notes
 Introduce all three problems at once, because the contrast between them is
-what stops this lesson from being propaganda for neural networks. On the
+what keeps this lesson from simply advertising neural networks. On the
 acceptance data a linear model scores 0.55 and a network 0.94 - a 39-point
 gap. On the digits a linear model scores 0.93 and the best network here 0.97  - 
 three and a half points. A lesson that only showed problems where networks win
@@ -106,8 +106,8 @@ best accuracy any classifier can be *scored* at? Handout section 1.1.
 # The perceptron, and a unit you already have
 
 - Rosenblatt, 1958: weights, a bias, "output 1 if the sum is positive"
-- Swap the threshold for a sigmoid: lesson 4's logistic unit, unchanged
-- What is new is one word: **component**
+- Swap the threshold for a sigmoid: lesson 4's logistic unit, `LogisticRegression`
+- What is new: the unit becomes a **component** of a larger network
 - Undecided at 0.5 means the weighted sum is zero
 - A line in two dimensions, a hyperplane in general
 
@@ -144,7 +144,7 @@ problem that a line cannot solve. Handout section 2.1.
 - Two calibration axes: a gain offset in decibels, a phase offset in degrees
 - It passes when both offsets are **jointly** small enough for one global
   firmware correction
-- 2,250 training sensors, 3,000 generated in all
+- 3,000 sensors: `train_test_split` keeps 2,250 to train, then `StandardScaler`
 - So the accept region is the inside of a **closed curve**
 - And no straight line encloses anything
 
@@ -183,7 +183,7 @@ where would you put a straight line? Handout section 2.2.
 
 # A circle of radius 1.25
 
-- Gain tolerance **0.50**, production spread **0.40**
+- Gain tolerance **0.50**, production spread (standard deviation) **0.40**
 - Phase tolerance **3.75**, production spread **3.00**
 - Both are exactly **1.25 spreads**, so standardised, the accept region is a
   circle of radius 1.25
@@ -267,8 +267,7 @@ Handout section 2.2.
 # The fit did not fail
 
 - Coefficients **(0.0096, 0.0701)**, intercept **0.1892**
-- Almost exactly the constant model, and the correct answer to the question a
-  line can ask
+- Almost exactly the constant model: no line does much better than that
 - Not an optimiser that gave up. The reason is symmetry
 - The accept region is a disc on the origin; every accepted unit has a partner
   opposite
@@ -293,13 +292,13 @@ Handout section 2.2.
 
 - The search tries 72,762 boundaries and scores the winner **on the data that
   chose it**: 0.6880
-- The honest figure for the population, with no test set: **0.6491**
+- The honest figure, computed exactly from the geometry: **0.6491**
 - **Almost 4 points of pure selection bias**
 - Nothing was fitted. No parameter estimated. Only a choice made
 - Lesson 5's argument, inside a lesson-9 experiment
 
 ::: notes
-This is a deliberate ambush and it is worth pausing on. The brute-force search
+This slide is a deliberate trap, and it is worth pausing on. The brute-force search
 has none of the features students associate with overfitting: no parameters,
 no training, no capacity. It picks the best of a list. And picking the best of
 a long list, then reporting that best, is enough on its own to inflate a score
@@ -316,8 +315,8 @@ Handout section 2.2.
 
 # The smallest problem that needs a hidden layer
 
-- Removable only when the two drifts **share a sign**; opposite drifts
-  are not
+- One correction removes the drift only when both channels drift **the same
+  way** (same sign)
 - That is the exclusive-or (XOR) function
 - Four clouds of 200 units; a line scores exactly **0.5000**
 - Coding the channels as $\pm 1$, the rule is about $|a + b|$
@@ -387,7 +386,8 @@ that is the next slide. Handout section 3.3.
 - Correctable clouds to (1,0) and (0,1); the rest to the origin
 - The name for this is **representation learning**
 - What is learned: coordinates in which the boundary is simple
-- Lesson 10's convolutional networks: the same trick, constrained
+- Lesson 10's convolutional networks: the same trick, with most weights fixed
+  at zero
 
 ::: notes
 This is the idea to carry out of the first half of the lesson, and it is worth
@@ -493,8 +493,8 @@ about training? It does not mention training. It is a statement about the
 existence of a set of weights, proved without reference to how anybody would
 obtain them.
 
-Its real content is a licence to stop worrying about expressiveness and start
-worrying about optimisation and data, which is exactly what the remaining two
+Its real content is a licence to stop worrying about whether a network can
+express the answer, and start worrying about optimisation and data, which is exactly what the remaining two
 hours do. Handout section 3.5.
 :::
 
@@ -502,8 +502,8 @@ hours do. Handout section 3.5.
 
 - One hidden layer of $H$ units, one output unit, $m$ examples, $n$ inputs
 - Two matrix multiplies, each followed by an elementwise function
-- This course puts examples in **rows**: as scikit-learn and Keras do
-- Textbooks often use columns, and every transpose flips if you do
+- Examples in **rows**, as scikit-learn and Keras; in columns every transpose flips
+- In code: `keras.Sequential` of a `keras.Input` and `layers.Dense` layers
 
 ::: notes
 The convention warning is not pedantry. It is the single most common source of
@@ -579,9 +579,8 @@ Handout section 4.1.
 - So $H$ hidden units are $H$ lines, and the output unit votes
 
 ::: notes
-Both facts look like bookkeeping and both are structural. The first is the
-licence for every batching, sharding and parallelism decision anybody makes
-later; if examples could influence one another, computing a gradient on 32 of
+Both facts look like bookkeeping and both are structural. The first is what allows every later decision to process examples in batches,
+or to split them across machines; if examples could influence one another, computing a gradient on 32 of
 them would not approximate the gradient on all of them.
 
 The second is what makes a hidden layer interpretable at all in two
@@ -625,8 +624,8 @@ it right. Worth saying so before they leave the room.
 # Two bad ways to get every gradient
 
 - We need the derivative of the cost for **every** weight and bias
-- **Perturb and re-run**: one forward pass per parameter, 301,066 of them,
-  for one step
+- **Perturb and re-run**: one forward pass per parameter; for notebook 3's
+  network of 301,066 parameters, 301,066 passes for one step
 - **Differentiate symbolically**: the same sub-expressions, thousands of times
 - Both correct. Both unusable
 
@@ -646,13 +645,12 @@ Handout section 5.1.
 
 # Compute each repeated piece once, right to left
 
-- Carry the derivative of the cost with respect to a layer's
-  **pre-activations**
-- Given it for one layer: that layer's weight gradients, **and** the layer
-  below
-- One backward sweep produces every gradient in the network
+- Carry the cost's derivative for each layer's **pre-activations**
+- From it: that layer's weight gradients **and** the layer below's, so one
+  backward sweep gives every gradient
 - **A weight's gradient is how wrong the layer above was, times what this
   weight contributed**
+- Keras automates it with `tf.GradientTape`
 
 ::: notes
 The fourth bullet is the sentence students should be able to repeat to a
@@ -743,8 +741,8 @@ activation's derivative, which asks each unit how much it was actually
 responding when the example came through.
 
 This one line is the recursion. Written for a general layer index it is
-identical, which is why depth costs nothing conceptually and everything
-numerically. That is the subject of the vanishing-gradient segment.
+identical, which is why adding layers changes nothing in the formula and a great deal in
+the numbers it produces. That is the subject of the vanishing-gradient segment.
 
 Handout section 5.3.
 :::
@@ -777,9 +775,9 @@ Handout section 5.4.
 # Check the gradient before you trust it
 - A wrong gradient **raises no exception**: it trains badly and looks like a
   modelling problem
-- Compare each partial against a central difference: error of order h²
+- Compare each partial with (J(θ + h) − J(θ − h)) ÷ 2h: error of order h²
 - Notebook 01: worst disagreement 1.97 × 10⁻⁸, median 7.83 × 10⁻¹¹
-- **Below 10⁻⁶ believe it; above 10⁻⁴ there is a bug**
+- **Relative error below 10⁻⁶: believe it. Above 10⁻⁴: there is a bug**
 - Four lines of code, and not optional
 
 ::: notes
@@ -817,18 +815,25 @@ Handout section 5.5.
 
 # Notebook 1, live
 
-- Backpropagation from scratch, gradient-checked before it is trusted
-- The two-unit hand-built network, then the same problem trained from 20
-  random starts at each width
-- The polygon yardstick: how well could $H$ lines fence a circle?
-- The one initialisation that cannot work, and the cost it converges to
+| section, and its slides | you call (→ the number to come back with) |
+|---|---|
+| split, then one straight line, 8-15 | `train_test_split`, `StandardScaler`, `LogisticRegression` → 0.5507 |
+| forward, backward, gradient check, 24-39 | NumPy only → untrained cost 0.6721, worst disagreement 1.97 × 10⁻⁸ |
+| the drift problem, 16-21 | the hand-built network, then 20 restarts per width → 4 of 20 above 0.95 at two units |
+| the polygon yardstick, 22 | `scipy.integrate` → the best 4-sided fence scores 0.9396 |
+| zero initialisation, 52-53 | all weights 0 → final cost 0.6887 |
 
 ::: notes
+Backpropagation from scratch, gradient-checked before it is trusted; the
+two-unit hand-built network, then the same problem trained from 20 random
+starts at each width; the polygon yardstick, how well H lines could fence a
+circle; and the one initialisation that cannot work.
+
 Run `Notebooks/01_backpropagation_from_scratch.ipynb`. Twenty-two minutes.
 
-The cell worth protecting if time runs short is the gradient check - watching
-the worst relative disagreement print as ten to the minus eight lands the
-previous slide far harder than reading it does.
+If time runs short, keep the gradient check: watching the worst relative
+disagreement print as ten to the minus eight convinces far more than the
+previous slide does.
 
 Second priority is the 20-restart sweep at width 2, because seeing sixteen of
 twenty runs stall at 0.75 is what makes "representable is not findable" a fact
@@ -840,11 +845,10 @@ run the sweep with their own seed rather than the notebook's.
 
 # Ten classes need ten outputs
 - **Softmax** turns K scores into a probability distribution
-- For K = 2 it reduces to the sigmoid: one construction, two sizes
-- The loss is categorical cross-entropy: minus the log probability given to
-  the true class
-- The gradient at the output is again **ŷ − y**, so everything derived before
-  the break applies unchanged
+- For K = 2 it is the sigmoid: one construction, two sizes
+- Loss, categorical cross-entropy: −log(probability of the true class),
+  `sparse_categorical_crossentropy`
+- The gradient at the output is again **ŷ − y**: the backward pass is unchanged
 
 ::: notes
 The last bullet is the point of the slide, and it is worth deriving on the
@@ -878,7 +882,7 @@ Handout section 6.1.
 
 # A hidden layer is not always the answer
 
-| architecture | parameters | validation accuracy | sd |
+| architecture | parameters | validation accuracy | sd over 5 seeds |
 |---|---|---|---|
 | softmax alone, no hidden layer | 650 | 0.9324 | 0.0035 |
 | one hidden layer of 32 | 2,410 | 0.9602 | 0.0052 |
@@ -929,7 +933,8 @@ Handout section 6.3.
   reason depth buys anything
 - The sigmoid's derivative σ(z)(1 − σ(z)) peaks at **¼**, at zero only
 - Backpropagation multiplies by it **once per layer**
-- Initialisation leaves the weight factor near 1, so the derivative decides:
+- At initialisation the weights multiply it by about 1, so the derivative
+  decides:
   **each sigmoid layer divides the gradient by about four**
 
 ::: notes
@@ -994,15 +999,15 @@ Handout section 7.3.
 :::
 
 # One draw is not a law
-- End-to-end ratio, last weight matrix to first: median **3,547**
+- Gradient at the last weight matrix ÷ gradient at the first: median **3,547**
 - Over the same eight seeds it ranges **2,734 to 4,607**
 - Quoting the largest reports one draw as a law
 - **The per-layer factor of about 4 is the property**
 - By depth: 9.5, 170, 3,553, 46,250 at two, four, six and eight layers
 
 ::: notes
-This slide is a methodological point wearing a numerical costume, and it is
-the habit worth more than the number. A single measurement of a compounding
+This slide is about method more than about the number, and the habit is worth
+more than the number. A single measurement of a compounding
 quantity is a draw from a distribution, and reporting its extreme as the
 headline is how plausible-looking folklore gets manufactured.
 
@@ -1068,13 +1073,20 @@ Handout section 7.3.
 
 # Notebook 2, live
 
-- The same network again, this time in six lines of Keras, and the same
-  answer
-- Softmax on ten classes, and the depth comparison behind the table
-- The per-layer gradient shrinkage, measured across eight seeds at five depths
-- How big the random weights should be, and what happens at both extremes
+| section, and its slides | you call (→ the number to come back with) |
+|---|---|
+| the same network in Keras, 24-29 | `keras.Sequential`, `keras.Input`, `layers.Dense`, `SGD`; then `compile`, `fit`, `evaluate` → 0.9333 |
+| ten classes, 41-44 | `Dense(10, activation="softmax")`, `Adam`, `Dropout`, `confusion_matrix` → 0.9676 with two layers of 64 |
+| the shrinkage, measured, 45-48 | `tf.GradientTape`, `sparse_categorical_crossentropy` → about 4 per sigmoid layer |
+| training six layers, 49-50 | `SGD` on three activations → sigmoid 0.1000, tanh 0.9750 |
+| how big the weights should be, 54 | `RandomNormal` at two scales, against Glorot → 73% saturated at N(0, 1) |
 
 ::: notes
+The same network again in six lines of Keras, with the same answer; softmax on
+ten classes and the depth comparison behind the table; the per-layer gradient
+shrinkage, measured across eight seeds at five depths; and how big the random
+weights should be.
+
 Run `Notebooks/02_keras_softmax_and_depth.ipynb`. Twenty minutes.
 
 Open by rebuilding notebook 01's network in Keras and checking it lands in the
@@ -1082,7 +1094,7 @@ same place - the point being that the library is a convenience, not a
 different algorithm, and that they now know what every one of those six lines
 does.
 
-Protect the shrinkage measurement if time is short. Printing the eight
+If time is short, keep the shrinkage measurement. Printing the eight
 per-layer factors themselves, and watching every one of them land between 3.9
 and 4.3, is what makes the quarter-bound a measurement rather than an
 assertion.
@@ -1094,8 +1106,8 @@ Have them change the depth and predict the ratio before running it.
 - Lesson 3 started from zero, and was right to: those costs are convex
 - All-zero weights **freeze** a network: every gradient is exactly zero
 - **Only the output bias ever moves**
-- The bias converges to the base rate, so the cost converges to the label
-  entropy: **0.6887 predicted, 0.6887 measured**
+- The bias converges to the base rate, and the cost to the cost of always
+  predicting it, the label entropy: **0.6887 predicted, 0.6887 measured**
 - Distinct hidden columns: **1 of 32**
 
 ::: notes
@@ -1155,8 +1167,8 @@ if the clock is against you.
 - A unit sums n inputs, so variance is multiplied by n × Var(w) each layer
 - Set Var(w) = 1/n: **Glorot**. ReLU halves it, so it wants 2/n: **He**
 - **Too small collapses**: indistinguishable from zero by layer 4
-- **Too large saturates** rather than exploding: 73% of the last layer
-  past 0.99
+- **Too large saturates** rather than exploding: 73% of the last layer's tanh
+  units past |a| > 0.99
 - Glorot loses half its spread over eight layers
 
 ::: notes
@@ -1181,7 +1193,7 @@ one - He initialisation is the line they will actually type.
 
 # The learning rate, swept
 
-| $\alpha$ | final training loss | validation accuracy | sd |
+| $\alpha$ | final training loss | validation accuracy | sd over 5 seeds |
 |---|---|---|---|
 | 0.001 | 1.9550 | 0.5574 | 0.0794 |
 | 0.01 | 0.1965 | 0.9398 | 0.0035 |
@@ -1237,8 +1249,8 @@ textbook signature of underfitting. It is simply that the cause is in the
 optimiser rather than in the architecture, and adding capacity moves you
 further from the fix.
 
-The last bullet is a second instance of the same family. Five runs in eight
-finished above their own minimum, because a rate that is safe on a flat part
+A second instance of the same family is in handout section 9.1: in notebook
+01, five runs in eight finished above their own minimum, because a rate that is safe on a flat part
 of the cost surface is not safe on a sharper part reached later. Ask the room
 how they would detect that from a training curve - the answer is that the
 curve turning upward late is the signature, and it is invisible if you only
@@ -1259,7 +1271,7 @@ first segment doing its job too well. Having watched the sigmoid fail, the
 natural conclusion is that the rectified linear unit is safe, and the argument
 for that conclusion is correct as far as it goes.
 
-Land the last bullet rather than the drama. With half the layer dead the
+Put the weight on the last bullet, not on the word "dead". With half the layer dead the
 survivors absorb the work and accuracy drops by less than one point - nothing
 in the training curve announces the failure. That is what makes it dangerous:
 if that layer were your bottleneck, you would be tuning everything except the
@@ -1291,11 +1303,11 @@ Handout section 7.4.
 :::
 
 # Mini-batches, momentum, and Adam
-- Mini-batch **stochastic gradient descent (SGD)**: noisy, unbiased, vectorises
-- **Momentum** averages past gradients: oscillations cancel, and lesson 3's
-  stretched valley is repaired
-- **Adam (adaptive moment estimation)**: a per-parameter step size
-- Which is what makes it forgiving of a badly chosen global α
+- Mini-batch **stochastic gradient descent (SGD)**, `SGD`: a small batch's
+  gradient, noisy but right on average
+- **Momentum**: step along a running average of past gradients
+- **Adam (adaptive moment estimation)**, `Adam`: each parameter's step scaled
+  by its own recent gradients, so a badly chosen α matters less
 
 ::: notes
 Three ideas at speed, because the measured comparison on the next slide is
@@ -1316,7 +1328,7 @@ Handout sections 9.2 and 9.3.
 
 # Adam, measured: read the spread before the mean
 
-| optimiser | test accuracy | sd | worst of 5 | vs the true rule |
+| optimiser | test accuracy | sd over 5 seeds | worst of 5 | vs the true rule |
 |---|---|---|---|---|
 | plain gradient descent | 0.9389 | 0.0184 | 0.9027 | 0.9685 |
 | with momentum 0.9 | 0.9349 | 0.0094 | 0.9173 | 0.9645 |
@@ -1333,7 +1345,7 @@ disappearance of the bad case - which is exactly what notebook 01 spent five
 restarts buying by hand. Adam in one run matches what plain descent needed five
 to reach.
 
-Now the row nobody would put in a marketing table: **momentum did nothing at
+Now the row nobody would put in an advertisement: **momentum did nothing at
 all here**, a fraction of a point below plain descent and well inside either
 method's spread. Say it rather than dropping it. Momentum is a good default,
 not a guarantee, and a comparison in which every row improves on the last is
@@ -1346,11 +1358,11 @@ which is the measuring instrument, not the model. Handout sections 9.3 and 11.3.
 
 # Three regularisers, and what they bought
 
-| method | test accuracy | sd | train − test gap | epochs run |
+| method | test accuracy | sd over 5 seeds | train − test gap | epochs run |
 |---|---|---|---|---|
-| early stopping only | 0.9411 | 0.0069 | 0.0589 | 38.8 |
-| + dropout 0.4 | 0.9483 | 0.0038 | 0.0503 | 48.8 |
-| + L2 $10^{-3}$ | 0.9478 | 0.0011 | 0.0522 | 198.4 |
+| early stopping only (`EarlyStopping`: keep the best epoch) | 0.9411 | 0.0069 | 0.0589 | 38.8 |
+| + dropout 0.4 (`Dropout`: drop 40% of units per batch) | 0.9483 | 0.0038 | 0.0503 | 48.8 |
+| + L2 $10^{-3}$ (`l2`: a penalty on squared weights, as Ridge) | 0.9478 | 0.0011 | 0.0522 | 198.4 |
 | + dropout and L2 | **0.9511** | 0.0045 | 0.0489 | 161.6 |
 
 ::: notes
@@ -1398,16 +1410,25 @@ Handout section 10.1.
 :::
 
 # Notebook 3, live
-- The learning-rate sweep and the dead-unit count, from scratch
-- Plain descent, momentum and Adam from an identical start
-- **301,066 parameters on 300 examples**: memorises, generalises anyway
-- Validation *loss* climbs while *accuracy* stays flat
-- More data beats more tuning, three to one
+
+| section, and its slides | you call (→ the number to come back with) |
+|---|---|
+| the learning rate, 55-57 | `SGD(learning_rate=α)` at five rates → best 0.9685 at α = 0.5 |
+| dead units, 58-59 | `keras.Model` to read the hidden layer → 33 of 64 dead at α = 1.0 |
+| optimisers, 60-61 | `SGD`, `SGD(momentum=0.9)`, `Adam` → Adam's worst run 0.9360 |
+| memorising, 63 | two layers of 512 on 300 digits, `count_params` → 301,066 parameters |
+| regularisers, 62 | `EarlyStopping`, `Dropout(0.4)`, `l2(1e-3)` → 0.9411 to 0.9511 |
+| more data | `train_test_split` at six sizes → +3.2 points from 300 to 1,077 examples |
 
 ::: notes
+The learning-rate sweep and the dead-unit count; plain descent, momentum and
+Adam from an identical start; 301,066 parameters on 300 examples, which
+memorises and generalises anyway; validation loss climbing while accuracy
+stays flat; and more data beating more tuning, three to one.
+
 Run `Notebooks/03_training_in_practice.ipynb`. Eighteen minutes.
 
-Two cells to protect. First, the overfitting run: a thousand parameters per
+Two cells to keep if time runs short. First, the overfitting run: a thousand parameters per
 training example, training accuracy at exactly 1.0000, and validation accuracy
 holding near 0.95 anyway. Classical bias–variance reasoning from lesson 5 does
 not lead you to expect that, and taking it seriously is an open research
@@ -1438,11 +1459,11 @@ four, because its derivative cannot exceed a quarter. Not 4,607-fold - that was
 one draw of a compounding quantity, and the honest version is the per-layer
 factor.
 
-That is the fifth of these carry-home numbers the course has produced: 77%
-accuracy on coin-flip labels, 94 of 128 imputed rows that borrowed from the
-test set, a coefficient of 365 where an unpenalised fit wanted billions,
-37 of 40 disguised accounts
-caught by reconstruction error, and now a factor of four per sigmoid layer.
+It joins the numbers the earlier lessons left behind - 77% accuracy on
+coin-flip labels in lesson 1, a coefficient of 365 where an unpenalised fit
+wanted billions in lesson 3, 37 of 40 disguised accounts caught by
+reconstruction error in lesson 8 - as this lesson's: a factor of four per
+sigmoid layer.
 
 If one habit survives today, make it the last bullet. This lesson's methods
 produce impressive-looking numbers faster than anything else in the course, and

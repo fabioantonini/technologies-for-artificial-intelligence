@@ -70,15 +70,16 @@ linear model scores 0.93 and the best network here 0.97. **A hidden layer is
 not always the answer**, and a lesson that only showed problems where networks
 win would teach the opposite.
 
-The two synthetic datasets publish their generating rules as `TRUE_*`
-constants in `Notebooks/instrument_data.py`. In particular the acceptance
+The file that generates the two synthetic datasets, `instrument_data.py` in
+the `Notebooks` folder, publishes their rules as `TRUE_*` constants. In
+particular the acceptance
 test rig records the wrong verdict for 3% of units, which puts a **ceiling of
 0.97** on every score in this lesson — a number to read every accuracy
 against, rather than reading it against 1.
 
 > **Try this:** before reading on, open `instrument_data.py` and read
 > `make_acceptance_test`. Given that both tolerances are the same multiple of
-> their axis's production spread, what shape is the accept region after each
+> their axis's production spread (the standard deviation across units), what shape is the accept region after each
 > axis is standardised? Section 2 has the answer, and the figure.
 
 ---
@@ -674,7 +675,7 @@ step is enough to knock a bias far enough negative to cause this.
 validation accuracy on the right axis. At $\alpha = 1.0$, 33 of 64 units are
 dead — and accuracy is 0.9583 against a best of 0.9667.*
 
-The measured cost is smaller than the drama suggests: with half the layer dead
+The measured cost is smaller than the word "dead" suggests: with half the layer dead
 the survivors absorb the work and accuracy drops by less than one point. So
 dead units are usually **wasted capacity rather than catastrophe**, which is
 exactly why the failure is easy to miss — nothing in the training curve
@@ -839,9 +840,9 @@ is in a sharper part of the cost surface.
 
 Full-batch gradient descent computes $\nabla J$ on all $m$ examples per step.
 Stochastic gradient descent (SGD) uses one. Mini-batch SGD, which is what
-everyone means by SGD in practice, uses a few dozen to a few hundred and takes
-the middle of three trade-offs: the gradient estimate is noisy but unbiased,
-the arithmetic vectorises, and the noise itself helps escape the shallow local
+everyone means by SGD in practice, uses a few dozen to a few hundred, and sits between the two: its gradient
+estimate is noisy but right on average (unbiased), a batch is computed as one
+matrix product, which hardware does fast, and the noise itself helps escape the shallow local
 minima of section 3.4.
 
 Everything in this lesson uses batches of 32 or 64. The learning rate and the
@@ -1012,7 +1013,8 @@ vote over which side of each a point falls. So a natural question: how well
 could $H$ lines possibly fence a circle?
 
 For a regular $H$-sided polygon this can be computed exactly rather than
-searched for. In polar coordinates a regular polygon of apothem $a$ has
+searched for. In polar coordinates a regular polygon of apothem $a$ (the distance from its
+centre to the middle of each side) has
 boundary $r(t) = a/\cos t$ for $|t| \le \pi/H$, repeated $H$ times. For a
 standard two-dimensional normal, $P(r < s) = 1 - e^{-s^2/2}$ (section 2.2), so the polygon
 and the true circle of radius $R$ disagree, at angle $t$, on an annulus of
@@ -1097,12 +1099,12 @@ recorded verdict, and it runs about three points higher throughout.
 ### 11.3 The two ceilings, and the identity connecting them
 
 If a classifier agrees with the true rule on a fraction $q$ of units, and the
-rig independently records the wrong verdict with probability $e$, the two
+rig independently records the wrong verdict with probability $\varepsilon$, the two
 agree exactly when both are right or both are wrong:
 
-$$\text{accuracy against recorded labels} = q(1 - e) + (1 - q)e$$
+$$\text{accuracy against recorded labels} = q(1 - \varepsilon) + (1 - q)\varepsilon$$
 
-At $q = 1$ this gives $1 - e = 0.97$, the ceiling quoted throughout. Notebook
+At $q = 1$ this gives $1 - \varepsilon = 0.97$, the ceiling quoted throughout. Notebook
 01 checks the identity across the whole sweep and finds a largest discrepancy
 of **0.0044** — the residual being that the model's errors are not quite
 independent of the rig's, since both concentrate near the boundary.
