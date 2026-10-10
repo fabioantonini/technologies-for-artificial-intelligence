@@ -27,11 +27,11 @@ looks right and is not, in a way of its own.
 
 # Today: the first lesson that offers a choice
 
-- **k-nearest neighbours (k-NN)**: remember, and vote
-- The **curse of dimensionality**: the bill for that
-- **Naive Bayes**: one strong assumption, bought cheap
-- **Support vector machines (SVM)**: margins, and kernels
-- Which family to reach for, and why that beats tuning
+- **k-nearest neighbours (k-NN)**, and the **curse of dimensionality** that
+  limits it
+- **Naive Bayes**: one strong assumption, a cheap model
+- **Support vector machines (SVM)**: margins and kernels
+- Which family to choose, and why that beats tuning
 
 ::: notes
 The agenda, and one sentence about the whole lesson that is worth saying slowly.
@@ -54,8 +54,8 @@ Handout section 1 sets this out in a paragraph each.
 # 1,200 pumps, two readings each
 
 - Vibration in Hz, pressure in bar
-- A pump is faulty when its readings fall **outside the design envelope**,
-  too low as readily as too high
+- A pump is faulty when its readings fall **outside the design envelope** (the
+  range it was built to run in), too low as readily as too high
 - **61.3%** faulty; 4% of the labels are deliberately flipped
 
 ::: notes
@@ -192,7 +192,8 @@ required.
   Low bias, high variance
 - **Large k**: the vote is taken over a wide neighbourhood, and eventually
   stops following real structure. High bias, low variance
-- At k = 1 the training accuracy is **exactly 1.000**. Always, on any dataset
+- At k = 1 the training accuracy is **exactly 1.000**, unless two identical
+  points carry different labels
 
 ::: notes
 Lesson 5 split the error into bias and variance, and had to train the model on
@@ -463,8 +464,8 @@ Handout section 3.2.
   work in thousands of dimensions
 - That **methods built on distance lose their footing**, because the quantity
   they depend on stops varying
-- k-NN, k-means (lesson 8), and radial basis function (RBF) kernels, all of
-  them
+- k-NN, k-means (lesson 8), and the radial basis function (RBF) kernel of
+  support vector machines, later today
 
 ::: notes
 Correct the overstatement before it forms, because "the curse of dimensionality"
@@ -528,7 +529,8 @@ back awake.
 # Naive Bayes: turn the question around
 
 - We want the probability of the class **given** the readings
-- The prior is a count; the denominator is identical across classes and cancels
+- The prior P(y = c) is the class's share of the data; the denominator is the
+  same for every class and cancels
 - Everything hard sits in one term: the probability of **this exact combination
   of readings** among examples of that class
 
@@ -804,7 +806,7 @@ that is the form software uses. Handout section 4.2.
 - e^a ÷ e^b = e^(a − b), so the ratio is e^(−3.951) = 0.0192
 - P(faulty) = 1 / 1.0192 = **0.981**; P(healthy) = 1 − 0.981 = **0.019**
 - Odds: 0.01585 ÷ 0.000305 ≈ **52 to 1**
-- With many features e^total = 0; the gap never underflows
+- With many features e^total rounds to 0 in the computer; the gap does not
 
 ::: notes
 Same result as the previous slide, reached without ever computing the two
@@ -1039,7 +1041,8 @@ confident about it, which is the next slide.
 
 # Its probabilities are not probabilities
 
-- Mean confidence when **correct: 0.567**. When **wrong: 0.555**
+- Confidence, the probability given to the predicted class: **0.567** when
+  correct, **0.555** when wrong
 - It cannot tell the difference between the two situations
 - With features that repeat each other it fails the other way: 0.999 reported,
   with an accuracy nothing like that
@@ -1152,7 +1155,8 @@ outlier far from it matters not at all.
 - Our labels are 4% flipped, so the strict problem has **no solution at all**
 - Let each point violate the margin by ξᵢ, and charge C for every unit of it
 - ξᵢ = 0 outside the slab, between 0 and 1 inside it, above 1 on the wrong side
-- That is the **hinge loss**: exactly zero for a point with room to spare
+- That is the **hinge loss**, max(0, 1 − y·f(x)) with labels ±1: zero for a
+  point with room to spare
 
 ::: notes
 The point worth stressing is why the soft margin is not a patch or a
