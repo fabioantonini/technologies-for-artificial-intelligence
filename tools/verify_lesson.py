@@ -509,9 +509,16 @@ def check_notes_timings(plan: str, notes_by_slide: dict, report: Report) -> None
 #: the notebooks import and no slide shows is a failure; elsewhere it is a note,
 #: so a lesson not yet reached is visible without blocking the course. A lesson
 #: joins the week its anchors are written.
-ANCHORED = {"01", "02", "03", "06"}
+ANCHORED = {"01", "02", "03", "06", "09"}
 NOTES_DIV = re.compile(r"^::: notes\n.*?^:::$", re.S | re.M)
 SKLEARN_IMPORT = re.compile(r"^\s*from sklearn[\w.]* import \(?([^)\n]+)", re.M)
+#: A Keras or TensorFlow call: keras.Sequential(, layers.Dense(, tf.GradientTape(.
+KERAS_CALL = re.compile(r"\b(?:keras|layers|tf)(?:\.\w+)*\.(\w+)\(")
+#: Calls that run the notebook rather than teach anything: seeding, determinism,
+#: and the tensor arithmetic used to measure a result.
+KERAS_PLUMBING = {"set_random_seed", "enable_op_determinism", "cast", "constant",
+                  "norm", "abs", "reduce_mean", "reduce_std", "reduce_sum",
+                  "convert_to_tensor", "reshape", "square", "sqrt"}
 
 
 def check_code_anchors(lesson: Path, slides_source: str, report: Report) -> None:
@@ -535,12 +542,15 @@ def check_code_anchors(lesson: Path, slides_source: str, report: Report) -> None
         # A name imported and never called is not something a student meets.
         body_code = SKLEARN_IMPORT.sub("", code)
         names |= {n for n in imported if re.search(rf"\b{re.escape(n)}\b", body_code)}
+        # Keras is reached through its namespace rather than imported by name,
+        # so what counts there is what a cell calls.
+        names |= set(KERAS_CALL.findall(code)) - KERAS_PLUMBING
     body = NOTES_DIV.sub("", slides_source)
     missing = sorted(n for n in names if not re.search(rf"\b{re.escape(n)}\b", body))
     if not missing:
         return
-    detail = (f"{len(missing)} of the {len(names)} scikit-learn names the notebooks "
-              f"import appear on no slide: {', '.join(missing)}")
+    detail = (f"{len(missing)} of the {len(names)} scikit-learn and Keras names the "
+              f"notebooks use appear on no slide: {', '.join(missing)}")
     if lesson.name[:2] in ANCHORED:
         report.fail("code anchors", detail)
     else:
