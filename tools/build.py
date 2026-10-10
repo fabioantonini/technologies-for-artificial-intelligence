@@ -351,7 +351,13 @@ def main() -> int:
         if course_sources:
             print("course documents")
             for source in course_sources:
-                m, f = build_handout(source, engine)
+                # A short deck can live beside the course documents - the
+                # recap of lessons 1 and 2, say - and goes through the slides chain.
+                m, f = (
+                    build_slides(source, engine)
+                    if source.stem.endswith("_slides")
+                    else build_handout(source, engine)
+                )
                 made, failed = made + m, failed + f
 
         # The in-class workshop is not a lesson, so it sits in its own folder:
