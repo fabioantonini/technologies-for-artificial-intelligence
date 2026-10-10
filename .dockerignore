@@ -17,3 +17,10 @@ tools/
 # not carry it into an image students pull.
 Instructor/
 Solutions/
+
+# Also instructor-only and git-ignored, and present in a working copy: the study
+# sessions and private notes of each lesson, and the instructor's notes file.
+# tools/release.py builds from `git archive` of HEAD, which cannot contain them;
+# these lines protect a build from a working copy, such as compose.dev.yml.
+Lessons/*/Review/
+notes.txt

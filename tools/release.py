@@ -18,12 +18,22 @@ already has core downloads only the TensorFlow layer.
 
 There is deliberately no `:latest`. With two images that name has no honest
 meaning, and the one thing worse than a large download is the wrong image.
+
+Both images are published for linux/amd64 and linux/arm64. Until October 2026
+they were amd64 only, and on an Apple-silicon Mac Docker ran them under
+emulation: slow to start, and with TensorFlow at risk of not starting at all.
+Docker picks the right architecture by itself on `docker compose pull`.
+
+The build context is `git archive` of HEAD, never the working copy. A working
+copy holds what must not reach a student - each lesson's Review/ folder, the
+instructor's notes - and an image is public the moment it is pushed.
 """
 
 import argparse
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -40,6 +50,9 @@ VERSIONED_DOCS = (
 )
 
 SEMVER = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
+
+# Every image is built for both; see the module docstring.
+PLATFORMS = "linux/amd64,linux/arm64"
 
 
 def read_version() -> str:
@@ -102,43 +115,54 @@ def main() -> int:
 
     core_versioned = f"{IMAGE}:{new}-core"
     full_versioned = f"{IMAGE}:{new}-full"
+    # A multi-platform image cannot be loaded into a classic image store, so
+    # without a push it is built only, to check that both architectures build.
+    output = "--push" if not args.no_push else "--output=type=cacheonly"
 
-    print("building core (lessons 1-8)")
-    build = ["build", "-f", "Dockerfile", "-t", core_versioned]
-    if args.no_cache:
-        build.append("--no-cache")
-    build.append(".")
-    docker(build, args.dry_run)
+    with tempfile.TemporaryDirectory() as context:
+        print(f"build context: git archive HEAD -> {context}")
+        if not args.dry_run:
+            archive = subprocess.run(["git", "archive", "HEAD"], cwd=ROOT,
+                                     check=True, capture_output=True).stdout
+            subprocess.run(["tar", "-x", "-C", context], input=archive, check=True)
 
-    print("\nbuilding full (adds TensorFlow, FROM core)")
-    build = ["build", "-f", "Dockerfile.full",
-             "--build-arg", f"CORE_IMAGE={core_versioned}", "-t", full_versioned]
-    if args.no_cache:
-        build.append("--no-cache")
-    build.append(".")
-    docker(build, args.dry_run)
+        print(f"\nbuilding core (lessons 1-8) for {PLATFORMS}")
+        build = ["buildx", "build", "--platform", PLATFORMS, "-f", "Dockerfile",
+                 "-t", core_versioned, output]
+        if args.no_cache:
+            build.append("--no-cache")
+        build.append(context)
+        docker(build, args.dry_run)
+
+        print(f"\nbuilding full (adds TensorFlow, FROM core) for {PLATFORMS}")
+        build = ["buildx", "build", "--platform", PLATFORMS, "-f", "Dockerfile.full",
+                 "--build-arg", f"CORE_IMAGE={core_versioned}",
+                 "-t", full_versioned, output]
+        if args.no_cache:
+            build.append("--no-cache")
+        build.append(context)
+        if args.no_push:
+            print("  full is built FROM the pushed core, so it is skipped with --no-push")
+        else:
+            docker(build, args.dry_run)
 
     major, minor, _ = new.split(".")
     # Moving tags only; no `latest`. docker-compose.yml resolves TAI_TAG to
-    # `core`, so these are the names students actually pull.
+    # `core`, so these are the names students actually pull. They are set on
+    # the registry, which copies the two-architecture index without pulling it.
     tags = {
         core_versioned: ["core", f"{major}.{minor}-core", f"{major}-core"],
         full_versioned: ["full", f"{major}.{minor}-full", f"{major}-full"],
     }
 
-    print("\ntagging")
+    if args.no_push:
+        print("\npush and tagging skipped (--no-push)")
+        return 0
+    print("\ntagging on the registry")
     for source, moving in tags.items():
         for tag in moving:
-            docker(["tag", source, f"{IMAGE}:{tag}"], args.dry_run)
-
-    if args.no_push:
-        print("\npush skipped (--no-push)")
-    else:
-        print("\npushing")
-        for source, moving in tags.items():
-            docker(["push", source], args.dry_run)
-            for tag in moving:
-                docker(["push", f"{IMAGE}:{tag}"], args.dry_run)
+            docker(["buildx", "imagetools", "create", "-t", f"{IMAGE}:{tag}", source],
+                   args.dry_run)
 
     touched = sync_docs(current, new, args.dry_run)
     if args.dry_run:

@@ -24,6 +24,19 @@
 # The Dockerfile also passes requirements.txt as a pip constraints file, so a
 # future dependency cannot quietly move numpy underneath the pins.
 
-tensorflow-cpu==2.21.0
+# One TensorFlow per architecture, at the same version. tensorflow-cpu has no
+# Linux arm64 wheel, so Apple-silicon Macs get the plain package there - which
+# since 2.14 pulls the CUDA libraries only through the `and-cuda` extra, so it
+# stays CPU-only and small. On amd64 nothing changes.
+tensorflow-cpu==2.21.0; platform_machine == "x86_64"
+tensorflow==2.21.0; platform_machine == "aarch64"
 keras==3.15.1
 ml-dtypes==0.5.4
+
+# TensorFlow's own dependencies that a fresh resolve moved in October 2026,
+# pinned to what the August image shipped, for the reason given at the end of
+# requirements.txt.
+absl-py==2.5.0
+grpcio==1.83.0
+protobuf==7.36.0
+wrapt==2.3.0
