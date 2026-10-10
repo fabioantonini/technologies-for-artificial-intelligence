@@ -223,8 +223,11 @@ the model estimates it at 0.02, an odds multiplier of 1.03. It did not fall for
 a plausible-looking column. The harder question — would you have noticed without
 being told? — is what lesson 5 is about.
 
-**The intercept is the base rate.** $\sigma(-6.09) = 0.0023$: a drive with
-perfectly average telemetry has a 0.2% chance of failing in thirty days. To
+**The intercept is the average drive's chance, not the base rate.**
+$\sigma(-6.09) = 0.0023$: a drive with perfectly average telemetry has a 0.2%
+chance of failing in thirty days, while the fleet as a whole fails at 3.8%. The
+gap is the point: failures come from the small group of drives far above
+average on one or more counters, not from a typical drive. To
 reach an even bet, the evidence must move the log-odds by more than six, and
 only badly degraded drives do that. **That single number explains why every
 metric in section 5 behaves the way it does.**
@@ -610,7 +613,7 @@ come from. Choosing between those three rows matters more than it looks.
 | Average | What it does | Our model |
 |---|---|---|
 | macro | mean over classes, each equal | 0.820 |
-| weighted | mean over classes, weighted by support | 0.975 |
+| weighted | mean over classes, weighted by support (the number of examples in each class) | 0.975 |
 | micro / accuracy | pool all predictions | 0.977 |
 
 The weighted average is dominated by the healthy class, which is five drives in
@@ -851,7 +854,8 @@ $$J(w, b) = -\frac{1}{m}\sum_{i=1}^{m} c_{y^{(i)}}
   \left[\, y^{(i)} \log p^{(i)}
   + \left(1 - y^{(i)}\right)\log\left(1 - p^{(i)}\right) \right]$$
 
-with `class_weight="balanced"` setting $c_k = m / (K \, m_k)$ — inversely
+with `class_weight="balanced"` setting $c_k = m / (K \, m_k)$, where $m_k$ is the
+number of examples of class $k$ — inversely
 proportional to each class's frequency. Here that makes each failure count about
 25 healthy drives.
 
@@ -867,7 +871,7 @@ puts its 0.5 line — the same lever as the threshold, pulled at a different
 moment.
 
 That is worth knowing, because class weighting is often presented as a remedy
-for imbalance. It is not a remedy; it is a reparameterisation of the same
+for imbalance. It is not a remedy; it is another way of setting the same
 decision. The remedy, where one exists, is more positive examples.
 
 **Where it earns its place**: when a downstream tool insists on `predict()` and
@@ -875,7 +879,8 @@ gives you no access to a threshold, or when the model's probabilities are not
 usable. Then weighting is how you move the operating point.
 
 The same caution applies to **resampling** — oversampling the minority class, or
-synthesising new minority examples with SMOTE. It changes the effective
+synthesising new minority examples with SMOTE (synthetic minority oversampling
+technique). It changes the effective
 threshold and can help an optimiser see a rare class at all, but it does not
 create information that was not in the data. And it must happen **inside the
 cross-validation fold**, never before the split, for exactly the reasons lesson
@@ -969,7 +974,7 @@ missing a healthy drive, macro is the honest one.**
 |---|---|
 | $x$, $X$ | one drive's telemetry; the design matrix |
 | $y$, $\hat{y}$ | true label (0 or 1); predicted probability |
-| $p^{(i)}$ | the model's probability that drive $i$ fails |
+| $p^{(i)}$ | the model's probability that drive $i$ fails: the same number as $\hat{y}^{(i)}$, written $p$ in the derivations |
 | $z$ | the log-odds, $w^\top x + b$ |
 | $w$, $b$ | coefficients, intercept |
 | $m$, $n$ | number of examples, number of features |

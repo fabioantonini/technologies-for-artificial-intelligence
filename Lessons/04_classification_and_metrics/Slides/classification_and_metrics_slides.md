@@ -16,7 +16,7 @@ mistake rather than praising the good answers - it is worth more to the room.
 
 The one to watch for: choosing the penalty by looking at the test error. It is
 the natural thing to do because the test error is the number they were told to
-care about, and it is exactly the sin lesson 1 named. Today's lesson ends up in
+care about, and it is exactly the mistake lesson 1 named. Today's lesson ends up in
 the same place from a different direction, when we choose a decision threshold.
 Lesson 5 gives them the machinery to do both honestly.
 :::
@@ -30,7 +30,7 @@ Lesson 5 gives them the machinery to do both honestly.
 - Choosing a threshold from money
 
 ::: notes
-Agenda. Flag the proportion out loud, because it is the point of the lesson:
+The agenda. Point out the proportion, because it is the point of the lesson:
 about a third of today is the model, two thirds is how to tell whether it works.
 
 That is not padding. Fitting a classifier is one line of scikit-learn. Deciding
@@ -68,6 +68,7 @@ of today.
 - **8,000 disk drives** in a data centre
 - Six SMART counters each: Self-Monitoring, Analysis and Reporting Technology
 - Label: did it fail within thirty days?
+- `train_test_split(..., stratify=y)`: 6,000 to train, 2,000 to test
 
 ::: notes
 SMART is the diagnostic data a drive keeps about itself: reallocated sectors,
@@ -169,9 +170,11 @@ not.
 
 # What the coefficients mean
 
-- The model is linear in the log-odds, so `exp(coefficient)` multiplies the **odds**
+- The model is linear in the log-odds, log(p ÷ (1 − p)), so `exp(coefficient)`
+  multiplies the **odds**, p ÷ (1 − p)
 - Features standardised, so one unit = one standard deviation
 - A coefficient of 1.80 means **six times the odds** of failing
+- In code: `make_pipeline(StandardScaler(), LogisticRegression())`
 
 ::: notes
 This is the interpretability that keeps logistic regression in production in
@@ -201,8 +204,8 @@ fivefold; the probability moved eight points. Odds ratios multiply odds.
 | seek_error_rate | **0.00** | **0.02** | **1.03** |
 
 ::: notes
-Notebook 1, last section. This is the payoff of using synthetic data: we are not
-admiring the estimates, we are marking them.
+Notebook 1, last section. This is the payoff of using synthetic data: we do not just look at the
+estimates, we check them against the truth.
 
 Go down the column. Everything is close. Nothing is exact, and say why - 6,000
 training drives carrying 230 failures is a modest amount of evidence, and 230 is
@@ -217,14 +220,20 @@ Then ask the room the harder question: would you have noticed, if I had not told
 you? Leave it hanging. It is lesson 5.
 :::
 
-# The intercept is the base rate
+# The intercept is the average drive's chance
 
 - Fitted intercept: **−6.09**
-- $\sigma(-6.09) = 0.0023$: a 0.2% chance for an average drive
+- $\sigma(-6.09) = 0.0023$: a 0.2% chance for a drive average on every counter
+- The fleet fails at 3.8%: the failures come from the few drives far above average
 
 ::: notes
 This is the slide that quietly explains everything in the second half of the
 lesson, so do not rush it.
+
+Say first what the intercept is NOT: it is not the base rate. The fleet fails
+at 3.8%; the intercept describes a drive whose every counter sits at the
+average, and such a drive almost never fails. The failures come from the small
+group of drives far above average on one or more counters. Handout section 2.4.
 
 An average drive has a 0.2% chance of failing in thirty days. For the model to
 reach an even bet - probability one half, log-odds zero - the evidence has to
@@ -254,7 +263,8 @@ which is what makes it worth ten minutes.
 
 # Maximum likelihood, in one sentence
 
-- The model has a knob; each setting assigns a probability to what happened
+- The parameters w and b are a knob: each setting gives a probability to what
+  actually happened
 - **Turn the knob so that what actually happened is least surprising**
 
 ::: notes
@@ -280,8 +290,9 @@ Then negate, so we minimise as in lesson 3.
 $$L = -\left[\, y \log p + (1 - y)\log(1 - p) \right]$$
 
 ::: notes
-This is the loss on ONE example, L, not the cost over the training set. Say the
-missing half rather than showing it: the cost J is the average of this over the
+This is the loss on ONE example, L, not the cost over the training set; p is
+the predicted probability, the same number the next slide writes as y-hat. Say
+the other half aloud rather than showing it: the cost J is the average of this over the
 m examples, one over m times the sum. Written out in full the formula reached
 the slide edge and came out at 26pt, smaller than the bullets on the slide
 before it.
@@ -369,11 +380,17 @@ what it is about.
 
 # Notebook 1, live
 
-- Fifteen lines of NumPy, then one line of scikit-learn
-- Same answer
+| section, and its slides | you call (→ the number to come back with) |
+|---|---|
+| a line on a 0/1 label, 7 | `LinearRegression` → 3,606 negative probabilities |
+| odds, and why not squared error, 8-18 | NumPy only: the sigmoid, the two losses, their gradients |
+| gradient descent, 16 | `train_test_split`, `StandardScaler`, fifteen lines of NumPy → log loss 0.6931 to 0.0692 |
+| the decision boundary, 20 | `make_pipeline(StandardScaler(), LogisticRegression())` on two features |
+| the truth, recovered, 11-12 | `LogisticRegression`, `.coef_`, `.intercept_` → seek_error_rate 0.02, intercept −6.09 |
 
 ::: notes
-Run notebooks/01. Twenty minutes. The parts worth stopping on:
+Fifteen lines of NumPy, then one line of scikit-learn, and the same answer. Run
+notebook 01. Twenty minutes. The parts worth stopping on:
 
 The linear-fit failure - let them see 3,606 negative probabilities printed
 rather than being told.
@@ -508,7 +525,7 @@ usual answer; content moderation that removes a legitimate post is another.
 ![](metric_denominators.png)
 
 ::: notes
-This picture is the antidote to the most reliable confusion in the lesson.
+This picture prevents the most common confusion of the lesson.
 Both metrics divide the true positives. The difference is entirely in what goes
 underneath, and the shading shows it.
 
@@ -527,9 +544,11 @@ population it is.
 
 # Our model, in those terms
 
-- Precision **0.768**: of 56 drives flagged, 43 really failed
-- Recall **0.566**: of 76 drives that failed, we found 43
-- Specificity 0.993: of 1,924 healthy drives, we left 1,911 alone
+- True and false positives and negatives: TP, FP, FN, TN
+- Precision = TP ÷ (TP + FP) = 43 ÷ 56 = **0.768**: of the drives flagged
+- Recall = TP ÷ (TP + FN) = 43 ÷ 76 = **0.566**: of the drives that failed
+- Specificity = TN ÷ (TN + FP) = 1,911 ÷ 1,924 = 0.993
+- In code: `precision_score`, `recall_score`
 
 ::: notes
 Read each line as an English sentence with the counts in it, not as a ratio.
@@ -546,7 +565,7 @@ who is asking, which is the honest answer and also the lesson.
 
 # F1: why the harmonic mean
 
-| Model | Precision | Recall | Arithmetic | Harmonic |
+| Model | Precision | Recall | Arithmetic mean | Harmonic, F1 = 2PR ÷ (P + R) |
 |---|---|---|---|---|
 | Flag every drive | 0.038 | 1.000 | 0.519 | **0.073** |
 
@@ -572,6 +591,7 @@ you want here where misses cost nineteen times more. F2 is the usual choice.
 
 - `weighted avg` F1: **0.975** (dominated by the healthy class)
 - `macro avg` F1: **0.820** (both classes get an equal say)
+- In code: `classification_report(y_test, y_pred)` prints both rows
 
 ::: notes
 classification_report is scikit-learn's summary table, and they will print it
@@ -598,17 +618,23 @@ so is how a result gets oversold.
 
 # Notebook 2, live
 
-- The confusion matrix by hand, then from scikit-learn
-- Then the threshold sweep
+| section, and its slides | you call (→ the number to come back with) |
+|---|---|
+| the number that should worry you, 22 | `accuracy_score` → 96.20% for "always healthy" |
+| the confusion matrix, 24 | counts by hand, then `confusion_matrix`, `ConfusionMatrixDisplay` → TP 43 |
+| precision and recall, 26-29 | `precision_score`, `recall_score`, `f1_score`, `classification_report` |
+| the threshold sweep, 31-32 | `predict_proba`, then the metrics at each threshold |
+| the precision-recall curve, 33 | `precision_recall_curve`, `average_precision_score` → 0.717 against 0.038 |
 
 ::: notes
-Run notebooks/02. Twenty minutes.
+The confusion matrix by hand, then from scikit-learn, then the threshold sweep.
+Run notebook 02. Twenty minutes.
 
 Have them build the four counts by hand before calling confusion_matrix. It is
 four comparisons and it takes two minutes, and it is what makes the jargon stop
 being jargon.
 
-The cell to linger on is the threshold sweep table. Do not explain it first  - 
+Spend time on the threshold sweep table. Do not explain it first  - 
 let them read the columns and say what they see. Somebody will notice that
 accuracy barely moves. That is the moment to make the next slide.
 :::
@@ -722,6 +748,7 @@ faster than we annoy technicians?
 
 - **Area under the curve (AUC) = the probability that a random failing drive scores above a random healthy one**
 - Ours: 0.949
+- In code: `roc_auc_score(y_test, scores)`
 
 ::: notes
 This is the definition to remember, and it is much more useful than "area under
@@ -808,6 +835,8 @@ ranking when the question was about the alarm queue.
 
 - On an imbalanced problem, report the **precision-recall curve alongside AUC**
 - Never instead of it, and never AUC alone
+- Its area is the **average precision**, `average_precision_score`: 0.717 here,
+  against a floor of 0.038
 
 ::: notes
 Short and quotable, and this is the thing to have on the board when they write
@@ -888,7 +917,7 @@ could publish.
 |---|---|---|---|---|
 | Plain, threshold 0.50 | 0.566 | 0.768 | 0.949 | 87,620 |
 | Plain, threshold 0.08 | 0.855 | 0.349 | 0.949 | 45,540 |
-| Balanced weights, 0.50 | 0.895 | 0.249 | **0.950** | 49,500 |
+| Balanced class weights, 0.50 | 0.895 | 0.249 | **0.950** | 49,500 |
 
 ::: notes
 class_weight="balanced" makes each rare example count as many, here about 25.
@@ -900,27 +929,36 @@ puts its 0.5 line - the same lever as the threshold, pulled at a different
 moment.
 
 That matters because class weighting is usually presented as a REMEDY for
-imbalance. It is not a remedy; it is a reparameterisation of the same decision.
+imbalance. It is not a remedy; it is another way of setting the same decision.
 The remedy, where one exists, is more positive examples.
 
 Where it earns its place: when a downstream tool insists on predict() and gives
 you no threshold to move. Then this is how you shift the operating point.
 
-Same caution for resampling and SMOTE - and it must happen inside the
-cross-validation fold, for the reasons lesson 2 gave about imputation.
+Same caution for resampling and for SMOTE (synthetic minority oversampling
+technique, which builds artificial minority examples) - and it must happen
+inside the cross-validation fold, for the reasons lesson 2 gave about imputation.
 :::
 
 # Notebook 3, live
 
-- ROC by hand, the 200,000-pair experiment, the cost curve
-- Then the multiclass matrix
+| section, and its slides | you call (→ the number to come back with) |
+|---|---|
+| the ROC curve by hand, 35 | `roc_curve`, `roc_auc_score` → 0.9493 |
+| what AUC means, 36 | 200,000 random (failing, healthy) pairs → 0.9488 |
+| the rare-positive trap, 38-39 | `average_precision_score` beside `roc_auc_score` → AP 0.706 to 0.361, AUC unmoved |
+| the threshold from costs, 41-43 | `confusion_matrix` at each threshold → 45,540 EUR at 0.08, against 87,620 at 0.50 |
+| class weights, 44 | `LogisticRegression` with balanced class weights → AUC 0.950 |
+| three classes, 46-47 | `classification_report` → macro F1 0.707, weighted 0.883 |
 
 ::: notes
-Run notebooks/03. Twenty minutes if the clock allows, otherwise show the pairs
-experiment and the imbalance comparison and leave the rest for them.
+The ROC curve by hand, the 200,000-pair experiment, the cost curve, then the
+multiclass matrix. Run notebook 03. Twenty minutes if the clock allows,
+otherwise show the pairs experiment and the imbalance comparison and leave the
+rest for them.
 
-The pairs experiment is the cell worth protecting if time is short: it turns a
-definition they would otherwise memorise into something they watched happen.
+If time is short, keep the pairs experiment: it turns a definition they would
+otherwise memorise into something they watched happen.
 :::
 
 # More than two classes
