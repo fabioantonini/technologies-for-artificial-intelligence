@@ -509,9 +509,10 @@ def check_notes_timings(plan: str, notes_by_slide: dict, report: Report) -> None
 #: the notebooks import and no slide shows is a failure; elsewhere it is a note,
 #: so a lesson not yet reached is visible without blocking the course. A lesson
 #: joins the week its anchors are written.
-ANCHORED = {"01", "02", "03", "06", "09"}
+ANCHORED = {"01", "02", "03", "04", "06", "09"}
 NOTES_DIV = re.compile(r"^::: notes\n.*?^:::$", re.S | re.M)
-SKLEARN_IMPORT = re.compile(r"^\s*from sklearn[\w.]* import \(?([^)\n]+)", re.M)
+#: `from sklearn.x import a, b` or a parenthesised import over several lines.
+SKLEARN_IMPORT = re.compile(r"^\s*from sklearn[\w.]* import (\([^)]*\)|[^\n]+)", re.M)
 #: A Keras or TensorFlow call: keras.Sequential(, layers.Dense(, tf.GradientTape(.
 KERAS_CALL = re.compile(r"\b(?:keras|layers|tf)(?:\.\w+)*\.(\w+)\(")
 #: Calls that run the notebook rather than teach anything: seeding, determinism,
@@ -537,7 +538,7 @@ def check_code_anchors(lesson: Path, slides_source: str, report: Report) -> None
         code = "\n".join("".join(c.get("source", [])) for c in nb.get("cells", [])
                          if c.get("cell_type") == "code")
         imported = {n.strip() for match in SKLEARN_IMPORT.finditer(code)
-                    for n in match.group(1).split(",")
+                    for n in re.sub(r"#[^\n]*", "", match.group(1)).strip("()").split(",")
                     if re.fullmatch(r"\s*[A-Za-z_]\w*\s*", n)}
         # A name imported and never called is not something a student meets.
         body_code = SKLEARN_IMPORT.sub("", code)
