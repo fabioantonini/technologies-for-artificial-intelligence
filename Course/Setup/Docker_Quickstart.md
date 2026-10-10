@@ -156,6 +156,16 @@ rare, and you will be told when it happens.
 file is configured to prevent it. If it does, stop the container, run
 `docker compose down`, then `docker compose up` again. Report it if it persists.
 
+**The container stops at once, after "Ensuring /home/jovyan is owned" (macOS).** You
+see a list of `chown: ... Permission denied` lines on files under `.git`, then
+`exited with code 1`, and nothing answers on port 8888. This was a fault in the
+course's compose file, fixed on 10 October 2026: run `git pull`, then
+`docker compose pull` and `docker compose up` again.
+
+**Wait for the address before opening the browser.** JupyterLab is ready only when
+the terminal prints a line containing `http://127.0.0.1:8888/lab?token=`; before that,
+the browser finds nothing listening.
+
 **The container is slow to start the first time.** Expected: the image is initialising
 and the environment is large. Subsequent starts are much faster.
 

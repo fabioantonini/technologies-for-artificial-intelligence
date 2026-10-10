@@ -17,18 +17,26 @@ services:
       # The clone is mounted over the snapshot baked into the image, so
       # `git pull` is all a student needs to receive a new lesson.
       - .:/home/jovyan/work
+      # Re-owns the course files at start-up, tolerating the files macOS will
+      # not let it touch; see the script for why CHOWN_EXTRA is not used.
+      - ./Course/Setup/course_ownership.sh:/usr/local/bin/before-notebook.d/20-course-ownership.sh:ro
 
-    # Running as root plus the CHOWN_* variables and the fix-permissions
-    # command below is what makes notebooks saveable when the host UID does
-    # not match the container's jovyan user. Without it students hit
-    # "permission denied" on every save. Do not simplify this away.
+    # Running as root plus CHOWN_HOME, the course_ownership.sh hook mounted
+    # above and the fix-permissions command below is what makes notebooks
+    # saveable when the host UID does not match the container's jovyan user.
+    # Without it students hit "permission denied" on every save. Do not
+    # simplify this away.
+    #
+    # Until October 2026 the work folder was re-owned with CHOWN_EXTRA and
+    # CHOWN_HOME_OPTS=-R. On macOS that stopped the container before Jupyter
+    # started: start.sh aborts on the first file it cannot re-own, and Docker
+    # Desktop refuses git's read-only objects. The hook does the same work and
+    # skips what it cannot touch; fix-permissions is no longer chained with &&
+    # for the same reason.
     user: "root"
     environment:
       - JUPYTER_TOKEN=aicourse
       - CHOWN_HOME=yes
-      - CHOWN_HOME_OPTS=-R
-      - CHOWN_EXTRA=/home/jovyan/work
-      - CHOWN_EXTRA_OPTS=-R
       - NOTEBOOK_ARGS=--ServerApp.password='' --ServerApp.allow_origin='*'
 
-    command: bash -c "fix-permissions /home/jovyan/work && start-notebook.sh"
+    command: bash -c "fix-permissions /home/jovyan/work 2>/dev/null; start-notebook.sh"
