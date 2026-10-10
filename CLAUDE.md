@@ -526,9 +526,11 @@ docker compose up --build
 Then open `http://127.0.0.1:8888/lab?token=aicourse`.
 
 The repository is bind-mounted at `/home/jovyan/work`, shadowing the snapshot baked
-into the image. The `root` user plus `CHOWN_*` and the `fix-permissions` startup
-command exist to fix "cannot save notebook" errors caused by host/container UID
-mismatch. **Do not simplify that away.**
+into the image. The `root` user plus `CHOWN_HOME`, the `Course/Setup/course_ownership.sh` hook
+and the `fix-permissions` startup command exist to fix "cannot save notebook"
+errors caused by host/container UID mismatch. The hook replaced `CHOWN_EXTRA` on
+10 October 2026 because on macOS that variable stopped the container before
+Jupyter started. **Do not simplify that away.**
 
 ### Publish the student image
 
