@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="Course/Figures/course_logo_dark.svg">
+    <img src="Course/Figures/course_logo.svg" alt="Technologies for Artificial Intelligence" width="640">
+  </picture>
+</p>
+
 # Technologies for Artificial Intelligence
 
 Course material for **Technologies for Artificial Intelligence**, first-year MSc in
