@@ -48,9 +48,9 @@ lesson about whether results mean anything, and everything after it depends on i
 Most courses put this material last, where it arrives too late to change how students
 work.
 
-Say explicitly that there are no LLMs in this course - they belong to another module in
-the programme. Some will be disappointed. Tell them the material here is what those
-systems are built on: the transformer is a neural network, trained by gradient descent
+Say explicitly that there are no large language models (LLMs), the systems behind
+chatbots, in this course - they belong to another module in the programme. Some will be disappointed. Tell them the material here is what those
+systems are built on: the transformer, the architecture inside them, is a neural network, trained by gradient descent
 on a loss function, and evaluated - badly, often - with the same statistical tools we
 will spend ten weeks on.
 
@@ -175,8 +175,8 @@ The folder name, `tai`, is theirs to choose: Docker Compose does not care what
 it is called, and a short one saves them typing all term.
 
 Do this live and take ten minutes over it. Making sure everyone has JupyterLab running
-today is far cheaper than fixing it during lesson 3, when they also have an exercise
-due.
+today is far cheaper than fixing it during lesson 3, when they are also working on an
+exercise.
 
 Explain the two-part design: the Docker image carries the environment, the repository
 carries the content. New lessons arrive with `git pull` - a few megabytes, seconds -
@@ -212,8 +212,8 @@ slow and every later one is not.
 Agenda slide. Flag the last item as the one that matters most today: everything before
 it is orientation, and that section is where the real subject of the course appears.
 
-Timing: roughly 50 minutes to the break, then the three kinds of learning, then the
-workflow worked live, then the failure modes. Homework is set in the last five minutes
+Timing: about an hour to the break, which comes after the history (slide 34); then
+the three kinds of learning, then the workflow worked live, then the failure modes. Homework is set in the last five minutes
 - do not let it slip; nothing is handed in, and it is discussed next Friday.
 :::
 
@@ -236,8 +236,6 @@ state. You recognise spam instantly and cannot articulate how.
 
 If someone proposes machine learning immediately, slow them down - the interesting part
 is understanding precisely which difficulty it addresses.
-
-Take each row in turn and let someone in the room supply the exception before you reveal it. The pattern to draw out: every rule is defensible and every rule breaks, and the list has no end.
 :::
 
 # Every rule buys an exception
@@ -278,8 +276,10 @@ Everything else in this course is machinery for doing that search well - and for
 telling whether the rules it found are real or an artefact of the sample you happened
 to collect.
 
-Worth adding: this framing is due to Arthur Samuel in the 1950s, and it is still the
-cleanest one-sentence description of what changed.
+Worth adding: the idea is old. Arthur Samuel's checkers program, in the 1950s,
+improved by playing games rather than by rules somebody wrote for it, and he called
+that machine learning. The arrows picture is a modern way of drawing what he did, and
+it is still the cleanest one-sentence description of what changed.
 :::
 
 # What the data actually is
@@ -326,7 +326,8 @@ changes its equipment, the users change, the season turns. When it fails, models
 without any warning from their metrics. Promise them we return to it.
 
 The loss function is where the domain enters the mathematics. Choosing it is a decision
-about which mistakes matter, and we make that choice explicitly in twenty minutes.
+about which mistakes matter, and we make that choice explicitly for the tumour data
+on slide 45, "Which error is worse?".
 :::
 
 # The setup, in one picture
@@ -384,8 +385,8 @@ Say what L is, or it stays a placeholder all lesson - the next slide does it wit
 the simplest choice, and that choice turns this formula into accuracy.
 
 And say that choosing L is a modelling decision, not a technicality: it is where you
-state what counts as a bad mistake, before any model exists. Zero-one says every error
-costs the same, which is almost never true. Lesson 3 uses squared error, lesson 4 uses
+state what counts as a bad mistake, before any model exists. The zero-one loss of the
+next slide says every error costs the same, which is almost never true. Lesson 3 uses squared error, lesson 4 uses
 cross-entropy and then prices the two kinds of mistake separately. Handout 2.1.
 
 :::
@@ -437,6 +438,10 @@ shows the arg min being taken, one candidate at a time. Handout 2.1.
 ![](learning_search.png)
 
 ::: notes
+This is what "fit" actually does, on the smallest model there is. One feature - the
+mean radius of the tumour - and one family of rules: call a tumour malignant if its
+radius is above a threshold t. Every value of t is a different candidate model.
+
 Before reading the curve, say what the two axes are, because they share one
 scale and are not the same thing. Top: each training tumour's radius - the data.
 Bottom: the candidate threshold t - the parameter being chosen. They can share an
@@ -444,12 +449,8 @@ axis only because this parameter is itself a radius value. Written as a linear
 model the rule is "malignant if w1 * radius + b > 0" with w1 fixed at 1, so the
 number being searched for is the intercept, b = -t = -15.04. Any positive w1 gives
 the same rule (w1 = 2, b = -30.08 is still "radius above 15.04"), so with one
-feature only the threshold matters. In lesson 2 the parameters are two coefficients,
-and this curve becomes a surface.
-
-What "fit" actually does, on the smallest model there is. One feature - the mean
-radius of the tumour - and one family of rules: call a tumour malignant if its
-radius is above a threshold t. Every value of t is a different candidate model.
+feature only the threshold matters. In lesson 3 the parameters are two coefficients, a
+slope and an intercept, and this curve becomes a surface.
 
 Top: the 426 training tumours along the radius axis, malignant above, benign below.
 Bottom: the training error rate of every one of the 355 candidate thresholds - a
@@ -516,7 +517,8 @@ regularisation and ensembling.
 
 ::: notes
 Three fits to identical points. Left: a straight line cannot follow the curve, so it is
-wrong everywhere in the same way - high bias, poor on training AND test data. Right:
+wrong everywhere in the same way - what lesson 5 will call high bias, a model too
+simple for the pattern - and poor on training AND test data alike. Right:
 degree-18 passes through nearly every point and oscillates wildly between them - it
 will be badly wrong on anything new.
 
@@ -603,10 +605,11 @@ Second: a model learns the distribution it was trained on. Sample from one hospi
 deploy in another, and the measured accuracy says very little.
 
 Third, and expect this one to be challenged, because it sounds like something you
-could only know after deploying. Make the point that all three judgements are
+could only know after deploying. Make the point that all three judgements - that
+errors will happen, that they cannot be undone, that nobody reviews the output - are
 available before any code is written.
 
-The model WILL be wrong - not might be. Section 2.2 settled that, and today's best
+The model WILL be wrong - not might be. Handout section 2.2 settled that, and today's best
 model gets 2 of 143 wrong. You cannot know which 2 in advance; if you could, you
 would fix them. Whether a wrong answer can be undone is a fact about the
 application - a misfiled ticket is reopened, a wrong dose is not. Whether a person
@@ -623,7 +626,8 @@ that belongs in the framing step, where it rules families in or out.
 Fourth: a model is not neutral because it is mathematical. It is a compressed summary of
 the decisions in its training data. We return to this at the end of the lesson.
 
-Fifth: often a threshold on one variable solves 90% of the problem, is understandable by
+Fifth: often a simple rule, such as a threshold on one variable, solves most of the
+problem, is understandable by
 everyone, and needs no maintenance. Establishing baselines - step 4 of the workflow - is
 partly how you discover this before building something complicated.
 :::
@@ -649,16 +653,18 @@ A neuron as a threshold unit: it fires when the weighted sum passes θ.
 ![](hist_1943_neuron.png)
 
 ::: notes
-A neurophysiologist and a logician. Their claim was philosophical as much as technical:
+Warren McCulloch, a neurophysiologist, and Walter Pitts, a logician. Their claim was philosophical as much as technical:
 thought might be computation. They showed networks of such units can compute any
 logical proposition.
 
 Weights were set by hand - nothing learned yet. That comes in 1957.
 
-Tell them the unit in lesson 9 is this unit with a smoother threshold. The history is
-not decoration; it is the same objects under different names.
-
-Walk the diagram: inputs, a weight on each, a sum, and a hard threshold. Then point at the right-hand panel - the step function is what makes it all-or-nothing, and it is exactly what gets replaced by a smooth sigmoid in lesson 4 and by ReLU in lesson 9. Same object, softened, so that it becomes differentiable and therefore trainable.
+Walk the diagram: inputs, a weight on each, a sum, and a hard threshold. Then point
+at the right-hand panel - the step function is what makes it all-or-nothing, and it is
+exactly what gets replaced by a smooth sigmoid in lesson 4 and by the rectified linear
+unit (ReLU) in lesson 9. Same object, softened, so that it has a slope everywhere and
+can therefore be trained by following that slope. The history is not decoration; it
+is the same objects under different names.
 :::
 
 # 1950: Turing's imitation game
@@ -708,8 +714,10 @@ Rosenblatt: weights adjusted **from examples**, not set by hand.
 ::: notes
 The first machine that learns. Physical hardware - photocells, potentiometers, motors.
 
-Stress the CONDITION on the theorem: "if linearly separable". The theorem is true and
-that clause is carrying enormous weight, as 1969 will show.
+Stress the CONDITION on Rosenblatt's convergence theorem: if a straight line can
+separate the two classes (they are "linearly separable"), the learning rule finds such
+a line in a finite number of steps. The theorem is true, and that "if" is carrying
+enormous weight, as 1969 will show.
 
 Then the contrast: the New York Times reported the Navy expected a machine that would
 walk, talk, see, write and reproduce itself. Same year, same machine. Ask them which of
@@ -725,22 +733,26 @@ A single-layer perceptron cannot represent XOR.
 ![](hist_1969_xor.png)
 
 ::: notes
-Draw XOR on the board - four points, alternating labels - and let them see that no
-single straight line separates them. Takes thirty seconds and lands permanently.
+XOR is exclusive-or: true when exactly one of two inputs is true. As points, it is
+the four corners of a square with alternating labels, and no single straight line
+separates them. Use the figure: AND on the left, one line, done; XOR on the right,
+where the dashed lines are attempts and each leaves a point on the wrong side. Ask
+them to try to find one that works before you move on - the impossibility is more
+convincing when they have looked for it themselves.
 
 Then the key point: the result applies to ONE LAYER. Multi-layer networks were already
 known to be more expressive; what was missing was a way to train them. That distinction
 was lost in the retelling, funding collapsed, and neural network research became close
 to unpublishable for a decade.
 
-In lesson 9 a hidden layer disposes of XOR in four lines of Keras. Fifteen years of lost
-time for a limitation that a correct reading would have scoped much more narrowly.
+In lesson 9 a hidden layer of two units disposes of an XOR problem, with weights small
+enough to write by hand. Seventeen years passed between Minsky and Papert's 1969 book, Perceptrons, and
+backpropagation in 1986, for a limitation that a correct reading would have scoped
+much more narrowly.
 
 The transferable lesson: a correct result about a restricted case was received as a
 verdict on the whole approach. That failure mode is alive and well in how ML results
 get reported today.
-
-Use the figure instead of the board. AND on the left: one line, done. XOR on the right: the dashed lines are attempts, and each leaves a point on the wrong side. Ask them to try to find one that works before you move on - the impossibility is more convincing when they have looked for it themselves.
 :::
 
 # 1986: backpropagation
@@ -758,8 +770,6 @@ The second winter arrived in the early 1990s: networks were hard to train, neede
 data than existed, and took too long on the hardware. Expert system companies collapsed
 as their products proved unmaintainable.
 
-Lesson 9 derives this algorithm.
-
 Two passes: forward to compute a prediction, backward to distribute the error across every weight, including the hidden ones. That second arrow is what was missing in 1969 - not expressiveness, but a way to assign blame to a unit that never sees the target directly. Lesson 9 derives it.
 :::
 
@@ -771,7 +781,7 @@ From "simulating intelligence" to "estimating functions from data".
 
 ::: notes
 Say that most of this course lives here, and it is where the reliable tools come from.
-SVMs arrived with theory explaining WHY they generalise. Random forests and boosting won
+Support vector machines (SVMs) arrived with theory explaining WHY they generalise. Random forests and boosting won
 competitions for a decade. The bias-variance decomposition and cross-validation became
 standard practice.
 
@@ -791,8 +801,9 @@ The architecture was recognisably LeNet, from 1989.
 The most important slide in the history section.
 
 What changed was DATA - ImageNet, 1.2 million labelled images, assembled over years -
-and COMPUTE, two consumer GPUs. Plus details that mattered: ReLU activations, dropout,
-augmentation.
+and COMPUTE, two consumer graphics cards. Plus details that mattered, all met in
+lessons 9 and 10: ReLU activations, dropout (switching off random units during
+training) and augmentation (training on shifted and flipped copies of the images).
 
 A conceptual advance would have been visible in 1989, when LeCun was already reading
 postal codes with convolutional networks. This was a scaling result.
@@ -833,9 +844,10 @@ The taxonomy divides by **where the target comes from**, not by algorithm.
 
 ::: notes
 Correct the common misconception immediately, before it takes hold. It is not about
-which algorithm you use: the same estimator can serve more than one setting, and they
-will see exactly that in notebook 01 where the supervised regression and the
-self-supervised task run identical code.
+which algorithm you use: the same estimator can serve more than one setting. In notebook 01 the
+self-supervised task is solved with `LinearRegression`, the same estimator a
+supervised regression would use; what makes it self-supervised is only where its
+target comes from.
 
 Handout section 5 has the full taxonomy.
 :::
@@ -876,7 +888,7 @@ Lesson 8.
 
 Plant the difficulty now, but plant the right one. It is NOT that there is nothing to
 minimise - k-means minimises the within-cluster sum of squares, which is an empirical
-risk in the sense of the slide before the break, with the loss measured against the
+risk in the sense of slide 17, with the loss measured against the
 model's own summary instead of a label. Lesson 8 derives it and proves the algorithm
 decreases it every step.
 
@@ -1000,7 +1012,8 @@ different about the two targets. The cultivar is an answer somebody wrote down, 
 a measurement; flavanoids is one of the measurements, used as an answer because it
 was there. That is the distinction the segment has been building to.
 
-If time is short, drop the R² aside and the n_init experiment; keep all three
+If time is short, drop the R² aside and the n_init experiment (k-means run from
+one random start against ten); keep all three
 results, because the comparison is the content. Handout section 5.
 :::
 
@@ -1037,8 +1050,8 @@ The table is that sentence with the code attached: each step, the call that perf
 it, and the slide where the idea was introduced. Students who get lost in a cell can
 find their way back to the slide from here.
 
-40 minutes, and it runs alongside the next twelve slides rather than instead of
-them: each step of the workflow is a slide and then the cell that performs it.
+40 minutes, and it runs alongside the next fourteen slides, 44 to 57, rather than
+instead of them: each step of the workflow is a slide and then the cell that performs it.
 
 Three moments to stop on together. The split, because it happens before anything
 is learned and that is the whole rule of the day. The baseline at 0.629, because
@@ -1213,7 +1226,7 @@ comes out slightly too high, and nothing anywhere raises an error.
 
 Emphasise that last part. This is not a mistake that announces itself: it
 produces a working notebook and a plausible number. Lesson 2 measures what
-it costs on a real dataset, and lesson 5 gives it its name.
+it costs on a real dataset, and lesson 5 meets it again inside cross-validation.
 :::
 
 # Step 6: the result
@@ -1587,7 +1600,9 @@ one number cannot tell which you got. This is not fraud; it is the default behav
 anyone who runs the code once.
 
 Cross-validation replaces the single draw with an average and - more usefully - reports
-the spread. On this data, 5-fold gives 0.960 ± 0.030.
+the spread. In 5-fold cross-validation the data is cut into five parts and each part
+serves once as the test set, so every row is tested exactly once. On this data it gives
+0.960 ± 0.030: the mean of the five scores, plus or minus their standard deviation.
 
 A result quoted with no indication of variability is incomplete. Lesson 5 makes this the
 centre of the course.
