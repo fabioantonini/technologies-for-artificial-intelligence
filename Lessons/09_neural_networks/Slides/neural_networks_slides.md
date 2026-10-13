@@ -44,14 +44,14 @@ Instruments; the third is real handwritten digits. Handout section 1.
 Nothing to collect and nothing to hand back - discuss it. Ask what the
 silhouette score was taken to prove, and listen for it being treated as
 validation of the clustering, which is precisely the blind spot section 4 of
-that lesson was about.
+lesson 8 was about.
 
 Link forward deliberately. Today's methods are the easiest in the whole course
 to make *look* like they work: a network with enough units will drive its
 training loss to essentially zero on any dataset you hand it, including one
 with random labels. Everything in this lesson that reads as caution - the
-seed-to-seed spreads in every table, the ceiling of 0.97, the selection-bias
-number in section 2 - is there because of that.
+seed-to-seed spreads in every table, the ceiling of 0.97, the four points of
+selection bias on slide 15 - is there because of that.
 :::
 
 # What a network adds
@@ -114,9 +114,9 @@ best accuracy any classifier can be *scored* at? Handout section 1.1.
 ::: notes
 Nothing on this slide is new mathematics, and saying so out loud is the point:
 students should feel that they already own the building block, so that the
-only genuinely new idea today is the stacking.
+only genuinely new idea today is putting units in layers, one feeding the next.
 
-Land the last two bullets carefully, because everything in the next twenty
+Say the last two bullets carefully, because everything in the next twenty
 minutes depends on them. Everything a single neuron can express is "which side
 of this line are you on, and how far". Not "is this point unusual", not "is
 this point inside a region" - one side of one line.
@@ -209,7 +209,7 @@ Handout section 2.2.
 $$P(\|z\| < 1.25) = 1 - e^{-0.78125} = 0.5422$$
 
 ::: notes
-The middle step is gone from the slide to keep the type readable: 1.25 squared
+The middle step is left off the slide so the formula stays large enough to read: 1.25 squared
 over two is 0.78125, and that is the exponent. Do it out loud.
 
 For a standard two-dimensional normal the probability of landing inside a
@@ -239,10 +239,11 @@ Read the table from the top. A model that ignores its inputs entirely scores
 0.5480. Logistic regression, fitted properly on 2,250 examples, scores
 0.5507 - 27 ten-thousandths better than knowing nothing.
 
-Then read the gap at the bottom, which is the real content: even the best line
-that exists for this population reaches 0.6491, against a reachable 0.97.
-Three points of the first gap are the fit; thirty-two points of the second are
-the shape of the model family.
+Then read the gaps, which are the real content. The fitted line is 0.27 points
+above knowing nothing. The best line that exists for this population would be
+about 10 points above it, at 0.6491. And even that best line is 32 points below
+the reachable 0.97. The small gaps are about fitting; the large one is about the
+shape of the model: no straight line can enclose a circle.
 
 Ask the room whether they would suspect a bug if they saw 0.5507 come out of
 their own experiment. Most would, and they would be wrong. Handout section 2.2.
@@ -259,7 +260,8 @@ brute-force search over 72,762 candidates.
 The thing to point at is what the *best* line does, because it is not what
 students expect. It does not attempt to enclose the accept region - it cannot
  -  so it slices off one far tail of the distribution where almost every unit is
-a reject, and banks that. That is the honest ceiling for the family.
+a reject, and collects the accuracy of being right there. That is the best any
+straight line can do on this problem.
 
 Handout section 2.2.
 :::
@@ -281,9 +283,10 @@ the reasoning behind reaching for it is perfectly sound - a score at chance
 usually does mean something failed to converge.
 
 Walk the symmetry argument out loud, because it is a proof and it takes ten
-seconds: rotate the picture by 180 degrees and the labels are statistically
-unchanged, while any line becomes a different line. A quantity that must be
-invariant under a symmetry the model cannot represent has nowhere to go.
+seconds: rotate the picture by 180 degrees and the labels look the same, while any line
+becomes a different line. So whatever a line gains on one side by tilting, it
+loses on the opposite side, and the best fit barely tilts at all: it settles on
+almost the constant answer.
 
 Handout section 2.2.
 :::
@@ -300,7 +303,7 @@ Handout section 2.2.
 ::: notes
 This slide is a deliberate trap, and it is worth pausing on. The brute-force search
 has none of the features students associate with overfitting: no parameters,
-no training, no capacity. It picks the best of a list. And picking the best of
+no training, no flexible model. It picks the best of a list. And picking the best of
 a long list, then reporting that best, is enough on its own to inflate a score
 by four points.
 
@@ -348,7 +351,7 @@ follows from the electronics rather than from a truth table.
 
 The last two bullets are the whole diagnosis. The problem is genuinely
 one-dimensional - everything depends on a single number, the sum of the two
-drifts - and it is still not linearly separable, because the question asked of
+drifts - and still no single straight line can separate the classes, because the question asked of
 that number needs two thresholds rather than one. Say that plainly: it is not
 about dimension, it is about how many boundaries the answer needs.
 
@@ -389,9 +392,8 @@ and ten. The handout works all four cloud centres through the network by hand
 in a table; do one row live, the plus-one plus-one corner, and let them check
 the rest afterwards.
 
-The rectified linear unit is introduced here as a piece of machinery rather
-than as a topic: max of zero and the input, nothing more. Its properties get
-their own segment after the break.
+The rectified linear unit is used here as a tool: max of zero and the input,
+nothing more. Its properties get their own segment after the break.
 
 The sentence to leave in the room: whatever training does, *this* is the kind
 of thing it is searching for. Handout section 3.2.
@@ -426,26 +428,45 @@ that is the next slide. Handout section 3.3.
 
 ::: notes
 This is the idea to carry out of the first half of the lesson, and it is worth
-more than the algebra that follows. Students tend to picture a deep network as
-a stack of classifiers, each refining the last. It is not. Every layer but the
-final one is changing coordinates; only the last one classifies.
+more than the algebra that follows. Students tend to picture a network with
+several layers as a chain of classifiers, each one improving the previous
+answer. That is not what happens. Every layer except the last changes the
+coordinates in which the data is described - here the hidden layer moved two
+clouds to (1, 0) and (0, 1) and stacked the other two at the origin - and only
+the last layer classifies, with a single straight line.
 
-That reading is also what makes the rest of the field intelligible: a
-convolutional layer, a recurrent layer, an embedding are all answers to the
-question "what coordinates would make this problem easy", constrained in
-different ways.
+Say that lesson 10 builds on exactly this: a convolutional network also learns
+new coordinates, but each of its units looks only at a small patch of the
+image, so most of its weights are fixed at zero. Saying it now means next week
+opens on a question already asked. Handout section 3.3.
+:::
 
-Forward-reference lesson 10 explicitly here, so next week opens on a question
-already asked. Handout section 3.3.
+# Back to acceptance: four hidden units
+
+![](four_unit_network.png)
+
+::: notes
+Say plainly that the data changes again: we leave the drift problem and go back
+to the acceptance test of slides 8 to 15, the circle no straight line could
+enclose. The network changes too: two inputs, the standardised gain and phase
+offsets; four hidden units, each a ReLU; one output, the probability that the
+unit passes.
+
+This time nobody writes the weights by hand: they are trained, by the gradient
+descent of lesson 3, which is why the connections are drawn without numbers.
+Each hidden unit computes a weighted sum of the two inputs, and the places where
+that sum is zero form a straight line - so four hidden units means four lines.
+The next slide draws them. Handout sections 4.1 and 11.2.
 :::
 
 # Four lines enclose a region; one never does
 
+
 ![](four_lines_fence.png)
 
 ::: notes
-Back to the acceptance data, with a trained four-unit hidden layer. Left: the
-four lines those units draw, plotted straight from the columns of the first
+The trained network of the previous slide, drawn on the data. Left: the four
+lines its hidden units draw, plotted straight from the columns of the first
 weight matrix - not inferred from predictions, read off the parameters. Right:
 the decision region the four produce together, with the true circle dashed.
 
@@ -459,7 +480,7 @@ Handout sections 4.1 and 11.2.
 
 # Capacity is not the same as findability
 
-| hidden units | median accuracy | best of 20 | runs above 0.95 |
+| hidden units | median of 20 random starts | best of 20 | starts above 0.95 |
 |---|---|---|---|
 | 2 | 0.7500 | 0.9975 | **4 of 20** |
 | 3 | 1.0000 | 1.0000 | 15 of 20 |
@@ -467,18 +488,26 @@ Handout sections 4.1 and 11.2.
 | 8 | 1.0000 | 1.0000 | 20 of 20 |
 
 ::: notes
-Twenty independent restarts at each width, on the drift problem. Two units are
-provably enough - the lesson wrote a two-unit solution down by hand four
-slides ago and it scored 0.9938 - and plain gradient descent finds something
-that good in four runs out of twenty.
+Back to the drift problem, and a new term to define before reading the table.
+Training has to start from some weights, and the usual choice is small random
+numbers: that starting point is the **initialisation**. Each row trains the same
+network 20 times, each time from a different random initialisation, and reports
+the median result, the best one, and how many of the 20 passed 0.95. The
+lesson returns to initialisation after the break, where it explains why the
+weights cannot all start at zero.
+
+Two units are enough - the lesson wrote a two-unit solution down by hand five
+slides ago and it scored 0.9938 - yet plain gradient descent finds something that
+good in only four starts out of twenty.
 
 The median tells you what goes wrong. 0.7500 is exactly three of the four
 clouds: the solution you get by spending both lines carving off a single
-quadrant. It is a local minimum, and from most starting points it is downhill.
+quadrant. It is a local minimum: no small change of the weights improves it, and most
+starting points lead down into it.
 
-The consequence is the honest reason production networks are wider than their
-task requires. The extra units are not extra capacity - they are extra
-starting points, so that some unit begins near a useful line.
+This is the honest reason networks used in practice are wider than their task
+requires. The extra units are not needed to express the answer - they give
+training more chances, so that some unit starts near a useful line.
 
 Handout section 3.4.
 :::
@@ -503,7 +532,7 @@ descent does not use them.
 
 Ask the room which of the two curves is a statement about the architecture and
 which is a statement about the optimiser. The gap between them, after six
-units, is the whole of section 9's subject.
+units, is the subject of handout section 9, on optimisation.
 
 Handout section 11.2.
 :::
@@ -562,8 +591,8 @@ Read the bracketed superscript as the layer index, not a power - say it once
 and it will not confuse anybody again. Z is the pre-activation, the raw
 weighted sum; A is what comes out after the activation function g.
 
-The bias is added by broadcasting across rows: one bias per hidden unit, the
-same value for every example. Handout section 4.1.
+The bias is added to every row (NumPy calls this broadcasting): one bias per
+hidden unit, the same value for every example. Handout section 4.1.
 :::
 
 # Layer 2: one more line, then a probability
@@ -595,7 +624,7 @@ handed better coordinates. Handout section 4.1.
 Shapes are the cheapest debugging tool in the whole subject, and the habit
 worth installing is checking them before running anything. A backward pass
 that produces a gradient of the wrong shape has a bug you can see; one of the
-right shape may still have a bug, which is why section 5.5 exists.
+right shape may still have a bug, which is why handout section 5.5 exists.
 
 Ask the room what shape the gradient of the cost with respect to the first
 weight matrix must have. The answer - the same shape as the matrix itself - is
@@ -614,7 +643,7 @@ Handout section 4.1.
 - So $H$ hidden units are $H$ lines, and the output unit votes
 
 ::: notes
-Both facts look like bookkeeping and both are structural. The first is what allows every later decision to process examples in batches,
+Both facts look like bookkeeping, but both matter. The first is what allows every later decision to process examples in batches,
 or to split them across machines; if examples could influence one another, computing a gradient on 32 of
 them would not approximate the gradient on all of them.
 
@@ -710,7 +739,7 @@ $$\delta^{[2]} = \frac{1}{m}\left(\hat{y} - y\right)$$
 ::: notes
 Say what this is before saying why it is remarkable: it is the derivative of
 the cost with respect to the output layer's pre-activation, one number per
-example, and it is the seed of the entire backward pass.
+example, and it is where the whole backward pass starts.
 
 Then say why it is remarkable. Two messy derivatives went into it - the
 derivative of cross-entropy, which has a fraction with the prediction in the
@@ -737,8 +766,8 @@ about 0.001; so the gradient is about a thousand times smaller than it should
 be, and the network barely learns from its worst mistake.
 
 Cross-entropy removes the factor, and the confidently wrong example gets a
-gradient proportional to how wrong it is. Same idea, one dimension up, is what
-makes softmax work after the break.
+gradient proportional to how wrong it is. The same cancellation, with more than
+two classes, is what makes softmax work after the break.
 
 Handout section 5.2.
 :::
@@ -757,7 +786,7 @@ per layer. Emphasise that only one of them involves the data at all - the
 other is the same weight matrix used in the forward pass, transposed. That
 symmetry is why the backward pass costs about what the forward pass costs.
 
-The ReLU indicator is worth a beat because it comes back twice: it is why the
+The ReLU's derivative, 1 or 0, is worth a moment because it comes back twice: it is why the
 rectified linear unit does not shrink gradients the way a sigmoid does, and it
 is why a unit can die permanently. Both are in the segment after notebook 02.
 
@@ -794,7 +823,7 @@ Handout section 5.3.
 Both halves of this slide get quoted at students later in their careers and
 neither is obvious, so state them plainly.
 
-The first is why the field exists: if a gradient cost a hundred times a
+The first is why training networks is possible at all: if a gradient cost a hundred times a
 prediction, nothing would have been trainable in 1986 and very little would be
 trainable now.
 
@@ -853,10 +882,10 @@ Handout section 5.5.
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
 | split, then one straight line, 8-15 | `train_test_split`, `StandardScaler`, `LogisticRegression` → 0.5507 |
-| forward, backward, gradient check, 26-41 | NumPy only → untrained cost 0.6721, worst disagreement 1.97 × 10⁻⁸ |
-| the drift problem, 16-23 | the hand-built network, then 20 restarts per width → 4 of 20 above 0.95 at two units |
-| the polygon yardstick, 24 | `scipy.integrate` → the best 4-sided fence scores 0.9396 |
-| zero initialisation, 54-55 | all weights 0 → final cost 0.6887 |
+| forward, backward, gradient check, 27-42 | NumPy only → untrained cost 0.6721, worst disagreement 1.97 × 10⁻⁸ |
+| the drift problem, 16-24 | the hand-built network, then 20 restarts per width → 4 of 20 above 0.95 at two units |
+| the polygon yardstick, 25 | `scipy.integrate` → the best 4-sided fence scores 0.9396 |
+| zero initialisation, 55-56 | all weights 0 → final cost 0.6887 |
 
 ::: notes
 Backpropagation from scratch, gradient-checked before it is trusted; the
@@ -887,7 +916,7 @@ run the sweep with their own seed rather than the notebook's.
 
 ::: notes
 The last bullet is the point of the slide, and it is worth deriving on the
-board if there is appetite - it is four lines, using only that the one-hot
+board if the room is following - it is four lines, using only that the one-hot
 target sums to one. The full version is handout section 6.2.
 
 Say why the coincidence is not a coincidence: sigmoid-with-cross-entropy and
@@ -896,8 +925,9 @@ K classes, and in both the loss was chosen as the one whose derivative cancels
 the output non-linearity's. If you ever meet a third output non-linearity, the
 matching loss is the one that does the same job.
 
-The max-subtraction trick is a one-line implementation detail that students
-will hit for real the first time they write softmax themselves.
+Subtracting the largest score before exponentiating (handout section 6.1) is a
+one-line detail students will need the first time they write softmax
+themselves: without it the exponentials overflow.
 
 Handout section 6.1.
 :::
@@ -953,8 +983,8 @@ good.
 
 The last two bullets are the generalisable part and they belong in the summary
 table of handout section 12: reach for a hidden layer when the answer depends
-on inputs jointly, and try the linear model first when the inputs vote roughly
-independently.
+on inputs jointly, and try the linear model first when each input pushes the answer
+roughly independently of the others.
 
 Put it to the room as a diagnostic question they can ask before training
 anything: can I imagine a single weighted sum of these features answering this
@@ -977,11 +1007,11 @@ This is the number the lesson exists to leave behind, so say it, write it, and
 come back to it at the close: a sigmoid layer divides the gradient by about
 four.
 
-Take the first two bullets quickly but do not skip them - the collapse of
-stacked linear layers is a one-line calculation and it is the reason the whole
-activation question exists. It is also worth naming the consequence: a network
-whose units have all saturated or all died has effectively performed that
-collapse on itself.
+Take the first two bullets quickly but do not skip them - several linear layers
+stacked together are just one linear layer, a one-line calculation, and that is
+the reason the whole activation question exists. It is also worth naming the
+consequence: a network whose units are all stuck on their flat ends (saturated)
+or all output zero (dead) has effectively become that single linear layer.
 
 Then the ¼. It is not an empirical observation, it is a maximum: the product
 of a number between zero and one with one minus itself cannot exceed a quarter.
@@ -1044,7 +1074,8 @@ Handout section 7.3.
 This slide is about method more than about the number, and the habit is worth
 more than the number. A single measurement of a compounding
 quantity is a draw from a distribution, and reporting its extreme as the
-headline is how plausible-looking folklore gets manufactured.
+headline is how plausible but
+false claims get repeated.
 
 Ask the room which number they would put in a report, given the eight
 measurements. The defensible answers are the per-layer factor, because it is
@@ -1110,11 +1141,11 @@ Handout section 7.3.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the same network in Keras, 26-31 | `keras.Sequential`, `keras.Input`, `layers.Dense`, `SGD`; then `compile`, `fit`, `evaluate` → 0.9333 |
-| ten classes, 43-46 | `Dense(10, activation="softmax")`, `Adam`, `Dropout`, `confusion_matrix` → 0.9676 with two layers of 64 |
-| the shrinkage, measured, 47-50 | `tf.GradientTape`, `sparse_categorical_crossentropy` → about 4 per sigmoid layer |
-| training six layers, 51-52 | `SGD` on three activations → sigmoid 0.1000, tanh 0.9750 |
-| how big the weights should be, 56 | `RandomNormal` at two scales, against Glorot → 73% saturated at N(0, 1) |
+| the same network in Keras, 27-32 | `keras.Sequential`, `keras.Input`, `layers.Dense`, `SGD`; then `compile`, `fit`, `evaluate` → 0.9333 |
+| ten classes, 44-47 | `Dense(10, activation="softmax")`, `Adam`, `Dropout`, `confusion_matrix` → 0.9676 with two layers of 64 |
+| the shrinkage, measured, 48-51 | `tf.GradientTape`, `sparse_categorical_crossentropy` → about 4 per sigmoid layer |
+| training six layers, 52-53 | `SGD` on three activations → sigmoid 0.1000, tanh 0.9750 |
+| how big the weights should be, 57 | `RandomNormal` at two scales, against Glorot → 73% saturated at N(0, 1) |
 
 ::: notes
 The same network again in six lines of Keras, with the same answer; softmax on
@@ -1131,8 +1162,8 @@ does.
 
 If time is short, keep the shrinkage measurement. Printing the eight
 per-layer factors themselves, and watching every one of them land between 3.9
-and 4.3, is what makes the quarter-bound a measurement rather than an
-assertion.
+and 4.3, is what makes the bound of a quarter a measurement rather than
+an assertion.
 
 Have them change the depth and predict the ratio before running it.
 :::
@@ -1328,7 +1359,7 @@ units and they explode at the largest learning rate; the line is validation
 accuracy and it barely moves.
 
 That is what makes this failure worth naming. Nothing in the training curve
-announces it - accuracy is fine, the loss is fine, and a third of the layer
+announces it - accuracy is fine, the loss is fine, and half of the layer
 has been doing nothing for the whole run. Ask the room how they would ever
 detect it. The answer is the one measurement on this slide: push the training
 data through and count the units whose maximum activation over the entire set
@@ -1384,7 +1415,7 @@ Now the row nobody would put in an advertisement: **momentum did nothing at
 all here**, a fraction of a point below plain descent and well inside either
 method's spread. Say it rather than dropping it. Momentum is a good default,
 not a guarantee, and a comparison in which every row improves on the last is
-usually a comparison that has been curated.
+usually a comparison that has been chosen to look good.
 
 The last column is the same networks scored against the true acceptance rule
 instead of the rig's recorded verdict - about three points higher throughout,
@@ -1448,11 +1479,11 @@ Handout section 10.1.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the learning rate, 57-59 | `SGD(learning_rate=α)` at five rates → best 0.9685 at α = 0.5 |
-| dead units, 60-61 | `keras.Model` to read the hidden layer → 33 of 64 dead at α = 1.0 |
-| optimisers, 62-63 | `SGD`, `SGD(momentum=0.9)`, `Adam` → Adam's worst run 0.9360 |
-| memorising, 65 | two layers of 512 on 300 digits, `count_params` → 301,066 parameters |
-| regularisers, 64 | `EarlyStopping`, `Dropout(0.4)`, `l2(1e-3)` → 0.9411 to 0.9511 |
+| the learning rate, 58-60 | `SGD(learning_rate=α)` at five rates → best 0.9685 at α = 0.5 |
+| dead units, 61-62 | `keras.Model` to read the hidden layer → 33 of 64 dead at α = 1.0 |
+| optimisers, 63-64 | `SGD`, `SGD(momentum=0.9)`, `Adam` → Adam's worst run 0.9360 |
+| memorising, 66 | two layers of 512 on 300 digits, `count_params` → 301,066 parameters |
+| regularisers, 65 | `EarlyStopping`, `Dropout(0.4)`, `l2(1e-3)` → 0.9411 to 0.9511 |
 | more data | `train_test_split` at six sizes → +3.2 points from 300 to 1,077 examples |
 
 ::: notes

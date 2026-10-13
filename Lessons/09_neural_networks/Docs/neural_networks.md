@@ -11,17 +11,17 @@ date: "27 November 2026 · reading time about 100 minutes"
 |---|---|---|---|
 | 0:00–0:10 | 10 | Exercise 8 discussed; one neuron is one line | Slides 2–7 |
 | 0:10–0:30 | 20 | The acceptance problem, and why a line cannot solve it | Slides 8–15 |
-| 0:30–0:45 | 15 | A hidden layer: fences made of lines; a network built by hand | Slides 16–25 |
-| 0:45–1:00 | 15 | Forward propagation, shapes, and the loss | Slides 26–31 |
-| 1:00–1:12 | 12 | **Break** | Slide 32 |
-| 1:12–1:30 | 18 | Backpropagation derived; checking the gradient | Slides 33–41 |
-| 1:30–1:52 | 22 | **Notebook 01** — backpropagation from scratch | Slide 42 |
-| 1:52–2:07 | 15 | Softmax, activations, and the vanishing gradient | Slides 43–52 |
-| 2:07–2:27 | 20 | **Notebook 02** — Keras, softmax, depth | Slide 53 |
-| 2:27–2:40 | 13 | Initialisation, optimisers, regularisation | Slides 54–65 |
-| 2:40–2:58 | 18 | **Notebook 03** — training in practice | Slide 66 |
-| 2:58–3:00 | 2 | Homework | Slides 67–68 |
-| | **180** | **Total** | **68 slides, 3 notebooks** |
+| 0:30–0:45 | 15 | A hidden layer: fences made of lines; a network built by hand | Slides 16–26 |
+| 0:45–1:00 | 15 | Forward propagation, shapes, and the loss | Slides 27–32 |
+| 1:00–1:12 | 12 | **Break** | Slide 33 |
+| 1:12–1:30 | 18 | Backpropagation derived; checking the gradient | Slides 34–42 |
+| 1:30–1:52 | 22 | **Notebook 01** — backpropagation from scratch | Slide 43 |
+| 1:52–2:07 | 15 | Softmax, activations, and the vanishing gradient | Slides 44–53 |
+| 2:07–2:27 | 20 | **Notebook 02** — Keras, softmax, depth | Slide 54 |
+| 2:27–2:40 | 13 | Initialisation, optimisers, regularisation | Slides 55–66 |
+| 2:40–2:58 | 18 | **Notebook 03** — training in practice | Slide 67 |
+| 2:58–3:00 | 2 | Homework | Slides 68–69 |
+| | **180** | **Total** | **69 slides, 3 notebooks** |
 
 ---
 
@@ -1063,6 +1063,13 @@ many units" is really "how many straight lines does it take to fence off a
 circle", and that is a question with a geometric answer as well as a measured
 one. The two figures below are those two answers, and the table underneath
 checks them against each other.
+
+![](four_unit_network.png)
+
+*The network of this section: two inputs, the standardised gain and phase
+offsets; four hidden ReLU units, each of which draws one straight line in the
+plane of the inputs; one output, the probability that the unit passes. The
+weights are trained, not written by hand, so the connections carry no numbers.*
 
 ![](four_lines_fence.png)
 

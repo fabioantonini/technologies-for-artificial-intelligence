@@ -124,7 +124,45 @@ def two_unit_network():
     plt.close(fig)
 
 
+def four_unit_network():
+    """The trained network of the acceptance problem: 2 inputs, 4 ReLUs, 1 output."""
+    fig, ax = plt.subplots(figsize=(9.6, 5.2))
+    inputs = [(0.8, 3.3), (0.8, 1.3)]
+    hidden = [(4.2, 4.2), (4.2, 3.0), (4.2, 1.8), (4.2, 0.6)]
+    out = (7.6, 2.4)
+    for s in inputs:
+        for h in hidden:
+            ax.plot([s[0], h[0]], [s[1], h[1]], color="#B8BEC6", lw=1.6, zorder=1)
+    for h in hidden:
+        ax.plot([h[0], out[0]], [h[1], out[1]], color="#B8BEC6", lw=1.6, zorder=1)
+    for xy, name in zip(inputs, ("z₁", "z₂")):
+        node(ax, xy, name, SLATE)
+    for i, h in enumerate(hidden, 1):
+        ax.add_patch(Circle(h, 0.42, facecolor="white", edgecolor=TEAL, lw=2.4, zorder=3))
+        relu_icon(ax, h, TEAL)
+        ax.text(h[0] + 0.6, h[1], f"h{i}", fontsize=14, va="center", color=SLATE)
+    node(ax, out, "ŷ", GOLD)
+
+    ax.text(0.8, 4.5, "2 inputs", ha="center", fontsize=15, weight="bold", color=SLATE)
+    ax.text(0.8, 0.45, "gain and phase\noffsets, standardised", ha="center", va="top",
+            fontsize=13, color=SLATE)
+    ax.text(4.2, 5.0, "4 hidden units (ReLU)", ha="center", fontsize=15, weight="bold",
+            color=SLATE)
+    ax.text(4.2, -0.2, "each one draws one line", ha="center", va="top", fontsize=13,
+            color=SLATE)
+    ax.text(7.6, 3.2, "1 output", ha="center", fontsize=15, weight="bold", color=SLATE)
+    ax.text(7.6, 1.6, "probability\nthe unit passes", ha="center", va="top", fontsize=13,
+            color=SLATE)
+    ax.set_xlim(-0.3, 9.0)
+    ax.set_ylim(-0.9, 5.4)
+    ax.set_aspect("equal")
+    ax.axis("off")
+    fig.savefig(OUT / "four_unit_network.png", dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     drift_clouds()
     two_unit_network()
-    print("wrote drift_clouds.png, two_unit_network.png")
+    four_unit_network()
+    print("wrote drift_clouds.png, two_unit_network.png, four_unit_network.png")
