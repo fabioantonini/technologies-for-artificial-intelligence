@@ -618,7 +618,7 @@ afterwards - left to themselves they quote whichever is biggest.
 
 The weighted average weights each class by how common it is, so on this problem
 it is essentially the healthy class talking, and it reads close to accuracy  - 
-inheriting exactly the blindness we spent twenty minutes on.
+inheriting exactly the blindness slides 22 to 25 were about.
 
 The macro average gives the two classes equal weight, so the rare class actually
 registers. 0.820 against 0.975 for the same model.
@@ -973,9 +973,9 @@ lesson 2 gave about imputation.
 
 ::: notes
 The ROC curve by hand, the 200,000-pair experiment, the cost curve, then the
-multiclass matrix. Run notebook 03. Twenty minutes if the clock allows,
-otherwise show the pairs experiment and the imbalance comparison and leave the
-rest for them.
+multiclass matrix. Run notebook 03. Fifteen minutes, and the two multiclass slides
+that follow (46 and 47) are shown when the notebook reaches its last section, so
+they run alongside it rather than after it.
 
 If time is short, keep the pairs experiment: it turns a definition they would
 otherwise memorise into something they watched happen.
