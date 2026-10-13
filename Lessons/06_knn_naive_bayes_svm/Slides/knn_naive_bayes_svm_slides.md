@@ -134,7 +134,7 @@ is after three weeks of optimisation. There is no cost function, no gradient, no
 parameters. Nothing is estimated.
 
 Ask the room what could possibly go wrong with a method that makes no
-assumptions. The next fifteen minutes answer it: a method with no assumptions
+assumptions. Slides 15 to 21 answer it: a method with no assumptions
 has no way to ignore a useless column, and that turns out to be expensive.
 
 The sentence hides two decisions - what "closest" means, and how many
@@ -273,12 +273,14 @@ islands are the mislabelled 4% - the model has carved out a small territory for
 each one. That is variance made visible.
 
 k = 15: a clean disc, close to the envelope that actually generated the data.
-This is close to the envelope the data was generated from.
 
 k = 401 is the one worth the time, because it does not do what people expect.
 It has not collapsed to a single class. The boundary has INFLATED past the true
-envelope and now swallows faulty pumps. With 401 votes taken over a large
-neighbourhood, the majority class wins in regions where it should not. The model no longer follows the boundary; it averages the votes across it.
+envelope and now swallows faulty pumps. Why it grows rather than shrinks: with 401 votes, a pump just outside the
+envelope counts nearly the whole healthy disc among its neighbours - the healthy
+pumps are packed tightly in the middle - while the faulty pumps are spread thinly
+round the ring. So the healthy votes win outside the envelope too. The model no
+longer follows the boundary; it averages the votes across it.
 
 Handout section 2.2 carries the same three panels.
 :::
@@ -475,7 +477,7 @@ Neural networks work happily in thousands of dimensions. So do linear models
 with regularisation. What breaks is specifically the family of methods whose
 mechanism is a distance, because a quantity that no longer varies can no longer
 discriminate. Name the three that appear in this course: k-NN today, k-means in
-lesson 8, and the RBF kernel later this afternoon, which measures similarity through the
+lesson 8, and the RBF kernel later today, which measures similarity through the
 same Euclidean distance.
 
 **Now the predictable mistake, and defend the instinct first.** Adding features
@@ -550,7 +552,8 @@ features it is a twenty-dimensional density, and no quantity of data populates a
 twenty-dimensional space.
 
 Point out that this is the curse of dimensionality again, from a different
-direction: an hour ago it broke distances, here it breaks the estimation of a
+direction: before the break it broke
+distances, here it breaks the estimation of a
 density. Handout section 4.1.
 :::
 
@@ -588,7 +591,7 @@ recoverable. The denominator is the sum of the numerators over the classes, so
 dividing each score by the sum of the scores gives the probability back
 exactly. That is what predict_proba does, in logarithms. Dropping it does not make the probabilities less reliable. Where Naive Bayes's
 probabilities do go wrong is inside the numerator, because of the assumption,
-and we will see that in a few slides.
+and slide 43 shows it.
 
 Then point at the first factor: this is where all the difficulty now sits, and
 the next slide is the assumption that makes it estimable. Handout section 4.1
@@ -608,7 +611,7 @@ One assumption, stated in one line, and everything follows from it.
 Emphasise the words "given the class". This is not a claim that the features are
 independent - it is a claim that whatever dependence they have is entirely
 explained by which class they belong to. Those are different claims and the
-distinction matters in about ten minutes, when we measure it.
+distinction matters on slide 38, when we measure it.
 
 What it buys: one n-dimensional estimation problem becomes n one-dimensional
 ones. A one-dimensional density needs very little data. Training becomes a
@@ -631,7 +634,7 @@ the left; n one-dimensional densities on the right.
 
 Why that matters is a counting argument, and it is worth making concrete.
 To estimate the left-hand side directly you would need enough pumps to fill
-an n-dimensional space - the curse of dimensionality from an hour ago, in a new form. To estimate the right-hand side you need enough
+an n-dimensional space - the curse of dimensionality from before the break, in a new form. To estimate the right-hand side you need enough
 pumps to fit n separate histograms, which is a completely different demand.
 
 That is the whole bargain: an assumption that is usually false, traded for
@@ -719,7 +722,7 @@ prior times one density per reading, the class with the largest product
 winning. The equation says its log is a sum, and the title says why that is
 allowed: ln is increasing, so the class with the largest product is also the
 class with the largest log. The logs
-are natural logs - base e - which matters two slides later, when we undo them with e. Say why nobody computes the left-hand side directly. With hundreds of features the
+are natural logs - base e - which matters on slide 34, when we undo them with e. Say why nobody computes the left-hand side directly. With hundreds of features the
 product is hundreds of small numbers multiplied together, and it becomes too small to store, exactly zero in floating point (underflow) - 0.5 to the power 300 is already 5 times 10 to
 the minus 91, and real likelihoods are far smaller than 0.5. Every class then
 scores zero and nothing can be compared.
@@ -767,7 +770,7 @@ healthy log density is positive, +0.598, because a density is not a
 probability and a narrow bell peaks above 1.
 
 Faulty has the larger total, so faulty is the prediction. How the two totals
-become the 0.981 in the title is the next slide. Handout section 4.2 lists the
+become the 0.981 of slide 30 is the next slide. Handout section 4.2 lists the
 four steps.
 :::
 
@@ -845,8 +848,8 @@ Handout section 4.2, "From log scores to a probability".
 ::: notes
 Both halves matter, and students tend to hear only one of them.
 
-The bargain is real. Nothing else in this course trains in one pass, and nothing
-else tolerates ten thousand features on a few thousand rows.
+The bargain is real. Nothing else in this course trains in one pass, and few methods
+tolerate ten thousand features on a few thousand rows as cheaply.
 
 The assumption is false almost everywhere, and give concrete cases rather than a
 general warning. Two sensors on the same machine are both driven by the
@@ -912,10 +915,11 @@ dependence. Healthy pumps
 fill a disc and faulty ones a ring; on a ring, a pump far out in vibration must
 be central in pressure. That dependence is symmetric, so the straight-line
 summary averages it to zero. Square each reading's distance from the design
-point and it appears: −0.420 among the faulty pumps. Or say it as a spread: the
-pressure of a faulty pump has a standard deviation of 0.784 when its vibration
-is extreme (the fifth furthest out, beyond 6.2 Hz from the centre) and 1.309
-when it is not - 0.37 against 0.62 bar, same average, very different spread. Put
+point and it appears: −0.420 among the faulty pumps. Or say it as a spread. Take the faulty pumps whose vibration is most extreme -
+the fifth of them furthest from the centre, more than 6.2 Hz away - and their
+pressure has a standard deviation of 0.37 bar; for the other faulty pumps it is
+0.62 bar. Same average pressure, very different spread, so knowing the vibration
+tells you something about the pressure. Put
 the distinction on the board in two lines: uncorrelated, yes; independent, no.
 Naive Bayes assumes the second. The assumption is false.
 
@@ -1061,13 +1065,14 @@ and the XOR sensors. Ten correlated words in a document are treated as ten
 independent pieces of evidence, and the probability is pushed all the way to 0 or 1. Naive Bayes is
 famous for reporting 0.999 on problems it gets wrong a fifth of the time.
 
-Then lesson 5's distinction, which this is the textbook case of: ranking and
-calibration are different properties. A model can order examples usefully and
+Then lesson 4's distinction (its slide 37), which this is the textbook case of:
+ranking and calibration - whether a reported 0.7 comes true 70% of the time - are
+different properties. A model can order examples usefully and
 still report numbers that mean nothing.
 
 The practical consequence, and it is concrete: do not use Naive Bayes anywhere a
 calibrated probability enters a decision - including lesson 4's cost calculation
-in section 7.2, where the threshold depends on the probability being real.
+in its handout section 7.2, where the threshold depends on the probability being real.
 :::
 
 # Notebook 2, live
@@ -1227,7 +1232,7 @@ derivative tidy, exactly as in lesson 3's cost function.
 
 ::: notes
 Third appearance of the same idea, and say so - that repetition is the point.
-Lesson 3 had λ, this morning had k, now C. Every model has one knob that trades
+Lesson 3 had λ, the first half of today had k, now C. Every model has one knob that trades
 fitting this data against surviving the next, and recognising it in an unfamiliar
 model is worth more than memorising three names.
 
@@ -1256,7 +1261,7 @@ and gamma are both large.
 
 ::: notes
 The linear kernel scores 0.613 - the base rate, exactly as logistic regression
-did this morning, with the same zero variance across folds.
+did on slide 6, with the same zero variance across folds.
 
 Make the point explicitly, because it is the one students most often get
 backwards: the margin criterion is a better way of CHOOSING among straight
@@ -1265,7 +1270,8 @@ line works, choosing the best one optimally still gets you nothing. A better
 criterion cannot rescue an inadequate hypothesis class.
 
 Then the RBF row, which is the same algorithm with one argument changed, at
-0.947 - the best number in the whole lesson, and close to the 0.96 ceiling.
+0.947 - the best score on the pumps in the whole lesson, and close to the 0.96
+ceiling.
 
 The support-vector column says the same thing in a different way, and that is
 the next slide.
@@ -1310,7 +1316,7 @@ Build the picture in words first and let them see it before the figure appears.
 Take the scatter plot from the start of the lesson, lift each point off the page
 by its distance from the centre, and look from the side.
 
-Then the sentence that reframes the whole afternoon: the classes were never
+Then the sentence that reframes the whole lesson: the classes were never
 inseparable. Separability is not a property of the data - it is a property of
 the data AND the coordinates you happen to have measured it in.
 
@@ -1383,7 +1389,7 @@ points themselves, one weight $a_i$ per pump. The picture: the boundary is a
 tent held up by the points pressing against it, and $a_i$ is how hard pump $i$
 presses. A pump comfortably on its own side of the slab presses on nothing, so
 its weight is exactly zero. Only the pumps on or inside the slab - the support
-vectors from Section 5.1 - get a positive weight, which is where that 79%
+vectors of slide 46 and handout section 5.1 - get a positive weight, which is where that 79%
 against 23% came from.
 
 Now the payoff, and this is the sentence that makes the next slide make sense.
@@ -1612,16 +1618,14 @@ plot it.
 Margins, support vectors, and what γ does to the boundary. Run notebook 03.
 Sixteen minutes.
 
-If time runs short, keep the γ sweep with the boundary drawn at each setting. Let
-them turn γ up themselves and watch the bubbles form - it is the most direct
-experience of overfitting available in this course.
+If time runs short, keep the γ sweep with the boundary drawn at each setting, and
+skip the C sweep instead, setting it as reading (the table is in handout section
+5.6). Let them turn γ up themselves and watch the bubbles form - it is the most
+direct experience of overfitting available in this course.
 
 Have them print the fraction of support vectors for the linear and RBF kernels
 side by side. Two numbers, and it makes the diagnostic real rather than a claim on a
 slide.
-
-If time runs short, skip the C sweep and set it as reading: the table is in
-handout section 5.6.
 :::
 
 # The three compared, on identical data
@@ -1645,9 +1649,8 @@ unrelated routes - remembering the neighbourhood, assuming independence, bending
 the space. There is no single idea shared between them.
 
 Then the number that is the lesson: the gap between best and worst is **0.334**.
-Larger than any difference this course has shown between a good model and a
-carefully tuned one - lesson 5's entire hyperparameter search moved things by a
-few hundredths.
+That is larger than anything tuning has bought in this course - lesson 5's whole
+hyperparameter search moved scores by a few hundredths.
 
 Say the conclusion plainly, and it is the practical takeaway of the whole
 lesson: choosing the right family matters far more than tuning the wrong one.
@@ -1725,7 +1728,7 @@ If this exercise is drawn at the exam, what counts is the reasoning, not the
 accuracy. A well-argued choice that scores slightly worse beats a lucky winner
 with no justification - and the
 argument has to reference the data, in the way that the squared distances and
-the fitted ellipse explained Naive Bayes on the pumps this afternoon.
+the fitted ellipse explained Naive Bayes on the pumps today.
 
 Remind them that everything must be cross-validated and reported with a spread,
 in the format lesson 5 set. Scaling goes inside the pipeline; at the exam that is one of the first things

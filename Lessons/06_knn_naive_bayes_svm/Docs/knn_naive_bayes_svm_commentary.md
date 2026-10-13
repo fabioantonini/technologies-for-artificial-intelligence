@@ -1409,7 +1409,7 @@ it is decided by $C$, which is the next slide.
 Large $C$ makes violations expensive, so the model works hard to classify every training
 point, at the cost of a narrower margin: low bias, high variance. Small $C$ accepts some
 errors in exchange for a wider, calmer boundary. It is the third appearance of the same
-dial: $\lambda$ in lesson 3, $k$ this morning, $C$ now. Every model has a knob that trades
+dial: $\lambda$ in lesson 3, $k$ earlier today, $C$ now. Every model has a knob that trades
 fitting this data against surviving the next.
 
 Mind the direction. A large $\lambda$ means *more* regularisation; a large $C$ means
