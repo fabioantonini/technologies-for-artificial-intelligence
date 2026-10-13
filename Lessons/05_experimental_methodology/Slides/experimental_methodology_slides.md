@@ -16,9 +16,9 @@ ask two people to give theirs out loud - that is the rehearsal for the exam,
 where one of the ten exercises is drawn and discussed.
 
 The recurring mistake to name, if it appeared: choosing the threshold by
-sweeping it on the test set. The exercise sheet said that losing marks for it
-was avoidable by simply declaring it - and today is the lesson that shows why
-it matters rather than asserting that it does.
+sweeping it on the test set. The exercise sheet said that doing so loses no marks
+if it is declared - and today is the lesson that shows why it matters rather than
+asserting that it does.
 :::
 
 # We broke a promise on purpose
@@ -36,7 +36,7 @@ Keep the debt visible through the whole lesson, because nearly every error today
 has the same shape: a choice was made by looking at data that was then used to
 report the result.
 
-Section 8 of the handout pays it off, and slide 39 shows the number.
+Section 8 of the handout pays it off, and slide 40 shows the number.
 :::
 
 # Today: how to tell whether it works
@@ -85,8 +85,13 @@ it.
 
 - Lesson 4's drives, reduced to **800**, of which **29 fail**
 - Not to exaggerate: 800 rows with 29 positives is the ordinary case
+- In code: lesson 4's model, `make_pipeline(StandardScaler(), LogisticRegression())`,
+  on `train_test_split(X, y, test_size=0.25, stratify=y)`, scored by `roc_auc_score`
 
 ::: notes
+The model is lesson 4's, unchanged: scaled features, logistic regression, scored
+by AUC on a stratified 75/25 split - the In code line names each piece.
+
 Justify the reduction explicitly, because a sharp student will otherwise suspect
 the demonstration is rigged.
 
@@ -174,9 +179,9 @@ so C = 0.01 is the most heavily regularised of the three, not the least.
 Handout section 3.
 :::
 
-# Now the expensive part: choosing
+# Now the expensive part: choosing, on each of 200 splits
 
-| Model | Mean AUC | Times declared best |
+| Three models | Mean AUC | Times it scored highest |
 |---|---|---|
 | C = 0.01 | 0.9549 | 91 |
 | C = 1 | 0.9549 | 71 |
@@ -189,9 +194,13 @@ C = 0.01, is the most heavily penalised model, not the least.
 Reporting a noisy number is bad. Choosing with one is worse, because noise does
 not average out when it is used to decide - it decides.
 
+Say what was done first, since the title only hints at it: 200 splits, the three
+models scored on each, and on each split the one with the highest AUC declared
+best.
+
 Read the first column, then the last. The three models are the SAME: their mean
-performance agrees to three decimal places, a difference an order of magnitude
-smaller than the spread of a single measurement.
+AUCs differ by at most 0.0005, about fifty times less than the standard deviation
+of a single measurement, 0.024.
 
 And yet a winner is declared every single time. Those counts carry no
 information about the models. They record which model happened to suit which
@@ -247,7 +256,9 @@ extra steps.
 # What it actually estimates
 
 - The performance of a **procedure**, not of one fitted model
-- Slightly **pessimistic**: each fold trains on 80% of the data
+- Slightly **pessimistic**: with 5 folds, each model trains on 80% of the data
+- In code: `cross_val_score(model, X, y, cv=StratifiedKFold(5, shuffle=True),
+  scoring="roc_auc")`, one score per fold
 
 ::: notes
 Two consequences, both of which surprise people.
@@ -267,11 +278,14 @@ Handout section 4.2 has both in symbols.
 
 # Report the spread, but not as a confidence interval
 
-- Any two training folds share **three quarters** of their rows
-- The scores are correlated, so the usual standard error is optimistic
+- With 5 folds, any two training sets share **three quarters** of their rows
+- The scores are correlated, so the usual standard error, s ÷ √k (s the standard
+  deviation of the k fold scores), is optimistic
 
 ::: notes
-The temptation is to quote s over root k and call it a confidence interval. Do
+The temptation is to quote s over root k - the standard deviation of the fold
+scores divided by the square root of the number of folds - and call it a
+confidence interval. Do
 not, and give them the specific reason rather than a warning.
 
 That formula assumes the k scores are independent. They are not: for k=5, any
@@ -309,21 +323,22 @@ whenever the problem is interesting.
 
 # How much does it help?
 
-| | Single split | 5-fold CV |
+| Over 40 seeds | Single split | 5-fold cross-validation |
 |---|---|---|
 | worst | 0.9119 | 0.9439 |
 | best | 1.0000 | 0.9588 |
 | mean | 0.9600 | 0.9532 |
-| spread | 0.0881 | 0.0149 |
+| best − worst | 0.0881 | 0.0149 |
 
 ::: notes
 Forty seeds, changing nothing but the seed. Cross-validation has a seed of its
 own - shuffle differently and the folds change - so it reduces the variance of
 the estimate, it does not abolish it.
 
-The spread falls from 0.0881 to 0.0149, and the standard deviation by a factor of
-about seven (0.0221 to 0.0032). Say which one "seven" refers to: a student who
-divides the two spreads on the slide gets six, and will ask.
+The range, best minus worst, falls from 0.0881 to 0.0149, and the standard
+deviation by a factor of about seven (0.0221 to 0.0032). Say which one "seven"
+refers to: a student who divides the two ranges on the slide gets six, and will
+ask.
 
 Then the centres, because someone will have noticed in notebook 1 that
 cross-validation came out lower: 0.953 against 0.960. That gap is about two
@@ -336,7 +351,7 @@ What it costs is k fits instead of one. For everything in this course that is
 seconds. For a large network it is a real decision, and the usual compromise is
 a single validation set with enough rows that its own error bar is tolerable.
 
-What it does NOT fix is the whole last hour of today.
+What it does NOT fix is the subject of slides 32 to 39.
 :::
 
 # How many folds?
@@ -406,10 +421,20 @@ That gap is the most common cause of a model failing after deployment.
 
 # Notebook 1, live
 
-- The split lottery, the three identical models, k-fold by hand
+| section, and its slides | you call (→ the number to come back with) |
+|---|---|
+| two honest experiments, 5-6 | `train_test_split(..., random_state=seed)`, `make_pipeline(StandardScaler(), LogisticRegression())`, `roc_auc_score` → seed 3 gives 1.000 |
+| how wide, 7-8 | the same, 200 times → 0.885 to 1.000 |
+| choosing on one split, 9-11 | three values of C, a winner per split → 91, 71 and 38 wins |
+| k-fold by hand, 12-14 | `StratifiedKFold`, then `cross_val_score` → 0.9514 ± 0.0187, identical |
+| stratify, 15-16 | `KFold` against `StratifiedKFold` → a fold with 1 failure; best − worst 0.0881 against 0.0149 |
+
 
 ::: notes
-Run notebooks/01. Twenty-two minutes.
+The table is the notebook's map: each section, the calls it makes, the slides
+that introduced the idea, and the number to come back with.
+
+Run notebook 01. Twenty minutes.
 
 Have them run the five-seed cell first and watch seed 3 return 1.000 before you
 say anything about it.
@@ -420,20 +445,25 @@ it is the one that changes behaviour rather than just adding knowledge.
 
 # Break
 
-- Twelve minutes
+- Ten minutes
 
 ::: notes
-Twelve minutes. The second half is bias-variance, which needs them awake.
+Ten minutes. The second half is bias-variance, which needs them awake.
 :::
 
 # Where does the error come from?
 
-- **Bias**: the average model is wrong
-- **Variance**: the individual models disagree
-- **Noise**: the target itself is uncertain
+- **Bias²**: (average prediction − truth)²: the average model is wrong
+- **Variance**: the spread of the models around their average
+- **Noise** σ²: the target itself is uncertain
+- Lesson 3's energy curve, 300 training sets of 25 days, each fitted with
+  `make_pipeline(PolynomialFeatures(degree), LinearRegression())`
 
 ::: notes
-Set up the decomposition in words before any algebra.
+Set up the decomposition in words before any algebra, and say first that the data
+changes: lesson 3's energy-against-temperature curve comes back, because here we
+need the true curve, and we built it ourselves. Each training set is 25 days, the
+noise has a standard deviation of 22 kWh, and we draw 300 such training sets.
 
 Imagine drawing many training sets from the same source and fitting the same
 model to each. You get many models, and they fail in two distinguishable ways.
@@ -484,9 +514,10 @@ is worth reading because the derivation is short and the cross terms vanishing
 is the whole trick.
 
 The important claim is that this is an IDENTITY, not an approximation or a
-useful metaphor. Notebook 2 checks it on 300 independently drawn training sets
-and the two sides agree to three times ten to the minus twelve - floating-point
-equality.
+useful metaphor. The symbols: y is a new observation, f-hat the model's prediction for it, sigma
+squared the noise variance; the expectation averages over the training sets and
+the noise. Notebook 2 checks it on 300 independently drawn training sets and the
+two sides agree to 2.7 times ten to the minus twelve - floating-point equality.
 
 That matters pedagogically: they have seen this picture in every textbook drawn
 as a schematic. Here it is measured.
@@ -554,8 +585,8 @@ The dotted line is the noise floor at 484.
 
 # The floor you cannot go below
 
-- Noise variance is **484** at every complexity
-- A reported error below the floor means **contamination**, not excellence
+- Noise variance is **484** = 22², the noise put into the data, at every complexity
+- A reported error well below a known floor means **contamination**, not excellence
 
 ::: notes
 The noise column never moves, because it is a property of the data rather than
@@ -584,8 +615,8 @@ The same experiment at three sample sizes. The best degree moves from 2 to 5 as
 the data grows, because there is now enough of it to pin down the extra
 coefficients and the variance has fallen accordingly.
 
-Degree 12 improves by a factor of four thousand between 25 and 150 observations
-and is still the worst model in its column.
+Degree 12 improves by a factor of four thousand between 25 and 60 observations,
+and of thirty-six thousand by 150, and is still the worst model in its column.
 
 Then the sentence worth putting on the board: "which model is best" is not a
 question about models. It is a question about models AND the quantity of data
@@ -604,8 +635,10 @@ reproduce for them. Neither experiment was wrong.
 Everything so far needed the true function. Learning curves need only data you
 have, which is why they are the practical tool.
 
-Train on 15% of the data, then 25%, and so on, plotting training score and
-cross-validated score against the number of examples used.
+Train on 15% of each training fold, then on larger shares, eight sizes up to all
+of it, plotting training score and cross-validated score against the number of
+examples used. The data is the 800 drives again; the first bullet of the next
+slide names the scikit-learn call that does it.
 
 Left, one feature only: the curves MEET, and they meet LOW - 0.715 against 0.718
  -  and the validation curve is flat from the first point to the last.
@@ -614,7 +647,7 @@ Right, six features plus 150 columns of pure noise: training exactly 1.000
 against validation 0.847, a gap of 0.15.
 
 Then read the right-hand curve to the end, because this is where the room gets
-it wrong - and so did this deck until someone read the numbers. It climbs to
+it wrong. It climbs to
 0.857 at 251 examples and then stops: 0.834, 0.847, 0.835, 0.832, 0.847. It ends
 below its own high point.
 
@@ -629,6 +662,8 @@ looks like when most columns carry nothing, which is most feature tables.
 
 # Which fix to buy
 
+- A learning curve: training and cross-validated score against training-set
+  size, `learning_curve(model, X, y, cv=folds, scoring="roc_auc")`
 - Curves **meet low** → bias. More data will **not** help
 - Wide gap, validation **still rising** → more data **will**
 - Wide gap, validation **flat** → regularise, drop features. **Ours is this one**
@@ -662,10 +697,17 @@ THIS failure, and fifteen lines of code tell you which failure you have.
 
 # Notebook 2, live
 
-- Measuring bias and variance; the learning curves
+| section, and its slides | you call (→ the number to come back with) |
+|---|---|
+| 300 parallel universes, 22-23 | `PolynomialFeatures` then `LinearRegression`, in `make_pipeline`, fitted 300 times |
+| the three parts measured, 24-27 | NumPy on the 300 predictions → sum and measured error agree to 2.73e-12 |
+| more data moves the answer, 28 | the same at 25, 60 and 150 days → best degree 2, then 5 |
+| learning curves, 29-30 | `learning_curve` with `StratifiedKFold` → 0.715 against 0.718; 1.000 against 0.847 |
+
 
 ::: notes
-Run notebooks/02. Twenty minutes.
+The table maps each section to its calls and its number. Run notebook 02.
+Twenty minutes.
 
 The cell to protect is the decomposition table where the sum equals the measured
 error to twelve decimal places. Let them see the identity hold rather than
@@ -677,9 +719,11 @@ If time is short, skip the three-sample-size comparison and assign it as reading
 
 # Now: what cross-validation does not protect you from
 
-- 2,000 columns of **pure random noise**
+- 2,000 columns of **pure random noise**, 800 rows, 29 positives
 - No relationship to the label whatsoever
 - The honest score of any model on it is **0.500**
+- The plan: keep the 10 columns whose F-test against the label scores highest,
+  `SelectKBest(f_classif, k=10)`, then cross-validate
 
 ::: notes
 Set this up carefully, because the demonstration only lands if they believe the
@@ -690,6 +734,11 @@ of each other. There is nothing to find. Any model's honest AUC is one half.
 
 Tell them what is coming so they can watch for it: we are going to write code
 that looks completely reasonable, and get 0.93.
+
+The last bullet names the selector. f_classif scores each column by how far apart
+its means are for the two classes, relative to its spread (an analysis-of-variance
+F-test), and SelectKBest keeps the k best. Point out the clash of letters: this k
+counts columns, not folds.
 :::
 
 # The code almost everyone writes
@@ -707,8 +756,8 @@ is too many, so let me keep the ten most predictive ones, then cross-validate a
 model on those."
 
 Every line is defensible in isolation. Feature selection is normal. Ten from two
-thousand is reasonable. Cross-validating afterwards is exactly what we spent the
-morning recommending.
+thousand is reasonable. Cross-validating afterwards is exactly what the first half of
+today recommended.
 
 Do not reveal the bug yet. Ask them to find it before the next slide.
 :::
@@ -716,11 +765,11 @@ Do not reveal the bug yet. Ask them to find it before the next slide.
 # 0.931
 
 - Cross-validated AUC **0.931** on data with no signal
-- Four of five folds between 0.93 and 0.98
+- Four of five folds between 0.92 and 0.98
 
 ::: notes
-The result. Tight fold agreement, which is exactly what a trustworthy result
-looks like.
+The result. The folds are 0.928, 0.979, 0.975, 0.943 and 0.832: close
+agreement, which is exactly what a trustworthy result looks like.
 
 Now the bug, which is on the first line: SelectKBest was shown EVERY row,
 including the rows that would later serve as validation folds. It searched two
@@ -736,8 +785,9 @@ is committed in published work regularly.
 
 # Fix it, and look what happens
 
-- Selection moved **inside** the pipeline, refitted per fold
-- 20 different fold seeds: **0.658**
+- Selection moved **inside** the pipeline, refitted per fold:
+  `Pipeline([("select", SelectKBest(f_classif, k=10)), ("scale", ...), ("model", ...)])`
+- 20 different fold seeds: **0.658** on average, 0.576 to 0.759
 - The truth is still 0.500
 
 ::: notes
@@ -781,16 +831,19 @@ candidates; or more rows. Nothing else.
 
 # Hyperparameter search is the same problem
 
-| | AUC |
+| `GridSearchCV`, 5 values of k × 5 of C | AUC |
 |---|---|
-| best of 25 candidates | **0.7999** |
+| best of 25 candidates, `best_score_` | **0.7999** |
 | average candidate | 0.7265 |
-| nested cross-validation | 0.6699 |
+| nested cross-validation, next slide | 0.6699 |
 | the truth, by construction | 0.5 |
 
 ::: notes
 Choosing between configurations is choosing, and choosing on data costs the same
-honesty. Twenty-five combinations on the same signal-free table.
+honesty. GridSearchCV tries every combination of five values of k (columns kept)
+and five of C, 25 in all, each scored by 5-fold cross-validation, on the same
+signal-free table. The nested row is explained on the next slide; read the first
+two rows now.
 
 The number a practitioner reports is best_score_, and it is the MAXIMUM of 25
 noisy estimates. The maximum of a set of noisy numbers is biased upward even
@@ -845,15 +898,15 @@ from the inside, and it is why it is unpopular.
 
 # The debt, paid
 
-| Policy | Cost on the test set |
+| Fit on 56%, choose on 19%, report on 25% | Cost on the test set |
 |---|---|
 | threshold 0.50, the default | 10,540 EUR |
 | threshold chosen on **validation** | **4,700 EUR** |
 | threshold chosen on **test** | 3,300 EUR |
 
 ::: notes
-Lesson 4's threshold, done properly. Split three ways: train to fit, validation
-to choose, test to report once.
+Lesson 4's threshold, done properly. Split three ways, as the table header says:
+fit on 56%, choose the threshold on 19%, report once on the remaining 25%.
 
 The honest threshold is WORSE on the test set than the cheating one. It is
 supposed to be - and this is the slide where that finally makes sense to them.
@@ -916,11 +969,11 @@ what the exam asks them to defend.
 
 - Every `random_state`, and `np.random.default_rng(seed)`
 - **Library versions**: defaults change between releases
-- What you could **not** fix: threads, GPU non-determinism
+- What you could **not** fix: threads, graphics processing unit (GPU) non-determinism
 
 ::: notes
 Practical checklist. The container exists for the second item: it pins the
-environment so that their result and the marker's result are the same result.
+environment so that their result and the examiner's are the same result.
 
 Worth saying that a result nobody can reproduce in two years was not really
 reproducible - and that scikit-learn genuinely does change defaults between
@@ -931,10 +984,19 @@ Commit the code that produced the number, not a tidied-up version of it.
 
 # Notebook 3, live
 
-- The 0.931, the fix, the nested search
+| section, and its slides | you call (→ the number to come back with) |
+|---|---|
+| the catastrophe, 32-34 | `SelectKBest(f_classif, k=10)` on every row, then `cross_val_score` → 0.931 |
+| selection inside the fold, 35-36 | `Pipeline` with the selector as its first step → 0.658 |
+| the search, 37 | `GridSearchCV`, `best_score_` → 0.7999 |
+| nested, 38-39 | `cross_val_score(GridSearchCV(...), cv=outer)` → 0.6699 |
+| the threshold, honestly, 40-41 | `train_test_split` twice → 4,700 EUR against 10,540 |
+| seeds, 42-43 | 30 values of `random_state` → 0.913 to 1.000 |
+
 
 ::: notes
-Run notebooks/03. Twenty minutes if the clock allows.
+The table pairs each section with its calls and its number. Run notebook 03.
+Fifteen minutes.
 
 The cell to protect is the first one - let them watch 0.931 appear on empty data
 before any explanation. Nothing else in the lesson changes behaviour as

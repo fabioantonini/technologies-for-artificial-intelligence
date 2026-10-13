@@ -10,16 +10,17 @@ date: "30 October 2026 · reading time about 95 minutes"
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
 | 0:00–0:10 | 10 | Exercise 4 discussed; the promise we broke | Slides 2–4 |
-| 0:10–0:30 | 20 | One split is a lottery | Slides 5–11 |
-| 0:30–0:52 | 22 | Cross-validation, and when it needs care | Slides 12–19 |
-| 0:52–1:14 | 22 | **Notebook 01** — the split lottery | Slide 20 |
-| 1:14–1:26 | 12 | **Break** | Slide 21 |
-| 1:26–1:50 | 24 | Bias, variance and the noise floor | Slides 22–28 |
-| 1:50–2:04 | 14 | Learning curves and what they prescribe | Slides 29–30 |
-| 2:04–2:24 | 20 | **Notebook 02** — measuring the decomposition | Slide 31 |
-| 2:24–2:46 | 22 | Leakage that survives cross-validation | Slides 32–39 |
-| 2:46–2:56 | 10 | The debt paid; seeds; reproducibility | Slides 40–43 |
-| 2:56–3:00 | 4 | **Notebook 03**; summary; homework | Slides 44–47 |
+| 0:10–0:27 | 17 | One split is a lottery | Slides 5–11 |
+| 0:27–0:47 | 20 | Cross-validation, and when it needs care | Slides 12–19 |
+| 0:47–1:07 | 20 | **Notebook 01** — the split lottery | Slide 20 |
+| 1:07–1:17 | 10 | **Break** | Slide 21 |
+| 1:17–1:39 | 22 | Bias, variance and the noise floor | Slides 22–28 |
+| 1:39–1:51 | 12 | Learning curves and what they prescribe | Slides 29–30 |
+| 1:51–2:11 | 20 | **Notebook 02** — measuring the decomposition | Slide 31 |
+| 2:11–2:31 | 20 | Leakage that survives cross-validation | Slides 32–39 |
+| 2:31–2:40 | 9 | The debt paid; seeds; reproducibility | Slides 40–43 |
+| 2:40–2:55 | 15 | **Notebook 03** — leakage and honest search | Slide 44 |
+| 2:55–3:00 | 5 | What to put in a report; summary; homework | Slides 45–47 |
 | | **180** | **Total** | **47 slides, 3 notebooks** |
 
 ---
@@ -683,7 +684,7 @@ chosen = noise.loc[:, selector.get_support()]
 cross_val_score(model, chosen, y, cv=folds, scoring="roc_auc")
 ```
 
-**Cross-validated AUC: 0.931.** Four of the five folds land between 0.93 and
+**Cross-validated AUC: 0.931.** Four of the five folds land between 0.92 and
 0.98 — which is exactly what a trustworthy result looks like.
 
 The error is on the first line. `SelectKBest` was shown every row, including
