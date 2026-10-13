@@ -11,17 +11,17 @@ date: "27 November 2026 · reading time about 100 minutes"
 |---|---|---|---|
 | 0:00–0:10 | 10 | Exercise 8 discussed; one neuron is one line | Slides 2–7 |
 | 0:10–0:30 | 20 | The acceptance problem, and why a line cannot solve it | Slides 8–15 |
-| 0:30–0:45 | 15 | A hidden layer: fences made of lines; a network built by hand | Slides 16–23 |
-| 0:45–1:00 | 15 | Forward propagation, shapes, and the loss | Slides 24–29 |
-| 1:00–1:12 | 12 | **Break** | Slide 30 |
-| 1:12–1:30 | 18 | Backpropagation derived; checking the gradient | Slides 31–39 |
-| 1:30–1:52 | 22 | **Notebook 01** — backpropagation from scratch | Slide 40 |
-| 1:52–2:07 | 15 | Softmax, activations, and the vanishing gradient | Slides 41–50 |
-| 2:07–2:27 | 20 | **Notebook 02** — Keras, softmax, depth | Slide 51 |
-| 2:27–2:40 | 13 | Initialisation, optimisers, regularisation | Slides 52–63 |
-| 2:40–2:58 | 18 | **Notebook 03** — training in practice | Slide 64 |
-| 2:58–3:00 | 2 | Homework | Slides 65–66 |
-| | **180** | **Total** | **66 slides, 3 notebooks** |
+| 0:30–0:45 | 15 | A hidden layer: fences made of lines; a network built by hand | Slides 16–25 |
+| 0:45–1:00 | 15 | Forward propagation, shapes, and the loss | Slides 26–31 |
+| 1:00–1:12 | 12 | **Break** | Slide 32 |
+| 1:12–1:30 | 18 | Backpropagation derived; checking the gradient | Slides 33–41 |
+| 1:30–1:52 | 22 | **Notebook 01** — backpropagation from scratch | Slide 42 |
+| 1:52–2:07 | 15 | Softmax, activations, and the vanishing gradient | Slides 43–52 |
+| 2:07–2:27 | 20 | **Notebook 02** — Keras, softmax, depth | Slide 53 |
+| 2:27–2:40 | 13 | Initialisation, optimisers, regularisation | Slides 54–65 |
+| 2:40–2:58 | 18 | **Notebook 03** — training in practice | Slide 66 |
+| 2:58–3:00 | 2 | Homework | Slides 67–68 |
+| | **180** | **Total** | **68 slides, 3 notebooks** |
 
 ---
 
@@ -175,6 +175,13 @@ at $(\pm 1, \pm 1)$ millivolts with a spread of 0.28. A unit is correctable
 when the two drifts share a sign. Logistic regression scores exactly
 **0.5000** — a line is worth nothing whatsoever.
 
+![](drift_clouds.png)
+
+*Meridian's second problem: the drifts of a sensor's two channels, 800 units in
+four clouds. Teal units drifted the same way on both channels and can be
+corrected; rust units drifted in opposite ways and cannot. The two classes sit in
+opposite corners, so no single straight line can put one on each side.*
+
 Coding the two channels as $\pm 1$, "the signs agree" means $ab = 1$, which
 means $a + b = \pm 2$; "the signs differ" means $a + b = 0$. So the rule is
 entirely about $|a + b|$:
@@ -197,6 +204,13 @@ W^{[2]} = \begin{pmatrix} 10 \\ 10 \end{pmatrix}, \quad b^{[2]} = -1$$
 so that the two units compute $h_1 = \mathrm{ReLU}(a + b - 1)$ and
 $h_2 = \mathrm{ReLU}(-a - b - 1)$, where **ReLU** is the *rectified linear
 unit*, $\mathrm{ReLU}(z) = \max(0, z)$.
+
+![](two_unit_network.png)
+
+*The same network drawn: the weights on the arrows, the biases beside the nodes,
+and inside each hidden node the shape of the ReLU - flat at zero for negative
+input, rising for positive. The first hidden unit responds only when a + b is
+above 1, the second only when it is below −1, and the output adds the two.*
 
 Between them these two units compute $|a+b|$, clipped: $h_1$ is positive only
 when $a + b > 1$, and $h_2$ only when $a + b < -1$. Work the four cloud

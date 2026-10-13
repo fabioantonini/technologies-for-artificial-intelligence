@@ -313,7 +313,24 @@ rather than from any sample, which is precisely why it is trustworthy here.
 Handout section 2.2.
 :::
 
+# New data: two drifting channels
+
+![](drift_clouds.png)
+
+::: notes
+Say plainly that the data changes here: we leave the acceptance test and take
+Meridian's second problem, the one announced on slide 5. Each sensor has two
+channels, and with temperature both drift. When they drift the same way - both
+up or both down - one correction removes it; when they drift in opposite ways
+nothing does.
+
+Let them look before any rule is stated: four clouds of 200 units, teal in two
+opposite corners, rust in the other two. Ask where they would put a straight
+line. There is no good answer, and that is the next slide. Handout section 3.1.
+:::
+
 # The smallest problem that needs a hidden layer
+
 
 - One correction removes the drift only when both channels drift **the same
   way** (same sign)
@@ -338,9 +355,27 @@ about dimension, it is about how many boundaries the answer needs.
 Handout section 3.1.
 :::
 
+# Two hidden units, drawn
+
+![](two_unit_network.png)
+
+::: notes
+The network of the next slide, drawn before it is described in words. Two
+inputs, the drifts of channels A and B. Two hidden units, each a weighted sum
+followed by a rectified linear unit (ReLU): max(0, z), zero for any negative
+input and the input itself otherwise - the little kink drawn inside each node.
+One output unit, the sigmoid of lesson 4.
+
+Read the weights off the arrows: the first unit adds a and b, the second
+subtracts them, both with bias minus one. So the first wakes up only when
+a + b is above 1, the second only when it is below minus 1. The output adds
+them with weight 10 and bias minus 1. Handout section 3.2.
+:::
+
 # Two units, written down rather than trained
 
-- Two rectified linear units (ReLU), each max(0, ·) of the same sum
+
+- Two rectified linear units, ReLU(z) = max(0, z), both fed the sum a + b
 - One fires when a + b > 1, the other when a + b < -1
 - Between them they compute $|a + b|$, clipped
 - Output weights 10 and 10, bias -1: the rule is $|a + b| > 1.1$
@@ -433,7 +468,7 @@ Handout sections 4.1 and 11.2.
 
 ::: notes
 Twenty independent restarts at each width, on the drift problem. Two units are
-provably enough - the lesson wrote a two-unit solution down by hand three
+provably enough - the lesson wrote a two-unit solution down by hand four
 slides ago and it scored 0.9938 - and plain gradient descent finds something
 that good in four runs out of twenty.
 
@@ -818,10 +853,10 @@ Handout section 5.5.
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
 | split, then one straight line, 8-15 | `train_test_split`, `StandardScaler`, `LogisticRegression` → 0.5507 |
-| forward, backward, gradient check, 24-39 | NumPy only → untrained cost 0.6721, worst disagreement 1.97 × 10⁻⁸ |
-| the drift problem, 16-21 | the hand-built network, then 20 restarts per width → 4 of 20 above 0.95 at two units |
-| the polygon yardstick, 22 | `scipy.integrate` → the best 4-sided fence scores 0.9396 |
-| zero initialisation, 52-53 | all weights 0 → final cost 0.6887 |
+| forward, backward, gradient check, 26-41 | NumPy only → untrained cost 0.6721, worst disagreement 1.97 × 10⁻⁸ |
+| the drift problem, 16-23 | the hand-built network, then 20 restarts per width → 4 of 20 above 0.95 at two units |
+| the polygon yardstick, 24 | `scipy.integrate` → the best 4-sided fence scores 0.9396 |
+| zero initialisation, 54-55 | all weights 0 → final cost 0.6887 |
 
 ::: notes
 Backpropagation from scratch, gradient-checked before it is trusted; the
@@ -1075,11 +1110,11 @@ Handout section 7.3.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the same network in Keras, 24-29 | `keras.Sequential`, `keras.Input`, `layers.Dense`, `SGD`; then `compile`, `fit`, `evaluate` → 0.9333 |
-| ten classes, 41-44 | `Dense(10, activation="softmax")`, `Adam`, `Dropout`, `confusion_matrix` → 0.9676 with two layers of 64 |
-| the shrinkage, measured, 45-48 | `tf.GradientTape`, `sparse_categorical_crossentropy` → about 4 per sigmoid layer |
-| training six layers, 49-50 | `SGD` on three activations → sigmoid 0.1000, tanh 0.9750 |
-| how big the weights should be, 54 | `RandomNormal` at two scales, against Glorot → 73% saturated at N(0, 1) |
+| the same network in Keras, 26-31 | `keras.Sequential`, `keras.Input`, `layers.Dense`, `SGD`; then `compile`, `fit`, `evaluate` → 0.9333 |
+| ten classes, 43-46 | `Dense(10, activation="softmax")`, `Adam`, `Dropout`, `confusion_matrix` → 0.9676 with two layers of 64 |
+| the shrinkage, measured, 47-50 | `tf.GradientTape`, `sparse_categorical_crossentropy` → about 4 per sigmoid layer |
+| training six layers, 51-52 | `SGD` on three activations → sigmoid 0.1000, tanh 0.9750 |
+| how big the weights should be, 56 | `RandomNormal` at two scales, against Glorot → 73% saturated at N(0, 1) |
 
 ::: notes
 The same network again in six lines of Keras, with the same answer; softmax on
@@ -1413,11 +1448,11 @@ Handout section 10.1.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the learning rate, 55-57 | `SGD(learning_rate=α)` at five rates → best 0.9685 at α = 0.5 |
-| dead units, 58-59 | `keras.Model` to read the hidden layer → 33 of 64 dead at α = 1.0 |
-| optimisers, 60-61 | `SGD`, `SGD(momentum=0.9)`, `Adam` → Adam's worst run 0.9360 |
-| memorising, 63 | two layers of 512 on 300 digits, `count_params` → 301,066 parameters |
-| regularisers, 62 | `EarlyStopping`, `Dropout(0.4)`, `l2(1e-3)` → 0.9411 to 0.9511 |
+| the learning rate, 57-59 | `SGD(learning_rate=α)` at five rates → best 0.9685 at α = 0.5 |
+| dead units, 60-61 | `keras.Model` to read the hidden layer → 33 of 64 dead at α = 1.0 |
+| optimisers, 62-63 | `SGD`, `SGD(momentum=0.9)`, `Adam` → Adam's worst run 0.9360 |
+| memorising, 65 | two layers of 512 on 300 digits, `count_params` → 301,066 parameters |
+| regularisers, 64 | `EarlyStopping`, `Dropout(0.4)`, `l2(1e-3)` → 0.9411 to 0.9511 |
 | more data | `train_test_split` at six sizes → +3.2 points from 300 to 1,077 examples |
 
 ::: notes
