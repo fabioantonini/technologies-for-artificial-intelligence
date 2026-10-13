@@ -129,14 +129,17 @@ choose squaring.
   make the observed prices most probable
 
 ::: notes
-Give the three in increasing order of depth. The first is convenience. The
-second is a design decision: being wrong by 40,000 on one house costs the same
+Give the three reasons on the slide in increasing order of depth. The first,
+differentiability, is convenience: the cost has a derivative everywhere, so
+calculus can find its minimum. The second is a design decision: being wrong by 40,000 on one house costs the same
 as 20,000 on four, which matches most intuitions about what a bad prediction is.
 
 The third is the real reason and worth saying even though we do not prove it: if
 you believe the noise is Gaussian, least squares is not a convention, it is the
-maximum likelihood estimator. That connects to the residual histogram in
-notebook 1.
+maximum likelihood estimator - the coefficients it picks are the ones under which
+the observed prices were most probable. That connects to the histogram of the
+residuals (the leftover errors) in notebook 1, which has the bell shape of a
+Gaussian.
 
 Then the consequence, which is not optional: squared error is sensitive to
 outliers, because one absurd value contributes its error squared. Lesson 2's work on outliers is needed for this lesson, not an optional warm-up.
@@ -147,8 +150,9 @@ outliers, because one absurd value contributes its error squared. Lesson 2's wor
 $$J(w, b) = \frac{1}{2m}\sum_{i=1}^{m}\left(\hat{y}^{(i)} - y^{(i)}\right)^2$$
 
 ::: notes
-Name the parts: m examples, the half for convenience when we differentiate,
-the square doing the work discussed. This is the mean squared error, MSE from
+Name the parts: m is the number of examples, the sum runs over all of them,
+the half is there for convenience when we differentiate, and the square makes
+every error positive and punishes large ones most, as the previous slide said. This is the mean squared error, MSE from
 here on, and the name is worth saying aloud because every later slide uses the
 abbreviation.
 
@@ -287,17 +291,17 @@ comes from.
 $$\theta = (X^\top X)^{-1}X^\top y$$
 
 ::: notes
-Four lines of NumPy, and notebook 1 shows it agreeing with scikit-learn to
-1.8e-12 euros per square metre.
+This is the exact solution: theta collects the intercept and every coefficient,
+and the formula gives all of them at once, with no iteration. It is four lines of
+NumPy, and notebook 1 shows it agreeing with scikit-learn's answer to within
+1.8 × 10⁻¹² euros per square metre - the two differ only by rounding.
 
 Handout section 3.1 derives it properly and section 3.2 does it by hand on three
 houses: X transpose X, determinant 22,400, the inverse, and out comes 2,536
 euros per square metre against a true 2,400. Three data points, two parameters,
 6% error. Worth doing on the board if the room is engaged.
 
-Also mention that the second derivative is X transpose X, which is positive
-semi-definite (it is never negative in any direction), so the cost is convex and any stationary point is global. That is
-the formal version of "the bowl has one bottom".
+Why it is the minimum and not some other flat point is the next slide but one.
 :::
 
 # The same equation, by hand
@@ -395,8 +399,8 @@ times steeper the steepest direction of the bowl is than the shallowest.
 - Add `area_sqft` beside `area_sqm`: **2,286**
 
 ::: notes
-This is the number behind "nearly redundant", and it is the idea from the first
-half of the lesson that is most useful outside it.
+This is the number behind "nearly redundant", and one of the ideas from the
+first half of the lesson that is most useful outside it.
 
 The picture: a round bowl is easy to walk down because every direction behaves
 the same. Two nearly-identical columns produce a ravine instead - steep across,
@@ -405,8 +409,8 @@ and the other down changes the predictions barely at all, which is precisely why
 the fit cannot decide between them.
 
 Then the consequence, which appears twice. For the exact solution, a stretched valley
-is what makes the inverse enormous and the answer unstable. For gradient descent
- -  next section - one step size has to serve every direction at once, so the
+is what makes the inverse enormous and the answer unstable. For gradient descent,
+which is the next section, one step size has to serve every direction at once, so the
 steep direction sets the limit and the shallow one crawls. The condition number
 is, near enough, what sets the iteration count.
 
@@ -465,16 +469,20 @@ Handout 4.2 works one step by hand: after a single update the slope has moved
 | intercept b | −390 | 0.0039 |
 
 ::: notes
-Both gradients are negative - the model predicts zero for everything, so every
-prediction is far too low - and both parameters therefore increase. So far, so
-unremarkable.
+Say first that the prices here are in thousands of euros, so 240 means
+240,000, which keeps the numbers small enough to read.
+
+Both gradients are negative - the model starts at zero and predicts zero for
+every house, so every prediction is far too low - and both parameters therefore
+increase. So far, nothing surprising.
 
 Now the thing to notice, and give the room a moment to spot it: after one
 identical step the slope has moved **163 times further** than the intercept.
 
-Nothing clever caused that. Areas are around 140, and the intercept's "feature"
-is always 1, so the slope's gradient is roughly 140 times larger before anything
-else happens. With one shared learning rate, the intercept crawls towards its
+Nothing clever caused that. In the gradient, each house's error is multiplied
+by its area for the slope, and by 1 for the intercept (the intercept behaves like
+a feature that is always 1). The two areas are 80 and 200, so the slope's
+gradient comes out about 163 times larger before anything else happens. With one shared learning rate, the intercept crawls towards its
 value long after the slope has arrived - which is exactly what notebook 1 shows
 after 4,000 iterations.
 
@@ -489,7 +497,7 @@ Handout section 4.2.
 ::: notes
 Both panels are from notebook 1, and they are the same run seen two ways.
 
-Left: the cost against iteration. It falls steeply in the first few dozen steps and then flattens into a long tail that is still creeping at 4,000. Point
+Left: the cost against the iteration number. It falls steeply in the first few dozen steps and then flattens into a long tail that is still creeping at 4,000. Point
 at the flat part and say what it means - the model was essentially fitted very
 early, and almost all the iterations bought almost nothing.
 
@@ -515,9 +523,10 @@ takes too many of them. Middle: about right. Right: too large, and it climbs out
 of the valley.
 
 The threshold is not a rule of thumb. Handout section 4.3 derives it: for a bowl
-of curvature c,
-convergence requires alpha below 2/c, and with several features the binding
-constraint is the largest curvature - the largest feature variance.
+whose curvature (how quickly the slope changes) is c, gradient descent converges
+only when alpha is below 2/c. With several features the bowl has a different
+curvature in each direction, and the steepest one sets the limit; on unscaled
+data that steepest direction belongs to the feature with the largest spread.
 
 So the safe learning rate is set by your worst-scaled feature, which is another
 argument for scaling everything.
@@ -541,7 +550,8 @@ The model, the cost, the exact solution and the iterative one, built from
 scratch. 25 minutes. Let them work through it themselves.
 
 The two moments worth pausing on together. First, the agreement between their
-four-line normal equation and scikit-learn to twelve decimal places - it convinces more than any assurance from the lecturer. Second, the coefficient table at the
+four-line normal equation and scikit-learn, to within about 10⁻¹² - seeing it on
+their own screen convinces more than any assurance from the lecturer. Second, the coefficient table at the
 end, which is the setup for the last section of the lesson.
 
 Watch for anyone whose gradient descent diverges. That is the "try this" at the
@@ -602,8 +612,11 @@ real work than people expect.
 $$\hat{y} = w_1 t + w_2 t^2 + b$$
 
 ::: notes
-The trick, and it surprises people. Nothing in the derivation required the
-inputs to be straight - only that the model is linear in w, which it still is.
+This is the trick, and it surprises people. The model is a curve in t, but it is
+still a weighted sum of columns: one column holds t, a second holds t squared,
+and the weights w enter only by multiplication and addition. Nothing in the
+derivation of least squares required the columns to be the raw inputs - only
+that the model is linear in w, which it still is.
 
 So this is the same least squares, the same normal equation, the same code, on a
 design matrix with one extra column. PolynomialFeatures builds those columns.
@@ -654,7 +667,9 @@ time. A pattern means the model has missed something.
 ![](polynomial_degrees.png)
 
 ::: notes
-Degree 1 too rigid, degree 2 right, degree 12 wild.
+Three fits to the same 21 points. The degree-1 line is too rigid to follow the
+U; degree 2 matches the true curve, which is quadratic; degree 12 swings wildly
+between the points.
 
 Ask them which they would pick if the dashed true curve were not drawn - because
 that is the real situation. The only thing you ever see is the points.
@@ -683,17 +698,22 @@ predicted. An MSE of 285 means nothing to anyone; an RMSE of 16.9 kWh does.
 This is the table the whole lesson turns on. Read the columns against each
 other, slowly.
 
-Training error falls at every single step, 113 down to 14, monotonically, never
-once suggesting anything is wrong. Test error bottoms out at degree 3 and then
+Training error falls at every single step, from 113 down to 14, never once
+suggesting anything is wrong. Test error bottoms out at degree 3 and then
 climbs: 590 at degree 9, and 24,656 at degree 12.
+
+If someone asks why degree 3 wins when the truth is quadratic: the notebook also
+fits degree 2, which scores 17.4 against degree 3's 16.9. With nine test days
+that difference is noise; the two are equally good.
 
 So the model that fits the training data best is more than a thousand times
 worse on data it has not seen - and the training error congratulated us the
 whole way.
 
-This is lesson 1's empirical-versus-expected risk with numbers in it. And note
-how little it took: 21 training points, and by degree 9 the model has nearly as
-many coefficients as data.
+This is lesson 1's empirical-versus-expected risk with numbers in it: the error
+on the data we fitted against the error on data we have not seen. And note how
+little it took: 21 training points, and at degree 12 the model has 12
+coefficients plus an intercept to place among them.
 :::
 
 # The gap is the overfitting
@@ -712,8 +732,8 @@ Test error is the other line, and it turns. The gap between the two curves is
 the thing with a name: that gap *is* overfitting, and it widens without limit.
 
 This is lesson 1's empirical risk versus expected risk, now with numbers and a
-picture. Lesson 5 is about measuring the upper curve honestly when you do not
-have a test set to spend.
+picture. Lesson 5 is about measuring the upper curve, the test error, honestly when you
+do not have a test set to spend.
 :::
 
 # Notebook 2, live
@@ -752,9 +772,11 @@ Here is the mechanism, and it is the setup for everything after the break.
 
 The huge coefficients work in OPPOSITION. With 21 points and 12 coefficients
 there are many ways to pass close to every point, and the one least squares
-finds has terms that nearly cancel - one pushing the curve up where the next
-pushes it down, the cancellation failing exactly where a training point sits.
-Between the points, nothing constrains the swing.
+finds is built from enormous terms that nearly cancel: one pushes the curve up,
+the next pushes it down by almost the same amount. At each training point the
+cancellation is tuned so the curve lands near the point, because that is all
+least squares checks. Between the points nothing tunes it, and the curve swings
+by thousands.
 
 Then the question that leads the rest of the lesson: if enormous opposing
 coefficients are the symptom, what would happen if we charged for coefficient
@@ -776,13 +798,8 @@ write the penalty strength as lambda, and reserve alpha for the learning rate.
 scikit-learn calls the penalty `alpha`. So `Ridge(alpha=0.01)` in code is
 lambda = 0.01 on this slide.
 
-Two things that are not optional and that students get wrong. The intercept is
-never penalised - it is not a claim about any feature, and shrinking it would
-bias every prediction towards zero. And features MUST be scaled first: the
-penalty is a sum over coefficients, so the same feature in metres and in
-kilometres attracts penalties differing by a factor of a thousand.
-
-Lesson 2 introduced scaling for optimisation speed. Here it is correctness.
+Ridge charges the sum of the squared coefficients, Lasso the sum of their
+absolute values; the next slide gives the two rules both of them need.
 :::
 
 # Two rules that are not optional
@@ -826,8 +843,9 @@ Handout section 6.1.
 
 ::: notes
 Read the last column first: three billion down to 365, from a penalty of one
-hundredth. And the test error falls from 24,656 to 23, which is the noise floor -
-a thousandfold improvement bought with one number.
+hundredth. And the test error falls from 24,656 to 23, which is the noise floor: the
+noise we added to each day has a standard deviation of 22 kWh, and no model can
+predict below it. A thousandfold improvement, bought with one number.
 
 Now the training column, which is the honest part: it gets WORSE at every step.
 13.6, 18, 45, 96. That is the trade being made deliberately - a worse fit on the
@@ -837,8 +855,9 @@ And it stops paying. The test error rises from 22.8 at lambda 0.01, to 105 at
 lambda 1, to 228 at lambda 100 - a tenfold loss against the best penalty,
 because the model is now too rigid to follow the curve.
 
-The useful range spans four orders of magnitude, which is why lambda cannot be
-guessed.
+The table runs lambda from 0.01 to 100, four orders of magnitude, and the test
+error changes tenfold across them. That is why lambda cannot be guessed: it has
+to be searched for, which lesson 5 does properly.
 :::
 
 # The unpenalised fit leaves the picture
@@ -892,8 +911,8 @@ The answer is: one term. Add lambda down the diagonal of the matrix you invert,
 and that is the entire modification.
 
 Everything else is identical - same derivation, same projection idea, same four
-lines of NumPy. Ridge is not a different method; it is least squares with the
-floor tilted.
+lines of NumPy. Ridge is not a different method; it is
+least squares with a price on large coefficients.
 
 Two small print points, for anyone who checks it against the cost on the earlier
 slide. Written with theta, the formula penalises the intercept too; in practice
@@ -904,10 +923,8 @@ lambda times 2m. Handout section 6.2 shows where the factor comes from.
 
 Note that Lasso has no such formula. The absolute value has a corner, so it
 cannot be differentiated at zero, and the solution has to be found iteratively.
-That inconvenience is inseparable from the property that makes Lasso useful  - 
-the corner is exactly what produces the zeros.
-
-Handout section 6.2 derives it in three lines.
+That inconvenience is inseparable from the property that makes Lasso useful:
+the corner is exactly what produces the zeros, as two slides from now show.
 :::
 
 # Why that one change fixes it
@@ -923,7 +940,7 @@ coefficients changes the predictions not at all - the valley is perfectly flat
 along it, so there is no unique lowest point. Infinitely many answers fit
 equally well.
 
-Ridge tilts the floor. Once coefficient size costs something, moving along that
+Ridge tilts the floor of that valley. Once coefficient size costs something, moving along that
 flat direction is no longer free, the flatness acquires a slope, and a single
 lowest point appears.
 
@@ -945,10 +962,12 @@ not for overfitting. The overfitting cure was the side effect.
 Intuition before algebra again, and this one is worth the time.
 
 Think of the penalty as a budget: you may spend a fixed total on coefficients
-and want the best fit that money buys. Draw what you can afford. Charging
-squares gives a disc; charging absolute values gives a diamond on its corners.
+and want the best fit that money buys. Draw what you can afford. For two
+coefficients, charging squares makes the affordable region a disc; charging
+absolute values makes it a diamond, a square turned to stand on its corners.
 
-The best affordable fit is where the error contours first touch the region.
+The best affordable fit is where the error contours (the rings of equal cost
+around the unpenalised answer) first touch the region.
 
 A disc is smooth, so contact happens at a generic point with both coefficients
 non-zero. A diamond has corners, its corners lie ON THE AXES, and a corner is a
@@ -967,17 +986,9 @@ tolerance, not a numerical accident - the shape of the budget.
 From notebook 3. Left: ridge coefficients approach zero smoothly and never
 arrive. Right: lasso coefficients hit zero at a finite lambda and stay.
 
-Give the order in which lasso drops features on the housing data, because it is
-not arbitrary: garage first at lambda 10,000 - the smallest effect once
-everything is on a common scale - then distance and age, and by 40,000 only area
-survives.
-
-Nobody told it which features matter. It was told to keep the total size small,
-and this is the arrangement that buys the most accuracy for each unit of
-coefficient size it spends.
-
-The warning: the selection depends entirely on lambda, so "Lasso chose these
-features" is never a complete statement.
+The housing data again, with all six features scaled, and lambda growing from
+left to right. Point at the right panel: one by one the lasso lines reach the
+zero line and stay on it. The next slide reads off the order.
 :::
 
 # The order Lasso drops features
@@ -1002,7 +1013,7 @@ spend it well, and this ranking fell out of that - which is genuinely
 remarkable and is why Lasso is used as a feature selector at all.
 
 Now the warning, and it is the part that gets forgotten in practice: **the
-selection depends entirely on lambda**. "Lasso chose these four features" is not
+selection depends entirely on lambda**. "Lasso chose these three features" is not
 a complete statement - at a different lambda it chooses differently. Presenting
 lasso output as an objective ranking of importance is one of the commonest
 misuses of it.
@@ -1040,13 +1051,18 @@ So it picks one arbitrarily, and the arbitrariness changes with the sample.
 Same dataset, four different random splits. The area coefficient varies by a
 factor of five, and its duplicate swings the opposite way to compensate.
 
-Stress what is and is not broken: the PREDICTIONS are fine throughout - the
-combined effect is stable at about 2,420, close to the true 2,400. It is the
-EXPLANATION that is noise.
+Stress what is and is not broken: the PREDICTIONS are fine throughout. What a
+square metre adds is the metres coefficient plus 10.76 times the feet
+coefficient, since a square metre is 10.76 square feet, and on every split that
+sum stays within about 2% of the true 2,400 (the notebook prints 2,424 for its
+own split). It is the EXPLANATION that is noise.
 
 Anyone reading these coefficients to learn what drives house prices would draw
 nonsense, confidently. With ridge at lambda 10 the same four splits give 38,000
-to 41,000 on both columns, split evenly, because two moderate coefficients cost
+to 41,000 on both columns, split evenly. Say the units, or the comparison
+misleads: ridge runs on scaled features, so these are euros per standard
+deviation of area, not euros per square metre, and they cannot be set against
+the table. What matters is that they are stable and equal, because two moderate coefficients cost
 less under a squared penalty than one huge positive and one huge negative.
 
 So ridge is not only a cure for overfitting. It is what makes coefficients
@@ -1085,11 +1101,12 @@ coefficients, and are both right: they included different features, so their
 From notebook 1, and this is the slide of the lesson most useful outside it.
 
 The x axis is how correlated each feature is with area; the y axis is how far its
-estimated coefficient landed from the truth. Two of the three features uncorrelated
-with area, distance and age, are recovered to within 1%; garage is the exception,
-9.6% out, because a yes-or-no column varies little and the noise weighs more on
-its coefficient. Bathrooms, at 0.49,
-is out by 9%. Bedrooms, at 0.77, is out by 17%.
+estimated coefficient landed from the truth. Read it from left to right. Three
+features are uncorrelated with area. Two of them, distance and age, are
+recovered to within 1%. The third, garage, is 9.6% out: it is a yes-or-no column,
+so it varies little, and the noise weighs more on its coefficient. Then the
+correlated ones: bathrooms, correlated 0.49 with area, is 9% out; bedrooms,
+correlated 0.77, is 17% out.
 
 State the rule: a coefficient is only as trustworthy as its feature is
 independent. And on a real dataset the same wobble is there with nothing to
@@ -1137,7 +1154,7 @@ it and found that fitting well and explaining well are different goals.
 The one sentence to leave them with: the model that fits your training data best
 is usually not the one you want.
 
-And the number to leave them with, repeated from before the break: a penalty of
+And the number to leave them with, repeated from slide 39: a penalty of
 one hundredth took the largest coefficient from billions to 365 and the test
 error from 24,656 to 22.8. One number, chosen well, bought all of that.
 
@@ -1153,8 +1170,8 @@ different cost function, for a reason lesson 4 derives.
 Fit, regularise, and **explain which coefficients you believe**.
 
 ::: notes
-Set it explicitly and say when it is discussed. It uses a new dataset - bike sharing demand
- -  so the exploration is theirs to do.
+Set it explicitly and say when it is discussed. It uses a new dataset,
+bike sharing demand, so the exploration is theirs to do.
 
 Point out the two tasks that carry the most marks. Task 4 asks them to justify a
 choice of lambda without looking at the test set, which is genuinely awkward

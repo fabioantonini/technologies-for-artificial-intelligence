@@ -1125,12 +1125,16 @@ a sum of 1.793 — shrunk a little, and divided fairly.
 
 Same data, four random splits. The area coefficient varies by a factor of five, and its
 duplicate swings the opposite way to compensate. What is broken and what is not: the
-**predictions** are fine throughout - the combined effect stays at about 2,420 euros per
-square metre, close to the true 2,400 - but the **explanation** is noise. Anyone reading
+**predictions** are fine throughout - a square metre is 10.76 square feet, so the metres
+coefficient plus 10.76 times the feet coefficient is what a square metre adds, and on every
+split it stays within about 2% of the true 2,400 euros (2,424 on the notebook's own split) -
+but the **explanation** is noise. Anyone reading
 these coefficients to learn what drives house prices would draw nonsense, confidently.
 With Ridge at $\lambda = 10$ the same four splits give about 38,000 to 41,000 on both
 columns, split evenly, because two moderate coefficients cost less under a squared
-penalty than one huge positive and one huge negative. Ridge is not only a cure for
+penalty than one huge positive and one huge negative. These are euros per standard
+deviation of area, because Ridge runs on scaled features, so they cannot be set against
+the euros per square metre in the table; what matters is that they are stable and equal. Ridge is not only a cure for
 overfitting: it makes coefficients readable when features overlap.
 
 ---

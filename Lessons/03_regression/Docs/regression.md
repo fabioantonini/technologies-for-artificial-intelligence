@@ -858,11 +858,16 @@ the same data:
 | 3 | 39,061 | −3,402 |
 
 The coefficient on area varies by a factor of five, and the coefficient on its
-duplicate swings to compensate. Predictions are fine throughout — their combined
-effect is stable at about 2,420 — but the explanation is noise.
+duplicate swings to compensate. Predictions are fine throughout. A square metre is
+10.76 square feet, so what one square metre adds is the metres coefficient plus
+10.76 times the feet coefficient, and on every split that combined effect stays
+within about 2% of the true 2,400 (2,424 on the notebook's own split). The
+explanation is noise.
 
 With Ridge at $\lambda = 10$, the same four splits give roughly 38,000–41,000 on both
-columns, splitting the effect evenly. Two moderate coefficients cost less under a
+columns, splitting the effect evenly. These are euros per standard deviation of area,
+because Ridge runs on scaled features, so they are not comparable with the table's
+euros per square metre; what matters is that they are stable and equal. Two moderate coefficients cost less under a
 squared penalty than one huge positive and one huge negative.
 
 **So Ridge is not only a cure for overfitting.** It is what makes coefficients
