@@ -14,9 +14,10 @@ Exercise 1 was set last week. We discuss it now.
 - A show of hands: did you predict a class, or a number?
 
 ::: notes
-The fifteen minutes on what lesson 1 clarified come before this slide; the
-exercise discussion follows them, and its part about the ten seeds is easier to
-discuss right after seeing that a test score is one measurement.
+The fifteen minutes going back over what lesson 1 left unclear come before this
+slide, and the exercise discussion follows them. That order helps: Task 7 of the
+exercise, the split repeated with ten seeds, is easier to discuss right after
+seeing again that a test score is one measurement.
 
 Open with the exercise, briefly - two or three minutes, not a review session.
 Nothing is collected, so this is the whole of the feedback: ask for a show of
@@ -58,7 +59,7 @@ Agenda slide. Flag the last item now as the one to remember in five years -
 everything before it is what makes the leakage discussion precise rather than
 vague.
 
-Timing: roughly 25 minutes to the first notebook, then a break, then scaling
+Timing: about 25 minutes of slides (6 to 21) before the first notebook, then a break, then scaling
 and encoding, then the leakage section closes the lesson before homework.
 :::
 
@@ -119,8 +120,8 @@ into one bar. This is the figure that makes the next forty minutes necessary.
 Then point at age and num_support_calls, which are on their own honest ranges
 and do show a distribution - age skewed with a spike at the youngest bound,
 support calls a Poisson-looking count. That contrast is the argument for
-cleaning before looking any further, and it is why the same plot reappears
-after Section 4.
+cleaning before looking any further, and it is why the same plot reappears in
+the handout after Section 4 has cleaned the outliers.
 :::
 
 # Where the gaps are
@@ -178,15 +179,9 @@ imputation "free"? Let them guess before the next slide - most will say yes,
 and the reasoning is sound as far as it goes: the mean is unbiased, so filling
 with the mean introduces no bias in that column.
 
-The answer is no, and the reason is that a column is never used alone. Handout
-Section 3.2 derives it: filling p of the entries with a constant shrinks the
-variance to (1-p) times the original, and attenuates every correlation the
-column has with anything else by the square root of (1-p).
-
-Have the numbers ready. For age at p = 0.08 the factor is 0.96 - small enough
-to ignore. At p = 0.4 it is 0.77, which erases nearly a quarter of a genuine
-relationship. Tell them the practical rule that follows: mean imputation is
-fine when the gaps are few, and quietly destructive when they are many.
+The answer is no, and the reason is that a column is never used alone: filling
+the gaps with one constant value weakens every correlation the column has with
+anything else. The next slide shows by how much.
 :::
 
 # What mean imputation actually costs
@@ -197,13 +192,13 @@ even under MCAR.
 ![](correlation_attenuation.png)
 
 ::: notes
-Read the curve rather than the formula. Filling gaps with a constant costs correlation, and the cost grows with the fraction filled.
+Read the curve rather than the formula. The horizontal axis is the fraction of the column filled with the mean, the vertical axis is how much of the original correlation survives. Filling gaps with a constant costs correlation, and the cost grows with the fraction filled.
 
 Point at the two markers. For age at 8% the factor is 0.96 - negligible, and this is why nobody notices. At 40% it is 0.77, which erases nearly a quarter of a real relationship.
 
 The practical rule to state: mean imputation is fine when gaps are few, and quietly destructive when they are many. Nothing warns you at which point it crossed over.
 
-The algebra is Handout Section 3.2: the correlation is multiplied by the square root of one minus the missing fraction. Write it on the board if the room wants it - the figure is what they will remember.
+The algebra is Handout Section 3.2: filling a fraction p with a constant shrinks the variance to (1 - p) times the original, and multiplies every correlation by the square root of (1 - p). Write it on the board if the room wants it - the figure is what they will remember.
 :::
 
 # Support calls: missing at random
@@ -220,9 +215,11 @@ reasoning is sound as far as it goes: the gap rows are the long-tenure ones, and
 they churn at 12.5% against 19.7%, so the fact of the gap is informative.
 
 But under MAR the gap is explained by a column we already hold - that is the
-definition - so the model already has what the indicator would tell it. Notebook
-and handout agree: adding it moves the area under the curve from 0.751 to 0.741,
-no gain, well inside split-to-split noise. The indicator is worth adding only if
+definition - so the model already has what the indicator would tell it. Handout
+Section 3.3 measures it: adding the indicator moves the area under the receiver
+operating characteristic curve (AUC) from 0.751 to 0.741 - no gain, well inside
+split-to-split noise. The AUC is defined on slide 39; for now, higher is better
+and 0.5 is a coin flip. The indicator is worth adding only if
 being missing tells the model something the other columns cannot - typically
 when the value is missing not at random (MNAR), because whether it is missing
 depends on the missing value itself. Handout Section 3.3.
@@ -600,7 +597,7 @@ and it does not converge slowly, it never converges at all.
 Be precise about the failure if anyone asks, because "diverges" is the word
 people reach for and it is not what this is. The loss does not climb away to
 infinity - it swings between 0.69 and 8.29 and stays there, bouncing from one
-side of the valley to the other. Run it for 2000 steps and it is still in the
+side of the valley to the other. Run it ten times as long and it is still in the
 same band. Worse than slow: a slow run at least finishes.
 
 This is a controlled toy (notebook 2), built to a 100:1 variance ratio and
@@ -730,7 +727,7 @@ category is closer to any other, which is precisely the neutrality that makes it
 the safe default.
 
 Then the cost, which is the honest trade: k columns. Three is nothing;
-493 on 2,000 rows is the curse of dimensionality, two slides from here.
+493 on 2,000 rows is the curse of dimensionality, on slide 34.
 
 The last bullet raises a question rather than closing one. Target encoding is the obvious
 escape from the width problem and it is the more dangerous of the two
@@ -816,14 +813,14 @@ encoding looks attractive for high-cardinality columns, before the next section
 shows why it needs care.
 
 The number to dwell on: one-hot encoding zip_code produces 493 columns, almost
-all zero, on 2000 rows. More columns than a quarter of the sample size, for one
+all zero, on 2000 rows - one new column for every four rows, from a single
 field.
 
 Two consequences to name. Distance-based methods (Lesson 6) degrade, because in
 high dimensions everything becomes roughly equidistant from everything else.
 And every column is a parameter to estimate from the same fixed amount of data,
-which is the bias-variance trade-off from Lesson 1 arriving from a new
-direction.
+so the estimates get noisier: the overfitting gap of lesson 1 (slide 21)
+arriving from a new direction. Lesson 5 names it the bias-variance trade-off.
 :::
 
 # zip_code: 493 codes, 2,000 customers
@@ -852,8 +849,13 @@ means, the imputer's fill values - not only the model's coefficients.
 $$\mathbb{E}_{T \sim \mathcal{D}^m}\left[\hat{R}_T(f)\right] = R(f)$$
 
 ::: notes
-Say the condition out loud, because it is not written on the slide and it is the
-whole content: this equality holds ONLY IF f is independent of T.
+Read the symbols first: T is the test set, m rows drawn from the distribution D;
+R-hat of T is the average loss on those rows; R is the expected risk from lesson 1.
+The equation says that, averaged over all the test sets we might have drawn, the
+test score equals the true risk.
+
+Then say the condition out loud, because it is not written on the slide and it is
+the whole content: this equality holds ONLY IF f is independent of T.
 
 Handout Section 8.1. Lesson 1's unbiasedness argument never mentioned "the
 model" specifically - it is about f, whatever function maps raw inputs to
@@ -863,7 +865,8 @@ model, so f includes their learned parameters too.
 The moment any of those parameters - a mean, a set of neighbours, a
 per-category average - is estimated using rows that later appear in T, f is
 no longer independent of T, and the equality breaks. This is the one-sentence
-version of everything Section 9 is about to demonstrate concretely.
+version of everything handout Section 9, and the leakage section of today's
+slides, are about to demonstrate concretely.
 :::
 
 # `ColumnTransformer` + `Pipeline`
@@ -900,7 +903,7 @@ model.fit(X_train, y_train)
 ::: notes
 Say out loud what the five short names stand for, or someone spends the next
 minute working it out instead of listening: num_pipe and cat_pipe are the
-impute-then-transform pairs from the diagram two slides back, num_cols and
+impute-then-transform pairs from the diagram on the previous slide, num_cols and
 cat_cols are plain lists of column names, and clf is the classifier. They are
 abbreviated here only to fit the slide - handout Section 8.2 prints the same
 block with full names, every import, and both column lists, and it runs as
@@ -1068,7 +1071,7 @@ Set up the closing section. Lesson 1's leak - selecting features on the full
 dataset - is visible once you know to look for it: an obviously extra step.
 Today's two are not. Imputing a missing value and encoding a category both
 read as ordinary data cleaning, not as "training a model." They ARE training
-a model, in the sense Section 8.1 makes precise: any fitted parameter is part
+a model, in the sense handout Section 8.1 makes precise and slide 36 stated: any fitted parameter is part
 of f, and f must be independent of the test set.
 :::
 
@@ -1207,9 +1210,10 @@ Notebook 3 shows the n_c=1 case literally: zip code Z472, one customer,
 churn label 0, encoded value 0.000. Not correlated with the label. IS the
 label, relabelled as an input.
 
-Connect to Section 6.3: high cardinality means small groups means a bigger
-leak by exactly this formula - the curse of dimensionality and the leakage
-risk are the same underlying fact.
+Connect to handout Section 6.3 and slide 34: a column with many levels
+(high cardinality) has few rows per level, and by this formula few rows per
+level means a bigger leak. The width problem of one-hot encoding and the leak of
+target encoding come from the same fact: many levels, few rows in each.
 :::
 
 # The fix
@@ -1220,9 +1224,10 @@ It splits the training rows into five parts and encodes each row from the
 **other four**: never from its own label.
 
 ::: notes
-Smoothing pulls each group's mean towards the global mean, weighted by group
-size, so a one-customer zip code barely moves from the overall rate. It
-reduces the leak but does not remove it.
+TargetEncoder also applies smoothing: it pulls each group's churn rate towards
+the overall churn rate, the more so the smaller the group, so a one-customer zip
+code barely moves from the overall rate. Smoothing reduces the leak but does not
+remove it.
 
 Say clearly what actually removes it: fitting the encoder on the training rows
 only, inside the pipeline, exactly as with every other learned step - with
@@ -1344,14 +1349,11 @@ asks why each decision was made.
 Next: regression, the first model we derive completely.
 
 ::: notes
-Set the exercise explicitly and say when it is discussed - the first ten minutes
-of Lesson 3, Friday 16 October.
+The checklist for the week. The exercise was set on the previous slide; say once
+more that it is discussed at the start of Lesson 3, Friday 16 October.
 
-Point out that it uses the same churn dataset, so the exploration they did
+Point out that it uses the same churn generator, so the exploration they did
 today carries over, and that what counts is again methodology: a pipeline
 that is correct but modest beats a better score obtained by preparing the full
 dataset before splitting.
-
-Remind them that nothing is handed in: every exercise is kept, because one of
-the ten is drawn at the exam and discussed from their own notebook.
 :::
