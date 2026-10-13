@@ -66,8 +66,8 @@ sectors is a **17 times** larger move than going from 40 to 44
 drive ever reallocates says something and the forty-first says almost nothing
 new. In the units the model works in, those first four sectors are worth
 **$+4.7$ log-odds**: a drive with average telemetry and no reallocated sectors
-has a 0.01% chance of failing, and four sectors take it to 1.3% — **a
-hundred-and-thirtyfold increase**. The four sectors from 40 to 44 are worth
+has a 0.012% chance of failing, and four sectors take it to 1.3% — **about a
+hundredfold increase**. The four sectors from 40 to 44 are worth
 $+0.27$, and move the same drive from 85% to 89%.
 
 This is the feature engineering of lesson 2, and it has two consequences here.
@@ -280,9 +280,12 @@ Two reasons, one mathematical and one entirely practical.
 differentiate one term at a time. It does not move the maximum, because
 $\log$ is strictly increasing.
 
-**Practically**, the product underflows. With 8,000 drives each contributing a
-factor below 1, the product is around $10^{-1000}$, which a 64-bit float stores
-as exactly zero. Every serious implementation works in log space for this
+**Practically**, the product underflows. Gradient descent starts from all-zero
+weights, where every one of the 6,000 training drives gets probability 0.5, and
+$0.5^{6000}$ is about $10^{-1806}$. The smallest positive number a 64-bit float can
+hold is about $10^{-308}$, so the product is stored as exactly zero, and so is
+every gradient computed from it. Even the fitted model, at an average log loss of
+0.0692, multiplies out to only about $10^{-180}$. Every serious implementation works in log space for this
 reason, not for elegance.
 
 Taking the logarithm and negating — so that we minimise rather than maximise,

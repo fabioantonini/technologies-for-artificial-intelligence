@@ -17,7 +17,8 @@ mistake rather than praising the good answers - it is worth more to the room.
 The one to watch for: choosing the penalty by looking at the test error. It is
 the natural thing to do because the test error is the number they were told to
 care about, and it is exactly the mistake lesson 1 named. Today's lesson ends up in
-the same place from a different direction, when we choose a decision threshold.
+the same place from a different direction, on slide 43, when we choose a decision
+threshold by looking at the test set.
 Lesson 5 gives them the machinery to do both honestly.
 :::
 
@@ -71,8 +72,9 @@ of today.
 - `train_test_split(..., stratify=y)`: 6,000 to train, 2,000 to test
 
 ::: notes
-SMART is the diagnostic data a drive keeps about itself: reallocated sectors,
-spin retries, read error rate, temperature, hours in service. Expand the acronym
+SMART is the diagnostic data a drive keeps about itself: reallocated sectors
+(bad patches of the disk the drive has had to replace), spin retries, read error
+rate, temperature, hours in service, and seek error rate. Expand the acronym
 on the slide and out loud - it is the kind of thing that gets skipped and then
 quietly blocks a student for the rest of the hour.
 
@@ -97,8 +99,8 @@ Ask, without answering: if a model has to guess for each drive, and it wants to
 be right as often as possible, what should it say?
 
 Somebody will say "healthy, every time". Agree, and move on. Do not explain the
-consequence yet - it lands far harder in section 5 when they see 96.2% printed
-as a model's accuracy score.
+consequence yet - it lands far harder on slide 22, after the break, when they see
+96.2% printed as a model's accuracy score.
 :::
 
 # What goes wrong if we just fit a line
@@ -133,14 +135,17 @@ is diminishing. It is the total evidence z, not any one counter. Two units of
 log-odds from z = 0 take the probability from 0.50 to 0.88; the same two from
 z = 6 take it from 0.9975 to 0.9997, 178 times less.
 
-Expect someone to object that the previous figure says otherwise. That curve is
-drawn against raw reallocated sectors, not against z, so it is steepest at 13.2
-and the first four sectors move it by only 0.03. Both pictures are right: the
+Expect someone to object that the previous figure says otherwise: there the
+curve is flat at the START, where drives have few reallocated sectors, not only
+at the ends. The answer is the horizontal axis. That curve is drawn against raw
+reallocated sectors, not against z, so it is steepest at 13.2 sectors and the
+first four sectors move it by only 0.03. Both pictures are right: the
 counters act on a log scale, and on that scale four sectors are worth +4.7 in
-log-odds, taking a drive from a 0.01% chance of failing to 1.3%. Handout
+log-odds, taking a drive from a 0.012% chance of failing to 1.3%, about a hundred times
+more. Handout
 section 1.1.
 
-Right: the same relationship inverted. This is the slide that explains WHY this
+Right panel: the same relationship inverted. This is the slide that explains WHY this
 particular curve and not some other S-shape. A probability is trapped in [0,1].
 The odds - p over 1 minus p - remove the ceiling. The log of the odds removes
 the floor too, leaving something that runs over all of the real line.
@@ -163,9 +168,8 @@ section 2.2 does that: sigma of 0 is a half; sigma of minus z is 1 minus sigma
 of z; and the derivative is sigma times one minus sigma.
 
 That last one is the one to flag. It is largest in the middle, one quarter, and
-it decays to zero at both ends. In fifteen minutes that fact will be
-simultaneously the reason the sigmoid works and the reason squared error does
-not.
+it decays to zero at both ends. On slide 17 that fact will be simultaneously the
+reason the sigmoid works and the reason squared error does not.
 :::
 
 # What the coefficients mean
@@ -213,7 +217,8 @@ the number that matters, not 6,000.
 
 Then the last row, which is the one to pause on. seek_error_rate was generated
 with a coefficient of exactly zero: a real-looking counter with no connection to
-failure. The model estimates 0.02, an odds multiplier of 1.03. It did not fall
+failure. The model estimates 0.02, an odds multiplier of 1.03 (the table rounds the
+coefficient; the multiplier is computed from the unrounded value). It did not fall
 for it.
 
 Then ask the room the harder question: would you have noticed, if I had not told
@@ -278,8 +283,10 @@ makes it largest.
 
 Two practical notes worth saying aloud. We take the logarithm because it turns
 the product into a sum, which differentiates one term at a time - and because
-with 8,000 factors below 1 the product is about 10 to the minus 1000, which a
-64-bit float stores as exactly zero. Every real implementation works in log
+the product itself is too small to store. Gradient descent starts with every
+probability at 0.5, and 0.5 multiplied by itself 6,000 times, once per training
+drive, is about 10 to the minus 1806. The smallest number a 64-bit float holds is
+about 10 to the minus 308, so the computer stores exactly zero. Every real implementation works in log
 space, and not for elegance.
 
 Then negate, so we minimise as in lesson 3.
@@ -344,7 +351,7 @@ the ratio grows without bound.
 Right panel is the real argument, so spend the time here. The gradient is what
 the optimiser actually uses. Squared error's gradient through the sigmoid
 carries a factor p times one-minus-p - which is exactly the sigmoid derivative
-from ten minutes ago - and that factor goes to zero as p goes to zero.
+from slide 9 - and that factor goes to zero as p goes to zero.
 
 Say it as a sentence: the wronger the model gets, the less squared error asks it
 to change. At p = 0.001 the gradient is a five-hundredth of log loss's. Log loss
@@ -423,7 +430,8 @@ line. At a threshold of 0.5 this model calls nearly the whole fleet healthy,
 including most of the drives that failed.
 
 Ask: is that a bad model? Take answers. Then say: the probabilities are fine.
-The threshold is a habit. Telling those two apart is the next two hours.
+The threshold of 0.5 is a habit. Telling those two apart is the rest of the
+lesson.
 :::
 
 # Break
@@ -473,8 +481,9 @@ It stops being informative precisely when one class is rare. And then list the
 problems: fraud, disease screening, intrusion detection, equipment failure,
 spam. In every one of them the class you care about is the small one.
 
-The general statement, worth putting on the board: with a positive rate pi, the
-trivial always-negative classifier scores 1 minus pi. Here 96.2%. In some fraud
+The general statement, worth putting on the board: if a share pi of the cases
+are positive (the positive rate), the trivial always-negative classifier scores
+1 minus pi. Here 96.2%. In some fraud
 problems, where the rate is one in a thousand, 99.9%.
 
 Accuracy is not wrong. It is answering a question nobody asked.
@@ -526,7 +535,8 @@ usual answer; content moderation that removes a legitimate post is another.
 
 ::: notes
 This picture prevents the most common confusion of the lesson.
-Both metrics divide the true positives. The difference is entirely in what goes
+Both metrics put the true positives - failed drives we flagged - on top of the
+fraction. The difference is entirely in what goes
 underneath, and the shading shows it.
 
 Precision divides by the COLUMN - everything we flagged. When this model raises
@@ -555,8 +565,9 @@ Read each line as an English sentence with the counts in it, not as a ratio.
 That is the habit worth building: a metric that cannot be said as a sentence
 about actual objects has not been understood.
 
-Specificity is recall for the negative class, and one minus it is the false
-positive rate, which comes back in the ROC section. Mention it now so the term
+Specificity is recall for the negative class: of the healthy drives, how many
+did we leave alone. One minus it is the false positive rate, which comes back in
+the receiver operating characteristic (ROC) section. Mention it now so the term
 is not new later.
 
 If someone asks which of the three to report: the answer is that it depends on
@@ -583,8 +594,10 @@ The reason: the harmonic mean is dominated by the smaller of the two numbers. A
 model is only as good as its weaker side, and F1 refuses to let a perfect score
 on one axis buy a pass on the other.
 
-Mention F-beta in one sentence: beta above 1 weights recall more, which is what
-you want here where misses cost nineteen times more. F2 is the usual choice.
+Mention F-beta in one sentence: a version of F1 with a weight beta, where beta
+above 1 counts recall more than precision. That is what you want here, where a
+miss costs about nineteen times a false alarm (2,600 against 140 euros). F2 is the
+usual choice.
 :::
 
 # Read the minority class, not the average
@@ -693,15 +706,16 @@ The sweep traced a path through precision-recall space; this is that path drawn
 directly. Every threshold at once.
 
 The part to teach is the baseline. A model with random scores has precision
-equal to the positive rate - 0.038 here - at every recall. That flat red line,
+equal to the positive rate - 0.038 here - at every recall. That flat dashed line,
 not 0.5, is what "no skill" looks like on an imbalanced problem.
 
 That is why this curve is so much more informative than accuracy when positives
 are rare: the floor is where the difficulty actually is. Our model's area under
 it, the average precision, is 0.717 against a floor of 0.038.
 
-The three marked dots are the same three thresholds from the last two slides, so
-they can see the correspondence.
+The three marked dots are thresholds 0.5, 0.3 and 0.05. The first two are rows
+of the table on the previous slide, so they can check the correspondence: at 0.5,
+recall 0.566 and precision 0.768.
 :::
 
 # Comparing models without choosing a threshold
@@ -731,8 +745,9 @@ from, because it makes the idea concrete. Wartime radar: operators tuning
 receivers to spot aircraft without chasing flocks of birds. Same problem shape,
 literally the same trade-off.
 
-The two axes: true positive rate, which is recall under another name - the
-failures we catch. False positive rate - the healthy drives we condemn.
+The two axes: the true positive rate (TPR), which is recall under another name -
+the share of failures we catch. The false positive rate (FPR) - the share of
+healthy drives we condemn.
 
 The intuition worth saying slowly: at threshold 1 both are zero, flag nothing.
 At threshold 0 both are one. The entire content of the curve is the ORDER in
@@ -781,9 +796,10 @@ decision it makes is different.
 
 The consequence: AUC says nothing about whether "0.7" means anything. If you
 need the probabilities to be believable - because you are computing expected
-costs, as we will in ten minutes - AUC is not the check you want.
+costs, as slide 41 does - AUC is not the check you want.
 
-Good place to mention calibration exists as a topic, without going into it.
+Good place to mention that calibration - whether a predicted 0.7 really comes
+true 70% of the time - is a topic of its own, without going into it.
 :::
 
 # Where ROC misleads
@@ -795,11 +811,11 @@ Same model. Not retrained. We keep every healthy drive in a fleet of 60,000 and
 thin the FAILURES until they are 0.4% instead of 3.8% - the direction reality
 moves in fraud, disease, hardware failure.
 
-Left: the three ROC curves sit on top of each other. AUC 0.968, 0.965, 0.974. It
+Left panel: the three ROC curves sit on top of each other. AUC 0.968, 0.965, 0.974. It
 reports an excellent model throughout, and at the rarest setting a marginally
 better one, which is sampling noise on 231 positives.
 
-Right: the precision-recall curves are in three different worlds. Average
+Right panel: the precision-recall curves are in three different worlds. Average
 precision falls from 0.706 to 0.361, and precision at the same threshold falls
 from 0.79 to 0.26 - two alarms in three now false.
 
@@ -854,7 +870,7 @@ and this lesson is about the thinking.
 
 ::: notes
 Finally, the honest way to pick a threshold. It needs one ingredient no metric
-can supply: what the errors cost. We wrote those down an hour ago - €140 for a
+can supply: what the errors cost. We wrote those down on slide 25 - €140 for a
 needless replacement, €2,600 for a drive that dies in service.
 
 The curve is the total cost on the test set as the threshold moves. The default
@@ -897,8 +913,9 @@ between them.
 - That is precisely what lesson 1 forbade
 
 ::: notes
-Say this out loud rather than leaving it in the handout, because it is the same
-mistake you may have just named to them, this morning, on exercise 3.
+Say this out loud rather than leaving it in the handout, because it is the
+same mistake you may have named at the start of today's lesson, in the discussion
+of exercise 3.
 
 The threshold is a parameter. Choosing it by looking at the test set means the
 test set has influenced the model, and the number it then reports is optimistic.
@@ -920,7 +937,8 @@ could publish.
 | Balanced class weights, 0.50 | 0.895 | 0.249 | **0.950** | 49,500 |
 
 ::: notes
-class_weight="balanced" makes each rare example count as many, here about 25.
+class_weight="balanced" makes each failed drive count, in the cost, as much as
+about 25 healthy ones - the ratio of healthy to failed drives in the training set.
 It changes the training rather than the decision.
 
 Point at the AUC column: 0.949 against 0.950. Reweighting taught the model
@@ -935,9 +953,11 @@ The remedy, where one exists, is more positive examples.
 Where it earns its place: when a downstream tool insists on predict() and gives
 you no threshold to move. Then this is how you shift the operating point.
 
-Same caution for resampling and for SMOTE (synthetic minority oversampling
-technique, which builds artificial minority examples) - and it must happen
-inside the cross-validation fold, for the reasons lesson 2 gave about imputation.
+The same reading holds for resampling and for SMOTE (synthetic minority
+oversampling technique, which builds artificial minority examples): they move the
+operating point too. And both must be applied to the training rows only - inside
+each cross-validation fold, once lesson 5 introduces folds - for the reasons
+lesson 2 gave about imputation.
 :::
 
 # Notebook 3, live
@@ -970,8 +990,9 @@ Real fleets are not healthy-or-dead. A drive can be degraded: readable, but
 reporting errors, and worth replacing at the next maintenance window rather than
 at three in the morning.
 
-For K classes the model produces one score per class and normalises them - the
-softmax, which for two classes reduces exactly to the sigmoid. The cost
+For K classes the model produces one score per class and turns them into K
+probabilities that add up to 1 - the softmax, which for two classes reduces
+exactly to the sigmoid. The cost
 generalises to categorical cross-entropy, and it is the same idea: the negative
 log of the probability assigned to what actually happened. Handout section 10.
 

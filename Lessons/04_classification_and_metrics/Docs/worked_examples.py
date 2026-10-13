@@ -69,6 +69,12 @@ p = 0.0001
 same("4.1 squared error for a confident falsehood", (p - 1) ** 2, 0.9998)
 same("4.1 log loss for the same prediction", -math.log(p), 9.21, tolerance=5e-3)
 same("4.1 log loss for an honest half", -math.log(0.5), 0.69, tolerance=5e-3)
+# The likelihood underflows: 6,000 training drives, each at p = 0.5 at the start,
+# and at the fitted model's mean log loss 0.0692 (notebook 1's printed history).
+same("3.3 the starting likelihood, as a power of ten", 6000 * math.log10(0.5), -1806,
+     tolerance=0.5)
+same("3.3 the fitted likelihood, as a power of ten", -6000 * 0.0692 / math.log(10), -180,
+     tolerance=0.5)
 same("3.3 the cost of a one-in-a-thousand surprise", math.log(1000), 6.9,
      tolerance=0.01)   # the handout says "about 6.9"; it is 6.9078
 
@@ -185,9 +191,11 @@ same("1.1 the first four sectors, in log-odds", severity(4) - severity(0), 4.7,
      tolerance=0.05)
 same("1.1 sectors 40 to 44, in log-odds", severity(44) - severity(40), 0.27,
      tolerance=5e-3)
-same("1.1 a drive with no reallocated sectors", sigmoid(severity(0)), 0.0001,
-     tolerance=5e-5)
+same("1.1 a drive with no reallocated sectors", sigmoid(severity(0)), 0.00012,
+     tolerance=5e-6)
 same("1.1 the same drive with four", sigmoid(severity(4)), 0.013, tolerance=5e-4)
+same("1.1 ... about a hundredfold increase", sigmoid(severity(4)) / sigmoid(severity(0)),
+     100, tolerance=10)
 same("1.1 the same drive with forty", sigmoid(severity(40)), 0.85, tolerance=5e-3)
 same("1.1 the same drive with forty-four", sigmoid(severity(44)), 0.89,
      tolerance=5e-3)
