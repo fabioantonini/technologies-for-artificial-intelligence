@@ -92,7 +92,7 @@ low would cancel to zero and look perfect.
 
 ![](cost_surface.png)
 
-*The cost as a function of the two parameters. It is a bowl, and a bowl has exactly one bottom — which is why squared error can be minimised exactly rather than searched for.*
+*The cost as a function of the two parameters. It is a bowl, and a bowl has exactly one bottom — which is why squared error can be minimised exactly rather than searched for. The gold star is that bottom, $(w^*, b^*)$: the grid point with the lowest cost, a slope of 2,790 and an intercept of −52,000, within one grid step of the exact answer section 3 computes.*
 
 So we need every error to count as a positive amount. There are two natural
 ways: the absolute error $\sum_i |\hat{y}^{(i)} - y^{(i)}|$, or the squared error

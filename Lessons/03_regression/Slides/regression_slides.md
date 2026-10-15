@@ -297,7 +297,11 @@ Handout section 2.2.
 
 ::: notes
 From notebook 1. Two parameters, so the cost is a surface over the plane of
-(slope, intercept), and fitting means finding its lowest point.
+(slope, intercept), and fitting means finding its lowest point. The gold star
+is the previous slide's (w*, b*): the notebook computes the cost at every
+point of a grid and keeps the lowest, a slope of 2,790 and an intercept of
+-52,000. The normal equation, two slides on, leads to the exact answer, 2,785
+and -51,025, within one grid step of the star.
 
 The important structural fact: this bowl is convex. There is one minimum and no
 local traps. Say that explicitly, because it is a property most methods later in

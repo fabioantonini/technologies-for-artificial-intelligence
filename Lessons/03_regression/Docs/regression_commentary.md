@@ -327,7 +327,7 @@ here is its lowest point.
 
 ![](cost_surface.png)
 
-*The cost as a function of the two parameters. It is a bowl, and a bowl has exactly one bottom — which is why squared error can be minimised exactly rather than searched for.*
+*The cost as a function of the two parameters. It is a bowl, and a bowl has exactly one bottom — which is why squared error can be minimised exactly rather than searched for. The gold star is that bottom, $(w^*, b^*)$: the grid point with the lowest cost, a slope of 2,790 and an intercept of −52,000, within one grid step of the exact answer, computed in section 3.*
 
 With two parameters, slope and intercept, the cost is a surface over the plane of their
 values, and fitting means finding its lowest point. The important structural fact is
