@@ -109,30 +109,48 @@ was.
 
 We need one number saying how badly a candidate model is doing.
 
-Adding up the errors fails: +50,000 and −50,000 cancel to zero.
+Adding up the errors, Σᵢ (ŷ⁽ⁱ⁾ − y⁽ⁱ⁾), fails: +50,000 and −50,000
+cancel to zero.
+
+Every error must count as a positive amount:
+
+- absolute error Σᵢ |ŷ⁽ⁱ⁾ − y⁽ⁱ⁾|
+- squared error Σᵢ (ŷ⁽ⁱ⁾ − y⁽ⁱ⁾)²
 
 ::: notes
-This is the intuition before the formula, and it takes ten seconds. A model that
-is 50,000 too high on one house and 50,000 too low on another is not perfect,
-but the sum of its errors is zero.
+This is the intuition before the formula, and it takes ten seconds. Read the
+first sum aloud: for every house i, the prediction minus the true price, added
+up. A model that is 50,000 too high on one house and 50,000 too low on another
+is not perfect, but that sum is zero.
 
-So every error must count as a positive amount. That is the requirement; squaring
-is one way to meet it, absolute value is another. The next slide says why we
-choose squaring.
+So every error must count as a positive amount. That is the requirement, and the
+last line gives the two ways of meeting it: take the absolute value of each
+error, or square it. The next slide says why we choose squaring, and the one
+after turns the squared sum into the cost the lesson minimises.
 :::
 
 # Why squared, not absolute
 
-- **Differentiable everywhere**: no corner at zero
-- **Punishes one large error more** than several small ones
-- Under Gaussian noise it is **maximum likelihood**: the coefficients that
-  make the observed prices most probable
+- Squared error Σᵢ (ŷ⁽ⁱ⁾ − y⁽ⁱ⁾)²: each error e = ŷ⁽ⁱ⁾ − y⁽ⁱ⁾
+  counts as e², not as |⁠e⁠|
+- **Differentiable everywhere**: e² is smooth, |⁠e⁠| has a corner at e = 0
+- **Punishes one large error more**: double an error and |⁠e⁠| doubles,
+  e² quadruples
+- Under Gaussian noise it is **maximum likelihood**: it picks the
+  coefficients that make the observed prices most probable
 
 ::: notes
-Give the three reasons on the slide in increasing order of depth. The first,
-differentiability, is convenience: the cost has a derivative everywhere, so
-calculus can find its minimum. The second is a design decision: being wrong by 40,000 on one house costs the same
-as 20,000 on four, which matches most intuitions about what a bad prediction is.
+Start from the formula on the first line, the squared error of the previous
+slide: for each house, the prediction minus the true price, squared, then added
+up. Call one error e: squared error adds e squared for it, absolute error would
+add the size of e.
+
+Then give the three reasons on the slide in increasing order of depth. The first,
+differentiability, is convenience: e squared has a derivative everywhere, while
+the absolute value has a corner at zero, so with squared error calculus can find
+the minimum directly. The second is a design decision: doubling an error
+quadruples its cost, so being wrong by 40,000 on one house costs the same as
+20,000 on four, which matches most intuitions about what a bad prediction is.
 
 The third is the real reason and worth saying even though we do not prove it: if
 you believe the noise is Gaussian, least squares is not a convention, it is the

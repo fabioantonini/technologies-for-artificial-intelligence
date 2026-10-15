@@ -83,15 +83,21 @@ and how to relax the assumption when it fails.
 
 **The picture first.** We need a single number saying how badly a candidate
 model is doing, so that "fitting" becomes "make this number small". The obvious
-candidate — add up the errors — fails immediately, because a prediction 50,000
-too high and one 50,000 too low would cancel to zero and look perfect.
+candidate — add up the errors,
+
+$$\sum_{i=1}^{m}\left(\hat{y}^{(i)} - y^{(i)}\right),$$
+
+— fails immediately, because a prediction 50,000 too high and one 50,000 too
+low would cancel to zero and look perfect.
 
 ![](cost_surface.png)
 
 *The cost as a function of the two parameters. It is a bowl, and a bowl has exactly one bottom — which is why squared error can be minimised exactly rather than searched for.*
 
-So we need every error to count as a positive amount. Squaring does that, and it
-also decides something less obvious: how much worse one large mistake is than
+So we need every error to count as a positive amount. There are two natural
+ways: the absolute error $\sum_i |\hat{y}^{(i)} - y^{(i)}|$, or the squared error
+$\sum_i (\hat{y}^{(i)} - y^{(i)})^2$. Squaring does it, and it also decides
+something less obvious: how much worse one large mistake is than
 several small ones. Squaring says *much* worse.
 
 Now the definition. The **mean squared error** is
