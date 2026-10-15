@@ -284,7 +284,7 @@ wants is the coefficients that achieve it.
 
 This line is the whole of "fitting". Everything else in the first half of the
 lesson is a way of computing it: exactly, with the normal equation on slides
-15-18, or step by step, with gradient descent on slides 21-25. The next slide
+15-18, or step by step, with gradient descent on slides 22-26. The next slide
 shows J as a surface over (w, b), and the pair this formula asks for is the
 lowest point of that surface.
 
@@ -300,7 +300,7 @@ From notebook 1. Two parameters, so the cost is a surface over the plane of
 (slope, intercept), and fitting means finding its lowest point. The gold star
 is the previous slide's (w*, b*): the notebook computes the cost at every
 point of a grid and keeps the lowest, a slope of 2,790 and an intercept of
--52,000. The normal equation, two slides on, leads to the exact answer, 2,785
+-52,000. The normal equation, three slides on, leads to the exact answer, 2,785
 and -51,025, within one grid step of the star.
 
 The important structural fact: this bowl is convex. There is one minimum and no
@@ -330,6 +330,33 @@ leftover error had any component lying ALONG the surface, you could have moved
 that way and done better. At the optimum the error must be at right angles to
 every feature. That is what the normal equations say, and it is where the name
 comes from.
+:::
+
+# θ and X: all parameters, all houses
+
+- θ = (b, w₁, …, wₙ)ᵀ: every parameter in one column, the intercept first
+- X: one row per house; a column of 1s, then one column per feature
+- So Xθ gives b + w₁x₁ + … + wₙxₙ for every house at once: all m
+  predictions in one product
+- The cost becomes J(θ), and the next slide solves for θ
+
+::: notes
+Two pieces of notation, and the next slide is unreadable without them.
+
+Theta is a column vector: b on top, then w1 down to wn. It is the course's
+symbol for all the parameters together, intercept included. Write it on the
+board as a column - b, w1, dots, wn - because that is how it multiplies.
+
+X is the table of features with one extra column of 1s in front. Ask the room
+why the 1s are there before you say it: multiply a row of X by theta, and the 1
+picks up b while each feature picks up its own w. So one row times theta is
+exactly the linear model of slide 6, b + w1 x1 + ... + wn xn, and X times theta
+is that prediction for every house at once.
+
+With the three houses of the slide after next: X has rows (1, 80), (1, 120),
+(1, 200), and theta is (b, w).
+
+Handout section 3.1 sets this up before the derivation.
 :::
 
 # The normal equation
@@ -586,9 +613,9 @@ divide by three if it rises. Lesson 5 replaces the recipe with a search.
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
 | one feature, 4-5 | `train_test_split` → 450 houses to fit, 150 to test |
-| the exact answer, 15-18 | the normal equation in NumPy, then `LinearRegression` → 2,785 €/m², agreeing to 1.82e-12 |
-| the iterative answer, 21-25 | NumPy only: gradient descent → the same answer, slowly |
-| all six features, 50-51 | `LinearRegression` → area 2,421, bedrooms −16.6% |
+| the exact answer, 15-19 | the normal equation in NumPy, then `LinearRegression` → 2,785 €/m², agreeing to 1.82e-12 |
+| the iterative answer, 22-26 | NumPy only: gradient descent → the same answer, slowly |
+| all six features, 51-52 | `LinearRegression` → area 2,421, bedrooms −16.6% |
 | the baseline, 12 | `DummyRegressor(strategy="mean")`, `r2_score` → 96,440 € against 20,341 €, R² 0.956 |
 
 ::: notes
@@ -786,10 +813,10 @@ do not have a test set to spend.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| a relationship that bends, 28-29 | `train_test_split` → 21 days to fit, 9 to test |
-| linear in the coefficients, 30-32 | `PolynomialFeatures`, `StandardScaler` and `LinearRegression`, chained by `make_pipeline` |
-| too much flexibility, 33-35 | `mean_squared_error`, square-rooted → test RMSE 16.9 at degree 3, 24,655.7 at 12 |
-| why the wiggles appear, 37 | the fitted coefficients → largest 3,097,038,010 at degree 12 |
+| a relationship that bends, 29-30 | `train_test_split` → 21 days to fit, 9 to test |
+| linear in the coefficients, 31-33 | `PolynomialFeatures`, `StandardScaler` and `LinearRegression`, chained by `make_pipeline` |
+| too much flexibility, 34-36 | `mean_squared_error`, square-rooted → test RMSE 16.9 at degree 3, 24,655.7 at 12 |
+| why the wiggles appear, 38 | the fitted coefficients → largest 3,097,038,010 at degree 12 |
 
 ::: notes
 Fit the curve, push the degree up, and watch the test error turn. 20 minutes. This is the shortest of the three notebooks and the most visual.
@@ -1168,9 +1195,9 @@ what would happen if you moved a house.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| Ridge on the degree-12 fit, 38-42 | `Ridge(alpha=0.01)` after `PolynomialFeatures` and `StandardScaler` → largest coefficient 365 |
-| regularisation paths, 45-47 | `make_pipeline(StandardScaler(), Ridge(alpha=...))`, the same with `Lasso` → only area left at 40,000 |
-| the collinear case, 48-49 | `LinearRegression` against `Ridge(alpha=10)` on four splits → 9,261 to 45,307, then about 40,000 |
+| Ridge on the degree-12 fit, 39-43 | `Ridge(alpha=0.01)` after `PolynomialFeatures` and `StandardScaler` → largest coefficient 365 |
+| regularisation paths, 46-48 | `make_pipeline(StandardScaler(), Ridge(alpha=...))`, the same with `Lasso` → only area left at 40,000 |
+| the collinear case, 49-50 | `LinearRegression` against `Ridge(alpha=10)` on four splits → 9,261 to 45,307, then about 40,000 |
 
 ::: notes
 Ridge on the degree-12 fit, the regularisation paths, and the collinear case.
@@ -1200,7 +1227,7 @@ it and found that fitting well and explaining well are different goals.
 The one sentence to leave them with: the model that fits your training data best
 is usually not the one you want.
 
-And the number to leave them with, repeated from slide 40: a penalty of
+And the number to leave them with, repeated from slide 41: a penalty of
 one hundredth took the largest coefficient from billions to 365 and the test
 error from 24,656 to 22.8. One number, chosen well, bought all of that.
 
