@@ -10,18 +10,18 @@ date: "16 October 2026 · reading time about 80 minutes"
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
 | 0:00–0:08 | 8 | Exercise 2 discussed; the dataset | Slides 2–5 |
-| 0:08–0:23 | 15 | The model, its cost, and what to compare it against | Slides 6–13 |
-| 0:23–0:37 | 14 | The exact solution, and when it fails | Slides 14–19 |
-| 0:37–0:48 | 11 | Gradient descent | Slides 20–24 |
-| 0:48–1:13 | 25 | **Notebook 01** — regression from scratch | Slide 25 |
-| 1:13–1:28 | 15 | **Break** | Slide 26 |
-| 1:28–1:45 | 17 | Curves, and the price of flexibility | Slides 27–34 |
-| 1:45–2:05 | 20 | **Notebook 02** — polynomials and overfitting | Slide 35 |
-| 2:05–2:26 | 21 | Ridge and Lasso | Slides 36–46 |
-| 2:26–2:35 | 9 | Reading coefficients honestly | Slides 47–50 |
-| 2:35–2:55 | 20 | **Notebook 03** — ridge, lasso, collinearity | Slide 51 |
-| 2:55–3:00 | 5 | Summary; homework set | Slides 52–53 |
-| | **180** | **Total** | **53 slides, 3 notebooks** |
+| 0:08–0:23 | 15 | The model, its cost, and what to compare it against | Slides 6–14 |
+| 0:23–0:37 | 14 | The exact solution, and when it fails | Slides 15–20 |
+| 0:37–0:48 | 11 | Gradient descent | Slides 21–25 |
+| 0:48–1:13 | 25 | **Notebook 01** — regression from scratch | Slide 26 |
+| 1:13–1:28 | 15 | **Break** | Slide 27 |
+| 1:28–1:45 | 17 | Curves, and the price of flexibility | Slides 28–35 |
+| 1:45–2:05 | 20 | **Notebook 02** — polynomials and overfitting | Slide 36 |
+| 2:05–2:26 | 21 | Ridge and Lasso | Slides 37–47 |
+| 2:26–2:35 | 9 | Reading coefficients honestly | Slides 48–51 |
+| 2:35–2:55 | 20 | **Notebook 03** — ridge, lasso, collinearity | Slide 52 |
+| 2:55–3:00 | 5 | Summary; homework set | Slides 53–54 |
+| | **180** | **Total** | **54 slides, 3 notebooks** |
 
 Slide 1 is the title slide, so the numbers above match the page numbers of the
 slide PDF in `Slides/`. The lecture segments come to 100 minutes across
@@ -124,6 +124,16 @@ outlier discussion is not decoration; it is a prerequisite for this lesson.
 down a factor of 2, and the half cancels it, leaving a clean gradient. It has no
 effect on where the minimum is — scaling a function by a constant does not move
 its minimiser — so it is pure convenience.
+
+**Fitting, in one line.** With the cost defined, "fitting the model" means
+finding the parameters at which it is smallest:
+
+$$(w^*, b^*) = \arg\min_{w,\,b}\; J(w, b)$$
+
+The star marks the best values. $\arg\min$ is lesson 1's notation: it returns
+*where* the minimum is reached — here a slope and an intercept — not the value
+of $J$ there. Section 3 computes this pair exactly, section 4 approaches it step
+by step.
 
 ### 2.3 A worked example
 

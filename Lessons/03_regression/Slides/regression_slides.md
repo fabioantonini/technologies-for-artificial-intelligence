@@ -267,6 +267,30 @@ So R-squared compares a model against the mean OF THE DATASET IT WAS MEASURED ON
 and cannot compare two models measured on different data. Handout section 2.4.
 :::
 
+# Fitting is finding where J is smallest
+
+$$(w^*, b^*) = \arg\min_{w,\,b}\; J(w, b)$$
+
+::: notes
+Read it aloud: w star and b star are the values of the slope and the intercept
+at which the cost J is smallest. The star marks "the best values"; it is a
+label, not an operation.
+
+arg min is lesson 1's notation, met there as f-hat equals the arg min of the
+training error. It returns where the minimum is reached, not the minimum
+itself: here, a pair of numbers (w, b), not a cost. That distinction is worth a
+sentence, because the minimum of J is a number nobody needs - what the lesson
+wants is the coefficients that achieve it.
+
+This line is the whole of "fitting". Everything else in the first half of the
+lesson is a way of computing it: exactly, with the normal equation on slides
+15-18, or step by step, with gradient descent on slides 21-25. The next slide
+shows J as a surface over (w, b), and the pair this formula asks for is the
+lowest point of that surface.
+
+Handout section 2.2.
+:::
+
 # The cost is a bowl
 
 ![](cost_surface.png)
@@ -558,9 +582,9 @@ divide by three if it rises. Lesson 5 replaces the recipe with a search.
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
 | one feature, 4-5 | `train_test_split` → 450 houses to fit, 150 to test |
-| the exact answer, 14-17 | the normal equation in NumPy, then `LinearRegression` → 2,785 €/m², agreeing to 1.82e-12 |
-| the iterative answer, 20-24 | NumPy only: gradient descent → the same answer, slowly |
-| all six features, 49-50 | `LinearRegression` → area 2,421, bedrooms −16.6% |
+| the exact answer, 15-18 | the normal equation in NumPy, then `LinearRegression` → 2,785 €/m², agreeing to 1.82e-12 |
+| the iterative answer, 21-25 | NumPy only: gradient descent → the same answer, slowly |
+| all six features, 50-51 | `LinearRegression` → area 2,421, bedrooms −16.6% |
 | the baseline, 12 | `DummyRegressor(strategy="mean")`, `r2_score` → 96,440 € against 20,341 €, R² 0.956 |
 
 ::: notes
@@ -758,10 +782,10 @@ do not have a test set to spend.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| a relationship that bends, 27-28 | `train_test_split` → 21 days to fit, 9 to test |
-| linear in the coefficients, 29-31 | `PolynomialFeatures`, `StandardScaler` and `LinearRegression`, chained by `make_pipeline` |
-| too much flexibility, 32-34 | `mean_squared_error`, square-rooted → test RMSE 16.9 at degree 3, 24,655.7 at 12 |
-| why the wiggles appear, 36 | the fitted coefficients → largest 3,097,038,010 at degree 12 |
+| a relationship that bends, 28-29 | `train_test_split` → 21 days to fit, 9 to test |
+| linear in the coefficients, 30-32 | `PolynomialFeatures`, `StandardScaler` and `LinearRegression`, chained by `make_pipeline` |
+| too much flexibility, 33-35 | `mean_squared_error`, square-rooted → test RMSE 16.9 at degree 3, 24,655.7 at 12 |
+| why the wiggles appear, 37 | the fitted coefficients → largest 3,097,038,010 at degree 12 |
 
 ::: notes
 Fit the curve, push the degree up, and watch the test error turn. 20 minutes. This is the shortest of the three notebooks and the most visual.
@@ -1140,9 +1164,9 @@ what would happen if you moved a house.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| Ridge on the degree-12 fit, 37-41 | `Ridge(alpha=0.01)` after `PolynomialFeatures` and `StandardScaler` → largest coefficient 365 |
-| regularisation paths, 44-46 | `make_pipeline(StandardScaler(), Ridge(alpha=...))`, the same with `Lasso` → only area left at 40,000 |
-| the collinear case, 47-48 | `LinearRegression` against `Ridge(alpha=10)` on four splits → 9,261 to 45,307, then about 40,000 |
+| Ridge on the degree-12 fit, 38-42 | `Ridge(alpha=0.01)` after `PolynomialFeatures` and `StandardScaler` → largest coefficient 365 |
+| regularisation paths, 45-47 | `make_pipeline(StandardScaler(), Ridge(alpha=...))`, the same with `Lasso` → only area left at 40,000 |
+| the collinear case, 48-49 | `LinearRegression` against `Ridge(alpha=10)` on four splits → 9,261 to 45,307, then about 40,000 |
 
 ::: notes
 Ridge on the degree-12 fit, the regularisation paths, and the collinear case.
@@ -1172,7 +1196,7 @@ it and found that fitting well and explaining well are different goals.
 The one sentence to leave them with: the model that fits your training data best
 is usually not the one you want.
 
-And the number to leave them with, repeated from slide 39: a penalty of
+And the number to leave them with, repeated from slide 40: a penalty of
 one hundredth took the largest coefficient from billions to 365 and the test
 error from 24,656 to 22.8. One number, chosen well, bought all of that.
 

@@ -78,8 +78,8 @@ euros.
 """
 
 
-# --------------------------------------------------------------- slide 17
-@example(17)
+# --------------------------------------------------------------- slide 18
+@example(18)
 def convex_bowl():
     x, y = np.array([1, 2, 3], float), np.array([2, 3, 6], float)
     m = len(x)
@@ -110,8 +110,8 @@ one-feature case of $\\lVert Xv \\rVert^2 \\ge 0$ — so the flat spot is the bo
 """
 
 
-# --------------------------------------------------------------- slide 19
-@example(19)
+# --------------------------------------------------------------- slide 20
+@example(20)
 def condition_number():
     rows = []
     for r in (0.0, 0.5, 0.9, 0.99):
@@ -138,8 +138,8 @@ independent features.
 """
 
 
-# --------------------------------------------------------------- slide 21
-@example(21)
+# --------------------------------------------------------------- slide 22
+@example(22)
 def weighted_vote():
     area = np.array([80, 120, 200])         # m²
     err = np.array([10, -5, -20])           # prediction minus truth, k EUR
@@ -164,8 +164,8 @@ largest. A one-room flat with the same error would barely be heard.
 """
 
 
-# --------------------------------------------------------------- slide 24
-@example(24)
+# --------------------------------------------------------------- slide 25
+@example(25)
 def learning_rates():
     c, w0 = 2.0, 1.0
     rows = []
@@ -192,8 +192,8 @@ which is why one badly scaled feature limits the step for all of them.
 """
 
 
-# --------------------------------------------------------------- slide 29
-@example(29)
+# --------------------------------------------------------------- slide 30
+@example(30)
 def linear_in_w():
     t = np.array([-1.0, 0.0, 1.0])
     y = np.array([3.0, 1.0, 3.0])
@@ -215,8 +215,8 @@ method changed: same equation, same code, one more column. The curve is in the
 """
 
 
-# --------------------------------------------------------------- slide 42
-@example(42)
+# --------------------------------------------------------------- slide 43
+@example(43)
 def ridge_one_feature():
     sxy, sxx = 26, 14                       # x = 1, 2, 3; y = 2, 3, 6
     rows = "\n".join(f"| {lam} | $26/({sxx} + {lam})$ | **{fmt(sxy / (sxx + lam), 3)}** |"
@@ -225,7 +225,7 @@ def ridge_one_feature():
     return f"""
 ### Worked example — one coefficient, four penalties
 
-The three houses of slide 17 ($\\sum xy = 26$, $\\sum x^2 = 14$, no intercept). With one
+The three houses of slide 18 ($\\sum xy = 26$, $\\sum x^2 = 14$, no intercept). With one
 feature, $(X^\\top X + \\lambda I)^{{-1}} X^\\top y$ is just a division:
 
 | $\\lambda$ | $w = \\sum xy / (\\sum x^2 + \\lambda)$ | $w$ |
@@ -238,8 +238,8 @@ coefficient; $\\lambda = \\sum x^2$ halves it; no finite $\\lambda$ makes it zer
 """
 
 
-# --------------------------------------------------------------- slide 43
-@example(43)
+# --------------------------------------------------------------- slide 44
+@example(44)
 def singular_fixed():
     xtx = np.array([[14.0, 14.0], [14.0, 14.0]])
     det0 = np.linalg.det(xtx)
@@ -250,7 +250,7 @@ def singular_fixed():
     return f"""
 ### Worked example — the same column twice
 
-Put the area of slide 17 in twice, $x_1 = x_2 = (1, 2, 3)$:
+Put the area of slide 18 in twice, $x_1 = x_2 = (1, 2, 3)$:
 
 $$X^\\top X = \\begin{{pmatrix}} 14 & 14 \\\\ 14 & 14 \\end{{pmatrix}}, \\quad
 \\det = 14 \\cdot 14 - 14 \\cdot 14 = 0$$
@@ -267,8 +267,8 @@ exists. Every $\\lambda > 0$ does the same.
 """
 
 
-# --------------------------------------------------------------- slide 45
-@example(45)
+# --------------------------------------------------------------- slide 46
+@example(46)
 def shrink_vs_select():
     w = np.array([5.0, 2.0, 0.5])
     def ridge(lam): return w / (1 + lam)
@@ -292,12 +292,12 @@ stops at zero**, $\\operatorname{{sign}}(w)\\max(|w| - \\lambda, 0)$. Least squa
 
 Ridge keeps all three, smaller. Lasso drops the smallest first and, by $\\lambda = 3$,
 keeps one feature. The order it drops them in is the order of how much each was
-worth — which is slide 46's table.
+worth — which is slide 47's table.
 """
 
 
-# --------------------------------------------------------------- slide 47
-@example(47)
+# --------------------------------------------------------------- slide 48
+@example(48)
 def duplicate_split():
     # x1 = x2 = (1, 2, 3), y = (2, 3, 6): least squares only fixes w1 + w2.
     total = F(26, 14)
@@ -309,7 +309,7 @@ def duplicate_split():
     return f"""
 ### Worked example — one effect, two columns
 
-The duplicated area of slide 43. Least squares only pins down the **sum**
+The duplicated area of slide 44. Least squares only pins down the **sum**
 $w_1 + w_2 = 26/14 = {fmt(float(total), 3)}$; every split predicts the same prices:
 
 | $w_1$ | $w_2$ | $w_1 + w_2$ | $w_1^2 + w_2^2$ |
@@ -323,8 +323,8 @@ a sum of {fmt(float(2 * ridge_w), 3)} — shrunk a little, and divided fairly.
 """
 
 
-# --------------------------------------------------------------- slide 49
-@example(49)
+# --------------------------------------------------------------- slide 50
+@example(50)
 def what_a_coefficient_says():
     x1 = np.array([1.0, 2, 3, 4])
     x2 = np.array([1.0, 3, 3, 5])
