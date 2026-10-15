@@ -12,16 +12,16 @@ date: "16 October 2026 · reading time about 80 minutes"
 | 0:00–0:08 | 8 | Exercise 2 discussed; the dataset | Slides 2–5 |
 | 0:08–0:23 | 15 | The model, its cost, and what to compare it against | Slides 6–14 |
 | 0:23–0:37 | 14 | The exact solution, and when it fails | Slides 15–21 |
-| 0:37–0:48 | 11 | Gradient descent | Slides 22–26 |
-| 0:48–1:13 | 25 | **Notebook 01** — regression from scratch | Slide 27 |
-| 1:13–1:28 | 15 | **Break** | Slide 28 |
-| 1:28–1:45 | 17 | Curves, and the price of flexibility | Slides 29–36 |
-| 1:45–2:05 | 20 | **Notebook 02** — polynomials and overfitting | Slide 37 |
-| 2:05–2:26 | 21 | Ridge and Lasso | Slides 38–48 |
-| 2:26–2:35 | 9 | Reading coefficients honestly | Slides 49–52 |
-| 2:35–2:55 | 20 | **Notebook 03** — ridge, lasso, collinearity | Slide 53 |
-| 2:55–3:00 | 5 | Summary; homework set | Slides 54–55 |
-| | **180** | **Total** | **55 slides, 3 notebooks** |
+| 0:37–0:48 | 11 | Gradient descent | Slides 22–27 |
+| 0:48–1:13 | 25 | **Notebook 01** — regression from scratch | Slide 28 |
+| 1:13–1:28 | 15 | **Break** | Slide 29 |
+| 1:28–1:45 | 17 | Curves, and the price of flexibility | Slides 30–37 |
+| 1:45–2:05 | 20 | **Notebook 02** — polynomials and overfitting | Slide 38 |
+| 2:05–2:26 | 21 | Ridge and Lasso | Slides 39–49 |
+| 2:26–2:35 | 9 | Reading coefficients honestly | Slides 50–53 |
+| 2:35–2:55 | 20 | **Notebook 03** — ridge, lasso, collinearity | Slide 54 |
+| 2:55–3:00 | 5 | Summary; homework set | Slides 55–56 |
+| | **180** | **Total** | **56 slides, 3 notebooks** |
 
 Slide 1 is the title slide, so the numbers above match the page numbers of the
 slide PDF in `Slides/`. The lecture segments come to 100 minutes across
@@ -381,6 +381,22 @@ happening; this is the machinery underneath it.
 
 The intercept gradient has no $x$ in it: every example gets an equal vote, since
 the intercept applies equally to all of them.
+
+**The loop, in order.** $\theta \leftarrow \theta - \alpha \nabla J(\theta)$ is one
+round of a loop, and each round does five things:
+
+1. predict every example with the current parameters, $\hat{y}^{(i)} = w^\top x^{(i)} + b$;
+2. measure every error, $e^{(i)} = \hat{y}^{(i)} - y^{(i)}$;
+3. average the errors into the gradients above, one per $w_j$ and one for $b$;
+4. step every parameter against its own gradient, by the same $\alpha$:
+   $w_j \leftarrow w_j - \alpha\, \partial J/\partial w_j$ and
+   $b \leftarrow b - \alpha\, \partial J/\partial b$, all computed from the old values;
+5. go back to 1.
+
+Step 5 is what makes the method iterative: after an update the model is a different
+line, so the predictions, the errors and the gradients all have to be computed again.
+Only the parameters carry over from one round to the next. The loop stops after a
+fixed number of rounds, or when the cost stops falling.
 
 ### 4.2 A worked step
 

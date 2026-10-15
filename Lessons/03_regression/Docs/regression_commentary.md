@@ -21,7 +21,7 @@ header-includes:
 
 <!-- examples-note:begin -->
 
-> **Worked examples** sit under twelve slides (8, 12, 19, 21, 23, 26, 31, 44, 45, 47, 49, 51):
+> **Worked examples** sit under twelve slides (8, 12, 19, 21, 23, 27, 32, 45, 46, 48, 50, 52):
 > a handful of invented values each, small enough to work through by hand. Their
 > numbers are not the lesson's data; every one is computed by `commentary_examples.py`,
 > beside this file, which also writes them here.
@@ -74,7 +74,7 @@ kilometre from the centre, 12,000 for a garage - plus random noise with a standa
 18,000 euros on each price. Because the truth is known, every estimate today can be checked against
 it, which no real dataset allows. Without the truth, "the coefficient is 7,503" is
 just a number; with it, "the coefficient is 7,503 and the truth is 9,000" is a lesson
-about when an estimate can be trusted (slides 51-52).
+about when an estimate can be trusted (slides 52-53).
 
 ---
 
@@ -237,7 +237,7 @@ test set.
 > with the one obtained with the mean?*
 
 Yes, that is the right way to read it. At slide 12 no model has been trained yet: the
-20,341 is a **preview**, the result of the linear regression that slides 15-26 will
+20,341 is a **preview**, the result of the linear regression that slides 15-27 will
 build, first with the exact solution and then with gradient descent, and that
 notebook 1 computes. What matters now is the comparison:
 
@@ -318,7 +318,7 @@ and an intercept, and not a cost.
 
 The rest of the first half of the lesson is two ways of computing that pair: exactly,
 with the normal equation (slides 15-19), and step by step, with gradient descent
-(slides 22-26). The next slide draws $J$ as a surface over $(w, b)$; the pair asked for
+(slides 22-27). The next slide draws $J$ as a surface over $(w, b)$; the pair asked for
 here is its lowest point.
 
 ---
@@ -563,17 +563,36 @@ and you cross the valley and land higher on the opposite slope.
 
 ---
 
-## Slide 23 — The update rule
+## Slide 23 — The gradients: one for w, one for b
 
-$$w \leftarrow w - \alpha\,\frac{\partial J}{\partial w}, \qquad \frac{\partial J}{\partial w_j} = \frac{1}{m}\sum_i \left(\hat{y}^{(i)} - y^{(i)}\right)x_j^{(i)}$$
+$$\frac{\partial J}{\partial w} = \frac{1}{m}\sum_i \left(\hat{y}^{(i)} - y^{(i)}\right)x^{(i)}, \qquad \frac{\partial J}{\partial b} = \frac{1}{m}\sum_i \left(\hat{y}^{(i)} - y^{(i)}\right)$$
 
-Read the gradient as a sentence: each example pulls coefficient $w_j$ in proportion to
+Two parameters, two gradients: how fast the cost rises as $w$ grows, and how fast it
+rises as $b$ grows.
+
+With several features the same holds for every coefficient. For the coefficient $w_j$,
+the step is
+
+$$w_j \leftarrow w_j - \alpha\,\frac{\partial J}{\partial w_j}.$$
+
+Writing the error of example $i$ as
+
+$$e^{(i)} = \hat{y}^{(i)} - y^{(i)},$$
+
+the two gradients become
+
+$$\boxed{\;\frac{\partial J}{\partial w_j} = \frac{1}{m}\sum_i e^{(i)} x_j^{(i)}\;}
+\qquad\text{and, for the intercept,}\qquad
+\boxed{\;\frac{\partial J}{\partial b} = \frac{1}{m}\sum_i e^{(i)}\;}$$
+
+With one feature, $x_j$ is just the area $x$, and these are the two formulas on the
+slide. Read the first gradient as a sentence: each example pulls coefficient $w_j$ in proportion to
 **two things** - how wrong its prediction was, and how large feature $j$ was for that
 example. The gradient is a **weighted vote**, and the weights are the feature values: a
 badly mispriced 200 m² house moves the area coefficient much more than a 40 m² house
 with the same error. That is why unscaled features cause trouble, lesson 2's argument
 from a different direction. The intercept's gradient has no $x$ in it: every example gets
-an equal vote there.
+an equal vote there, as if $b$ were the coefficient of a feature that is always 1.
 
 <!-- example:begin -->
 
@@ -598,7 +617,36 @@ largest. A one-room flat with the same error would barely be heard.
 
 ---
 
-## Slide 24 — One step on two houses, from w = 0 and b = 0
+## Slide 24 — One iteration, then the next
+
+Gradient descent is a loop, and each round does the same five things in order:
+
+1. **Predict** every house with the current $w$ and $b$: $\hat{y}^{(i)} = w\,x^{(i)} + b$.
+2. **Measure** every error: $e^{(i)} = \hat{y}^{(i)} - y^{(i)}$.
+3. **Average** the errors into the two gradients of slide 23,
+   $\partial J/\partial w = \frac{1}{m}\sum_i e^{(i)}x^{(i)}$ and
+   $\partial J/\partial b = \frac{1}{m}\sum_i e^{(i)}$.
+4. **Step** both parameters against their gradients, by the same learning rate:
+   $w \leftarrow w - \alpha\,\partial J/\partial w$ and $b \leftarrow b - \alpha\,\partial J/\partial b$.
+5. **Go back to 1.**
+
+Step 5 is what makes it iterative. After step 4 the model is a different line, so every
+prediction changes, so every error changes, and the gradients have to be computed again
+from the new $w$ and $b$: nothing from the previous round is reused except the two
+parameters themselves. Both updates in step 4 use the gradients of the *old* values,
+before either parameter has moved. The first round starts from a guess, $w = 0$ and
+$b = 0$ here, and the loop stops after a fixed number of rounds or when the cost stops
+falling. Collecting $b$ and $w$ into $\theta$, steps 3 and 4 are the handout's
+$\theta \leftarrow \theta - \alpha \nabla J(\theta)$ in one line.
+
+In notebook 1 the loop is the `gradient_descent` function, and its body is these steps
+line for line: `error = (w * x + b) - y`, then `grad_w = (error * x).mean()` and
+`grad_b = error.mean()`, then the two updates. The next slide is one round of it, done
+by hand on two houses.
+
+---
+
+## Slide 25 — One step on two houses, from w = 0 and b = 0
 
 Two houses, 80 m² at 240k and 200 m² at 540k, a start at $w = 0$, $b = 0$, and
 $\alpha = 10^{-5}$. Both predictions are 0, so the errors are −240 and −540 (thousands):
@@ -615,7 +663,7 @@ iterations. That is the concrete cost of unscaled features.
 
 ---
 
-## Slide 25 — The path it takes
+## Slide 26 — The path it takes
 
 ![](gradient_descent_path.png)
 
@@ -627,11 +675,11 @@ at 4,000. The model was essentially fitted early; most iterations bought almost
 nothing. On the right, the run drawn on the contour lines of the cost, with the star at
 the exact solution: the path arrives quickly in the steep direction, then crawls along
 the floor of the valley towards the star. That crawl is the 163-to-1 asymmetry of
-slide 24, and the condition number of slide 21, made visible.
+slide 25, and the condition number of slide 21, made visible.
 
 ---
 
-## Slide 26 — Three learning rates
+## Slide 27 — Three learning rates
 
 ![](learning_rate_regimes.png)
 
@@ -676,38 +724,38 @@ which is why one badly scaled feature limits the step for all of them.
 
 ---
 
-## Slide 27 — Notebook 1, live
+## Slide 28 — Notebook 1, live
 
 The table on the slide maps each section of the notebook to the slides it comes from,
 the calls it uses and the number to come back with. Two moments are worth pausing on:
 the agreement between a four-line normal equation and scikit-learn to twelve decimal
 places, and the coefficient table at the end, which sets up Part VI. If someone's
-gradient descent diverges, that is a good thing to happen: it is slide 26 on their own
+gradient descent diverges, that is a good thing to happen: it is slide 27 on their own
 screen.
 
 ---
 
 # Part IV — Curves, and the price of flexibility
 
-## Slide 28 — Break
+## Slide 29 — Break
 
 The second half takes the same machinery to relationships that are not straight
 lines, and to what happens when a model is given too much freedom.
 
 ---
 
-## Slide 29 — What if the relationship bends?
+## Slide 30 — What if the relationship bends?
 
 Daily energy consumption against outdoor temperature: high when it is cold (heating),
 high when it is hot (cooling), lowest somewhere around 18 °C. A straight line would
 average through the middle: too high in the centre and too low at both ends, wrong in
 a structural way rather than slightly imprecise. In code,
 `PolynomialFeatures(degree=2)` adds the squared temperature, $t^2$, as a second column,
-which is the trick of slide 31.
+which is the trick of slide 32.
 
 ---
 
-## Slide 30 — A relationship a line cannot follow
+## Slide 31 — A relationship a line cannot follow
 
 ![](energy_curve.png)
 
@@ -721,7 +769,7 @@ observations - a situation far more common in real work than people expect.
 
 ---
 
-## Slide 31 — "Linear" means linear in the coefficients
+## Slide 32 — "Linear" means linear in the coefficients
 
 $$\hat{y} = w_1 t + w_2 t^2 + b$$
 
@@ -753,7 +801,7 @@ method changed: same equation, same code, one more column. The curve is in the
 
 ---
 
-## Slide 32 — The straight line's residuals keep the shape
+## Slide 33 — The straight line's residuals keep the shape
 
 ![](underfit_residuals.png)
 
@@ -765,7 +813,7 @@ line did not capture. A pattern in the residuals means the model has missed some
 
 ---
 
-## Slide 33 — What "nothing left" looks like
+## Slide 34 — What "nothing left" looks like
 
 ![](residuals.png)
 
@@ -779,7 +827,7 @@ structure missed; a cloud means done. One line of code after every fit, every ti
 
 ---
 
-## Slide 34 — So use more flexibility?
+## Slide 35 — So use more flexibility?
 
 ![](polynomial_degrees.png)
 
@@ -793,7 +841,7 @@ every time.
 
 ---
 
-## Slide 35 — Root mean squared error (RMSE), by degree
+## Slide 36 — Root mean squared error (RMSE), by degree
 
 | Degree | Train RMSE (kWh) | Test RMSE (kWh) |
 |---|---|---|
@@ -812,7 +860,7 @@ than one parameter for every two observations. This is lesson 1's gap between em
 
 ---
 
-## Slide 36 — The gap is the overfitting
+## Slide 37 — The gap is the overfitting
 
 ![](train_test_by_degree.png)
 
@@ -826,7 +874,7 @@ is no test set to spend.
 
 ---
 
-## Slide 37 — Notebook 2, live
+## Slide 38 — Notebook 2, live
 
 The table maps the notebook's sections to the slides and calls. Run the degree sweep
 and stop at the table: predict which degree wins before scrolling. Most people guess
@@ -838,7 +886,7 @@ slide is about.
 
 # Part V — Regularisation
 
-## Slide 38 — Why flexibility goes wrong
+## Slide 39 — Why flexibility goes wrong
 
 Largest coefficient at degree 2: **411**. At degree 12: **3,097,038,010**. The huge
 coefficients work in **opposition**: with 21 points and 12 coefficients there are many
@@ -850,7 +898,7 @@ coefficients are the symptom, what if coefficient size had a price?
 
 ---
 
-## Slide 39 — Charge for size
+## Slide 40 — Charge for size
 
 $$J_{\text{ridge}} = \text{MSE} + \lambda\sum_j w_j^2 \qquad J_{\text{lasso}} = \text{MSE} + \lambda\sum_j |w_j|$$
 
@@ -863,7 +911,7 @@ penalty `alpha`, so `Ridge(alpha=0.01)` in code is $\lambda = 0.01$ here.
 
 ---
 
-## Slide 40 — Two rules that are not optional
+## Slide 41 — Two rules that are not optional
 
 Both produce results that look fine when broken, which is why they get a slide.
 
@@ -880,7 +928,7 @@ Both produce results that look fine when broken, which is why they get a slide.
 
 ---
 
-## Slide 41 — What a penalty buys
+## Slide 42 — What a penalty buys
 
 | Model | Train RMSE | Test RMSE | max \|w\| |
 |---|---|---|---|
@@ -900,7 +948,7 @@ magnitude, which is why $\lambda$ cannot be guessed.
 
 ---
 
-## Slide 42 — The unpenalised fit leaves the picture
+## Slide 43 — The unpenalised fit leaves the picture
 
 ![](ridge_degrees.png)
 
@@ -916,7 +964,7 @@ failure, too little a catastrophic one. If you must err, err towards more.
 
 ---
 
-## Slide 43 — Too flexible, too rigid
+## Slide 44 — Too flexible, too rigid
 
 ![](alpha_trade_off.png)
 
@@ -930,7 +978,7 @@ the test set would make its score optimistic: by cross-validation, lesson 5.
 
 ---
 
-## Slide 44 — Ridge has an exact solution too
+## Slide 45 — Ridge has an exact solution too
 
 $$\theta = (X^\top X + \lambda I)^{-1}X^\top y$$
 
@@ -939,7 +987,7 @@ the diagonal of the matrix being inverted. Same derivation, same projection idea
 four lines of NumPy. Ridge is least squares with the floor of the bowl tilted.
 
 Two details that the handout (section 6.2) works out. The $\lambda$ in this formula is not the
-same number as the $\lambda$ of slide 39: the cost averages the squared errors over the
+same number as the $\lambda$ of slide 40: the cost averages the squared errors over the
 $m$ examples but not the penalty, so the two are on different scales, and with the
 handout's half in front of the cost the factor between them is $2m$. A penalty value
 only means something beside the cost it belongs to. And written with $\theta$, the formula would also
@@ -971,7 +1019,7 @@ coefficient; $\lambda = \sum x^2$ halves it; no finite $\lambda$ makes it zero.
 
 ---
 
-## Slide 45 — Why that one change fixes it
+## Slide 46 — Why that one change fixes it
 
 Least squares breaks down when there is a direction in which moving the coefficients
 changes the predictions not at all, as with two identical columns: the valley is
@@ -1008,7 +1056,7 @@ exists. Every $\lambda > 0$ does the same.
 
 ---
 
-## Slide 46 — The picture behind Ridge vs Lasso
+## Slide 47 — The picture behind Ridge vs Lasso
 
 ![](ridge_lasso_geometry.png)
 
@@ -1025,7 +1073,7 @@ produces zeros and Ridge does not.
 
 ---
 
-## Slide 47 — Ridge shrinks, Lasso selects
+## Slide 48 — Ridge shrinks, Lasso selects
 
 ![](regularisation_paths.png)
 
@@ -1058,13 +1106,13 @@ stops at zero**, $\operatorname{sign}(w)\max(|w| - \lambda, 0)$. Least squares g
 
 Ridge keeps all three, smaller. Lasso drops the smallest first and, by $\lambda = 3$,
 keeps one feature. The order it drops them in is the order of how much each was
-worth — which is slide 48's table.
+worth — which is slide 49's table.
 
 <!-- example:end -->
 
 ---
 
-## Slide 48 — The order Lasso drops features
+## Slide 49 — The order Lasso drops features
 
 | λ | Features kept |
 |---|---|
@@ -1083,7 +1131,7 @@ its commonest misuses.
 
 ### Question — what is the "budget", and where is it in the cost?
 
-> *Slide 48: when we speak of a "budget", what does it refer to?*
+> *Slide 49: when we speak of a "budget", what does it refer to?*
 >
 > *Clear, but the budget t is never made explicit. Minimising the regularised J we look
 > for the coefficients that minimise both the MSE and the regularisation part, but it is
@@ -1102,14 +1150,14 @@ the other way round. A larger $\lambda$ corresponds to a smaller budget.
 
 You are right that $t$ never appears in what is actually computed: the slides and
 scikit-learn fix $\lambda$, not $t$, and the budget is set implicitly. The budget form is a
-way of *picturing* the problem, and it is what makes the disc and the diamond of slide 46
+way of *picturing* the problem, and it is what makes the disc and the diamond of slide 47
 possible: you cannot draw a penalty, but you can draw the region of coefficients that fit
 within a budget.
 
 And yes, it is a trade-off. Without the penalty the coefficients are chosen to make the
 training MSE as small as possible, so no other choice can have a lower training MSE; with
 the penalty, the minimum of the *sum* is generally somewhere else, with a higher
-training MSE and smaller coefficients. Slide 41 shows it: training RMSE 13.6 without a
+training MSE and smaller coefficients. Slide 42 shows it: training RMSE 13.6 without a
 penalty, 18.0 at $\lambda = 0.01$, while the test RMSE falls from 24,655.7 to 22.8. The
 price is paid on the training data; the hoped-for gain is on new data.
 
@@ -1117,7 +1165,7 @@ price is paid on the training data; the hoped-for gain is on new data.
 
 # Part VI — Reading coefficients
 
-## Slide 49 — The case Ridge was invented for
+## Slide 50 — The case Ridge was invented for
 
 `area_sqm` and `area_sqft`: the same measurement in two units, correlation 0.999999, as
 when two systems are merged and the same fact arrives twice. Least squares has no basis
@@ -1131,7 +1179,7 @@ arbitrarily, and the choice changes with the sample.
 
 ### Worked example — one effect, two columns
 
-The duplicated area of slide 45. Least squares only pins down the **sum**
+The duplicated area of slide 46. Least squares only pins down the **sum**
 $w_1 + w_2 = 26/14 = 1.857$; every split predicts the same prices:
 
 | $w_1$ | $w_2$ | $w_1 + w_2$ | $w_1^2 + w_2^2$ |
@@ -1149,7 +1197,7 @@ a sum of 1.793 — shrunk a little, and divided fairly.
 
 ---
 
-## Slide 50 — The coefficients are noise
+## Slide 51 — The coefficients are noise
 
 | Split | area_sqm | area_sqft |
 |---|---|---|
@@ -1174,7 +1222,7 @@ overfitting: it makes coefficients readable when features overlap.
 
 ---
 
-## Slide 51 — What a coefficient actually says
+## Slide 52 — What a coefficient actually says
 
 A coefficient is the change in the prediction for a one-unit change in that feature,
 **with every other feature held fixed**. The last clause does enormous work. The
@@ -1206,7 +1254,7 @@ whatever $x_2$ usually does alongside it*". The lesson's 2,785 €/m² (area alo
 
 ---
 
-## Slide 52 — When can you trust a coefficient?
+## Slide 53 — When can you trust a coefficient?
 
 From notebook 1, comparing each estimated coefficient with the truth:
 
@@ -1228,9 +1276,9 @@ belongs to the most correlated one; age and distance, uncorrelated, are within 1
 `garage` is the honest exception, uncorrelated and still 9.6% out: a yes-or-no column
 varies little from house to house, so the noise weighs more on its coefficient.
 
-### Question — what does the note of slide 52 say?
+### Question — what does the note of slide 53 say?
 
-> *Explain the note of slide 52 better: "the x axis is how correlated each feature is
+> *Explain the note of slide 53 better: "the x axis is how correlated each feature is
 > with area; the y axis is how far its estimated coefficient landed from the truth...
 > state the rule: a coefficient is only as trustworthy as its feature is independent...
 > a coefficient is an association, not a causal effect."*
@@ -1254,7 +1302,7 @@ $X^\top X$ hard to invert, and its inverse governs how uncertain the coefficient
 On a real dataset the true coefficient is unknown, so the same wobble would be there
 with nothing to reveal it: you would see "7,503 per bedroom" and might believe it. That
 is why the stability of a coefficient has to be checked, for instance by refitting on
-different samples as slide 50 did.
+different samples as slide 51 did.
 
 **Second: even a well-estimated coefficient is an association, not a cause.** If houses
 near the centre are both older and more expensive, age and distance share out the price
@@ -1266,7 +1314,7 @@ not "what would happen if I changed this feature".
 
 ### Question — ideally, should features be uncorrelated with each other and correlated with the label?
 
-> *Still on slide 52: could we say that in theory the ideal would be to have features all
+> *Still on slide 53: could we say that in theory the ideal would be to have features all
 > uncorrelated with each other, but with some correlation with the label?*
 
 As an intuition for **readable coefficients**, yes: features that each bring their own
@@ -1279,27 +1327,27 @@ others.
 Two refinements make the statement precise. First, a feature need not be *linearly
 correlated* with the label to be useful: if $y = x^2$ with $x$ symmetric around zero, the
 correlation between $x$ and $y$ is zero, yet $x$ determines $y$ completely (the squared
-column of slide 31 is how a linear model uses it). A better phrase is "informative about
+column of slide 32 is how a linear model uses it). A better phrase is "informative about
 the label". Second, correlated features are a problem for *interpreting* coefficients,
-not necessarily for *predicting*: slides 49-50 showed predictions staying accurate while
+not necessarily for *predicting*: slides 50-51 showed predictions staying accurate while
 the two area coefficients swung wildly. So the ideal is better put as: **features that
 carry useful information about the label, without repeating one another.** When they do
 repeat one another, Ridge is the tool.
 
 ---
 
-## Slide 53 — Notebook 3, live
+## Slide 54 — Notebook 3, live
 
 The table maps the notebook to the slides and calls. The collinear section is the one
 to reach: it is the argument to have ready whenever someone asks what a model says
 drives the outcome. The "try this" swaps Ridge for Lasso on the two area columns:
 predict which way Lasso resolves the redundancy before running it, then explain why the
-two penalties disagree. It checks whether the disc and the diamond of slide 46 have
+two penalties disagree. It checks whether the disc and the diamond of slide 47 have
 landed.
 
 ---
 
-## Slide 54 — What we did today
+## Slide 55 — What we did today
 
 The thread: lesson 2 prepared data honestly; today we fitted something to it and found
 that fitting well and explaining well are different goals. The model that fits the
@@ -1311,7 +1359,7 @@ cost function.
 
 ---
 
-## Slide 55 — Homework: we discuss it on Friday 23 October
+## Slide 56 — Homework: we discuss it on Friday 23 October
 
 Exercise 3 uses a new dataset, bike-sharing demand, so the exploration is yours to do.
 Two tasks carry the most weight. Task 4 asks for a choice of $\lambda$ justified without
@@ -1322,9 +1370,9 @@ accuracy.
 
 <!-- numbers-not-from-data
 4.7: slide 12, the ratio of the two RMSE figures, 96,440 / 20,341
-105000: slide 52, an illustrative split of a price difference between area and bedrooms, from the true coefficients 2,400 and 9,000
-2500: slide 52, an alternative per-square-metre value in the same illustration, giving the same 105,000
-5000: slide 52, the bedroom value that pairs with 2,500 in the same illustration
-25000: slide 52, the bedroom value that pairs with 2,000 in the same illustration
+105000: slide 53, an illustrative split of a price difference between area and bedrooms, from the true coefficients 2,400 and 9,000
+2500: slide 53, an alternative per-square-metre value in the same illustration, giving the same 105,000
+5000: slide 53, the bedroom value that pairs with 2,500 in the same illustration
+25000: slide 53, the bedroom value that pairs with 2,000 in the same illustration
 38400: slide 18, 120 × 320, an intermediate product of the hand computation; the handout prints it inside a formula, which the check does not read
 -->

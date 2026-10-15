@@ -284,7 +284,7 @@ wants is the coefficients that achieve it.
 
 This line is the whole of "fitting". Everything else in the first half of the
 lesson is a way of computing it: exactly, with the normal equation on slides
-15-18, or step by step, with gradient descent on slides 22-26. The next slide
+15-19, or step by step, with gradient descent on slides 22-27. The next slide
 shows J as a surface over (w, b), and the pair this formula asks for is the
 lowest point of that surface.
 
@@ -513,12 +513,17 @@ stride too far and you cross the valley and end up higher on the far slope.
 Everyone has done that walking down a steep hill.
 :::
 
-# The update rule
+# The gradients: one for w, one for b
 
-$$w \leftarrow w - \alpha\,\frac{\partial J}{\partial w}, \qquad \frac{\partial J}{\partial w_j} = \frac{1}{m}\sum_i \left(\hat{y}^{(i)} - y^{(i)}\right)x_j^{(i)}$$
+$$\frac{\partial J}{\partial w} = \frac{1}{m}\sum_i \left(\hat{y}^{(i)} - y^{(i)}\right)x^{(i)}, \qquad \frac{\partial J}{\partial b} = \frac{1}{m}\sum_i \left(\hat{y}^{(i)} - y^{(i)}\right)$$
 
 ::: notes
-Read the gradient aloud as a sentence, because its shape carries a lesson: each
+Two parameters, so two slopes to feel in the fog: how fast J rises as w grows,
+and how fast it rises as b grows. Both come from differentiating the mean
+squared error; handout section 4.1 does it in two lines. Write the error of
+house i as e(i) = y-hat(i) - y(i), and both gradients are averages of errors.
+
+Read the first one aloud as a sentence, because its shape carries a lesson: each
 example pulls the coefficient in proportion to two things - how wrong the
 prediction was, AND how large that feature was for that example.
 
@@ -527,11 +532,47 @@ much more than a 40 square metre one with the same error. The gradient is a
 weighted vote and the weights are the feature values.
 
 That is precisely why unscaled features cause trouble, and it is lesson 2's
-argument arriving from a different direction. The intercept gradient has no x in
-it - every example gets an equal vote there.
+argument arriving from a different direction. The intercept's gradient, on the
+right, has no x in it - every example gets an equal vote there, as if b were the
+coefficient of a feature that is always 1.
 
-Handout 4.2 works one step by hand: after a single update the slope has moved
-163 times further than the intercept.
+With several features there is one gradient like the first for each w_j, with
+x_j in place of x. The next slide puts the two gradients to work.
+:::
+
+# One iteration, then the next
+
+1. Predict with the current w and b: ŷ⁽ⁱ⁾ = w·x⁽ⁱ⁾ + b
+2. Measure every error: e⁽ⁱ⁾ = ŷ⁽ⁱ⁾ − y⁽ⁱ⁾
+3. Average them into the two gradients of the previous slide
+4. Step both parameters: w ← w − α·∂J/∂w and b ← b − α·∂J/∂b
+5. Back to 1: new w and b give new predictions, so new errors
+
+::: notes
+This is the loop the fog picture describes, written as the five things the
+computer does, in order. Walk it once with the room before the numbers on the
+next slide.
+
+Step 1 uses whatever w and b the previous round left; the very first round
+starts from a guess, here w = 0 and b = 0. Steps 2 and 3 turn the predictions
+into the two gradients. Step 4 moves BOTH parameters at once, each against its
+own gradient, by the same learning rate alpha - and both updates use the
+gradients computed from the old values, before either has moved.
+
+Step 5 is the part that makes it iterative, and the part students most often
+miss: after the update the model is a different line, so every prediction
+changes, so every error changes, so the gradients have to be computed again
+from scratch. Nothing from the previous round is reused except w and b
+themselves. The loop stops after a fixed number of rounds, or when the cost
+stops falling.
+
+In compact form, with theta holding b and w, steps 3 and 4 are the handout's
+theta <- theta - alpha times the gradient of J. In notebook 1 the loop is the
+`gradient_descent` function, and its body is these steps line for line:
+error = (w * x + b) - y, then grad_w = (error * x).mean() and
+grad_b = error.mean(), then the two updates. Notebook 1 runs it 4,000 times.
+
+The next slide is one pass through steps 1 to 4, on two houses.
 :::
 
 # One step on two houses, from w = 0 and b = 0
@@ -542,8 +583,9 @@ Handout 4.2 works one step by hand: after a single update the slope has moved
 | intercept b | −390 | 0.0039 |
 
 ::: notes
-Say first that the prices here are in thousands of euros, so 240 means
-240,000, which keeps the numbers small enough to read.
+This is steps 1 to 4 of the previous slide, done once. Say first that the
+prices here are in thousands of euros, so 240 means 240,000, which keeps the
+numbers small enough to read.
 
 Both gradients are negative - the model starts at zero and predicts zero for
 every house, so every prediction is far too low - and both parameters therefore
@@ -614,8 +656,8 @@ divide by three if it rises. Lesson 5 replaces the recipe with a search.
 |---|---|
 | one feature, 4-5 | `train_test_split` → 450 houses to fit, 150 to test |
 | the exact answer, 15-19 | the normal equation in NumPy, then `LinearRegression` → 2,785 €/m², agreeing to 1.82e-12 |
-| the iterative answer, 22-26 | NumPy only: gradient descent → the same answer, slowly |
-| all six features, 51-52 | `LinearRegression` → area 2,421, bedrooms −16.6% |
+| the iterative answer, 22-27 | NumPy only: gradient descent → the same answer, slowly |
+| all six features, 52-53 | `LinearRegression` → area 2,421, bedrooms −16.6% |
 | the baseline, 12 | `DummyRegressor(strategy="mean")`, `r2_score` → 96,440 € against 20,341 €, R² 0.956 |
 
 ::: notes
@@ -813,10 +855,10 @@ do not have a test set to spend.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| a relationship that bends, 29-30 | `train_test_split` → 21 days to fit, 9 to test |
-| linear in the coefficients, 31-33 | `PolynomialFeatures`, `StandardScaler` and `LinearRegression`, chained by `make_pipeline` |
-| too much flexibility, 34-36 | `mean_squared_error`, square-rooted → test RMSE 16.9 at degree 3, 24,655.7 at 12 |
-| why the wiggles appear, 38 | the fitted coefficients → largest 3,097,038,010 at degree 12 |
+| a relationship that bends, 30-31 | `train_test_split` → 21 days to fit, 9 to test |
+| linear in the coefficients, 32-34 | `PolynomialFeatures`, `StandardScaler` and `LinearRegression`, chained by `make_pipeline` |
+| too much flexibility, 35-37 | `mean_squared_error`, square-rooted → test RMSE 16.9 at degree 3, 24,655.7 at 12 |
+| why the wiggles appear, 39 | the fitted coefficients → largest 3,097,038,010 at degree 12 |
 
 ::: notes
 Fit the curve, push the degree up, and watch the test error turn. 20 minutes. This is the shortest of the three notebooks and the most visual.
@@ -1195,9 +1237,9 @@ what would happen if you moved a house.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| Ridge on the degree-12 fit, 39-43 | `Ridge(alpha=0.01)` after `PolynomialFeatures` and `StandardScaler` → largest coefficient 365 |
-| regularisation paths, 46-48 | `make_pipeline(StandardScaler(), Ridge(alpha=...))`, the same with `Lasso` → only area left at 40,000 |
-| the collinear case, 49-50 | `LinearRegression` against `Ridge(alpha=10)` on four splits → 9,261 to 45,307, then about 40,000 |
+| Ridge on the degree-12 fit, 40-44 | `Ridge(alpha=0.01)` after `PolynomialFeatures` and `StandardScaler` → largest coefficient 365 |
+| regularisation paths, 47-49 | `make_pipeline(StandardScaler(), Ridge(alpha=...))`, the same with `Lasso` → only area left at 40,000 |
+| the collinear case, 50-51 | `LinearRegression` against `Ridge(alpha=10)` on four splits → 9,261 to 45,307, then about 40,000 |
 
 ::: notes
 Ridge on the degree-12 fit, the regularisation paths, and the collinear case.
@@ -1227,7 +1269,7 @@ it and found that fitting well and explaining well are different goals.
 The one sentence to leave them with: the model that fits your training data best
 is usually not the one you want.
 
-And the number to leave them with, repeated from slide 41: a penalty of
+And the number to leave them with, repeated from slide 42: a penalty of
 one hundredth took the largest coefficient from billions to 365 and the test
 error from 24,656 to 22.8. One number, chosen well, bought all of that.
 

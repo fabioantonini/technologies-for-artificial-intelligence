@@ -164,8 +164,8 @@ largest. A one-room flat with the same error would barely be heard.
 """
 
 
-# --------------------------------------------------------------- slide 26
-@example(26)
+# --------------------------------------------------------------- slide 27
+@example(27)
 def learning_rates():
     c, w0 = 2.0, 1.0
     rows = []
@@ -192,8 +192,8 @@ which is why one badly scaled feature limits the step for all of them.
 """
 
 
-# --------------------------------------------------------------- slide 31
-@example(31)
+# --------------------------------------------------------------- slide 32
+@example(32)
 def linear_in_w():
     t = np.array([-1.0, 0.0, 1.0])
     y = np.array([3.0, 1.0, 3.0])
@@ -215,8 +215,8 @@ method changed: same equation, same code, one more column. The curve is in the
 """
 
 
-# --------------------------------------------------------------- slide 44
-@example(44)
+# --------------------------------------------------------------- slide 45
+@example(45)
 def ridge_one_feature():
     sxy, sxx = 26, 14                       # x = 1, 2, 3; y = 2, 3, 6
     rows = "\n".join(f"| {lam} | $26/({sxx} + {lam})$ | **{fmt(sxy / (sxx + lam), 3)}** |"
@@ -238,8 +238,8 @@ coefficient; $\\lambda = \\sum x^2$ halves it; no finite $\\lambda$ makes it zer
 """
 
 
-# --------------------------------------------------------------- slide 45
-@example(45)
+# --------------------------------------------------------------- slide 46
+@example(46)
 def singular_fixed():
     xtx = np.array([[14.0, 14.0], [14.0, 14.0]])
     det0 = np.linalg.det(xtx)
@@ -267,8 +267,8 @@ exists. Every $\\lambda > 0$ does the same.
 """
 
 
-# --------------------------------------------------------------- slide 47
-@example(47)
+# --------------------------------------------------------------- slide 48
+@example(48)
 def shrink_vs_select():
     w = np.array([5.0, 2.0, 0.5])
     def ridge(lam): return w / (1 + lam)
@@ -292,12 +292,12 @@ stops at zero**, $\\operatorname{{sign}}(w)\\max(|w| - \\lambda, 0)$. Least squa
 
 Ridge keeps all three, smaller. Lasso drops the smallest first and, by $\\lambda = 3$,
 keeps one feature. The order it drops them in is the order of how much each was
-worth — which is slide 48's table.
+worth — which is slide 49's table.
 """
 
 
-# --------------------------------------------------------------- slide 49
-@example(49)
+# --------------------------------------------------------------- slide 50
+@example(50)
 def duplicate_split():
     # x1 = x2 = (1, 2, 3), y = (2, 3, 6): least squares only fixes w1 + w2.
     total = F(26, 14)
@@ -309,7 +309,7 @@ def duplicate_split():
     return f"""
 ### Worked example — one effect, two columns
 
-The duplicated area of slide 45. Least squares only pins down the **sum**
+The duplicated area of slide 46. Least squares only pins down the **sum**
 $w_1 + w_2 = 26/14 = {fmt(float(total), 3)}$; every split predicts the same prices:
 
 | $w_1$ | $w_2$ | $w_1 + w_2$ | $w_1^2 + w_2^2$ |
@@ -323,8 +323,8 @@ a sum of {fmt(float(2 * ridge_w), 3)} — shrunk a little, and divided fairly.
 """
 
 
-# --------------------------------------------------------------- slide 51
-@example(51)
+# --------------------------------------------------------------- slide 52
+@example(52)
 def what_a_coefficient_says():
     x1 = np.array([1.0, 2, 3, 4])
     x2 = np.array([1.0, 3, 3, 5])
