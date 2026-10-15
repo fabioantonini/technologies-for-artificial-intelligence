@@ -483,47 +483,6 @@ def encoding_comparison():
     save(fig, "encoding_comparison.png")
 
 
-def smoking_gun():
-    """Most imputed training rows borrowed from a test row.
-
-    The whole bar is the 128 imputed rows, split into two adjacent segments,
-    with a bracket over it carrying the total. An earlier version drew the
-    total as a grey bar under the red one and labelled the grey "rows with age
-    imputed", so the visible grey stub read as 34 imputed rows.
-    """
-    fig, ax = plt.subplots(figsize=(7.6, 3.6))
-    total, contaminated = 128, 94
-    clean = total - contaminated
-
-    ax.barh([0], [contaminated], color=RUST, height=.52,
-            label="at least one of the five donors was a test row")
-    ax.barh([0], [clean], left=[contaminated], color=SLATE, height=.52,
-            label="all five donors were training rows")
-    ax.text(contaminated / 2, 0, f"{contaminated}", ha="center", va="center",
-            color="white", fontsize=15, weight="bold")
-    ax.text(contaminated + clean / 2, 0, f"{clean}",
-            ha="center", va="center", color="white", fontsize=13)
-
-    # The total, as a bracket spanning the whole bar.
-    top, tick = 0.38, 0.06
-    ax.plot([0, 0, total, total], [top - tick, top, top, top - tick],
-            color=INK, linewidth=1.2, clip_on=False)
-    ax.text(total / 2, top + 0.04, f"{total} training rows with age imputed",
-            ha="center", va="bottom", fontsize=10.5, color=INK)
-
-    ax.set_yticks([])
-    ax.set_ylim(-0.4, 0.62)
-    ax.set_xlim(0, total * 1.02)
-    ax.set_xlabel("training rows")
-    ax.legend(frameon=False, fontsize=9.5, loc="upper center",
-              bbox_to_anchor=(0.5, -0.28), ncol=2)
-    ax.set_title(f"{contaminated} of {total} imputed values touched the test set",
-                 fontsize=12.5, weight="bold")
-    ax.spines[["top", "right", "left"]].set_visible(False)
-    fig.tight_layout()
-    save(fig, "smoking_gun.png")
-
-
 if __name__ == "__main__":
     print("generating lesson 2 conceptual figures:")
     missingness_mechanisms()
@@ -536,4 +495,3 @@ if __name__ == "__main__":
     condition_number_geometry()
     missing_data_decision()
     encoding_comparison()
-    smoking_gun()
