@@ -30,7 +30,7 @@ probability $p_c^2$; what is left over is the chance they disagree. → § 2.2
 
 **Depth as the bias-variance dial.** Shallow describes only the coarsest structure;
 deep enough isolates single points, and at full depth the training accuracy is
-exactly 1 on any dataset. → § 3
+exactly 1 unless two examples share every feature value but not the label. → § 3
 
 **Breadth-first against best-first growth.** `max_depth` splits every leaf of a level
 before going deeper; `max_leaf_nodes` always expands whichever leaf offers most,
@@ -50,7 +50,7 @@ more than once and some not at all. → § 5
 algorithm is untouched; only what surrounds it changes. → § 5
 
 **Out-of-bag rows.** The rows a given bootstrap sample never drew — free validation
-data for the one tree that did not see them. → § 5.1
+data for the trees that did not see them. → § 5.1
 
 **Out-of-bag score.** Cross-validation with each tree supplying its own held-out
 fold, so no explicit split is needed. It estimates the same quantity and agrees
@@ -74,6 +74,9 @@ summed over every split and tree. Suggestive, not definitive. → § 7
 decorrelates the trees also excludes the real features from most splits, so noise
 columns are handed splits with nothing better on the menu. → § 7
 
+**Permutation importance.** The check on it: shuffle one column of held-out data and
+measure how much accuracy drops. A noise column costs nothing. → § 7
+
 
 ## Boosting
 
@@ -81,6 +84,9 @@ columns are handed splits with nothing better on the menu. → § 7
 the ensemble so far got wrong. → § 8
 
 **Weak learner.** The shallow tree — depth two or three — that each round adds. → § 8
+
+**Regression tree.** The same greedy algorithm, fit to numbers rather than classes:
+a leaf predicts the mean of its values, a split is scored by squared error. → § 8
 
 **Residual.** For squared error, what remains unexplained: the truth minus the current
 prediction. → § 8
@@ -97,9 +103,9 @@ Lesson 4's logistic regression descended against. → § 9
 applied. It trades off against the number of trees: both control how much total
 correction the ensemble makes. → § 10
 
-**Early stopping.** Necessary rather than optional here, because boosting keeps
-reducing training error for as long as it runs, and the damage per added tree is
-small enough to miss on a single run. → § 10
+**Early stopping.** Stop adding trees once the score on held-out training data has
+stopped improving. Necessary here, because boosting keeps reducing training error
+for as long as it runs. → § 10
 
 
 ## Choosing

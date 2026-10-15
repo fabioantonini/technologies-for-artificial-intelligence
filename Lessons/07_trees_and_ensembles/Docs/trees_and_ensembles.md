@@ -71,9 +71,10 @@ so the majority baseline is 0.613.
 
 Unlike lesson 6's pump data — where logistic regression matched the
 baseline exactly and had learned nothing — here it clears the baseline by a
-wide margin. Three of the four risky regions are monotonic in at least one
-feature (very low income, very high debt), and a linear boundary captures
-monotonic effects reasonably well. What it cannot do is wall off the two
+wide margin. Two of the four risky regions, the low-income strip and the
+high-debt strip, are monotonic in one feature — the risk rises steadily as
+income falls or as debt rises — and a linear boundary captures monotonic
+effects reasonably well. What it cannot do is wall off the two
 *interior* islands without cutting into healthy territory everywhere else,
 and closing that gap is what the rest of this lesson is about.
 
@@ -197,9 +198,11 @@ described. High bias, low variance.
 
 **Deep tree.** Enough questions to isolate almost any subset of the training
 data, down to single points. At full depth, training accuracy is **exactly
-1.000 on any dataset**, including one with no structure at all: keep
-splitting and every leaf eventually holds one example, which it then
-"predicts" perfectly. That number demonstrates the model class is flexible
+1.000**, even on a dataset with no structure at all: keep splitting and every
+leaf is eventually pure, at worst one example, which it then "predicts"
+perfectly. The one exception is two examples with identical feature values
+and different labels, which no split can separate; with two continuous
+features drawn at random, as here, that does not occur. That number demonstrates the model class is flexible
 enough to memorise, not that anything has been learned — the same reading
 lesson 6 gave $k = 1$'s training accuracy of 1.000.
 
@@ -246,9 +249,10 @@ flexible one on held-out data — more options can only help, surely. The
 instinct is sound for *bias*: a deeper tree can represent anything a
 shallower one can, plus more. It is wrong for the quantity that is actually
 measured, because flexibility increases variance at the same time, and past
-some point the added variance costs more than the reduced bias saves. This
-lesson is the second time this course has shown that curve bend downward —
-lesson 3's Lasso penalty was the first — and it will not be the last.
+some point the added variance costs more than the reduced bias saves. The
+course has shown this curve bend before — lesson 3's test error turned back up
+as the polynomial degree grew, lesson 6's as $k$ shrank towards 1 — and it
+will not be the last time.
 
 ---
 
@@ -273,8 +277,8 @@ the point further.
 
 The cost is **instability**. An early split near the root reroutes
 everything beneath it, so a small change in the training data can change
-the tree's shape. Two trees at `max_depth = 6`, each fit to an independent
-65% resample of the same 1,200 applicants, find the debt ceiling within
+the tree's shape. Two trees at `max_depth = 6`, each fit to its own random
+65% of the 1,200 applicants (drawn without replacement), find the debt ceiling within
 0.001 of each other — the evidence for it is overwhelming, so it barely
 moves — but grow 31 and 33 leaves respectively and **disagree on 11.7% of
 predictions** on the full dataset. The strongest split is stable because the
@@ -323,7 +327,10 @@ the residual gap being exactly the sampling noise a single draw carries.
 
 The same reasoning gives the whole distribution of how often a row is drawn:
 in the limit, a fraction $e^{-1}/k!$ of rows appears exactly $k$ times — 36.8%
-never, 36.8% once, 18.4% twice, 6.1% three times.
+never, 36.8% once, 18.4% twice, 6.1% three times. The number of times one row
+is drawn is binomial, $m$ draws each with probability $1/m$; as $m$ grows with
+the mean held at $m \cdot 1/m = 1$, the binomial tends to the Poisson
+distribution with mean 1, whose probabilities are exactly $e^{-1}/k!$.
 
 ![](bootstrap_counts.png)
 
@@ -332,9 +339,11 @@ never, 36.8% once, 18.4% twice, 6.1% three times.
 once or several times. About one row in four is drawn two or more times, and
 that duplication is what makes each tree different from its neighbour.*
 
-Every OOB row is free validation data for the one tree that did not see it.
-Averaging each tree's OOB predictions gives the **OOB score**, at no extra
-split of the data. On this dataset a 300-tree random forest's OOB score was
+Every OOB row is free validation data for the trees that did not see it.
+Predicting each row by a vote of only those trees, and scoring those
+predictions, gives the **OOB score**, with no rows set aside. On this dataset
+a 300-tree random forest — bagging with one extra rule, given in section 6;
+here it can be read as 300 bagged trees — had an OOB score of
 **0.9117**, against a 5-fold cross-validated accuracy of **0.9117 ± 0.021**
 for the same forest.
 
@@ -501,7 +510,10 @@ nothing better on the menu to give it instead.
 
 The practical consequence: with few real features against many candidate
 columns, treat a random forest's importances as suggestive, not definitive —
-cross-check against permutation importance on held-out data, or against
+cross-check against **permutation importance** on held-out data (shuffle one
+column's values, breaking its link to the label, and measure how much
+accuracy drops: a column the model relies on costs accuracy, a noise column
+costs nothing), or against
 which columns could plausibly matter before asking the forest which ones do.
 
 > **Try this:** in notebook 2, repeat the noise experiment with
@@ -524,6 +536,13 @@ $$F_0(x) = \bar{y}, \qquad F_t(x) = F_{t-1}(x) + \alpha \cdot h_t(x)$$
 where $h_t$ is a shallow tree — depth 2 or 3, a **weak learner** — fit to
 what remains unexplained by $F_{t-1}$, and $\alpha$ is the **learning
 rate**: how much of each new tree's correction is actually applied.
+
+The trees are **regression trees**, even when the task is classification,
+because what they are fit to is a number, not a class. A regression tree is
+section 2's algorithm with two changes: each leaf predicts the mean of the
+values that reach it, and a split is scored by how much it lowers the squared
+error around those means, in place of the Gini impurity. The greedy search
+over features and thresholds is unchanged.
 
 For squared-error regression, "what remains unexplained" has an exact name,
 the **residual** $y - F_{t-1}(x)$. This is a special case of a more general
@@ -579,8 +598,8 @@ same quantity, one correction at a time, rather than adjusting a fixed set
 of linear coefficients against it in one continuous descent.
 
 **Where it starts, and the first residuals.** The starting score is the
-best constant, the log-odds of the base rate: $p = 0.387$ defaulted, so
-$F_0 = \log(0.387 / 0.613) = -0.461$, which the logistic function turns back
+best constant, the log-odds of the base rate: 464 of the 1,200 applicants
+defaulted, $p = 0.387$, so $F_0 = \log(464 / 736) = -0.461$, which the logistic function turns back
 into 0.387 for every applicant. The first tree is then fit to $y - p$: **+0.613**
 for every applicant who defaulted and **−0.387** for every one who repaid.
 Where that tree finds a group of mostly defaulters, it raises their score;
@@ -619,9 +638,13 @@ and drifts down by roughly a point over the following 770 trees.*
 The overfitting is real but **gentler** than a single unconstrained tree's:
 that tree lost 3 points of cross-validated accuracy past its peak (section
 3); 800 boosted trees lose about 1, even though training accuracy has been
-at 1.000 since well before that point. That gentleness is why early stopping
-matters for boosting rather than being optional — the damage per added tree
-is small and easy to miss on a single run, and it is still there.
+at 1.000 since well before that point. That gentleness is why **early
+stopping** matters for boosting rather than being optional — the damage per
+added tree is small and easy to miss on a single run, and it is still there.
+Early stopping sets aside part of the training data, watches the score on it
+as trees are added, and stops once it has not improved for a fixed number of
+rounds; in scikit-learn it is the `n_iter_no_change` argument of
+`GradientBoostingClassifier`.
 
 Learning rate and tree count are not independent: both control how much
 total correction the ensemble applies, so they trade off against each
@@ -637,8 +660,8 @@ other. Fixing `n_estimators = 120` and varying only $\alpha$:
 
 A learning rate of 0.02 has not finished fitting the signal in 120 trees —
 training accuracy is still under 0.89. A learning rate of 1.0 has memorised
-the training set completely (1.000) and given back several points of
-cross-validated accuracy for it. The best setting sits in between: large
+the training set completely (1.000) and given back more than two points of
+cross-validated accuracy for it, 0.902 down to 0.878. The best setting sits in between: large
 enough to make real progress within the tree budget, small enough to leave
 each individual correction easy to outvote if it turns out to be wrong.
 
@@ -672,16 +695,22 @@ only model on this table a person could read start to finish — the
 accuracy-interpretability trade this lesson opened with, restated as
 numbers. Third, the unconstrained tree is the worst model on this list
 despite being, in a narrow sense, the most flexible one: flexibility without
-a stopping rule is not an advantage, and this table is the fourth time this
-course has made that point with a different method each time.
+a stopping rule is not an advantage, a point this course has now made with
+several different methods.
 
 | Situation | Reach for |
 |---|---|
-| The decision must be explained to the person it affects | A single tree, depth-tuned, or nothing on this list |
-| Tabular data, accuracy matters most, no explanation required | A random forest, as a strong and low-effort default |
-| Training time matters, or the signal needs sequential refinement | Gradient boosting, tuned on a validation set |
-| Very high-dimensional, few informative columns | Any tree method, cautiously — trust importances less as $n$ grows past $m$ |
-| Rows only, and OOB score suffices for validation | A random forest — free of an explicit train/test split |
+| The decision must be explained to the person it affects | A single tree, small enough to read; if even that is too opaque, none of these models |
+| Tabular data, accuracy matters most, no explanation required | A random forest: the best score here, at its default settings |
+| Accuracy matters, and there is time to tune the number of trees and the learning rate together | Gradient boosting, tuned on validation data |
+| Many columns, few of them informative | Any tree method, checking its importances by permutation: section 7's 54% came with 1,200 rows |
+| Too few rows to set a validation set aside | A random forest, judged by its out-of-bag score |
+
+One caveat, in lesson 5's terms. Depth 8 and 30 boosted trees were chosen
+because they scored best on the same five folds as the leaderboard, so those two leaderboard rows are
+slightly optimistic; nested cross-validation would remove the bias. Bagging
+and the random forest ran at their defaults, chose nothing on these folds,
+and are not affected — and they are still the two best rows.
 
 ---
 

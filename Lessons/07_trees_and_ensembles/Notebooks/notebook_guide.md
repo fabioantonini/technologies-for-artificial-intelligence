@@ -27,7 +27,8 @@ patches — not one class surrounding another as in lesson 6.
 
 1. **Look at it first.** No straight line separates the classes, but logistic
    regression still reaches **0.748 ± 0.030** against a baseline of 0.613, because
-   three of the four risky regions are at least monotonic in one feature. Not lesson
+   two of the four risky regions, very low income and very high debt, are monotonic
+   in one feature. Not lesson
    6's flat failure — a different shape of difficulty.
 2. **A tree, split by split**: find the (feature, threshold) pair that makes the two
    resulting groups as pure as possible, apply it, repeat. Checked against
