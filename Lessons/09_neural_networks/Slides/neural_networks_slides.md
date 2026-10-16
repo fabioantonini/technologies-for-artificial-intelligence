@@ -148,8 +148,15 @@ The previous slide's formula as a picture, with numbers: w1 = 1, w2 = 2,
 b = -1. Point at the left half first. Two inputs arrive, each multiplied by its
 weight; a third input that is always 1 carries the bias, so the bias is just
 one more weight. The sum z goes through the sigmoid, and out comes y-hat
-between 0 and 1. Rosenblatt's 1958 perceptron had a step where the sigmoid is:
-output 1 when z is positive, 0 otherwise.
+between 0 and 1.
+
+The small plot under the sigma node is the sigmoid itself, the gold S-curve:
+very negative z gives almost 0, very positive z almost 1, and z = 0 gives
+exactly 0.5. The dashed line is what Rosenblatt's 1958 perceptron used in its
+place, a step: output 1 when z is positive, 0 otherwise. Both switch at the same
+place, z = 0; the sigmoid does it smoothly, which is what lets lesson 4's
+gradient descent - and today's backpropagation - work, since a step has no
+slope to follow.
 
 Then the right half, which is the same unit seen from the data's side. Colour
 every point of the input plane by the y-hat the unit gives it. The colour

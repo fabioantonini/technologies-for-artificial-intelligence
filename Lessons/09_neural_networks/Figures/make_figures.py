@@ -183,14 +183,28 @@ def one_neuron():
     node(ax, out, "σ", GOLD, r=0.5)
     ax.text(out[0] + 0.7, out[1], "ŷ", ha="left", va="center", fontsize=22)
     ax.text(s[0], 2.75, "z = w₁x₁ + w₂x₂ + b", ha="center", fontsize=16)
-    ax.text(out[0], 0.85, "ŷ = σ(z)", ha="center", fontsize=16)
     ax.text(one[0], -0.6, "a constant 1\ncarries the bias", ha="center", va="top",
             fontsize=14, color=SLATE)
     ax.text(3.8, 4.35, "one unit: weigh, add, squash", ha="center", fontsize=17,
             weight="bold", color=SLATE)
-    ax.text(4.6, -0.6, "Rosenblatt's perceptron (1958)\nhad a step in place of σ:\n"
-            "output 1 when z > 0", ha="center", va="top", fontsize=14, color=SLATE,
-            style="italic")
+
+    # The squash itself, under the σ node: the sigmoid, and the step it replaced.
+    curve = ax.inset_axes([0.47, 0.0, 0.5, 0.33])
+    zz = np.linspace(-6, 6, 400)
+    curve.plot(zz, 1 / (1 + np.exp(-zz)), color=GOLD, lw=2.6,
+               label="sigmoid σ(z)")
+    curve.plot(zz, (zz > 0).astype(float), color=SLATE, lw=1.6, ls="--",
+               label="step (1958)")
+    curve.axhline(0.5, color=SLATE, lw=.6, ls=":")
+    curve.axvline(0, color=SLATE, lw=.6, ls=":")
+    curve.set_yticks([0, 0.5, 1])
+    curve.set_xticks([-6, 0, 6])
+    curve.tick_params(labelsize=11)
+    curve.set_xlabel("z", fontsize=13, labelpad=1)
+    curve.set_ylabel("ŷ", fontsize=13, labelpad=6, rotation=0, va="center")
+    curve.legend(fontsize=11, loc="lower right", bbox_to_anchor=(1.1, 0.0), frameon=False,
+                 handlelength=1.4)
+    curve.spines[["top", "right"]].set_visible(False)
     ax.set_xlim(-0.3, 8.0)
     ax.set_ylim(-2.1, 4.7)
     ax.set_aspect("equal")

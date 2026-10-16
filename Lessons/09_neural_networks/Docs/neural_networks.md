@@ -107,7 +107,8 @@ express is "which side of this line are you on, and how far".
 
 *One unit drawn two ways, with $w_1 = 1$, $w_2 = 2$ and $b = -1$. Left: the inputs
 are weighted and added, with a constant 1 carrying the bias, and the sum $z$ is
-squashed by the sigmoid. Right: the same unit as a map of the input plane, coloured
+squashed by the sigmoid; the small plot shows the sigmoid against the step the
+1958 perceptron used, both switching at $z = 0$, one smoothly. Right: the same unit as a map of the input plane, coloured
 by $\hat{y}$. Look at the black line, $x_1 + 2x_2 - 1 = 0$: on it $z = 0$ and
 $\hat{y} = 0.5$, and the unit's whole verdict is which side of it a point lies on.*
 
