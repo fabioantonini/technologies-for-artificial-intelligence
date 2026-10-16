@@ -647,6 +647,33 @@ classification. Multiclass comes after the break.
 Handout section 4.1.
 :::
 
+# Forward propagation, drawn
+
+![](forward_pass_map.png)
+
+::: notes
+The map for the next three slides. It is the acceptance network: two inputs,
+four hidden units, one output - the same network as the fence slides.
+
+Point at the edges first: every arrow carries a weight. The eight arrows into
+the hidden layer are the eight entries of W1, a 2-by-4 matrix, and each
+hidden unit owns one column of it - the two weights on its incoming arrows.
+The four arrows into the output are W2, 4-by-1. Each unit also has a bias.
+
+Then the nodes: each holds two numbers. z is the weighted sum arriving at the
+unit, before anything is squashed - the pre-activation. a is what the unit
+passes on, a = g(z), with g the ReLU here. The output node does the same with
+the sigmoid, and its a is y-hat.
+
+Then the bottom row, which is the step students miss: those are one
+example's numbers. Stack all m examples as rows and z1 to z4 become a row of
+the matrix Z1, of shape m by 4, and likewise A1; the inputs become X, m by 2.
+The next two slides are this picture written as matrix products, and the slide
+after that is the bottom row as a table.
+
+Handout section 4.1.
+:::
+
 # Layer 1: a line per unit, then a non-linearity
 
 $$Z^{[1]} = X W^{[1]} + b^{[1]}, \qquad A^{[1]} = g(Z^{[1]})$$
@@ -950,10 +977,10 @@ Handout section 5.5.
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
 | split, then one straight line, 9-16 | `train_test_split`, `StandardScaler`, `LogisticRegression` → 0.5507 |
-| forward, backward, gradient check, 28-43 | NumPy only → untrained cost 0.6721, worst disagreement 1.97 × 10⁻⁸ |
+| forward, backward, gradient check, 28-44 | NumPy only → untrained cost 0.6721, worst disagreement 1.97 × 10⁻⁸ |
 | the drift problem, 17-25 | the hand-built network, then 20 restarts per width → 4 of 20 above 0.95 at two units |
 | the polygon yardstick, 26 | `scipy.integrate` → the best 4-sided fence scores 0.9396 |
-| zero initialisation, 56-57 | all weights 0 → final cost 0.6887 |
+| zero initialisation, 57-58 | all weights 0 → final cost 0.6887 |
 
 ::: notes
 Backpropagation from scratch, gradient-checked before it is trusted; the
@@ -1212,11 +1239,11 @@ Handout section 7.3.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the same network in Keras, 28-33 | `keras.Sequential`, `keras.Input`, `layers.Dense`, `SGD`; then `compile`, `fit`, `evaluate` → 0.9333 |
-| ten classes, 45-48 | `Dense(10, activation="softmax")`, `Adam`, `Dropout`, `confusion_matrix` → 0.9676 with two layers of 64 |
-| the shrinkage, measured, 49-52 | `tf.GradientTape`, `sparse_categorical_crossentropy` → about 4 per sigmoid layer |
-| training six layers, 53-54 | `SGD` on three activations → sigmoid 0.1000, tanh 0.9750 |
-| how big the weights should be, 58 | `RandomNormal` at two scales, against Glorot → 73% saturated at N(0, 1) |
+| the same network in Keras, 28-34 | `keras.Sequential`, `keras.Input`, `layers.Dense`, `SGD`; then `compile`, `fit`, `evaluate` → 0.9333 |
+| ten classes, 46-49 | `Dense(10, activation="softmax")`, `Adam`, `Dropout`, `confusion_matrix` → 0.9676 with two layers of 64 |
+| the shrinkage, measured, 50-53 | `tf.GradientTape`, `sparse_categorical_crossentropy` → about 4 per sigmoid layer |
+| training six layers, 54-55 | `SGD` on three activations → sigmoid 0.1000, tanh 0.9750 |
+| how big the weights should be, 59 | `RandomNormal` at two scales, against Glorot → 73% saturated at N(0, 1) |
 
 ::: notes
 The same network again in six lines of Keras, with the same answer; softmax on
@@ -1550,11 +1577,11 @@ Handout section 10.3.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the learning rate, 59-61 | `SGD(learning_rate=α)` at five rates → best 0.9685 at α = 0.5 |
-| dead units, 62-63 | `keras.Model` to read the hidden layer → 33 of 64 dead at α = 1.0 |
-| optimisers, 64-65 | `SGD`, `SGD(momentum=0.9)`, `Adam` → Adam's worst run 0.9360 |
-| memorising, 66 | two layers of 512 on 300 digits, `count_params` → 301,066 parameters |
-| regularisers, 67 | `EarlyStopping`, `Dropout(0.4)`, `l2(1e-3)` → 0.9411 to 0.9511 |
+| the learning rate, 60-62 | `SGD(learning_rate=α)` at five rates → best 0.9685 at α = 0.5 |
+| dead units, 63-64 | `keras.Model` to read the hidden layer → 33 of 64 dead at α = 1.0 |
+| optimisers, 65-66 | `SGD`, `SGD(momentum=0.9)`, `Adam` → Adam's worst run 0.9360 |
+| memorising, 67 | two layers of 512 on 300 digits, `count_params` → 301,066 parameters |
+| regularisers, 68 | `EarlyStopping`, `Dropout(0.4)`, `l2(1e-3)` → 0.9411 to 0.9511 |
 | more data | `train_test_split` at six sizes → +3.2 points from 300 to 1,077 examples |
 
 ::: notes

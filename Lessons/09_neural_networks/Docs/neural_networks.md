@@ -12,16 +12,16 @@ date: "27 November 2026 · reading time about 100 minutes"
 | 0:00–0:10 | 10 | Exercise 8 discussed; one neuron is one line | Slides 2–8 |
 | 0:10–0:30 | 20 | The acceptance problem, and why a line cannot solve it | Slides 9–16 |
 | 0:30–0:45 | 15 | A hidden layer: fences made of lines; a network built by hand | Slides 17–27 |
-| 0:45–1:00 | 15 | Forward propagation, shapes, and the loss | Slides 28–33 |
-| 1:00–1:12 | 12 | **Break** | Slide 34 |
-| 1:12–1:30 | 18 | Backpropagation derived; checking the gradient | Slides 35–43 |
-| 1:30–1:52 | 22 | **Notebook 01** — backpropagation from scratch | Slide 44 |
-| 1:52–2:07 | 15 | Softmax, activations, and the vanishing gradient | Slides 45–54 |
-| 2:07–2:27 | 20 | **Notebook 02** — Keras, softmax, depth | Slide 55 |
-| 2:27–2:40 | 13 | Initialisation, optimisers, regularisation | Slides 56–67 |
-| 2:40–2:58 | 18 | **Notebook 03** — training in practice | Slide 68 |
-| 2:58–3:00 | 2 | Homework | Slides 69–70 |
-| | **180** | **Total** | **70 slides, 3 notebooks** |
+| 0:45–1:00 | 15 | Forward propagation, shapes, and the loss | Slides 28–34 |
+| 1:00–1:12 | 12 | **Break** | Slide 35 |
+| 1:12–1:30 | 18 | Backpropagation derived; checking the gradient | Slides 36–44 |
+| 1:30–1:52 | 22 | **Notebook 01** — backpropagation from scratch | Slide 45 |
+| 1:52–2:07 | 15 | Softmax, activations, and the vanishing gradient | Slides 46–55 |
+| 2:07–2:27 | 20 | **Notebook 02** — Keras, softmax, depth | Slide 56 |
+| 2:27–2:40 | 13 | Initialisation, optimisers, regularisation | Slides 57–68 |
+| 2:40–2:58 | 18 | **Notebook 03** — training in practice | Slide 69 |
+| 2:58–3:00 | 2 | Homework | Slides 70–71 |
+| | **180** | **Total** | **71 slides, 3 notebooks** |
 
 ---
 
@@ -321,6 +321,15 @@ inputs:
 $$Z^{[1]} = X W^{[1]} + b^{[1]}, \qquad A^{[1]} = g\big(Z^{[1]}\big)$$
 
 $$Z^{[2]} = A^{[1]} W^{[2]} + b^{[2]}, \qquad \hat{y} = \sigma\big(Z^{[2]}\big)$$
+
+![](forward_pass_map.png)
+
+*The 2-4-1 network of the acceptance problem with every symbol in its place.
+Weights live on the edges: $W^{[1]}$ is $2 \times 4$, one column per hidden unit,
+and $W^{[2]}$ is $4 \times 1$. Each hidden node holds two numbers, its weighted sum
+$z$ and its activation $a = g(z)$; the output node holds $z$ and
+$\hat{y} = \sigma(z)$. Look at the bottom row: stacking all $m$ examples as rows
+turns those per-node numbers into the matrices $Z^{[1]}$, $A^{[1]}$ and $Z^{[2]}$.*
 
 with shapes
 

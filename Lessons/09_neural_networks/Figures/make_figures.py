@@ -240,9 +240,80 @@ def one_neuron():
     plt.close(fig)
 
 
+def forward_pass_map():
+    """Where each symbol of forward propagation lives: the 2-4-1 acceptance network."""
+    fig, ax = plt.subplots(figsize=(14.0, 6.2))
+    X0, H0, O0 = 1.0, 6.4, 11.8
+    xs = [(X0, 3.9), (X0, 2.3)]
+    hs = [(H0, 5.2), (H0, 3.85), (H0, 2.5), (H0, 1.15)]
+    out = (O0, 3.1)
+    r_h, r_o = 0.58, 0.62
+
+    for x in xs:
+        for h in hs:
+            ax.add_patch(FancyArrowPatch(x, h, arrowstyle="-|>", mutation_scale=11,
+                                         lw=1.2, color=BLUE, alpha=.5,
+                                         shrinkA=26, shrinkB=34, zorder=1))
+    for h in hs:
+        ax.add_patch(FancyArrowPatch(h, out, arrowstyle="-|>", mutation_scale=11,
+                                     lw=1.2, color=RUST, alpha=.55,
+                                     shrinkA=34, shrinkB=36, zorder=1))
+    node(ax, xs[0], "x₁", SLATE)
+    node(ax, xs[1], "x₂", SLATE)
+    for j, h in enumerate(hs, start=1):
+        ax.add_patch(Circle(h, r_h, facecolor="white", edgecolor=TEAL, lw=2.4, zorder=3))
+        ax.plot([h[0], h[0]], [h[1] - r_h, h[1] + r_h], color=TEAL, lw=1, zorder=4)
+        ax.text(h[0] - 0.3, h[1], f"$z_{j}$", ha="center", va="center", fontsize=17, zorder=5)
+        ax.text(h[0] + 0.3, h[1], f"$a_{j}$", ha="center", va="center", fontsize=17, zorder=5)
+    ax.add_patch(Circle(out, r_o, facecolor="white", edgecolor=GOLD, lw=2.4, zorder=3))
+    ax.plot([out[0], out[0]], [out[1] - r_o, out[1] + r_o], color=GOLD, lw=1, zorder=4)
+    ax.text(out[0] - 0.32, out[1], "$z$", ha="center", va="center", fontsize=18, zorder=5)
+    ax.text(out[0] + 0.32, out[1], r"$\hat{y}$", ha="center", va="center", fontsize=18, zorder=5)
+
+    # Column headings.
+    for x, label in ((X0, "inputs"), (H0, "layer 1: hidden"),
+                     (O0, "layer 2: output")):
+        ax.text(x, 6.95, label, ha="center", fontsize=19, weight="bold", color=SLATE)
+
+    # What lives on the edges.
+    ax.text(2.6, 6.3, r"$W^{[1]}$: 2 × 4, one column per hidden unit",
+            ha="center", fontsize=17, color=BLUE)
+    ax.text(2.6, 5.85, r"$b^{[1]}$: 4 biases, one per hidden unit",
+            ha="center", fontsize=16, color=BLUE)
+    ax.text((H0 + O0) / 2 + 0.3, 5.1, r"$W^{[2]}$: 4 × 1", ha="center", fontsize=17,
+            color=RUST)
+    ax.text((H0 + O0) / 2 + 0.3, 4.65, r"$b^{[2]}$: 1 bias", ha="center", fontsize=16,
+            color=RUST)
+
+    # What each layer computes.
+    ax.text(H0, 0.05, r"$Z^{[1]} = XW^{[1]} + b^{[1]}$,  $A^{[1]} = g(Z^{[1]})$",
+            ha="center", fontsize=18)
+    ax.text(H0, -0.42, "z: weighted sum (pre-activation);   a = g(z): activation, here ReLU",
+            ha="center", fontsize=15.5, color=SLATE)
+    ax.text(O0, 2.05, r"$Z^{[2]} = A^{[1]}W^{[2]} + b^{[2]}$", ha="center", fontsize=18)
+    ax.text(O0, 1.5, r"$\hat{y} = \sigma(Z^{[2]})$", ha="center", fontsize=18)
+
+    # The shapes, one row per example.
+    for x, label in ((X0, r"$X$: $m \times 2$"),
+                     (H0, r"$Z^{[1]}$ and $A^{[1]}$: $m \times 4$"),
+                     (O0, r"$Z^{[2]}$ and $\hat{y}$: $m \times 1$")):
+        ax.text(x, -1.1, label, ha="center", fontsize=18, color=SLATE)
+    ax.text(H0, -1.6, "shapes: one row per example, m = 2,250 training units",
+            ha="center", fontsize=15.5, color=SLATE, style="italic")
+
+    ax.set_xlim(-0.6, 13.6)
+    ax.set_ylim(-1.9, 7.3)
+    ax.set_aspect("equal")
+    ax.axis("off")
+    fig.savefig(OUT / "forward_pass_map.png", dpi=150, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     drift_clouds()
     two_unit_network()
     four_unit_network()
     one_neuron()
-    print("wrote drift_clouds.png, two_unit_network.png, four_unit_network.png, one_neuron.png")
+    forward_pass_map()
+    print("wrote drift_clouds.png, two_unit_network.png, four_unit_network.png, "
+          "one_neuron.png, forward_pass_map.png")
