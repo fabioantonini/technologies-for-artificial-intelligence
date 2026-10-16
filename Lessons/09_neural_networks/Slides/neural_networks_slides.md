@@ -728,16 +728,23 @@ Handout section 4.1.
 # Two facts the shapes hand you
 
 - **Examples never mix**: the row index passes through untouched
-- Nothing lets example 3 influence example 7, which is what makes
-  mini-batching valid
-- **Each column of the first weight matrix is one unit**
-- Its weight vector, and the line that unit draws
+- So a step can use a **mini-batch**: the gradient on a few examples (64 in
+  notebook 1), not all m
+- **Each column of W⁽¹⁾ is one unit**: its weights, and the line it draws
 - So $H$ hidden units are $H$ lines, and the output unit votes
 
 ::: notes
-Both facts look like bookkeeping, but both matter. The first is what allows every later decision to process examples in batches,
-or to split them across machines; if examples could influence one another, computing a gradient on 32 of
-them would not approximate the gradient on all of them.
+Both facts look like bookkeeping, but both matter. The first: nothing in the
+forward pass lets example 3 influence example 7. That is what allows training
+to process examples in batches, or to split them across machines. Define the
+term here, because it is new: lesson 3's gradient descent computed every
+step's gradient on all m examples; a mini-batch step computes it on a small
+random group - 64 in notebook 1 - takes the step, then moves to the next
+group. The number in each group is the batch size. It works only because
+examples do not mix: if they could influence one another, the gradient on 64
+of them would not approximate the gradient on all of them. The full story,
+and how batch size interacts with the learning rate, comes back with the
+optimisers in the last segment (handout section 9.2).
 
 The second is what makes a hidden layer interpretable at all in two
 dimensions, and it is the bridge to the fence picture and to the polygon
@@ -912,8 +919,8 @@ Handout section 5.3.
 - **A gradient costs roughly what a prediction costs**: this is what makes
   training feasible at all
 - But every layer's activations must be **stored**
-- Memory grows with depth times batch size, and memory, not arithmetic, is
-  what usually limits batch size
+- Memory grows with depth times batch size (examples per mini-batch), and
+  memory, not arithmetic, is what usually limits batch size
 
 ::: notes
 Both halves of this slide get quoted at students later in their careers and
@@ -1189,11 +1196,12 @@ the derivative takes.
 Handout section 7.3.
 :::
 
-# Eighty epochs, three activations: only the sigmoid never learns
-- Same six layers, same data, differing **only** in the activation
+# Eighty epochs: only the sigmoid never learns
+- Same six layers and data, **only** the activation differs; an **epoch** is
+  one pass through the training set
 - Sigmoid: **0.1000**, exact chance on ten classes
 - tanh: **0.9750**, past 0.85 within 3 epochs
-- Rectified linear unit: **0.9611**, 9 epochs to get going
+- ReLU: **0.9611**, 9 epochs to get going
 - tanh squashes too, but its derivative reaches 1; the sigmoid's never
   exceeds ¼, and that is what kills it
 

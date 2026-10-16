@@ -352,7 +352,7 @@ Two structural facts follow from the shapes, and both are worth stating.
 
 **Examples never mix.** The row index $i$ passes through every operation
 untouched: nothing in the forward pass lets example 3 influence example 7.
-That is what makes mini-batching valid.
+That is what makes **mini-batching** valid: a training step can compute the gradient on a small random group of examples — a mini-batch, 32 or 64 in this lesson, the *batch size* — instead of on all $m$, and the result still estimates the full gradient. One pass through all the mini-batches, so through every training example once, is an **epoch**. Section 9.2 returns to both.
 
 **Column $j$ of $W^{[1]}$ is hidden unit $j$.** It is the unit's weight
 vector, and the line $W^{[1]}_{:,j}\!\cdot z + b^{[1]}_j = 0$ is the line that
