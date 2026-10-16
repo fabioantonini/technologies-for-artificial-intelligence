@@ -216,12 +216,13 @@ where would you put a straight line? Handout section 2.2.
 
 # A circle of radius 1.25
 
-- Gain tolerance **0.50**, production spread (standard deviation) **0.40**
-- Phase tolerance **3.75**, production spread **3.00**
+- Tolerances **0.50** dB and **3.75**°; production spreads (standard
+  deviations) **0.40** and **3.00**
 - Both are exactly **1.25 spreads**, so standardised, the accept region is a
   circle of radius 1.25
-- Two units, two tolerances, one shared shape
-- **0.5497** of the 3,000 generated units fall inside it
+- Production offsets are **normally distributed**: standardised, each unit is a
+  random point of a standard two-dimensional normal
+- **0.5497** of the 3,000 generated units fall inside the circle
 
 ::: notes
 This is the payoff for the "try this" in the handout: the circle is not an
@@ -230,6 +231,12 @@ multiple of their own axis's spread. Standardising is what makes that
 visible - in decibels and degrees the region is an ellipse and the coincidence
 is invisible.
 
+The fourth bullet is the assumption the next slide needs: the generator draws
+each offset from a normal distribution with that spread (instrument_data.py,
+TRUE_GAIN_SIGMA_DB and TRUE_PHASE_SIGMA_DEG). Divide each axis by its spread
+and every unit becomes a point of the standard two-dimensional normal, centred
+on the origin with spread 1 in every direction.
+
 The measured 0.5497 is worth stating before the theoretical number on the next
 slide, so that the comparison runs from data to formula rather than the other
 way round.
@@ -237,22 +244,34 @@ way round.
 Handout section 2.2.
 :::
 
-# What fraction of units the circle holds
+# Before any model: the share inside, from the normal
 
 $$P(\|z\| < 1.25) = 1 - e^{-0.78125} = 0.5422$$
 
 ::: notes
-The middle step is left off the slide so the formula stays large enough to read: 1.25 squared
-over two is 0.78125, and that is the exponent. Do it out loud.
+Say first what this number is NOT: it does not come from a model, and nothing
+has been fitted yet. It is a prediction from probability theory alone, from the
+previous slide's assumption that the standardised offsets are a standard
+two-dimensional normal.
 
-For a standard two-dimensional normal the probability of landing inside a
-circle of radius s is one minus e to the minus s squared over two - a fact
-worth a moment, since it is the same integral that reappears in section 11
-when the lesson computes how well a polygon of a given number of sides could
-fence this region.
+Read the symbols: z is one unit's pair of standardised offsets, the double
+bars are its distance from the origin, so the left side is "the probability that
+a unit lands inside the circle of radius 1.25" - the probability that it
+passes. For a standard two-dimensional normal the probability of landing inside
+a circle of radius s is one minus e to the minus s squared over two. The middle
+step is left off the slide so the formula stays large enough to read: 1.25
+squared over two is 0.78125, and that is the exponent. Do it out loud.
 
 0.5422 predicted, 0.5497 measured on 3,000 units. The gap is sampling noise on
 three thousand draws and nothing else.
+
+Why it matters for what follows: a little over half of all units pass, so a
+model that answers "accepted" for every unit, using no measurement at all, is
+already right about 55% of the time. That is the first row of the next slide's
+table, and the number every straight line will be compared against.
+
+The same integral reappears in section 11, when the lesson computes how well a
+polygon of a given number of sides could fence this region.
 
 `Docs/worked_examples.py` recomputes this from the raw tolerances rather than
 from the standardised radius. Handout section 2.2.

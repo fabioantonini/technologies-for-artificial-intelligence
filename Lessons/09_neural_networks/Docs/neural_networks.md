@@ -126,7 +126,10 @@ The right-hand panel draws something Meridian's engineers never see. The gain
 tolerance is 0.50 dB against a production spread of 0.40, and the phase
 tolerance is 3.75° against a spread of 3.00 — both exactly 1.25 spreads. So
 once each axis is standardised the accept region is a **circle of radius
-1.25**, and the fraction of units inside it can be computed exactly.
+1.25**. And because the offsets are drawn from normal distributions with those
+spreads, each standardised unit is a random point of the standard
+two-dimensional normal, so the fraction of units inside the circle — the pass
+rate — can be computed exactly, before any model is fitted.
 
 For a standard two-dimensional normal the density is
 $\tfrac{1}{2\pi}e^{-(z_1^2 + z_2^2)/2}$, which depends only on the distance
@@ -139,7 +142,9 @@ $$P\big(\lVert z \rVert < s\big) = \int_0^{s} r\,e^{-r^2/2}\,dr = 1 - e^{-s^2/2}
   \qquad
   P\big(\lVert z \rVert < 1.25\big) = 1 - e^{-0.78125} = 0.5422$$
 
-against 0.5497 measured on the 3,000 generated units.
+against 0.5497 measured on the 3,000 generated units. A little over half of
+all units pass, which is why a "model" that answers "accepted" every time, using
+no measurement at all, already scores about 0.55 in the table below.
 
 Now fit logistic regression to it. The result:
 
