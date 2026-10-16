@@ -349,7 +349,8 @@ Handout section 2.2.
 
 - 181 directions × 201 offsets × 2 sides = 72,762 lines, all scored on the
   test set; the winner, **on the data that chose it**: 0.6880
-- The honest figure, computed exactly from the geometry: **0.6491**
+- The honest figure, from the true distribution, not from any test set:
+  **0.6491** (±0.001)
 - **Almost 4 points of pure selection bias**
 - Nothing was fitted: only a choice made. Lesson 5's argument again
 
@@ -364,8 +365,14 @@ Ask the room how many candidates they would have to try before the effect
 becomes serious, and whether they have ever reported the best of several
 configurations. Almost everyone has.
 
-The 0.6491 is computed analytically in handout section 11.1, from the geometry
-rather than from any sample, which is precisely why it is trustworthy here.
+The 0.6491 does not use the test set at all. It is the best a straight line
+can do on the whole population: by the circle's symmetry every direction is
+equivalent, so notebook 1 slides one line x1 < a across 400,000 units simulated
+from the true rule, keeps the best position, and converts to accuracy against
+the recorded labels with the 3% rig error. Being a simulation it carries about
+plus or minus 0.001 - the handout's quadrature gives 0.6500 - which changes
+nothing: 0.6880 against about 0.65 is still almost 4 points. Handout sections
+2.2 and 11.1.
 Handout section 2.2.
 :::
 
