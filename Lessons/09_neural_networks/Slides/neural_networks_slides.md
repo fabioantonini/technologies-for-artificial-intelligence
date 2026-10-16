@@ -246,7 +246,7 @@ Handout section 2.2.
 
 # Before any model: the share inside, from the normal
 
-$$P(\|z\| < 1.25) = 1 - e^{-0.78125} = 0.5422$$
+$$P(\|z\| < s) = 1 - e^{-s^2/2}, \qquad s = 1.25:\ 0.5422$$
 
 ::: notes
 Say first what this number is NOT: it does not come from a model, and nothing
@@ -255,12 +255,14 @@ previous slide's assumption that the standardised offsets are a standard
 two-dimensional normal.
 
 Read the symbols: z is one unit's pair of standardised offsets, the double
-bars are its distance from the origin, so the left side is "the probability that
-a unit lands inside the circle of radius 1.25" - the probability that it
-passes. For a standard two-dimensional normal the probability of landing inside
-a circle of radius s is one minus e to the minus s squared over two. The middle
-step is left off the slide so the formula stays large enough to read: 1.25
-squared over two is 0.78125, and that is the exponent. Do it out loud.
+bars are its distance from the origin. The first formula is the general
+fact: for a standard two-dimensional normal, the probability of landing inside
+a circle of radius s is one minus e to the minus s squared over two (handout
+section 2.2 derives it in three lines, in polar coordinates). The second puts
+in s = 1.25, the radius of the accept region, so its left side is "the
+probability that a unit lands inside the circle" - the probability that it
+passes. 1.25 squared over two is 0.78125, and that is the exponent. Do it out
+loud.
 
 0.5422 predicted, 0.5497 measured on 3,000 units. The gap is sampling noise on
 three thousand draws and nothing else.
