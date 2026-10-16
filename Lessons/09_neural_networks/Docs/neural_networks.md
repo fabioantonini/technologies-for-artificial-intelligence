@@ -148,11 +148,11 @@ no measurement at all, already scores about 0.55 in the table below.
 
 Now fit logistic regression to it. The result:
 
-| | test accuracy |
+| | accuracy |
 |---|---|
-| always predict "accepted" | 0.5480 |
-| fitted logistic regression | **0.5507** |
-| the best straight line for this population | 0.6491 |
+| always predict "accepted", on the 750 test units | 0.5480 |
+| fitted logistic regression, on the 750 test units | **0.5507** |
+| the best possible straight line, computed from the true distribution (section 11) | 0.6491 |
 | the rig's ceiling | 0.9700 |
 
 The fitted coefficients are $(0.0096,\ 0.0701)$ with intercept $0.1892$ —

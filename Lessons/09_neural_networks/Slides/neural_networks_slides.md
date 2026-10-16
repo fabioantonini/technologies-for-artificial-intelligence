@@ -279,11 +279,11 @@ from the standardised radius. Handout section 2.2.
 
 # What one line is worth
 
-| | test accuracy |
+| | accuracy |
 |---|---|
-| always predict "accepted" | 0.5480 |
-| fitted logistic regression | **0.5507** |
-| the best straight line for this population | 0.6491 |
+| always predict "accepted", on the 750 test units | 0.5480 |
+| fitted logistic regression, on the 750 test units | **0.5507** |
+| the best possible straight line, computed from the true distribution | 0.6491 |
 | the rig's ceiling | 0.9700 |
 
 ::: notes
@@ -320,8 +320,8 @@ Handout section 2.2.
 
 # The fit did not fail
 
-- Coefficients **(0.0096, 0.0701)**, intercept **0.1892**
-- Almost exactly the constant model: no line does much better than that
+- Fitted logistic regression: coefficients **(0.0096, 0.0701)**, intercept
+  **0.1892**, almost exactly the constant model
 - Not an optimiser that gave up. The reason is symmetry
 - The accept region is a disc on the origin; every accepted unit has a partner
   opposite
@@ -345,12 +345,11 @@ Handout section 2.2.
 
 # 72,762 candidate lines, and 4 points of self-deception
 
-- The search tries 72,762 boundaries and scores the winner **on the data that
-  chose it**: 0.6880
+- 181 directions × 201 offsets × 2 sides = 72,762 lines, all scored on the
+  test set; the winner, **on the data that chose it**: 0.6880
 - The honest figure, computed exactly from the geometry: **0.6491**
 - **Almost 4 points of pure selection bias**
-- Nothing was fitted. No parameter estimated. Only a choice made
-- Lesson 5's argument, inside a lesson-9 experiment
+- Nothing was fitted: only a choice made. Lesson 5's argument again
 
 ::: notes
 This slide is a deliberate trap, and it is worth pausing on. The brute-force search
@@ -447,6 +446,11 @@ the rest afterwards.
 The rectified linear unit is used here as a tool: max of zero and the input,
 nothing more. Its properties get their own segment after the break.
 
+Where 1.1 comes from, if asked: the output is above 0.5 when 10 h1 + 10 h2 - 1
+is positive, that is when h1 + h2 > 0.1. At most one hidden unit fires at a
+time, and the one that fires outputs |a + b| - 1, so the condition is
+|a + b| - 1 > 0.1, which is |a + b| > 1.1.
+
 The sentence to leave in the room: whatever training does, *this* is the kind
 of thing it is searching for. Handout section 3.2.
 :::
@@ -532,7 +536,7 @@ Handout sections 4.1 and 11.2.
 
 # Capacity is not the same as findability
 
-| hidden units | median of 20 random starts | best of 20 | starts above 0.95 |
+| hidden units (drift data) | median accuracy, 20 random starts | best of 20 | starts above 0.95 |
 |---|---|---|---|
 | 2 | 0.7500 | 0.9975 | **4 of 20** |
 | 3 | 1.0000 | 1.0000 | 15 of 20 |
@@ -708,7 +712,7 @@ after the break, in the notebook.
 Handout section 4.1.
 :::
 
-# An untrained network costs 0.6721; guessing costs 0.6931
+# Untrained, the cost is 0.6721; predicting 0.5 for all, ln 2 = 0.6931
 
 $$J = -\frac{1}{m}\sum_{i=1}^{m}\left[ y_i \log \hat{y}_i + (1 - y_i)\log(1 - \hat{y}_i)\right]$$
 
@@ -717,7 +721,10 @@ Cross-entropy, unchanged from lesson 4 - say that explicitly, because students
 expect a new cost to come with a new model and it does not.
 
 The two numbers in the title are the sanity check to run before training
-anything. A network at random initialisation should cost about log 2, roughly
+anything. The untrained network is notebook 1's: four hidden units with
+random He initial weights, scored on the 2,250 acceptance training units. The
+second number is the cost of a model that says 0.5 for every unit, which is
+minus log of a half, ln 2. A network at random initialisation should cost about log 2, roughly
 0.693, on a balanced binary problem: it knows essentially nothing, and the
 cost says so. 0.6721 is that, slightly better than pure ignorance because the
 classes are not exactly balanced.
@@ -761,7 +768,8 @@ Handout section 5.1.
 
 # Compute each repeated piece once, right to left
 
-- Carry the cost's derivative for each layer's **pre-activations**
+- Carry **δ**, the cost's derivative with respect to each layer's
+  **pre-activations** Z
 - From it: that layer's weight gradients **and** the layer below's, so one
   backward sweep gives every gradient
 - **A weight's gradient is how wrong the layer above was, times what this
@@ -825,12 +833,12 @@ Handout section 5.2.
 :::
 
 # One step down, through the activation
-- Weight gradient = incoming activations, transposed, times the signal above
-- To step down: multiply by the weight matrix above, then by the activation's
-  derivative
-- For the ReLU that derivative is an indicator: 1 where the pre-activation
-  was positive
-- A unit that contributed nothing forward passes nothing backward
+- Weight gradient = incoming activations, transposed, times δ: for layer 2,
+  (A⁽¹⁾)ᵀ δ⁽²⁾
+- To step down: multiply δ by the weight matrix above, then elementwise (⊙)
+  by the activation's derivative g′
+- For the ReLU, g′ is 1 where the pre-activation was positive, 0 elsewhere:
+  a unit silent going forward passes nothing back
 
 ::: notes
 The two multiplications on this slide are the entire algorithm, repeated once
@@ -889,12 +897,11 @@ Handout section 5.4.
 :::
 
 # Check the gradient before you trust it
-- A wrong gradient **raises no exception**: it trains badly and looks like a
-  modelling problem
+- A wrong gradient **raises no exception**: it just trains badly
 - Compare each partial with (J(θ + h) − J(θ − h)) ÷ 2h: error of order h²
-- Notebook 01: worst disagreement 1.97 × 10⁻⁸, median 7.83 × 10⁻¹¹
-- **Relative error below 10⁻⁶: believe it. Above 10⁻⁴: there is a bug**
-- Four lines of code, and not optional
+- Relative error = |⁠numerical − analytic|⁠ ÷ (|⁠numerical|⁠ + |⁠analytic|⁠);
+  notebook 01: worst 1.97 × 10⁻⁸, median 7.83 × 10⁻¹¹
+- **Below 10⁻⁶: believe it. Above 10⁻⁴: there is a bug**
 
 ::: notes
 This is the highest-value slide in the lesson measured in hours saved, and it
@@ -999,7 +1006,7 @@ Handout section 6.1.
 
 # A hidden layer is not always the answer
 
-| architecture | parameters | validation accuracy | sd over 5 seeds |
+| architecture, on the digits | parameters | validation accuracy | sd over 3 seeds |
 |---|---|---|---|
 | softmax alone, no hidden layer | 650 | 0.9324 | 0.0035 |
 | one hidden layer of 32 | 2,410 | 0.9602 | 0.0052 |
@@ -1007,7 +1014,7 @@ Handout section 6.1.
 | two hidden layers of 64 | 8,970 | 0.9676 | 0.0057 |
 
 ::: notes
-Handwritten digits, eight by eight, ten classes, five seeds per row. The `sd`
+Handwritten digits, eight by eight, ten classes, three seeds per row. The `sd`
 column is the seed-to-seed standard deviation, and it is on the slide because
 without it three of these four rows are indistinguishable.
 
@@ -1023,7 +1030,8 @@ Handout section 6.3.
 # Reading that table
 - No hidden layer at all is within **3.5 points** of the best network here
 - The first hidden layer is worth **2.8 points**; 32 units to 64, **0.09**
-- On the acceptance data the same step was worth **39 points**
+- On the acceptance data the same step was worth **39 points**: 0.55 for the
+  line, about 0.94 with a few hidden units
 - Digits vote pixel by pixel: the acceptance rule needed two measurements
   **at once**
 
@@ -1116,11 +1124,13 @@ Handout section 7.3.
 :::
 
 # One draw is not a law
-- Gradient at the last weight matrix ÷ gradient at the first: median **3,547**
-- Over the same eight seeds it ranges **2,734 to 4,607**
+- Six sigmoid layers, eight seeds: gradient size at the layer nearest the
+  output ÷ at the first layer, median **3,547**
+- Over those eight seeds it ranges **2,734 to 4,607**
 - Quoting the largest reports one draw as a law
 - **The per-layer factor of about 4 is the property**
-- By depth: 9.5, 170, 3,553, 46,250 at two, four, six and eight layers
+- By depth, five seeds each: 9.5, 170, 3,553, 46,250 at two, four, six and
+  eight layers
 
 ::: notes
 This slide is about method more than about the number, and the habit is worth
@@ -1143,13 +1153,13 @@ the derivative takes.
 Handout section 7.3.
 :::
 
-# Eighty epochs: only one of them never learns
+# Eighty epochs, three activations: only the sigmoid never learns
 - Same six layers, same data, differing **only** in the activation
 - Sigmoid: **0.1000**, exact chance on ten classes
 - tanh: **0.9750**, past 0.85 within 3 epochs
 - Rectified linear unit: **0.9611**, 9 epochs to get going
-- What kills the sigmoid is not squashing: it is *where its derivative is
-  bounded*
+- tanh squashes too, but its derivative reaches 1; the sigmoid's never
+  exceeds ¼, and that is what kills it
 
 ::: notes
 The last two bullets are why this slide is not a slogan. tanh saturates just as
@@ -1222,11 +1232,10 @@ Have them change the depth and predict the ratio before running it.
 
 # Zero cannot work
 - Lesson 3 started from zero, and was right to: those costs are convex
-- All-zero weights **freeze** a network: every gradient is exactly zero
-- **Only the output bias ever moves**
-- The bias converges to the base rate, and the cost to the cost of always
-  predicting it, the label entropy: **0.6887 predicted, 0.6887 measured**
-- Distinct hidden columns: **1 of 32**
+- All-zero weights **freeze** a network: **only the output bias moves**
+- It converges to the base rate, the cost to the label entropy:
+  **0.6887 predicted, 0.6887 measured**
+- 32 hidden units started at zero end as **1 distinct unit**, copied 32 times
 
 ::: notes
 The usual explanation for random initialisation is symmetry - identical units
@@ -1282,12 +1291,12 @@ if the clock is against you.
 :::
 
 # How large? Propagate the variance
-- A unit sums n inputs, so variance is multiplied by n × Var(w) each layer
-- Set Var(w) = 1/n: **Glorot**. ReLU halves it, so it wants 2/n: **He**
-- **Too small collapses**: indistinguishable from zero by layer 4
-- **Too large saturates** rather than exploding: 73% of the last layer's tanh
-  units past |a| > 0.99
-- Glorot loses half its spread over eight layers
+- Each layer multiplies the variance by n × Var(w): Var(w) = 1/n is
+  **Glorot**; for ReLU, 2/n is **He**
+- Eight tanh layers of 64, weights of standard deviation 0.01: the signal
+  **collapses** to zero by layer 4
+- Standard deviation 1: 73% of the last layer **saturates**, |a| > 0.99
+- Glorot keeps half its spread over the eight layers
 
 ::: notes
 Give the variance argument in words before any of the numbers: a unit adds up
@@ -1309,9 +1318,9 @@ if the clock is against you. If you keep only one of the three, keep this
 one - He initialisation is the line they will actually type.
 :::
 
-# The learning rate, swept
+# The learning rate, swept: two layers of 64, on the digits
 
-| $\alpha$ | final training loss | validation accuracy | sd over 5 seeds |
+| $\alpha$, plain SGD, 60 epochs | final training loss | validation accuracy | sd over 3 seeds |
 |---|---|---|---|
 | 0.001 | 1.9550 | 0.5574 | 0.0794 |
 | 0.01 | 0.1965 | 0.9398 | 0.0035 |
@@ -1321,7 +1330,7 @@ one - He initialisation is the line they will actually type.
 
 ::: notes
 The same network and the same data at five learning rates, three orders of
-magnitude apart, five seeds each. The learning rate is the first thing to
+magnitude apart, three seeds each. The learning rate is the first thing to
 sweep and the last thing to guess.
 
 Read the two ends against each other. At 0.001 the loss is still at 1.9550
@@ -1381,7 +1390,8 @@ Handout section 9.1.
 - Its derivative is exactly 1 on the active side: so, no vanishing gradient
 - But a unit negative for **every** example gets zero gradient, for ever
 - **Dead**: the gradient that would revive it is the one it cannot receive
-- At α = 1.0, **33 of 64 are dead**: accuracy 0.9583 against a best of 0.9667
+- One layer of 64, 40 epochs: at α = 1.0, **33 of 64 are dead**, validation
+  accuracy 0.9583 against 0.9667 at α = 0.5
 
 ::: notes
 The second predictable mistake of the lesson, and it follows directly from the
@@ -1446,7 +1456,7 @@ Handout sections 9.2 and 9.3.
 
 # Adam, measured: read the spread before the mean
 
-| optimiser | test accuracy | sd over 5 seeds | worst of 5 | vs the true rule |
+| optimiser, acceptance data, 16 hidden units | test accuracy | sd over 5 seeds | worst of 5 | against the noise-free labels |
 |---|---|---|---|---|
 | plain gradient descent | 0.9389 | 0.0184 | 0.9027 | 0.9685 |
 | with momentum 0.9 | 0.9349 | 0.0094 | 0.9173 | 0.9645 |
@@ -1474,7 +1484,28 @@ instead of the rig's recorded verdict - about three points higher throughout,
 which is the measuring instrument, not the model. Handout sections 9.3 and 11.3.
 :::
 
-# Three regularisers, and what they bought
+# It memorises the training set, and generalises anyway
+
+![](overfitting_curves.png)
+
+::: notes
+301,066 parameters on 300 training examples - a thousand parameters per
+example. On the left, training accuracy reaches 1.000 and stays there: the
+network has enough freedom to store the answers outright, and it does.
+Validation accuracy sits near 0.95 and stays there too, which classical
+bias-variance reasoning from lesson 5 does not lead you to expect.
+
+The right panel is the one to dwell on. Validation *loss* bottoms out at epoch
+13 - the dotted line - and then climbs for the rest of training, while
+validation *accuracy* holds flat and in fact peaks later, at epoch 17. The network is not getting more answers wrong - it is getting
+steadily more confident about the ones it already has wrong. Accuracy cannot
+see that; cross-entropy can. Ask the room which of the two they would early-stop
+on, and why.
+
+Handout section 10.1.
+:::
+
+# Three regularisers on that network
 
 | method | test accuracy | sd over 5 seeds | train − test gap | epochs run |
 |---|---|---|---|---|
@@ -1506,27 +1537,6 @@ are not separable.
 Handout section 10.3.
 :::
 
-# It memorises the training set, and generalises anyway
-
-![](overfitting_curves.png)
-
-::: notes
-301,066 parameters on 300 training examples - a thousand parameters per
-example. On the left, training accuracy reaches 1.000 and stays there: the
-network has enough freedom to store the answers outright, and it does.
-Validation accuracy sits near 0.95 and stays there too, which classical
-bias-variance reasoning from lesson 5 does not lead you to expect.
-
-The right panel is the one to dwell on. Validation *loss* bottoms out at epoch
-13 - the dotted line - and then climbs for the rest of training, while
-validation *accuracy* holds flat and in fact peaks later, at epoch 17. The network is not getting more answers wrong - it is getting
-steadily more confident about the ones it already has wrong. Accuracy cannot
-see that; cross-entropy can. Ask the room which of the two they would early-stop
-on, and why.
-
-Handout section 10.1.
-:::
-
 # Notebook 3, live
 
 | section, and its slides | you call (→ the number to come back with) |
@@ -1534,8 +1544,8 @@ Handout section 10.1.
 | the learning rate, 59-61 | `SGD(learning_rate=α)` at five rates → best 0.9685 at α = 0.5 |
 | dead units, 62-63 | `keras.Model` to read the hidden layer → 33 of 64 dead at α = 1.0 |
 | optimisers, 64-65 | `SGD`, `SGD(momentum=0.9)`, `Adam` → Adam's worst run 0.9360 |
-| memorising, 67 | two layers of 512 on 300 digits, `count_params` → 301,066 parameters |
-| regularisers, 66 | `EarlyStopping`, `Dropout(0.4)`, `l2(1e-3)` → 0.9411 to 0.9511 |
+| memorising, 66 | two layers of 512 on 300 digits, `count_params` → 301,066 parameters |
+| regularisers, 67 | `EarlyStopping`, `Dropout(0.4)`, `l2(1e-3)` → 0.9411 to 0.9511 |
 | more data | `train_test_split` at six sizes → +3.2 points from 300 to 1,077 examples |
 
 ::: notes
