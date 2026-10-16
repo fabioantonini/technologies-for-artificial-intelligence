@@ -51,7 +51,7 @@ to make *look* like they work: a network with enough units will drive its
 training loss to essentially zero on any dataset you hand it, including one
 with random labels. Everything in this lesson that reads as caution - the
 seed-to-seed spreads in every table, the ceiling of 0.97, the four points of
-selection bias on slide 15 - is there because of that.
+selection bias on slide 16 - is there because of that.
 :::
 
 # What a network adds
@@ -137,6 +137,32 @@ vanishes.
 
 The whole of the next segment is an attempt to solve, with this object, a
 problem that a line cannot solve. Handout section 2.1.
+:::
+
+# One neuron, drawn
+
+![](one_neuron.png)
+
+::: notes
+The previous slide's formula as a picture, with numbers: w1 = 1, w2 = 2,
+b = -1. Point at the left half first. Two inputs arrive, each multiplied by its
+weight; a third input that is always 1 carries the bias, so the bias is just
+one more weight. The sum z goes through the sigmoid, and out comes y-hat
+between 0 and 1. Rosenblatt's 1958 perceptron had a step where the sigmoid is:
+output 1 when z is positive, 0 otherwise.
+
+Then the right half, which is the same unit seen from the data's side. Colour
+every point of the input plane by the y-hat the unit gives it. The colour
+changes smoothly, but the decision changes in one place only: the black line
+x1 + 2 x2 - 1 = 0, where z is 0 and y-hat is exactly 0.5. Above it the unit
+says 1, below it 0.
+
+Ask the room what changing w2 to -2 would do to the picture - the line tilts the
+other way - and what changing b would do - it slides the line without turning
+it. Weights set the direction, the bias sets the position, and nothing a single
+unit can do bends it. That is the problem the next slides set up.
+
+Handout section 2.1.
 :::
 
 # Meridian's acceptance test
@@ -447,7 +473,7 @@ opens on a question already asked. Handout section 3.3.
 
 ::: notes
 Say plainly that the data changes again: we leave the drift problem and go back
-to the acceptance test of slides 8 to 15, the circle no straight line could
+to the acceptance test of slides 9 to 16, the circle no straight line could
 enclose. The network changes too: two inputs, the standardised gain and phase
 offsets; four hidden units, each a ReLU; one output, the probability that the
 unit passes.
@@ -881,11 +907,11 @@ Handout section 5.5.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| split, then one straight line, 8-15 | `train_test_split`, `StandardScaler`, `LogisticRegression` → 0.5507 |
-| forward, backward, gradient check, 27-42 | NumPy only → untrained cost 0.6721, worst disagreement 1.97 × 10⁻⁸ |
-| the drift problem, 16-24 | the hand-built network, then 20 restarts per width → 4 of 20 above 0.95 at two units |
-| the polygon yardstick, 25 | `scipy.integrate` → the best 4-sided fence scores 0.9396 |
-| zero initialisation, 55-56 | all weights 0 → final cost 0.6887 |
+| split, then one straight line, 9-16 | `train_test_split`, `StandardScaler`, `LogisticRegression` → 0.5507 |
+| forward, backward, gradient check, 28-43 | NumPy only → untrained cost 0.6721, worst disagreement 1.97 × 10⁻⁸ |
+| the drift problem, 17-25 | the hand-built network, then 20 restarts per width → 4 of 20 above 0.95 at two units |
+| the polygon yardstick, 26 | `scipy.integrate` → the best 4-sided fence scores 0.9396 |
+| zero initialisation, 56-57 | all weights 0 → final cost 0.6887 |
 
 ::: notes
 Backpropagation from scratch, gradient-checked before it is trusted; the
@@ -1141,11 +1167,11 @@ Handout section 7.3.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the same network in Keras, 27-32 | `keras.Sequential`, `keras.Input`, `layers.Dense`, `SGD`; then `compile`, `fit`, `evaluate` → 0.9333 |
-| ten classes, 44-47 | `Dense(10, activation="softmax")`, `Adam`, `Dropout`, `confusion_matrix` → 0.9676 with two layers of 64 |
-| the shrinkage, measured, 48-51 | `tf.GradientTape`, `sparse_categorical_crossentropy` → about 4 per sigmoid layer |
-| training six layers, 52-53 | `SGD` on three activations → sigmoid 0.1000, tanh 0.9750 |
-| how big the weights should be, 57 | `RandomNormal` at two scales, against Glorot → 73% saturated at N(0, 1) |
+| the same network in Keras, 28-33 | `keras.Sequential`, `keras.Input`, `layers.Dense`, `SGD`; then `compile`, `fit`, `evaluate` → 0.9333 |
+| ten classes, 45-48 | `Dense(10, activation="softmax")`, `Adam`, `Dropout`, `confusion_matrix` → 0.9676 with two layers of 64 |
+| the shrinkage, measured, 49-52 | `tf.GradientTape`, `sparse_categorical_crossentropy` → about 4 per sigmoid layer |
+| training six layers, 53-54 | `SGD` on three activations → sigmoid 0.1000, tanh 0.9750 |
+| how big the weights should be, 58 | `RandomNormal` at two scales, against Glorot → 73% saturated at N(0, 1) |
 
 ::: notes
 The same network again in six lines of Keras, with the same answer; softmax on
@@ -1479,11 +1505,11 @@ Handout section 10.1.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the learning rate, 58-60 | `SGD(learning_rate=α)` at five rates → best 0.9685 at α = 0.5 |
-| dead units, 61-62 | `keras.Model` to read the hidden layer → 33 of 64 dead at α = 1.0 |
-| optimisers, 63-64 | `SGD`, `SGD(momentum=0.9)`, `Adam` → Adam's worst run 0.9360 |
-| memorising, 66 | two layers of 512 on 300 digits, `count_params` → 301,066 parameters |
-| regularisers, 65 | `EarlyStopping`, `Dropout(0.4)`, `l2(1e-3)` → 0.9411 to 0.9511 |
+| the learning rate, 59-61 | `SGD(learning_rate=α)` at five rates → best 0.9685 at α = 0.5 |
+| dead units, 62-63 | `keras.Model` to read the hidden layer → 33 of 64 dead at α = 1.0 |
+| optimisers, 64-65 | `SGD`, `SGD(momentum=0.9)`, `Adam` → Adam's worst run 0.9360 |
+| memorising, 67 | two layers of 512 on 300 digits, `count_params` → 301,066 parameters |
+| regularisers, 66 | `EarlyStopping`, `Dropout(0.4)`, `l2(1e-3)` → 0.9411 to 0.9511 |
 | more data | `train_test_split` at six sizes → +3.2 points from 300 to 1,077 examples |
 
 ::: notes

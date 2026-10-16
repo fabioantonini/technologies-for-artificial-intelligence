@@ -9,19 +9,19 @@ date: "27 November 2026 · reading time about 100 minutes"
 
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
-| 0:00–0:10 | 10 | Exercise 8 discussed; one neuron is one line | Slides 2–7 |
-| 0:10–0:30 | 20 | The acceptance problem, and why a line cannot solve it | Slides 8–15 |
-| 0:30–0:45 | 15 | A hidden layer: fences made of lines; a network built by hand | Slides 16–26 |
-| 0:45–1:00 | 15 | Forward propagation, shapes, and the loss | Slides 27–32 |
-| 1:00–1:12 | 12 | **Break** | Slide 33 |
-| 1:12–1:30 | 18 | Backpropagation derived; checking the gradient | Slides 34–42 |
-| 1:30–1:52 | 22 | **Notebook 01** — backpropagation from scratch | Slide 43 |
-| 1:52–2:07 | 15 | Softmax, activations, and the vanishing gradient | Slides 44–53 |
-| 2:07–2:27 | 20 | **Notebook 02** — Keras, softmax, depth | Slide 54 |
-| 2:27–2:40 | 13 | Initialisation, optimisers, regularisation | Slides 55–66 |
-| 2:40–2:58 | 18 | **Notebook 03** — training in practice | Slide 67 |
-| 2:58–3:00 | 2 | Homework | Slides 68–69 |
-| | **180** | **Total** | **69 slides, 3 notebooks** |
+| 0:00–0:10 | 10 | Exercise 8 discussed; one neuron is one line | Slides 2–8 |
+| 0:10–0:30 | 20 | The acceptance problem, and why a line cannot solve it | Slides 9–16 |
+| 0:30–0:45 | 15 | A hidden layer: fences made of lines; a network built by hand | Slides 17–27 |
+| 0:45–1:00 | 15 | Forward propagation, shapes, and the loss | Slides 28–33 |
+| 1:00–1:12 | 12 | **Break** | Slide 34 |
+| 1:12–1:30 | 18 | Backpropagation derived; checking the gradient | Slides 35–43 |
+| 1:30–1:52 | 22 | **Notebook 01** — backpropagation from scratch | Slide 44 |
+| 1:52–2:07 | 15 | Softmax, activations, and the vanishing gradient | Slides 45–54 |
+| 2:07–2:27 | 20 | **Notebook 02** — Keras, softmax, depth | Slide 55 |
+| 2:27–2:40 | 13 | Initialisation, optimisers, regularisation | Slides 56–67 |
+| 2:40–2:58 | 18 | **Notebook 03** — training in practice | Slide 68 |
+| 2:58–3:00 | 2 | Homework | Slides 69–70 |
+| | **180** | **Total** | **70 slides, 3 notebooks** |
 
 ---
 
@@ -102,6 +102,14 @@ The set of points a single unit is undecided about, $\hat{y} = 0.5$, is
 $w^{\top}x + b = 0$: a straight line in two dimensions, a plane in three, a
 hyperplane in general. **A neuron is a line.** Everything a single neuron can
 express is "which side of this line are you on, and how far".
+
+![](one_neuron.png)
+
+*One unit drawn two ways, with $w_1 = 1$, $w_2 = 2$ and $b = -1$. Left: the inputs
+are weighted and added, with a constant 1 carrying the bias, and the sum $z$ is
+squashed by the sigmoid. Right: the same unit as a map of the input plane, coloured
+by $\hat{y}$. Look at the black line, $x_1 + 2x_2 - 1 = 0$: on it $z = 0$ and
+$\hat{y} = 0.5$, and the unit's whole verdict is which side of it a point lies on.*
 
 ### 2.2 What one line is worth on the acceptance data
 

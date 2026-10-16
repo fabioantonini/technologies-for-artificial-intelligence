@@ -4,7 +4,8 @@
 
 Data figures come from the notebooks, where the code that produces them is part
 of what students read. The two here introduce the drift problem before the
-hand-built network is described, and draw that network: they illustrate an idea
+hand-built network is described, and draw that network, and one_neuron draws a
+single unit beside the line it stands for: they illustrate an idea
 rather than a result, and adding them to notebook 01 would mean re-running it,
 which takes hours. Run them in the course container, like every figure.
 """
@@ -161,8 +162,73 @@ def four_unit_network():
     plt.close(fig)
 
 
+def one_neuron():
+    """One unit, two ways: the diagram, and the line it draws in the input plane."""
+    w1, w2, b = 1.0, 2.0, -1.0
+    fig, (ax, plane) = plt.subplots(1, 2, figsize=(12.4, 5.2),
+                                    gridspec_kw={"width_ratios": [1.3, 1]})
+
+    # Left: inputs, weights, the weighted sum, the squash, the output.
+    x1, x2, one = (0.5, 3.4), (0.5, 1.8), (0.5, 0.2)
+    s, out = (4.0, 1.8), (6.9, 1.8)
+    edge(ax, x1, s, "w₁ = 1", BLUE, (-0.35, 0.3), at=0.35)
+    edge(ax, x2, s, "w₂ = 2", BLUE, (0, 0.28), at=0.45)
+    edge(ax, one, s, "b = −1", RUST, (-0.3, -0.35), at=0.35)
+    ax.add_patch(FancyArrowPatch(s, out, arrowstyle="-|>", mutation_scale=14, lw=1.6,
+                                 color=SLATE, shrinkA=26, shrinkB=26, zorder=2))
+    node(ax, x1, "x₁", SLATE)
+    node(ax, x2, "x₂", SLATE)
+    node(ax, one, "1", SLATE)
+    node(ax, s, "Σ", BLUE, r=0.5)
+    node(ax, out, "σ", GOLD, r=0.5)
+    ax.text(out[0] + 0.7, out[1], "ŷ", ha="left", va="center", fontsize=22)
+    ax.text(s[0], 2.75, "z = w₁x₁ + w₂x₂ + b", ha="center", fontsize=16)
+    ax.text(out[0], 0.85, "ŷ = σ(z)", ha="center", fontsize=16)
+    ax.text(one[0], -0.6, "a constant 1\ncarries the bias", ha="center", va="top",
+            fontsize=14, color=SLATE)
+    ax.text(3.8, 4.35, "one unit: weigh, add, squash", ha="center", fontsize=17,
+            weight="bold", color=SLATE)
+    ax.text(4.6, -0.6, "Rosenblatt's perceptron (1958)\nhad a step in place of σ:\n"
+            "output 1 when z > 0", ha="center", va="top", fontsize=14, color=SLATE,
+            style="italic")
+    ax.set_xlim(-0.3, 8.0)
+    ax.set_ylim(-2.1, 4.7)
+    ax.set_aspect("equal")
+    ax.axis("off")
+
+    # Right: the same unit as a picture of the input plane.
+    g = np.linspace(-2, 2, 300)
+    X1, X2 = np.meshgrid(g, g)
+    Y = 1 / (1 + np.exp(-(w1 * X1 + w2 * X2 + b)))
+    shade = plane.contourf(X1, X2, Y, levels=np.linspace(0, 1, 11), cmap="RdBu_r",
+                           alpha=.55)
+    plane.plot(g, (-b - w1 * g) / w2, color="black", lw=2.6)
+    plane.text(-0.9, 1.6, "ŷ > 0.5: output 1", fontsize=15, weight="bold")
+    plane.text(-1.9, -1.75, "ŷ < 0.5: output 0", fontsize=15, weight="bold")
+    plane.annotate("on the line z = 0, ŷ = 0.5:\nx₁ + 2x₂ − 1 = 0", xy=(1.2, -0.1),
+                   xytext=(-1.1, -1.05), fontsize=14,
+                   bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=.9),
+                   arrowprops=dict(arrowstyle="-|>", color="black", lw=1.2))
+    plane.set_xlim(-2, 2)
+    plane.set_ylim(-2, 2)
+    plane.set_aspect("equal")
+    plane.tick_params(labelsize=12)
+    plane.set_xlabel("x₁", fontsize=16)
+    plane.set_ylabel("x₂", fontsize=16)
+    plane.set_title("the same unit: one straight line", fontsize=17, weight="bold",
+                    color=SLATE)
+    bar = fig.colorbar(shade, ax=plane, fraction=0.046, pad=0.04)
+    bar.set_label("ŷ", fontsize=16)
+    bar.ax.tick_params(labelsize=12)
+
+    fig.tight_layout()
+    fig.savefig(OUT / "one_neuron.png", dpi=150, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     drift_clouds()
     two_unit_network()
     four_unit_network()
-    print("wrote drift_clouds.png, two_unit_network.png, four_unit_network.png")
+    one_neuron()
+    print("wrote drift_clouds.png, two_unit_network.png, four_unit_network.png, one_neuron.png")
