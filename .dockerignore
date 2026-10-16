@@ -23,4 +23,5 @@ Solutions/
 # tools/release.py builds from `git archive` of HEAD, which cannot contain them;
 # these lines protect a build from a working copy, such as compose.dev.yml.
 Lessons/*/Review/
+Advanced/*/Review/
 notes.txt
