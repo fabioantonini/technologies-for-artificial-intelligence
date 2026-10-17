@@ -17,6 +17,7 @@ Course-level, built once rather than per lesson:
 
     Course/*.md     ->  .pdf   syllabus, schedule, prerequisites
     Course/Setup/*.md, Assessment/**/*.md
+    Workshop/*.md, Consolidation/*.md   the two in-class sessions' guides
 
 Everything except the slides needs a working LaTeX engine.
 
@@ -360,19 +361,21 @@ def main() -> int:
                 )
                 made, failed = made + m, failed + f
 
-        # The in-class workshop is not a lesson, so it sits in its own folder:
-        # one guide, built like a handout, and one short deck.
-        workshop = sorted((ROOT / "Workshop").glob("*.md"))
-        if workshop:
-            print("workshop")
-            for source in workshop:
+        # The in-class workshop and the consolidation of lessons 1 to 3 are not
+        # lessons, so each sits in its own folder: a guide, built like a handout,
+        # and for the workshop one short deck.
+        for folder in ("Workshop", "Consolidation"):
+            sources = sorted((ROOT / folder).glob("*.md"))
+            if not sources:
+                continue
+            print(folder.lower())
+            for source in sources:
                 m, f = (
                     build_slides(source, engine)
                     if source.stem.endswith("_slides")
                     else build_handout(source, engine)
                 )
                 made, failed = made + m, failed + f
-
 
     print(f"\n{made} file(s) written, {failed} failed")
     return 1 if failed else 0
