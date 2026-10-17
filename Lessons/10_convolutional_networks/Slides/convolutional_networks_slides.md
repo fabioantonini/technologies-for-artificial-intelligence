@@ -154,7 +154,7 @@ Handout sections 9 and 10.
 - **94 of 128** imputed rows borrowed from the test set
 - **365**: the largest coefficient a 0.01 penalty leaves
 - **37 of 40** disguised accounts caught by reconstruction error
-- A sigmoid layer divides the gradient by about **four**
+- A hidden layer: worth **39** points on one problem, **2.8** on another
 
 ::: notes
 This course has produced one number per lesson worth carrying out of the room,
@@ -165,7 +165,7 @@ one this afternoon.
 The point of the list is not nostalgia. Each of these numbers was a surprise to
 somebody who had the correct general principle already: leakage is bad,
 imputation must sit inside the fold, regularisation controls coefficients,
-anomalies are relational, sigmoids attenuate gradients. Knowing the principle
+anomalies are relational, depth pays only when inputs act together. Knowing the principle
 did not protect anyone. Seeing the number did.
 
 Ask them to leave a line free in their notes for today's, and to write down now
@@ -1445,7 +1445,7 @@ section 12.
 
 - A model turns a **representation** into a decision
 - Classical methods make you build it; networks learn it, paid for in data
-- Lesson 9: a hidden layer worth 39 points on one problem, 0.09 on another
+- Lesson 9: a hidden layer worth 39 points on one problem, 2.8 on another
 - Today: a random forest within **0.002** of the convolutional network
 - **Neither route is a default**
 

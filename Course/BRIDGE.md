@@ -66,8 +66,10 @@ set of outcomes. Nothing else about it is new.
 
 $$\mathrm{softmax}(z)_k = \frac{e^{z_k}}{\sum_{j=1}^{K} e^{z_j}}$$
 
-Lesson 9 section 6 wrote that down, differentiated it, and showed the Jacobian
-collapsing against cross-entropy to the same $\hat{y} - y$ the binary case gave.
+Lesson 9 section 5.3 wrote that down and trained ten-class networks with it.
+Paired with cross-entropy its gradient is again $\hat{y} - y$, the blame section 4.3
+derived for one sigmoid unit; the advanced version of the lesson, in `Advanced/`,
+derives the ten-class case in full.
 It is the last layer of a language model, and the *temperature* you will meet as
 a sampling knob is the divisor inside the exponent.
 
@@ -190,7 +192,7 @@ often skipped when the system is impressive.
 |---|---|---|
 | Lesson 6 | nearest is **70%** as far as farthest at 100 dimensions | retrieval quality in 1536-dimensional embedding spaces |
 | Lesson 7 | **54%** of a forest's importance landed on pure noise while accuracy degraded gracefully | reading attention weights as explanations |
-| Lesson 9 | a sigmoid layer divides the gradient by about **four** | why residual connections and normalisation exist at all |
+| Lesson 9 | six sigmoid layers never left chance, **0.1000**, where the same network with ReLU reached 0.9611 | why residual connections and normalisation exist at all |
 | Lesson 4 | a false alarm costs €140, a miss €2,600 | every guardrail, filter and router is a threshold on a cost |
 | Lesson 8 | **37 of 40** planted anomalies caught, and 32–38 across other draws | quoting one evaluation run as a specification |
 | Lesson 10 | a random forest on raw pixels came within **two thousandths** of a convolutional network | assuming the newest architecture wins |

@@ -305,8 +305,8 @@ Against it, a dense network of the kind Lesson 9 built, sized for these images:
 two hidden layers of 256 units on the 576 input pixels, then one output —
 $576 \times 256 + 256$, then $256 \times 256 + 256$, then $256 + 1$, which is
 **213,761** parameters. (Lesson 9's own digit networks were smaller because its
-images were: one and two hidden layers of 64 units on 8×8 inputs, 4,810 and
-8,970 parameters. The architecture is the same idea at a different scale.)
+images were: one hidden layer of 32 or 64 units on 8×8 inputs, 2,410 and 4,810
+parameters. The architecture is the same idea at a different scale.)
 
 ### 5.1 Head to head
 
@@ -336,7 +336,7 @@ and nothing else. There is no gap left for a better architecture to close, and
 any effort spent trying to reach 0.99 would be effort spent learning to
 reproduce the station's mistakes.
 
-This is lesson 9's rig-error identity again, and it holds for the same reason.
+This is the identity behind lesson 9's ceiling of 0.97, and it holds for the same reason.
 If a model agrees with the truth on a fraction $q$ and the station records the
 wrong grade independently with probability $e$:
 
@@ -643,7 +643,8 @@ Real convolutional networks are deeper, and depth reintroduces exactly lesson
 normalisation**, which renormalises each layer's activations so the signal
 neither dies nor explodes, and **residual connections**, which add a layer's
 input to its output so that the gradient has a path that skips the layer
-entirely. Both are lesson 9 section 7 and section 8, applied at depth.
+entirely. Both are answers to lesson 9's vanishing gradient (its section 6.3),
+applied at depth.
 
 They are not covered here because 24×24 images with one defect do not need
 them, and a technique introduced without a problem it solves is a technique

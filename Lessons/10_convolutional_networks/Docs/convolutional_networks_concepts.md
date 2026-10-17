@@ -128,7 +128,7 @@ noise, because its features are committed to reporting the wrong thing. → § 1
 ## What the course adds up to
 
 **Batch normalisation and residual connections.** The two repairs that make deep stacks
-trainable — Lesson 9's vanishing gradient and initialisation problems, met again at
+trainable — Lesson 9's vanishing gradient and the signal-size problem behind it, met again at
 depth. Named here, not covered, because these images do not need them. → § 11
 
 **Representations over models.** A model turns a representation into a decision, and
