@@ -577,7 +577,8 @@ number, and the number of steps you need grows with it.
 If someone asks WHY the surface has that shape, that is the right question and
 the honest answer is "Lesson 3, where we derive gradient descent" - its Section
 4.4 puts the number on it: standardising the housing design matrix takes the
-condition number from 285 to 3.4.
+condition number from about 428,000 to 11.4, and the iterations gradient descent
+needs from 2.9 million to 56.
 :::
 
 # A 100:1 variance ratio, and what it costs

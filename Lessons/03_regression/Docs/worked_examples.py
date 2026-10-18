@@ -175,14 +175,132 @@ for kappa in (10, 100, 1000):
     same(f"4.4 at a condition number of {kappa}, e-folding takes about kappa steps",
          reached / kappa, 1.0, tolerance=0.05)
 
-# ---------------- 4.4, what conditioning costs and what a penalty buys
+# ------------------- 4.4, what the curvatures are, worked on two houses
+#
+# Section 4.4 says c_max and c_min are the extreme eigenvalues of X'X/m. The two
+# houses of 4.2 are checked twice: by the trace-and-determinant argument the
+# handout uses, and by numpy's eigensolver, which shares nothing with it.
+
+two = np.array([[1.0, 80.0], [1.0, 200.0]])
+hessian = two.T @ two / 2
+same("4.4 the two-house Hessian is [[1, 140], [140, 23,200]]",
+     hessian, np.array([[1.0, 140.0], [140.0, 23_200.0]]), tolerance=1e-12)
+same("4.4 its trace is 23,201", np.trace(hessian), 23_201, tolerance=1e-12)
+same("4.4 its determinant is 3,600", np.linalg.det(hessian), 3_600, tolerance=1e-9)
+low, high = np.linalg.eigvalsh(hessian)
+same("4.4 c_max is about 23,200.8", high, 23_200.8, tolerance=1e-5)
+same("4.4 c_min is about 0.155", low, 0.155, tolerance=5e-3)
+same("4.4 and c_min is the determinant over c_max", 3_600 / high, low, tolerance=1e-9)
+same("4.4 so kappa is about 150,000", high / low, 150_000, tolerance=5e-3)
+same("4.4 4.2's rate of 1e-5 is below 2/c_max, about 8.6e-5",
+     2 / high / 1e-5, 8.6, tolerance=5e-3)
+assert 1e-5 < 2 / high, "4.4 says 4.2's learning rate cannot diverge"
+_, vectors = np.linalg.eigh(hessian)
+assert abs(vectors[1, 1]) > 0.9999 and abs(vectors[0, 0]) > 0.9999, \
+    "4.4 says the steep direction is almost exactly w and the shallow one b"
+area = np.array([80.0, 200.0])
+round_bowl = np.column_stack([np.ones(2), (area - area.mean()) / area.std()])
+same("4.4 standardised, the two areas become -1 and +1", round_bowl[:, 1],
+     np.array([-1.0, 1.0]), tolerance=1e-12)
+same("4.4 and H becomes the identity", round_bowl.T @ round_bowl / 2, np.eye(2),
+     tolerance=1e-12)
+
+# ----------------------- 4.4, the housing table, by two routes per number
+#
+# Each kappa is computed from the singular values (cond squared) and again from
+# the eigenvalues of X'X, the two routes the handout names. The design matrix
+# carries the column of ones, as Section 3.1's does.
+
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler   # noqa: E402
+from housing_data import load_with_collinearity                       # noqa: E402
+
+
+def with_ones(columns):
+    return np.column_stack([np.ones(len(columns)), columns])
+
+
+def kappa_by_eigenvalues(design):
+    values = np.linalg.eigvalsh(design.T @ design)
+    return values.max() / values.min()
+
+
+six = np.asarray(houses[features], float)
+widened = load_with_collinearity()
+rows = {
+    "as recorded": with_ones(six),
+    "standardised": with_ones(StandardScaler().fit_transform(six)),
+    "plus area_sqft": with_ones(StandardScaler().fit_transform(
+        np.asarray(widened[features + ["area_sqft"]], float))),
+}
+for name, cond_printed, kappa_printed in (("as recorded", 654, 428_000),
+                                          ("standardised", 3.4, 11.4),
+                                          ("plus area_sqft", 2_286, 5.2e6)):
+    design = rows[name]
+    same(f"4.4 {name}: np.linalg.cond(X) is {cond_printed}",
+         np.linalg.cond(design), cond_printed, tolerance=0.01)
+    same(f"4.4 {name}: kappa is {kappa_printed:,}",
+         np.linalg.cond(design) ** 2, kappa_printed, tolerance=0.01)
+    same(f"4.4 {name}: and the eigenvalue route agrees",
+         kappa_by_eigenvalues(design), np.linalg.cond(design) ** 2, tolerance=1e-4)
+
+kappa = {name: np.linalg.cond(design) ** 2 for name, design in rows.items()}
+same("4.4 standardising divides kappa by about 37,000",
+     kappa["as recorded"] / kappa["standardised"], 37_000, tolerance=0.02)
+same("4.4 adding area_sqft multiplies kappa by about 460,000",
+     kappa["plus area_sqft"] / kappa["standardised"], 460_000, tolerance=0.02)
+same("4.4 the bound kappa ln 1000 is about 6.9 kappa", np.log(1000), 6.9,
+     tolerance=0.01)
+
+# The iteration counts. These run the descent itself: one step is the affine map
+# theta -> theta - alpha (H theta - g), written as a matrix on (theta, 1), and t
+# steps are that matrix to the power t. The exact solution enters only the
+# stopping test, never the steps.
+
+prices = np.asarray(houses["price"], float)
+
+
+def iterations_to_a_thousandth(design):
+    m, n = design.shape
+    hessian = design.T @ design / m
+    alpha = 1 / np.linalg.eigvalsh(hessian).max()
+    step = np.eye(n + 1)
+    step[:n, :n] -= alpha * hessian
+    step[:n, n] = alpha * design.T @ prices / m
+    start = np.zeros(n + 1)
+    start[n] = 1.0
+    exact = np.linalg.lstsq(design, prices, rcond=None)[0]
+
+    def close(t):
+        theta = (np.linalg.matrix_power(step, t) @ start)[:n]
+        return np.linalg.norm(theta - exact) < 1e-3 * np.linalg.norm(exact)
+
+    high = 1
+    while not close(high):
+        high *= 2
+    low = high // 2
+    while high - low > 1:
+        middle = (low + high) // 2
+        low, high = (low, middle) if close(middle) else (middle, high)
+    return high
+
+
+raw_steps = iterations_to_a_thousandth(rows["as recorded"])
+scaled_steps = iterations_to_a_thousandth(rows["standardised"])
+same("4.4 as recorded, descent takes 2.9 million iterations", raw_steps, 2.9e6,
+     tolerance=0.02)
+same("4.4 the bound allowed about 3.0 million",
+     kappa["as recorded"] * np.log(1000), 3.0e6, tolerance=0.02)
+assert raw_steps <= kappa["as recorded"] * np.log(1000), "4.4 says it is a bound"
+same("4.4 standardised, it takes 56", scaled_steps, 56, tolerance=0)
+same("4.4 inside a bound of about 79",
+     kappa["standardised"] * np.log(1000), 79, tolerance=0.01)
+
+# ------------- 6.4, what the penalty does to the conditioning of degree 12
 #
 # Rebuilt from the generator, and read off the singular values rather than the
 # eigenvalues of X'X: at this conditioning the smallest eigenvalue computed
 # directly is numerical noise, which would be an embarrassing way to get a
-# number wrong in a section about numerical conditioning.
-
-from sklearn.preprocessing import PolynomialFeatures, StandardScaler   # noqa: E402
+# number wrong in a passage about numerical conditioning.
 
 poly_rng = np.random.default_rng(42)
 temps = poly_rng.uniform(-5, 35, 30)
@@ -193,45 +311,31 @@ powers = PolynomialFeatures(12, include_bias=False).fit_transform(t_fit.reshape(
 scaled = StandardScaler().fit_transform(powers)
 design = np.column_stack([np.ones(len(scaled)), scaled])
 
-same("4.4 the degree-12 design has 21 rows", design.shape[0], 21, tolerance=0)
-same("4.4 and 13 columns", design.shape[1], 13, tolerance=0)
-same("4.4 it is full rank, so nothing is singular",
+same("6.4 the degree-12 design has 21 rows", design.shape[0], 21, tolerance=0)
+same("6.4 and 13 columns", design.shape[1], 13, tolerance=0)
+same("6.4 it is full rank, so nothing is singular",
      np.linalg.matrix_rank(design), 13, tolerance=0)
 
 singular = np.linalg.svd(design, compute_uv=False)
-same("4.4 its condition number is 4.2e9",
-     singular.max() / singular.min() / 1e9, 4.2, tolerance=0.1)
+same("6.4 np.linalg.cond returns 4.2e9",
+     singular.max() / singular.min() / 1e9, 4.2, tolerance=0.01)
+same("6.4 so kappa, its square, is 1.8e19",
+     (singular.max() / singular.min()) ** 2 / 1e19, 1.8, tolerance=0.03)
 
 eigenvalues = np.linalg.svd(scaled, compute_uv=False) ** 2
-same("4.4 so X'X is conditioned at 1.8e19",
-     (eigenvalues.max() / eigenvalues.min()) / 1e19, 1.8, tolerance=0.1)
+same("6.4 the penalty table starts at 1.8e19",
+     (eigenvalues.max() / eigenvalues.min()) / 1e19, 1.8, tolerance=0.03)
 for penalty, printed in ((0.01, 23_100), (1.0, 232), (100.0, 3.3)):
-    same(f"4.4 a penalty of {penalty} brings that to {printed:,}",
+    same(f"6.4 a penalty of {penalty} brings that to {printed:,}",
          (eigenvalues.max() + penalty) / (eigenvalues.min() + penalty), printed,
-         tolerance=max(printed * 0.02, 0.05))
+         tolerance=0.02)
+same("6.4 fifteen orders of magnitude",
+     np.log10((eigenvalues.max() / eigenvalues.min())
+              / ((eigenvalues.max() + 0.01) / (eigenvalues.min() + 0.01))), 15,
+     tolerance=0.02)
 
-# The three rows of 4.4's table, and the convention they share: no intercept
-# column. With one the first row reads 654, which is the trap the prose now names.
-from housing_data import load_with_collinearity                       # noqa: E402
-
-six = np.asarray(houses[features], float)
-same("4.4 the six features as recorded are conditioned at 285",
-     np.linalg.cond(six), 285, tolerance=1)
-same("4.4 standardised, 3.4",
-     np.linalg.cond(StandardScaler().fit_transform(six)), 3.4, tolerance=0.05)
-same("4.4 so scaling is worth a factor of about 80",
-     np.linalg.cond(six) / np.linalg.cond(StandardScaler().fit_transform(six)), 84,
-     tolerance=5)
-same("4.4 with an intercept column the first row would read 654 instead",
-     np.linalg.cond(np.column_stack([np.ones(len(six)), six])), 654, tolerance=2)
-
-widened = load_with_collinearity()
-same("4.4 adding area_sqft takes it to 2,286",
-     np.linalg.cond(StandardScaler().fit_transform(
-         np.asarray(widened[features + ["area_sqft"]], float))), 2_286, tolerance=5)
-
-same("4.4 the largest coefficient moved by a factor of 12,500 across stacks",
-     3_097_038_010 / 247_514 / 1_000, 12.5, tolerance=0.1)
+same("6.4 the largest coefficient moved by a factor of 12,500 across stacks",
+     3_097_038_010 / 247_514 / 1_000, 12.5, tolerance=0.01)
 
 # ---------------------------------------------- Section 6.4, the ridge table
 

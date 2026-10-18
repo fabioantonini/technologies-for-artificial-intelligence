@@ -780,8 +780,9 @@ long training takes, and sometimes whether it finishes at all.**
 feature covariances, and why the safe stride is exactly two over the largest
 variance, belongs with the derivation of gradient descent itself — Lesson 3,
 whose Section 4.4 computes the condition number on the real housing design
-matrix and finds that standardising takes it from 285 to 3.4, a factor of
-about 80. Nothing here depends on those steps; if you
+matrix and finds that standardising takes it from about 428,000 to 11.4, and the
+iterations gradient descent needs from 2.9 million to 56. Nothing here depends on
+those steps; if you
 want them now, they are waiting there.
 
 Two caveats worth carrying forward. The argument is about *gradient descent

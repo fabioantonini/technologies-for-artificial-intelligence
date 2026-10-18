@@ -465,15 +465,22 @@ time.
 # How stretched is the valley?
 
 The **condition number** κ = steepest curvature ÷ shallowest curvature: how many
-times steeper the steepest direction of the bowl is than the shallowest.
+times steeper the steepest direction of the bowl is than the shallowest. The
+curvatures are the eigenvalues of XᵀX, so κ = (`np.linalg.cond(X)`)².
 
-- Housing features as recorded: **285**
-- The same features, standardised: **3.4**
-- Add `area_sqft` beside `area_sqm`: **2,286**
+- Housing features as recorded: **428,000**
+- The same features, standardised: **11.4**
+- Add `area_sqft` beside `area_sqm`: **5.2 million**
 
 ::: notes
 This is the number behind "nearly redundant", and one of the ideas from the
 first half of the lesson that is most useful outside it.
+
+Where the curvatures come from, in one sentence: the second derivative of the
+cost is the matrix XᵀX divided by m, and its eigenvalues are the curvatures of
+the bowl along its steepest and shallowest directions. Warn about the square:
+np.linalg.cond(X) gives 654 on the raw housing data, which is the square root of
+κ. Read as κ itself, it would understate the stretch more than six hundred times.
 
 The picture: a round bowl is easy to walk down because every direction behaves
 the same. Two nearly-identical columns produce a ravine instead - steep across,
@@ -485,7 +492,9 @@ Then the consequence, which appears twice. For the exact solution, a stretched v
 is what makes the inverse enormous and the answer unstable. For gradient descent,
 which is the next section, one step size has to serve every direction at once, so the
 steep direction sets the limit and the shallow one crawls. The condition number
-is, near enough, what sets the iteration count.
+is, near enough, what sets the iteration count. The handout checks that by
+running gradient descent to within 0.1% of the exact solution: 2.9 million
+iterations on the raw features, 56 on the standardised ones.
 
 Lesson 2 introduced this for scaling; unscaled features stretch the valley for
 exactly the same reason. Handout section 4.4.

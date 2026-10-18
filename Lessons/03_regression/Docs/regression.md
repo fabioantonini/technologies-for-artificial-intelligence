@@ -462,8 +462,9 @@ by $(1 - \alpha c)^t$. That single expression contains all three regimes:
 
 So the update converges exactly when $\lvert 1 - \alpha c \rvert < 1$, which is
 to say $0 < \alpha < 2/c$. With several features the condition has to hold in
-every direction at once, and the binding one is the **largest** curvature — the
-largest feature variance. This is Lesson 2's argument from the other side:
+every direction at once, and the binding one is the **largest** curvature, which
+belongs to the feature with the largest values. Section 4.4 says exactly what the
+curvatures are and how to compute them. This is Lesson 2's argument from the other side:
 **the safe learning rate is set by your worst-scaled feature**, which is a good
 reason to scale them all.
 
@@ -483,9 +484,73 @@ steep direction sets the limit — step further and it diverges — so the shall
 direction is stuck with a stride far too short for it, and crawls.
 
 The ratio of the steepest curvature to the shallowest is the **condition
-number** $\kappa = c_{\max}/c_{\min}$ of the design matrix. It is, near enough,
-what sets the number of iterations you will need — and Section 4.3's factor says
-why, in three lines.
+number**, $\kappa = c_{\max}/c_{\min}$. It is, near enough, what sets the number of
+iterations you will need. Before showing why, the definition leaves two questions
+open: what exactly the curvatures $c_{\max}$ and $c_{\min}$ are, and how to compute
+them.
+
+**Where the curvatures come from.** In Section 4.3 the cost had one coefficient,
+and its curvature $c$ was simply the second derivative. With several coefficients
+the second derivatives form a matrix, the **Hessian** $H$, and for our cost it was
+already met in Section 3.1:
+
+$$J(\theta) = \frac{1}{2m}\lVert X\theta - y\rVert^2 \quad\Longrightarrow\quad
+\nabla J(\theta) = \frac{1}{m}X^\top(X\theta - y) \quad\Longrightarrow\quad
+H = \frac{1}{m}X^\top X$$
+
+Here $X$ is the design matrix of Section 3.1, column of ones included, because the
+intercept is a coefficient that gradient descent moves like any other. Two things
+about $H$ matter:
+
+- **It does not depend on $\theta$.** The bowl has the same shape wherever you
+  stand in it, which is what makes a quadratic cost easy to analyse.
+- **Its eigenvalues are the curvatures.** Walk through the bowl along a unit
+  direction $u$ and the curvature you meet is $u^\top H u$. The directions where
+  this is largest and smallest are the eigenvectors of $H$, and the curvatures
+  there are its eigenvalues. So $c_{\max}$ and $c_{\min}$ are the largest and
+  smallest eigenvalues of $\tfrac{1}{m}X^\top X$, and since the $\tfrac{1}{m}$
+  cancels in the ratio, $\kappa$ is the ratio of the extreme eigenvalues of
+  $X^\top X$.
+
+With a single feature and no intercept, $H$ is the single number
+$\tfrac{1}{m}\sum_i \bigl(x^{(i)}\bigr)^2$: the curvature is the mean square of the
+feature. Large feature values make a steep bowl, which is Section 4.2's weighted
+vote seen from the second derivative.
+
+**Worked: the two houses of Section 4.2.** The design matrix has rows $(1, 80)$
+and $(1, 200)$, so
+
+$$H = \frac{1}{2}X^\top X = \frac{1}{2}\begin{pmatrix} 2 & 280 \\ 280 & 46{,}400 \end{pmatrix}
+= \begin{pmatrix} 1 & 140 \\ 140 & 23{,}200 \end{pmatrix}$$
+
+The two eigenvalues add up to the trace, 23,201, and multiply to the determinant,
+$23{,}200 - 140^2 = 3{,}600$. The large one is therefore almost the whole trace,
+$c_{\max} \approx 23{,}200.8$, and the small one is $c_{\min} = 3{,}600/23{,}200.8
+\approx 0.155$. That gives $\kappa \approx 150{,}000$. The steep direction is almost
+exactly the slope $w$; the shallow one is almost exactly the intercept $b$.
+
+Two checks against what Section 4.2 did. Its learning rate of $10^{-5}$ is safely
+below the limit $2/c_{\max} \approx 8.6 \times 10^{-5}$ from Section 4.3, so the
+run could not diverge. And this $\kappa$ is the cause of the 163-to-1 asymmetry
+seen there. The two numbers measure different things, though: 163 compares the two
+gradients at the first step, while $\kappa$ describes the shape of the whole bowl,
+and so the whole run. Standardise the area and the two houses become $-1$ and
+$+1$: $H$ becomes the identity matrix, $\kappa = 1$, and the bowl is round.
+
+**How to compute it.** In NumPy, either take the eigenvalues,
+`np.linalg.eigvalsh(X.T @ X)`, and divide the largest by the smallest, or use
+
+$$\kappa = \bigl(\texttt{np.linalg.cond(X)}\bigr)^2$$
+
+because `np.linalg.cond(X)` returns the ratio of the largest to the smallest
+*singular value* of $X$, and the singular values of $X$ are the square roots of the
+eigenvalues of $X^\top X$. Watch the square: `np.linalg.cond(X)` on its own is the
+square root of $\kappa$, and reading it as $\kappa$ understates how stretched the
+valley is by an enormous factor. The second route is the safer one when $\kappa$ is
+huge, because forming $X^\top X$ also squares the rounding error.
+
+**Why the iteration count follows $\kappa$.** Section 4.3's factor says why, in
+three lines.
 
 The largest rate that is safe in the steep direction is about $1/c_{\max}$.
 Spend it, and in the shallow direction the error is multiplied each step by
@@ -498,26 +563,32 @@ $t \approx \kappa$. **The iteration count grows in proportion to the condition
 number**: ten times more stretched is ten times more steps, for the same
 accuracy in the direction that matters least.
 
-On the housing data, computed with `numpy.linalg.cond` on the six feature
-columns — not the design matrix of Section 3.1, which carries an extra column of
-ones; including it gives 654 for the first row instead of 285, and the comparison
-between the rows is what matters here:
+The argument gives an upper bound: it assumes all the initial error lies in the
+shallowest direction. To shrink the error a thousandfold rather than by a factor
+$e$ takes about $\kappa \ln 1000 \approx 6.9\,\kappa$ steps at most.
 
-| Design matrix | Condition number |
-|---|---|
-| The six features as recorded | 285 |
-| The same six, standardised | 3.4 |
-| Standardised, plus `area_sqft` | 2,286 |
+**On the housing data**, with the design matrix of Section 3.1, column of ones
+included:
 
-Read the first two rows together: **scaling is worth a factor of about 80 here**,
-and that factor is iterations you do not have to run. This is Lesson 2's
-argument for scaling arriving from the optimisation side, and it is the same
-fact as the 163-to-1 asymmetry worked out in Section 4.2 — that asymmetry is
-what a condition number measures.
+| Design matrix | `np.linalg.cond(X)` | $\kappa = c_{\max}/c_{\min}$, its square |
+|---|---|---|
+| The six features as recorded | 654 | 428,000 |
+| The same six, standardised | 3.4 | 11.4 |
+| Standardised, plus `area_sqft` | 2,286 | 5.2 million |
+
+Read the first two rows together: **standardising divides $\kappa$ by about
+37,000.** The prediction is that iterations shrink by a similar factor, and it can
+be checked by running gradient descent. Start from zero, use the learning rate
+$1/c_{\max}$, and stop when the coefficients are within 0.1% of the exact solution
+of Section 3.1. On the six features as recorded that takes **2.9 million
+iterations**; the bound above allowed about 3.0 million, so the raw run comes
+close to the worst case. On the same features standardised it takes **56**,
+inside a bound of about 79. This is Lesson 2's argument for scaling, arriving
+from the optimisation side with a number attached.
 
 The third row is Section 3.3's "nearly redundant columns" with a number attached.
 Adding a column that duplicates another, even with a rounding error between them,
-multiplies the condition number by roughly 670. That is why the coefficients in
+multiplies $\kappa$ by about 460,000. That is why the coefficients in
 Section 7.3 are unusable while the predictions remain fine: the ravine is almost
 perfectly flat along the direction that trades `area_sqm` against `area_sqft`, so
 the fit has almost no basis for choosing a point along it — but every point along
@@ -525,42 +596,9 @@ it predicts equally well.
 
 The same number governs the exact solution, which is the tidy part: a large
 condition number is simultaneously why $(X^\top X)^{-1}$ is untrustworthy and why
-gradient descent is slow. One quantity, both failure modes.
-
-**What "untrustworthy" costs, measured on this course's own material.** Notebook 2's
-degree-12 polynomial is the extreme case. After standardising, its design matrix is
-21 × 13 and **full rank** — every column is genuinely independent — with a condition
-number of **4.2 × 10⁹**. Nothing is singular, no warning is raised, and the fit is
-perfectly deterministic: run it three times in the same container and the coefficients
-agree to the last digit.
-
-Run it on a different linear-algebra backend (the numerical library NumPy calls
-underneath to solve the system) and the largest coefficient moves from
-**247,514 to 3,097,038,010** — a factor of **12,500**, on identical code and identical
-data. Both are correct least-squares answers to the same question, and the question
-simply does not have a stable answer: the ravine is so flat along one direction that
-where you stop in it is decided by rounding.
-
-Now compare what a penalty does to that. The matrix Ridge inverts is
-$X^\top X + \lambda I$, and adding $\lambda$ to the diagonal puts a floor under the
-smallest eigenvalue:
-
-| $\lambda$ | Condition number of $X^\top X + \lambda I$ |
-|---|---|
-| 0 | 1.8 × 10¹⁹ |
-| 0.01 | 23,100 |
-| 1 | 232 |
-| 100 | 3.3 |
-
-Section 6.4's table is the consequence, and it is worth looking at twice: when that notebook was re-run on a different software installation, **only the
-unpenalised row moved**. The three
-penalised rows came back identical to the digit. A penalty of 0.01 — small enough that
-Section 6.4 describes it as barely constraining the fit — already buys fifteen orders
-of magnitude of conditioning.
-
-So regularisation is not only a cure for overfitting. It is also what makes a number
-reproducible, and that is a reason to reach for it that has nothing to do with
-generalisation.
+gradient descent is slow. One quantity, both failure modes. Section 6.4 returns to
+it with an extreme case, a design matrix whose $\kappa$ reaches $10^{19}$, once the
+tool that repairs it has been introduced.
 
 ---
 
@@ -778,7 +816,7 @@ Notebook 3 applies Ridge to the degree-12 disaster from Section 5:
 
 ![](alpha_trade_off.png)
 
-*The trade, swept over ten orders of magnitude. Test error falls from 57 at λ = 10⁻⁸ to 14.6 at λ = 10⁻⁴, then climbs to 228. Two things to read off it: the minimum is nowhere near the round number you would have guessed, and the floor is broad — anything between 10⁻⁶ and 10⁻² is within a few kWh of the best. That flatness is why a penalty can be searched for rather than solved for, and Lesson 5 is how.*
+*The trade, swept over ten orders of magnitude. Test error falls from 57 at $\lambda = 10^{-8}$ to 14.6 at $\lambda = 10^{-4}$, then climbs to 228. Two things to read off it: the minimum is nowhere near the round number you would have guessed, and the floor is broad — anything between $10^{-6}$ and $10^{-2}$ is within a few kWh of the best. That flatness is why a penalty can be searched for rather than solved for, and Lesson 5 is how.*
 
 | Model | Training RMSE | Test RMSE | Largest \|w\| |
 |---|---|---|---|
@@ -800,11 +838,52 @@ become too rigid to follow the curve.
 
 ![](ridge_degrees.png)
 
-*The same three fits drawn on the data, which is the table's last column made visible. Look first at the vertical scale on the left: the unpenalised curve leaves the axes entirely between the training points and returns only where a point is there to pull it back. At λ = 0.01 the fit is indistinguishable from the true curve (dashed). At λ = 100 it is a nearly flat line — wrong, but wrong by a few hundred kWh rather than by thousands. That is the asymmetry the table hides: over-penalising is a mild failure, under-penalising is a catastrophic one.*
+*The same three fits drawn on the data, which is the table's last column made visible. Look first at the vertical scale on the left: the unpenalised curve leaves the axes entirely between the training points and returns only where a point is there to pull it back. At $\lambda = 0.01$ the fit is indistinguishable from the true curve (dashed). At $\lambda = 100$ it is a nearly flat line — wrong, but wrong by a few hundred kWh rather than by thousands. That is the asymmetry the table hides: over-penalising is a mild failure, under-penalising is a catastrophic one.*
 
 The useful range here spans four orders of magnitude, which is the practical
 argument for why $\lambda$ cannot be guessed and must be searched. Lesson 5 provides the
 machinery.
+
+**What else the penalty buys: an answer that does not move.** Section 4.4 tied the
+condition number $\kappa$ to two failures: slow gradient descent, and an exact
+solution that cannot be trusted. The degree-12 polynomial of the table above shows
+what "cannot be trusted" means in practice. After standardising, its design matrix
+is 21 × 13 and **full rank**: every column is genuinely independent. But
+`np.linalg.cond` returns $4.2 \times 10^{9}$, so $\kappa$, its square, is
+$1.8 \times 10^{19}$. Nothing is singular, no warning is raised, and the fit is perfectly
+deterministic: run it three times in the same container and the coefficients agree
+to the last digit.
+
+Run it on a different linear-algebra backend (the numerical library NumPy calls
+underneath to solve the system) and the largest coefficient moves from
+**247,514 to 3,097,038,010**, a factor of **12,500**, on identical code and identical
+data. Both are correct least-squares answers to the same question, and the question
+simply does not have a stable answer: the ravine is so flat along one direction that
+where you stop in it is decided by rounding.
+
+Now compare what the penalty does to that. In scikit-learn's convention, the
+textbook form of Section 6.2, the matrix Ridge inverts is $X^\top X + \lambda I$.
+Its eigenvalues are those of $X^\top X$ with $\lambda$ added to each (Section 6.2),
+so its condition number is (largest eigenvalue of $X^\top X$ + $\lambda$) divided by
+(smallest + $\lambda$). The penalty puts a floor under the smallest eigenvalue, so
+the ratio can no longer explode.
+
+| $\lambda$ | $\kappa$ of $X^\top X + \lambda I$ |
+|---|---|
+| 0 | $1.8 \times 10^{19}$ |
+| 0.01 | 23,100 |
+| 1 | 232 |
+| 100 | 3.3 |
+
+The table at the start of this section is the consequence, and it is worth looking
+at twice. When that notebook was re-run on a different software installation,
+**only the unpenalised row moved**; the three penalised rows came back identical to
+the digit. A penalty of 0.01, which barely constrains the fit, already buys fifteen
+orders of magnitude of conditioning.
+
+So regularisation is not only a cure for overfitting. It is also what makes a number
+reproducible, and that is a reason to reach for it that has nothing to do with
+generalisation.
 
 ### 6.5 Worked: Lasso as a feature selector
 

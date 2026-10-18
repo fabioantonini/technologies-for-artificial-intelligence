@@ -82,7 +82,8 @@ binds. → § 4.3
 
 **Condition number.** The ratio of the steepest curvature to the shallowest: how
 stretched the valley is, and near enough what sets the number of iterations you
-will need. → § 4.4
+will need. The curvatures are the eigenvalues of $X^\top X$, so it equals
+`np.linalg.cond(X)` squared, not `np.linalg.cond(X)` itself. → § 4.4
 
 **Why iterations grow with it.** Spending the largest safe rate on the steep direction
 leaves the shallow one contracting by $1 - 1/\kappa$ per step, so the steps needed grow

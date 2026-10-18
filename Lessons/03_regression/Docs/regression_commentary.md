@@ -508,13 +508,20 @@ Three ways the exact solution fails.
 
 The **condition number** $\kappa$ is the steepest curvature of the cost bowl divided by
 the shallowest: how many times steeper the steepest direction is than the flattest. A
-round bowl has $\kappa = 1$; a long narrow ravine has a large $\kappa$. On the housing data:
+round bowl has $\kappa = 1$; a long narrow ravine has a large $\kappa$.
 
-| Design matrix | Condition number |
-|---|---|
-| the six features as recorded | 285 |
-| the same six, standardised | 3.4 |
-| standardised, plus `area_sqft` beside `area_sqm` | 2,286 |
+Where the curvatures come from: the second derivative of the cost is the matrix
+$\frac{1}{m}X^\top X$, and its largest and smallest eigenvalues are the curvatures of
+the bowl along its steepest and shallowest directions. In NumPy, $\kappa$ is
+`np.linalg.cond(X)` *squared*. On its own, `np.linalg.cond(X)` returns the square root
+of $\kappa$: 654 on the raw housing data, where $\kappa$ is 428,000. On the housing
+data, column of ones included:
+
+| Design matrix | `np.linalg.cond(X)` | $\kappa$ |
+|---|---|---|
+| the six features as recorded | 654 | 428,000 |
+| the same six, standardised | 3.4 | 11.4 |
+| standardised, plus `area_sqft` beside `area_sqm` | 2,286 | 5.2 million |
 
 Why it matters twice. For the exact solution, a stretched valley is what makes the
 inverse enormous and the answer unstable: along the flat direction, moving one
@@ -522,7 +529,8 @@ coefficient up and the other down changes the predictions hardly at all, so the 
 cannot decide between them. For gradient descent, one step size has to serve every
 direction: the steep direction sets the limit, and the shallow one crawls. The handout
 (section 4.4) shows that the number of iterations grows roughly in proportion to
-$\kappa$, so standardising here saves a factor of about 80 in iterations.
+$\kappa$, and checks it by running gradient descent to within 0.1% of the exact
+solution: 2.9 million iterations on the raw features, 56 on the standardised ones.
 
 <!-- example:begin -->
 
@@ -968,7 +976,7 @@ failure, too little a catastrophic one. If you must err, err towards more.
 
 ![](alpha_trade_off.png)
 
-*The trade, swept over ten orders of magnitude. Test error falls from 57 at λ = 10⁻⁸ to 14.6 at λ = 10⁻⁴, then climbs to 228. Two things to read off it: the minimum is nowhere near the round number you would have guessed, and the floor is broad — anything between 10⁻⁶ and 10⁻² is within a few kWh of the best. That flatness is why a penalty can be searched for rather than solved for, and Lesson 5 is how.*
+*The trade, swept over ten orders of magnitude. Test error falls from 57 at $\lambda = 10^{-8}$ to 14.6 at $\lambda = 10^{-4}$, then climbs to 228. Two things to read off it: the minimum is nowhere near the round number you would have guessed, and the floor is broad — anything between $10^{-6}$ and $10^{-2}$ is within a few kWh of the best. That flatness is why a penalty can be searched for rather than solved for, and Lesson 5 is how.*
 
 The trade over many values of $\lambda$. Both ends fail, for opposite reasons: on the left
 the model is too flexible (it follows the noise), on the right too rigid (it cannot
