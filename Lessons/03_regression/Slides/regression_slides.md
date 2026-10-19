@@ -170,9 +170,10 @@ $$J(w, b) = \frac{1}{2m}\sum_{i=1}^{m}\left(\hat{y}^{(i)} - y^{(i)}\right)^2$$
 ::: notes
 Name the parts: m is the number of examples, the sum runs over all of them,
 the half is there for convenience when we differentiate, and the square makes
-every error positive and punishes large ones most, as the previous slide said. This is the mean squared error, MSE from
-here on, and the name is worth saying aloud because every later slide uses the
-abbreviation.
+every error positive and punishes large ones most, as the previous slide said. Strictly,
+J is half the mean squared error: the MSE is the same sum divided by m, with no
+half. MSE from here on, and the name is worth saying aloud because every later
+slide uses the abbreviation.
 
 Ask where the half comes from if nobody has. Answer: differentiating a square
 brings down a 2, and the half cancels it. It cannot move the minimum, because

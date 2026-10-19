@@ -92,7 +92,7 @@ low would cancel to zero and look perfect.
 
 ![](cost_surface.png)
 
-*The cost as a function of the two parameters. It is a bowl, and a bowl has exactly one bottom — which is why squared error can be minimised exactly rather than searched for. The gold star is that bottom, $(w^*, b^*)$: the grid point with the lowest cost, a slope of 2,790 and an intercept of −52,000, within one grid step of the exact answer section 3 computes.*
+*The cost as a function of the two parameters. It is a bowl, and a bowl has exactly one bottom — which is why squared error can be minimised exactly rather than searched for. The gold star is that bottom, $(w^*, b^*)$: the grid point with the lowest cost, a slope of 2,790 and an intercept of −52,000, within one grid step of the exact one-feature fit, whose slope of 2,785 Section 3.2 quotes from notebook 1.*
 
 So we need every error to count as a positive amount. There are two natural
 ways: the absolute error $\sum_i |\hat{y}^{(i)} - y^{(i)}|$, or the squared error
@@ -100,9 +100,16 @@ $\sum_i (\hat{y}^{(i)} - y^{(i)})^2$. Squaring does it, and it also decides
 something less obvious: how much worse one large mistake is than
 several small ones. Squaring says *much* worse.
 
-Now the definition. The **mean squared error** is
+Now the definition. The **mean squared error (MSE)** is the average of the
+squared errors, $\frac{1}{m}\sum_i (\hat{y}^{(i)} - y^{(i)})^2$, and the cost this
+lesson minimises is half of it:
 
 $$J(w, b) = \frac{1}{2m}\sum_{i=1}^{m}\left(\hat{y}^{(i)} - y^{(i)}\right)^2$$
+
+The half changes nothing about which model is best, as the second question below
+explains. It does mean that $J$ and the MSE differ by a factor of 2:
+scikit-learn's `mean_squared_error` has no half, and every root mean squared error
+(RMSE) in this lesson is the square root of the MSE, not of $J$.
 
 Two questions are worth answering before accepting it.
 
@@ -112,8 +119,10 @@ zero that complicates optimisation. Squaring penalises one large error more than
 several small ones — being wrong by 40,000 euros on one house costs the same as
 being wrong by 20,000 on four, which matches most intuitions about what a bad
 prediction is. And under the assumption that the noise is Gaussian, minimising
-squared error is exactly maximum likelihood estimation, which is the deep reason
-and the one that makes the choice more than a convention.
+squared error is exactly maximum likelihood estimation (choosing the parameters
+under which the observed data would have been most probable), which is the deep
+reason and the one that makes the choice more than a convention. Lesson 4 makes
+the same argument in full for classification.
 
 The consequence is worth stating plainly: **squared error is sensitive to
 outliers**, because a single absurd value contributes its error squared. A house
@@ -177,10 +186,10 @@ The RMSE is the square root of the mean squared error, which puts the number bac
 into the units of the target — euros here, and Section 5.2 uses it throughout.
 
 The same comparison written as one ratio is the **coefficient of determination**,
-$R^2$, which lesson 1 defined and this is the first place in the course that
-needs it:
+$R^2$, which lesson 1's notebook defined and this is the first place in the course
+that needs it:
 
-$$R^2 = 1 - \frac{\sum_i (y_i - \hat{y}_i)^2}{\sum_i (y_i - \bar{y})^2}
+$$R^2 = 1 - \frac{\sum_i \left(y^{(i)} - \hat{y}^{(i)}\right)^2}{\sum_i \left(y^{(i)} - \bar{y}\right)^2}
 = 1 - \frac{62{,}061{,}347{,}496}{1{,}395{,}086{,}153{,}600} = 0.956$$
 
 The numerator is the squared error the model still makes; the denominator is what
@@ -324,8 +333,9 @@ agree, as they must — they are the same equations.
 The formula requires inverting $X^\top X$, and that fails or becomes useless in
 three situations you will meet.
 
-**Redundant columns.** If two features are exact linear combinations of each
-other — the same measurement in metres and in feet — then $X^\top X$ is singular
+**Redundant columns.** If one feature is an exact linear combination of the
+others (the simplest case is the same measurement in metres and in feet), then
+$X^\top X$ is singular
 and has no inverse. Notebook 3 constructs exactly this case.
 
 **Nearly redundant columns.** Far more common, and worse, because nothing fails
@@ -506,7 +516,8 @@ about $H$ matter:
   stand in it, which is what makes a quadratic cost easy to analyse.
 - **Its eigenvalues are the curvatures.** Walk through the bowl along a unit
   direction $u$ and the curvature you meet is $u^\top H u$. The directions where
-  this is largest and smallest are the eigenvectors of $H$, and the curvatures
+  this is largest and smallest are the eigenvectors of $H$ (the directions that
+  $H$ only stretches, without turning them), and the curvatures
   there are its eigenvalues. So $c_{\max}$ and $c_{\min}$ are the largest and
   smallest eigenvalues of $\tfrac{1}{m}X^\top X$, and since the $\tfrac{1}{m}$
   cancels in the ratio, $\kappa$ is the ratio of the extreme eigenvalues of
@@ -543,7 +554,7 @@ $+1$: $H$ becomes the identity matrix, $\kappa = 1$, and the bowl is round.
 $$\kappa = \bigl(\texttt{np.linalg.cond(X)}\bigr)^2$$
 
 because `np.linalg.cond(X)` returns the ratio of the largest to the smallest
-*singular value* of $X$, and the singular values of $X$ are the square roots of the
+*singular value* of $X$ (the factors by which $X$ stretches vectors along its principal directions), and the singular values of $X$ are the square roots of the
 eigenvalues of $X^\top X$. Watch the square: `np.linalg.cond(X)` on its own is the
 square root of $\kappa$, and reading it as $\kappa$ understates how stretched the
 valley is by an enormous factor. The second route is the safer one when $\kappa$ is
@@ -633,10 +644,6 @@ lesson in one table, measured with the root mean squared error (RMSE) — the
 square root of the mean squared error, which puts the number back into the
 units of the target:
 
-![](underfit_residuals.png)
-
-*The straight line's residuals still carry the shape of the curve. Residuals that hold a pattern are the model telling you it has not finished.*
-
 | Degree | Training RMSE | Test RMSE |
 |---|---|---|
 | 1 | 113.3 | 212.1 |
@@ -646,7 +653,11 @@ units of the target:
 | 9 | 16.2 | 590.1 |
 | 12 | 13.6 | 24,655.7 |
 
-**Training error falls at every step.** From 113 down to 16, monotonically,
+![](underfit_residuals.png)
+
+*The straight line's residuals still carry the shape of the curve. Residuals that hold a pattern are the model telling you it has not finished.*
+
+**Training error falls at every step.** From 113 down to 13.6, monotonically,
 without ever suggesting that anything is going wrong. **Test error falls to
 degree 3 and then climbs** — by degree 12 it is nearly **1,500 times** worse
 than the best.
@@ -668,7 +679,9 @@ near zero. It does not, and the reason is worth seeing before it is explained.
 *The same 21 observations at three degrees. The rightmost passes closest to the training points, which is precisely why it is the worst model here.*
 
 Look at the coefficients. The degree-2 fit has a largest coefficient of 411. The
-degree-12 fit needs 3,097,038,010 — seven million times larger.
+degree-12 fit needs 3,097,038,010 — seven million times larger. (That exact figure
+is the course container's; Section 6.4 shows why another machine can print a
+different one, and why that is itself a symptom.)
 
 They are large because they work in **opposition**. With 21 points and 12
 coefficients there are many ways to pass close to every point, and the
@@ -693,7 +706,9 @@ should disappear.
 
 Add a price for size to the cost:
 
-$$J_{\text{ridge}}(w) = \text{MSE}(w) + \lambda\sum_{j=1}^{n} w_j^2 \qquad\qquad J_{\text{lasso}}(w) = \text{MSE}(w) + \lambda\sum_{j=1}^{n} |w_j|$$
+$$J_{\text{ridge}}(w, b) = J(w, b) + \lambda\sum_{j=1}^{n} w_j^2 \qquad\qquad J_{\text{lasso}}(w, b) = J(w, b) + \lambda\sum_{j=1}^{n} |w_j|$$
+
+where $J$ is the cost of Section 2.2.
 
 ![](train_test_by_degree.png)
 
@@ -881,9 +896,9 @@ at twice. When that notebook was re-run on a different software installation,
 the digit. A penalty of 0.01, which barely constrains the fit, already buys fifteen
 orders of magnitude of conditioning.
 
-So regularisation is not only a cure for overfitting. It is also what makes a number
-reproducible, and that is a reason to reach for it that has nothing to do with
-generalisation.
+So the penalty does a second job besides curbing overfitting: it makes a number
+reproducible, which is a reason to reach for it that has nothing to do with
+generalisation. Section 7.3 adds a third.
 
 ### 6.5 Worked: Lasso as a feature selector
 
@@ -898,7 +913,7 @@ On the housing data, raising $\lambda$ drops features in a specific order:
 |---|---|
 | 1,000 | all six |
 | 10,000 | five — `garage` dropped |
-| 20,000 | three — `area`, `bedrooms`, `bathrooms` |
+| 20,000 | three — `area_sqm`, `bedrooms`, `bathrooms` |
 | 40,000 | one — `area_sqm` |
 
 The order is not arbitrary. `garage` goes first: on a common scale it has the
@@ -932,7 +947,7 @@ Notebook 1 fits all six features and compares against the truth:
 
 ![](coefficient_trust.png)
 
-*The table above, drawn. Each point is one feature: how far its estimated coefficient lands from the truth, against how strongly it correlates with `area_sqm`. Two of the three features that share nothing with area are recovered to within 1%; the two that share a great deal are out by 9% and 17%. `garage` is the honest exception — uncorrelated and still 9.6% out — and it is there to stop the line being read as a law.*
+*The table below, drawn. Each point is one feature: how far its estimated coefficient lands from the truth, against how strongly it correlates with `area_sqm`. Two of the three features that share nothing with area are recovered to within 1%; the two that share a great deal are out by 9% and 17%. `garage` is the honest exception — uncorrelated and still 9.6% out — and it is there to stop the line being read as a law.*
 
 | Feature | True | Estimated | Error | Correlation with area |
 |---|---|---|---|---|
@@ -981,8 +996,9 @@ because Ridge runs on scaled features, so they are not comparable with the table
 euros per square metre; what matters is that they are stable and equal. Two moderate coefficients cost less under a
 squared penalty than one huge positive and one huge negative.
 
-**So Ridge is not only a cure for overfitting.** It is what makes coefficients
-readable when features overlap — which in real data they nearly always do.
+**That is the penalty's third job**, after curbing overfitting and making a number
+reproducible (Section 6.4): it makes coefficients readable when features overlap,
+which in real data they nearly always do.
 
 ### 7.4 The warning that belongs on every coefficient
 
@@ -1024,7 +1040,8 @@ derives why.
 | $m$, $n$ | number of examples, number of features |
 | $J$ | the cost being minimised |
 | $\alpha$ | the **learning rate**, and nothing else |
-| $c$, $\kappa$ | the curvature of the cost in one direction; the ratio of the largest to the smallest |
+| $H$ | the Hessian, the matrix of second derivatives of $J$: $\tfrac{1}{m}X^\top X$ |
+| $c$, $\kappa$ | the curvature of the cost in one direction (an eigenvalue of $H$); the ratio of the largest to the smallest |
 | $\lambda$ | the **regularisation strength** — scikit-learn spells this one `alpha`, which is why the previous row says "and nothing else" |
 | $\bar{x}$, $\bar{y}$ | sample means |
 | $S_{xx}$, $S_{xy}$ | the centred sum of squares and the centred sum of cross-products |
