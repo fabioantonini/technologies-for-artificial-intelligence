@@ -62,6 +62,22 @@ odds = 9 * 5
 same("2.4 odds of 9 multiplied by five, as a probability",
      odds / (1 + odds), 0.978, tolerance=5e-4)
 
+# --------------------------------- Section 3.1, three drives, two settings
+
+# A failed, B and C did not. Each factor is the probability of the outcome that
+# occurred, built from P(fail) rather than read off the handout's table.
+outcome = [1, 0, 0]
+for name, p_fail, product, surprise in (("setting 1", [0.8, 0.1, 0.2], 0.576, 0.55),
+                                        ("setting 2", [0.3, 0.6, 0.5], 0.060, 2.81)):
+    factors = [p if y else 1 - p for p, y in zip(p_fail, outcome)]
+    same(f"3.1 the likelihood under {name}", math.prod(factors), product, tolerance=5e-4)
+    same(f"3.1 the summed surprise under {name}",
+         sum(-math.log(f) for f in factors), surprise)
+    same(f"3.1 the summed surprise under {name}, as minus the log of the product",
+         -math.log(math.prod(factors)), surprise)
+same("3.1 how many times more probable under setting 1",
+     math.prod([0.8, 0.9, 0.8]) / math.prod([0.3, 0.4, 0.5]), 9.6, tolerance=0.05)
+
 # --------------------------------- Section 4, the two losses
 
 # A drive failed and the model said 0.0001.

@@ -370,32 +370,61 @@ model on easy problems. The reason to reject it is subtler and more interesting,
 which is what makes it worth ten minutes.
 :::
 
-# Maximum likelihood, in one sentence
+# Maximum likelihood, on three drives
 
-- The parameters w and b are a knob: each setting gives a probability to what
-  actually happened
-- **Turn the knob so that what actually happened is least surprising**
+| Drive, what happened | Setting 1 of w, b: P(fail) → P(what happened) | Setting 2 of w, b: P(fail) → P(what happened) |
+|---|---|---|
+| A, failed | 0.8 → **0.8** | 0.3 → **0.3** |
+| B, healthy | 0.1 → **0.9** | 0.6 → **0.4** |
+| C, healthy | 0.2 → **0.8** | 0.5 → **0.5** |
+| Multiplied: the likelihood | **0.576** | **0.060** |
+| Maximum likelihood keeps | **setting 1** | |
 
 ::: notes
-Say this before any algebra. It is the whole idea, and once they have it the
-derivation is bookkeeping.
+This is the whole idea of how logistic regression is fitted, so say it before
+any algebra, and say it on these three drives. The numbers are made up for the
+example; the three drives are not from the dataset.
 
-Each drive contributes one factor: the probability the model gave to what
-actually occurred. Multiply across the fleet and you have the probability of the
-whole dataset under that setting of the parameters. Choose the setting that
-makes it largest.
+A "setting" is one choice of the coefficients w and the intercept b. Plug a
+drive's counters into the model of slide 11 and the setting gives that drive a
+probability of failing, P(fail). Two settings, two columns.
 
-Two practical notes worth saying aloud. We take the logarithm because it turns
-the product into a sum, which differentiates one term at a time - and because
-the product itself is too small to store. Gradient descent starts with all
-weights at zero, so z is 0 for every drive and every probability is 0.5; 0.5
-multiplied by itself 6,000 times, once per training drive, is about 10 to the
-minus 1806. The smallest number a 64-bit float holds is about 10 to the minus
-308, so the computer stores exactly zero. Every real implementation therefore
-adds up the logarithms of the probabilities instead of multiplying the
-probabilities, and not for elegance.
+Now score each setting against what actually happened. Drive A failed, so the
+relevant number is the probability the setting gave to failing: 0.8 under
+setting 1, 0.3 under setting 2. Drives B and C stayed healthy, so the relevant
+number is the probability of staying healthy, 1 minus P(fail): under setting 1,
+0.9 and 0.8; under setting 2, 0.4 and 0.5. That is what each arrow in the table does - it
+turns P(fail) into the probability of the outcome that really occurred.
 
-Then negate, so we minimise as in lesson 3.
+Multiply down each column, treating the drives as independent. The product is
+the probability that setting assigns to the whole dataset, exactly as it was
+observed: 0.576 for setting 1, 0.060 for setting 2. That product is called the
+likelihood. What actually happened is about ten times more probable under
+setting 1 (9.6 times), so setting 1 is the better explanation of the data.
+
+Maximum likelihood is this comparison, done over every possible setting rather
+than two: choose the w and b that make the likelihood as large as possible.
+Gradient descent does the searching, as in lesson 3.
+
+Why the products are never used as they are, and the bridge to the next slide.
+Take minus the logarithm of each factor and add, instead of multiplying: 0.55
+for setting 1, 2.81 for setting 2. That is minus the log of the likelihood, so
+the order is the same, reversed - the better setting now has the SMALLER number,
+which gives us something to minimise, as in lesson 3. Minus the log of a
+probability is called the surprise: 0 for something you were certain of, large
+for something you said was unlikely. "Most likely" and "least surprising" are
+the same choice. Averaged over the drives instead of summed, it is the cost on
+the next slide.
+
+Two reasons for the logarithm, worth saying aloud. It turns the product into a
+sum, which differentiates one term at a time. And the product itself is too
+small to store. Gradient descent starts with all weights at zero, so z is 0 for
+every drive and every probability is 0.5; 0.5 multiplied by itself 6,000 times,
+once per training drive, is about 10 to the minus 1806. The smallest number a
+64-bit float holds is about 10 to the minus 308, so the computer stores exactly
+zero. Every real implementation therefore adds up the logarithms of the
+probabilities instead of multiplying the probabilities, and not for elegance.
+Handout sections 3.1 to 3.3.
 :::
 
 # Cross-entropy, also called log loss

@@ -297,6 +297,29 @@ That is the whole idea. The algebra below turns "as unsurprising as possible"
 into a cost function, and the pleasant surprise is that the cost function it
 produces is not something anyone had to invent — it falls out.
 
+**Three drives, two settings.** Take drive A, which failed, and drives B and C,
+which did not, and two settings of $(w, b)$. Setting 1 gives them failure
+probabilities 0.8, 0.1 and 0.2; setting 2 gives 0.3, 0.6 and 0.5. The numbers
+are made up for the illustration. Score each setting by the probability it gave
+to what actually happened, $p$ for the drive that failed and $1 - p$ for the two
+that did not, and multiply:
+
+| Drive, what happened | Setting 1 | Setting 2 |
+|---|---|---|
+| A, failed | 0.8 | 0.3 |
+| B, healthy | 0.9 | 0.4 |
+| C, healthy | 0.8 | 0.5 |
+| **Product: the likelihood** | **0.576** | **0.060** |
+
+What actually happened is 9.6 times more probable under setting 1, so maximum
+likelihood prefers it; fitting the model is the same comparison made over every
+possible setting. Taking minus the logarithm of each factor and adding gives
+0.55 for setting 1 and 2.81 for setting 2: the same order reversed, so the
+better setting now has the smaller number, which can be minimised as in lesson
+3. Minus the log of a probability is the *surprise* of the outcome, which is why
+"most likely" and "least surprising" are the same choice. Section 3.3 arrives at
+the same quantity, averaged over the drives, as the cost.
+
 ### 3.2 The likelihood
 
 Write $p^{(i)} = \sigma(w^\top x^{(i)} + b)$ for the model's probability that
