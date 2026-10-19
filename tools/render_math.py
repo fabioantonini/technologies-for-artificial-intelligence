@@ -47,7 +47,7 @@ SYMBOLS = {
     r"\times": "×", r"\cdot": "·", r"\pm": "±", r"\mp": "∓",
     r"\leq": "≤", r"\geq": "≥", r"\neq": "≠", r"\approx": "≈",
     r"\equiv": "≡", r"\propto": "∝", r"\sim": "∼",
-    r"\in": "∈", r"\notin": "∉", r"\subset": "⊂", r"\subseteq": "⊆",
+    r"\mid": " | ", r"\in": "∈", r"\notin": "∉", r"\subset": "⊂", r"\subseteq": "⊆",
     r"\cup": "∪", r"\cap": "∩", r"\emptyset": "∅",
     r"\forall": "∀", r"\exists": "∃", r"\nabla": "∇", r"\partial": "∂",
     r"\infty": "∞", r"\sum": "∑", r"\prod": "∏", r"\int": "∫",

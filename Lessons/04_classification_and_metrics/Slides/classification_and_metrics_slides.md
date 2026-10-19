@@ -48,8 +48,16 @@ is better learned once, here, on the simplest possible model.
 
 - Lesson 3: given a house, **how many euros?**
 - Lesson 4: given a disk drive, **will it fail?**
+- Answer with a probability: $0 \leq P(y = 1 \mid x) \leq 1$
+- $y = 1$ if the drive failed, $y = 0$ if not; $x$ holds its six counters
 
 ::: notes
+Read the third bullet aloud: "the probability that y equals 1, given x". The
+vertical bar is read "given": everything to its right is what we know about the
+drive, everything to its left is what we want to know. The two inequalities are
+the point of writing it this way - whatever the model outputs has to stay
+between 0 and 1, and slide 7 shows a straight line failing exactly that.
+
 Draw the distinction sharply. Regression predicts a quantity; classification
 predicts a category. The change sounds cosmetic and forces two separate changes
 of machinery.
