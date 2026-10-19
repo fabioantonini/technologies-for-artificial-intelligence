@@ -256,6 +256,41 @@ Eight kinds of gap, each with what it looked like:
   on purpose, corrected by the next one, is not a gap. Lesson 2's "MCAR: safe to
   impute" is one.
 
+### 2.10 The notes pass: every note, read in full, every time a deck is checked
+
+**Not optional, and not a phrase search.** Whenever a deck is verified - before it is
+taught, after a slide is added, when the instructor finds one slide cryptic - read
+every `::: notes` block from the first slide to the last, in order, and rewrite what
+fails any of the six tests below. Section 2.9 reads the bodies with the notes closed;
+this reads the notes as the person who has to say them aloud, and who studies the
+deck from them.
+
+1. **Every term, symbol and device is defined, here or earlier.** A note that says
+   "z", "the log-odds", "a threshold", "log space", "generalised linear models" has
+   to say what it is, or point at the slide that did.
+2. **No compressed argument.** If a sentence needs the reader to supply a step ("on
+   slide 19 that fact will be the reason squared error does not work"), write the step.
+3. **Every number checked against its source, and every derived phrase recomputed.**
+   A precision of 0.259 is three false alarms in four, not "two in three"; the
+   number was right and the words built on it were not.
+4. **Every claim carries its condition.** "0.5 is right when the errors cost the same
+   and the classes are balanced" was wrong: with calibrated probabilities, balance
+   does not enter. The cost-optimal threshold holds only for calibrated probabilities.
+5. **Every slide reference lands on the right slide**, including the second column of
+   each "Notebook N, live" toolbox table, which carries bare numbers no "slide N"
+   search finds.
+6. **A wrong note is never wrong alone.** Search the handout, the notebooks' markdown,
+   the quiz and the commentary for the same claim and fix it everywhere.
+
+> **Lesson 4, 19 October 2026.** The instructor found slide 18's notes cryptic. The
+> full reread of all 51 sets of notes found: one claim wrong in the notes, the
+> handout, notebook 2 and the quiz (the balanced-classes condition for 0.5, which
+> his own study session had also questioned); one derived phrase wrong in the notes,
+> the handout and notebook 3 ("two alarms in three"); a missing condition on the
+> closed-form threshold; 15 toolbox slide numbers left stale by two insertions that
+> same day; a "where the marks are" that contradicts the exam format; and a dozen
+> undefined terms or skipped steps, z and the threshold among them.
+
 
 ---
 

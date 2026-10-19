@@ -680,9 +680,11 @@ when $\hat{y} \geq 0.5$.
 
 *The fitted model is identical at every point on this axis: same coefficients, same probabilities, same drives. Only the line between "leave it" and "replace it" moves.*
 
-That 0.5 is `predict()`'s default and nothing more. It is the right choice when
-the two errors cost the same *and* the classes are balanced — neither of which
-holds here. The model's actual output is a probability; **turning it into a
+That 0.5 is `predict()`'s default and nothing more. It is the right choice only
+when the two errors cost the same and the probabilities are trustworthy: the
+threshold derived from the costs below is 0.5 exactly when the costs are equal,
+whatever the class balance. Here a missed failure costs about nineteen times a
+needless replacement. The model's actual output is a probability; **turning it into a
 decision requires a threshold, and the threshold is a business question.**
 
 | Threshold | Flagged | TP | FP | FN | Precision | Recall | $F_1$ | Accuracy |
@@ -746,6 +748,13 @@ $$t^* = \frac{140}{140 + 2600} = 0.051$$
 the model, the dataset, or the class balance — only on the *ratio* of the two
 costs. If misses and false alarms cost the same, $t^* = 0.5$ and the default is
 correct. As misses grow more expensive, $t^*$ falls towards zero.
+
+**The condition the derivation used.** It treated $p$ as the true probability
+that the drive fails. That holds only if the model is **calibrated**: among the
+drives it scores 0.05, about 5% really fail. Section 8.2 divided every
+probability by ten without changing the AUC; that model would still be told
+$t^* = 0.051$, and would flag far too few drives. The formula is only as good as
+the probabilities fed to it.
 
 On the test set, sweeping the threshold empirically puts the cheapest value at
 **0.08**, close to the theoretical 0.051, and the cost curve is nearly flat
@@ -865,7 +874,7 @@ model — at the rarest setting, a marginally better one, which is sampling nois
 on 231 positives.
 
 **Precision falls to a third of what it was.** At the same threshold, with the
-same model, two alarms in three are now false. That is the number the technician
+same model, three alarms in four are now false. That is the number the technician
 experiences.
 
 **Why the disagreement.** Look at the denominators. FPR divides false positives

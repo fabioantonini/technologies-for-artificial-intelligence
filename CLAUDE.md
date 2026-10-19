@@ -454,7 +454,7 @@ a review and a deck rewrite, and was repeated on a slide and twice in the
 speaker notes. Nothing but recomputing from the three houses would have caught
 it.
 
-Two habits follow, for content the checker cannot reach:
+Three habits follow, for content the checker cannot reach:
 
 - **A figure is checked by looking at it.** Open the built PDF. Overlapping
   annotations, a legend across a curve, an axis label cut off — none of these
@@ -462,6 +462,13 @@ Two habits follow, for content the checker cannot reach:
 - **A number in prose is checked against the cell that produced it.** If the
   handout says a coefficient came out at 1.66, that digit must appear in a
   committed notebook output, not in your memory of the run.
+- **Every speaker note is reread in full whenever a deck is checked.** Not a
+  search for known phrases: every `::: notes` block, first slide to last, for
+  undefined terms, compressed steps, numbers and the phrases built on them,
+  claims missing their condition, and slide references - toolbox tables
+  included. A wrong note is searched for in the handout, notebooks and quiz
+  too. The six tests are `Course/LESSON_REVIEW.md` §2.10; lesson 4's pass on 19
+  October 2026 found the same wrong claim in four artefacts.
 
 ### Get lesson X ready on the Friday lesson X − 1 is taught
 
