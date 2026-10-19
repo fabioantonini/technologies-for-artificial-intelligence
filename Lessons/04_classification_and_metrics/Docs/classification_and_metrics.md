@@ -10,17 +10,17 @@ date: "23 October 2026 · reading time about 80 minutes"
 | Time | Segment | Material |
 |---|---|---|
 | 0:00–0:12 | Exercise 3 discussed; from numbers to decisions | Slides 2–6 |
-| 0:12–0:30 | Logistic regression: sigmoid, odds, coefficients | Slides 7–13 |
-| 0:30–0:47 | Why the cost had to change | Slides 14–19 |
-| 0:47–1:10 | **Notebook 1**, live, and the decision boundary | Slides 20–21 |
-| 1:10–1:20 | **Break** | Slide 22 |
-| 1:20–1:34 | The accuracy trap and the confusion matrix | Slides 23–26 |
-| 1:34–1:48 | Precision, recall, F1, and what to report | Slides 27–30 |
-| 1:48–2:13 | **Notebook 2**, live, and the threshold sweep | Slides 31–34 |
-| 2:13–2:30 | Receiver operating characteristic (ROC) curves, the area under them, and where they mislead | Slides 35–41 |
-| 2:30–2:40 | Cost-optimal thresholds and class weights | Slides 42–45 |
-| 2:40–2:55 | **Notebook 3**, live, with the multiclass slides 47–48 | Slide 46 |
-| 2:55–3:00 | What to take away; homework | Slides 49–50 |
+| 0:12–0:30 | Logistic regression: sigmoid, odds, coefficients | Slides 7–14 |
+| 0:30–0:47 | Why the cost had to change | Slides 15–20 |
+| 0:47–1:10 | **Notebook 1**, live, and the decision boundary | Slides 21–22 |
+| 1:10–1:20 | **Break** | Slide 23 |
+| 1:20–1:34 | The accuracy trap and the confusion matrix | Slides 24–27 |
+| 1:34–1:48 | Precision, recall, F1, and what to report | Slides 28–31 |
+| 1:48–2:13 | **Notebook 2**, live, and the threshold sweep | Slides 32–35 |
+| 2:13–2:30 | Receiver operating characteristic (ROC) curves, the area under them, and where they mislead | Slides 36–42 |
+| 2:30–2:40 | Cost-optimal thresholds and class weights | Slides 43–46 |
+| 2:40–2:55 | **Notebook 3**, live, with the multiclass slides 48–49 | Slide 47 |
+| 2:55–3:00 | What to take away; homework | Slides 50–51 |
 | | **Total** | **180 minutes** |
 
 ---
@@ -186,6 +186,17 @@ $$\log\frac{P(y = 1 \mid x)}{P(y = 0 \mid x)} = w^\top x + b$$
 squashing trick bolted onto linear regression; it is what you get when you model
 the log-odds linearly and then ask for the probability back.
 
+**The same algebra, run forwards.** The lecture takes it in the other order:
+decide first that the log-odds is linear, $\log\frac{p}{1-p} = z$ with
+$z = w^\top x + b$, and solve for $p$. Exponentiate both sides,
+$\frac{p}{1-p} = e^{z}$; multiply out and collect $p$, $p\,(1 + e^{z}) = e^{z}$;
+then divide top and bottom by $e^{z}$:
+
+$$p = \frac{e^{z}}{1 + e^{z}} = \frac{1}{1 + e^{-z}} = \sigma(z)$$
+
+So the sigmoid is not chosen first and justified afterwards. It is the solution
+of that equation.
+
 | Probability | Odds | Log-odds |
 |---|---|---|
 | 0.01 | 1 to 99 | −4.60 |
@@ -193,6 +204,34 @@ the log-odds linearly and then ask for the probability back.
 | 0.50 | 1 to 1 | 0 |
 | 0.90 | 9 to 1 | +2.20 |
 | 0.99 | 99 to 1 | +4.60 |
+
+**Why the log-odds, and not some other stretch.** The log-odds is not the only
+function that maps $(0, 1)$ onto the whole real line. The **probit**, the
+inverse of the standard normal distribution's cumulative distribution function,
+is the common alternative, and once rescaled it draws almost the same S-shape.
+So the shape is not what singles the sigmoid out. Three properties are:
+
+- **The coefficients have a direct reading.** On the log-odds scale a one-unit
+  increase in $x_j$ adds $w_j$ to the log-odds, which multiplies the odds by
+  $e^{w_j}$ (section 2.4). A probit coefficient has no reading this direct.
+- **It is the scale on which evidence adds.** Bayes' rule in odds form says that
+  the odds after seeing $x$ are the odds before, times a likelihood ratio:
+  $$\frac{P(y = 1 \mid x)}{P(y = 0 \mid x)}
+    = \frac{P(y = 1)}{P(y = 0)} \cdot \frac{P(x \mid y = 1)}{P(x \mid y = 0)}$$
+  Take logarithms and the product becomes a sum: the prior log-odds plus the
+  log of the likelihood ratio, which splits into one term per feature when the
+  features are independent given the class. A sum of contributions, one per
+  feature, is the form of a linear model; logistic regression assumes each
+  contribution is a straight line in its feature.
+- **Training is well behaved.** With the cross-entropy cost of section 3 the
+  gradient comes out as $(p - y)\,x$, the same form as linear regression's, and
+  the cost is convex (sections 3.4 and 4.3).
+
+**A predictable mistake, and why it is reasonable.** Most students come away
+thinking the sigmoid was picked because it has the right shape. Section 2.2
+invites that reading, since it introduced the curve by its properties: bounded,
+monotone, flat at both ends. But the probit has every one of those properties
+too. What makes the sigmoid the standard choice is the log-odds behind it.
 
 ### 2.4 Reading the coefficients
 

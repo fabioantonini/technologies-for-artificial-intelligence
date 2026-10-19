@@ -17,7 +17,7 @@ mistake rather than praising the good answers - it is worth more to the room.
 The one to watch for: choosing the penalty by looking at the test error. It is
 the natural thing to do because the test error is the number they were told to
 care about, and it is exactly the mistake lesson 1 named. Today's lesson ends up in
-the same place from a different direction, on slide 44, when we choose a decision
+the same place from a different direction, on slide 45, when we choose a decision
 threshold by looking at the test set.
 Lesson 5 gives them the machinery to do both honestly.
 :::
@@ -107,7 +107,7 @@ Ask, without answering: if a model has to guess for each drive, and it wants to
 be right as often as possible, what should it say?
 
 Somebody will say "healthy, every time". Agree, and move on. Do not explain the
-consequence yet - it lands far harder on slide 23, after the break, when they see
+consequence yet - it lands far harder on slide 24, after the break, when they see
 96.2% printed as a model's accuracy score.
 :::
 
@@ -163,16 +163,56 @@ not a squashing trick bolted onto linear regression: it is what you get when you
 model the log-odds linearly and then ask for the probability back.
 :::
 
+# Why the log-odds
+
+- A line gives any number; a probability, only [0, 1]
+- Odds, p ÷ (1 − p): no ceiling, from 0 to ∞
+- Log of the odds: no floor either, −∞ to +∞
+- p = 0.01, 0.5, 0.99 → log-odds −4.60, 0, +4.60
+- Bonus: coefficients multiply the odds (slide 12)
+
+::: notes
+This slide puts in words what the right panel of slide 8 shows. Go through the
+two steps slowly; each removes one limit. Odds: a probability of 0.2 is odds of
+0.25, and as the probability approaches 1 the odds run off to infinity - no
+ceiling. But odds are never negative, so there is still a floor at 0. The
+logarithm sends 0 to minus infinity, and the floor is gone too.
+
+Nothing is lost on the way: each probability has exactly one log-odds and back.
+The fourth bullet makes the stretch concrete - the scale is symmetric around a
+half, and the extremes are pushed outwards.
+
+The question a sharp student asks: why this function and not some other one
+that also maps (0, 1) onto the whole line? There are others; the probit, built
+on the inverse of the normal distribution, is the common one, and it gives
+almost the same S-shape. The log-odds wins on three counts, and the shape is
+not one of them:
+
+- the coefficients read as odds multipliers, which is slide 12;
+- it is the scale on which Bayes' rule adds evidence - posterior log-odds is
+  prior log-odds plus one term per independent piece of evidence - and a sum of
+  terms is exactly what a linear model is;
+- with the cross-entropy cost of slide 17 the gradient comes out as
+  (prediction minus label) times x, and the cost is convex - handout sections
+  3.4 and 4.3.
+
+The predictable mistake: students think the sigmoid was picked because it looks
+like the right S-shape. A reasonable reading, because the shape is what slide 8
+shows first. But many curves have that shape; what singles this one out is the
+log-odds behind it. Handout section 2.3.
+:::
+
 # Log-odds of p = P(y = 1 | x): a line
 
 $$\log\frac{p}{1 - p} = w^\top x + b \quad\Longrightarrow\quad p = \frac{1}{1 + e^{-(w^\top x + b)}}$$
 
 ::: notes
-This is the step from the previous figure to the next slide, done on the board.
+This is the step from the log-odds of slide 9 to the sigmoid of the next slide,
+done on the board.
 p is shorthand for P(y = 1 | x), the probability from slide 4.
 
 The left-hand equation is the modelling decision. The log-odds runs over the
-whole real line - the right panel of the previous slide - so it is the one
+whole real line - the right panel of slide 8 - so it is the one
 version of the probability a line can predict without ever leaving the range.
 So put the linear model of lesson 3 there, unchanged.
 
@@ -203,7 +243,7 @@ section 2.2 does that: sigma of 0 is a half; sigma of minus z is 1 minus sigma
 of z; and the derivative is sigma times one minus sigma.
 
 That last one is the one to flag. It is largest in the middle, one quarter, and
-it decays to zero at both ends. On slide 18 that fact will be simultaneously the
+it decays to zero at both ends. On slide 19 that fact will be simultaneously the
 reason the sigmoid works and the reason squared error does not.
 :::
 
@@ -386,7 +426,7 @@ the ratio grows without bound.
 Right panel is the real argument, so spend the time here. The gradient is what
 the optimiser actually uses. Squared error's gradient through the sigmoid
 carries a factor p times one-minus-p - which is exactly the sigmoid derivative
-from slide 10 - and that factor goes to zero as p goes to zero.
+from slide 11 - and that factor goes to zero as p goes to zero.
 
 Say it as a sentence: the wronger the model gets, the less squared error asks it
 to change. At p = 0.001 the gradient is a five-hundredth of log loss's. Log loss
@@ -653,7 +693,7 @@ afterwards - left to themselves they quote whichever is biggest.
 
 The weighted average weights each class by how common it is, so on this problem
 it is essentially the healthy class talking, and it reads close to accuracy  - 
-inheriting exactly the blindness slides 23 to 26 were about.
+inheriting exactly the blindness slides 24 to 27 were about.
 
 The macro average gives the two classes equal weight, so the rare class actually
 registers. 0.820 against 0.975 for the same model.
@@ -831,7 +871,7 @@ decision it makes is different.
 
 The consequence: AUC says nothing about whether "0.7" means anything. If you
 need the probabilities to be believable - because you are computing expected
-costs, as slide 42 does - AUC is not the check you want.
+costs, as slide 43 does - AUC is not the check you want.
 
 Good place to mention that calibration - whether a predicted 0.7 really comes
 true 70% of the time - is a topic of its own, without going into it.
@@ -905,7 +945,7 @@ and this lesson is about the thinking.
 
 ::: notes
 Finally, the honest way to pick a threshold. It needs one ingredient no metric
-can supply: what the errors cost. We wrote those down on slide 26 - €140 for a
+can supply: what the errors cost. We wrote those down on slide 27 - €140 for a
 needless replacement, €2,600 for a drive that dies in service.
 
 The curve is the total cost on the test set as the threshold moves. The default

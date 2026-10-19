@@ -24,6 +24,12 @@ returns one between 0 and 1, steep in the middle and flat at both ends. → § 2
 probability of its complement; the log-odds are their logarithm, and they range
 over the whole real line, which is what a linear model can safely predict. → § 2.3
 
+**Why the log-odds, not another stretch.** Other functions also map $(0, 1)$ onto
+the real line - the probit, built on the normal distribution, draws nearly the
+same curve. The log-odds is chosen because its coefficients read as odds
+multipliers, Bayes' rule adds evidence on its scale, and the cross-entropy cost
+on it is convex. Not because of the S-shape. → § 2.3
+
 **Odds multiplier.** $e^{w_j}$: what a one-unit increase in a feature does to the
 odds. It multiplies the odds, not the probability — the commonest misreading in
 the lesson. → § 2.4
