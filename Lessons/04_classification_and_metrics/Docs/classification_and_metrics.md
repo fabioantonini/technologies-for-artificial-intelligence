@@ -10,17 +10,17 @@ date: "23 October 2026 · reading time about 80 minutes"
 | Time | Segment | Material |
 |---|---|---|
 | 0:00–0:12 | Exercise 3 discussed; from numbers to decisions | Slides 2–6 |
-| 0:12–0:30 | Logistic regression: sigmoid, odds, coefficients | Slides 7–12 |
-| 0:30–0:47 | Why the cost had to change | Slides 13–18 |
-| 0:47–1:10 | **Notebook 1**, live, and the decision boundary | Slides 19–20 |
-| 1:10–1:20 | **Break** | Slide 21 |
-| 1:20–1:34 | The accuracy trap and the confusion matrix | Slides 22–25 |
-| 1:34–1:48 | Precision, recall, F1, and what to report | Slides 26–29 |
-| 1:48–2:13 | **Notebook 2**, live, and the threshold sweep | Slides 30–33 |
-| 2:13–2:30 | Receiver operating characteristic (ROC) curves, the area under them, and where they mislead | Slides 34–40 |
-| 2:30–2:40 | Cost-optimal thresholds and class weights | Slides 41–44 |
-| 2:40–2:55 | **Notebook 3**, live, with the multiclass slides 46–47 | Slide 45 |
-| 2:55–3:00 | What to take away; homework | Slides 48–49 |
+| 0:12–0:30 | Logistic regression: sigmoid, odds, coefficients | Slides 7–13 |
+| 0:30–0:47 | Why the cost had to change | Slides 14–19 |
+| 0:47–1:10 | **Notebook 1**, live, and the decision boundary | Slides 20–21 |
+| 1:10–1:20 | **Break** | Slide 22 |
+| 1:20–1:34 | The accuracy trap and the confusion matrix | Slides 23–26 |
+| 1:34–1:48 | Precision, recall, F1, and what to report | Slides 27–30 |
+| 1:48–2:13 | **Notebook 2**, live, and the threshold sweep | Slides 31–34 |
+| 2:13–2:30 | Receiver operating characteristic (ROC) curves, the area under them, and where they mislead | Slides 35–41 |
+| 2:30–2:40 | Cost-optimal thresholds and class weights | Slides 42–45 |
+| 2:40–2:55 | **Notebook 3**, live, with the multiclass slides 47–48 | Slide 46 |
+| 2:55–3:00 | What to take away; homework | Slides 49–50 |
 | | **Total** | **180 minutes** |
 
 ---
