@@ -656,7 +656,8 @@ what it is about.
 
 ::: notes
 Fifteen lines of NumPy, then one line of scikit-learn, and the same answer. Run
-notebook 01. Twenty minutes. The parts worth stopping on:
+notebook 01. Seventeen minutes, leaving three for the decision boundary on the
+next slide. The parts worth stopping on:
 
 The linear-fit failure - let them see 3,606 negative probabilities printed
 rather than being told.
