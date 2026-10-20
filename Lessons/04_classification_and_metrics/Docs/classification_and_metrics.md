@@ -11,16 +11,16 @@ date: "23 October 2026 · reading time about 80 minutes"
 |---|---|---|
 | 0:00–0:12 | Exercise 3 discussed; from numbers to decisions | Slides 2–6 |
 | 0:12–0:30 | Logistic regression: sigmoid, odds, coefficients | Slides 7–14 |
-| 0:30–0:47 | Why the cost had to change | Slides 15–20 |
-| 0:47–1:10 | **Notebook 1**, live, and the decision boundary | Slides 21–22 |
-| 1:10–1:20 | **Break** | Slide 23 |
-| 1:20–1:34 | The accuracy trap and the confusion matrix | Slides 24–27 |
-| 1:34–1:48 | Precision, recall, F1, and what to report | Slides 28–31 |
-| 1:48–2:13 | **Notebook 2**, live, and the threshold sweep | Slides 32–35 |
-| 2:13–2:30 | Receiver operating characteristic (ROC) curves, the area under them, and where they mislead | Slides 36–42 |
-| 2:30–2:40 | Cost-optimal thresholds and class weights | Slides 43–46 |
-| 2:40–2:55 | **Notebook 3**, live, with the multiclass slides 48–49 | Slide 47 |
-| 2:55–3:00 | What to take away; homework | Slides 50–51 |
+| 0:30–0:47 | Why the cost had to change | Slides 15–24 |
+| 0:47–1:10 | **Notebook 1**, live, and the decision boundary | Slides 25–26 |
+| 1:10–1:20 | **Break** | Slide 27 |
+| 1:20–1:34 | The accuracy trap and the confusion matrix | Slides 28–31 |
+| 1:34–1:48 | Precision, recall, F1, and what to report | Slides 32–35 |
+| 1:48–2:13 | **Notebook 2**, live, and the threshold sweep | Slides 36–39 |
+| 2:13–2:30 | Receiver operating characteristic (ROC) curves, the area under them, and where they mislead | Slides 40–46 |
+| 2:30–2:40 | Cost-optimal thresholds and class weights | Slides 47–50 |
+| 2:40–2:55 | **Notebook 3**, live, with the multiclass slides 52–53 | Slide 51 |
+| 2:55–3:00 | What to take away; homework | Slides 54–55 |
 | | **Total** | **180 minutes** |
 
 ---
@@ -304,19 +304,21 @@ are made up for the illustration. Score each setting by the probability it gave
 to what actually happened, $p$ for the drive that failed and $1 - p$ for the two
 that did not, and multiply:
 
-| Drive, what happened | Setting 1 | Setting 2 |
+| Drive: what happened | Setting 1: probability of what happened | Setting 2: probability of what happened |
 |---|---|---|
-| A, failed | 0.8 | 0.3 |
-| B, healthy | 0.9 | 0.4 |
-| C, healthy | 0.8 | 0.5 |
-| **Product: the likelihood** | **0.576** | **0.060** |
+| A: failed | $p = 0.8$ | $p = 0.3$ |
+| B: stayed healthy | $1 - p = 1 - 0.1 = 0.9$ | $1 - p = 1 - 0.6 = 0.4$ |
+| C: stayed healthy | $1 - p = 1 - 0.2 = 0.8$ | $1 - p = 1 - 0.5 = 0.5$ |
+| **All three, multiplied: the likelihood** | $0.8 \times 0.9 \times 0.8 = \mathbf{0.576}$ | $0.3 \times 0.4 \times 0.5 = \mathbf{0.060}$ |
 
 What actually happened is 9.6 times more probable under setting 1, so maximum
 likelihood prefers it; fitting the model is the same comparison made over every
-possible setting. Taking minus the logarithm of each factor and adding gives
-0.55 for setting 1 and 2.81 for setting 2: the same order reversed, so the
-better setting now has the smaller number, which can be minimised as in lesson
-3. Minus the log of a probability is the *surprise* of the outcome, which is why
+possible setting. Taking minus the (natural) logarithm of each factor and adding
+gives, for setting 1, $0.22 + 0.11 + 0.22 = 0.55$, and for setting 2,
+$1.20 + 0.92 + 0.69 = 2.81$. The log of a product is the sum of the logs, so
+each total is minus the log of that setting's likelihood: the same order
+reversed, so the better setting now has the smaller number, which can be
+minimised as in lesson 3. Minus the log of a probability is the *surprise* of the outcome, which is why
 "most likely" and "least surprising" are the same choice. Section 3.3 arrives at
 the same quantity, averaged over the drives, as the cost.
 

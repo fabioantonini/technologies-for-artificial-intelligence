@@ -75,6 +75,11 @@ for name, p_fail, product, surprise in (("setting 1", [0.8, 0.1, 0.2], 0.576, 0.
          sum(-math.log(f) for f in factors), surprise)
     same(f"3.1 the summed surprise under {name}, as minus the log of the product",
          -math.log(math.prod(factors)), surprise)
+# The per-drive surprises the handout adds up, each from its own P(fail).
+for p_fail, y, printed in ((0.8, 1, 0.22), (0.1, 0, 0.11), (0.2, 0, 0.22),
+                           (0.3, 1, 1.20), (0.6, 0, 0.92), (0.5, 0, 0.69)):
+    same(f"3.1 the surprise of a drive given P(fail) {p_fail}, y = {y}",
+         -math.log(p_fail if y else 1 - p_fail), printed)
 same("3.1 how many times more probable under setting 1",
      math.prod([0.8, 0.9, 0.8]) / math.prod([0.3, 0.4, 0.5]), 9.6, tolerance=0.05)
 

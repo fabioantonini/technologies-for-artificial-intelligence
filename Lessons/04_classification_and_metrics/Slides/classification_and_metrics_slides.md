@@ -19,7 +19,7 @@ the natural thing to do because the test error is the number they were told to
 care about. It is exactly the mistake lesson 1 named: once the test set has
 helped choose anything, its score is no longer an honest estimate of how the
 model does on new data, because the choice was fitted to it. Today's lesson ends up in
-the same place from a different direction, on slide 45, when we choose a decision
+the same place from a different direction, on slide 49, when we choose a decision
 threshold by looking at the test set.
 Lesson 5 gives them the machinery to do both honestly.
 :::
@@ -109,7 +109,7 @@ Ask, without answering: if a model has to guess for each drive, and it wants to
 be right as often as possible, what should it say?
 
 Somebody will say "healthy, every time". Agree, and move on. Do not explain the
-consequence yet - it lands far harder on slide 24, after the break, when they see
+consequence yet - it lands far harder on slide 28, after the break, when they see
 96.2% printed as a model's accuracy score.
 :::
 
@@ -205,7 +205,7 @@ not one of them:
   base rate alone) plus one term per counter, if the counters are independent
   given the class - and a sum of one term per feature is exactly what a linear
   model is;
-- with the cross-entropy cost of slide 17 the gradient comes out as
+- with the cross-entropy cost of slide 21 the gradient comes out as
   (prediction minus label) times x, and the cost is convex - handout sections
   3.4 and 4.3.
 
@@ -259,7 +259,7 @@ That last one is the one to flag. It is largest in the middle, one quarter, and
 it decays to zero at both ends. That one fact does two jobs later. It is why the
 sigmoid behaves well: flat ends mean that once the model is sure, extra
 evidence changes little (slide 8). And it is why squared error fails with it:
-slide 19 shows that the same factor ends up inside squared error's gradient and
+slide 23 shows that the same factor ends up inside squared error's gradient and
 switches learning off exactly when the model is confidently wrong.
 :::
 
@@ -370,61 +370,148 @@ model on easy problems. The reason to reject it is subtler and more interesting,
 which is what makes it worth ten minutes.
 :::
 
-# Maximum likelihood, on three drives
+# Step 1: each drive gets a p
 
-| Drive, what happened | Setting 1 of w, b: P(fail) → P(what happened) | Setting 2 of w, b: P(fail) → P(what happened) |
-|---|---|---|
-| A, failed | 0.8 → **0.8** | 0.3 → **0.3** |
-| B, healthy | 0.1 → **0.9** | 0.6 → **0.4** |
-| C, healthy | 0.2 → **0.8** | 0.5 → **0.5** |
-| Multiplied: the likelihood | **0.576** | **0.060** |
-| Maximum likelihood keeps | **setting 1** | |
+| Drive | What happened | $y$ | Setting 1: $p = \sigma(w^\top x + b)$, the P(fail) |
+|---|---|---|---|
+| A | failed | 1 | 0.8 |
+| B | stayed healthy | 0 | 0.1 |
+| C | stayed healthy | 0 | 0.2 |
 
 ::: notes
-This is the whole idea of how logistic regression is fitted, so say it before
-any algebra, and say it on these three drives. The numbers are made up for the
-example; the three drives are not from the dataset.
+The next five slides answer the question of slide 15 - what should fitting
+minimise? - one step at a time, on three drives. The numbers are made up for
+the example; drives A, B and C are not from the dataset.
 
-A "setting" is one choice of the coefficients w and the intercept b. Plug a
-drive's counters into the model of slide 11 and the setting gives that drive a
-probability of failing, P(fail). Two settings, two columns.
+Start from what the model does. Fitting means choosing the coefficients w and
+the intercept b. Call one particular choice of w and b a "setting". Given a
+setting, the model of slide 11 turns each drive's counters x into a
+probability of failing: p = sigma(w-transpose-x + b). This slide shows the p
+that one setting, setting 1, gives to each of the three drives.
 
-Now score each setting against what actually happened. Drive A failed, so the
-relevant number is the probability the setting gave to failing: 0.8 under
-setting 1, 0.3 under setting 2. Drives B and C stayed healthy, so the relevant
-number is the probability of staying healthy, 1 minus P(fail): under setting 1,
-0.9 and 0.8; under setting 2, 0.4 and 0.5. That is what each arrow in the table does - it
-turns P(fail) into the probability of the outcome that really occurred.
+Next to it, what actually happened, and its label y: 1 for a drive that
+failed, 0 for one that stayed healthy - the convention of slide 4.
 
-Multiply down each column, treating the drives as independent. The product is
-the probability that setting assigns to the whole dataset, exactly as it was
-observed: 0.576 for setting 1, 0.060 for setting 2. That product is called the
-likelihood. What actually happened is about ten times more probable under
-setting 1 (9.6 times), so setting 1 is the better explanation of the data.
+Ask the room: is setting 1 a good setting? Let them argue it from the table.
+It gave the drive that failed a high p, and the two that survived a low one,
+so it looks good. The next slide turns that impression into a number.
+:::
 
-Maximum likelihood is this comparison, done over every possible setting rather
-than two: choose the w and b that make the likelihood as large as possible.
-Gradient descent does the searching, as in lesson 3.
+# Step 2: how likely was the outcome?
 
-Why the products are never used as they are, and the bridge to the next slide.
-Take minus the logarithm of each factor and add, instead of multiplying: 0.55
-for setting 1, 2.81 for setting 2. That is minus the log of the likelihood, so
-the order is the same, reversed - the better setting now has the SMALLER number,
-which gives us something to minimise, as in lesson 3. Minus the log of a
-probability is called the surprise: 0 for something you were certain of, large
-for something you said was unlikely. "Most likely" and "least surprising" are
-the same choice. Averaged over the drives instead of summed, it is the cost on
-the next slide.
+| Drive | $y$ | $p$ | Probability of what happened: $p$ if $y = 1$, $1 - p$ if $y = 0$ |
+|---|---|---|---|
+| A | 1 | 0.8 | 0.8 |
+| B | 0 | 0.1 | 1 − 0.1 = 0.9 |
+| C | 0 | 0.2 | 1 − 0.2 = 0.8 |
+| All three: multiply | | | 0.8 × 0.9 × 0.8 = **0.576** |
 
-Two reasons for the logarithm, worth saying aloud. It turns the product into a
-sum, which differentiates one term at a time. And the product itself is too
-small to store. Gradient descent starts with all weights at zero, so z is 0 for
-every drive and every probability is 0.5; 0.5 multiplied by itself 6,000 times,
-once per training drive, is about 10 to the minus 1806. The smallest number a
-64-bit float holds is about 10 to the minus 308, so the computer stores exactly
-zero. Every real implementation therefore adds up the logarithms of the
-probabilities instead of multiplying the probabilities, and not for elegance.
-Handout sections 3.1 to 3.3.
+::: notes
+The idea: judge a setting by how probable it made what really happened.
+
+p is the probability of failing. For drive A, which did fail, that is
+exactly the probability of what happened: 0.8. For drives B and C, which
+stayed healthy, the probability of what happened is the probability of
+staying healthy, which is 1 minus p: 1 - 0.1 = 0.9 and 1 - 0.2 = 0.8. That is
+the rule in the last column header: p if y = 1, 1 - p if y = 0.
+
+Then the three drives together. If the drives fail or survive independently
+of each other, the probability that all three outcomes happen is the product
+of the three: 0.8 times 0.9 times 0.8, which is 0.576. Under setting 1, what we
+observed had a 57.6% chance of happening.
+
+That product has a name: the likelihood of the setting. The next slide writes
+the same two rules as formulas.
+:::
+
+# Step 2 as formulas: the likelihood
+
+$$P(y \mid x) = p^{\,y}\,(1 - p)^{1 - y} \qquad\qquad \mathcal{L}(w, b) = \prod_{i=1}^{m} \left(p^{(i)}\right)^{y^{(i)}} \left(1 - p^{(i)}\right)^{1 - y^{(i)}}$$
+
+::: notes
+Two formulas, and both are the previous slide written in symbols.
+
+Left: the probability of what happened to one drive. It is the rule "p if
+y = 1, 1 - p if y = 0" in a single expression. Check it with y = 1: p to the
+power 1 is p, and (1 - p) to the power 0 is 1, so it gives p. With y = 0 it
+gives 1 times (1 - p). Do drive B on the board: 0.1 to the power 0 times 0.9 to
+the power 1 is 0.9, the number in the table. The exponents are just a way of
+writing an if-statement.
+
+Right: the likelihood, script L, of a setting (w, b). The capital pi means
+"multiply over all the drives", i from 1 to m, the way a capital sigma means
+"add". Each drive contributes its factor from the left formula; the superscript
+(i) says which drive. For our three drives, m = 3 and the product is
+0.8 times 0.9 times 0.8 = 0.576.
+
+The p inside depends on w and b, through p = sigma(w-transpose-x + b). That is
+why L is written as a function of w and b: change the setting, every p changes,
+and the likelihood changes with them. Handout section 3.2.
+:::
+
+# Step 3: two settings, the likelier wins
+
+| Drive | $y$ | Setting 1: $p$ | Setting 1: probability of what happened | Setting 2: $p$ | Setting 2: probability of what happened |
+|---|---|---|---|---|---|
+| A | 1 | 0.8 | 0.8 | 0.3 | 0.3 |
+| B | 0 | 0.1 | 0.9 | 0.6 | 0.4 |
+| C | 0 | 0.2 | 0.8 | 0.5 | 0.5 |
+| Likelihood: the product | | | **0.576** | | **0.060** |
+
+::: notes
+Now a second setting, a different choice of w and b. It gives the three drives
+p = 0.3, 0.6 and 0.5: a low p to the drive that failed, a high p to one that
+survived. It looks worse, and the likelihood says how much worse.
+
+Apply the same rule, column by column. A failed, so its factor is p = 0.3. B
+and C survived, so their factors are 1 - 0.6 = 0.4 and 1 - 0.5 = 0.5. Multiply:
+0.3 times 0.4 times 0.5 = 0.060.
+
+Compare: 0.576 against 0.060. What actually happened is 9.6 times more probable
+under setting 1, so setting 1 explains the data better. Keep it.
+
+That comparison is maximum likelihood. Fitting a logistic regression is the
+same comparison made over every possible setting rather than two: choose the w
+and b with the largest likelihood. Nobody tries them one by one - gradient
+descent does the searching, as in lesson 3.
+:::
+
+# Step 4: minus the log, a cost
+
+| Drive | $y$ | Setting 1: −log of probability of what happened | Setting 2: −log of probability of what happened |
+|---|---|---|---|
+| A | 1 | −log 0.8 = 0.22 | −log 0.3 = 1.20 |
+| B | 0 | −log 0.9 = 0.11 | −log 0.4 = 0.92 |
+| C | 0 | −log 0.8 = 0.22 | −log 0.5 = 0.69 |
+| Sum = −log of the likelihood | | **0.55** | **2.81** |
+
+::: notes
+The last step turns "largest likelihood" into "smallest cost", so it can be
+minimised as in lesson 3. Natural logarithms throughout.
+
+Take minus the logarithm of each drive's factor and add them up. Because the
+log of a product is the sum of the logs, the sum is minus the log of the
+likelihood: 0.55 is minus the log of 0.576, and 2.81 is minus the log of 0.060.
+The logarithm keeps the order and the minus sign reverses it, so the better
+setting now has the SMALLER number - 0.55 against 2.81. Setting 1 still wins.
+
+Read the per-drive numbers too. Minus the log of a probability is called the
+surprise of an outcome: 0 for something you were certain of, large for
+something you said was unlikely. Setting 2 is most surprised by drive A, 1.20,
+because it gave A's failure only 0.3. Maximum likelihood and least total
+surprise are the same choice.
+
+Two reasons we always work with the logarithm, worth saying aloud. A sum
+differentiates one term at a time. And the product itself is too small to
+store: gradient descent starts with all weights at zero, so z is 0 for every
+drive and every p is 0.5; 0.5 multiplied by itself 6,000 times, once per
+training drive, is about 10 to the minus 1806, while the smallest number a
+64-bit float holds is about 10 to the minus 308. The computer would store
+exactly zero.
+
+Divide the sum by the number of drives and you have the average surprise: that
+is the log loss, and the next slide writes it as a formula. Handout sections
+3.1 to 3.3.
 :::
 
 # Cross-entropy, also called log loss
@@ -470,7 +557,7 @@ What is new, and what is not. The formula is written with exactly the symbols
 of lesson 3's slide 23. The difference is hidden in y-hat: in lesson 3 it was
 the straight line w-transpose-x plus b, and here it is the sigmoid of that line,
 the probability of slide 11 - which is why the title says so. The cost is
-different too: squared error there, log loss (slide 17) here. Different model,
+different too: squared error there, log loss (slide 21) here. Different model,
 different cost, and yet the same gradient.
 
 A concrete drive. A drive that failed, y = 1, to which the model gives
@@ -493,7 +580,7 @@ times x_j.
 
 Why that cancellation matters, and it is the bridge to the next slide: with
 squared error in place of log loss, nothing cancels the factor p times (1 - p),
-and slide 19 shows what it does to a drive the model is confidently wrong about.
+and slide 23 shows what it does to a drive the model is confidently wrong about.
 
 If someone asks whether the match is a coincidence: no, and one sentence is
 enough. Both costs come from maximum likelihood - squared error when the noise
@@ -520,7 +607,7 @@ the ratio grows without bound.
 
 Right panel is the real argument, so spend the time here. It shows the size
 of the gradient with respect to z, the push gradient descent gives the model.
-Log loss's gradient is p - 1 (slide 18). Squared error's is 2(p - 1) times
+Log loss's gradient is p - 1 (slide 22). Squared error's is 2(p - 1) times
 p times (1 - p): the chain rule through the sigmoid brings in its derivative,
 p times one-minus-p, from slide 11, and nothing cancels it. That factor goes to
 zero as p goes to zero.
@@ -562,9 +649,9 @@ what it is about.
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
 | a line on a 0/1 label, 7 | `LinearRegression` → 3,606 negative probabilities |
-| odds, and why not squared error, 8-20 | NumPy only: the sigmoid, the two losses, their gradients |
-| gradient descent, 18 | `train_test_split`, `StandardScaler`, fifteen lines of NumPy → log loss 0.6931 to 0.0692 |
-| the decision boundary, 22 | `make_pipeline(StandardScaler(), LogisticRegression())` on two features |
+| odds, and why not squared error, 8-24 | NumPy only: the sigmoid, the two losses, their gradients |
+| gradient descent, 22 | `train_test_split`, `StandardScaler`, fifteen lines of NumPy → log loss 0.6931 to 0.0692 |
+| the decision boundary, 26 | `make_pipeline(StandardScaler(), LogisticRegression())` on two features |
 | the truth, recovered, 13-14 | `LogisticRegression`, `.coef_`, `.intercept_` → seek_error_rate 0.02, intercept −6.09 |
 
 ::: notes
@@ -693,7 +780,7 @@ we choose a threshold.
 
 The essential point: these two errors are NOT the same size, and no
 single-number metric knows that. Accuracy treats them as identical. F1, the
-metric of slide 30, treats them as identical. Only a cost, supplied from outside the data, distinguishes
+metric of slide 34, treats them as identical. Only a cost, supplied from outside the data, distinguishes
 them.
 
 Ask for a domain where the ratio goes the other way - where a false positive is
@@ -790,7 +877,7 @@ afterwards - left to themselves they quote whichever is biggest.
 
 The weighted average weights each class by how common it is, so on this problem
 it is essentially the healthy class talking, and it reads close to accuracy  - 
-inheriting exactly the blindness slides 24 to 27 were about.
+inheriting exactly the blindness slides 28 to 31 were about.
 
 The macro average gives the two classes equal weight, so the rare class actually
 registers. 0.820 against 0.975 for the same model.
@@ -805,11 +892,11 @@ so is how a result gets oversold.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the number that should worry you, 24 | `accuracy_score` → 96.20% for "always healthy" |
-| the confusion matrix, 26 | counts by hand, then `confusion_matrix`, `ConfusionMatrixDisplay` → TP 43 |
-| precision and recall, 28-31 | `precision_score`, `recall_score`, `f1_score`, `classification_report` |
-| the threshold sweep, 33-34 | `predict_proba`, then the metrics at each threshold |
-| the precision-recall curve, 35 | `precision_recall_curve`, `average_precision_score` → 0.717 against 0.038 |
+| the number that should worry you, 28 | `accuracy_score` → 96.20% for "always healthy" |
+| the confusion matrix, 30 | counts by hand, then `confusion_matrix`, `ConfusionMatrixDisplay` → TP 43 |
+| precision and recall, 32-35 | `precision_score`, `recall_score`, `f1_score`, `classification_report` |
+| the threshold sweep, 37-38 | `predict_proba`, then the metrics at each threshold |
+| the precision-recall curve, 39 | `precision_recall_curve`, `average_precision_score` → 0.717 against 0.038 |
 
 ::: notes
 The confusion matrix by hand, then from scikit-learn, then the threshold sweep.
@@ -835,7 +922,7 @@ where we draw the line between "leave it" and "replace it".
 
 That 0.5 is predict()'s default and nothing more. It is the right choice only
 when the two errors cost the same and the probabilities are trustworthy - slide
-44 derives the threshold from the costs, and it is 0.5 exactly when they are
+48 derives the threshold from the costs, and it is 0.5 exactly when they are
 equal. Here a miss costs about nineteen times a false alarm, and in most real
 problems the costs differ too.
 
@@ -970,7 +1057,7 @@ decision it makes is different.
 
 The consequence: AUC says nothing about whether "0.7" means anything. If you
 need the probabilities to be believable - because you are computing expected
-costs, as slide 44 does - AUC is not the check you want.
+costs, as slide 48 does - AUC is not the check you want.
 
 Good place to mention that calibration - whether a predicted 0.7 really comes
 true 70% of the time - is a topic of its own, without going into it.
@@ -987,7 +1074,7 @@ failures at random until they are 0.4% instead of 3.8% - the direction reality
 moves in fraud, disease, hardware failure.
 
 Someone will notice that at 3.8% the AUC reads 0.968, not the 0.949 of slide
-38. Different drives: 0.949 rests on the 76 failures of our 2,000-drive test
+42. Different drives: 0.949 rests on the 76 failures of our 2,000-drive test
 set, 0.968 on a fleet thirty times larger. Both are estimates of the same
 ranking ability.
 
@@ -1050,7 +1137,7 @@ and this lesson is about the thinking.
 
 ::: notes
 Finally, the honest way to pick a threshold. It needs one ingredient no metric
-can supply: what the errors cost. We wrote those down on slide 27 - €140 for a
+can supply: what the errors cost. We wrote those down on slide 31 - €140 for a
 needless replacement, €2,600 for a drive that dies in service.
 
 The curve is the total cost on the test set as the threshold moves. The default
@@ -1082,7 +1169,7 @@ the class balance. Only on the RATIO of the two costs.
 
 State the condition, because the derivation used it: p must be an honest
 probability - among drives given 0.05, about 5% really fail. That property is
-called calibration (slide 39). Divide every probability by ten, as slide 39
+called calibration (slide 43). Divide every probability by ten, as slide 43
 did, and the formula would still say 0.051 while flagging far too few drives.
 
 If the errors cost the same, t-star is 0.5 and the default was right all along.
@@ -1150,17 +1237,17 @@ lesson 2 gave about imputation.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the ROC curve by hand, 37 | `roc_curve`, `roc_auc_score` → 0.9493 |
-| what AUC means, 38 | 200,000 random (failing, healthy) pairs → 0.9488 |
-| the rare-positive trap, 40-41 | `average_precision_score` beside `roc_auc_score` → AP 0.706 to 0.361, AUC unmoved |
-| the threshold from costs, 43-45 | `confusion_matrix` at each threshold → 45,540 EUR at 0.08, against 87,620 at 0.50 |
-| class weights, 46 | `LogisticRegression` with balanced class weights → AUC 0.950 |
-| three classes, 48-49 | `classification_report` → macro F1 0.707, weighted 0.883 |
+| the ROC curve by hand, 41 | `roc_curve`, `roc_auc_score` → 0.9493 |
+| what AUC means, 42 | 200,000 random (failing, healthy) pairs → 0.9488 |
+| the rare-positive trap, 44-45 | `average_precision_score` beside `roc_auc_score` → AP 0.706 to 0.361, AUC unmoved |
+| the threshold from costs, 47-49 | `confusion_matrix` at each threshold → 45,540 EUR at 0.08, against 87,620 at 0.50 |
+| class weights, 50 | `LogisticRegression` with balanced class weights → AUC 0.950 |
+| three classes, 52-53 | `classification_report` → macro F1 0.707, weighted 0.883 |
 
 ::: notes
 The ROC curve by hand, the 200,000-pair experiment, the cost curve, then the
 multiclass matrix. Run notebook 03. Fifteen minutes, and the two multiclass slides
-that follow (48 and 49) are shown when the notebook reaches its last section, so
+that follow (52 and 53) are shown when the notebook reaches its last section, so
 they run alongside it rather than after it.
 
 If time is short, keep the pairs experiment: it turns a definition they would
