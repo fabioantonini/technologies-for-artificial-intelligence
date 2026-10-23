@@ -366,8 +366,10 @@ not obvious and the usual first guesses ("it's not differentiable", "it doesn't
 work for categories") are wrong.
 
 Squared error on the sigmoid IS differentiable, and it does produce a working
-model on easy problems. The reason to reject it is subtler and more interesting,
-which is what makes it worth ten minutes.
+model on easy problems. The reason to reject it is subtler, so do not give it
+yet. Slides 16 to 20 first build, on three drives, the cost that logistic
+regression does minimise; slide 23 then comes back to squared error and shows
+what goes wrong with it, on a drive the model is confidently wrong about.
 :::
 
 # Step 1: each drive gets a p
@@ -503,15 +505,17 @@ surprise are the same choice.
 
 Two reasons we always work with the logarithm, worth saying aloud. A sum
 differentiates one term at a time. And the product itself is too small to
-store: gradient descent starts with all weights at zero, so z is 0 for every
-drive and every p is 0.5; 0.5 multiplied by itself 6,000 times, once per
-training drive, is about 10 to the minus 1806, while the smallest number a
-64-bit float holds is about 10 to the minus 308. The computer would store
-exactly zero.
+store. Notebook 1's gradient descent starts with every coefficient and the
+intercept at zero, so z is 0 for every drive and every p is 0.5. 0.5
+multiplied by itself 6,000 times, once per training drive, is about 10 to the
+minus 1806, while the smallest positive number a 64-bit float can hold is
+about 5 times 10 to the minus 324. The computer would store exactly zero.
 
 Divide the sum by the number of drives and you have the average surprise: that
-is the log loss, and the next slide writes it as a formula. Handout sections
-3.1 to 3.3.
+is the cost J that fitting minimises, and scikit-learn's log_loss computes
+exactly this average. The next slide writes the surprise of one drive as a
+formula, the loss L; J is its average over the drives. Handout sections 3.1
+to 3.3.
 :::
 
 # Cross-entropy, also called log loss
@@ -522,12 +526,13 @@ $$L = -\left[\, y \log p + (1 - y)\log(1 - p) \right]$$
 This is the loss on ONE example, L, not the cost over the training set; p is
 the predicted probability, the same number the next slide writes as y-hat. Say
 the other half aloud rather than showing it: the cost J is the average of this over the
-m examples, one over m times the sum. Written out in full the formula reached
-the slide edge and came out at 26pt, smaller than the bullets on the slide
-before it.
+m examples, one over m times the sum. It is left off the slide because,
+written out in full, the formula does not fit at a readable size.
 
-Do not derive it here - the handout, section 3, does it in full. Show it and
-read it.
+Nothing new to derive: this is slides 16 to 20 written for one drive in
+symbols. Check it on drive B of slide 16: y = 0 and p = 0.1, so the first term
+vanishes and L = -log(1 - 0.1) = -log 0.9 = 0.11, the number slide 20 gave B
+under setting 1. The handout, section 3, does it for m drives in full.
 
 The reading that makes it stick: the cost of an outcome is the SURPRISE of
 seeing it. Something you called certain costs nothing. Something you gave a

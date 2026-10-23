@@ -346,10 +346,12 @@ Two reasons, one mathematical and one entirely practical.
 differentiate one term at a time. It does not move the maximum, because
 $\log$ is strictly increasing.
 
-**Practically**, the product underflows. Gradient descent starts from all-zero
-weights, where every one of the 6,000 training drives gets probability 0.5, and
-$0.5^{6000}$ is about $10^{-1806}$. The smallest positive number a 64-bit float can
-hold is about $10^{-308}$, so the product is stored as exactly zero, and so is
+**Practically**, the product underflows. Notebook 1's gradient descent starts
+with every coefficient and the intercept at zero, where every one of the 6,000
+training drives gets probability 0.5, and $0.5^{6000}$ is about $10^{-1806}$. The
+smallest positive number a 64-bit float can hold is about $5 \times 10^{-324}$
+(and about $2 \times 10^{-308}$ while it keeps its full precision), so the
+product is stored as exactly zero, and so is
 every gradient computed from it. Even the fitted model, at an average log loss of
 0.0692, multiplies out to only about $10^{-180}$. Every serious implementation works in log space for this
 reason, not for elegance.

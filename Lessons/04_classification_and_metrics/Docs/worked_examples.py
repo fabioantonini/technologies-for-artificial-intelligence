@@ -8,6 +8,7 @@ quoted in the handout cannot drift away from the matrix printed beside it.
 """
 
 import math
+import sys
 
 HANDOUT = "Lessons/04_classification_and_metrics/Docs/classification_and_metrics.md"
 checks = 0
@@ -94,6 +95,15 @@ same("4.1 log loss for an honest half", -math.log(0.5), 0.69, tolerance=5e-3)
 # and at the fitted model's mean log loss 0.0692 (notebook 1's printed history).
 same("3.3 the starting likelihood, as a power of ten", 6000 * math.log10(0.5), -1806,
      tolerance=0.5)
+# The float limits the handout quotes, read off the machine rather than recalled:
+# the smallest subnormal (5e-324) and the smallest normal (2.2e-308).
+# Compared as powers of ten, since 1e324 itself overflows.
+same("3.3 smallest positive 64-bit float, about 5e-324",
+     math.log10(math.ulp(0.0)), math.log10(5) - 324, tolerance=0.01)
+same("3.3 smallest full-precision 64-bit float, about 2e-308",
+     math.log10(sys.float_info.min), math.log10(2) - 308, tolerance=0.05)
+same("3.3 the starting likelihood is stored as exactly zero", 0.5 ** 6000, 0.0,
+     tolerance=0.0)
 same("3.3 the fitted likelihood, as a power of ten", -6000 * 0.0692 / math.log(10), -180,
      tolerance=0.5)
 same("3.3 the cost of a one-in-a-thousand surprise", math.log(1000), 6.9,
