@@ -325,7 +325,7 @@ switches learning off exactly when the model is confidently wrong.
 
 # What the coefficients mean
 
-- Standardised: one standard deviation more of reallocated sectors adds 1.80 to the log-odds
+- Standardised (mean 0, SD 1): one SD more of reallocated sectors adds its true coefficient, 1.80 (slide 14), to the log-odds
 - Adding to a log multiplies the **odds**: log(odds) + 1.80 = log(odds × 6.05), since exp(1.80) = 6.05
 - So: **six times the odds** of failing, slide 10's teal step
 - In code: `make_pipeline(StandardScaler(), LogisticRegression())`
@@ -334,10 +334,24 @@ switches learning off exactly when the model is confidently wrong.
 This is the interpretability that keeps logistic regression in production in
 medicine and credit scoring. Three steps, one per bullet.
 
-First bullet, its first half. Standardising first (StandardScaler, lesson 3) puts every
-feature in the same unit, one standard deviation, so the coefficients can be
-compared with each other. For the four counters that the data puts on a
-logarithmic scale, it is one standard deviation of the transformed column.
+First bullet, its first half: why "standardised" comes first. A coefficient
+says how much z grows when its feature rises by one unit, and the raw units
+differ - a sector, a degree, an hour in service - so raw coefficients cannot
+be compared. StandardScaler (lesson 3) rescales every feature to mean 0 and
+standard deviation 1: from then on, one unit means one standard deviation for
+every feature, and the coefficients can be compared with each other.
+
+Say what one standard deviation means for this counter, because it is not
+"one sector more". The four counters on a logarithmic scale are standardised
+after log(1 + x), so reallocated sectors contribute 1.80 times (log(1 + x)
+minus 0.96) divided by 0.62 to z, where 0.96 and 0.62 are the mean and the
+standard deviation of log(1 + x) over the fleet. One standard deviation more
+adds 0.62 to log(1 + x), which multiplies 1 + x by e to the 0.62 = 1.86: from
+1 sector to 2.7, from 4 to 8.3, from 10 to 19.5. Roughly, the count doubles -
+and each such step multiplies the odds by the same 6.05. That is why the first
+sectors weigh so much: 1 to 2.7 sectors counts as much as 10 to 19.5.
+Temperature and hours are standardised on their own values, so for them one
+standard deviation is an ordinary additive step.
 
 First bullet, its second half: this is slide 11's line, log-odds = b + w1 x1
 + ... + w6 x6. Each feature contributes its

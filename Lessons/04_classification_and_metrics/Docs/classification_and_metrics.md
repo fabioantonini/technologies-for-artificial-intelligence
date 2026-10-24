@@ -349,6 +349,16 @@ one-unit increase in $x_j$. With standardised features, one unit is one standard
 deviation — of the transformed column, for the four counters that section 1.1
 puts on a logarithmic scale.
 
+For those four counters, one standard deviation is not "one more". Reallocated
+sectors enter $z$ as $1.80 \times (\log(1 + x) - 0.96) / 0.62$, where 0.96 and
+0.62 are the mean and the standard deviation of $\log(1 + x)$ over the fleet. One
+standard deviation more adds 0.62 to $\log(1 + x)$, which multiplies $1 + x$ by
+$e^{0.62} = 1.86$: from 1 sector to 2.7, from 4 to 8.3, from 10 to 19.5. Each of
+those steps — roughly a doubling of the count — multiplies the odds by the same
+$e^{1.80} = 6.05$, which is why the first sectors weigh so much. Temperature and
+hours are standardised on their own values, so for them one standard deviation
+is an ordinary additive step.
+
 The reason takes two lines. Raising $x_j$ by one unit, with every other feature
 held where it is, adds exactly $w_j$ to $z = w^\top x + b$. And since $z$ is the
 logarithm of the odds, the odds are $e^z$, so

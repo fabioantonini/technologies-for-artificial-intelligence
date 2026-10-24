@@ -516,4 +516,11 @@ same("6.2 13 / 1,924", 13 / 1924, 0.007, tolerance=5e-4)
 same("8.3 0.259 / 0.788", 0.259 / 0.788, 0.33, tolerance=5e-3)
 same("2.4 1 / (1 + e^6.09)", 1 / (1 + math.exp(6.09)), 0.0023, tolerance=5e-5)
 
+# 2.4 and slide 13's notes: one SD of log(1 + sectors), as a step in sectors.
+step = math.exp(deviation)
+same("2.4 e^0.62, one SD of log(1 + x)", step, 1.86, tolerance=5e-3)
+for start, end in ((1, 2.7), (4, 8.3), (10, 19.5)):
+    same(f"2.4 one SD more from {start} sectors", (1 + start) * step - 1, end,
+         tolerance=0.05)
+
 print(f"lesson 4: {checks} hand-worked numbers recomputed, all agree")
