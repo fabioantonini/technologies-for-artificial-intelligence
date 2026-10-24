@@ -261,7 +261,7 @@ same("2.2 where the raw-counter curve is steepest", -intercept / slope, 13.2,
 same("2.2 what the first four sectors are worth to it",
      curve(4) - curve(0), 0.03, tolerance=5e-3)
 same("2.2 what sectors 10 to 14 are worth to it",
-     curve(14) - curve(10), 0.31, tolerance=5e-3)
+     sigmoid(slope * 14 + intercept) - sigmoid(slope * 10 + intercept), 0.31, tolerance=5e-3)
 
 # The table of the six counters in section 1.1: median, and 5th to 95th percentile.
 for column, (low, median, high), tolerance in (
@@ -411,5 +411,80 @@ for probability, cheaper_to_flag in ((star - 0.01, False), (star + 0.01, True)):
     leave = probability * cost_fn
     same(f"7.2 at p = {probability:.3f} flagging is the cheaper action: {cheaper_to_flag}",
          float(flag < leave), float(cheaper_to_flag), tolerance=0)
+
+# ---------- The calculations the slides now show beside their numbers (24 Oct)
+
+# Slide 15: sigma(-6.09) written out.
+same("slide 15: 1 + exp(6.09)", 1 + math.exp(6.09), 442, tolerance=0.5)
+same("slide 15: 1 / 442", 1 / 442, 0.0023, tolerance=5e-5)
+# Slide 9: log 99.
+same("slide 9: log(0.99 / 0.01)", math.log(0.99 / 0.01), 4.60, tolerance=5e-3)
+# Slide 29: accuracy from the counts in the confusion matrix (TP 43, FP 13,
+# FN 33, so 76 failures and 1,924 healthy drives in the test set).
+tp_, fp_, fn_ = 43, 13, 33
+tn_ = 2000 - tp_ - fp_ - fn_
+same("slide 29: healthy test drives", tn_ + fp_, 1924, tolerance=0)
+same("slide 29: TN", tn_, 1911, tolerance=0)
+same("slide 29: always healthy", (tn_ + fp_) / 2000, 0.9620, tolerance=5e-5)
+same("slide 29: the model's right answers", tp_ + tn_, 1954, tolerance=0)
+same("slide 29: the model's accuracy", (tp_ + tn_) / 2000, 0.9770, tolerance=5e-5)
+# Slide 36: per-class F1 from the counts, then macro and weighted averages.
+f1_failed = 2 * tp_ / (2 * tp_ + fp_ + fn_)
+f1_healthy = 2 * tn_ / (2 * tn_ + fn_ + fp_)
+same("slide 36: F1 of the failed class", f1_failed, 0.652, tolerance=5e-4)
+same("slide 36: F1 of the healthy class", f1_healthy, 0.988, tolerance=5e-4)
+same("slide 36: macro F1", (f1_failed + f1_healthy) / 2, 0.820, tolerance=5e-4)
+same("slide 36: weighted F1", (1924 * f1_healthy + 76 * f1_failed) / 2000, 0.975,
+     tolerance=5e-4)
+same("slide 36: macro F1 from the printed per-class values",
+     (0.988 + 0.652) / 2, 0.820, tolerance=5e-4)
+same("slide 36: weighted F1 from the printed per-class values",
+     (1924 * 0.988 + 76 * 0.652) / 2000, 0.975, tolerance=5e-4)
+# Slide 54: three classes, from the printed per-class values and supports.
+same("slide 54: macro F1", (0.947 + 0.545 + 0.629) / 3, 0.707, tolerance=5e-4)
+same("slide 54: weighted F1", (1665 * 0.947 + 259 * 0.545 + 76 * 0.629) / 2000,
+     0.883, tolerance=5e-4)
+same("slide 54: supports add up", 1665 + 259 + 76, 2000, tolerance=0)
+# Slide 51: cost = FN x 2,600 + FP x 140, for the three rows.
+for fn__, fp__, cost in ((33, 13, 87620), (11, 121, 45540), (8, 205, 49500)):
+    same(f"slide 51: cost at FN {fn__}, FP {fp__}", fn__ * 2600 + fp__ * 140, cost,
+         tolerance=0)
+# Slide 47: the average precision of a random ranking is the share of failures.
+same("slide 47: 76 / 2,000", 76 / 2000, 0.038, tolerance=5e-4)
+
+# The notes' calculations (24 Oct pass).
+same("notes 7: 3,606 / 8,000", 3606 / 8000, 0.45, tolerance=5e-3)
+same("notes 8: the rise from z = 0 to 2", sigmoid(2) - sigmoid(0), 0.38, tolerance=5e-3)
+same("notes 8: the rise from z = 6 to 8", sigmoid(8) - sigmoid(6), 0.0021, tolerance=5e-5)
+same("notes 8: 4.43 / 0.336", 4.43 / 0.336, 13.2, tolerance=0.05)
+same("notes 8: 4 x 0.336", 4 * 0.336, 1.34, tolerance=5e-3)
+same("notes 8: sigma(-3.09)", sigmoid(-3.09), 0.044, tolerance=5e-4)
+same("notes 11: 1 + e^-2.2", 1 + math.exp(-2.2), 1.111, tolerance=5e-4)
+same("notes 11: log 9", math.log(9), 2.20, tolerance=5e-3)
+same("notes 21: 6,000 log10 0.5", 6000 * math.log10(0.5), -1806, tolerance=0.5)
+same("notes 24: (0.0001 - 1)^2", (0.0001 - 1) ** 2, 0.9998, tolerance=5e-5)
+same("notes 24: -log 0.0001", -math.log(0.0001), 9.2, tolerance=0.05)
+same("notes 24: 2p(1 - p) at 0.001", 2 * 0.001 * 0.999, 0.002, tolerance=5e-6)
+same("notes 35: 2,600 / 140", 2600 / 140, 18.6, tolerance=0.05)
+same("notes 39: alarms at 0.30", 53 + 25, 78, tolerance=0)
+same("notes 39: alarms at 0.50", 43 + 13, 56, tolerance=0)
+same("notes 39: accuracy at 0.30", (53 + 1924 - 25) / 2000, 0.976, tolerance=5e-4)
+same("notes 39: accuracy at 0.10", (61 + 1924 - 102) / 2000, 0.942, tolerance=5e-4)
+same("notes 48: 45,540 / 87,620", 45540 / 87620, 0.52, tolerance=5e-3)
+same("notes 51: healthy per failed in training", (6000 - 230) / 230, 25, tolerance=0.5)
+same("notes 54: 1,665 / 2,000", 1665 / 2000, 5 / 6, tolerance=5e-3)
+
+# The handout's formulas added on 24 Oct, rebuilt from disk_data.
+same("1.1/2.2 mean of log(1 + sectors)", mean, 0.96, tolerance=5e-3)
+same("1.1/2.2 SD of log(1 + sectors)", deviation, 0.62, tolerance=5e-3)
+same("2.2 z with no sectors, true model", severity(0), -9.00, tolerance=5e-3)
+same("2.2 -9.00 + 4.7, as a probability", sigmoid(-4.3), 0.013, tolerance=5e-4)
+same("2.2 sectors 10 to 14 on the raw-count curve", sigmoid(slope * 14 + intercept) - sigmoid(slope * 10 + intercept), 0.31,
+     tolerance=5e-3)
+same("2.2 the raw-count curve at 14", sigmoid(slope * 14 + intercept), 0.57, tolerance=5e-3)
+same("2.2 the raw-count curve at 10", sigmoid(slope * 10 + intercept), 0.26, tolerance=5e-3)
+same("6.4 F1 of the failed class from P and R",
+     2 * 0.768 * 0.566 / (0.768 + 0.566), 0.652, tolerance=5e-4)
+same("9 the two balanced weights' ratio", (6000 - 230) / 230, 25, tolerance=0.5)
 
 print(f"lesson 4: {checks} hand-worked numbers recomputed, all agree")
