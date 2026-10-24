@@ -159,33 +159,25 @@ z = 6 take it from sigma(6) = 0.9975 to sigma(8) = 0.9997, a rise of 0.0021 -
 nearly sure, more evidence barely changes its answer.
 
 Expect someone to object with slide 7's right panel. That curve barely moves
-over the first few reallocated sectors, where 90% of the drives sit (handout section 1.1) - the
-first four move it from 1.2% to 4.4%, by 0.03 - and it is steepest at 13.2
-sectors. So do the first
-sectors say little? Two separate answers, in this order.
+over the first few reallocated sectors, where 90% of the drives sit (four
+sectors or fewer), and it is steepest at 13.2 sectors. So do the first sectors
+say little? Two separate answers, in this order.
 
 First, it is the same sigmoid, drawn against a different axis. Slide 7's model
 has one input, the raw count of reallocated sectors, so its z is a straight
 line in the count: z = 0.336 times the count, minus 4.43. With no sectors z is
 already -4.43, deep in the flat left end of this slide's curve; z reaches 0,
 the steep middle, where 0.336 times the count equals 4.43: at 4.43 divided by
-0.336 = 13.2 sectors. The flat start of slide 7 is the flat left
-end of slide 8, with sectors on the axis instead of z.
+0.336 = 13.2 sectors. The flat start of slide 7 is the flat left end of slide
+8, with sectors on the axis instead of z.
 
 Second, the flat start comes from using the raw count, not from the drives. A
-straight line gives every sector the same 0.336 of z, so for that model the
-first four sectors add 4 times 0.336 = 1.34 to z and take a drive from
-sigma(-4.43) = 1.2% to sigma(-4.43 + 1.34) = sigma(-3.09) = 4.4%. But the
-labels were generated from log(1 + count), on which the first sectors weigh
-the most (handout section 1.1): for a drive whose other counters are average,
-the first four sectors add 4.7 to z and take it from 0.012% to 1.3%, about a
-hundred times more. That is why the six-counter model of slide 12 onwards
-takes log(1 + count) as its input.
-
-If a sharp student notices that 0.012% to 1.3% is a smaller move in
-probability than slide 7's 0.03: compare effects in z, not in probability. That
-drive starts so deep in the flat tail that even a hundredfold rise moves its
-probability by only 0.013. Handout section 2.2.
+straight line in the count gives every sector the same weight: the first adds
+as much to z as the twentieth. But the labels were generated from
+log(1 + count), which gives the first sectors the most weight (handout section
+1.1). The handout's figure in section 2.2 draws what the sectors add to z under
+each of the two. That is why the six-counter model of slide 12 onwards takes
+log(1 + count) as its input.
 
 Right panel: the same relationship inverted - probability on the horizontal
 axis, log-odds on the vertical one. This is the panel that explains WHY this
@@ -384,9 +376,9 @@ fivefold; the probability moved eight points. Odds ratios multiply odds.
 | reallocated_sectors | 1.80 | 1.66 | 5.28 |
 | spin_retry_count | 1.15 | 1.17 | 3.22 |
 | read_error_rate | 0.85 | 0.87 | 2.39 |
-| temperature_c | 0.45 | 0.47 | 1.59 |
+| temperature_c | 0.45 | 0.46 | 1.59 |
 | power_on_hours | 0.35 | 0.38 | 1.46 |
-| seek_error_rate | **0.00** | **0.02** | **1.03** |
+| seek_error_rate | **0.00** | **0.02** | **1.02** |
 
 ::: notes
 Notebook 1, last section. This is the payoff of using synthetic data: we do not just look at the
@@ -403,9 +395,8 @@ the number that matters, not 6,000.
 
 Then the last row, which is the one to pause on. seek_error_rate was generated
 with a coefficient of exactly zero: a real-looking counter with no connection to
-failure. The model estimates 0.02, an odds multiplier of 1.03 (the table rounds the
-coefficient; the multiplier is computed from the unrounded value). It did not fall
-for it.
+failure. The model estimates 0.02, an odds multiplier of exp(0.02) = 1.02. It did not
+fall for it.
 
 Then ask the room the harder question: would you have noticed, if I had not told
 you? Leave it hanging. It is lesson 5.
@@ -1037,32 +1028,33 @@ because nobody chose it.
 
 # What the sweep actually costs
 
-| Threshold | TP | FP | FN | Precision, TP ÷ (TP + FP) | Recall, TP ÷ (TP + FN) | Accuracy, (TP + TN) ÷ 2,000 |
-|---|---|---|---|---|---|---|
-| 0.02 | 69 | 284 | 7 | 0.195 | 0.908 | 0.855 |
-| 0.10 | 61 | 102 | 15 | 0.374 | 0.803 | 0.942 |
-| 0.30 | 53 | 25 | 23 | 0.679 | 0.697 | 0.976 |
-| 0.50 | 43 | 13 | 33 | 0.768 | 0.566 | **0.977** |
-| 0.90 | 14 | 0 | 62 | 1.000 | 0.184 | 0.969 |
+![](sweep_outcomes.png)
 
 ::: notes
-Read it column by column with the room.
+Notebook 2, the threshold sweep, five of its rows drawn as bars. Each pair of
+bars is one threshold: teal is the failures caught, out of the 76 in the test
+set; gold is the healthy drives flagged by mistake. On the right, the accuracy
+each threshold scores: right answers divided by 2,000.
 
-Lower the threshold: recall rises, precision falls. At 0.02 we catch 69 of 76
-failures and replace 284 healthy drives to do it. At 0.90 every alarm is
-justified and we catch 14 of 76, fewer than a quarter.
+Lower the threshold - go up the figure: both bars grow. At 0.02 we catch 69 of
+76 failures and replace 284 healthy drives to do it. At 0.90 there are no
+false alarms at all, and we catch 14 of 76, fewer than a quarter.
 
-Now the accuracy column, which is the slide's real argument. From 0.10 upwards
-it moves by 0.977 - 0.942 = 0.035, three and a half percentage points, while recall
-falls from 0.803 to 0.184. And
-its maximum is at 0.5 - the threshold that misses 33 of the 76 failures.
+Now the right-hand column, which is the slide's real argument. For every
+threshold from 0.10 up to 0.90 it stays between 0.942 and 0.977, a range of
+0.977 - 0.942 = 0.035, three and a half
+percentage points, while the teal bar shrinks from 61 to 14. And its maximum,
+in bold, is at 0.5 - the threshold that misses 76 - 43 = 33 failures.
 
 Say the consequence plainly: tune on accuracy and it will quietly recommend
 catching fewer failures. Most of the alarms a higher threshold drops are false
 ones, so accuracy rises with each drop, even though some of the dropped alarms
-were failures being caught. From 0.30 to 0.50 the alarms go from 53 + 25 = 78 to 43 + 13 = 56, 22
-fewer: 25 - 13 = 12 were false and 53 - 43 = 10 were caught failures. Accuracy
+were failures being caught. From 0.30 to 0.50 the gold bar loses 25 - 13 = 12
+false alarms and the teal bar loses 53 - 43 = 10 caught failures. Accuracy
 gains 12 right answers and loses 10, two more in all, 0.976 to 0.977.
+
+Precision and recall at each threshold are in the handout's table in section
+7.1, computed with the formulas of slide 34.
 :::
 
 # The precision-recall curve
@@ -1317,11 +1309,7 @@ could publish.
 
 # Class weights: the same lever, pulled earlier
 
-| Model | Failures missed, FN | False alarms, FP | Cost = FN × €2,600 + FP × €140 | AUC |
-|---|---|---|---|---|
-| Plain, threshold 0.50 | 33 | 13 | 33 × 2,600 + 13 × 140 = €87,620 | 0.949 |
-| Plain, threshold 0.08 | 11 | 121 | 11 × 2,600 + 121 × 140 = €45,540 | 0.949 |
-| Balanced class weights, 0.50 | 8 | 205 | 8 × 2,600 + 205 × 140 = €49,500 | **0.950** |
+![](class_weight_costs.png)
 
 ::: notes
 class_weight="balanced" makes each failed drive count, in the cost, as much as
@@ -1329,7 +1317,14 @@ about 25 healthy ones - the ratio of healthy to failed drives in the training
 set, (6,000 - 230) divided by 230 = 25.
 It changes the training rather than the decision.
 
-Point at the AUC column: 0.949 against 0.950. Reweighting taught the model
+The figure is notebook 3's comparison drawn as bills, one bar per model. Rust
+is the cost of the missed failures, FN times 2,600 euros; gold is the cost of
+the false alarms, FP times 140 euros. The default model misses 33 failures:
+33 times 2,600 plus 13 times 140 is 87,620. The threshold at 0.08 misses 11
+and raises 121 false alarms: 45,540. Balanced weights miss 8 and raise 205:
+8 times 2,600 plus 205 times 140 is 49,500.
+
+Point at the AUC under each name: 0.949 against 0.950. Reweighting taught the model
 essentially nothing new about disk failure. What it did was move where the model
 puts its 0.5 line - the same lever as the threshold, pulled at a different
 moment.
@@ -1396,15 +1391,19 @@ positive one, the rest are negative.
 
 # Macro against weighted, one last time
 
-- F1 per class: healthy 0.947 (1,665 drives), degraded 0.545 (259), failed 0.629 (76)
-- macro avg F1 = (0.947 + 0.545 + 0.629) ÷ 3 = **0.707**
-- weighted avg F1 = (1,665 × 0.947 + 259 × 0.545 + 76 × 0.629) ÷ 2,000 = **0.883**
+![](macro_vs_weighted.png)
 
 ::: notes
 The same choice as before, now with a much starker gap on three classes.
+Notebook 3, the three-class model: one bar per class, its F1 from
+classification_report, and the two averages as lines.
 
-Macro treats the three conditions as equally important. Weighted lets the
-healthy class - 1,665 of 2,000, five drives in six - do most of the talking.
+Macro treats the three conditions as equally important: (0.947 + 0.545 +
+0.629) divided by 3 = 0.707, the dotted line. Weighted multiplies each class by
+its number of test drives: (1,665 times 0.947 + 259 times 0.545 + 76 times
+0.629) divided by 2,000 = 0.883, the dashed line. The healthy class - 1,665 of
+2,000, five drives in six - does most of the talking, so the dashed line sits
+close to the healthy bar.
 
 Which to quote is a question about the application, not about statistics. If
 missing a failure matters as much as missing a healthy drive, macro is the

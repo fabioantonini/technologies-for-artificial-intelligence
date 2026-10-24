@@ -487,4 +487,19 @@ same("6.4 F1 of the failed class from P and R",
      2 * 0.768 * 0.566 / (0.768 + 0.566), 0.652, tolerance=5e-4)
 same("9 the two balanced weights' ratio", (6000 - 230) / 230, 25, tolerance=0.5)
 
+# Quiz and notebook text (24 Oct pass).
+same("quiz 1: the line crosses 1", (1 + 0.0342) / 0.03263, 31.7, tolerance=0.05)
+same("quiz 7: 8,000 log10 0.5", 8000 * math.log10(0.5), -2408, tolerance=0.5)
+same("quiz 8: 0.9998 / 0.25", 0.9998 / 0.25, 4.0, tolerance=5e-3)
+same("quiz 20: 0.803 / 0.184", 0.803 / 0.184, 4.4, tolerance=0.05)
+same("quiz 30: 0.883 - 0.707", 0.883 - 0.707, 0.18, tolerance=5e-3)
+same("nb1: odds of 18 as a probability", 18 / 19, 0.95, tolerance=5e-3)
+same("nb1: 33 / 76", 33 / 76, 0.43, tolerance=5e-3)
+same("nb1: exp(0.024)", math.exp(0.024), 1.02, tolerance=5e-3)
+same("nb2: 0.977 - 0.967", 0.977 - 0.967, 0.010, tolerance=5e-4)
+same("nb3: 0.26 / 0.79", 0.26 / 0.79, 0.33, tolerance=5e-3)
+same("nb3: 140 / 2,740", 140 / 2740, 0.051, tolerance=5e-4)
+same("2.4 the decoy's multiplier, exp(0.02)", math.exp(0.02), 1.02, tolerance=5e-3)
+same("1.1 log 5 / log(45/41)", math.log(5) / math.log(45 / 41), 17, tolerance=0.5)
+
 print(f"lesson 4: {checks} hand-worked numbers recomputed, all agree")

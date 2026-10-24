@@ -78,13 +78,9 @@ generated, `disk_data.py` applies $\log(1 + x)$ to the four count columns, so
 the truth is linear in $\log(1 + x)$ and not in $x$. That is not a
 convenience: it is how the evidence behaves. Going from 0 to 4 reallocated
 sectors is a **17 times** larger move than going from 40 to 44
-($\log 5 = 1.61$ against $\log(45/41) = 0.09$), because the first sector a
+($\log 5 = 1.61$ against $\log(45/41) = 0.093$, and $1.61 / 0.093 = 17$), because the first sector a
 drive ever reallocates says something and the forty-first says almost nothing
-new. Take a drive whose other counters are all at the fleet average. With no
-reallocated sectors it has a 0.012% chance of failing, and four sectors take
-it to 1.3% — **about a hundredfold increase**. The four sectors from 40 to 44
-move the same drive only from 85% to 89%. (Section 2.2 writes out the
-generating formula these probabilities come from.)
+new. Section 2.2 draws what this does to the model.
 
 This is the feature engineering of lesson 2, and it has two consequences here.
 The coefficients in section 2.4 are per standard deviation of the *transformed*
@@ -163,11 +159,8 @@ where the model is genuinely undecided and flat where its mind is made up.
 **A predictable mistake, and the figure invites it.** Read that against the
 right-hand panel of the figure in section 2.1 and the two seem to disagree. That
 curve barely moves over the first few reallocated sectors, where 90% of the
-drives sit: the first four move it by 0.03 (from 1.2% to 4.4%, below), against
-$\sigma(0.336 \cdot 14 - 4.43) - \sigma(0.336 \cdot 10 - 4.43) = 0.57 - 0.26 = 0.31$
-for sectors 10 to 14,
-and it is steepest at **13.2 sectors**. It looks as if the first sectors say
-little. Two separate things are going on.
+drives sit (four sectors or fewer), and it is steepest at **13.2 sectors**. It looks as if the first
+sectors say little. Two separate things are going on.
 
 *It is the same sigmoid, drawn against a different axis.* That panel's model has
 a single input, the raw count $x$ of reallocated sectors, so its $z$ is a
@@ -176,22 +169,21 @@ already $-4.43$, deep in the flat left end of the curve above; it reaches 0, the
 steep middle, at $4.43 / 0.336 = 13.2$ sectors. The flat start of that panel is
 the flat left end of this one, with sectors on the axis instead of $z$.
 
-*The flat start comes from the raw count, not from the drives.* A straight line
-in the count gives every sector the same 0.336 of $z$, so the first four add
-$4 \times 0.336 = 1.34$: that model takes a drive with no sectors from $\sigma(-4.43) = 1.2\%$ to
-$\sigma(-4.43 + 1.34) = \sigma(-3.09) = 4.4\%$. The labels were generated from $\log(1 + x)$ (section 1.1), on which the
-first sectors weigh the most. The generating model gives reallocated sectors
-$1.80 \times (\log(1 + x) - 0.96) / 0.62$ of $z$, where 0.96 and 0.62 are the
-mean and standard deviation of $\log(1 + x)$ over the fleet. So the first four
-add $1.80 \times \log 5 / 0.62 = \mathbf{4.7}$ to $z$, while the four from 40 to 44
-add only $1.80 \times \log(45/41) / 0.62 = 0.27$. For a drive with otherwise
-average counters, $z = -6.20 + 1.80 \times (0 - 0.96)/0.62 = -9.00$ with no
-sectors, so $\sigma(-9.00) = 0.012\%$; four sectors give $-9.00 + 4.7 = -4.3$
-and $\sigma(-4.3) = 1.3\%$ — the hundredfold increase of section 1.1. That is why the model fitted from
-section 2.4 on uses $\log(1 + x)$. Compare such effects in $z$, not in
-probability: at 0.012% that drive is so deep in the flat tail that a hundredfold
-rise moves its probability by only $1.3\% - 0.012\% = 0.013$, less than the
-raw-count curve's 0.03.
+*The flat start comes from the raw count, not from the drives.* A model that is
+a straight line in the count gives every sector the same weight: the first
+sector adds as much to $z$ as the twentieth. The labels were generated from
+$\log(1 + x)$ (section 1.1), which gives the first sectors the most weight. The
+figure shows what the sectors add to $z$ in each case, counted from a drive with
+none.
+
+![](sectors_on_two_scales.png)
+
+*What the reallocated sectors add to $z$, counted from a drive with none. Look at
+the shaded band: over the first four sectors the generating model (rust) climbs
+steeply, while the raw-count model (blue) climbs at the same slow rate
+everywhere.*
+
+That is why the model fitted from section 2.4 on uses $\log(1 + x)$.
 
 **Deriving the third property**, since it is used repeatedly. Write
 $\sigma = (1 + e^{-z})^{-1}$ and differentiate:
@@ -377,15 +369,15 @@ Our fitted model gives, against the truth used to generate the data:
 | reallocated_sectors | 1.80 | 1.66 | 5.28 |
 | spin_retry_count | 1.15 | 1.17 | 3.22 |
 | read_error_rate | 0.85 | 0.87 | 2.39 |
-| temperature_c | 0.45 | 0.47 | 1.59 |
+| temperature_c | 0.45 | 0.46 | 1.59 |
 | power_on_hours | 0.35 | 0.38 | 1.46 |
-| **seek_error_rate** | **0.00** | **0.02** | **1.03** |
+| **seek_error_rate** | **0.00** | **0.02** | **1.02** |
 | intercept | −6.20 | −6.09 | — |
 
 Two things to read off it.
 
 **The decoy was caught.** `seek_error_rate` was generated with no effect, and
-the model estimates it at 0.02, an odds multiplier of 1.03. It did not fall for
+the model estimates it at 0.02, an odds multiplier of $e^{0.02} = 1.02$. It did not fall for
 a plausible-looking column. The harder question — would you have noticed without
 being told? — is what lesson 5 is about.
 
@@ -862,8 +854,14 @@ moved.
 Note the accuracy column once more. From 0.20 upwards it varies by one
 percentage point while recall falls from 0.750 to 0.184, and its maximum sits at
 the default threshold, which misses 33 failures. **Tuning on accuracy quietly
-recommends catching fewer failures**, because every alarm it drops was a
-potential false positive.
+recommends catching fewer failures**, because most of the alarms a higher
+threshold drops are false ones.
+
+![](sweep_outcomes.png)
+
+*Five rows of the table as bars. Look at the two bars shrinking together as the
+threshold rises — teal, the failures caught; gold, the false alarms — while the
+accuracy on the right barely moves and peaks at 0.5.*
 
 So when a paper or a colleague reports 77% precision, the useful question is:
 *at what threshold, and why that one?*
@@ -1070,11 +1068,17 @@ proportional to each class's frequency. Here that makes each failure count about
 25 healthy drives: the ratio of the two weights is $m_0 / m_1 = 5770 / 230 = 25$,
 the healthy drives in the training set over the failed ones.
 
-| Model | TP | FP | FN | Precision | Recall | AUC | Cost |
+| Model | TP | FP | FN | Precision | Recall | AUC | Cost = FN × 2,600 + FP × 140 |
 |---|---|---|---|---|---|---|---|
 | Plain, threshold 0.50 | 43 | 13 | 33 | 0.768 | 0.566 | 0.949 | 87,620 |
 | Plain, threshold 0.08 | 65 | 121 | 11 | 0.349 | 0.855 | 0.949 | 45,540 |
 | Balanced weights, 0.50 | 68 | 205 | 8 | 0.249 | 0.895 | 0.950 | 49,500 |
+
+![](class_weight_costs.png)
+
+*The same three models as bills. Look at how the bill splits: rust, the missed
+failures at €2,600 each; gold, the false alarms at €140 each. The AUC beside
+each name hardly changes.*
 
 **Look at the AUC column: 0.949 against 0.950.** Reweighting taught the model
 essentially nothing new about disk failure. What it did was move where the model
@@ -1140,6 +1144,13 @@ rest are negative. On our three conditions:
 | failed | 0.812 | 0.513 | 0.629 | 76 |
 | **macro avg** | 0.781 | 0.660 | 0.707 | |
 | **weighted avg** | 0.881 | 0.889 | 0.883 | |
+
+![](macro_vs_weighted.png)
+
+*One bar per class. Look at where the two lines sit: the weighted average
+(dashed) close to the healthy bar, because healthy drives are 1,665 of the
+2,000; the macro average (dotted) in the middle, because each class counts
+once.*
 
 **Read the off-diagonal cells of the matrix, not the accuracy.** Degraded is the
 hard class, and understandably so: it sits between two neighbours that both look
