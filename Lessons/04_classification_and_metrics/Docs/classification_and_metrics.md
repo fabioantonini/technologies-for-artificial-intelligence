@@ -215,7 +215,9 @@ Any fixed step, however small, leaves $[0, 1]$ for some drive.
 something happens divided by the probability that it does not, $p / (1 - p)$:
 a probability of 0.2 is odds of $0.2 / 0.8 = 0.25$, and a probability of 0.5
 is odds of $0.5 / 0.5 = 1$.
-Bayes' rule, written with odds, says how a piece of evidence changes them:
+Bayes' rule, written with odds, says how a piece of evidence changes them. Here
+the evidence is a **reading**: a value that one of the drive's counters reports,
+such as a high count of reallocated sectors — the $x$ in the formula.
 
 $$\frac{P(y = 1 \mid x)}{P(y = 0 \mid x)}
   = \frac{P(y = 1)}{P(y = 0)} \cdot \frac{P(x \mid y = 1)}{P(x \mid y = 0)}$$
@@ -323,9 +325,9 @@ inverse of the standard normal distribution's cumulative distribution function,
 is the common alternative, and once rescaled it draws almost the same S-shape.
 So the shape is not what singles the sigmoid out. Three properties are:
 
-- **The coefficients have a direct reading.** On the log-odds scale a one-unit
+- **The coefficients have a direct interpretation.** On the log-odds scale a one-unit
   increase in $x_j$ adds $w_j$ to the log-odds, which multiplies the odds by
-  $e^{w_j}$ (section 2.4). A probit coefficient has no reading this direct.
+  $e^{w_j}$ (section 2.4). A probit coefficient has no interpretation this direct.
 - **It is the scale on which evidence adds**, as the start of this section
   showed: Bayes' rule multiplies the odds by one factor per reading, and the
   logarithm turns those factors into the terms of a linear model.
@@ -335,7 +337,7 @@ So the shape is not what singles the sigmoid out. Three properties are:
 
 **A predictable mistake, and why it is reasonable.** Most students come away
 thinking the sigmoid was picked because it has the right shape. Section 2.2
-invites that reading, since it introduced the curve by its properties: bounded,
+invites that interpretation, since it introduced the curve by its properties: bounded,
 monotone, flat at both ends. But the probit has every one of those properties
 too. What makes the sigmoid the standard choice is the log-odds behind it.
 
@@ -400,7 +402,7 @@ metric in section 5 behaves the way it does.**
 **A predictable mistake, and the reasonable thinking behind it.** Most students
 read "odds multiplier 5.28" as "five times as likely to fail", and the instinct
 is sound — for rare events the odds and the probability are nearly the same
-number, so the reading is *almost* right here. It stops being right as
+number, so that interpretation is *almost* right here. It stops being right as
 probabilities grow: a probability of 0.90 is odds of $0.9 / 0.1 = 9$;
 multiplied by 5 that gives odds of 45, and turning odds back into a probability,
 $p = \text{odds} / (1 + \text{odds}) = 45 / 46 = 0.978$. The odds went up fivefold; the probability moved by

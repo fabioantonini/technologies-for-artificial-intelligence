@@ -226,7 +226,7 @@ not one of them:
   3.4 and 4.3.
 
 The predictable mistake: students think the sigmoid was picked because it looks
-like the right S-shape. A reasonable reading, because the shape is what slide 8
+like the right S-shape. A reasonable interpretation, because the shape is what slide 8
 shows first. But many curves have that shape; what singles this one out is the
 log-odds behind it. Handout section 2.3.
 :::
@@ -245,8 +245,9 @@ and each contribution is the same whatever the other features say. So we want
 the same evidence to act on every drive in the same way, whatever its risk.
 
 The picture shows three drives, marked by the yellow dots: an average drive at
-0.2%, one at 50% and one at 95%. Each receives the same reading, one that is
-six times more common among drives that fail than among healthy ones. Bayes'
+0.2%, one at 50% and one at 95%. Each receives the same reading - a value one
+of its counters reports, say a high count of reallocated sectors - and it is a
+reading six times more common among drives that fail than among healthy ones. Bayes'
 rule says such a reading multiplies the odds - the probability of failing
 divided by the probability of not failing - by 6, whatever they were before
 (handout section 2.3 shows it by counting 1,000 drives). On the horizontal
@@ -634,7 +635,7 @@ symbols. Check it on drive B of slide 17: y = 0 and p = 0.1, so the first term
 vanishes and L = -log(1 - 0.1) = -log 0.9 = 0.11, the number slide 21 gave B
 under setting 1. The handout, section 3, does it for m drives in full.
 
-The reading that makes it stick: the cost of an outcome is the SURPRISE of
+The interpretation that makes it stick: the cost of an outcome is the SURPRISE of
 seeing it. Something you called certain costs nothing. Something you gave a
 probability of one in a thousand costs log 1000, about 6.9 (natural logarithm,
 as everywhere in this lesson). Something you
@@ -1413,7 +1414,7 @@ The remedy, where one exists, is more positive examples.
 Where it earns its place: when a downstream tool insists on predict() and gives
 you no threshold to move. Then this is how you shift the operating point.
 
-The same reading holds for resampling and for SMOTE (synthetic minority
+The same argument holds for resampling and for SMOTE (synthetic minority
 oversampling technique, which builds artificial minority examples): they move the
 operating point too. And both must be applied to the training rows only - inside
 each cross-validation fold, once lesson 5 introduces folds. Duplicated or
