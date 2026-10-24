@@ -716,6 +716,14 @@ declared impossible costs infinity.
 Only one of the two terms is ever active, because y is 0 or 1. The bracket is a
 way of writing an if-statement in algebra, nothing more.
 
+A predictable slip: "with y = 1 the second term is 0 times log 0, which is 0
+times minus infinity". The coefficient is 1 - y, but the logarithm's argument is
+1 - p, the model's probability - and p = sigma(z) lies strictly between 0 and 1,
+so log(1 - p) is finite and 0 times it is 0. Only p exactly 1 would give log 0,
+and the sigmoid never reaches it. In a computer p can round to 1.0 when z is
+large, which is why code clips p into [epsilon, 1 - epsilon]: notebook 1 adds
+1e-12 inside the log, and scikit-learn's log_loss clips too.
+
 And the headline: nobody designed this function. It fell out of asking for the
 parameters that make the data least surprising.
 :::
@@ -800,6 +808,12 @@ worst.
 
 That is the failure. Not that squared error scores badly - that it stops
 teaching.
+
+A predictable slip, from the left panel alone: "log loss charges more, so
+gradient descent works better with it". The size of a cost does not matter to
+gradient descent - multiply a cost by 100 and its minimum is in the same place.
+What matters is the gradient, the right panel: the push squared error gives
+dies away exactly when the model is confidently wrong, and log loss's does not.
 :::
 
 # And it is convex, which squared error is not

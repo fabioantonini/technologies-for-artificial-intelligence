@@ -568,6 +568,15 @@ An event you assigned probability 1 costs nothing; one you assigned probability
 That is why log loss is unbounded, and section 4 is about why that is exactly
 what we want.
 
+**A predictable mistake.** In the compact form of $J$, with $y = 1$ the second
+term looks like $0 \cdot \log 0$, that is $0 \cdot (-\infty)$. It is not: the
+coefficient is $1 - y$, but the logarithm's argument is $1 - p$, and
+$p = \sigma(z)$ lies strictly in $(0, 1)$, so $\log(1 - p)$ is finite and the
+term is 0. Only $p$ exactly 1 would give $\log 0$, which the sigmoid never
+reaches. A computer can round $p$ to 1.0 when $z$ is large, which is why
+implementations clip $p$ into $[\varepsilon, 1 - \varepsilon]$ — notebook 1 adds
+$10^{-12}$ inside the logarithm, and scikit-learn's `log_loss` clips.
+
 ### 3.4 The gradient, and a small miracle
 
 Differentiate the loss for a single example with respect to $z = w^\top x + b$.
@@ -631,6 +640,11 @@ $(0.5 - 1)^2 = 0.25$ for an honest "don't know"**. A factor of
 $0.9998 / 0.25 = 4$ separates the worst possible answer from a shrug. Log loss
 charges 9.21 against $-\log 0.5 = 0.69$, a factor of $9.21 / 0.69 = 13$, and the ratio
 grows without bound as $p \to 0$.
+
+**A predictable mistake: "log loss charges more, so gradient descent works
+better".** The size of a cost does not matter to gradient descent — multiply a
+cost by 100 and its minimum sits in the same place. What matters is the
+gradient, which section 4.2 compares: the costs only set up the question.
 
 ### 4.2 The sharper problem: the gradient dies
 
