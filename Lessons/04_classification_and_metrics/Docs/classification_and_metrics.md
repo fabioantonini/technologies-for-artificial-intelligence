@@ -253,6 +253,13 @@ at 50%, but 1 point at 0.2% and 4 points at 95%. That is the shape
 of section 2.2 — steep in the middle, flat at both ends — and nothing chose it:
 it is what multiplying the odds looks like on the probability scale.
 
+![](evidence_on_the_sigmoid.png)
+
+*The same reading on three drives. Look at the arrows: the teal ones, the
+reading multiplying the odds by 6, all have the same length on the log-odds
+axis; the rust ones, what it does to the probability, are long in the middle
+(+36 points at 50%) and short at both ends (+1 point at 0.2%, +4 at 95%).*
+
 **The logarithm turns factors into steps.** Several readings, if they are
 independent given the class, multiply the odds by one factor each. Take the
 logarithm and the factors become terms that add:

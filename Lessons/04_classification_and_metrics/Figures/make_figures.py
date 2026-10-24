@@ -124,7 +124,52 @@ def metric_denominators():
     save(fig, "metric_denominators.png")
 
 
+def evidence_on_the_sigmoid():
+    """The same evidence (odds x 6) on three drives: a fixed step in log-odds,
+    a large move in probability in the middle and a small one at the ends."""
+    z = np.linspace(-8, 7, 500)
+    sig = lambda v: 1 / (1 + np.exp(-v))
+    step = np.log(6)
+
+    fig, ax = plt.subplots(figsize=(9.6, 4.6))
+    ax.plot(z, sig(z), lw=2.8, color=BLUE, zorder=2)
+
+    # Starting points: an average drive (intercept -6.20), 50%, 95%.
+    for z0, start, label_xy in ((-6.20, "0.2%", (-6.9, 0.17)),
+                                (0.0, "50%", (-2.9, 0.62)),
+                                (np.log(19), "95%", (3.4, 0.80))):
+        z1 = z0 + step
+        p0, p1 = sig(z0), sig(z1)
+        ax.annotate("", xy=(z1, p0), xytext=(z0, p0),
+                    arrowprops=dict(arrowstyle="-|>", color=TEAL, lw=2.4,
+                                    mutation_scale=16), zorder=3)
+        # A rise too small for an arrowhead is drawn as a plain segment.
+        if p1 - p0 > 0.1:
+            ax.annotate("", xy=(z1, p1), xytext=(z1, p0),
+                        arrowprops=dict(arrowstyle="-|>", color=RUST, lw=2.4,
+                                        mutation_scale=16), zorder=3)
+        else:
+            ax.plot([z1, z1], [p0, p1], color=RUST, lw=2.4, zorder=3)
+        ax.scatter([z0], [p0], s=60, color=GOLD, edgecolor=INK, zorder=4)
+        ax.scatter([z1], [p1], s=34, color=RUST, zorder=4)
+        points = round(100 * (p1 - p0))
+        noun = "point" if points == 1 else "points"
+        ax.text(*label_xy, f"drive at {start}:\n+{points} {noun}",
+                fontsize=11, color=INK, ha="left", va="center")
+
+    ax.plot([], [], color=TEAL, lw=2.4,
+            label="the same reading on every drive: odds × 6")
+    ax.plot([], [], color=RUST, lw=2.4, label="what it does to the risk")
+    ax.legend(loc="upper left", frameon=False, fontsize=10.5)
+    ax.set_xlabel("log-odds  log(p ÷ (1 − p))")
+    ax.set_ylabel("probability of failing  p")
+    ax.set_ylim(-0.04, 1.06)
+    fig.tight_layout()
+    save(fig, "evidence_on_the_sigmoid.png")
+
+
 if __name__ == "__main__":
     print("figure concettuali della lezione 4:")
     sigmoid_and_odds()
     metric_denominators()
+    evidence_on_the_sigmoid()

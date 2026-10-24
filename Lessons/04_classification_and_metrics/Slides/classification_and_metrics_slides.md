@@ -236,65 +236,43 @@ log-odds behind it. Handout section 2.3.
 
 # Evidence multiplies the odds
 
-| One reading, 6 times more common among failing drives | Drives at 50% risk | Drives at 95% risk |
-|---|---|---|
-| 1,000 such drives: will fail / stay healthy | 500 / 500 | 950 / 50 |
-| Those showing the reading: 60% of failing, 10% of healthy | 300 / 50 | 570 / 5 |
-| Risk after the reading: failing ÷ all showing it | 300 ÷ 350 = 86% | 570 ÷ 575 = 99.1% |
-| Adding 0.10 to the risk instead | 60% | 105%: impossible |
-| Odds = failing ÷ healthy, before and after | 1, then 300 ÷ 50 = 6: × 6 | 19, then 570 ÷ 5 = 114: × 6 |
+![](evidence_on_the_sigmoid.png)
 
 ::: notes
 Slide 9 said the log-odds has the range a line needs. That is true, but it is
 not a reason: plenty of other functions also stretch (0, 1) onto the whole
-line. This slide gives the reason, by counting drives.
+line. This picture gives the reason.
 
 Start from what a linear model does. It adds one contribution per feature,
 and each contribution is the same whatever the other features say. So we want
 the same evidence to act on every drive in the same way, whatever its risk.
 
-Read the table one column at a time, top to bottom. Take 1,000 drives that
-each have a 50% risk: 500 will fail and 500 will not. A reading arrives - say
-a high count of reallocated sectors - that shows up on 60% of the drives that
-are going to fail and on 10% of the healthy ones: six times more often. Among
-the drives that show it, 60% of 500 is 300 failing and 10% of 500 is 50
-healthy. The risk after the reading is 300 out of 350, 86%.
+The picture shows three drives, marked by the yellow dots: an average drive at
+0.2%, one at 50% and one at 95%. Each receives the same reading, one that is
+six times more common among drives that fail than among healthy ones. Bayes'
+rule says such a reading multiplies the odds - the probability of failing
+divided by the probability of not failing - by 6, whatever they were before
+(handout section 2.3 shows it by counting 1,000 drives). On the horizontal
+axis, the log-odds, multiplying by 6 is always the same step: the three teal
+arrows have the same length.
 
-Same reading, drives at 95%: 950 will fail and 50 will not. Showing the
-reading: 60% of 950 is 570, 10% of 50 is 5. Risk after: 570 out of 575,
-99.1%. It cannot pass 100%, because it is a count out of a total.
+Now the rust arrows: what that same step does to the probability. 36 points
+for the drive at 50%, 4 points for the drive at 95%, 1 point for the average
+drive. And it never passes 100%, because the curve cannot. A fixed step in
+probability would: plus 0.10 takes the drive at 95% to 105%.
 
-Fourth row: try instead a fixed step in probability, plus 0.10. The drives at
-50% go to 60%, fine; the drives at 95% go to 105%, which is not a
-probability. No step is small enough to be safe for every drive.
+So nobody chose the S-shape of slide 8. It is what "evidence multiplies the
+odds" looks like when it is drawn as a probability: steep in the middle, flat
+at both ends.
 
-Last row, the one that gives the slide its title. The odds are the failing
-drives divided by the healthy ones - the same thing as p divided by 1 minus p.
-Before the reading they are 500 over 500 = 1 and 950 over 50 = 19; after it, 6
-and 114. Both multiplied by 6, which is 60% divided by 10%: the failing count
-is scaled by 0.6 and the healthy count by 0.1, whatever they were. That is
-Bayes' rule written with odds: the odds after are the odds before times the
-likelihood ratio, how much more common the reading is among failing drives
-than among healthy ones. The 60% and 10% are only an illustration - any pair
-with ratio 6 gives the same risks. Six itself is realistic: the coefficient of
-reallocated sectors used to generate the labels is 1.80 per standard
-deviation, and e to the 1.80 is 6.05 (slide 13 reads coefficients this way;
-slide 14 shows the true ones).
-
-Now compare how far the same reading moved the risk: 36 points at 50%, 4
-points at 95%. An average drive, at 0.2%, goes to 1.2% - one point (the
-handout's table in section 2.3). Steep in the middle, flat at both ends: that
-is slide 8's sigmoid, and nobody chose it. It is what multiplying the odds
-looks like on the probability scale.
-
-Then the step to the next slide. Several readings, if independent given the
-class, multiply the odds by one factor each. Take the logarithm and the
-factors become terms that add: log of the odds after equals log of the odds
-before plus one log-factor per reading. A starting value plus one term per
-feature is exactly w-transpose-x plus b. The intercept is the log-odds of an
-average drive, minus 6.20, which is the 0.2% above; each term is the log of
-the factor its feature multiplies the odds by - log 6 is 1.79. That is why
-slide 11 puts the line on the log-odds. Handout section 2.3.
+The step to the next slide: on the log-odds axis, evidence simply adds. Several
+readings, if independent given the class, are one fixed step each, starting
+from the average drive at minus 6.20. A starting value plus one step per
+feature is exactly w-transpose-x plus b, which is why slide 11 puts the line on
+the log-odds. Six is a realistic factor: the coefficient of reallocated
+sectors used to generate the labels is 1.80 per standard deviation, and e to
+the 1.80 is 6.05 (slide 13 reads coefficients this way; slide 14 shows the true
+ones).
 :::
 
 # Log-odds of p = P(y = 1 | x): a line
