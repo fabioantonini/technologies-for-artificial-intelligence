@@ -340,6 +340,21 @@ one-unit increase in $x_j$. With standardised features, one unit is one standard
 deviation — of the transformed column, for the four counters that section 1.1
 puts on a logarithmic scale.
 
+The reason takes two lines. Raising $x_j$ by one unit, with every other feature
+held where it is, adds exactly $w_j$ to $z = w^\top x + b$. And since $z$ is the
+logarithm of the odds, the odds are $e^z$, so
+
+$$\text{odds after} = e^{z + w_j} = e^{z} \cdot e^{w_j}
+  = \text{odds before} \cdot e^{w_j}$$
+
+whatever $z$ was. A sum on the log-odds is a product on the odds: the
+logarithm turns products into sums, and this is the same fact read backwards.
+On an average drive, with the true coefficients: its log-odds are the intercept,
+$-6.20$, so its odds are $e^{-6.20} = 0.0020$. One standard deviation more of
+reallocated sectors adds 1.80, giving log-odds of $-4.40$ and odds of
+$e^{-4.40} = 0.0123$ — six times as large, because $e^{1.80} = 6.05$. That is
+the teal step of the figure in section 2.3.
+
 ![](decision_boundary.png)
 
 *Two features, so the model can be drawn. The boundary is a straight line — logistic regression is a linear classifier, and the curve is in the probabilities rather than in the boundary. Note how many gold points sit on the healthy side: that is the threshold, not the model.*

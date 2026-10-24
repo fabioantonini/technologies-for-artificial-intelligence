@@ -101,6 +101,15 @@ for p, fail, healthy, fail_r, healthy_r, risk_after, odds_b, odds_a in (
          tolerance=1e-9)
 
 same("2.3 the factor behind 1.80", math.exp(1.80), 6.05, tolerance=5e-3)
+# Section 2.4's average drive, rebuilt from probabilities rather than exp(z):
+# odds = p / (1 - p) with p = sigmoid(z).
+for z_avg, odds_printed in ((-6.20, 0.0020), (-6.20 + 1.80, 0.0123)):
+    p_avg = sigmoid(z_avg)
+    same(f"2.4 odds of a drive at log-odds {z_avg:.2f}", p_avg / (1 - p_avg),
+         odds_printed, tolerance=5e-5)
+same("2.4 one standard deviation more of sectors, as a ratio of odds",
+     (sigmoid(-4.40) / (1 - sigmoid(-4.40))) / (sigmoid(-6.20) / (1 - sigmoid(-6.20))),
+     6.05, tolerance=5e-3)
 for p, points in ((average, 1), (0.50, 36), (0.95, 4)):
     o = 6 * p / (1 - p)
     same(f"2.3 points added at p = {p:.4f}", 100 * (o / (1 + o) - p), points,

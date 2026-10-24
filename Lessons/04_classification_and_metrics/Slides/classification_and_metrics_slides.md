@@ -325,22 +325,39 @@ switches learning off exactly when the model is confidently wrong.
 
 # What the coefficients mean
 
-- The model is linear in the log-odds, log(p ÷ (1 − p)), so `exp(coefficient)`
-  multiplies the **odds**, p ÷ (1 − p)
-- Features standardised, so one unit = one standard deviation
-- A coefficient of 1.80 means **six times the odds** of failing
+- Standardised: one standard deviation more of reallocated sectors adds 1.80 to the log-odds
+- Adding to a log multiplies the **odds**: log(odds) + 1.80 = log(odds × 6.05), since exp(1.80) = 6.05
+- So: **six times the odds** of failing, slide 10's teal step
 - In code: `make_pipeline(StandardScaler(), LogisticRegression())`
 
 ::: notes
 This is the interpretability that keeps logistic regression in production in
-medicine and credit scoring. Standardising first (StandardScaler, lesson 3)
-puts every feature in the same unit, one standard deviation, so the
-coefficients can be compared with each other.
+medicine and credit scoring. Three steps, one per bullet.
 
-1.80 is the true coefficient of reallocated_sectors, the one the data was
-generated with (next slide). It means: a drive one standard deviation worse on
-that counter has exp(1.80), about six times, the odds of failing. The fitted
-coefficient on the next slide is 1.66, a multiplier of 5.28.
+First bullet, its first half. Standardising first (StandardScaler, lesson 3) puts every
+feature in the same unit, one standard deviation, so the coefficients can be
+compared with each other. For the four counters that the data puts on a
+logarithmic scale, it is one standard deviation of the transformed column.
+
+First bullet, its second half: this is slide 11's line, log-odds = b + w1 x1
++ ... + w6 x6. Each feature contributes its
+coefficient times its value, so raising reallocated sectors by one standard
+deviation adds exactly its coefficient to the log-odds - 1.80 is the true
+coefficient, the one the data was generated with (next slide) - and it adds
+1.80 whatever the other five counters say. That is what "linear" buys.
+
+Second bullet: why a sum on the log-odds becomes a product on the odds. The
+logarithm turns products into sums, log of a times b is log a plus log b.
+Read it backwards: adding 1.80 to the logarithm of the odds is the same as
+multiplying the odds by exp(1.80), which is 6.05. Check it on an average drive:
+its log-odds are the intercept, minus 6.20, so its odds are exp(-6.20) =
+0.0020. One standard deviation more of reallocated sectors: log-odds minus
+4.40, odds exp(-4.40) = 0.0123. Divide: 6.05.
+
+Third bullet: that is the arrow of slide 10's figure. Every teal arrow was a
+multiplication of the odds by 6, and on the log-odds axis it had the same
+length - 1.79, almost exactly this coefficient. The fitted coefficient on the
+next slide is 1.66, a multiplier of 5.28.
 
 Now the mistake they will make, and it is a reasonable one. They will read "six
 times the odds" as "six times as likely". For rare events those are nearly the
