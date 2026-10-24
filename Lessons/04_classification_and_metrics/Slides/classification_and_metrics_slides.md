@@ -231,14 +231,25 @@ shows first. But many curves have that shape; what singles this one out is the
 log-odds behind it. Handout section 2.3.
 :::
 
-# Evidence multiplies the odds
+# The same evidence on three drives
 
 ![](evidence_on_the_sigmoid.png)
 
 ::: notes
 Slide 9 said the log-odds has the range a line needs. That is true, but it is
 not a reason: plenty of other functions also stretch (0, 1) onto the whole
-line. This picture gives the reason.
+line. This slide gives the reason, in two steps: first why evidence multiplies
+the odds, then what that looks like.
+
+Why it multiplies, by counting, before pointing at the figure. Take 1,000
+drives at 50% risk: 500 will fail, 500 will not. A reading shows up on 60% of
+the failing drives and on 10% of the healthy ones. Among the drives that show
+it, 300 will fail and 50 will not: the odds, failing divided by healthy, go
+from 500 / 500 = 1 to 300 / 50 = 6. The reading scales the failing drives by
+0.6 and the healthy ones by 0.1, so their ratio is multiplied by 0.6 / 0.1 = 6
+whatever it was before - start from 950 and 50 and you get 570 and 5, odds 19
+to 114. That is Bayes' rule written with odds. The figure takes it as given and
+shows the consequence.
 
 Start from what a linear model does. It adds one contribution per feature,
 and each contribution is the same whatever the other features say. So we want
@@ -580,6 +591,10 @@ of w and b with the data held fixed - which is why it is written L(w, b).
 | Likelihood: the product | | | 0.8 × 0.9 × 0.8 = **0.576** | | 0.3 × 0.4 × 0.5 = **0.060** |
 
 ::: notes
+Why a second setting at all: 0.576 on its own means nothing - there is no scale
+on which it is "high" or "low". A likelihood is only useful as a comparison
+between settings, so we need a second one to compare against.
+
 Now a second setting, a different choice of w and b. It gives the three drives
 p = 0.3, 0.6 and 0.5: a low p to the drive that failed, a high p to one that
 survived. It looks worse, and the likelihood says how much worse.
@@ -615,6 +630,12 @@ log of a product is the sum of the logs, the sum is minus the log of the
 likelihood: 0.55 is minus the log of 0.576, and 2.81 is minus the log of 0.060.
 The logarithm keeps the order and the minus sign reverses it, so the better
 setting now has the SMALLER number - 0.55 against 2.81. Setting 1 still wins.
+
+A predictable slip: calling setting 1 "the maximum" and 0.55 "the minimum
+cost". Setting 1 only beats setting 2; other choices of w and b would surely
+make these three outcomes more probable still. The maximum likelihood over
+every possible (w, b) - the same point as the minimum cost - is what fitting
+finds.
 
 Read the per-drive numbers too. Minus the log of a probability is called the
 surprise of an outcome: 0 for something you were certain of, large for

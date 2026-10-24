@@ -479,8 +479,11 @@ every drive, so for B and C the factor is $1 - p$.
 
 What actually happened is $0.576 / 0.060 = 9.6$ times more probable under
 setting 1, so maximum
-likelihood prefers it; fitting the model is the same comparison made over every
-possible setting. Taking minus the (natural) logarithm of each factor and adding
+likelihood prefers it. Note what the comparison does and does not say: 0.576 on
+its own has no scale, and a likelihood is only useful against another setting;
+and setting 1 is not *the* maximum — it merely beats setting 2. Fitting the model
+is the same comparison made over every possible setting, and the winner of that
+is the maximum likelihood. Taking minus the (natural) logarithm of each factor and adding
 gives, for setting 1, $-\log 0.8 - \log 0.9 - \log 0.8 = 0.22 + 0.11 + 0.22 =
 0.55$, and for setting 2, $-\log 0.3 - \log 0.4 - \log 0.5 = 1.20 + 0.92 +
 0.69 = 2.81$. The log of a product is the sum of the logs, so
