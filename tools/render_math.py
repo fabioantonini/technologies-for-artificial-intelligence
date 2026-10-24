@@ -230,6 +230,17 @@ def _normalise(latex: str) -> str:
     return latex
 
 
+def _as_mathtext(latex: str) -> str:
+    r"""One mathtext run per line: ``\\`` breaks a display equation in two.
+
+    mathtext draws a single line, but matplotlib's text takes several, each
+    with its own ``$...$``. Two formulas side by side on lesson 4's slide 18
+    were scaled down to 21pt to fit the width; stacked, each line gets it.
+    """
+    lines = [line.strip() for line in latex.split(r"\\")]
+    return "\n".join(f"${_normalise(line)}$" for line in lines if line)
+
+
 #: The course image, and where it bind-mounts this repository.
 CONTAINER = "tai_course"
 WORKDIR = "/home/jovyan/work"
@@ -258,7 +269,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 latex, out, size = sys.argv[1], sys.argv[2], float(sys.argv[3])
 fig = plt.figure(figsize=(0.01, 0.01))
-fig.text(0, 0, latex, fontsize=size, color="#1A1A1A")
+fig.text(0, 0, latex, fontsize=size, color="#1A1A1A", linespacing=1.8)
 try:
     fig.savefig(out, dpi=220, transparent=True, bbox_inches="tight",
                 pad_inches=0.06)
@@ -315,7 +326,8 @@ def render_image(latex: str, figures: Path, display: bool = True) -> Path | None
         return out
 
     size = DISPLAY_PT if display else INLINE_PT
-    drawn = _draw_in_container(f"${_normalise(latex)}$", out, size)
+    mathtext = _as_mathtext(latex)
+    drawn = _draw_in_container(mathtext, out, size)
     if drawn is True:
         return out
     if drawn is False:
@@ -330,7 +342,7 @@ def render_image(latex: str, figures: Path, display: bool = True) -> Path | None
     import matplotlib.pyplot as plt
 
     fig = plt.figure(figsize=(0.01, 0.01))
-    fig.text(0, 0, f"${_normalise(latex)}$", fontsize=size, color="#1A1A1A")
+    fig.text(0, 0, mathtext, fontsize=size, color="#1A1A1A", linespacing=1.8)
     try:
         fig.savefig(
             out, dpi=220, transparent=True, bbox_inches="tight", pad_inches=0.06

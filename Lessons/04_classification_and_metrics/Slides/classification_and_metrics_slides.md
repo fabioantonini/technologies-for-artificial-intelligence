@@ -428,21 +428,21 @@ the same two rules as formulas.
 
 # Step 2 as formulas: the likelihood
 
-$$P(y \mid x) = p^{\,y}\,(1 - p)^{1 - y} \qquad\qquad \mathcal{L}(w, b) = \prod_{i=1}^{m} \left(p^{(i)}\right)^{y^{(i)}} \left(1 - p^{(i)}\right)^{1 - y^{(i)}}$$
+$$P(y \mid x) = p^{\,y}\,(1 - p)^{1 - y} \\ \mathcal{L}(w, b) = \prod_{i=1}^{m} \left(p^{(i)}\right)^{y^{(i)}} \left(1 - p^{(i)}\right)^{1 - y^{(i)}}$$
 
 ::: notes
 Two formulas, and both are the previous slide written in symbols.
 
-Left: the probability of what happened to one drive. It is the rule "p if
+Top line: the probability of what happened to one drive. It is the rule "p if
 y = 1, 1 - p if y = 0" in a single expression. Check it with y = 1: p to the
 power 1 is p, and (1 - p) to the power 0 is 1, so it gives p. With y = 0 it
 gives 1 times (1 - p). Do drive B on the board: 0.1 to the power 0 times 0.9 to
 the power 1 is 0.9, the number in the table. The exponents are just a way of
 writing an if-statement.
 
-Right: the likelihood, script L, of a setting (w, b). The capital pi means
+Bottom line: the likelihood, script L, of a setting (w, b). The capital pi means
 "multiply over all the drives", i from 1 to m, the way a capital sigma means
-"add". Each drive contributes its factor from the left formula; the superscript
+"add". Each drive contributes its factor from the top line; the superscript
 (i) says which drive. For our three drives, m = 3 and the product is
 0.8 times 0.9 times 0.8 = 0.576.
 
