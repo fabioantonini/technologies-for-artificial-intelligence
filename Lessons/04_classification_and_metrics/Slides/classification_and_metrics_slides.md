@@ -78,13 +78,17 @@ of today.
 
 - **8,000 disk drives** in a data centre
 - Six SMART counters each: Self-Monitoring, Analysis and Reporting Technology
+- Reallocated sectors, spin retries, read and seek error rates, temperature, hours in service
 - Label: did it fail within thirty days?
 - `train_test_split(..., stratify=y)`: 6,000 to train, 2,000 to test
 
 ::: notes
-SMART is the diagnostic data a drive keeps about itself: reallocated sectors
-(bad patches of the disk the drive has had to replace), spin retries, read error
-rate, temperature, hours in service, and seek error rate. Expand the acronym
+SMART is the diagnostic data a drive keeps about itself. The third bullet names
+the six: reallocated sectors (bad patches of the disk the drive has retired and
+replaced with spare ones), spin retries (times the motor needed a second attempt
+to bring the platters up to speed), the share of reads and of head movements
+that hit an error, temperature, and hours in service. Handout section 1.1 has
+them in a table, with a typical drive's values. Expand the acronym
 on the slide and out loud - it is the kind of thing that gets skipped and then
 quietly blocks a student for the rest of the hour.
 
