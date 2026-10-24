@@ -2,7 +2,7 @@
 title: "Classification and Evaluation Metrics"
 subtitle: "Lesson 4 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "23 October 2026 · reading time about 80 minutes"
+date: "30 October 2026 · reading time about 80 minutes"
 ---
 
 ## Lesson plan
@@ -1047,7 +1047,7 @@ missing a healthy drive, macro is the honest one.**
 
 ### Homework
 
-`Exercises/04_classification_and_metrics.md`, discussed at the start of Lesson 5, **Friday 30 October 2026**.
+`Exercises/04_classification_and_metrics.md`, discussed at the start of Lesson 5, **Friday 6 November 2026**.
 
 ### Notation used in this lesson
 

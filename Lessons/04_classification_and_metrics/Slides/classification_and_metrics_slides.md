@@ -2,7 +2,7 @@
 title: "Lesson 4: Classification and Evaluation Metrics"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "23 October 2026"
+date: "30 October 2026"
 ---
 
 # Before we start
@@ -1336,12 +1336,12 @@ that comes from the business, not from the data.
 
 # Homework
 
-- **Exercise 4**, discussed at the start of **Friday 30 October**
+- **Exercise 4**, discussed at the start of **Friday 6 November**
 - Build a classifier, choose a threshold from a stated cost ratio, defend it
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten
-minutes of next Friday, 30 October.
+minutes of next Friday, 6 November.
 
 Emphasise which part matters at the exam, where one of the ten exercises is
 drawn and they talk through their own notebook. The classifier is a few lines
