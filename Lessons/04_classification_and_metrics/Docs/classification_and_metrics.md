@@ -104,9 +104,10 @@ reallocated sectors. Nothing prevents it. The result is
 
 $$\hat{y} = 0.0326\,x - 0.0342$$
 
-and it assigns **a negative probability to 3,606 of the 8,000 drives** — 45% of
-the fleet. Extend it slightly past the observed range, to 32 reallocated
-sectors, and it predicts a probability above 1.
+and it assigns **a negative probability to 3,606 of the 8,000 drives** —
+3,606 / 8,000 = 45% of the fleet. Extend it slightly past the observed range
+and it predicts a probability above 1: setting $0.0326\,x - 0.0342 = 1$ gives
+$x = 1.0342 / 0.0326 = 31.7$ reallocated sectors.
 
 This is not a defect that better fitting would remove. A straight line is
 unbounded and a probability lives in $[0, 1]$; no choice of $w$ and $b$
@@ -143,7 +144,7 @@ $$\sigma(0) = \tfrac{1}{2}, \qquad
   \sigma'(z) = \sigma(z)\left(1 - \sigma(z)\right)$$
 
 The derivative is the one that matters most. It is largest at $z = 0$, where
-$\sigma' = \tfrac{1}{4}$, and it decays to zero at both ends. Section 4 shows
+$\sigma' = \sigma(0)\,(1 - \sigma(0)) = \tfrac{1}{2} \cdot \tfrac{1}{2} = \tfrac{1}{4}$, and it decays to zero at both ends. Section 4 shows
 that this is simultaneously the reason the sigmoid works and the reason squared
 error does not.
 
@@ -164,7 +165,8 @@ sectors say little. Two separate things are going on.
 
 *It is the same sigmoid, drawn against a different axis.* That panel's model has
 a single input, the raw count $x$ of reallocated sectors, so its $z$ is a
-straight line in the count: $z = 0.336\,x - 4.43$. With no sectors, $z$ is
+straight line in the count, with the slope and intercept that logistic
+regression fits on the raw count in notebook 1: $z = 0.336\,x - 4.43$. With no sectors, $z$ is
 already $-4.43$, deep in the flat left end of the curve above; it reaches 0, the
 steep middle, at $4.43 / 0.336 = 13.2$ sectors. The flat start of that panel is
 the flat left end of this one, with sectors on the axis instead of $z$.
@@ -211,7 +213,8 @@ Any fixed step, however small, leaves $[0, 1]$ for some drive.
 
 **Evidence multiplies the odds.** The **odds** are the probability that
 something happens divided by the probability that it does not, $p / (1 - p)$:
-a probability of 0.2 is odds of 0.25, and a probability of 0.5 is odds of 1.
+a probability of 0.2 is odds of $0.2 / 0.8 = 0.25$, and a probability of 0.5
+is odds of $0.5 / 0.5 = 1$.
 Bayes' rule, written with odds, says how a piece of evidence changes them:
 
 $$\frac{P(y = 1 \mid x)}{P(y = 0 \mid x)}
@@ -244,15 +247,16 @@ arithmetic, written for any starting risk and including an average drive:
 
 | Risk before, $p$ | Odds before, $p / (1 - p)$ | A reading 6 times more common among failing drives: odds $\times$ 6 | Risk after, odds $/ (1 +$ odds$)$ | Adding 0.10 to the risk instead |
 |---|---|---|---|---|
-| 0.2% (an average drive) | 0.002 | 0.012 | 1.2% | 10.2% |
+| 0.2% (an average drive: $\sigma(-6.20)$, the true intercept) | 0.002 | 0.012 | 1.2% | 10.2% |
 | 50% | 1 | 6 | 86% | 60% |
 | 95% | 19 | 114 | 99.1% | 105%: impossible |
 
 The factor 6 is realistic for this fleet: the coefficient of reallocated sectors
 used to generate the labels is 1.80 per standard deviation, a factor of
 $e^{1.80} = 6.05$ on the odds (section 2.4 reads coefficients this way). Read
-the "Risk after" column. The same evidence adds 36 points to the probability
-at 50%, but 1 point at 0.2% and 4 points at 95%. That is the shape
+the "Risk after" column. The same evidence adds $86 - 50 = 36$ points to the
+probability at 50%, but $1.2 - 0.2 = 1$ point at 0.2% and $99.1 - 95 = 4$
+points at 95%. That is the shape
 of section 2.2 — steep in the middle, flat at both ends — and nothing chose it:
 it is what multiplying the odds looks like on the probability scale.
 
@@ -272,7 +276,7 @@ $$\log(\text{odds after}) = \log(\text{odds before}) + \log(\text{factor}_1) +
 
 A starting value plus one term per feature is exactly the form of a linear
 model, $w^\top x + b$: the intercept $b$ is the log-odds of an average drive
-($-6.20$, the 0.2% above), and each term $w_j x_j$ is the logarithm of the
+($-6.20$, and $\sigma(-6.20) = 0.2\%$, the first row above), and each term $w_j x_j$ is the logarithm of the
 factor that feature multiplies the odds by. That is why the model puts the line
 on the **log-odds**, and only then turns it back into a probability. Logistic
 regression assumes, in addition, that each feature's term is a straight line in
@@ -305,7 +309,7 @@ $$p = \frac{e^{z}}{1 + e^{z}} = \frac{1}{1 + e^{-z}} = \sigma(z)$$
 So the sigmoid is not chosen first and justified afterwards. It is the solution
 of that equation.
 
-| Probability | Odds | Log-odds |
+| Probability $p$ | Odds, $p / (1 - p)$ | Log-odds, $\log\frac{p}{1 - p}$ |
 |---|---|---|
 | 0.01 | 1 to 99 | −4.60 |
 | 0.10 | 1 to 9 | −2.20 |
@@ -364,7 +368,7 @@ the teal step of the figure in section 2.3.
 
 Our fitted model gives, against the truth used to generate the data:
 
-| Feature | True $w_j$ | Fitted | Odds multiplier |
+| Feature | True $w_j$ | Fitted (notebook 1) | Odds multiplier, $e^{\text{fitted}}$ |
 |---|---|---|---|
 | reallocated_sectors | 1.80 | 1.66 | 5.28 |
 | spin_retry_count | 1.15 | 1.17 | 3.22 |
@@ -381,21 +385,25 @@ the model estimates it at 0.02, an odds multiplier of $e^{0.02} = 1.02$. It did 
 a plausible-looking column. The harder question — would you have noticed without
 being told? — is what lesson 5 is about.
 
-**The intercept is the average drive's chance, not the base rate.**
-$\sigma(-6.09) = 0.0023$: a drive with perfectly average telemetry has a 0.2%
-chance of failing in thirty days, while the fleet as a whole fails at 3.8%. The
+**The intercept is the average drive's chance, not the base rate.** A drive
+with perfectly average telemetry has every standardised feature at 0, so its
+log-odds are the intercept alone, and by the sigmoid
+$\sigma(-6.09) = 1 / (1 + e^{6.09}) = 1 / 442 = 0.0023$: a 0.2% chance of
+failing in thirty days, while the fleet as a whole fails at 3.8% (section 1.1). The
 gap is the point: failures come from the small group of drives far above
 average on one or more counters, not from a typical drive. To
-reach an even bet, the evidence must move the log-odds by more than six, and
-only badly degraded drives do that. **That single number explains why every
+reach an even bet, $p = 0.5$, the log-odds must reach $\log(0.5/0.5) = 0$, so
+the counters must add more than 6.09 to the intercept's $-6.09$, and only badly
+degraded drives do that. **That single number explains why every
 metric in section 5 behaves the way it does.**
 
 **A predictable mistake, and the reasonable thinking behind it.** Most students
 read "odds multiplier 5.28" as "five times as likely to fail", and the instinct
 is sound — for rare events the odds and the probability are nearly the same
 number, so the reading is *almost* right here. It stops being right as
-probabilities grow: odds of 9 (probability 0.90) multiplied by 5 gives odds of
-45, a probability of 0.978. The odds went up fivefold; the probability moved by
+probabilities grow: a probability of 0.90 is odds of $0.9 / 0.1 = 9$;
+multiplied by 5 that gives odds of 45, and turning odds back into a probability,
+$p = \text{odds} / (1 + \text{odds}) = 45 / 46 = 0.978$. The odds went up fivefold; the probability moved by
 under eight points. **Odds ratios multiply odds, not probabilities.**
 
 ---
@@ -428,16 +436,24 @@ that did not, and multiply:
 | C: stayed healthy | $1 - p = 1 - 0.2 = 0.8$ | $1 - p = 1 - 0.5 = 0.5$ |
 | **All three, multiplied: the likelihood** | $0.8 \times 0.9 \times 0.8 = \mathbf{0.576}$ | $0.3 \times 0.4 \times 0.5 = \mathbf{0.060}$ |
 
-What actually happened is 9.6 times more probable under setting 1, so maximum
+What actually happened is $0.576 / 0.060 = 9.6$ times more probable under
+setting 1, so maximum
 likelihood prefers it; fitting the model is the same comparison made over every
 possible setting. Taking minus the (natural) logarithm of each factor and adding
-gives, for setting 1, $0.22 + 0.11 + 0.22 = 0.55$, and for setting 2,
-$1.20 + 0.92 + 0.69 = 2.81$. The log of a product is the sum of the logs, so
+gives, for setting 1, $-\log 0.8 - \log 0.9 - \log 0.8 = 0.22 + 0.11 + 0.22 =
+0.55$, and for setting 2, $-\log 0.3 - \log 0.4 - \log 0.5 = 1.20 + 0.92 +
+0.69 = 2.81$. The log of a product is the sum of the logs, so
 each total is minus the log of that setting's likelihood: the same order
 reversed, so the better setting now has the smaller number, which can be
 minimised as in lesson 3. Minus the log of a probability is the *surprise* of the outcome, which is why
 "most likely" and "least surprising" are the same choice. Section 3.3 arrives at
 the same quantity, averaged over the drives, as the cost.
+
+![](surprise_curve.png)
+
+*The surprise of an outcome, $-\log p$, against the probability $p$ the model gave
+it. Look at where the six factors above land: setting 1's (teal) all sit on the
+flat right-hand part, setting 2's (rust) further up, and A's 0.3 highest of all.*
 
 ### 3.2 The likelihood
 
@@ -465,12 +481,15 @@ $\log$ is strictly increasing.
 
 **Practically**, the product underflows. Notebook 1's gradient descent starts
 with every coefficient and the intercept at zero, where every one of the 6,000
-training drives gets probability 0.5, and $0.5^{6000}$ is about $10^{-1806}$. The
+training drives gets probability 0.5, and
+$0.5^{6000} = 10^{6000 \log_{10} 0.5} = 10^{6000 \times (-0.301)} = 10^{-1806}$. The
 smallest positive number a 64-bit float can hold is about $5 \times 10^{-324}$
 (and about $2 \times 10^{-308}$ while it keeps its full precision), so the
 product is stored as exactly zero, and so is
 every gradient computed from it. Even the fitted model, at an average log loss of
-0.0692, multiplies out to only about $10^{-180}$. Every serious implementation works in log space for this
+0.0692, multiplies out to only about $10^{-180}$: the log loss is minus the
+average log of the factors, so the product is
+$e^{-6000 \times 0.0692} = e^{-415} = 10^{-415 / \ln 10} = 10^{-180}$. Every serious implementation works in log space for this
 reason, not for elegance.
 
 Taking the logarithm and negating — so that we minimise rather than maximise,
@@ -490,7 +509,7 @@ $$L(p, y) = \begin{cases}
 
 Read it as a sentence: **the cost of an outcome is the surprise of seeing it.**
 An event you assigned probability 1 costs nothing; one you assigned probability
-0.001 costs $\log 1000 \approx 6.9$; one you declared impossible costs infinity.
+0.001 costs $-\log 0.001 = \log 1000 \approx 6.9$; one you declared impossible costs infinity.
 That is why log loss is unbounded, and section 4 is about why that is exactly
 what we want.
 
@@ -531,7 +550,7 @@ features, starting from $w = 0$ and $b = 0$. The log loss falls from 0.6931 to
 
 ![](logloss_descent.png)
 
-*What to look at: the descent is over almost at once. The first 100 iterations cover 96.7% of the total fall, and the last 100 of the 4,000 change the loss by nothing at the fifth decimal — the run is long out of caution, not necessity.*
+*What to look at: the descent is over almost at once. The first 100 iterations cover 96.7% of the total fall — $(J_0 - J_{100}) / (J_0 - J_{4000})$, with $J_0 = 0.6931$ and $J_{4000} = 0.0692$ — and the last 100 of the 4,000 change the loss by nothing at the fifth decimal — the run is long out of caution, not necessity.*
 
 **The starting value is a free test.** With $w = 0$ and $b = 0$ the model gives
 every drive $p = 0.5$, so the loss must begin at $-\log\tfrac{1}{2} = \log 2 =
@@ -549,12 +568,13 @@ Suppose a drive failed and the model said 0.0001.
 
 | Loss | Value |
 |---|---|
-| Squared error $(p - 1)^2$ | 0.9998 |
-| Log loss $-\log p$ | 9.21 |
+| Squared error $(p - 1)^2$ | $(0.0001 - 1)^2 = 0.9998$ |
+| Log loss $-\log p$ | $-\log 0.0001 = 9.21$ |
 
-Squared error charges **0.9998 for a confident falsehood and 0.25 for an honest
-"don't know"**. A factor of four separates the worst possible answer from a
-shrug. Log loss charges 9.21 against 0.69, a factor of thirteen, and the ratio
+Squared error charges **0.9998 for a confident falsehood and
+$(0.5 - 1)^2 = 0.25$ for an honest "don't know"**. A factor of
+$0.9998 / 0.25 = 4$ separates the worst possible answer from a shrug. Log loss
+charges 9.21 against $-\log 0.5 = 0.69$, a factor of $9.21 / 0.69 = 13$, and the ratio
 grows without bound as $p \to 0$.
 
 ### 4.2 The sharper problem: the gradient dies
@@ -575,7 +595,7 @@ $$\frac{\partial}{\partial z}(p - 1)^2 = 2(p - 1)\,p\,(1 - p)
 The squared-error gradient carries an extra factor $p(1-p)$, which is
 $\sigma'(z)$ — and $\sigma'$ vanishes at both ends.
 
-| $p$ | $\lvert$grad$\rvert$, squared error | $\lvert$grad$\rvert$, log loss |
+| $p$ | $\lvert$grad$\rvert$, squared error: $2(1 - p)\,p\,(1 - p)$ | $\lvert$grad$\rvert$, log loss: $1 - p$ |
 |---|---|---|
 | 0.5 | 0.250 | 0.500 |
 | 0.1 | 0.162 | 0.900 |
@@ -584,7 +604,8 @@ $\sigma'(z)$ — and $\sigma'$ vanishes at both ends.
 
 **As the model becomes more confidently wrong, squared error asks it to change
 less.** At $p = 0.001$ the gradient is a five-hundredth of the log loss
-gradient. Log loss goes the other way: its gradient approaches its maximum
+gradient: the ratio of the two is $2p(1 - p) = 2 \times 0.001 \times 0.999 =
+0.002$. Log loss goes the other way: its gradient approaches its maximum
 exactly where the error is worst.
 
 The cancellation in section 3.4 is the same fact seen from the other side. Log
@@ -642,19 +663,19 @@ Our test set is 2,000 drives, 76 of which failed. Consider two models.
 
 *The same test set under two models. The accuracy figures differ by 97.70 − 96.20 = 1.5 points; the number that separates them — 0 failures caught against 43 — appears in neither.*
 
-| Model | Accuracy | Failures caught |
+| Model | Accuracy = right answers / 2,000 | Failures caught |
 |---|---|---|
-| Predict "healthy" for everything | **96.20%** | **0 of 76** |
-| Logistic regression, threshold 0.5 | 97.70% | 43 of 76 |
+| Predict "healthy" for everything | every healthy drive: 1,924 / 2,000 = **96.20%** | **0 of 76** |
+| Logistic regression, threshold 0.5 | 43 failures + 1,911 healthy: 1,954 / 2,000 = 97.70% | 43 of 76 |
 
 **96.20% accuracy, nothing caught.** A model containing no learning of any kind,
-which could be written as `return 0`, is within 1.5 percentage points of a
-model that finds more than half the failing drives.
+which could be written as `return 0`, is within $97.70 - 96.20 = 1.5$ percentage points of a
+model that finds more than half the failing drives (43 of 76).
 
 The arithmetic is not subtle. 1,924 of the 2,000 drives are healthy, so
 answering "healthy" collects 1,924 correct answers for free: 1,924 / 2,000 =
 96.20%. Only the 76 failures, 76 / 2,000 = 3.8% of the
-test set is left to compete over, and no amount of skill moves accuracy far.
+test set, are left to compete over, and no amount of skill moves accuracy far.
 
 ### 5.2 Why this keeps happening
 
@@ -669,8 +690,8 @@ equipment failure, intrusion detection, spam: **the interesting class is always
 the small one.** Accuracy is not wrong. It is answering a question nobody asked.
 
 The general statement: with a positive rate $\pi$, the trivial always-negative
-classifier scores $1 - \pi$. At $\pi = 0.038$ that is 96.2%; at $\pi = 0.001$,
-as in some fraud problems, it is 99.9%.
+classifier scores $1 - \pi$. At $\pi = 0.038$ that is $1 - 0.038 = 96.2\%$; at
+$\pi = 0.001$, as in some fraud problems, it is $1 - 0.001 = 99.9\%$.
 
 ---
 
@@ -701,7 +722,7 @@ The names mean nothing until attached to consequences, so attach them:
 - **False negative**: a drive fails in service unwarned. Cost: an emergency
   callout, a degraded array, possibly data.
 
-For our model at threshold 0.5:
+For our model at threshold 0.5, as notebook 2 counts them:
 
 $$\begin{array}{l|rr}
  & \text{pred. healthy} & \text{pred. failing} \\\hline
@@ -737,13 +758,15 @@ A hook that survives exam pressure: **precision is about the alarms, recall is
 about the failures.** Look at the denominator and ask which population you are
 dividing by.
 
-For our model: precision 0.768, recall 0.566. Of the 56 drives flagged, 43 
-really failed; of the 76 that failed, we found 43.
+For our model: precision $= 43 / (43 + 13) = 43 / 56 = 0.768$, recall
+$= 43 / (43 + 33) = 43 / 76 = 0.566$. Of the 56 drives flagged, 43 really
+failed; of the 76 that failed, we found 43.
 
 Two further quantities appear often enough to name:
 
-$$\text{specificity} = \frac{TN}{TN + FP} = 0.993 \qquad\qquad
-  \text{false positive rate} = 1 - \text{specificity} = 0.007$$
+$$\text{specificity} = \frac{TN}{TN + FP} = \frac{1911}{1911 + 13} = 0.993
+  \qquad\qquad
+  \text{false positive rate} = 1 - \text{specificity} = \frac{13}{1924} = 0.007$$
 
 ### 6.3 F1, and why the harmonic mean
 
@@ -771,6 +794,12 @@ every one of the 2,000 drives is flagged and 76 of them fail.
 | Arithmetic | $(0.038 + 1) / 2 = 0.519$ |
 | Harmonic ($F_1$) | $2 \times 0.038 \times 1 / (0.038 + 1) = 0.073$ |
 
+![](harmonic_vs_arithmetic.png)
+
+*Both means for a model with perfect recall, as its precision varies. Look at the
+left edge, where the flag-everything model sits: the arithmetic mean never drops
+below one half, the harmonic mean drops with the precision.*
+
 The arithmetic mean gives a useless model a respectable-looking score, because a
 perfect result on one axis pays for a catastrophe on the other. The harmonic
 mean is dominated by the smaller number: **a model is only as good as its weaker
@@ -791,7 +820,7 @@ worth doing on any weighted formula. $\beta > 1$ puts more weight on recall's
 reciprocal, so a poor recall hurts more — $F_2$ is the usual choice when misses
 are costly, as here. $\beta < 1$ favours precision. The square is there so that
 $\beta$ reads as a ratio of importance rather than of reciprocals: at
-$\beta = 2$, recall is worth four times precision in the sum, which is the
+$\beta = 2$, recall is worth $\beta^2 = 4$ times precision in the sum, which is the
 convention the name carries.
 
 ### 6.4 Averaging across classes
@@ -833,10 +862,10 @@ when the two errors cost the same and the probabilities are calibrated (among
 drives given 0.3, about 30% really fail): the
 threshold derived from the costs below is 0.5 exactly when the costs are equal,
 whatever the class balance. Here a missed failure costs about nineteen times a
-needless replacement. The model's actual output is a probability; **turning it into a
+needless replacement ($2600 / 140 = 18.6$, section 7.2). The model's actual output is a probability; **turning it into a
 decision requires a threshold, and the threshold is a business question.**
 
-| Threshold | Flagged | TP | FP | FN | Precision | Recall | $F_1$ | Accuracy |
+| Threshold | Flagged, TP + FP | TP | FP | FN | Precision, $\frac{TP}{TP + FP}$ | Recall, $\frac{TP}{TP + FN}$ | $F_1$, $\frac{2PR}{P + R}$ | Accuracy, $\frac{TP + TN}{2000}$ |
 |---|---|---|---|---|---|---|---|---|
 | 0.02 | 353 | 69 | 284 | 7 | 0.195 | 0.908 | 0.322 | 0.855 |
 | 0.05 | 235 | 67 | 168 | 9 | 0.285 | 0.882 | 0.431 | 0.911 |
@@ -851,8 +880,9 @@ decision requires a threshold, and the threshold is a business question.**
 probabilities, same drives. Only the line between "leave it" and "replace it"
 moved.
 
-Note the accuracy column once more. From 0.20 upwards it varies by one
-percentage point while recall falls from 0.750 to 0.184, and its maximum sits at
+The counts come from notebook 2's sweep; TN, not shown, is the 1,924 healthy
+test drives minus FP. Note the accuracy column once more. From 0.20 upwards it
+varies by $0.977 - 0.967 = 0.010$, one percentage point, while recall falls from 0.750 to 0.184, and its maximum sits at
 the default threshold, which misses 33 failures. **Tuning on accuracy quietly
 recommends catching fewer failures**, because most of the alarms a higher
 threshold drops are false ones.
@@ -863,12 +893,12 @@ threshold drops are false ones.
 threshold rises — teal, the failures caught; gold, the false alarms — while the
 accuracy on the right barely moves and peaks at 0.5.*
 
-So when a paper or a colleague reports 77% precision, the useful question is:
+So when a paper or a colleague reports 77% precision (our 0.768 at 0.5), the useful question is:
 *at what threshold, and why that one?*
 
 ![](precision_recall_curve.png)
 
-*The table above, drawn as a curve, with three of its rows marked. Each point is one threshold; moving along the curve is the trade the table tabulates. The dashed line is what "no skill" looks like on this problem — the positive rate, 0.038, not 0.5 — and Section 8 returns to why that baseline matters more than the curve's shape.*
+*The table above, drawn as a curve, with three of its rows marked. Each point is one threshold; moving along the curve is the trade the table tabulates. The dashed line is what "no skill" looks like on this problem — the positive rate, 76 / 2,000 = 0.038, not 0.5 — and Section 8 returns to why that baseline matters more than the curve's shape.*
 
 ### 7.2 Choosing the threshold from costs
 
@@ -882,8 +912,9 @@ the errors cost.** Suppose
 
 $$C_{FP} = 140 \text{ EUR} \qquad\qquad C_{FN} = 2600 \text{ EUR}$$
 
-A missed failure costs about nineteen needless replacements. Now the threshold
-follows from arithmetic rather than habit.
+A missed failure costs about nineteen needless replacements,
+$2600 / 140 = 18.6$. Now the threshold follows from arithmetic rather than
+habit.
 
 **The derivation.** For a drive with estimated failure probability $p$, flagging
 it has expected cost $(1 - p)\,C_{FP}$ — we pay for a replacement only if the
@@ -898,6 +929,12 @@ $C_{FP} < p\,C_{FN} + p\,C_{FP} = p\left(C_{FN} + C_{FP}\right)$, so
 $$p > \frac{C_{FP}}{C_{FP} + C_{FN}} = t^*$$
 
 $$t^* = \frac{140}{140 + 2600} = 0.051$$
+
+![](expected_cost_lines.png)
+
+*The two expected costs of section 7.2 against the drive's probability $p$. Look
+at where the lines cross: below $t^*$ leaving the drive alone (rust) is cheaper,
+above it flagging (teal) is.*
 
 **Read the formula before the number.** The optimal threshold does not depend on
 the model, the dataset, or the class balance — only on the *ratio* of the two
@@ -915,13 +952,14 @@ On the test set, sweeping the threshold empirically puts the cheapest value at
 **0.08**, close to the theoretical 0.051, and the cost curve is nearly flat
 between them:
 
-| Policy | Cost on 2,000 drives | FP | FN |
+| Policy | Cost on 2,000 drives, $FP \times 140 + FN \times 2600$ | FP | FN |
 |---|---|---|---|
 | Do nothing | 197,600 EUR | 0 | 76 |
 | Threshold 0.50 | 87,620 EUR | 13 | 33 |
 | Threshold 0.08 | **45,540 EUR** | 121 | 11 |
 
-**Choosing the threshold on purpose halved the cost of the same model.** No
+**Choosing the threshold on purpose halved the cost of the same model**:
+$45540 / 87620 = 0.52$. No
 retraining, no new features, no better algorithm — one number, chosen from the
 economics instead of from the library default.
 
@@ -973,7 +1011,8 @@ failures faster than we annoy technicians?**
 ### 8.2 What the area means
 
 The **area under the curve (AUC)** summarises the whole curve in one number:
-0.5 for guessing, 1.0 for perfection. Ours is **0.949**.
+0.5 for guessing, 1.0 for perfection. Ours, from `roc_auc_score` in notebook 3,
+is **0.949**.
 
 The area has an exact probabilistic meaning, and it is the thing worth
 remembering:
@@ -991,6 +1030,12 @@ under the curve counts exactly the pairs in which the positive was admitted
 first — that is, scored higher. Dividing by $m_+ m_-$, the total number of
 pairs, gives the probability. This quantity is the Mann-Whitney $U$ statistic,
 and the identity is standard.
+
+![](score_distributions.png)
+
+*The scores the model gives the 76 failing drives (rust) and the 1,924 healthy
+ones (teal), on a logarithmic axis. Look at how far right the rust sits: pick one
+of each at random, and the AUC is the chance the rust one lies further right.*
 
 Notebook 3 checks it by experiment rather than accepting the argument: drawing
 200,000 random (failing, healthy) pairs, the failing drive scored higher in
@@ -1016,8 +1061,9 @@ which is the direction reality moves in fraud, disease and hardware failure.
 
 Keep the same model, keep every healthy drive in a fleet of 60,000, and thin the
 failures until they are 0.4% instead of 3.8%. **The model is not retrained.**
+Notebook 3 computes every number in the table below.
 
-| Positive rate | AUC | Average precision | Precision at 0.5 |
+| Positive rate, failures / fleet | AUC | Average precision | Precision at 0.5, $\frac{TP}{TP + FP}$ |
 |---|---|---|---|
 | 3.8% | 0.968 | 0.706 | 0.788 |
 | 1.0% | 0.965 | 0.487 | 0.462 |
@@ -1028,13 +1074,15 @@ at random does not change how the model ranks. It goes on reporting an excellent
 model — at the rarest setting, a marginally better one, which is sampling noise
 on 231 positives.
 
-**Precision falls to a third of what it was.** At the same threshold, with the
-same model, three alarms in four are now false. That is the number the technician
+**Precision falls to a third of what it was**, $0.259 / 0.788 = 0.33$. At the
+same threshold, with the same model, $1 - 0.259 = 0.74$ — three alarms in four —
+are now false. That is the number the technician
 experiences.
 
 **Why the disagreement.** Look at the denominators. FPR divides false positives
 by the number of healthy drives, which is enormous and growing: a thousand false
-alarms among a hundred thousand healthy drives is an FPR of 0.01, invisible on
+alarms among a hundred thousand healthy drives is an FPR of
+$1000 / 100000 = 0.01$, invisible on
 the ROC axis. Precision divides those same thousand alarms by the alarms raised,
 where they dominate.
 
@@ -1047,7 +1095,7 @@ will act on.
 **The rule: on an imbalanced problem, report the precision-recall curve
 alongside AUC, never instead of it.** Its baseline is the positive rate — 76 / 2,000 = 0.038
 here, not 0.5 — and its area, the **average precision**, was 0.717 for our
-model.
+model (`average_precision_score`, notebook 2).
 
 ---
 
@@ -1068,7 +1116,7 @@ proportional to each class's frequency. Here that makes each failure count about
 25 healthy drives: the ratio of the two weights is $m_0 / m_1 = 5770 / 230 = 25$,
 the healthy drives in the training set over the failed ones.
 
-| Model | TP | FP | FN | Precision | Recall | AUC | Cost = FN × 2,600 + FP × 140 |
+| Model | TP | FP | FN | Precision, $\frac{TP}{TP + FP}$ | Recall, $\frac{TP}{TP + FN}$ | AUC | Cost = FN × 2,600 + FP × 140 |
 |---|---|---|---|---|---|---|---|
 | Plain, threshold 0.50 | 43 | 13 | 33 | 0.768 | 0.566 | 0.949 | 87,620 |
 | Plain, threshold 0.08 | 65 | 121 | 11 | 0.349 | 0.855 | 0.949 | 45,540 |
@@ -1131,7 +1179,7 @@ assigned to what actually happened.
 
 The confusion matrix becomes $K \times K$, and precision and recall are computed
 **one class at a time**: for each class in turn, that class is positive and the
-rest are negative. On our three conditions:
+rest are negative. On our three conditions, from notebook 3:
 
 ![](multiclass_confusion.png)
 

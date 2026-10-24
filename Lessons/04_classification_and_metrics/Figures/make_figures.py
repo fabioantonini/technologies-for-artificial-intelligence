@@ -168,8 +168,86 @@ def evidence_on_the_sigmoid():
     save(fig, "evidence_on_the_sigmoid.png")
 
 
+def surprise_curve():
+    """-log p, with the six factors of section 3.1's two settings marked."""
+    p = np.linspace(0.02, 1, 400)
+    fig, ax = plt.subplots(figsize=(8.4, 4.2))
+    ax.plot(p, -np.log(p), lw=2.8, color=BLUE, zorder=2)
+    for factors, colour, name in (((0.8, 0.9, 0.8), TEAL, "setting 1"),
+                                  ((0.3, 0.4, 0.5), RUST, "setting 2")):
+        values = np.array(factors)
+        ax.scatter(values, -np.log(values), s=70, color=colour, edgecolor=INK,
+                   zorder=4, label=f"{name}: factors {', '.join(map(str, factors))}")
+    ax.annotate("drive A under setting 2:\n−log 0.3 = 1.20", xy=(0.3, -np.log(0.3)),
+                xytext=(0.42, 2.1), fontsize=10,
+                arrowprops=dict(arrowstyle="->", color=INK))
+    ax.set_xlabel("probability the model gave to what happened, p")
+    ax.set_ylabel("surprise, −log p")
+    ax.set_xlim(0, 1.02)
+    ax.set_ylim(0, 4)
+    ax.legend(loc="upper right", frameon=False, fontsize=10)
+    ax.set_title("Sure and right costs nothing; unlikely and true costs a lot",
+                 fontsize=10.5)
+    fig.tight_layout()
+    save(fig, "surprise_curve.png")
+
+
+def harmonic_vs_arithmetic():
+    """Both means for recall = 1, as precision varies; the flag-all model marked."""
+    precision = np.linspace(0.001, 1, 400)
+    arithmetic = (precision + 1) / 2
+    harmonic = 2 * precision / (precision + 1)
+    fig, ax = plt.subplots(figsize=(8.4, 4.2))
+    ax.plot(precision, arithmetic, lw=2.8, color=SLATE,
+            label="arithmetic mean, (P + 1) / 2")
+    ax.plot(precision, harmonic, lw=2.8, color=BLUE,
+            label="harmonic mean, F1 = 2P / (P + 1)")
+    flag_all = 76 / 2000
+    for value in ((flag_all + 1) / 2, 2 * flag_all / (flag_all + 1)):
+        ax.scatter([flag_all], [value], s=70, color=GOLD, edgecolor=INK, zorder=4)
+    ax.annotate("flag every drive, P = 76 / 2,000 = 0.038:\narithmetic (0.038 + 1) / 2 = 0.519",
+                xy=(flag_all, (flag_all + 1) / 2), xytext=(0.42, 0.30), fontsize=10,
+                arrowprops=dict(arrowstyle="->", color=INK))
+    ax.annotate("harmonic 2 × 0.038 / 1.038 = 0.073",
+                xy=(flag_all, 2 * flag_all / (flag_all + 1)), xytext=(0.14, 0.12),
+                fontsize=10, arrowprops=dict(arrowstyle="->", color=INK))
+    ax.set_xlabel("precision P, with recall fixed at 1")
+    ax.set_ylabel("mean of precision and recall")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1.05)
+    ax.legend(loc="lower right", frameon=False, fontsize=10)
+    ax.set_title("The arithmetic mean never drops below one half", fontsize=10.5)
+    fig.tight_layout()
+    save(fig, "harmonic_vs_arithmetic.png")
+
+
+def expected_cost_lines():
+    """Expected cost of flagging and of leaving a drive, against its p."""
+    cost_fp, cost_fn = 140, 2600
+    p = np.linspace(0, 0.15, 300)
+    star = cost_fp / (cost_fp + cost_fn)
+    fig, ax = plt.subplots(figsize=(8.4, 4.2))
+    ax.plot(p, (1 - p) * cost_fp, lw=2.8, color=TEAL,
+            label="flag it: (1 − p) × €140")
+    ax.plot(p, p * cost_fn, lw=2.8, color=RUST,
+            label="leave it: p × €2,600")
+    ax.axvline(star, color=GOLD, ls="--", lw=2)
+    ax.text(star + 0.003, 330, "t* = 140 / (140 + 2,600) = 0.051", fontsize=10)
+    ax.set_xlabel("the drive's probability of failing, p")
+    ax.set_ylabel("expected cost (EUR)")
+    ax.set_xlim(0, 0.15)
+    ax.set_ylim(0, 400)
+    ax.legend(loc="upper left", frameon=False, fontsize=10)
+    ax.set_title("Flag the drive where flagging is the cheaper line", fontsize=10.5)
+    fig.tight_layout()
+    save(fig, "expected_cost_lines.png")
+
+
 if __name__ == "__main__":
     print("figure concettuali della lezione 4:")
     sigmoid_and_odds()
     metric_denominators()
     evidence_on_the_sigmoid()
+    surprise_curve()
+    harmonic_vs_arithmetic()
+    expected_cost_lines()

@@ -502,4 +502,18 @@ same("nb3: 140 / 2,740", 140 / 2740, 0.051, tolerance=5e-4)
 same("2.4 the decoy's multiplier, exp(0.02)", math.exp(0.02), 1.02, tolerance=5e-3)
 same("1.1 log 5 / log(45/41)", math.log(5) / math.log(45 / 41), 17, tolerance=0.5)
 
+# Handout pass of 24 Oct: the formulas now written beside each number.
+same("2.1 where the line reaches 1", 1.0342 / 0.0326, 31.7, tolerance=0.05)
+same("3.1 -log 0.8", -math.log(0.8), 0.22, tolerance=5e-3)
+same("3.1 -log 0.9", -math.log(0.9), 0.11, tolerance=5e-3)
+same("3.1 -log 0.3", -math.log(0.3), 1.20, tolerance=5e-3)
+same("3.1 -log 0.4", -math.log(0.4), 0.92, tolerance=5e-3)
+same("3.1 -log 0.5", -math.log(0.5), 0.69, tolerance=5e-3)
+same("3.3 6,000 x 0.0692", 6000 * 0.0692, 415, tolerance=0.5)
+same("3.3 415 / ln 10", 6000 * 0.0692 / math.log(10), 180, tolerance=0.5)
+same("4.1 9.21 / 0.69", 9.21 / 0.69, 13, tolerance=0.5)
+same("6.2 13 / 1,924", 13 / 1924, 0.007, tolerance=5e-4)
+same("8.3 0.259 / 0.788", 0.259 / 0.788, 0.33, tolerance=5e-3)
+same("2.4 1 / (1 + e^6.09)", 1 / (1 + math.exp(6.09)), 0.0023, tolerance=5e-5)
+
 print(f"lesson 4: {checks} hand-worked numbers recomputed, all agree")
