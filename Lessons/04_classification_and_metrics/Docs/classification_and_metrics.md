@@ -137,6 +137,18 @@ The model becomes
 
 $$\hat{y} = P(y = 1 \mid x) = \sigma(w^\top x + b)$$
 
+**What $x$ is, from here on.** In the one-feature picture of section 2.1, $x$ was
+the raw count of reallocated sectors. In the model used from section 2.4 on, $x$
+holds a drive's six counters after two steps: the four counts and rates go
+through $\log(1 + x)$ (section 1.1), and then every column is **standardised** —
+`StandardScaler` subtracts the fleet's mean and divides by its standard
+deviation, so each feature has mean 0 and standard deviation 1. Two consequences
+follow. A coefficient $w_j$ is the change in $z$ for **one standard deviation**
+more of feature $j$ (section 2.4). And **$x = 0$ is not a drive with no sectors
+and no errors: it is a drive at the fleet average on every counter**, so the
+intercept $b$, the value of $z$ when every $x_j$ is 0, is the log-odds of an
+average drive.
+
 Three properties, each of which we will use:
 
 $$\sigma(0) = \tfrac{1}{2}, \qquad
@@ -398,8 +410,9 @@ a plausible-looking column. The harder question — would you have noticed witho
 being told? — is what lesson 5 is about.
 
 **The intercept is the average drive's chance, not the base rate.** A drive
-with perfectly average telemetry has every standardised feature at 0, so its
-log-odds are the intercept alone, and by the sigmoid
+with perfectly average telemetry has every standardised feature at 0 — at 0
+standard deviations from the fleet's mean, not at zero sectors (section 2.2) —
+so its log-odds are the intercept alone, and by the sigmoid
 $\sigma(-6.09) = 1 / (1 + e^{6.09}) = 1 / 442 = 0.0023$: a 0.2% chance of
 failing in thirty days, while the fleet as a whole fails at 3.8% (section 1.1). The
 gap is the point: failures come from the small group of drives far above

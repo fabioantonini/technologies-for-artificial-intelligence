@@ -419,7 +419,7 @@ you? Leave it hanging. It is lesson 5.
 
 # The intercept is the average drive's chance
 
-- Fitted intercept: **−6.09**, the log-odds of a drive average on every counter (all x = 0)
+- Fitted intercept: **−6.09**, the log-odds of a drive average on every counter (all standardised x = 0)
 - σ(−6.09) = 1 ÷ (1 + exp(6.09)) = 1 ÷ 442 = 0.0023: a 0.2% chance
 - The fleet fails at 3.8% (slide 6): the failures come from the few drives far above average
 
@@ -427,7 +427,12 @@ you? Leave it hanging. It is lesson 5.
 This is the slide that quietly explains everything in the second half of the
 lesson, so do not rush it.
 
-Say first what the intercept is NOT: it is not the base rate. The fleet fails
+Start with what x = 0 means. The intercept is the value of the log-odds when
+every x is 0 - but the x are standardised (slide 13), so x = 0 is not a drive
+with no sectors and no errors: it is a drive sitting exactly at the fleet
+average on every counter.
+
+Then say what the intercept is NOT: it is not the base rate. The fleet fails
 at 3.8%; the intercept describes a drive whose every counter sits at the
 average, and such a drive almost never fails. The failures come from the small
 group of drives far above average on one or more counters. Handout section 2.4.
