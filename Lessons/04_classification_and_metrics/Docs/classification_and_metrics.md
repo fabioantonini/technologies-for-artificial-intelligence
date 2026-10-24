@@ -137,6 +137,12 @@ The model becomes
 
 $$\hat{y} = P(y = 1 \mid x) = \sigma(w^\top x + b)$$
 
+**What $p$ is.** $\hat{y} = P(y = 1 \mid x)$, also written $p$, is the probability
+that this drive **fails within thirty days, given its counters** — a precise
+quantity, not a vaguer "probability of trouble". And although $w^\top x + b$
+has the same form as lesson 3's line, $w$ and $b$ are not fitted by least
+squares: section 3 shows they are chosen by maximum likelihood.
+
 **What $x$ is, from here on.** In the one-feature picture of section 2.1, $x$ was
 the raw count of reallocated sectors. In the model used from section 2.4 on, $x$
 holds a drive's six counters after two steps: the four counts and rates go
@@ -147,7 +153,8 @@ follow. A coefficient $w_j$ is the change in $z$ for **one standard deviation**
 more of feature $j$ (section 2.4). And **$x = 0$ is not a drive with no sectors
 and no errors: it is a drive at the fleet average on every counter**, so the
 intercept $b$, the value of $z$ when every $x_j$ is 0, is the log-odds of an
-average drive.
+average drive. Reading $x = 0$ as "no sectors, no errors" is the natural
+mistake, and it makes the intercept look like the risk of a perfect drive.
 
 Three properties, each of which we will use:
 
@@ -465,6 +472,11 @@ probability of $\tfrac{1}{2} \times \tfrac{1}{2} = \tfrac{1}{4}$. So multiply:
 | C: stayed healthy | $1 - p = 1 - 0.2 = 0.8$ | $1 - p = 1 - 0.5 = 0.5$ |
 | **All three, multiplied: the likelihood** | $0.8 \times 0.9 \times 0.8 = \mathbf{0.576}$ | $0.3 \times 0.4 \times 0.5 = \mathbf{0.060}$ |
 
+**A predictable mistake.** The middle columns are not the probability of
+failing: they are the probability of **what happened** — of failing for A, of
+staying healthy for B and C. The model's $p$ is the probability of failing for
+every drive, so for B and C the factor is $1 - p$.
+
 What actually happened is $0.576 / 0.060 = 9.6$ times more probable under
 setting 1, so maximum
 likelihood prefers it; fitting the model is the same comparison made over every
@@ -499,6 +511,13 @@ the whole dataset is the product:
 
 $$\mathcal{L}(w, b) = \prod_{i=1}^{m}
   \left(p^{(i)}\right)^{y^{(i)}}\left(1 - p^{(i)}\right)^{1 - y^{(i)}}$$
+
+**Two words, kept apart.** The first expression is one drive's **factor**: the
+probability the model gave to what happened to that drive. The **likelihood** is
+the product, read as a function of $(w, b)$ with the data held fixed — which is
+why it is written $\mathcal{L}(w, b)$. Calling the single factor "the likelihood
+of one example" is a common slip; it blurs the fact that the likelihood scores a
+*setting* of the parameters against *all* the data at once.
 
 ### 3.3 Why we take the logarithm
 

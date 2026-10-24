@@ -300,6 +300,12 @@ of 0 gives back exactly a half.
 
 The handout runs the same algebra in the other direction, from the sigmoid to
 the log-odds, in section 2.3.
+
+Two predictable slips, worth correcting as soon as you hear them. First, p is
+not a vague "probability that the drive has problems": it is P(y = 1 | x), the
+probability that this drive fails within thirty days, given its six counters.
+Second, the line has the same form as lesson 3's, but it is not fitted by least
+squares: w and b are chosen by maximum likelihood, which slides 16 to 21 build.
 :::
 
 # The model, in one line
@@ -494,6 +500,11 @@ failed, 0 for one that stayed healthy - the convention of slide 4.
 Ask the room: is setting 1 a good setting? Let them argue it from the table.
 It gave the drive that failed a high p, and the two that survived a low one,
 so it looks good. The next slide turns that impression into a number.
+
+A predictable slip: reading B's 0.1 as "the probability of what happened to B".
+It is not. p is the probability of FAILING for every drive, including the two
+that stayed healthy; the probability of what happened to B is 1 - 0.1 = 0.9,
+and that conversion is exactly the next slide.
 :::
 
 # Step 2: how likely was the outcome?
@@ -521,9 +532,15 @@ observed had a 57.6% chance of happening.
 
 That product has a name: the likelihood of the setting. The next slide writes
 the same two rules as formulas.
+
+A predictable slip: describing this slide as "the probability of failing for
+the three drives". The last column is the probability of WHAT HAPPENED - of
+failing for A, of staying healthy for B and C. And the multiplication needs
+its condition said aloud: the drives must be independent, as two coin tosses
+are, for the probability of all three outcomes to be the product.
 :::
 
-# Step 2 as formulas: the likelihood
+# Step 2 as formulas: one drive, then the likelihood
 
 $$P(y \mid x) = p^{\,y}\,(1 - p)^{1 - y} \\ \mathcal{L}(w, b) = \prod_{i=1}^{m} \left(p^{(i)}\right)^{y^{(i)}} \left(1 - p^{(i)}\right)^{1 - y^{(i)}}$$
 
@@ -546,6 +563,11 @@ Bottom line: the likelihood, script L, of a setting (w, b). The capital pi means
 The p inside depends on w and b, through p = sigma(w-transpose-x + b). That is
 why L is written as a function of w and b: change the setting, every p changes,
 and the likelihood changes with them. Handout section 3.2.
+
+A predictable slip of language: calling the top line "the likelihood of one
+example". It is one drive's factor, the probability of what happened to that
+drive. The likelihood is the product on the bottom line, read as a function
+of w and b with the data held fixed - which is why it is written L(w, b).
 :::
 
 # Step 3: two settings, the likelier wins
