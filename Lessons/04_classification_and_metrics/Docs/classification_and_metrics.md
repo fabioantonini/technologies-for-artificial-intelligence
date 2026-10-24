@@ -217,9 +217,27 @@ $$\frac{P(y = 1 \mid x)}{P(y = 0 \mid x)}
 The odds after seeing $x$ are the odds before, times the **likelihood ratio**:
 how much more common the reading $x$ is among drives that fail than among
 drives that do not. A reading six times more common among failing drives
-multiplies the odds by 6, whatever they were. And a factor, unlike a step,
-never breaks anything — any positive odds times 6 are still positive odds, and
-so still a probability:
+multiplies the odds by 6, whatever they were.
+
+Counting drives shows why. Take 1,000 drives at 50% risk and 1,000 at 95%, and
+a reading that shows up on 60% of the drives that are going to fail and on 10%
+of the healthy ones — six times more often:
+
+| One reading, 6 times more common among failing drives | Drives at 50% risk | Drives at 95% risk |
+|---|---|---|
+| 1,000 such drives: will fail / stay healthy | 500 / 500 | 950 / 50 |
+| Those showing the reading: 60% of failing, 10% of healthy | 300 / 50 | 570 / 5 |
+| Risk after the reading: failing $\div$ all showing it | 300 $\div$ 350 = 86% | 570 $\div$ 575 = 99.1% |
+| Adding 0.10 to the risk instead | 60% | 105%: impossible |
+| Odds = failing $\div$ healthy, before and after | 1, then 300 $\div$ 50 = 6: $\times$ 6 | 19, then 570 $\div$ 5 = 114: $\times$ 6 |
+
+The reading scales the failing drives by 0.6 and the healthy ones by 0.1, so
+their ratio — the odds — is multiplied by $0.6 / 0.1 = 6$ whatever it was
+before; the shares 60% and 10% are an illustration, and any pair with ratio 6
+gives the same risks. The risk after is a count out of a total, so it can never
+pass 100%. A factor, unlike a step, never breaks anything — any positive odds
+times 6 are still positive odds, and so still a probability. The same
+arithmetic, written for any starting risk and including an average drive:
 
 | Risk before, $p$ | Odds before, $p / (1 - p)$ | A reading 6 times more common among failing drives: odds $\times$ 6 | Risk after, odds $/ (1 +$ odds$)$ | Adding 0.10 to the risk instead |
 |---|---|---|---|---|

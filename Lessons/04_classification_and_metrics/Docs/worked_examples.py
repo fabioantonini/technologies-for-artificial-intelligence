@@ -79,6 +79,27 @@ for p, odds_before, odds_after, risk_after, step in (
          tolerance=5e-4 if risk_after > 0.9 else 5e-3)
     same(f"2.3 adding 0.10 at p = {p:.4f}", p + 0.10, step, tolerance=5e-4)
 same("2.3 the average drive's risk", average, 0.002, tolerance=5e-4)
+# Section 2.3's counted table (also slide 10): 1,000 drives, a reading on 60% of
+# failing and 10% of healthy ones. The counts are rebuilt from the shares; the
+# risk after is checked against Bayes' rule in probability form, a second route.
+for p, fail, healthy, fail_r, healthy_r, risk_after, odds_b, odds_a in (
+        (0.50, 500, 500, 300, 50, 0.86, 1, 6),
+        (0.95, 950, 50, 570, 5, 0.991, 19, 114)):
+    same(f"2.3 counted: failing at p = {p}", 1000 * p, fail, tolerance=1e-9)
+    same(f"2.3 counted: healthy at p = {p}", 1000 * (1 - p), healthy, tolerance=1e-9)
+    same(f"2.3 counted: failing with the reading at p = {p}", 0.6 * 1000 * p,
+         fail_r, tolerance=1e-9)
+    same(f"2.3 counted: healthy with the reading at p = {p}",
+         0.1 * 1000 * (1 - p), healthy_r, tolerance=1e-9)
+    bayes = 0.6 * p / (0.6 * p + 0.1 * (1 - p))
+    same(f"2.3 counted: risk after at p = {p}", bayes, risk_after,
+         tolerance=5e-4 if risk_after > 0.9 else 5e-3)
+    same(f"2.3 counted: odds before at p = {p}", fail / healthy, odds_b, tolerance=1e-9)
+    same(f"2.3 counted: odds after at p = {p}", fail_r / healthy_r, odds_a,
+         tolerance=1e-9)
+    same(f"2.3 counted: the odds factor at p = {p}", odds_a / odds_b, 0.6 / 0.1,
+         tolerance=1e-9)
+
 same("2.3 the factor behind 1.80", math.exp(1.80), 6.05, tolerance=5e-3)
 for p, points in ((average, 1), (0.50, 36), (0.95, 4)):
     o = 6 * p / (1 - p)
