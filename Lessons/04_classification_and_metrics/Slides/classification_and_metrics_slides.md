@@ -639,9 +639,11 @@ Squared error through a sigmoid has no such guarantee and is in general
 non-convex.
 
 Now the caution that catches people, and it is worth ten seconds because they
-will hit it in the notebook. Convex does NOT mean there is a closed-form
-solution. Setting the gradient to zero gives X-transpose times sigma of Xw minus
-y equals zero, which is not linear in w - the sigmoid is in the way.
+will see max_iter set in notebook 1 and wonder why. Convex does NOT mean there
+is a closed-form solution. Setting the gradient to zero gives X-transpose times
+the vector of errors, sigma(Xw + b) minus y, equal to zero. That equation is
+not linear in w - the sigmoid is in the way - so it cannot be solved in one
+step as lesson 3's normal equation was.
 
 There is no normal equation for logistic regression. It has to be solved
 iteratively, which is why LogisticRegression has a max_iter argument and
@@ -689,10 +691,12 @@ First observation: it is STRAIGHT. Logistic regression is a linear classifier.
 The curve is in the probabilities, not in the boundary. That surprises people
 who expected the sigmoid to bend it.
 
-Second observation, and this is the bridge to the rest of the lesson: almost
-every gold point - every drive that actually failed - is on the blue side of the
-line. At a threshold of 0.5 this model calls nearly the whole fleet healthy,
-including most of the drives that failed.
+Second observation, and this is the bridge to the rest of the lesson: most of
+the gold points - the drives that actually failed - are on the blue side of the
+line. At a threshold of 0.5 this two-feature model calls nearly the whole fleet
+healthy, including most of the drives that failed. It uses two counters only,
+so that it can be drawn; the six-counter model of slide 28 does better at the
+same 0.5, and still misses 33 of the 76 test failures.
 
 Ask: is that a bad model? Take answers. Then say: the probabilities are fine.
 The threshold of 0.5 is a habit. Telling those two apart is the rest of the
@@ -719,7 +723,7 @@ if they have not been thinking about it.
 This is the number to remember from lesson 4. Put it up and say nothing for a
 moment.
 
-A model that could be written `return 0` - no learning, no data, no features  - 
+A model that could be written `return 0` - no learning, no data, no features -
 scores 96.20%. The model they just built, which finds more than half the failing
 drives, scores 97.70%. One and a half percentage points separate a real model
 from a worthless one.
@@ -728,7 +732,8 @@ The arithmetic is not subtle: 1,924 of the 2,000 test drives are healthy, so
 answering "healthy" collects them all for free. Only 3.8% of the test set is
 left to compete over.
 
-This is the 306 from the first ten minutes, coming back as an accuracy score.
+This is the 306 of slide 6 coming back as an accuracy score: 96.20% is simply
+the share of test drives that are healthy.
 :::
 
 # Why everyone makes this mistake once
@@ -882,7 +887,7 @@ rows is what they need in their heads while they run the notebook, not
 afterwards - left to themselves they quote whichever is biggest.
 
 The weighted average weights each class by how common it is, so on this problem
-it is essentially the healthy class talking, and it reads close to accuracy  - 
+it is essentially the healthy class talking, and it reads close to accuracy -
 inheriting exactly the blindness slides 28 to 31 were about.
 
 The macro average gives the two classes equal weight, so the rare class actually
@@ -912,9 +917,9 @@ Have them build the four counts by hand before calling confusion_matrix. It is
 four comparisons and it takes two minutes, and it is what makes the jargon stop
 being jargon.
 
-Spend time on the threshold sweep table. Do not explain it first  - 
+Spend time on the threshold sweep table. Do not explain it first -
 let them read the columns and say what they see. Somebody will notice that
-accuracy barely moves. That is the moment to make the next slide.
+accuracy barely moves. That is the moment to show the next slide.
 :::
 
 # The threshold is a choice nobody made
@@ -927,8 +932,9 @@ x-axis. Same coefficients, same probabilities, same drives. All that moves is
 where we draw the line between "leave it" and "replace it".
 
 That 0.5 is predict()'s default and nothing more. It is the right choice only
-when the two errors cost the same and the probabilities are trustworthy - slide
-48 derives the threshold from the costs, and it is 0.5 exactly when they are
+when the two errors cost the same and the probabilities are calibrated: among
+drives given 0.3, about 30% really fail (slide 43 names the property). Slide 48
+derives the threshold from the costs, and it is 0.5 exactly when they are
 equal. Here a miss costs about nineteen times a false alarm, and in most real
 problems the costs differ too.
 
@@ -960,8 +966,11 @@ falls from 0.803 to 0.184. And
 its maximum is at 0.5 - the threshold that misses 33 of the 76 failures.
 
 Say the consequence plainly: tune on accuracy and it will quietly recommend
-catching fewer failures, because every alarm it drops was a possible false
-positive.
+catching fewer failures. Most of the alarms a higher threshold drops are false
+ones, so accuracy rises with each drop, even though some of the dropped alarms
+were failures being caught. From 0.30 to 0.50 the model drops 22 alarms: 12
+were false and 10 were caught failures. Accuracy counts that as two more right
+answers, 0.976 to 0.977.
 :::
 
 # The precision-recall curve
@@ -1042,7 +1051,9 @@ Say it concretely: pick one drive that failed and one that did not, at random.
 That makes AUC a measure of RANKING quality. It is threshold-free because
 ranking is threshold-free.
 
-The identity with the Mann-Whitney U statistic is in the handout, section 8.2,
+The identity with the Mann-Whitney U statistic - a classical test that compares
+two groups by counting, over every pair, which member ranks higher - is in the
+handout, section 8.2,
 for anyone who wants the proof. But notebook 3 does something better than a
 proof for this audience: it draws 200,000 random pairs and counts. 0.9488
 against roc_auc_score's 0.9493.
@@ -1055,7 +1066,7 @@ against roc_auc_score's 0.9493.
 
 ::: notes
 Short slide, important consequence. AUC depends only on the ordering, so it is
-invariant under any monotone transformation of the scores.
+unchanged by anything done to the scores that keeps their order.
 
 Divide all the probabilities by ten and the ranking is identical, so the AUC is
 identical - while the model is now badly calibrated and every threshold-based
@@ -1082,14 +1093,15 @@ moves in fraud, disease, hardware failure.
 Someone will notice that at 3.8% the AUC reads 0.968, not the 0.949 of slide
 42. Different drives: 0.949 rests on the 76 failures of our 2,000-drive test
 set, 0.968 on a fleet thirty times larger. Both are estimates of the same
-ranking ability.
+ranking ability. The same goes for average precision: 0.706 on the large
+fleet, against slide 39's 0.717 on the test set.
 
 Left panel: the three ROC curves sit on top of each other. AUC 0.968, 0.965, 0.974. It
 reports an excellent model throughout, and at the rarest setting a marginally
 better one, which is sampling noise on 231 positives.
 
 Right panel: the precision-recall curves are in three different worlds. Average
-precision falls from 0.706 to 0.361, and precision at the same threshold falls
+precision falls from 0.706 to 0.361, and precision at the threshold of 0.5 falls
 from 0.79 to 0.26 - three alarms in four now false.
 
 Three curves on the left, one model, no problem. Three curves on the right, same
@@ -1114,7 +1126,8 @@ So ROC is measuring the false alarms against a population nobody experiences.
 The technician does not see the 99,000 drives left alone; they see the alarm
 queue.
 
-This is the second predictable mistake of the lesson, and again defend the
+This is the lesson's second big predictable mistake, after trusting accuracy
+on slide 28, and again defend the
 instinct: AUC is threshold-free, comparable across models and datasets, bounded
 in a familiar range. Those are real virtues. It simply answers a question about
 ranking when the question was about the alarm queue.
@@ -1235,8 +1248,10 @@ you no threshold to move. Then this is how you shift the operating point.
 The same reading holds for resampling and for SMOTE (synthetic minority
 oversampling technique, which builds artificial minority examples): they move the
 operating point too. And both must be applied to the training rows only - inside
-each cross-validation fold, once lesson 5 introduces folds - for the reasons
-lesson 2 gave about imputation.
+each cross-validation fold, once lesson 5 introduces folds. Duplicated or
+synthetic failures in the test set would be scored as if they were real drives,
+and the test score would stop describing the real fleet; lesson 2 made the same
+argument for fitting the imputer on the training rows only.
 :::
 
 # Notebook 3, live
@@ -1314,8 +1329,8 @@ If they remember one thing from today, it should be the reflex to ask "what's
 the base rate?" before believing any accuracy figure. That reflex is worth more
 than any of the formulas.
 
-The second thing: every metric on the slide depended on a threshold, and the
-threshold has an answer - C-FP over C-FP plus C-FN, for honest probabilities -
+The second thing: accuracy, precision, recall and F1 all depended on a
+threshold, and the threshold has an answer - C-FP over C-FP plus C-FN, for honest probabilities -
 that comes from the business, not from the data.
 :::
 

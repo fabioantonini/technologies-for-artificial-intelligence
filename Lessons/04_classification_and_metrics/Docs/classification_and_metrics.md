@@ -708,7 +708,8 @@ when $\hat{y} \geq 0.5$.
 *The fitted model is identical at every point on this axis: same coefficients, same probabilities, same drives. Only the line between "leave it" and "replace it" moves.*
 
 That 0.5 is `predict()`'s default and nothing more. It is the right choice only
-when the two errors cost the same and the probabilities are trustworthy: the
+when the two errors cost the same and the probabilities are calibrated (among
+drives given 0.3, about 30% really fail): the
 threshold derived from the costs below is 0.5 exactly when the costs are equal,
 whatever the class balance. Here a missed failure costs about nineteen times a
 needless replacement. The model's actual output is a probability; **turning it into a
