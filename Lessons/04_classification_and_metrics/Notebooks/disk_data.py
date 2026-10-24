@@ -77,7 +77,7 @@ def load_drives(n_samples: int = 8_000,
     """Return drive telemetry with a `failed` column of zeros and ones.
 
     The features are skewed and correlated the way SMART counters are: most
-    drives report zero reallocated sectors, hot drives are the ones that have
+    drives report only a few reallocated sectors, hot drives are the ones that have
     been running longest, and error rates rise together. That is what makes the
     problem worth a model rather than a threshold on one column.
     """
@@ -90,7 +90,7 @@ def load_drives(n_samples: int = 8_000,
     temperature_c = np.clip(
         rng.normal(34 + 6e-5 * power_on_hours, 4.2, n_samples), 18, 63)
 
-    # Most drives never reallocate a sector; a few reallocate many. The rate
+    # Most drives reallocate a few sectors and a few reallocate many. The rate
     # rises with age, which is the correlation that makes this realistic.
     sector_rate = 0.35 + 9e-5 * power_on_hours
     reallocated_sectors = rng.poisson(sector_rate, n_samples)

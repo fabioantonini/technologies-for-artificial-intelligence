@@ -48,7 +48,21 @@ whether it is any good is where the actual difficulty lives.
 Everything below uses 8,000 disk drives from a data centre. Each drive reports
 six SMART counters — **Self-Monitoring, Analysis and Reporting Technology**, the
 diagnostic statistics a drive keeps about itself — and a label saying whether it
-failed within thirty days.
+failed within thirty days. The six counters, with the value of a typical drive
+and the range that holds the middle 90% of the fleet:
+
+| Column | What it records | Typical drive (median) | Middle 90% of drives |
+|------|---------|---|----|
+| `reallocated_sectors` | bad patches of the disk the drive has retired and replaced with spare ones | 2 | 0 to 6 |
+| `spin_retry_count` | times the motor needed a second attempt to bring the platters up to speed | 0 (84% of drives have none) | 0 to 1 |
+| `read_error_rate` | share of reads that hit an error | 0.17% | 0.04% to 0.70% |
+| `seek_error_rate` | share of head movements that missed their track | 0.22% | 0.05% to 0.97% |
+| `temperature_c` | operating temperature, in degrees Celsius | 35.2 | 28.3 to 42.3 |
+| `power_on_hours` | hours in service | 16,100 (about 22 months) | 5,100 to 37,000 |
+
+The first four are counts and rates that span orders of magnitude, which is why
+they are read on a logarithmic scale (below); temperature and hours are used as
+they are.
 
 **306 of the 8,000 drives failed. That is 3.8%.**
 
@@ -66,17 +80,16 @@ convenience: it is how the evidence behaves. Going from 0 to 4 reallocated
 sectors is a **17 times** larger move than going from 40 to 44
 ($\log 5 = 1.61$ against $\log(45/41) = 0.09$), because the first sector a
 drive ever reallocates says something and the forty-first says almost nothing
-new. In the units the model works in, those first four sectors are worth
-**$+4.7$ log-odds**: a drive with average telemetry and no reallocated sectors
-has a 0.012% chance of failing, and four sectors take it to 1.3% — **about a
-hundredfold increase**. The four sectors from 40 to 44 are worth
-$+0.27$, and move the same drive from 85% to 89%.
+new. Take a drive whose other counters are all at the fleet average. With no
+reallocated sectors it has a 0.012% chance of failing, and four sectors take
+it to 1.3% — **about a hundredfold increase**. The four sectors from 40 to 44
+move the same drive only from 85% to 89%.
 
 This is the feature engineering of lesson 2, and it has two consequences here.
 The coefficients in section 2.4 are per standard deviation of the *transformed*
 column. And the single-feature curve in section 2.1 is fitted on the raw count
-instead, which is exactly why it is steepest in the middle of the observed
-range rather than at its left edge.
+instead, so it gives every sector the same weight; section 2.2 shows what that
+costs.
 
 ---
 
@@ -138,20 +151,36 @@ that this is simultaneously the reason the sigmoid works and the reason squared
 error does not.
 
 **The diminishing returns, measured.** They are diminishing in the *total*
-evidence $z$, not in any single counter. Two units of log-odds spent from
+evidence $z$, not in any single counter (section 2.3 shows that $z$ is the
+log-odds; for now, read it as evidence). Two units of $z$ spent from
 $z = 0$ move the probability from 0.50 to 0.88; the same two units spent from
 $z = 6$ move it from 0.9975 to 0.9997 — **178 times less**. The curve is steep
 where the model is genuinely undecided and flat where its mind is made up.
 
 **A predictable mistake, and the figure invites it.** Read that against the
-right-hand panel of the figure in section 2.1, whose horizontal axis is a raw
-counter rather than $z$, and the two appear to contradict each other: that curve
-is steepest at **13.2 reallocated sectors**, and the first four sectors move it
-by 0.03 against the 0.31 that sectors 10 to 14 are worth. Both pictures are
-correct. A flat left tail does not say the first four sectors carry no
-information — it says that on the scale that panel uses, four sectors have not
-yet made the question interesting. Section 1.1 gives the scale the counters are
-really measured on, where those same four sectors are worth $+4.7$ in log-odds.
+right-hand panel of the figure in section 2.1 and the two seem to disagree. That
+curve barely moves over the first few reallocated sectors, where 90% of the
+drives sit: the first four move it by 0.03, against 0.31 for sectors 10 to 14,
+and it is steepest at **13.2 sectors**. It looks as if the first sectors say
+little. Two separate things are going on.
+
+*It is the same sigmoid, drawn against a different axis.* That panel's model has
+a single input, the raw count $x$ of reallocated sectors, so its $z$ is a
+straight line in the count: $z = 0.336\,x - 4.43$. With no sectors, $z$ is
+already $-4.43$, deep in the flat left end of the curve above; it reaches 0, the
+steep middle, at $4.43 / 0.336 = 13.2$ sectors. The flat start of that panel is
+the flat left end of this one, with sectors on the axis instead of $z$.
+
+*The flat start comes from the raw count, not from the drives.* A straight line
+in the count gives every sector the same 0.336 of $z$, so the first four add
+$4 \times 0.336 = 1.34$: that model takes a drive with no sectors from 1.2% to
+4.4%. The labels were generated from $\log(1 + x)$ (section 1.1), on which the
+first sectors weigh the most: for a drive with otherwise average counters, the
+first four add **4.7** to $z$, the hundredfold increase of section 1.1, while
+the four from 40 to 44 add only 0.27. That is why the model fitted from
+section 2.4 on uses $\log(1 + x)$. Compare such effects in $z$, not in
+probability: at 0.012% that drive is so deep in the flat tail that a hundredfold
+rise moves its probability by only 0.013, less than the raw-count curve's 0.03.
 
 **Deriving the third property**, since it is used repeatedly. Write
 $\sigma = (1 + e^{-z})^{-1}$ and differentiate:

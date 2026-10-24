@@ -152,16 +152,31 @@ from z = 0 take the probability from 0.50 to 0.88; the same two units starting
 from z = 6 take it from 0.9975 to 0.9997, 178 times less. Once the model is
 nearly sure, more evidence barely changes its answer.
 
-Expect someone to object that the previous figure says otherwise: there the
-curve is flat at the START, where drives have few reallocated sectors, not only
-at the ends. The answer is the horizontal axis. That curve is drawn against raw
-reallocated sectors, not against z, so it is steepest at 13.2 sectors and the
-first four sectors move it by only 0.03. Both pictures are right. The model
-does not use the raw count: section 1.1 of the handout explains that four of
-the counters enter it as log(1 + count), so the first few sectors are a big
-step on the model's own scale. On that scale four sectors add +4.7 to z: a drive
-with average telemetry and no reallocated sectors has a 0.012% chance of
-failing, and four sectors take it to 1.3%, about a hundred times more.
+Expect someone to object with slide 7's right panel. That curve barely moves
+over the first few reallocated sectors, where 90% of the drives sit - the first
+four move it by 0.03 - and it is steepest at 13.2 sectors. So do the first
+sectors say little? Two separate answers, in this order.
+
+First, it is the same sigmoid, drawn against a different axis. Slide 7's model
+has one input, the raw count of reallocated sectors, so its z is a straight
+line in the count: z = 0.336 times the count, minus 4.43. With no sectors z is
+already -4.43, deep in the flat left end of this slide's curve; z reaches 0,
+the steep middle, at 13.2 sectors. The flat start of slide 7 is the flat left
+end of slide 8, with sectors on the axis instead of z.
+
+Second, the flat start comes from using the raw count, not from the drives. A
+straight line gives every sector the same 0.336 of z, so for that model the
+first four sectors add 1.34 to z and take a drive from 1.2% to 4.4%. But the
+labels were generated from log(1 + count), on which the first sectors weigh
+the most (handout section 1.1): for a drive whose other counters are average,
+the first four sectors add 4.7 to z and take it from 0.012% to 1.3%, about a
+hundred times more. That is why the six-counter model of slide 11 onwards
+takes log(1 + count) as its input.
+
+If a sharp student notices that 0.012% to 1.3% is a smaller move in
+probability than slide 7's 0.03: compare effects in z, not in probability. That
+drive starts so deep in the flat tail that even a hundredfold rise moves its
+probability by only 0.013. Handout section 2.2.
 
 Right panel: the same relationship inverted - probability on the horizontal
 axis, log-odds on the vertical one. This is the panel that explains WHY this

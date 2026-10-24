@@ -211,6 +211,30 @@ same("2.2 what the first four sectors are worth to it",
 same("2.2 what sectors 10 to 14 are worth to it",
      curve(14) - curve(10), 0.31, tolerance=5e-3)
 
+# The table of the six counters in section 1.1: median, and 5th to 95th percentile.
+for column, (low, median, high), tolerance in (
+        ("reallocated_sectors", (0, 2, 6), 0.5),
+        ("spin_retry_count", (0, 0, 1), 0.5),
+        ("read_error_rate", (0.0004, 0.0017, 0.0070), 5e-5),
+        ("seek_error_rate", (0.0005, 0.0022, 0.0097), 5e-5),
+        ("temperature_c", (28.3, 35.2, 42.3), 0.05),
+        ("power_on_hours", (5_100, 16_100, 37_000), 50)):
+    for quantile, printed in zip((0.05, 0.5, 0.95), (low, median, high)):
+        same(f"1.1 {column}, {quantile:.0%} quantile",
+             drives[column].quantile(quantile), printed, tolerance=tolerance)
+same("1.1 drives with no spin retries", (drives["spin_retry_count"] == 0).mean(),
+     0.84, tolerance=5e-3)
+same("1.1 the median drive's service, in months",
+     drives["power_on_hours"].median() / (24 * 365.25 / 12), 22, tolerance=0.5)
+
+same("2.2 the raw-count model's slope, per sector", slope, 0.336, tolerance=5e-4)
+same("2.2 its z with no sectors", intercept, -4.43, tolerance=5e-3)
+same("2.2 the first four sectors, in its z", 4 * slope, 1.34, tolerance=0.01)
+same("2.2 its drive with no sectors", curve(0), 0.012, tolerance=5e-4)
+same("2.2 its drive with four", curve(4), 0.044, tolerance=5e-4)
+same("2.2 drives with at most four sectors",
+     (drives["reallocated_sectors"] <= 4).mean(), 0.90, tolerance=5e-3)
+
 # The same four sectors on the scale the labels were actually generated on.
 transformed = transform_features(drives)["reallocated_sectors"]
 mean, deviation = transformed.mean(), transformed.std(ddof=0)
@@ -230,6 +254,8 @@ same("1.1 ... about a hundredfold increase", sigmoid(severity(4)) / sigmoid(seve
 same("1.1 the same drive with forty", sigmoid(severity(40)), 0.85, tolerance=5e-3)
 same("1.1 the same drive with forty-four", sigmoid(severity(44)), 0.89,
      tolerance=5e-3)
+same("2.2 the true model's hundredfold rise, in probability",
+     sigmoid(severity(4)) - sigmoid(severity(0)), 0.013, tolerance=5e-4)
 
 # --------------------------------- Section 3.4, the descent itself
 #
