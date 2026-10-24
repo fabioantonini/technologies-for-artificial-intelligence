@@ -677,6 +677,16 @@ right-hand part: small surprises, 0.22 + 0.11 + 0.22 = 0.55 in all. Setting 2's,
 drive A under setting 2: it failed, and setting 2 had given its failure only
 0.3, so minus log 0.3 = 1.20.
 
+Why it is called surprise: minus log p behaves the way surprise does. Zero
+when the model was certain and was right (minus log 1 = 0); large when it had
+called the outcome unlikely (minus log 0.001 = 6.9); infinite when it had called
+it impossible. And for independent outcomes the surprises add up, because the
+log of a product is the sum of the logs - which is why three drives cost the
+sum of their three surprises. The name comes from information theory, Shannon's
+work, and is not examinable. The useful reading: the cost is the model's
+average surprise at what really happened, and fitting makes the data as
+unsurprising as possible - the same thing as making it as likely as possible.
+
 The curve is the cost of one drive, which the next slide writes as a formula:
 the loss L. Handout section 3.1.
 :::

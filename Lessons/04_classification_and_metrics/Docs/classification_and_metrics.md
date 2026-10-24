@@ -490,7 +490,11 @@ gives, for setting 1, $-\log 0.8 - \log 0.9 - \log 0.8 = 0.22 + 0.11 + 0.22 =
 each total is minus the log of that setting's likelihood: the same order
 reversed, so the better setting now has the smaller number, which can be
 minimised as in lesson 3. Minus the log of a probability is the *surprise* of the outcome, which is why
-"most likely" and "least surprising" are the same choice. Section 3.3 arrives at
+"most likely" and "least surprising" are the same choice. The name fits what
+$-\log p$ does: it is 0 for an outcome the model was certain of, grows as the
+outcome was called less likely, is infinite for one called impossible, and adds
+up over independent outcomes, since the log of a product is the sum of the logs.
+(The term comes from information theory and is not examinable.) Section 3.3 arrives at
 the same quantity, averaged over the drives, as the cost.
 
 ![](surprise_curve.png)
