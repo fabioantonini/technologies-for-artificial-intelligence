@@ -63,6 +63,28 @@ odds = 9 * 5
 same("2.4 odds of 9 multiplied by five, as a probability",
      odds / (1 + odds), 0.978, tolerance=5e-4)
 
+# Section 2.3's table: three drives, the same evidence (odds x 6), against
+# adding 0.10 to the probability. The average drive's risk is rebuilt from the
+# intercept, not read off the table.
+average = sigmoid(-6.20)
+for p, odds_before, odds_after, risk_after, step in (
+        (average, 0.002, 0.012, 0.012, 0.102),
+        (0.50, 1, 6, 0.86, 0.60),
+        (0.95, 19, 114, 0.991, 1.05)):
+    o = p / (1 - p)
+    same(f"2.3 odds before at p = {p:.4f}", o, odds_before, tolerance=5e-4 * max(1, o))
+    same(f"2.3 odds after at p = {p:.4f}", 6 * o, odds_after,
+         tolerance=5e-4 * max(1, 6 * o))
+    same(f"2.3 risk after at p = {p:.4f}", 6 * o / (1 + 6 * o), risk_after,
+         tolerance=5e-4 if risk_after > 0.9 else 5e-3)
+    same(f"2.3 adding 0.10 at p = {p:.4f}", p + 0.10, step, tolerance=5e-4)
+same("2.3 the average drive's risk", average, 0.002, tolerance=5e-4)
+same("2.3 the factor behind 1.80", math.exp(1.80), 6.05, tolerance=5e-3)
+for p, points in ((average, 1), (0.50, 36), (0.95, 4)):
+    o = 6 * p / (1 - p)
+    same(f"2.3 points added at p = {p:.4f}", 100 * (o / (1 + o) - p), points,
+         tolerance=0.5)
+
 # --------------------------------- Section 3.1, three drives, two settings
 
 # A failed, B and C did not. Each factor is the probability of the outcome that
@@ -239,6 +261,8 @@ same("2.2 drives with at most four sectors",
 transformed = transform_features(drives)["reallocated_sectors"]
 mean, deviation = transformed.mean(), transformed.std(ddof=0)
 weight = TRUE_COEFFICIENTS["reallocated_sectors"]
+same("2.3 the intercept quoted for an average drive", TRUE_INTERCEPT, -6.20, tolerance=1e-9)
+same("2.3 the sectors coefficient behind the factor 6", weight, 1.80, tolerance=1e-9)
 severity = lambda sectors: (TRUE_INTERCEPT
                             + weight * (np.log1p(sectors) - mean) / deviation)
 

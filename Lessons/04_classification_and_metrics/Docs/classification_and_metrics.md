@@ -10,17 +10,17 @@ date: "30 October 2026 · reading time about 80 minutes"
 | Time | Segment | Material |
 |---|---|---|
 | 0:00–0:12 | Exercise 3 discussed; from numbers to decisions | Slides 2–6 |
-| 0:12–0:30 | Logistic regression: sigmoid, odds, coefficients | Slides 7–14 |
-| 0:30–0:53 | Why the cost had to change, in steps | Slides 15–24 |
-| 0:53–1:13 | **Notebook 1**, live, and the decision boundary | Slides 25–26 |
-| 1:13–1:23 | **Break** | Slide 27 |
-| 1:23–1:37 | The accuracy trap and the confusion matrix | Slides 28–31 |
-| 1:37–1:51 | Precision, recall, F1, and what to report | Slides 32–35 |
-| 1:51–2:16 | **Notebook 2**, live, and the threshold sweep | Slides 36–39 |
-| 2:16–2:30 | Receiver operating characteristic (ROC) curves, the area under them, and where they mislead | Slides 40–46 |
-| 2:30–2:40 | Cost-optimal thresholds and class weights | Slides 47–50 |
-| 2:40–2:55 | **Notebook 3**, live, with the multiclass slides 52–53 | Slide 51 |
-| 2:55–3:00 | What to take away; homework | Slides 54–55 |
+| 0:12–0:30 | Logistic regression: sigmoid, odds, coefficients | Slides 7–15 |
+| 0:30–0:53 | Why the cost had to change, in steps | Slides 16–25 |
+| 0:53–1:13 | **Notebook 1**, live, and the decision boundary | Slides 26–27 |
+| 1:13–1:23 | **Break** | Slide 28 |
+| 1:23–1:37 | The accuracy trap and the confusion matrix | Slides 29–32 |
+| 1:37–1:51 | Precision, recall, F1, and what to report | Slides 33–36 |
+| 1:51–2:16 | **Notebook 2**, live, and the threshold sweep | Slides 37–40 |
+| 2:16–2:30 | Receiver operating characteristic (ROC) curves, the area under them, and where they mislead | Slides 41–47 |
+| 2:30–2:40 | Cost-optimal thresholds and class weights | Slides 48–51 |
+| 2:40–2:55 | **Notebook 3**, live, with the multiclass slides 53–54 | Slide 52 |
+| 2:55–3:00 | What to take away; homework | Slides 55–56 |
 | | **Total** | **180 minutes** |
 
 ---
@@ -193,17 +193,68 @@ using $\dfrac{e^{-z}}{1 + e^{-z}} = 1 - \dfrac{1}{1 + e^{-z}}$ in the last step.
 
 ### 2.3 Odds and log-odds: why this particular curve
 
-The sigmoid is not an arbitrary S-shape. Invert it.
+The sigmoid is not an arbitrary S-shape. This section shows where it comes
+from, starting from what we want a linear model to do.
 
-**The picture first.** A probability is awkward to model linearly because it is
-trapped between 0 and 1. The **odds** — the probability that something happens
-divided by the probability that it does not — remove the ceiling: a probability
-of 0.2 is odds of 0.25, and as the probability approaches 1 the odds run off to
-infinity. But odds still have a floor at 0. Take the logarithm and the floor
-goes too, leaving a quantity that ranges over the whole real line.
+**What we want, and why probability cannot give it.** A linear model adds one
+contribution per feature, and each contribution is the same whatever the other
+features say. For the drives that means: the same increase in reallocated
+sectors moves the risk by the same amount, whatever the drive's other counters
+say. On
+the probability scale no fixed amount can do that. Say one standard deviation
+more of reallocated sectors adds 0.10 to the probability of failing: a drive at
+50% goes to 60%, but a drive at 95% goes to 105%, which is not a probability.
+Any fixed step, however small, leaves $[0, 1]$ for some drive.
 
-That quantity is exactly what a linear model can safely predict. Setting
-$p = \sigma(z)$ and solving for $z$:
+**Evidence multiplies the odds.** The **odds** are the probability that
+something happens divided by the probability that it does not, $p / (1 - p)$:
+a probability of 0.2 is odds of 0.25, and a probability of 0.5 is odds of 1.
+Bayes' rule, written with odds, says how a piece of evidence changes them:
+
+$$\frac{P(y = 1 \mid x)}{P(y = 0 \mid x)}
+  = \frac{P(y = 1)}{P(y = 0)} \cdot \frac{P(x \mid y = 1)}{P(x \mid y = 0)}$$
+
+The odds after seeing $x$ are the odds before, times the **likelihood ratio**:
+how much more common the reading $x$ is among drives that fail than among
+drives that do not. A reading six times more common among failing drives
+multiplies the odds by 6, whatever they were. And a factor, unlike a step,
+never breaks anything — any positive odds times 6 are still positive odds, and
+so still a probability:
+
+| Risk before, $p$ | Odds before, $p / (1 - p)$ | A reading 6 times more common among failing drives: odds $\times$ 6 | Risk after, odds $/ (1 +$ odds$)$ | Adding 0.10 to the risk instead |
+|---|---|---|---|---|
+| 0.2% (an average drive) | 0.002 | 0.012 | 1.2% | 10.2% |
+| 50% | 1 | 6 | 86% | 60% |
+| 95% | 19 | 114 | 99.1% | 105%: impossible |
+
+The factor 6 is realistic for this fleet: the coefficient of reallocated sectors
+used to generate the labels is 1.80 per standard deviation, a factor of
+$e^{1.80} = 6.05$ on the odds (section 2.4 reads coefficients this way). Read
+the "Risk after" column. The same evidence adds 36 points to the probability
+at 50%, but 1 point at 0.2% and 4 points at 95%. That is the shape
+of section 2.2 — steep in the middle, flat at both ends — and nothing chose it:
+it is what multiplying the odds looks like on the probability scale.
+
+**The logarithm turns factors into steps.** Several readings, if they are
+independent given the class, multiply the odds by one factor each. Take the
+logarithm and the factors become terms that add:
+
+$$\log(\text{odds after}) = \log(\text{odds before}) + \log(\text{factor}_1) +
+  \log(\text{factor}_2) + \dots$$
+
+A starting value plus one term per feature is exactly the form of a linear
+model, $w^\top x + b$: the intercept $b$ is the log-odds of an average drive
+($-6.20$, the 0.2% above), and each term $w_j x_j$ is the logarithm of the
+factor that feature multiplies the odds by. That is why the model puts the line
+on the **log-odds**, and only then turns it back into a probability. Logistic
+regression assumes, in addition, that each feature's term is a straight line in
+that feature.
+
+The log-odds also has the range the line needs: the odds have no ceiling, as
+the probability approaches 1 they run off to infinity, and the logarithm
+removes their floor at 0, so the log-odds runs over the whole real line. But
+that range is a consequence, not the reason; the reason is the way evidence
+combines. Setting $p = \sigma(z)$ and solving for $z$:
 
 $$z = \log\frac{p}{1 - p}$$
 
@@ -243,15 +294,9 @@ So the shape is not what singles the sigmoid out. Three properties are:
 - **The coefficients have a direct reading.** On the log-odds scale a one-unit
   increase in $x_j$ adds $w_j$ to the log-odds, which multiplies the odds by
   $e^{w_j}$ (section 2.4). A probit coefficient has no reading this direct.
-- **It is the scale on which evidence adds.** Bayes' rule in odds form says that
-  the odds after seeing $x$ are the odds before, times a likelihood ratio:
-  $$\frac{P(y = 1 \mid x)}{P(y = 0 \mid x)}
-    = \frac{P(y = 1)}{P(y = 0)} \cdot \frac{P(x \mid y = 1)}{P(x \mid y = 0)}$$
-  Take logarithms and the product becomes a sum: the prior log-odds plus the
-  log of the likelihood ratio, which splits into one term per feature when the
-  features are independent given the class. A sum of contributions, one per
-  feature, is the form of a linear model; logistic regression assumes each
-  contribution is a straight line in its feature.
+- **It is the scale on which evidence adds**, as the start of this section
+  showed: Bayes' rule multiplies the odds by one factor per reading, and the
+  logarithm turns those factors into the terms of a linear model.
 - **Training is well behaved.** With the cross-entropy cost of section 3 the
   gradient comes out as $(p - y)\,x$, the same form as linear regression's, and
   the cost is convex (sections 3.4 and 4.3).
