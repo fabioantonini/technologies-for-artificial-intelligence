@@ -88,7 +88,8 @@ whose index points at a section its handout does not have.
 **The commentary** (`Docs/{topic}_commentary.md`) is a fifth, written for every
 lesson - lessons 1 and 2 since 8 October 2026, the others as each is studied: a slide-by-slide companion in a second voice, with the
 questions each slide tends to raise answered under it. It grows out of the
-instructor's study session on the deck, rewritten for students; it is not
+instructor's study of the lesson and an independent review of it (below),
+rewritten for students; it is not
 examinable and adds nothing the handout and notebooks do not already carry. It
 takes the place of the Italian translation of the handout, which stopped being
 produced on 8 October 2026: the existing `Review/dispensa_it.md` files are kept, no
@@ -97,6 +98,25 @@ never screenshots of slides. And it is gated: `verify_lesson.check_commentary`
 fails a number it cannot find in the handout, the deck or a notebook output unless
 the file's `numbers-not-from-data` comment lists it with a reason, and its worked
 examples are computed by `Docs/commentary_examples.py`, which the verifier runs.
+
+**How a lesson is studied, since lesson 4 (24 October 2026).** Until then each
+lesson was studied in a ChatGPT session on an uploaded copy of the deck, which went
+stale with every fix. Now the study happens in four steps, and the order is what keeps the
+reviewer independent:
+
+1. **The instructor studies slides and handout with Claude Code**, on the files as
+   they stand. No commentary is written first, so the questions are the
+   instructor's own and not prompted by a draft.
+2. **Every question is logged** in `Lessons/NN_*/Review/lN-study-questions.md`
+   (gitignored): slide, question, answer, and what changed - with its commit - or
+   "no change". Fixes to slides, notes, handout or notebooks go through build,
+   `verify_lesson.py` and commit as usual.
+3. **The final material goes to ChatGPT once, for a review.** It reads what the
+   students will read, and it did not write it. Each finding from the shared session
+   is checked against the files before anything is changed, and the instructor
+   decides which changes are made.
+4. **Claude writes the commentary** from both sources - the logged questions and the
+   review - under the rules above.
 
 ### Every lesson fills three hours, and every lesson sets homework
 
