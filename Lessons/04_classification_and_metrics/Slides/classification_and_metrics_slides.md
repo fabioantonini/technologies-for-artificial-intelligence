@@ -503,7 +503,7 @@ so it looks good. The next slide turns that impression into a number.
 | A | 1 | 0.8 | 0.8 |
 | B | 0 | 0.1 | 1 − 0.1 = 0.9 |
 | C | 0 | 0.2 | 1 − 0.2 = 0.8 |
-| All three: multiply | | | 0.8 × 0.9 × 0.8 = **0.576** |
+| All three together, if the drives are independent: multiply, as for two coins (½ × ½ = ¼) | | | 0.8 × 0.9 × 0.8 = **0.576** |
 
 ::: notes
 The idea: judge a setting by how probable it made what really happened.

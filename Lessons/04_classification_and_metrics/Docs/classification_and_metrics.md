@@ -452,7 +452,11 @@ which did not, and two settings of $(w, b)$. Setting 1 gives them failure
 probabilities 0.8, 0.1 and 0.2; setting 2 gives 0.3, 0.6 and 0.5. The numbers
 are made up for the illustration. Score each setting by the probability it gave
 to what actually happened, $p$ for the drive that failed and $1 - p$ for the two
-that did not, and multiply:
+that did not. Then ask how probable it was that **all three** outcomes happened
+together. If the drives fail or survive independently of one another, the
+probability that several things all happen is the product of their
+probabilities — the same rule that gives two heads from two fair coins a
+probability of $\tfrac{1}{2} \times \tfrac{1}{2} = \tfrac{1}{4}$. So multiply:
 
 | Drive: what happened | Setting 1: probability of what happened | Setting 2: probability of what happened |
 |---|---|---|
