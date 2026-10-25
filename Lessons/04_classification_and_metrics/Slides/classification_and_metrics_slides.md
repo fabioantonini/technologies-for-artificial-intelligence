@@ -1035,7 +1035,7 @@ A predictable slip: "33 misses, so the model needs improving". Perhaps, but
 that is not the first lever. The probabilities stay the same and 0.5 is a
 habit: a lower threshold catches more failures with the same model, at the
 price of more false alarms (slides 40 to 42, and the threshold derived from
-the costs, slide 52). The threshold trades one error for the other; only a
+the costs, slide 53). The threshold trades one error for the other; only a
 better model reduces both.
 :::
 
@@ -1232,7 +1232,7 @@ where we draw the line between "leave it" and "replace it".
 
 That 0.5 is predict()'s default and nothing more. It is the right choice only
 when the two errors cost the same and the probabilities are calibrated: among
-drives given 0.3, about 30% really fail (slide 47 names the property). Slide 52
+drives given 0.3, about 30% really fail (slide 47 names the property). Slide 53
 derives the threshold from the costs, and it is 0.5 exactly when they are
 equal. Here a miss costs about nineteen times a false alarm (2,600 divided by 140 =
 18.6), and in most real
@@ -1292,7 +1292,7 @@ not 0.5, is what "no skill" looks like on an imbalanced problem.
 
 That is why this curve is so much more informative than accuracy when positives
 are rare: the floor is where the difficulty actually is. Our model's area under
-it, the average precision, is 0.717 against a floor of 0.038.
+it, the average precision (AP), is 0.717 against a floor of 0.038.
 
 The three marked dots are thresholds 0.5, 0.3 and 0.05. The first two are rows
 of the table on the previous slide, so they can check the correspondence: at 0.5,
@@ -1457,7 +1457,7 @@ decision it makes is different.
 
 The consequence: AUC says nothing about whether "0.7" means anything. If you
 need the probabilities to be believable - because you are computing expected
-costs, as slide 52 does - AUC is not the check you want.
+costs, as slides 52-53 do - AUC is not the check you want.
 
 Good place to mention that calibration - whether a predicted 0.7 really comes
 true 70% of the time - is a topic of its own, without going into it.
@@ -1500,25 +1500,41 @@ from 0.79 to 0.26 - 1 - 0.26 = 0.74, three alarms in four now false.
 
 Three curves on the left, one model, no problem. Three curves on the right, same
 model, a disaster. Let that sit for a second before explaining.
+
+The fleets, precisely: 60,000 drives are generated, all 57,575 healthy ones are
+kept, and only failures are discarded, so the three fleets hold 59,849, 58,157
+and 57,806 drives. The counts behind the right panel, at threshold 0.5: the
+false alarms are 304 in all three fleets, the true alarms 1,127, 261 and 106.
+The next slide reads them.
 :::
 
 # Why the two disagree
 
-- False positive rate (FPR) divides by **all healthy drives**: an enormous, growing denominator
-- Precision divides by **the alarms raised**, where the false ones dominate
+- False positive rate (FPR) = FP ÷ (FP + TN) divides by **all 57,575 healthy drives**, untouched by the thinning: 304 ÷ 57,575 = 0.0053 in all three fleets
+- Precision = TP ÷ (TP + FP): FP **stays 304** while TP falls from 1,127 to 106, so the false alarms' share of the alarms grows from 0.21 to 0.74
 
 ::: notes
 The explanation is entirely in the denominators, and it is worth writing on the
 board.
 
-A thousand false alarms among a hundred thousand healthy drives is a false
-positive rate of 0.01 - invisible on the ROC axis, a rounding error. The same
-thousand false alarms, set against the alarms actually raised, may be most of
-them.
+Both ROC axes are shares inside one class. Recall is a share of the failures,
+and thinning the failures at random leaves it where it was: 0.50, 0.45, 0.46 at
+threshold 0.5, noise around one value. FPR is a share of the healthy drives,
+which are not touched: 304 ÷ 57,575 = 0.0053 every time. So the ROC curve
+cannot move. Precision is the one number that mixes the classes: TP over
+TP + 304, with TP falling 1,127 → 261 → 106, so precision falls 0.788 → 0.462 →
+0.259. In one formula, with π the positive rate: precision = R·π ÷ (R·π + FPR ·
+(1 − π)). R and FPR are the ROC's axes and stay put; only π moves. Check the
+rarest fleet: 0.459 × 0.004 ÷ (0.459 × 0.004 + 0.0053 × 0.996) = 0.26.
 
-So ROC is measuring the false alarms against a population nobody experiences.
-The technician does not see the 99,000 drives left alone; they see the alarm
-queue.
+A predictable slip: "precision falls because the false positives grow". They
+do not - 304 in every fleet. What grows is their share of the alarms,
+304 ÷ (1,127 + 304) = 0.21 at 3.8% and 304 ÷ (106 + 304) = 0.74 at 0.4%, which
+is 1 − precision. The slip is natural: "the false alarms take over" sounds like
+"there are more of them".
+
+So ROC measures the false alarms against a population nobody experiences. The
+technician does not see the 57,000 drives left alone; they see the alarm queue.
 
 This is the lesson's second big predictable mistake, after trusting accuracy
 on slide 31, and again defend the
@@ -1527,16 +1543,31 @@ in a familiar range. Those are real virtues. It simply answers a question about
 ranking when the question was about the alarm queue.
 :::
 
-# The rule
+# The rule: report both
 
-- On an imbalanced problem, report the **precision-recall curve alongside AUC**
-- Never instead of it, and never AUC alone
-- Its area is the **average precision**, `average_precision_score`: 0.717 here,
-  against 0.038 = 76 ÷ 2,000 for a model that ranks at random
+- AUC: are failures ranked above healthy drives? Precision-recall: how many alarms are real?
+- On imbalanced data report the **precision-recall curve beside the AUC**, not instead
+- **Average precision (AP)**: the area under that curve, Σₖ (Rₖ − Rₖ₋₁) × Pₖ, each threshold's precision weighted by the recall it adds
+- Ours: 0.717 (notebook 2); a random ranking: 76 ÷ 2,000 = 0.038
 
 ::: notes
 Short and quotable, and this is the thing to have on the board when they write
 their exercise reports.
+
+The two measures answer two different questions, which is why neither replaces
+the other. AUC: does the model put the failures above the healthy drives? The
+precision-recall curve: of the alarms it raises, how many are real? On a
+balanced problem the answers travel together; on an imbalanced one the second
+can collapse while the first stands still, as slide 48 showed.
+
+Average precision reads as it is computed: walk down the thresholds from the
+top; each time recall goes up by a step, take the precision at that point; add
+the precisions, each weighted by its recall step. Why a random ranking scores
+0.038: its precision is the positive rate π at every recall (slide 42 counted
+it), so the weighted average of a constant is that constant, π = 76 ÷ 2,000.
+So AP is read against π, not against 0.5 - which is also why it travels across
+problems with different class balance badly, and must always be quoted with
+the positive rate beside it.
 
 If someone asks which single number to use when a single number is demanded:
 average precision, because its baseline moves with the problem. But push back on
@@ -1553,8 +1584,16 @@ Finally, the honest way to pick a threshold. It needs one ingredient no metric
 can supply: what the errors cost. We wrote those down on slide 34 - €140 for a
 needless replacement, €2,600 for a drive that dies in service.
 
-The curve is the total cost on the test set as the threshold moves. The default
-0.5 costs €87,620. The cheapest, at 0.08, costs €45,540.
+The curve is the total cost on the test set as the threshold moves: FP × 140 +
+FN × 2,600, the formula on the vertical axis. The default 0.5 costs
+13 × 140 + 33 × 2,600 = 1,820 + 85,800 = €87,620. The cheapest, at 0.078, costs
+121 × 140 + 11 × 2,600 = 16,940 + 28,600 = €45,540. Read the shape: going down
+from 0.5, each miss at €2,600 becomes a false alarm at €140, a good trade until
+false alarms pile up near 0; to the right the cost climbs towards doing nothing,
+76 × 2,600 = €197,600. Each little step is one drive crossing the threshold.
+
+One condition to say now, because slide 54 comes back to it: 0.078 was found by
+looking at the test set. Properly it is chosen on a validation set (lesson 5).
 
 Choosing the threshold on purpose HALVED the cost of the same model: 45,540
 divided by 87,620 is 0.52. No
@@ -1566,16 +1605,43 @@ threshold does not have to be right. Which is fortunate, because cost estimates
 never are.
 :::
 
-# And it has a closed form
+# Where the two costs cross
 
-$$t^* = \frac{C_{FP}}{C_{FP} + C_{FN}} = \frac{140}{140 + 2600} = 0.051$$
+![](expected_cost_lines.png)
 
 ::: notes
-Derive it in one line on the board, because it is two steps and it lands: flag
-the drive if the expected cost of flagging is lower than the expected cost of
-not. Flagging costs C-FP if the drive was healthy, which happens with
-probability 1 minus p. Leaving it costs C-FN if it fails, probability p. Set one
-below the other and solve.
+Before any formula, the picture. The horizontal axis is one drive's
+probability of failing, p; the vertical axis is the expected cost of each
+decision for that drive.
+
+Teal: flag it. We pay 140 euros for the replacement only if the drive was
+healthy, which happens with probability 1 minus p, so the expected cost is
+(1 - p) times 140 - nearly flat, because 140 is small. Rust: leave it. We pay
+2,600 euros only if it fails, probability p, so the expected cost is p times
+2,600 - steep.
+
+Left of the crossing, leaving the drive is cheaper; right of it, flagging is.
+So the rule is: flag every drive whose probability is beyond the crossing. The
+next slide finds where the crossing is.
+
+Then ask the room what happens to the crossing if a failure cost 140 euros as
+well: both lines would have the same slope in opposite directions, and they
+would cross at 0.5 - the default threshold, right only when the costs are equal.
+Handout section 7.2.
+:::
+
+# Where they cross, in one line
+
+$$\text{flag if } p\,C_{FN} > (1 - p)\,C_{FP} \\ \Leftrightarrow\; p > \frac{C_{FP}}{C_{FP} + C_{FN}} = \frac{140}{2740} = 0.051 = t^*$$
+
+::: notes
+Derive it on the board, because it is two steps and it lands. Flag the drive
+when leaving it costs more in expectation than flagging it: p times 2,600 >
+(1 - p) times 140. Multiply out: 140 < p × (2,600 + 140) = p × 2,740, so
+p > 140 ÷ 2,740 = 0.051. The probability does not simplify away: it is the
+unknown we solve for, and t* is a value of p - the one at which the two
+expected costs are equal, the crossing of the previous slide. The rule reads
+"flag every drive with p above t*".
 
 Then read the formula rather than the number, which is the part worth
 remembering: the optimal threshold does not depend on the model, the dataset, or
@@ -1589,41 +1655,24 @@ did, and the formula would still say 0.051 while flagging far too few drives.
 If the errors cost the same, t-star is 0.5 and the default was right all along.
 As misses grow more expensive, it falls towards zero.
 
-Empirically we found 0.08 against a theoretical 0.051, and the curve is flat
-between them. Two likely reasons for the gap: the test set holds only 76
-failures, and the probabilities are good but not perfectly calibrated.
-:::
-
-# Where the two costs cross
-
-![](expected_cost_lines.png)
-
-::: notes
-The closed form of the previous slide, drawn. The horizontal axis is one
-drive's probability of failing, p; the vertical axis is the expected cost of
-each decision for that drive.
-
-Teal: flag it. We pay 140 euros for the replacement only if the drive was
-healthy, which happens with probability 1 minus p, so the expected cost is
-(1 - p) times 140 - nearly flat, because 140 is small. Rust: leave it. We pay
-2,600 euros only if it fails, probability p, so the expected cost is p times
-2,600 - steep.
-
-Where the lines cross the two decisions cost the same: (1 - p) times 140 =
-p times 2,600, which gives p = 140 divided by (140 + 2,600) = 0.051, the t-star
-of slide 52. Left of the crossing, leaving the drive is cheaper; right of it,
-flagging is. So the rule is: flag every drive whose probability is above 0.051.
-
-Then ask the room what happens to the crossing if a failure cost 140 euros as
-well: both lines would have the same slope in opposite directions, and they
-would cross at 0.5 - the default threshold, right only when the costs are equal.
-Handout section 7.2.
+Empirically we found 0.078 against a theoretical 0.051, and notebook 3 counts
+what separates them: 45 test drives are scored between the two, and 1 of them
+failed. Flagging them would cost 44 × 140 = €6,160, leaving them cost that one
+failure, €2,600 - so on this test set leaving them was cheaper. But their
+probabilities add up to 2.76 expected failures: for a calibrated model, leaving
+them costs about 2.76 × 2,600 = €7,176 against (45 − 2.76) × 140 = €5,914 for
+flagging, and the rule is right. The gap is 45 drives with one failure where the
+model expected almost three: sampling noise on 76 failures, plus calibration that
+is good but not perfect. At t* itself the cost is €49,100, 8% above the minimum -
+the flat bottom of slide 51.
 :::
 
 # The caveat you must state
 
 - We chose the threshold **by looking at the test set**
 - That is precisely what lesson 1 forbade
+- Done properly: choose it on a **validation set**, then measure once on the test set (lesson 5)
+- The price of looking, here: t* = 0.051, fixed before looking, costs €49,100 on the test set; 0.078, picked by looking, €45,540
 
 ::: notes
 Say this out loud rather than leaving it in the handout, because it is the
@@ -1637,8 +1686,52 @@ Done properly: choose the threshold on a validation set, then measure once on
 test. Lesson 5 builds exactly that machinery, and this is the concrete reason it
 is needed - not a hygiene rule, a thing that changes the number you report.
 
-Until then, treat the 0.08 as a demonstration of a method, not a result anyone
+The two prices on the slide show what is at stake. t* was fixed by the costs
+before anyone looked at the test set; 0.078 is the best of 300 thresholds tried
+on it. The €3,560 between them (8%) is in part luck the test set handed us - the
+45 drives with one failure where almost three were expected - and the minimum
+of many tries on the same data is biased downwards. The test score is an
+unbiased estimate only if the test set played no part in any choice and is used
+once, at the end.
+
+Until then, treat the 0.078 as a demonstration of a method, not a result anyone
 could publish.
+:::
+
+# What class weights do
+
+- Training multiplies each drive's log-loss term by its **class weight**
+- `class_weight="balanced"`: m ÷ (2 × class size), 0.52 healthy, 13.0 failed
+- A failure counts as 25 healthy drives: **class frequencies**, not costs
+- Same decisions as the plain model at 1 ÷ 26 = 0.038, on 1,987 of 2,000 drives
+
+::: notes
+Three steps, in order.
+
+What the weights are. The two numbers on the slide: 6,000 ÷ (2 × 5,770) = 0.52
+and 6,000 ÷ (2 × 230) = 13.0. The log loss adds one term per training drive. A class
+weight multiplies the term of every drive in that class. "balanced" sets the
+weight to m divided by (2 times the number of drives in the class): 0.52 for a
+healthy drive, 13.0 for a failed one. Each failure therefore counts as 25
+healthy drives - as if the training set held 25 copies of every failure.
+
+Where the 25 comes from: the class frequencies, 5,770 healthy against 230
+failed in training. Not the costs. A predictable slip: reading "balanced" as
+"weighted by what the errors cost". Both are weights and both push towards the
+failures, so the reading is natural - but balanced would give 25 whatever a
+miss cost. Weights from the costs exist too, and they are a separate choice:
+class_weight={0: 140, 1: 2600}, ratio 18.6. Notebook 3 fits that model as well:
+at 0.5 it raises 164 false alarms and misses 9, close to the plain model at t*
+(165 and 10).
+
+What the weights do. For logistic regression the main effect is on the
+intercept: it rises from −6.09 to −2.95, by 3.14, close to log 25 = 3.22. Every
+probability goes up, and the weighted model's 0.5 lands where the plain model's
+1 ÷ (1 + 25) = 0.038 was. Notebook 3 checks it: the plain model at 0.038 raises
+208 false alarms and misses 8; the weighted model at 0.5 raises 205 and misses 8;
+the two agree on 1,987 of the 2,000 test drives. The general rule: weights with
+ratio k behave like a threshold of 1 ÷ (1 + k). Balanced weights land near the
+cost optimum here only because 25 happens to be close to 18.6.
 :::
 
 # Class weights: the same lever, pulled earlier
@@ -1646,22 +1739,17 @@ could publish.
 ![](class_weight_costs.png)
 
 ::: notes
-class_weight="balanced" makes each failed drive count, in the cost, as much as
-about 25 healthy ones - the ratio of healthy to failed drives in the training
-set, (6,000 - 230) divided by 230 = 25.
-It changes the training rather than the decision.
-
 The figure is notebook 3's comparison drawn as bills, one bar per model. Rust
 is the cost of the missed failures, FN times 2,600 euros; gold is the cost of
 the false alarms, FP times 140 euros. The default model misses 33 failures:
-33 times 2,600 plus 13 times 140 is 87,620. The threshold at 0.08 misses 11
+33 times 2,600 plus 13 times 140 is 87,620. The threshold at 0.078 misses 11
 and raises 121 false alarms: 45,540. Balanced weights miss 8 and raise 205:
 8 times 2,600 plus 205 times 140 is 49,500.
 
-Point at the AUC under each name: 0.949 against 0.950. Reweighting taught the model
-essentially nothing new about disk failure. What it did was move where the model
-puts its 0.5 line - the same lever as the threshold, pulled at a different
-moment.
+Point at the AUC under each name: 0.949 against 0.950. Reweighting taught the
+model essentially nothing new about disk failure. What it did was move where the
+model puts its 0.5 line - the same lever as the threshold, pulled at training
+time instead of after it, as the previous slide showed.
 
 That matters because class weighting is usually presented as a REMEDY for
 imbalance. It is not a remedy; it is another way of setting the same decision.
@@ -1686,18 +1774,49 @@ argument for fitting the imputer on the training rows only.
 | the ROC curve by hand, 44 | `roc_curve`, `roc_auc_score` → 0.9493 |
 | what AUC means, 45-46 | 200,000 random (failing, healthy) pairs → 0.9488 |
 | the rare-positive trap, 48-49 | `average_precision_score` beside `roc_auc_score` → AP 0.706 to 0.361, AUC unmoved |
-| the threshold from costs, 51-54 | `confusion_matrix` at each threshold → 45,540 EUR at 0.08, against 87,620 at 0.50 |
-| class weights, 55 | `LogisticRegression` with balanced class weights → AUC 0.950 |
-| three classes, 57-58 | `classification_report` → macro F1 0.707, weighted 0.883 |
+| the threshold from costs, 51-54 | `confusion_matrix` at each threshold → 45,540 EUR at 0.078, against 87,620 at 0.50 |
+| class weights, 55-56 | `LogisticRegression` with balanced class weights → AUC 0.950 |
+| three classes, 58-60 | `classification_report` → macro F1 0.707, weighted 0.883 |
 
 ::: notes
 The ROC curve by hand, the 200,000-pair experiment, the cost curve, then the
-multiclass matrix. Run notebook 03. Fifteen minutes, and the two multiclass slides
-that follow (57 and 58) are shown when the notebook reaches its last section, so
+multiclass matrix. Run notebook 03. Fifteen minutes, and the three multiclass
+slides that follow (58 to 60) are shown when the notebook reaches its last section, so
 they run alongside it rather than after it.
 
 If time is short, keep the pairs experiment: it turns a definition they would
 otherwise memorise into something they watched happen.
+:::
+
+# Three classes: softmax
+
+- One score per class, zₖ = wₖᵀx + bₖ; **softmax**: exponentiate, divide by the sum
+- A degraded drive: scores 0.615, 0.603, −1.218 → 0.466, 0.460, 0.074, called healthy
+- Predicted class = the largest probability, no 0.5 threshold; two classes: the sigmoid of z₁ − z₀
+- In code: `decision_function` (scores), `predict_proba` (softmax)
+
+::: notes
+Real fleets are not healthy-or-dead. A drive can be degraded: readable, but
+reporting errors, and worth replacing at the next maintenance window rather than
+at three in the morning. So three classes.
+
+The model keeps the idea of lesson 4's first half and triplicates it: one linear
+score per class, each with its own coefficients. The softmax turns three scores
+into three probabilities in two moves - exponentiate, so all three are positive;
+divide by their sum, so they add up to 1. The largest score keeps the largest
+share. With two classes, subtract z₀ from both scores and the softmax becomes the
+sigmoid of z₁ − z₀: nothing new, the same model seen from further away.
+
+Work the drive on the slide if there is time: e to the 0.615 is 1.85, e to the
+0.603 is 1.83, e to the −1.218 is 0.30; the sum is 3.97; dividing gives 0.466,
+0.460, 0.074. Healthy wins by 0.006 - and the drive was degraded. That is what
+"degraded is the hard class" looks like from the inside.
+
+The decision is the largest probability, so there is no 0.5 threshold here:
+notebook 3 counts 33 test drives assigned a class whose probability is below 0.5.
+The cost generalises to categorical cross-entropy, the same idea as the log loss:
+the negative log of the probability assigned to what actually happened. Handout
+section 10.1. Lesson 9 uses the same softmax for ten digits.
 :::
 
 # More than two classes
@@ -1705,19 +1824,12 @@ otherwise memorise into something they watched happen.
 ![](multiclass_confusion.png)
 
 ::: notes
-Real fleets are not healthy-or-dead. A drive can be degraded: readable, but
-reporting errors, and worth replacing at the next maintenance window rather than
-at three in the morning.
-
-For K classes the model produces one score per class and turns them into K
-probabilities that add up to 1 - the softmax, which for two classes reduces
-exactly to the sigmoid. The cost
-generalises to categorical cross-entropy, and it is the same idea: the negative
-log of the probability assigned to what actually happened. Handout section 10.
+The previous slide gave the probabilities; this is where the decisions land.
 
 Read the off-diagonal cells rather than the accuracy. Degraded is the hard
 class, and understandably - it sits between two neighbours that both look like
-it from a distance.
+it from a distance: 121 degraded drives were called healthy, 31 failed drives
+were called degraded.
 
 Precision and recall are computed one class at a time: each class in turn is the
 positive one, the rest are negative.
@@ -1739,6 +1851,13 @@ its number of test drives: (1,665 times 0.947 + 259 times 0.545 + 76 times
 2,000, five drives in six - does most of the talking, so the dashed line sits
 close to the healthy bar.
 
+The weights are the support: the number of test drives whose TRUE class is that
+one, not the number predicted. The gap between the two averages, 0.883 − 0.707 =
+0.18, is itself the finding: the small classes are handled much worse than the
+big one. A question that may come: the weighted average of recall is always the
+accuracy, 0.889 here, because support times recall is the number of drives of
+that class classified correctly.
+
 Which to quote is a question about the application, not about statistics. If
 missing a failure matters as much as missing a healthy drive, macro is the
 honest one. Say which you used, always.
@@ -1746,22 +1865,30 @@ honest one. Say which you used, always.
 
 # What to take away
 
-- **96.20% accuracy, nothing caught.** Accuracy measures the majority class
-- Precision is about the **alarms**, recall is about the **failures**
-- The **threshold is a decision**, and it has a formula
-- **AUC measures ranking** and hides imbalance
+- Logistic regression: sigmoid of a linear score, fitted by log loss
+- **96.20% accuracy, nothing caught**: check the baseline, 1,924 ÷ 2,000
+- Precision: the **alarms**; recall: the **failures**
+- **Threshold** from costs: 140 ÷ 2,740 = 0.051, if calibrated
+- **AUC = ranking**: blind to calibration, hides imbalance
 
 ::: notes
-Close on the number they started with. 306 failures out of 8,000; 96.2%
-accuracy for a model that does nothing.
+Close on the number they started with. On the test set, 1,924 of the 2,000
+drives are healthy: 1,924 ÷ 2,000 = 96.20% accuracy for a model that does
+nothing and catches none of the 76 failures.
 
 If they remember one thing from today, it should be the reflex to ask "what's
-the base rate?" before believing any accuracy figure. That reflex is worth more
-than any of the formulas.
+the base rate?" before believing any accuracy figure. Not "accuracy is useless":
+against its baseline, the model's 97.70% does say something. That reflex is
+worth more than any of the formulas.
 
 The second thing: accuracy, precision, recall and F1 all depended on a
-threshold, and the threshold has an answer - C-FP over C-FP plus C-FN, for honest probabilities -
-that comes from the business, not from the data.
+threshold, and the threshold has an answer - C-FP over C-FP plus C-FN, for honest
+probabilities - that comes from the business, not from the data. Class weights
+move the same line at training time.
+
+The first bullet is the first half of the lesson in one line: log loss is what
+maximum likelihood gives, and unlike squared error through the sigmoid it is
+convex, so gradient descent finds the one minimum.
 :::
 
 # Homework

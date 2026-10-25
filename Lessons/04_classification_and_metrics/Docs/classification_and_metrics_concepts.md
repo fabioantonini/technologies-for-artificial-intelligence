@@ -115,6 +115,11 @@ blind to whether the probabilities themselves mean anything. → § 8.2
 0.7, about 70% are positive. Independent of ranking: a model can rank well and be
 badly calibrated, or be calibrated and rank nothing. → § 7.2, § 8.2
 
+**Average precision (AP).** The area under the precision-recall curve: the
+precision at each threshold, weighted by the recall that threshold adds. A
+random ranking scores the positive rate, so AP is read against that, not 0.5.
+→ § 7.1
+
 **Where AUC misleads.** It is unmoved by class imbalance, because its denominator
 is the whole negative class; precision is not. On a rare-event problem report the
 precision-recall curve beside it. → § 8.3
@@ -124,7 +129,9 @@ precision-recall curve beside it. → § 8.3
 
 **Class weights.** Make each rare example count as several during training. Note
 that this moves the operating point rather than teaching the model anything new —
-the threshold by another name. → § 9
+the threshold by another name: weights in the ratio $k$ act like a threshold of
+$1/(1 + k)$. "Balanced" sets the ratio from the class frequencies, not from the
+costs. → § 9
 
 **Resampling.** Oversampling the minority class, or synthesising new minority
 examples. Same caution, plus one more: it must happen inside the

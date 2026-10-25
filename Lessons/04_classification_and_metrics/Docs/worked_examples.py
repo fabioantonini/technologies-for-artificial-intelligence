@@ -211,7 +211,7 @@ same("7.2 how many false alarms a miss is worth", cost_fn / cost_fp, 19,
 # The three policies, priced from the counts notebook 3 reports.
 same("7.2 the cost of doing nothing", 76 * cost_fn, 197_600)
 same("7.2 the cost at threshold 0.50", 13 * cost_fp + 33 * cost_fn, 87_620)
-same("7.2 the cost at threshold 0.08", 121 * cost_fp + 11 * cost_fn, 45_540)
+same("7.2 the cost at threshold 0.078", 121 * cost_fp + 11 * cost_fn, 45_540)
 same("7.2 the saving, as a fraction",
      (87_620 - 45_540) / 87_620, 0.48, tolerance=5e-3)
 
@@ -440,14 +440,14 @@ same("slide 38: macro F1 from the printed per-class values",
      (0.988 + 0.652) / 2, 0.820, tolerance=5e-4)
 same("slide 38: weighted F1 from the printed per-class values",
      (1924 * 0.988 + 76 * 0.652) / 2000, 0.975, tolerance=5e-4)
-# Slide 58: three classes, from the printed per-class values and supports.
-same("slide 58: macro F1", (0.947 + 0.545 + 0.629) / 3, 0.707, tolerance=5e-4)
-same("slide 58: weighted F1", (1665 * 0.947 + 259 * 0.545 + 76 * 0.629) / 2000,
+# Slide 60: three classes, from the printed per-class values and supports.
+same("slide 60: macro F1", (0.947 + 0.545 + 0.629) / 3, 0.707, tolerance=5e-4)
+same("slide 60: weighted F1", (1665 * 0.947 + 259 * 0.545 + 76 * 0.629) / 2000,
      0.883, tolerance=5e-4)
-same("slide 58: supports add up", 1665 + 259 + 76, 2000, tolerance=0)
-# Slide 55: cost = FN x 2,600 + FP x 140, for the three rows.
+same("slide 60: supports add up", 1665 + 259 + 76, 2000, tolerance=0)
+# Slide 56: cost = FN x 2,600 + FP x 140, for the three rows.
 for fn__, fp__, cost in ((33, 13, 87620), (11, 121, 45540), (8, 205, 49500)):
-    same(f"slide 55: cost at FN {fn__}, FP {fp__}", fn__ * 2600 + fp__ * 140, cost,
+    same(f"slide 56: cost at FN {fn__}, FP {fp__}", fn__ * 2600 + fp__ * 140, cost,
          tolerance=0)
 # Slide 50: the average precision of a random ranking is the share of failures.
 same("slide 50: 76 / 2,000", 76 / 2000, 0.038, tolerance=5e-4)
@@ -556,5 +556,51 @@ same("8.2 the lower bar holds about four times as many", 108 / 26, 4, tolerance=
 same("8.1 TPR at 0.5, 43 / 76", 43 / 76, 0.57, tolerance=5e-3)
 same("8.1 FPR at 0.5, 13 / 1,924", 13 / 1924, 0.007, tolerance=5e-4)
 same("8.2 flagged at 0.5, 43 + 13", 43 + 13, 56, tolerance=0)
+
+# Study pass of 25 Oct, slides 48-61. Counts printed by notebook 3; arithmetic here.
+healthy_big = 57575
+for failures, fleet in ((2274, 59849), (582, 58157), (231, 57806)):
+    same(f"8.3 fleet with {failures} failures", healthy_big + failures, fleet, tolerance=0)
+same("8.3 FPR at 0.5, 304 / 57,575", 304 / healthy_big, 0.0053, tolerance=5e-5)
+for tp_big, printed in ((1127, 0.788), (261, 0.462), (106, 0.259)):
+    same(f"8.3 precision TP / (TP + 304), TP = {tp_big}", tp_big / (tp_big + 304), printed,
+         tolerance=5e-4)
+same("8.3 false alarms' share at 3.8%", 304 / (1127 + 304), 0.21, tolerance=5e-3)
+same("8.3 false alarms' share at 0.4%", 304 / (106 + 304), 0.74, tolerance=5e-3)
+pi_, r_, fpr_ = 0.004, 0.459, 0.0053
+same("8.3 precision from R, FPR and pi", r_ * pi_ / (r_ * pi_ + fpr_ * (1 - pi_)), 0.26,
+     tolerance=5e-3)
+same("8.3 the pi formula agrees with the counts", r_ * pi_ / (r_ * pi_ + fpr_ * (1 - pi_)),
+     106 / (106 + 304), tolerance=5e-3)
+same("7.2 t* exactly", 140 / 2740, 0.0511, tolerance=5e-5)
+same("7.2 cost at t*", 165 * 140 + 10 * 2600, 49100, tolerance=0)
+same("7.2 flagging the 44 healthy drives between", 44 * 140, 6160, tolerance=0)
+same("7.2 expected cost of leaving them", 2.76 * 2600, 7176, tolerance=0.5)
+same("7.2 expected cost of flagging them", (45 - 2.76) * 140, 5914, tolerance=0.5)
+same("7.2 the price of looking", 49100 - 45540, 3560, tolerance=0)
+same("7.2 the price of looking, as a share", (49100 - 45540) / 45540, 0.08, tolerance=5e-3)
+w0, w1 = 6000 / (2 * 5770), 6000 / (2 * 230)
+same("9 balanced weight, healthy", w0, 0.52, tolerance=5e-3)
+same("9 balanced weight, failed", w1, 13.0, tolerance=0.05)
+same("9 the weights' ratio", w1 / w0, 25, tolerance=0.15)
+same("9 log 25", math.log(25), 3.22, tolerance=5e-3)
+same("9 the intercept shift", -2.95 - (-6.09), 3.14, tolerance=5e-3)
+same("9 balanced 0.5 as a plain threshold", 1 / (1 + 25), 0.038, tolerance=5e-4)
+same("9 cost weights as a plain threshold", 1 / (1 + 2600 / 140), 0.051, tolerance=5e-4)
+same("9 cost-weighted model's bill", 164 * 140 + 9 * 2600, 46360, tolerance=0)
+z = (0.615, 0.603, -1.218)
+exps = [math.exp(v) for v in z]
+for value, printed in zip(exps, (1.85, 1.83, 0.30)):
+    same(f"10.1 e^{value:.2f}", value, printed, tolerance=5e-3)
+same("10.1 their sum", sum(exps), 3.97, tolerance=5e-3)
+for value, printed in zip(exps, (0.466, 0.460, 0.074)):
+    same(f"10.1 softmax {printed}", value / sum(exps), printed, tolerance=6e-4)
+same("10.1 healthy wins by", (exps[0] - exps[1]) / sum(exps), 0.006, tolerance=5e-4)
+same("10.2 weighted recall is the accuracy", (1611 + 129 + 39) / 2000, 0.889, tolerance=6e-4)
+same("10.2 weighted recall from the per-class recalls",
+     (1665 * 0.968 + 259 * 0.498 + 76 * 0.513) / 2000, 0.889, tolerance=1.5e-3)
+same("10.2 the gap between the averages", 0.883 - 0.707, 0.18, tolerance=5e-3)
+same("slide 55: 6,000 / 11,540", 6000 / 11540, 0.52, tolerance=5e-3)
+same("slide 55: 6,000 / 460", 6000 / 460, 13.0, tolerance=0.05)
 
 print(f"lesson 4: {checks} hand-worked numbers recomputed, all agree")

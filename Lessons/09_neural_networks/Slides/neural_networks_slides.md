@@ -811,7 +811,8 @@ $$\mathrm{softmax}(z)_k = \frac{e^{z_k}}{\sum_{j=1}^{10} e^{z_j}}$$
 Read it in words: the output layer computes ten numbers per image, one per
 digit. Exponentiate each one, so they are all positive, then divide by their
 total, so they add up to 1. The prediction is the digit with the largest
-probability.
+probability. They have met it once already: lesson 4's slide 58 used the same
+softmax for three classes of drive.
 
 With two classes, softmax reduces to the sigmoid: it is the same construction
 at a different size. And the loss for ten classes is still cross-entropy,

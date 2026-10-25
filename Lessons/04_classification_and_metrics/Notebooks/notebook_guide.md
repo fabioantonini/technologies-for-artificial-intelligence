@@ -146,7 +146,7 @@ and then chooses a threshold from costs.
    **AUC hardly moves** while average precision collapses from 0.71 to 0.36 — one
    model, drawn twice, living in different worlds depending on which curve you look at.
 4. **Choosing the threshold from costs**, the ingredient no metric supplies: do nothing
-   **197,600 €**, threshold 0.50 **87,620 €**, threshold 0.08 **45,540 €**. Choosing on
+   **197,600 €**, threshold 0.50 **87,620 €**, threshold 0.078 **45,540 €**. Choosing on
    purpose saves **42,080 € on 2,000 drives, 48% of the cost** — and when misses cost
    more than false alarms the optimum moves **down**, not up.
 5. **Class weights: the same idea, applied earlier.** `class_weight="balanced"` gives
