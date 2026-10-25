@@ -15,7 +15,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Circle, FancyArrowPatch, Rectangle
 
 OUT = Path(__file__).resolve().parent
 
@@ -198,10 +198,10 @@ def harmonic_vs_arithmetic():
     arithmetic = (precision + 1) / 2
     harmonic = 2 * precision / (precision + 1)
     fig, ax = plt.subplots(figsize=(8.4, 4.2))
-    ax.plot(precision, arithmetic, lw=2.8, color=SLATE,
+    ax.plot(precision, arithmetic, lw=2.8, color=RUST, ls="--",
             label="arithmetic mean, (P + 1) / 2")
     ax.plot(precision, harmonic, lw=2.8, color=BLUE,
-            label="harmonic mean, F1 = 2P / (P + 1)")
+            label="harmonic mean, F1 = 2PR / (P + R), here 2P / (P + 1)")
     flag_all = 76 / 2000
     for value in ((flag_all + 1) / 2, 2 * flag_all / (flag_all + 1)):
         ax.scatter([flag_all], [value], s=70, color=GOLD, edgecolor=INK, zorder=4)
@@ -215,7 +215,7 @@ def harmonic_vs_arithmetic():
     ax.set_ylabel("mean of precision and recall")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1.05)
-    ax.legend(loc="lower right", frameon=False, fontsize=10)
+    ax.legend(loc="upper left", frameon=False, fontsize=10)
     ax.set_title("The arithmetic mean never drops below one half", fontsize=10.5)
     fig.tight_layout()
     save(fig, "harmonic_vs_arithmetic.png")
@@ -243,6 +243,77 @@ def expected_cost_lines():
     save(fig, "expected_cost_lines.png")
 
 
+def logistic_neuron():
+    """Logistic regression drawn as one unit: weigh the six counters, add b,
+    squash with the sigmoid. Beside it, the sigmoid against the hard step of
+    Rosenblatt's perceptron, the same diagram with a different squash."""
+    fig, (ax, curve) = plt.subplots(1, 2, figsize=(12.4, 5.0),
+                                    gridspec_kw={"width_ratios": [1.55, 1]})
+
+    def node(xy, label, colour, r=0.36, size=15):
+        ax.add_patch(Circle(xy, r, facecolor="white", edgecolor=colour, lw=2.2,
+                            zorder=3))
+        ax.text(*xy, label, ha="center", va="center", fontsize=size, zorder=4)
+
+    inputs = [("x₁", "reallocated sectors"), ("x₂", "spin retries"),
+              ("x₃", "read errors"), ("x₄", "seek errors"),
+              ("x₅", "temperature"), ("x₆", "power-on hours")]
+    s, out = (5.0, 2.6), (7.4, 2.6)
+    for k, (symbol, name) in enumerate(inputs):
+        xy = (2.2, 5.2 - 0.86 * k)
+        ax.add_patch(FancyArrowPatch(xy, s, arrowstyle="-|>", mutation_scale=12,
+                                     lw=1.4, color=BLUE, shrinkA=20, shrinkB=26,
+                                     zorder=2))
+        node(xy, symbol, SLATE)
+        ax.text(xy[0] - 0.5, xy[1], name, ha="right", va="center", fontsize=11,
+                color=SLATE)
+        at = 0.36
+        ax.text(xy[0] + at * (s[0] - xy[0]), xy[1] + at * (s[1] - xy[1]),
+                f"w{symbol[1]}", ha="center", va="center", fontsize=11, color=BLUE,
+                bbox=dict(boxstyle="round,pad=0.1", fc="white", ec="none"), zorder=4)
+    one = (2.2, 5.2 - 0.86 * 6)
+    ax.add_patch(FancyArrowPatch(one, s, arrowstyle="-|>", mutation_scale=12,
+                                 lw=1.4, color=RUST, shrinkA=20, shrinkB=26, zorder=2))
+    node(one, "1", SLATE)
+    ax.text(one[0] - 0.5, one[1], "a constant 1", ha="right", va="center",
+            fontsize=11, color=SLATE)
+    ax.text(one[0] + 0.36 * (s[0] - one[0]), one[1] + 0.36 * (s[1] - one[1]), "b",
+            ha="center", va="center", fontsize=12, color=RUST,
+            bbox=dict(boxstyle="round,pad=0.1", fc="white", ec="none"), zorder=4)
+    ax.add_patch(FancyArrowPatch(s, out, arrowstyle="-|>", mutation_scale=14, lw=1.6,
+                                 color=SLATE, shrinkA=26, shrinkB=26, zorder=2))
+    node(s, "Σ", BLUE, r=0.48, size=18)
+    node(out, "σ", GOLD, r=0.48, size=18)
+    ax.text(s[0], s[1] + 0.85, "z = wᵀx + b", ha="center", fontsize=13)
+    ax.text(out[0] + 0.65, out[1], "p = P(fail | x)", ha="left", va="center",
+            fontsize=13)
+    ax.text(5.2, 5.95, "logistic regression is one neuron: weigh, add, squash", ha="center",
+            fontsize=13, weight="bold", color=SLATE)
+    ax.set_xlim(-0.6, 10.2)
+    ax.set_ylim(-0.4, 6.3)
+    ax.set_aspect("equal")
+    ax.axis("off")
+
+    zz = np.linspace(-6, 6, 400)
+    curve.plot(zz, 1 / (1 + np.exp(-zz)), color=GOLD, lw=2.8,
+               label="sigmoid: a probability")
+    curve.plot(zz, (zz > 0).astype(float), color=SLATE, lw=2, ls="--",
+               label="step: 0 or 1")
+    curve.axhline(0.5, color=SLATE, lw=.6, ls=":")
+    curve.axvline(0, color=SLATE, lw=.6, ls=":")
+    curve.set_xlabel("z = wᵀx + b")
+    curve.set_ylabel("output")
+    curve.set_yticks([0, 0.5, 1])
+    curve.text(1.3, 0.42, "sigmoid:\na probability", fontsize=11, color=INK)
+    curve.text(-5.8, 0.07, "step: 0 or 1", fontsize=11, color=SLATE)
+    curve.set_title("The squash: the sigmoid here, a step in Rosenblatt's\n"
+                    "perceptron (1958); lesson 9 builds networks of such units",
+                    fontsize=11)
+    curve.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
+    save(fig, "logistic_neuron.png")
+
+
 if __name__ == "__main__":
     print("figure concettuali della lezione 4:")
     sigmoid_and_odds()
@@ -251,3 +322,4 @@ if __name__ == "__main__":
     surprise_curve()
     harmonic_vs_arithmetic()
     expected_cost_lines()
+    logistic_neuron()

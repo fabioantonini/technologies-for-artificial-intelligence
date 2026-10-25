@@ -20,6 +20,11 @@ different question. → § 2
 **Sigmoid.** The function $\sigma(z) = 1/(1 + e^{-z})$: takes any real number and
 returns one between 0 and 1, steep in the middle and flat at both ends. → § 2.2
 
+**Neuron, and Rosenblatt's perceptron.** Logistic regression drawn as a unit:
+weigh the inputs, add the intercept, squash. Rosenblatt's perceptron is the same
+diagram with a hard step, so it outputs a label rather than a probability; the
+networks of Lesson 9 are built from such units. → § 2.2
+
 **Odds and log-odds.** The odds are the probability of an event divided by the
 probability of its complement; the log-odds are their logarithm, and they range
 over the whole real line, which is what a linear model can safely predict. → § 2.3

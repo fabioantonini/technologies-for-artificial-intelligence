@@ -1065,7 +1065,7 @@ and the XOR sensors. Ten correlated words in a document are treated as ten
 independent pieces of evidence, and the probability is pushed all the way to 0 or 1. Naive Bayes is
 famous for reporting 0.999 on problems it gets wrong a fifth of the time.
 
-Then lesson 4's distinction (its slide 45), which this is the textbook case of:
+Then lesson 4's distinction (its slide 47), which this is the textbook case of:
 ranking and calibration - whether a reported 0.7 comes true 70% of the time - are
 different properties. A model can order examples usefully and
 still report numbers that mean nothing.

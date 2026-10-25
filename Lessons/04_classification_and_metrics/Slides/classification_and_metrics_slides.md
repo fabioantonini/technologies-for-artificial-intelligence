@@ -19,7 +19,7 @@ the natural thing to do because the test error is the number they were told to
 care about. It is exactly the mistake lesson 1 named: once the test set has
 helped choose anything, its score is no longer an honest estimate of how the
 model does on new data, because the choice was fitted to it. Today's lesson ends up in
-the same place from a different direction, on slide 53, when we choose a decision
+the same place from a different direction, on slide 54, when we choose a decision
 threshold by looking at the test set.
 Lesson 5 gives them the machinery to do both honestly.
 :::
@@ -113,7 +113,7 @@ Ask, without answering: if a model has to guess for each drive, and it wants to
 be right as often as possible, what should it say?
 
 Somebody will say "healthy, every time". Agree, and move on. Do not explain the
-consequence yet - it lands far harder on slide 30, after the break, when they see
+consequence yet - it lands far harder on slide 31, after the break, when they see
 96.2% printed as a model's accuracy score.
 :::
 
@@ -176,7 +176,7 @@ straight line in the count gives every sector the same weight: the first adds
 as much to z as the twentieth. But the labels were generated from
 log(1 + count), which gives the first sectors the most weight (handout section
 1.1). The handout's figure in section 2.2 draws what the sectors add to z under
-each of the two. That is why the six-counter model of slide 12 onwards takes
+each of the two. That is why the six-counter model of slide 13 onwards takes
 log(1 + count) as its input.
 
 Right panel: the same relationship inverted - probability on the horizontal
@@ -196,7 +196,7 @@ model the log-odds linearly and then ask for the probability back.
 - Odds, p ÷ (1 − p): no ceiling, from 0 to ∞
 - Log of the odds: no floor either, −∞ to +∞
 - p = 0.99: log(0.99 ÷ 0.01) = log 99 = +4.60; p = 0.5: log(0.5 ÷ 0.5) = log 1 = 0
-- Bonus: coefficients multiply the odds (slide 13)
+- Bonus: coefficients multiply the odds (slide 14)
 
 ::: notes
 This slide puts in words what the right panel of slide 8 shows. Go through the
@@ -215,13 +215,13 @@ on the inverse of the normal distribution, is the common one, and it gives
 almost the same S-shape. The log-odds wins on three counts, and the shape is
 not one of them:
 
-- the coefficients read as odds multipliers, which is slide 13;
+- the coefficients read as odds multipliers, which is slide 14;
 - it is the scale on which Bayes' rule adds evidence: the log-odds after
   seeing a drive's counters equals the log-odds before seeing them (from the
   base rate alone) plus one term per counter, if the counters are independent
   given the class - and a sum of one term per feature is exactly what a linear
   model is;
-- with the cross-entropy cost of slide 23 the gradient comes out as
+- with the cross-entropy cost of slide 24 the gradient comes out as
   (prediction minus label) times x, and the cost is convex - handout sections
   3.4 and 4.3.
 
@@ -280,7 +280,7 @@ from the average drive at minus 6.20. A starting value plus one step per
 feature is exactly w-transpose-x plus b, which is why slide 11 puts the line on
 the log-odds. Six is a realistic factor: the coefficient of reallocated
 sectors used to generate the labels is 1.80 per standard deviation, and e to
-the 1.80 is 6.05 (slide 13 reads coefficients this way; slide 14 shows the true
+the 1.80 is 6.05 (slide 14 reads coefficients this way; slide 15 shows the true
 ones).
 :::
 
@@ -316,7 +316,7 @@ Two predictable slips, worth correcting as soon as you hear them. First, p is
 not a vague "probability that the drive has problems": it is P(y = 1 | x), the
 probability that this drive fails within thirty days, given its six counters.
 Second, the line has the same form as lesson 3's, but it is not fitted by least
-squares: w and b are chosen by maximum likelihood, which slides 16 to 21 build.
+squares: w and b are chosen by maximum likelihood, which slides 17 to 22 build.
 :::
 
 # The model, in one line
@@ -336,13 +336,40 @@ quarter, and
 it decays to zero at both ends. That one fact does two jobs later. It is why the
 sigmoid behaves well: flat ends mean that once the model is sure, extra
 evidence changes little (slide 8). And it is why squared error fails with it:
-slide 25 shows that the same factor ends up inside squared error's gradient and
+slide 26 shows that the same factor ends up inside squared error's gradient and
 switches learning off exactly when the model is confidently wrong.
+:::
+
+# The model, drawn: one neuron
+
+![](logistic_neuron.png)
+
+::: notes
+The same model as the previous slide, drawn instead of written. Each counter
+x is multiplied by its weight w, the products are added together with b - drawn
+as the weight on a constant input of 1 - and the sum z goes through the
+sigmoid. Out comes p, the probability that the drive fails.
+
+This diagram has a history. In 1958 Frank Rosenblatt published the perceptron:
+the same weigh-and-add, followed by a hard step instead of the sigmoid, so its
+output was a label, 0 or 1, and never a probability. It also learned by its own
+rule, adjusting the weights only after a mistake, where logistic regression
+minimises log loss. Lesson 1 told that story; lesson 9 picks it up again.
+
+Say the point plainly: logistic regression is one neuron. A neural network,
+lesson 9, is many of these units side by side and one after another. Nothing
+on this slide is new mathematics; what is new is the picture, and it is the
+building block of everything in the last two lessons.
+
+A predictable slip: "the perceptron is logistic regression". Same diagram,
+different squash and different training. The step's slope is 0 everywhere
+except at z = 0, where it has none, so it gives gradient descent nothing to
+follow; the smooth sigmoid does.
 :::
 
 # What the coefficients mean
 
-- Standardised (mean 0, SD 1): one SD more of reallocated sectors adds its true coefficient, 1.80 (slide 14), to the log-odds
+- Standardised (mean 0, SD 1): one SD more of reallocated sectors adds its true coefficient, 1.80 (slide 15), to the log-odds
 - Adding to a log multiplies the **odds**: log(odds) + 1.80 = log(odds × 6.05), since exp(1.80) = 6.05
 - So: **six times the odds** of failing, slide 10's teal step
 - In code: `make_pipeline(StandardScaler(), LogisticRegression())`
@@ -418,7 +445,7 @@ estimates, we check them against the truth.
 
 The columns: True is the coefficient disk_data.py generated the labels with,
 Fitted is what LogisticRegression estimated from 6,000 training drives, and
-"Odds ×" is exp(Fitted), the multiplier of slide 13.
+"Odds ×" is exp(Fitted), the multiplier of slide 14.
 
 Go down the column. Everything is close. Nothing is exact, and say why - 6,000
 training drives carrying 230 failures (306 in the fleet minus the 76 kept for
@@ -445,7 +472,7 @@ This is the slide that quietly explains everything in the second half of the
 lesson, so do not rush it.
 
 Start with what x = 0 means. The intercept is the value of the log-odds when
-every x is 0 - but the x are standardised (slide 13), so x = 0 is not a drive
+every x is 0 - but the x are standardised (slide 14), so x = 0 is not a drive
 with no sectors and no errors: it is a drive sitting exactly at the fleet
 average on every counter.
 
@@ -481,8 +508,8 @@ work for categories") are wrong.
 
 Squared error on the sigmoid IS differentiable, and it does produce a working
 model on easy problems. The reason to reject it is subtler, so do not give it
-yet. Slides 17 to 21 first build, on three drives, the cost that logistic
-regression does minimise; slide 25 then comes back to squared error and shows
+yet. Slides 18 to 22 first build, on three drives, the cost that logistic
+regression does minimise; slide 26 then comes back to squared error and shows
 what goes wrong with it, on a drive the model is confidently wrong about.
 :::
 
@@ -495,13 +522,13 @@ what goes wrong with it, on a drive the model is confidently wrong about.
 | C | stayed healthy | 0 | 0.2 |
 
 ::: notes
-The next five slides answer the question of slide 16 - what should fitting
+The next five slides answer the question of slide 17 - what should fitting
 minimise? - one step at a time, on three drives. The numbers are made up for
 the example; drives A, B and C are not from the dataset.
 
 Start from what the model does. Fitting means choosing the coefficients w and
 the intercept b. Call one particular choice of w and b a "setting". Given a
-setting, the model of slide 12 turns each drive's counters x into a
+setting, the model of slide 13 turns each drive's counters x into a
 probability of failing: p = sigma(w-transpose-x + b). This slide shows the p
 that one setting, setting 1, gives to each of the three drives.
 
@@ -654,7 +681,7 @@ about 5 times 10 to the minus 324. The computer would store exactly zero.
 Divide the sum by the number of drives and you have the average surprise: that
 is the cost J that fitting minimises, and scikit-learn's log_loss computes
 exactly this average. The next slide draws the surprise of one drive, and
-slide 23 writes it as a formula, the loss L; J is its average over the drives. Handout sections 3.1
+slide 24 writes it as a formula, the loss L; J is its average over the drives. Handout sections 3.1
 to 3.3.
 :::
 
@@ -663,8 +690,8 @@ to 3.3.
 ![](surprise_curve.png)
 
 ::: notes
-Slide 21's numbers, drawn. The horizontal axis is the probability the model
-gave to what actually happened - the factors of slides 18 and 20. The vertical
+Slide 22's numbers, drawn. The horizontal axis is the probability the model
+gave to what actually happened - the factors of slides 19 and 21. The vertical
 axis is minus the log of it: the surprise.
 
 Read the curve from right to left. Something the model was sure of, p = 1, costs
@@ -702,9 +729,9 @@ the other half aloud rather than showing it: the cost J is the average of this o
 m examples, one over m times the sum. It is left off the slide because,
 written out in full, the formula does not fit at a readable size.
 
-Nothing new to derive: this is slides 17 to 21 written for one drive in
-symbols. Check it on drive B of slide 17: y = 0 and p = 0.1, so the first term
-vanishes and L = -log(1 - 0.1) = -log 0.9 = 0.11, the number slide 21 gave B
+Nothing new to derive: this is slides 18 to 22 written for one drive in
+symbols. Check it on drive B of slide 18: y = 0 and p = 0.1, so the first term
+vanishes and L = -log(1 - 0.1) = -log 0.9 = 0.11, the number slide 22 gave B
 under setting 1. The handout, section 3, does it for m drives in full.
 
 The interpretation that makes it stick: the cost of an outcome is the SURPRISE of
@@ -742,8 +769,8 @@ Gradient descent then steps w_j in the opposite direction.
 What is new, and what is not. The formula is written with exactly the symbols
 of lesson 3's slide 23. The difference is hidden in y-hat: in lesson 3 it was
 the straight line w-transpose-x plus b, and here it is the sigmoid of that line,
-the probability of slide 12 - which is why the title says so. The cost is
-different too: squared error there, log loss (slide 23) here. Different model,
+the probability of slide 13 - which is why the title says so. The cost is
+different too: squared error there, log loss (slide 24) here. Different model,
 different cost, and yet the same gradient.
 
 A concrete drive. A drive that failed, y = 1, to which the model gives
@@ -759,14 +786,14 @@ section 3.4 has it in full. Follow one drive through the chain rule, in three
 links, with p for y-hat and z for w-transpose-x plus b:
 - how the loss changes with p: (p - y) divided by p times (1 - p) - the
   denominator comes from the logarithms in the log loss;
-- how p changes with z: p times (1 - p), the sigmoid's derivative from slide 12;
+- how p changes with z: p times (1 - p), the sigmoid's derivative from slide 13;
 - how z changes with w_j: x_j.
 Multiply the three: the p times (1 - p) cancels, and what is left is (p - y)
 times x_j.
 
 Why that cancellation matters, and it is the bridge to the next slide: with
 squared error in place of log loss, nothing cancels the factor p times (1 - p),
-and slide 25 shows what it does to a drive the model is confidently wrong about.
+and slide 26 shows what it does to a drive the model is confidently wrong about.
 
 If someone asks whether the match is a coincidence: no, and one sentence is
 enough. Both costs come from maximum likelihood - squared error when the noise
@@ -794,9 +821,9 @@ and the ratio grows without bound.
 
 Right panel is the real argument, so spend the time here. It shows the size
 of the gradient with respect to z, the push gradient descent gives the model.
-Log loss's gradient is p - 1 (slide 24). Squared error's is 2(p - 1) times
+Log loss's gradient is p - 1 (slide 25). Squared error's is 2(p - 1) times
 p times (1 - p): the chain rule through the sigmoid brings in its derivative,
-p times one-minus-p, from slide 12, and nothing cancels it. That factor goes to
+p times one-minus-p, from slide 13, and nothing cancels it. That factor goes to
 zero as p goes to zero.
 
 Say it as a sentence: the wronger the model gets, the less squared error asks it
@@ -814,19 +841,34 @@ gradient descent works better with it". The size of a cost does not matter to
 gradient descent - multiply a cost by 100 and its minimum is in the same place.
 What matters is the gradient, the right panel: the push squared error gives
 dies away exactly when the model is confidently wrong, and log loss's does not.
+
+A second predictable slip, from reading the two panels together: "log loss's
+slope is minus 1 over p". That is the slope of the LEFT blue curve, the
+derivative of minus log p with respect to p. The right panel differentiates with
+respect to z, the log-odds, and there log loss's gradient is p - 1: size 1 - p,
+the straight line from 1 down to 0, as its legend says. The chain rule joins
+the two panels: minus 1 over p, times the sigmoid's derivative p(1 - p), gives
+minus (1 - p). The 1 over p cancels the sigmoid's p, which is why log loss's
+push does not die; squared error has no 1 over p to cancel it.
 :::
 
 # And it is convex, which squared error is not
 
 - Log loss is **convex** in the weights, so any local minimum is global
 - Squared error through a sigmoid is not
+- Why not, from slide 26: its slope falls from 0, then climbs back to 0; a convex curve's slope only grows
 
 ::: notes
 State it, do not prove it; the handout section 4.3 has the argument.
 
 The consequence is practical: gradient descent on log loss cannot get trapped.
 Squared error through a sigmoid has no such guarantee and is in general
-non-convex.
+non-convex. Slide 26's right panel already shows why, for one failed drive
+taken as a function of z. Far to the left squared error's slope is 0 (the push
+that died), in the middle it is negative, far to the right it is 0 again. A
+convex function's slope can only grow as z grows; this one falls and then
+rises, so the curve is not convex. The vanishing push and the lost convexity
+are the same fact.
 
 Now the caution that catches people, and it is worth ten seconds because they
 will see max_iter set in notebook 1 and wonder why. Convex does NOT mean there
@@ -841,20 +883,54 @@ LinearRegression does not. If a student ever sees a convergence warning, that is
 what it is about.
 :::
 
+# The decision boundary of a two-counter model
+
+![](decision_boundary.png)
+
+::: notes
+A separate model, fitted on two counters only - reallocated sectors and
+temperature - so that it can be drawn. It is not a slice of the six-counter
+model, which would need the other four counters fixed at some value. The white
+points are a random sample of 900 healthy training drives; every training
+failure is shown, so gold looks far more common than it is. The black line is
+where the predicted probability is exactly 0.5 - equivalently, where the
+log-odds are zero.
+
+First observation: it is STRAIGHT. Logistic regression is a linear classifier.
+The curve is in the probabilities, not in the boundary. That surprises people
+who expected the sigmoid to bend it.
+
+Second observation, and this is the bridge to the rest of the lesson: most of
+the gold points - the drives that actually failed - are on the blue side of the
+line. At a threshold of 0.5 this two-feature model calls nearly the whole fleet
+healthy, including most of the drives that failed. It uses two counters only,
+so that it can be drawn; the six-counter model of slide 31 does better at the
+same 0.5, and still misses 33 of the 76 test failures.
+
+Ask: is that a bad model? Take answers. Then say: the probabilities are fine.
+The threshold of 0.5 is a habit. Telling those two apart is the rest of the
+lesson.
+
+A predictable slip: "the drives above the line are flagged". A line has two
+sides, not an above and a below: the model flags the side where w-transpose x
+plus b is positive, here the red side, to the right. The line is almost
+vertical because sectors weigh far more than temperature, which only tilts it.
+:::
+
 # Notebook 1, live
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
 | a line on a 0/1 label, 7 | `LinearRegression` → 3,606 negative probabilities |
-| odds, and why not squared error, 8-26 | NumPy only: the sigmoid, the two losses, their gradients |
-| gradient descent, 24 | `train_test_split`, `StandardScaler`, fifteen lines of NumPy → log loss 0.6931 to 0.0692 |
+| odds, and why not squared error, 8-27 | NumPy only: the sigmoid, the two losses, their gradients |
+| gradient descent, 25 | `train_test_split`, `StandardScaler`, fifteen lines of NumPy → log loss 0.6931 to 0.0692 |
 | the decision boundary, 28 | `make_pipeline(StandardScaler(), LogisticRegression())` on two features |
-| the truth, recovered, 14-15 | `LogisticRegression`, `.coef_`, `.intercept_` → seek_error_rate 0.02, intercept −6.09 |
+| the truth, recovered, 15-16 | `LogisticRegression`, `.coef_`, `.intercept_` → seek_error_rate 0.02, intercept −6.09 |
 
 ::: notes
 Fifteen lines of NumPy, then one line of scikit-learn, and the same answer. Run
-notebook 01. Seventeen minutes, leaving three for the decision boundary on the
-next slide. The parts worth stopping on:
+notebook 01: seventeen minutes, after three on the decision boundary of the
+previous slide, which section 5 of the notebook draws live. The parts worth stopping on:
 
 The linear-fit failure - let them see 3,606 negative probabilities printed
 rather than being told.
@@ -867,30 +943,6 @@ The coefficient recovery table, including the decoy.
 
 If time is short, skip the descent curve - it is the least surprising cell and
 they saw the same picture in lesson 3.
-:::
-
-# The decision boundary
-
-![](decision_boundary.png)
-
-::: notes
-Two features, so the model can be drawn. The black line is where the predicted
-probability is exactly 0.5 - equivalently, where the log-odds are zero.
-
-First observation: it is STRAIGHT. Logistic regression is a linear classifier.
-The curve is in the probabilities, not in the boundary. That surprises people
-who expected the sigmoid to bend it.
-
-Second observation, and this is the bridge to the rest of the lesson: most of
-the gold points - the drives that actually failed - are on the blue side of the
-line. At a threshold of 0.5 this two-feature model calls nearly the whole fleet
-healthy, including most of the drives that failed. It uses two counters only,
-so that it can be drawn; the six-counter model of slide 30 does better at the
-same 0.5, and still misses 33 of the 76 test failures.
-
-Ask: is that a bad model? Take answers. Then say: the probabilities are fine.
-The threshold of 0.5 is a habit. Telling those two apart is the rest of the
-lesson.
 :::
 
 # Break
@@ -929,7 +981,7 @@ the share of test drives that are healthy.
 # Why everyone makes this mistake once
 
 - Accuracy is the fraction of predictions that were right
-- On a **balanced** problem that is exactly what you want
+- On a **balanced** problem whose two errors cost the same, that is exactly what you want
 - The interesting class is almost always the **rare** one
 
 ::: notes
@@ -947,6 +999,14 @@ are positive (the positive rate), the trivial always-negative classifier scores
 problems, where the rate is one in a thousand, 1 - 0.001 = 99.9%.
 
 Accuracy is not wrong. It is answering a question nobody asked.
+
+The condition on the second bullet matters: accuracy counts every error the
+same, so even on a balanced fleet it is the wrong summary when a miss costs
+more than a false alarm - as here, slide 34.
+
+A predictable slip, the over-correction: "so accuracy is useless". It is a
+number with a baseline. Read it against 1 minus pi, here 96.20%, and remember
+that alone it never says which errors were made.
 :::
 
 # Four numbers instead of one
@@ -967,6 +1027,16 @@ Worth naming the convention while it is on screen, because half the world uses
 the transpose: scikit-learn puts truth in rows and predictions in columns. Any
 time they read a confusion matrix from a paper, check which way round it is
 before drawing conclusions.
+
+The top-right cell is the price of the 43: 13 healthy drives flagged, false
+alarms.
+
+A predictable slip: "33 misses, so the model needs improving". Perhaps, but
+that is not the first lever. The probabilities stay the same and 0.5 is a
+habit: a lower threshold catches more failures with the same model, at the
+price of more false alarms (slides 40 to 42, and the threshold derived from
+the costs, slide 52). The threshold trades one error for the other; only a
+better model reduces both.
 :::
 
 # The four outcomes, and what they cost
@@ -974,6 +1044,7 @@ before drawing conclusions.
 - **False positive**: we replace a healthy drive. A technician's hour, €140
 - **False negative**: a drive dies in service. Callout, rebuild, risk, €2,600
 - Both costs are assumptions supplied from outside the data, not measured
+- A correct decision counts as €0: each cost is what the error adds over the right call
 
 ::: notes
 The names are jargon until they are attached to consequences, so attach them
@@ -982,8 +1053,14 @@ we choose a threshold.
 
 The essential point: these two errors are NOT the same size, and no
 single-number metric knows that. Accuracy treats them as identical. F1, the
-metric of slide 36, treats them as identical. Only a cost, supplied from outside the data, distinguishes
+metric of slide 37, treats them as identical. Only a cost, supplied from outside the data, distinguishes
 them.
+
+The fourth bullet answers the question someone will ask: does replacing a
+drive that really was failing cost nothing? It costs a technician's hour, but a
+failing drive has to be replaced anyway, so the model did not cause that cost.
+Each figure is what the error adds over the right decision; correct decisions
+add nothing.
 
 Ask for a domain where the ratio goes the other way - where a false positive is
 the expensive one. Medical screening that triggers an invasive biopsy is the
@@ -1018,7 +1095,7 @@ population it is.
 - True and false positives and negatives: TP, FP, FN, TN
 - Precision = TP ÷ (TP + FP) = 43 ÷ (43 + 13) = **0.768**: of the drives flagged
 - Recall = TP ÷ (TP + FN) = 43 ÷ (43 + 33) = **0.566**: of the drives that failed
-- Specificity = TN ÷ (TN + FP) = 1,911 ÷ (1,911 + 13) = 0.993
+- Specificity = TN ÷ (TN + FP) = 1,911 ÷ 1,924 = 0.993; 1 − 0.993 is the false positive rate (FPR)
 - In code: `precision_score`, `recall_score`
 
 ::: notes
@@ -1027,8 +1104,9 @@ That is the habit worth building: a metric that cannot be said as a sentence
 about actual objects has not been understood.
 
 Specificity is recall for the negative class: of the healthy drives, how many
-did we leave alone. One minus it is the false positive rate, which comes back in
-the receiver operating characteristic (ROC) section. Mention it now so the term
+did we leave alone. One minus it is the false positive rate, FP divided by
+(TN + FP), which comes back as the horizontal axis of the receiver operating
+characteristic (ROC) curve, slide 44. Mention it now so the term
 is not new later.
 
 If someone asks which of the three to report: the answer is that it depends on
@@ -1045,7 +1123,7 @@ Recall is a perfect 76 out of 76 = 1. Precision is 76 out of 2,000 = 0.038,
 because all 2,000 drives are flagged and 76 of them fail.
 
 The figure holds recall at 1 and lets precision run along the horizontal axis.
-The grey line is the ordinary average, (P + 1) divided by 2: at the left edge,
+The dashed rust line is the ordinary average, (P + 1) divided by 2: at the left edge,
 where our model sits, it gives (0.038 + 1) divided by 2 = 0.519, and it can
 never drop below one half however useless the model. Anyone scanning a results
 table would not blink at 0.519.
@@ -1058,10 +1136,26 @@ model is only as good as its weaker side, and F1 refuses to let a perfect score
 on one axis buy a pass on the other. The two lines meet only at the right edge,
 where both precision and recall are 1.
 
+A second reason, in counts: F1 = 2TP divided by (2TP + FP + FN), which is TP
+divided by TP plus the average of FP and FN. Precision and recall share the
+numerator TP and differ in the denominator, and for two such ratios the
+harmonic mean is the one that is still a ratio of drives: TP over the average
+denominator. Ours: 2 times 43 = 86, divided by 86 + 13 + 33 = 132, gives 0.652.
+
+A predictable slip: "at P = 0 the arithmetic mean is 0.5 and F1 is 0.073".
+The 0.073 belongs to the flag-everything model, P = 0.038; at P = 0 exactly,
+F1 is 0.
+
 Mention F-beta in one sentence: a version of F1 with a weight beta, where beta
 above 1 counts recall more than precision. That is what you want here, where a
 miss costs about nineteen times a false alarm (2,600 divided by 140 = 18.6). F2 is the
 usual choice. Handout section 6.3.
+
+A predictable slip: "F2 multiplies recall by 2". In the weighted harmonic
+mean it is recall's reciprocal that gets the weight beta squared = 4, against 1
+for precision's: F2 = 5PR divided by (4P + R). Ours: 5 times 0.768 times 0.566
+divided by (4 times 0.768 + 0.566) = 0.597, below F1 because recall is our
+weak side.
 :::
 
 # Read the minority class, not the average
@@ -1083,7 +1177,7 @@ afterwards - left to themselves they quote whichever is biggest.
 
 The weighted average weights each class by how common it is, so on this problem
 it is essentially the healthy class talking, and it reads close to accuracy -
-inheriting exactly the blindness slides 30 to 33 were about.
+inheriting exactly the blindness slides 31 to 34 were about.
 
 The macro average gives the two classes equal weight, so the rare class actually
 registers. 0.820 against 0.975 for the same model.
@@ -1092,17 +1186,27 @@ The rule: on an imbalanced problem, quote the macro average or the minority
 class directly. Reporting the weighted average is not incorrect - it is the
 number that makes a mediocre model look finished, and choosing it without saying
 so is how a result gets oversold.
+
+A predictable slip: "macro average is a new metric". Macro and weighted are two
+ways of averaging over classes, and classification_report applies both to every
+column - precision, recall and F1. The weights of the weighted average are the
+support, the number of true drives in each class.
+
+Someone will ask why an arithmetic mean is fine here, one slide after F1
+rejected it. Slide 37 combined two different quantities of one class; here it
+is the same metric on two classes, and the point is to give the rare class an
+equal voice.
 :::
 
 # Notebook 2, live
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the number that should worry you, 30 | `accuracy_score` → 96.20% for "always healthy" |
-| the confusion matrix, 32 | counts by hand, then `confusion_matrix`, `ConfusionMatrixDisplay` → TP 43 |
-| precision and recall, 34-37 | `precision_score`, `recall_score`, `f1_score`, `classification_report` |
-| the threshold sweep, 39-40 | `predict_proba`, then the metrics at each threshold |
-| the precision-recall curve, 41 | `precision_recall_curve`, `average_precision_score` → 0.717 against 0.038 |
+| the number that should worry you, 31 | `accuracy_score` → 96.20% for "always healthy" |
+| the confusion matrix, 33 | counts by hand, then `confusion_matrix`, `ConfusionMatrixDisplay` → TP 43 |
+| precision and recall, 35-38 | `precision_score`, `recall_score`, `f1_score`, `classification_report` |
+| the threshold sweep, 40-41 | `predict_proba`, then the metrics at each threshold |
+| the precision-recall curve, 42 | `precision_recall_curve`, `average_precision_score` → 0.717 against 0.038 |
 
 ::: notes
 The confusion matrix by hand, then from scikit-learn, then the threshold sweep.
@@ -1128,7 +1232,7 @@ where we draw the line between "leave it" and "replace it".
 
 That 0.5 is predict()'s default and nothing more. It is the right choice only
 when the two errors cost the same and the probabilities are calibrated: among
-drives given 0.3, about 30% really fail (slide 46 names the property). Slide 51
+drives given 0.3, about 30% really fail (slide 47 names the property). Slide 52
 derives the threshold from the costs, and it is 0.5 exactly when they are
 equal. Here a miss costs about nineteen times a false alarm (2,600 divided by 140 =
 18.6), and in most real
@@ -1167,7 +1271,7 @@ false alarms and the teal bar loses 53 - 43 = 10 caught failures. Accuracy
 gains 12 right answers and loses 10, two more in all, 0.976 to 0.977.
 
 Precision and recall at each threshold are in the handout's table in section
-7.1, computed with the formulas of slide 35.
+7.1, computed with the formulas of slide 36.
 :::
 
 # The precision-recall curve
@@ -1180,7 +1284,10 @@ directly. Every threshold at once.
 
 The part to teach is the baseline. A model with random scores has precision
 equal to the positive rate - 76 failures divided by 2,000 drives = 0.038 here -
-at every recall. That flat dashed line,
+at every recall. Count it: flag 500 drives at random and on average 500 times
+0.038 = 19 of them fail, so precision is 19 divided by 500 = 0.038 and recall
+19 divided by 76 = 0.25. Flag 1,000: 38 fail, precision 0.038 again, recall
+0.50. Flagging more moves recall, never precision. That flat dashed line,
 not 0.5, is what "no skill" looks like on an imbalanced problem.
 
 That is why this curve is so much more informative than accuracy when positives
@@ -1298,7 +1405,7 @@ decision it makes is different.
 
 The consequence: AUC says nothing about whether "0.7" means anything. If you
 need the probabilities to be believable - because you are computing expected
-costs, as slide 51 does - AUC is not the check you want.
+costs, as slide 52 does - AUC is not the check you want.
 
 Good place to mention that calibration - whether a predicted 0.7 really comes
 true 70% of the time - is a topic of its own, without going into it.
@@ -1315,10 +1422,10 @@ failures at random until they are 0.4% instead of 3.8% - the direction reality
 moves in fraud, disease, hardware failure.
 
 Someone will notice that at 3.8% the AUC reads 0.968, not the 0.949 of slide
-44. Different drives: 0.949 rests on the 76 failures of our 2,000-drive test
+45. Different drives: 0.949 rests on the 76 failures of our 2,000-drive test
 set, 0.968 on a fleet thirty times larger. Both are estimates of the same
 ranking ability. The same goes for average precision: 0.706 on the large
-fleet, against slide 41's 0.717 on the test set.
+fleet, against slide 42's 0.717 on the test set.
 
 Left panel: the three ROC curves sit on top of each other. AUC 0.968, 0.965, 0.974. It
 reports an excellent model throughout, and at the rarest setting a marginally
@@ -1351,7 +1458,7 @@ The technician does not see the 99,000 drives left alone; they see the alarm
 queue.
 
 This is the lesson's second big predictable mistake, after trusting accuracy
-on slide 30, and again defend the
+on slide 31, and again defend the
 instinct: AUC is threshold-free, comparable across models and datasets, bounded
 in a familiar range. Those are real virtues. It simply answers a question about
 ranking when the question was about the alarm queue.
@@ -1380,7 +1487,7 @@ and this lesson is about the thinking.
 
 ::: notes
 Finally, the honest way to pick a threshold. It needs one ingredient no metric
-can supply: what the errors cost. We wrote those down on slide 33 - €140 for a
+can supply: what the errors cost. We wrote those down on slide 34 - €140 for a
 needless replacement, €2,600 for a drive that dies in service.
 
 The curve is the total cost on the test set as the threshold moves. The default
@@ -1413,7 +1520,7 @@ the class balance. Only on the RATIO of the two costs.
 
 State the condition, because the derivation used it: p must be an honest
 probability - among drives given 0.05, about 5% really fail. That property is
-called calibration (slide 46). Divide every probability by ten, as slide 46
+called calibration (slide 47). Divide every probability by ten, as slide 47
 did, and the formula would still say 0.051 while flagging far too few drives.
 
 If the errors cost the same, t-star is 0.5 and the default was right all along.
@@ -1441,7 +1548,7 @@ healthy, which happens with probability 1 minus p, so the expected cost is
 
 Where the lines cross the two decisions cost the same: (1 - p) times 140 =
 p times 2,600, which gives p = 140 divided by (140 + 2,600) = 0.051, the t-star
-of slide 51. Left of the crossing, leaving the drive is cheaper; right of it,
+of slide 52. Left of the crossing, leaving the drive is cheaper; right of it,
 flagging is. So the rule is: flag every drive whose probability is above 0.051.
 
 Then ask the room what happens to the crossing if a failure cost 140 euros as
@@ -1513,17 +1620,17 @@ argument for fitting the imputer on the training rows only.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the ROC curve by hand, 43 | `roc_curve`, `roc_auc_score` → 0.9493 |
-| what AUC means, 44-45 | 200,000 random (failing, healthy) pairs → 0.9488 |
-| the rare-positive trap, 47-48 | `average_precision_score` beside `roc_auc_score` → AP 0.706 to 0.361, AUC unmoved |
-| the threshold from costs, 50-53 | `confusion_matrix` at each threshold → 45,540 EUR at 0.08, against 87,620 at 0.50 |
-| class weights, 54 | `LogisticRegression` with balanced class weights → AUC 0.950 |
-| three classes, 56-57 | `classification_report` → macro F1 0.707, weighted 0.883 |
+| the ROC curve by hand, 44 | `roc_curve`, `roc_auc_score` → 0.9493 |
+| what AUC means, 45-46 | 200,000 random (failing, healthy) pairs → 0.9488 |
+| the rare-positive trap, 48-49 | `average_precision_score` beside `roc_auc_score` → AP 0.706 to 0.361, AUC unmoved |
+| the threshold from costs, 51-54 | `confusion_matrix` at each threshold → 45,540 EUR at 0.08, against 87,620 at 0.50 |
+| class weights, 55 | `LogisticRegression` with balanced class weights → AUC 0.950 |
+| three classes, 57-58 | `classification_report` → macro F1 0.707, weighted 0.883 |
 
 ::: notes
 The ROC curve by hand, the 200,000-pair experiment, the cost curve, then the
 multiclass matrix. Run notebook 03. Fifteen minutes, and the two multiclass slides
-that follow (56 and 57) are shown when the notebook reaches its last section, so
+that follow (57 and 58) are shown when the notebook reaches its last section, so
 they run alongside it rather than after it.
 
 If time is short, keep the pairs experiment: it turns a definition they would

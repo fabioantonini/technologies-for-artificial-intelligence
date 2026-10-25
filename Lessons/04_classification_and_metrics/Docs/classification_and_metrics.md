@@ -10,17 +10,17 @@ date: "30 October 2026 · reading time about 80 minutes"
 | Time | Segment | Material |
 |---|---|---|
 | 0:00–0:12 | Exercise 3 discussed; from numbers to decisions | Slides 2–6 |
-| 0:12–0:30 | Logistic regression: sigmoid, odds, coefficients | Slides 7–15 |
-| 0:30–0:53 | Why the cost had to change, in steps | Slides 16–26 |
-| 0:53–1:13 | **Notebook 1**, live, and the decision boundary | Slides 27–28 |
-| 1:13–1:23 | **Break** | Slide 29 |
-| 1:23–1:37 | The accuracy trap and the confusion matrix | Slides 30–33 |
-| 1:37–1:51 | Precision, recall, F1, and what to report | Slides 34–37 |
-| 1:51–2:16 | **Notebook 2**, live, and the threshold sweep | Slides 38–41 |
-| 2:16–2:30 | Receiver operating characteristic (ROC) curves, the area under them, and where they mislead | Slides 42–49 |
-| 2:30–2:40 | Cost-optimal thresholds and class weights | Slides 50–54 |
-| 2:40–2:55 | **Notebook 3**, live, with the multiclass slides 56–57 | Slide 55 |
-| 2:55–3:00 | What to take away; homework | Slides 58–59 |
+| 0:12–0:30 | Logistic regression: sigmoid, odds, coefficients | Slides 7–16 |
+| 0:30–0:53 | Why the cost had to change, in steps | Slides 17–27 |
+| 0:53–1:13 | The decision boundary, and **Notebook 1** live | Slides 28–29 |
+| 1:13–1:23 | **Break** | Slide 30 |
+| 1:23–1:37 | The accuracy trap and the confusion matrix | Slides 31–34 |
+| 1:37–1:51 | Precision, recall, F1, and what to report | Slides 35–38 |
+| 1:51–2:16 | **Notebook 2**, live, and the threshold sweep | Slides 39–42 |
+| 2:16–2:30 | Receiver operating characteristic (ROC) curves, the area under them, and where they mislead | Slides 43–50 |
+| 2:30–2:40 | Cost-optimal thresholds and class weights | Slides 51–55 |
+| 2:40–2:55 | **Notebook 3**, live, with the multiclass slides 57–58 | Slide 56 |
+| 2:55–3:00 | What to take away; homework | Slides 59–60 |
 | | **Total** | **180 minutes** |
 
 ---
@@ -155,6 +155,28 @@ and no errors: it is a drive at the fleet average on every counter**, so the
 intercept $b$, the value of $z$ when every $x_j$ is 0, is the log-odds of an
 average drive. Reading $x = 0$ as "no sectors, no errors" is the natural
 mistake, and it makes the intercept look like the risk of a perfect drive.
+
+**The model as one neuron.** Drawn rather than written, the model weighs each
+counter, adds the products together with $b$, and passes the sum through the
+sigmoid. The diagram is older than logistic regression's use in machine
+learning: in 1958 Frank Rosenblatt published the **perceptron**, the same
+weigh-and-add followed by a hard step, so its output was a label, 0 or 1, never
+a probability. It was also trained differently, by a rule that adjusts the
+weights only after a mistake, where logistic regression minimises log loss
+(section 3). **Logistic regression is one neuron**, and the neural networks of
+lesson 9 are many such units, side by side and one after another.
+
+![](logistic_neuron.png)
+
+*Left, logistic regression as a unit: the six counters weighted, added with $b$
+(the weight on a constant input of 1), squashed into $p$. Right, the squash:
+the sigmoid used here against the step of Rosenblatt's perceptron. Both switch
+at $z = 0$; only the sigmoid says how sure it is.*
+
+A predictable mistake: "the perceptron *is* logistic regression". Same diagram,
+different squash, different training. The step's slope is 0 everywhere except
+at $z = 0$, where it has none, so it gives gradient descent nothing to follow;
+the smooth sigmoid does.
 
 Three properties, each of which we will use:
 
@@ -681,6 +703,15 @@ The cancellation in section 3.4 is the same fact seen from the other side. Log
 loss is *designed*, by maximum likelihood, so that the sigmoid's vanishing
 derivative cancels out. Squared error is not, so it does not.
 
+**A predictable mistake: "log loss's slope is $-1/p$".** That is the slope of
+the left panel's blue curve, the derivative of $-\log p$ with respect to $p$.
+The right panel differentiates with respect to $z$, and there log loss's
+gradient is $p - 1$: size $1 - p$, a straight line from 1 down to 0. The chain
+rule joins the two panels,
+$\frac{d}{dz}\left[-\log p\right] = -\frac{1}{p} \cdot p(1 - p) = -(1 - p)$:
+the $1/p$ cancels the sigmoid's $p$, which is why log loss's push does not die.
+Squared error has no $1/p$ to cancel it.
+
 ### 4.3 Convexity
 
 There is a third reason, and section 3.4 has already done most of the work for
@@ -709,7 +740,13 @@ is no direction in which the surface curves downwards. Any local minimum is
 therefore global, and gradient descent cannot be trapped.
 
 Squared error composed with the sigmoid has no such guarantee, and is in general
-non-convex in $w$. So the choice of cost function is not a matter of taste: it
+non-convex in $w$. Section 4.2 already shows why, for one failed drive taken as
+a function of $z$: squared error's slope $2(p - 1)\,p\,(1 - p)$ is 0 far to the
+left, where $p \to 0$ (the push that died), negative in the middle, and 0 again
+far to the right, where $p \to 1$. A convex function's slope can only grow as
+$z$ grows; this one falls and then rises, so the curve is not convex — and
+since $z = wx + b$, neither is it as a function of $w$. **The vanishing push and
+the lost convexity are the same fact.** So the choice of cost function is not a matter of taste: it
 determines whether the optimisation problem is one we know how to solve.
 
 **A caution students reasonably get wrong.** Convex does not mean there is a
@@ -750,17 +787,24 @@ test set, are left to compete over, and no amount of skill moves accuracy far.
 
 **This is the predictable mistake of the lesson**, and the reasoning behind it
 is completely sound: accuracy is the fraction of predictions that were correct,
-and on a balanced problem that is exactly what you want to know. It is not a
-naive metric.
+and on a balanced problem whose two errors cost the same that is exactly what
+you want to know. It is not a naive metric. The second condition matters as
+much as the first: accuracy counts every error the same, so even on a balanced
+fleet it is the wrong summary when a miss costs more than a false alarm, as it
+does here (section 7.2).
 
 It stops being informative precisely when one class is rare — which is to say,
 on most problems anyone builds a classifier for. Fraud, disease screening,
-equipment failure, intrusion detection, spam: **the interesting class is always
-the small one.** Accuracy is not wrong. It is answering a question nobody asked.
+equipment failure, intrusion detection, spam: **the interesting class is almost
+always the small one.** Accuracy is not wrong. It is answering a question nobody asked.
 
 The general statement: with a positive rate $\pi$, the trivial always-negative
 classifier scores $1 - \pi$. At $\pi = 0.038$ that is $1 - 0.038 = 96.2\%$; at
 $\pi = 0.001$, as in some fraud problems, it is $1 - 0.001 = 99.9\%$.
+
+**The over-correction is predictable too: "so accuracy is useless".** It is a
+number with a baseline. Read against $1 - \pi$ it says something; alone it
+never says which errors were made, which is what section 6 is for.
 
 ---
 
@@ -800,7 +844,14 @@ $$\begin{array}{l|rr}
 \end{array}$$
 
 Read the bottom-left cell first when misses are expensive: **33 drives failed
-and were called healthy.**
+and were called healthy.** The top-right cell is what the 43 caught cost: 13
+healthy drives flagged.
+
+**A predictable mistake: "33 misses, so the model needs improving".** Perhaps,
+but that is not the first lever. The probabilities stay the same and 0.5 is a
+habit: a lower threshold catches more failures with the same model, at the
+price of more false alarms (section 7). The threshold trades one error for the
+other; only a better model, one that ranks the drives better, reduces both.
 
 ### 6.2 Precision and recall
 
@@ -874,6 +925,21 @@ perfect result on one axis pays for a catastrophe on the other. The harmonic
 mean is dominated by the smaller number: **a model is only as good as its weaker
 side.**
 
+**A second reason, in counts.** Substituting the definitions,
+
+$$F_1 = \frac{2\,TP}{2\,TP + FP + FN} = \frac{TP}{TP + \tfrac{1}{2}(FP + FN)}$$
+
+Precision and recall share the numerator $TP$ and differ in the denominator, and
+for two such ratios the harmonic mean is the one that is still a ratio of
+drives: $TP$ over the average of the two denominators, $TP + FP$ and $TP + FN$.
+The arithmetic mean of two ratios counts nothing. For our model,
+$2 \times 43 / (2 \times 43 + 13 + 33) = 86 / 132 = 0.652$, the $F_1$ of section
+6.4.
+
+**A predictable mistake: "at $P = 0$ the arithmetic mean is 0.5 and $F_1$ is
+0.073".** The 0.073 belongs to the flag-everything model, $P = 0.038$; at
+$P = 0$ exactly, $F_1$ is 0.
+
 The generalisation, when the two are not equally important, is the same
 reciprocal average with the two reciprocals given unequal weights — $1$ and
 $\beta^2$ out of $1 + \beta^2$:
@@ -891,6 +957,13 @@ are costly, as here. $\beta < 1$ favours precision. The square is there so that
 $\beta$ reads as a ratio of importance rather than of reciprocals: at
 $\beta = 2$, recall is worth $\beta^2 = 4$ times precision in the sum, which is the
 convention the name carries.
+
+**A predictable mistake: "$F_2$ multiplies recall by 2".** It is recall's
+reciprocal that gets the weight $\beta^2 = 4$, against 1 for precision's:
+$F_2 = 5PR / (4P + R)$. For our model,
+$5 \times 0.768 \times 0.566 / (4 \times 0.768 + 0.566) = 0.597$ (from
+$P = 43/56$ and $R = 43/76$), below $F_1 = 0.652$ because recall is our weak
+side.
 
 ### 6.4 Averaging across classes
 
@@ -911,6 +984,13 @@ drives, so it reads close to accuracy and inherits its blindness. **On an
 imbalanced problem, quote the macro average or the minority class directly.**
 Reporting the weighted average is not incorrect, but it is the number that makes
 a mediocre model look finished.
+
+**A predictable mistake: "macro average is a new metric".** Macro and weighted
+are two ways of averaging over classes, and `classification_report` applies both
+to every column — precision, recall and $F_1$. And why is an arithmetic mean
+fine here, after section 6.3 rejected it? There it combined two different
+quantities of one class; here it is the same metric on two classes, and the
+point is to give the rare class an equal voice.
 
 ---
 
@@ -969,6 +1049,15 @@ So when a paper or a colleague reports 77% precision (our 0.768 at 0.5), the use
 
 *The table above, drawn as a curve, with three of its rows marked. Each point is one threshold; moving along the curve is the trade the table tabulates. The dashed line is what "no skill" looks like on this problem — the positive rate, 76 / 2,000 = 0.038, not 0.5 — and Section 8 returns to why that baseline matters more than the curve's shape.*
 
+**Where the flat baseline comes from.** A model with no skill flags drives at
+random. Flag $k$ of the 2,000 at random and, on average, the share of failures
+among them is the fleet's share, $76 / 2000 = 0.038$, whatever $k$ is. Flag 500:
+about $500 \times 0.038 = 19$ of them fail, so precision is $19 / 500 = 0.038$ and
+recall $19 / 76 = 0.25$. Flag 1,000: about 38 fail, precision $38 / 1000 =
+0.038$ again, recall $38 / 76 = 0.50$. Flagging more moves recall along the
+axis and leaves precision where it was: a horizontal line at the positive rate.
+It sits at 0.5 only on a balanced problem.
+
 ### 7.2 Choosing the threshold from costs
 
 
@@ -1009,6 +1098,18 @@ above it flagging (teal) is.*
 the model, the dataset, or the class balance — only on the *ratio* of the two
 costs. If misses and false alarms cost the same, $t^* = 0.5$ and the default is
 correct. As misses grow more expensive, $t^*$ falls towards zero.
+
+**And the two correct decisions?** The derivation gave them no cost, and a
+student will reasonably ask whether replacing a drive that really was failing
+costs nothing. It costs a technician's hour, but a failing drive has to be
+replaced anyway: the model did not cause that cost. Each figure above is what an
+error adds over the right decision, so correct decisions add nothing. With all
+four outcomes priced, the same argument gives
+
+$$t^* = \frac{C_{FP} - C_{TN}}{(C_{FP} - C_{TN}) + (C_{FN} - C_{TP})}$$
+
+which only differences enter, and which is $140 / (140 + 2600) = 0.051$ again
+when $C_{TP} = C_{TN} = 0$.
 
 **The condition the derivation used.** It treated $p$ as the true probability
 that the drive fails. That holds only if the model is **calibrated**: among the

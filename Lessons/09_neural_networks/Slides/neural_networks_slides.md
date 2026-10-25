@@ -117,7 +117,8 @@ another.
 
 The perceptron of 1958 used a hard step: output 1 or 0, nothing in between.
 The sigmoid is the smooth version of that step, and it is what lesson 4 used.
-So a logistic regression model is one neuron.
+So a logistic regression model is one neuron - lesson 4's slide 13 drew it as
+exactly this unit, so they have seen the picture before.
 
 Ask the room: what did lesson 4's logistic regression boundary look like on a
 two-feature problem? A straight line. Hold on to that answer; the next five
