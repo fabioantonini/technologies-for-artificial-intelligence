@@ -543,4 +543,18 @@ c_fp, c_fn, c_tp, c_tn = 140, 2600, 0, 0
 same("7.2 four-cost threshold with C_TP = C_TN = 0",
      (c_fp - c_tn) / ((c_fp - c_tn) + (c_fn - c_tp)), 0.051, tolerance=5e-4)
 
+# Study pass of 25 Oct, slides 43-47: the pairs behind the AUC. The counts 7,409,
+# 1,408, 26 and 108 are printed by notebook 3; the arithmetic on them is here.
+pairs = 76 * 1924
+same("8.2 (failing, healthy) pairs, 76 x 1,924", pairs, 146224, tolerance=0)
+same("8.2 AUC = 1 - 7,409 / 146,224", 1 - 7409 / pairs, 0.9493, tolerance=5e-5)
+same("8.2 the worst failure's share of wrong pairs, about a fifth", 1408 / 7409, 0.2,
+     tolerance=0.02)
+same("8.2 tallest rust bar, 26 of 76", 26 / 76, 0.342, tolerance=5e-4)
+same("8.2 tallest teal bar, 108 of 1,924", 108 / 1924, 0.056, tolerance=5e-4)
+same("8.2 the lower bar holds about four times as many", 108 / 26, 4, tolerance=0.25)
+same("8.1 TPR at 0.5, 43 / 76", 43 / 76, 0.57, tolerance=5e-3)
+same("8.1 FPR at 0.5, 13 / 1,924", 13 / 1924, 0.007, tolerance=5e-4)
+same("8.2 flagged at 0.5, 43 + 13", 43 + 13, 56, tolerance=0)
+
 print(f"lesson 4: {checks} hand-worked numbers recomputed, all agree")

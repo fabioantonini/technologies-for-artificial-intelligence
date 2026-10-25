@@ -1152,8 +1152,13 @@ demonstration of a method, not a number you could report.
 ### 8.1 The curve
 
 
-Rather than pick a threshold, sweep all of them and plot two rates against each
-other:
+Start from the **ranking**: the 2,000 test drives sorted by the probability the
+model gave them, riskiest first. A threshold is a cut in that list — every drive
+above the cut is flagged — and lowering the threshold moves the cut down. So
+rather than pick one cut, look at all of them: sweep every threshold and plot
+two rates against each other. (The precision-recall curve of section 7.1
+already swept every threshold; the reading here is different, as the end of
+this section says.)
 
 ![](roc_curve.png)
 
@@ -1178,6 +1183,21 @@ raises them together and traces the diagonal.
 So the curve asks: **as we grow more willing to raise alarms, do we catch
 failures faster than we annoy technicians?**
 
+**The steps, counted.** Walk down the ranking one drive at a time. A failing
+drive moves the curve up by $1/76$, a healthy one moves it right by $1/1{,}924$,
+so a steep start means the top of the ranking is failures. The ideal curve goes
+straight up to $(0, 1)$ and then across. Every curve ends at $(1, 1)$, so a
+curve that is steep at the start is flat at the end, and the area under it
+(section 8.2) measures exactly that. One point checked: at threshold 0.5,
+$\text{TPR} = 43/76 = 0.57$ and $\text{FPR} = 13/1{,}924 = 0.007$.
+
+**Same sweep as the precision-recall curve, different reading.** The
+precision-recall curve's ideal is the top-right corner, and precision divides
+by the alarms raised. The ROC curve's ideal is the top-left corner, and FPR
+divides by the 1,924 healthy drives, so its random baseline is the diagonal
+whatever the class balance, against 0.038 for precision-recall. That
+denominator is why ROC can hide imbalance (section 8.3).
+
 ### 8.2 What the area means
 
 The **area under the curve (AUC)** summarises the whole curve in one number:
@@ -1201,23 +1221,51 @@ first — that is, scored higher. Dividing by $m_+ m_-$, the total number of
 pairs, gives the probability. This quantity is the Mann-Whitney $U$ statistic,
 and the identity is standard.
 
+**Counted on our test set.** There are $m_+ m_- = 76 \times 1{,}924 = 146{,}224$
+(failing, healthy) pairs; a tie counts half. Notebook 3 counts 7,409 of them in
+the wrong order, the healthy drive scoring higher, so
+
+$$\text{AUC} = 1 - \frac{7{,}409}{146{,}224} = 0.9493 .$$
+
+"Probability" and "share of pairs" are the same number. A failing drive costs
+one wrong pair for every healthy drive scored above it, so the errors are
+concentrated: the lowest-scoring failure ($p = 0.0004$) is outscored by 1,408
+healthy drives, a fifth of all the wrong pairs on its own; the 5 worst failures
+make 61% of them, and 19 failures score above every healthy drive and cost
+nothing.
+
 ![](score_distributions.png)
 
 *The scores the model gives the 76 failing drives (rust) and the 1,924 healthy
 ones (teal), on a logarithmic axis. Look at how far right the rust sits: pick one
-of each at random, and the AUC is the chance the rust one lies further right.*
+of each at random, and the AUC is the chance the rust one lies further right.
+The heights are shares of each group, not counts.*
 
-Notebook 3 checks it by experiment rather than accepting the argument: drawing
-200,000 random (failing, healthy) pairs, the failing drive scored higher in
-**0.9488** of them, against `roc_auc_score`'s **0.9493**.
+**A predictable mistake: reading the heights as numbers of drives.** A histogram
+usually counts, so the reading is natural. Here each colour adds up to 1, or the
+76 rust drives would be invisible beside the 1,924 teal ones. Converted back in
+notebook 3, the tallest rust bar (0.342) is 26 drives and the tallest teal bar
+(0.056) is 108: the lower bar holds four times as many.
+
+Notebook 3 also checks it by experiment rather than accepting the argument:
+drawing 200,000 random (failing, healthy) pairs, the failing drive scored higher
+in **0.9488** of them, against `roc_auc_score`'s **0.9493**. The draws estimate
+the share of the 146,224 pairs, so the gap is sampling noise.
 
 **A consequence that catches people out.** AUC depends only on the *ranking*, so
-it is invariant to any monotone transformation of the scores. Divide every
-predicted probability by 10 and the AUC is unchanged, while the model becomes
-badly calibrated and every threshold-based decision changes. **AUC says nothing
-about whether "0.7" means anything.** If you need the probabilities to be
-believable — because you are computing expected costs, as in section 7.2 — AUC
-is not the check you want.
+it is invariant to any strictly increasing transformation of the scores (a
+decreasing one reverses the order and turns the AUC into $1 - \text{AUC}$).
+Divide every predicted probability by 10 and the AUC is unchanged, while the
+model becomes badly calibrated and every threshold-based decision changes. In
+notebook 3: at threshold 0.5 the fitted model flags $43 + 13 = 56$ drives; divided
+by 10 its largest score is 0.100 and it flags none, with the AUC still 0.949.
+**AUC says nothing about whether "0.7" means anything.** If you need the
+probabilities to be believable — because you are computing expected costs, as in
+section 7.2 — AUC is not the check you want.
+
+The converse holds too, which shows the two properties are independent. Score
+every drive at 0.038, the fleet's failure rate: on average the score is right,
+so the model is calibrated in the large, and it ranks nothing, AUC 0.5.
 
 ### 8.3 Where ROC misleads
 

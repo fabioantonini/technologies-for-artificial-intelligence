@@ -99,6 +99,10 @@ fitted model changes as it moves — only which side of it each case falls. → 
 the two error costs alone: not of the model, the dataset, or the class balance.
 → § 7.2
 
+**Ranking.** The cases sorted by predicted probability, riskiest first. Every
+threshold is a cut in this list, so a measure of the ranking judges every
+threshold at once. → § 8.1
+
 **Receiver operating characteristic (ROC) curve.** True positive rate against
 false positive rate, swept over every threshold. Its shape says how fast the
 model catches positives relative to how fast it raises false alarms. → § 8.1
@@ -106,6 +110,10 @@ model catches positives relative to how fast it raises false alarms. → § 8.1
 **Area under the curve (AUC).** The probability that the model scores a randomly
 chosen positive above a randomly chosen negative. It measures ranking, and is
 blind to whether the probabilities themselves mean anything. → § 8.2
+
+**Calibration.** Whether the probabilities mean what they say: among cases given
+0.7, about 70% are positive. Independent of ranking: a model can rank well and be
+badly calibrated, or be calibrated and rank nothing. → § 7.2, § 8.2
 
 **Where AUC misleads.** It is unmoved by class imbalance, because its denominator
 is the whole negative class; precision is not. On a rare-event problem report the

@@ -1302,7 +1302,9 @@ recall 0.566 and precision 0.768.
 # Comparing models without choosing a threshold
 
 - We keep evaluating at one threshold, but which?
-- What if we score the whole **ranking** instead?
+- The **ranking**: the 2,000 test drives sorted by predicted probability, riskiest first
+- A threshold is a cut in this list: every drive above the cut is flagged
+- What if we score the whole ranking, every cut at once?
 
 ::: notes
 Set up the next section as a question rather than announcing a tool.
@@ -1314,6 +1316,18 @@ committing - is model A better than model B, at any operating point?
 The move is to stop asking "how many did it get right" and start asking "did it
 put the failures at the top of the list". That is a question about ranking, and
 ranking has no threshold in it.
+
+Say what the ranking is before using the word: sort the 2,000 test drives by the
+probability the model gave them, highest first. Then a threshold is nothing but
+a place to cut that list - everything above the cut is flagged - and lowering
+the threshold moves the cut down. So a threshold-free evaluation does not throw
+the threshold away: it looks at every cut of the same list at once. The
+precision-recall curve of slide 42 was already a first step, every threshold on
+one curve.
+
+Two conditions to keep in mind, both coming back later: only the order counts,
+not the values of p, so a ranking measure cannot see calibration (slide 47); and
+the day the model is used, one cut still has to be chosen (slides 51-53).
 :::
 
 # The ROC curve
@@ -1338,6 +1352,21 @@ together and traces the diagonal.
 
 So the curve asks: as we grow more willing to raise alarms, do we catch failures
 faster than we annoy technicians?
+
+Make the steps concrete. Walk down the ranking one drive at a time: a failing
+drive moves the curve up by 1/76, a healthy one moves it right by 1/1,924. A
+steep start means the top of the ranking is failures. The ideal curve goes
+straight up to (0, 1), then across. Every curve ends at (1, 1), so a curve that
+is steep at the start is flat at the end - and the area under it, next slide,
+measures exactly that. Check one point: threshold 0.5 gives TPR = 43 ÷ 76 = 0.57
+and FPR = 13 ÷ 1,924 = 0.007.
+
+The sweep is the same as the precision-recall curve's; the reading is not. The
+precision-recall curve's ideal is the top-right corner, and precision divides by
+the alarms raised. The ROC's ideal is the top-left corner, and FPR divides by
+the 1,924 healthy drives, so its random baseline is the diagonal whatever the
+class balance, against 0.038 for precision-recall. That denominator is why ROC
+can hide imbalance (slides 48-49).
 :::
 
 # What the area means
@@ -1363,6 +1392,13 @@ handout, section 8.2,
 for anyone who wants the proof. But notebook 3 does something better than a
 proof for this audience: it draws 200,000 random pairs and counts. 0.9488
 against roc_auc_score's 0.9493.
+
+Which pairs, and why the two differ. The test set has 76 × 1,924 = 146,224
+(failing, healthy) pairs. The exact AUC is the share of them in which the
+failing drive scores higher, a tie counting half: notebook 3 counts 7,409 pairs
+in the wrong order, and 1 − 7,409 ÷ 146,224 = 0.9493. So "probability" and
+"share of pairs" are the same number. The 200,000 random pairs are an estimate
+of that share, which is why they give 0.9488: sampling noise.
 :::
 
 # The scores behind the AUC
@@ -1388,12 +1424,28 @@ those, and the AUC counts them as the 5% it misses.
 
 Note what the figure does not show: where to put the threshold. Any vertical
 line splits it, and the AUC is the same whichever you pick - the next slide.
+
+A predictable slip: reading the heights as numbers of drives. They are shares of
+each group, each colour adding up to 1; as counts the 76 rust drives would be
+invisible next to the 1,924 teal ones. The reading is reasonable because a
+histogram usually counts. Notebook 3 converts back: the tallest rust bar, 0.342,
+is 26 drives; the tallest teal bar, 0.056, is 108. The low bar holds four times
+as many drives.
+
+Where the 5% comes from, counted in notebook 3: 7,409 of the 146,224 pairs are
+in the wrong order. A failing drive costs one wrong pair for every healthy drive
+scored above it, so a failure far to the left costs a lot: the lowest-scoring
+one (p = 0.0004) is outscored by 1,408 healthy drives, a fifth of all the wrong
+pairs by itself. The 5 worst failures make 61% of them; 19 failures score above
+every healthy drive and cost nothing.
 :::
 
 # What AUC does not tell you
 
 - Divide every predicted probability by 10
-- AUC is **unchanged**; every decision changes
+- AUC is **unchanged**, 0.949: the order of the drives is the same
+- Every decision changes: at threshold 0.5, 56 drives flagged before, none after (notebook 3)
+- The model is now badly **calibrated**: calibrated means a predicted 0.7 comes true about 70% of the time
 
 ::: notes
 Short slide, important consequence. AUC depends only on the ordering, so it is
@@ -1409,6 +1461,17 @@ costs, as slide 52 does - AUC is not the check you want.
 
 Good place to mention that calibration - whether a predicted 0.7 really comes
 true 70% of the time - is a topic of its own, without going into it.
+
+The 56: at threshold 0.5 the fitted model flags 43 + 13 = 56 drives. Divided by
+10, the largest score is 0.100, so nothing reaches 0.5: recall 0, AUC still
+0.949. The condition: this holds for any change that keeps the order, that is
+any strictly increasing one; a change that reverses the order turns the AUC into
+1 − AUC. "Multiply by 10" would keep the AUC too, but the scores would stop
+being probabilities.
+
+The converse is worth one sentence, because it shows the two properties are
+independent: give every drive 0.038, the fleet's failure rate. On average that
+is right - calibrated - and it ranks nothing: AUC 0.5 (notebook 3).
 :::
 
 # Where ROC misleads
