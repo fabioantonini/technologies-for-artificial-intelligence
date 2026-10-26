@@ -75,7 +75,8 @@ is there to be found out.
 
 **The counters are read on a logarithmic scale.** Before the labels are
 generated, `disk_data.py` applies $\log(1 + x)$ to the four count columns, so
-the truth is linear in $\log(1 + x)$ and not in $x$. That is not a
+the truth is linear in $\log(1 + x)$ and not in $x$; the 1 keeps a drive with no
+reallocated sectors at $\log 1 = 0$ rather than $\log 0 = -\infty$. That is not a
 convenience: it is how the evidence behaves. Going from 0 to 4 reallocated
 sectors is a **17 times** larger move than going from 40 to 44
 ($\log 5 = 1.61$ against $\log(45/41) = 0.093$, and $1.61 / 0.093 = 17$), because the first sector a
@@ -212,16 +213,18 @@ already $-4.43$, deep in the flat left end of the curve above; it reaches 0, the
 steep middle, at $4.43 / 0.336 = 13.2$ sectors. The flat start of that panel is
 the flat left end of this one, with sectors on the axis instead of $z$.
 
-*The flat start comes from the raw count, not from the drives.* A model that is
+*The flat start comes from the raw count, not from how the drives fail.* A model that is
 a straight line in the count gives every sector the same weight: the first
 sector adds as much to $z$ as the twentieth. The labels were generated from
 $\log(1 + x)$ (section 1.1), which gives the first sectors the most weight. The
 figure shows what the sectors add to $z$ in each case, counted from a drive with
-none.
+none: for two drives identical except in the sector counter, one with $k$
+sectors and one with none, the difference $z(k) - z(0)$. Everything else the two
+share cancels, so both curves start at 0.
 
 ![](sectors_on_two_scales.png)
 
-*What the reallocated sectors add to $z$, counted from a drive with none. Look at
+*What the reallocated sectors add to $z$, counted from a drive with none: $z(k) - z(0)$. Look at
 the shaded band: over the first four sectors the generating model (rust) climbs
 steeply, while the raw-count model (blue) climbs at the same slow rate
 everywhere.*

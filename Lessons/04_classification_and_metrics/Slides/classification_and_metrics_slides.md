@@ -171,7 +171,7 @@ the steep middle, where 0.336 times the count equals 4.43: at 4.43 divided by
 0.336 = 13.2 sectors. The flat start of slide 7 is the flat left end of slide
 8, with sectors on the axis instead of z.
 
-Second, the flat start comes from using the raw count, not from the drives. A
+Second, the flat start comes from using the raw count, not from how the drives fail. A
 straight line in the count gives every sector the same weight: the first adds
 as much to z as the twentieth. But the labels were generated from
 log(1 + count), which gives the first sectors the most weight (handout section
