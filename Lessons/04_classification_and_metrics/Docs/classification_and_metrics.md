@@ -213,9 +213,10 @@ already $-4.43$, deep in the flat left end of the curve above; it reaches 0, the
 steep middle, at $4.43 / 0.336 = 13.2$ sectors. The flat start of that panel is
 the flat left end of this one, with sectors on the axis instead of $z$.
 
-*The flat start comes from the raw count, not from how the drives fail.* A model that is
-a straight line in the count gives every sector the same weight: the first
-sector adds as much to $z$ as the twentieth. The labels were generated from
+*The flat start is a fault of the model, not a fact about the drives.* A drive
+with a few reallocated sectors is not safe; this model cannot see it, because it
+is a straight line in the count and gives every sector the same weight: the
+first sector adds as much to $z$ as the twentieth. The labels were generated from
 $\log(1 + x)$ (section 1.1), which gives the first sectors the most weight. The
 figure shows what the sectors add to $z$ in each case, counted from a drive with
 none: for two drives identical except in the sector counter, one with $k$
