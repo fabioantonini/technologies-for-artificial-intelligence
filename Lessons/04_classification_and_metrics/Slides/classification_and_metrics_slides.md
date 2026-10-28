@@ -1197,8 +1197,8 @@ inheriting exactly the blindness slides 31 to 34 were about.
 The macro average gives the two classes equal weight, so the rare class actually
 registers. 0.820 against 0.975 for the same model.
 
-The rule: on an imbalanced problem, quote the macro average or the minority
-class directly. Reporting the weighted average is not incorrect - it is the
+The rule: on an imbalanced problem, quote the minority class directly, and the
+macro average when the classes should count equally. Reporting the weighted average is not incorrect - it is the
 number that makes a mediocre model look finished, and choosing it without saying
 so is how a result gets oversold.
 
@@ -1553,8 +1553,8 @@ technician does not see the 57,000 drives left alone; they see the alarm queue.
 
 This is the lesson's second big predictable mistake, after trusting accuracy
 on slide 31, and again defend the
-instinct: AUC is threshold-free, comparable across models and datasets, bounded
-in a familiar range. Those are real virtues. It simply answers a question about
+instinct: AUC is threshold-free, comparable across models, unmoved by the class
+balance. Those are real virtues. It simply answers a question about
 ranking when the question was about the alarm queue.
 :::
 
@@ -1775,7 +1775,8 @@ model puts its 0.5 line - the same lever as the threshold, pulled at training
 time instead of after it, as the previous slide showed.
 
 That matters because class weighting is usually presented as a REMEDY for
-imbalance. It is not a remedy; it is another way of setting the same decision.
+imbalance. It is not a remedy; here it is almost exactly another way of setting the same
+decision.
 The remedy, where one exists, is more positive examples.
 
 Where it earns its place: when a downstream tool insists on predict() and gives
