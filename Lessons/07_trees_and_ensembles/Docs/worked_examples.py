@@ -296,22 +296,105 @@ for a, b in zip(order, order[1:]):
             f"and {b} ({scores[b]:.3f})")
 checks += 1
 
-# ---- Section 11's second column, which is arithmetic the handout does in prose
-#
-# "Fraction of the 0.93 ceiling" is every row divided by the noise ceiling, and
-# nothing checked it. The ceiling itself is 1 minus the 7% of labels flipped on
-# purpose by the generator.
-same("11 the noise ceiling is 1 - 0.07", 1 - 0.07, 0.93, tolerance=1e-9)
-for model, score, printed_fraction in (
-        ("majority baseline", 0.613, 0.659),
-        ("logistic regression", 0.748, 0.805),
-        ("unconstrained tree", 0.852, 0.916),
-        ("tree at max_depth 8", 0.882, 0.949),
-        ("gradient boosting, 30 trees", 0.897, 0.965),
-        ("bagging, 100 trees", 0.904, 0.972),
-        ("random forest, 100 trees", 0.911, 0.979)):
-    same(f"11 {model} reaches that fraction of the ceiling",
-         score / 0.93, printed_fraction, tolerance=1e-3)
+# ---------------------------------------- 1.1, the ceiling is an average
+# Regenerate the draws exactly as the loader makes them, apply the noise-free rule,
+# and count how many observed labels disagree with it.
+import loan_data as _ld                                                 # noqa: E402
+_rng = np.random.default_rng(_ld.RANDOM_STATE)
+_inc, _debt = _rng.uniform(20.0, 100.0, 1200), _rng.uniform(0.0, 1.0, 1200)
+_clean = _ld._true_default(_inc, _debt)
+same("1.1 labels flipped in this sample", int((_clean != y.to_numpy()).sum()), 85, tolerance=0)
+same("1.1 the true rule scores 1,115 / 1,200", (_clean == y.to_numpy()).mean(), 0.929, tolerance=5e-4)
+
+# ---------------------------------------- 3, a depth-2 tree asks three questions
+d2 = DecisionTreeClassifier(max_depth=2, random_state=0).fit(X, y).tree_
+same("3 the depth-2 tree has three internal nodes", int((d2.feature >= 0).sum()), 3, tolerance=0)
+right = d2.children_right[0]
+leaves_right = [d2.children_left[right], d2.children_right[right]]
+same("3 the right-hand split's two leaves both predict default",
+     sum(int(d2.value[l, 0].argmax() == 1) for l in leaves_right), 2, tolerance=0)
+same("3 that split divides 229 applicants", int(d2.n_node_samples[right]), 229, tolerance=0)
+
+# ---------------------------------------- 5, bagging: averaging probabilities is voting
+Xtr_b, Xte_b, ytr_b, yte_b = train_test_split(X, y, test_size=0.3, random_state=0, stratify=y)
+bag_b = BaggingClassifier(DecisionTreeClassifier(random_state=0), n_estimators=100,
+                          random_state=1).fit(Xtr_b, ytr_b)
+probs = np.array([t.predict_proba(Xte_b.to_numpy()[:, f])[:, 1]
+                  for t, f in zip(bag_b.estimators_, bag_b.estimators_features_)])
+same("5 fully grown trees give only probabilities 0 or 1",
+     float(((probs > 0) & (probs < 1)).mean()), 0.0, tolerance=0)
+votes = (probs.mean(axis=0) > 0.5).astype(int)
+same("5 scikit-learn's averaging equals a majority vote", (votes == bag_b.predict(Xte_b)).mean(),
+     1.0, tolerance=0)
+same("5 the test split has 360 applicants", len(yte_b), 360, tolerance=0)
+same("5 BaggingClassifier test accuracy", (bag_b.predict(Xte_b) == yte_b.to_numpy()).mean(),
+     0.872, tolerance=5e-4)
+# the from-scratch version: m draws with replacement per tree, majority vote
+_rng = np.random.default_rng(1)
+_trees = []
+for _ in range(100):
+    idx = _rng.integers(0, len(Xtr_b), size=len(Xtr_b))
+    _trees.append(DecisionTreeClassifier(random_state=int(_rng.integers(0, 10_000)))
+                  .fit(Xtr_b.iloc[idx], ytr_b.iloc[idx]))
+_vote = (np.stack([t.predict(Xte_b) for t in _trees]).mean(axis=0) >= 0.5).astype(int)
+same("5 own bagging and BaggingClassifier agree on every test applicant",
+     (_vote == bag_b.predict(Xte_b)).mean(), 1.0, tolerance=0)
+
+# ---------------------------------------- 5.1, draws against distinct rows
+distinct = 1200 * (1 - (1 - 1 / 1200) ** 1200)
+same("5.1 about 759 distinct rows in one bootstrap sample", distinct, 759, tolerance=0.5)
+same("5.1 the other 441 draws are repeats", 1200 - round(distinct), 441, tolerance=0)
+
+# ---------------------------------------- 7, the full menu, and the permutation check
+Xn20, yn20 = load_with_noise(20)
+full = RandomForestClassifier(n_estimators=300, max_features=None, random_state=0)
+same("7 cross-validated accuracy with every column on offer",
+     cross_val_score(full, Xn20, yn20, cv=folds).mean(), 0.897, tolerance=5e-3)
+share_full = full.fit(Xn20, yn20).feature_importances_[2:].sum()
+same("7 noise share with every column on offer", share_full, 0.28, tolerance=0.01)
+
+from sklearn.inspection import permutation_importance                  # noqa: E402
+Xtr_p, Xte_p, ytr_p, yte_p = train_test_split(Xn20, yn20, test_size=0.3, random_state=0,
+                                              stratify=yn20)
+forest_p = RandomForestClassifier(n_estimators=300, random_state=0).fit(Xtr_p, ytr_p)
+# a second route to permutation importance: shuffle by hand, 20 times per column
+base = (forest_p.predict(Xte_p) == yte_p.to_numpy()).mean()
+_rng = np.random.default_rng(0)
+def lost(col):
+    out = []
+    for _ in range(20):
+        Xs = Xte_p.copy()
+        Xs[col] = _rng.permutation(Xs[col].to_numpy())
+        out.append(base - (forest_p.predict(Xs) == yte_p.to_numpy()).mean())
+    return float(np.mean(out))
+same("7.1 shuffling debt_ratio costs 0.18", lost("debt_ratio"), 0.18, tolerance=0.01)
+same("7.1 shuffling income_k costs 0.09", lost("income_k"), 0.09, tolerance=0.01)
+noise_lost = [lost(c) for c in Xn20.columns[2:]]
+same("7.1 no noise column costs more than 0.003", max(abs(v) for v in noise_lost), 0.0, tolerance=0.004)
+# the training rows: there the noise columns do cost accuracy
+perm_train = permutation_importance(forest_p, Xtr_p, ytr_p, n_repeats=5, random_state=0)
+at_least("7.1 on the training rows the noise columns cost something",
+         perm_train.importances_mean[2:].sum(), 0.01)
+
+# ---------------------------------------- 9, scikit-learn's leaf values are a Newton step
+gb1 = GradientBoostingClassifier(n_estimators=1, learning_rate=1.0, max_depth=2,
+                                 random_state=0).fit(X, y)
+leaf = gb1.estimators_[0, 0].apply(X.to_numpy())
+p0 = y.mean(); r = y.to_numpy() - p0
+for l in np.unique(leaf):
+    m_l = leaf == l
+    same(f"9 leaf {l} holds sum(y - p) / sum(p(1 - p))",
+         gb1.estimators_[0, 0].tree_.value[l, 0, 0], r[m_l].sum() / (p0 * (1 - p0) * m_l.sum()),
+         tolerance=1e-6)
+
+# ---------------------------------------- 10, the loss falls at every tree, accuracy not
+from sklearn.metrics import log_loss                                    # noqa: E402
+gb800 = GradientBoostingClassifier(n_estimators=800, learning_rate=0.3, max_depth=3,
+                                   random_state=0).fit(X, y)
+losses = [log_loss(y, q) for q in gb800.staged_predict_proba(X)]
+accs = [(q == y.to_numpy()).mean() for q in gb800.staged_predict(X)]
+same("10 the training log-loss never rises", int((np.diff(losses) > 1e-12).sum()), 0, tolerance=0)
+at_least("10 training accuracy dips at some steps", int((np.diff(accs) < 0).sum()), 1)
 
 # ---------------------------------------- 2.2, the root split's gain, by counting
 yy = y.to_numpy(); left = X["debt_ratio"].to_numpy() <= 0.82

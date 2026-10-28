@@ -71,6 +71,11 @@ useful answer is: not one connected region, so no single straight line can
 separate the classes - a different failure from lesson 6's disc-in-a-ring,
 but a failure of the same kind.
 
+Why "about" 0.93: each label is flipped with probability 7%, so 0.93 is what the
+true rule scores on average. In this particular sample 85 of the 1,200 labels were
+flipped, so the rule itself scores 1,115 / 1,200 = 0.929, and a cross-validated
+score can land a little either side of the ceiling by chance.
+
 Handout section 1.1.
 :::
 
@@ -122,14 +127,18 @@ Handout section 1.1.
   as possible**
 - Apply it; repeat on each group, independently
 - Stop at a depth limit, a pure group, or too few examples to split
-- Nothing is estimated: no coefficient, no gradient
+- No coefficients and no gradient: each threshold is chosen by **searching** the
+  data
 - **Greedy**: whichever split helps most *right now*, with no lookahead
 
 ::: notes
 Read the algorithm as one sentence and let it sit - it really is that short.
 Contrast it explicitly with lessons 3 and 4: no cost function is minimised
-over a continuous parameter, there is no gradient step. A tree is a sequence
-of yes/no questions, chosen one at a time.
+over a continuous parameter, there is no gradient step. The tree still learns
+from the data - which feature to ask about and where to put each threshold -
+but it learns them by trying candidates and keeping the best, not by
+descending a slope. A tree is a sequence of yes/no questions, chosen one at a
+time.
 
 The word to stress is "greedy". At every step the tree takes whichever split
 helps most immediately, with no mechanism for looking two levels ahead. Tell
@@ -373,10 +382,13 @@ scikit-learn - inherits that confidence.
 Two questions to pre-empt. Why predictions and not accuracy? Because two
 different trees can get the same number of applicants wrong while getting
 different applicants wrong; identical predictions, one by one, rule that out.
+Identical predictions do not by themselves prove the two trees are identical
+node by node - two different trees can agree on every row they are shown - but
+the notebook also prints the same root split, debt ratio at 0.82, from both.
 And why on the training data, after lesson 5? Because this checks the code,
-not the model: the question is whether two programs build the same tree from
-the same rows, and the rows they learned from are exactly the right ones to
-ask it on. No accuracy here is a claim about new applicants.
+not the model: the question is whether two programs make the same decisions
+from the same rows, and the rows they learned from are exactly the right ones
+to ask it on. No accuracy here is a claim about new applicants.
 
 Point out the "Try this" box in the handout: computing Gini impurity for
 the income-floor subgroup alone and comparing it against the full dataset's
@@ -412,14 +424,12 @@ Handout sections 2.2 and 3.
 
 # Depth is the bias-variance dial
 
-- `max_depth`: how many questions a tree may ask before a leaf must stop and
-  vote by majority
+- `max_depth`: the most questions **one applicant** answers
 - **Shallow tree**: few questions, only the coarsest structure. High bias,
   low variance
-- **Deep tree**: enough questions to isolate almost any subset, down to
-  single points. At full depth, training accuracy is **exactly 1.000**, even
-  on data with no structure at all, unless two examples share every feature
-  value but not the label
+- **Deep tree**: enough questions to isolate single points. Training
+  accuracy **exactly 1.000**, even on data with no structure, unless two
+  examples share every feature value but not the label
 
 ::: notes
 Name the dial explicitly and connect it to lesson 6: k in k-nearest
@@ -496,9 +506,12 @@ section 3.
 ![](tree_boundaries.png)
 
 ::: notes
-Left to right: at depth 2 the tree affords only the income floor and the
-debt ceiling - the two biggest, easiest-to-find regions - and neither
-interior island is visible at all. At depth 8 both islands appear as clean
+Left to right: at depth 2 every applicant answers at most two questions. The
+tree asks three in all - it is exactly the tree of step 2 on slide 8 - but the
+third, on the right, splits 229 high-debt applicants into two groups that are
+both predicted "default", so it changes no prediction and draws no line. What
+the boundary shows is the income floor and the debt ceiling - the two biggest,
+easiest-to-find regions - and neither interior island is visible at all. At depth 8 both islands appear as clean
 rectangles, close to the rule that generated the data. At full depth the
 boundary has grown a fringe of tiny rectangles chasing individual flipped
 labels.
@@ -513,19 +526,23 @@ had never seen. Handout section 3.
 
 # Reading a tree, and the knob that keeps it small
 
-- `max_depth` grows the tree **breadth-first**: every leaf at level $d$
-  splits before any leaf reaches $d+1$
-- `max_leaf_nodes` grows it **best-first**: always the leaf with the largest
-  $\Delta G$
-- `max_leaf_nodes = 9`: **90.8%** training accuracy; thresholds 28, the
-  income floor, and 0.82, the debt ceiling
+- `max_depth` **caps every path**: each node above the cap is split if it
+  can be, worth it or not
+- `max_leaf_nodes` is a **budget of leaves**, spent on the largest
+  $\Delta G$ first
+- `max_leaf_nodes = 9`: **90.8%** training accuracy; thresholds 28 (income
+  floor) and 0.82 (debt ceiling)
 - In code: `export_text(tree)` prints the tree as if/else rules
 
 ::: notes
-This is the readability half of the story. For a tree meant to be read
-rather than merely scored, best-first growth is the better knob: a small
-budget of splits goes to the ones that matter most, instead of being spent
-uniformly across every branch regardless of whether it's worth it.
+This is the readability half of the story. The two knobs limit different
+things. A depth cap limits how long any one path can be, and inside that cap
+every node that can be split is split - slide 22's depth-2 tree spent one of
+its three questions on a split that changed no prediction. A leaf budget
+limits how many leaves the whole tree may have, and spends them one at a time
+on whichever leaf gains most. For a tree meant to be read rather than merely
+scored, the budget is the better knob: a small number of splits goes to the
+ones that matter most.
 
 The nine-leaf tree is worth reading aloud as a sequence of if/else
 statements - that is the entire model, and it is the thing k-nearest
@@ -624,7 +641,16 @@ hour's tree as it is, and only what surrounds it is new.
 
 Be precise about "with replacement": some rows appear more than once in a
 given sample, some not at all. That leftover fraction is not wasted - it
-becomes free validation data, on the next slide.
+becomes free validation data, on slide 30.
+
+One detail of the In code line, if asked: scikit-learn's `BaggingClassifier`
+does not count votes, it averages the trees' predicted probabilities. With
+fully grown trees the two are the same thing: every leaf is pure, so each
+tree's probability is 0 or 1, and averaging 0s and 1s is counting votes. So
+notebook 2's own majority-vote version and scikit-learn's apply the same rule.
+They do not use the same trees - each draws its own bootstrap samples - and
+still they make the same prediction for all 360 test applicants, 0.872 both:
+with 100 trees, the luck of any one sample is outvoted.
 
 Handout section 5.
 :::
@@ -648,8 +674,14 @@ exponential limit worked out in handout section 5.1. What matters here is the
 consequence: every bootstrap tree automatically leaves out over a third of
 the rows, and never sees them.
 
-Ask the room what that leftover third is good for. The answer is the next
-slide: it is validation data for exactly the one tree that never saw it.
+A predictable slip: "so each tree is trained on 63.2% of the data, 759 rows".
+It is reasonable, because 63.2% is the number on the slide. But the sample
+still has 1,200 draws: about 759 different rows, and the other 441 draws are
+repeats of rows already drawn. The tree sees 1,200 rows, some of them twice
+or three times - the next slide counts them.
+
+Ask the room what that leftover third is good for. The answer is slide 30,
+after the counts: it is validation data for exactly the trees that never saw it.
 
 Handout section 5.1.
 :::
@@ -694,9 +726,12 @@ The agreement is the point, but be careful how you sell it. On this seed the
 two numbers match to four decimal places, and that is luck: over twelve seeds
 the typical gap is 0.0026 and the worst is 0.0075. What is not luck is that
 they track each other well inside cross-validation's own ±0.021 spread,
-because OOB score *is* cross-validation with different bookkeeping - each
-tree supplying its own held-out fold, the rows it never bootstrapped, instead
-of the dataset being split up front.
+because the OOB score works like cross-validation: every row is scored only
+by models that never saw it. The bookkeeping differs. In 5-fold
+cross-validation each fold is scored by a whole forest trained without that
+fold. Out-of-bag, each row is scored by the trees whose bootstrap sample
+missed it - about a third of the forest, and a different third for each row.
+There is no single out-of-bag set.
 
 Worth pausing on, because it is a habit rather than a fact: **a single
 coincidence is not evidence of a law.** If you catch yourself saying
@@ -717,8 +752,8 @@ Handout section 5.1.
   bootstrap sample it drew, and let $\rho$ be the correlation between two trees
 - The average of $B$ trees has variance $\sigma^2/B + \rho\sigma^2 (B-1)/B$:
   a **floor** of $\rho\sigma^2$, **not zero**: more trees soon buy little
-- Averaging **cannot fix bias**: unbiased-but-noisy trees average to
-  unbiased; trees sharing a systematic error keep that error exactly
+- Averaging **cannot repair an error every tree shares**: trees too shallow
+  for the rule stay too shallow, however many are averaged
 
 ::: notes
 State the headline, not the algebra - the covariance expansion behind this
@@ -732,7 +767,12 @@ only, powerless against a systematic mistake shared by every tree.
 
 That second point is worth a beat: bagging does nothing for a tree that is
 too shallow to represent the rule in the first place. It cleans up noise, it
-does not add capability.
+does not add capability. The bullet is worded with care on purpose. For an
+average of numbers, averaging leaves the bias exactly where it was. A vote
+between classifiers is not an average of numbers, and it can change which
+side of the boundary a point falls on - which is why, two slides on, bagging
+raises the mean accuracy and not only narrows the spread. What no amount of
+voting can do is fix a mistake that every tree makes.
 
 Handout section 5.2.
 :::
@@ -762,9 +802,13 @@ random forest, two slides on. Handout section 5.2.
 ::: notes
 Across 30 random 70/30 splits of the loan data, both numbers moved in
 the predicted direction. The mean rose, because bagging also averages out
-some of a deep tree's overfitting; the spread fell, which is exactly what
-the previous slide's formula says averaging correlated estimators should
-do.
+some of a deep tree's overfitting; the spread fell, which is what the
+formula of slide 31 leads us to expect. Say precisely what was measured,
+because it is not the formula's quantity: the formula is about the variance
+of one prediction over bootstrap samples, while this table is the spread of
+test accuracy over 30 different train/test splits, which also carries the
+luck of which applicants landed in each test set. The measurement is
+consistent with the formula, not a direct check of it.
 
 Ask the room to name which of the two changes matters more for trusting a
 single deployed model - the tighter spread, because it means the number you
@@ -799,21 +843,25 @@ Handout section 6.
 
 # Random forests, measured
 
-| Model | Mean test accuracy, 30 random 70/30 splits | Standard deviation across the 30 |
-|---|---|---|
-| Single unconstrained tree | 0.856 | 0.0185 |
-| Bagging, 100 trees | 0.902 | 0.0153 |
-| **Random forest, 100 trees** | **0.908** | **0.0137** |
+![](ensemble_variance.png)
 
 ::: notes
-Same 30 splits as the bagging comparison. The random forest beats plain
-bagging on both counts - a better mean and a tighter spread - consistent
-with $\rho$ having fallen further, exactly as the restriction on the
-previous slide predicts.
+The same 30 random 70/30 splits as the bagging table, now with the random
+forest added and drawn rather than tabulated (notebook 2, section 3). Each
+dot is one split's test accuracy; the box holds the middle half of the 30,
+the red line is the median.
+
+Read it left to right: the boxes rise and narrow together. In numbers, the
+means are 0.856, 0.902 and 0.908, and the standard deviations 0.0185, 0.0153
+and 0.0137. The random forest beats plain bagging on both counts - a better
+mean and a tighter spread - consistent with $\rho$ having fallen further, as
+the restriction on the previous slide predicts. The step from bagging to the
+forest is much smaller than the step from one tree to bagging: averaging did
+most of the work, decorrelating added a little more.
 
 Say plainly what has and hasn't changed: nothing about the splitting rule
-is different from the first hour's trees. The only change across all three rows of this
-table is what surrounds the tree - resampling, then also restricting the
+is different from the first hour's trees. The only change across the three boxes
+is what surrounds the tree - resampling, then also restricting the
 feature menu.
 
 Handout section 6.
@@ -844,47 +892,82 @@ Handout section 7.
 
 # More columns, more noise
 
-| Noise columns added | Total columns | Cross-validated accuracy | Importance on noise |
-|---|---|---|---|
-| 0 | 2 | 0.912 | 0.0% |
-| 5 | 7 | 0.874 | 33.9% |
-| 20 | 22 | 0.837 | **54.5%** |
+![](noise_importance.png)
 
 ::: notes
-Read down the last column, slowly, and let the bottom row sit before
-explaining anything. With 20 pure-noise columns against 2 real features,
-more than half of the forest's own importance scores land on columns that
-are `np.random.normal` noise by construction.
+Say what is plotted before pointing at it (notebook 2, section 5): a
+300-tree random forest on the loan data with 0, 5 and 20 columns of random
+numbers added. Red, left axis: cross-validated accuracy. Blue, right axis:
+the share of the forest's importance that lands on the noise columns.
+
+Follow the blue line, slowly, and let the last point sit before explaining
+anything: 0% with no noise, 33.9% with 5 columns, 54.5% with 20. With 20
+pure-noise columns against 2 real features, more than half of the forest's
+own importance scores land on columns that are `np.random.normal` noise by
+construction. The red line falls at the same time, from 0.912 to 0.837, but
+gently: nothing in the accuracy warns that the importances have gone wrong.
 
 Name the instinct this breaks, and defend it before moving on: expecting an
 average over hundreds of trees to wash out noise is entirely reasonable  - 
 the variance-reduction result of the averaging slides is real and measured, and it
 does point the same way. It reduces the variance of the *prediction*. It
-does not guarantee small importance for irrelevant columns, because the very
-restriction that decorrelates the trees - a random, incomplete menu at each
-split - is what occasionally hands a split to noise with nothing better on
-offer.
+does not guarantee small importance for irrelevant columns. Two things hand
+credit to noise, and slide 54 takes them apart: the random, incomplete menu
+at each split, and the deep splits on small groups, where some noise column
+always lowers the impurity a little by chance.
 
-The mechanism is exact and is in handout section 7. The practical
+The mechanism is in handout section 7. The practical
 consequence to leave them with: treat a random forest's importances as
 suggestive, not definitive, when real features are few against many
-candidate columns.
+candidate columns - and check them, which is the next slide.
+:::
+
+# Permutation importance
+
+![](permutation_importance.png)
+
+::: notes
+Name the method and say its recipe before pointing at the figure.
+**Permutation importance**: take a fitted model and data it was not trained
+on; shuffle the values of one column, so that column no longer says anything
+about the applicant in its row; score the model again. The accuracy lost is
+that column's importance. Repeat for every column. If the model never really
+used a column, shuffling it costs nothing.
+
+The figure is the 20-noise-column forest, trained on 70% of the applicants
+and checked on the other 30% (notebook 2, section 6). Left, the importance
+the forest reports for itself: more than half of it on the twenty noise
+columns. Right, the same 22 columns by permutation: debt ratio costs 0.18 of
+accuracy when shuffled, income 0.09, and every noise column costs almost
+nothing - between 0.003 lost and 0.002 gained.
+
+Two things to stress. Almost nothing, not exactly nothing: shuffling is
+random and the test set is finite, so a useless column moves the score by
+a few thousandths either way. And held-out data is what makes the check
+honest: on the training rows a deep forest has memorised its noise columns,
+and shuffling them would cost something there.
+
+The check costs one function call. The lesson to leave: a ranking the model
+reports about itself is a claim; shuffling on held-out data is the test of it.
+Handout section 7.1.
 :::
 
 # Notebook 2, live
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| 1. bagging from scratch, 27 | `train_test_split(..., test_size=0.3, stratify=y)`, your own bagging against `BaggingClassifier`, both scored by `accuracy_score` → 0.872 and 0.872 |
-| 2. why averaging works, 28-32 | a forest with `oob_score=True`: its `.oob_score_` against `cross_val_score` → 0.9117 and 0.9117; 0.0026 over 12 seeds |
-| 3. variance, measured, 33-35 | a tree, `BaggingClassifier`, `RandomForestClassifier` on 30 splits → spread 0.0185, 0.0153, 0.0137 |
-| 5. feature importance, 36-37 | `.feature_importances_` with 0, 5 and 20 noise columns → 54.5% on noise |
+| 1. bagging from scratch, 27 | `train_test_split`, your bagging against `BaggingClassifier`, `accuracy_score` → 0.872 and 0.872 |
+| 2. why averaging works, 28-32 | `oob_score=True`: `.oob_score_` against `cross_val_score` → 0.9117 both; 0.0026 over 12 seeds |
+| 3. variance, measured, 33-35 | tree, `BaggingClassifier`, `RandomForestClassifier`, 30 splits → spread 0.0185, 0.0153, 0.0137 |
+| 5. feature importance, 36-37 | `.feature_importances_`, 0 to 20 noise columns → 54.5% on noise |
+| 6. checking the importances, 38 | `permutation_importance`, test split → real 0.09 and 0.18, noise ≈ 0 |
 
 ::: notes
 The table is the notebook's map: bagging from scratch and against
 scikit-learn, the out-of-bag score checked against cross-validation, the
-variance measured over 30 splits, and the noise-column experiment. Section 4
-of the notebook is reading only, which is why the table skips it.
+variance measured over 30 splits, the noise-column experiment, and the
+permutation check of the previous slide. Section 4 of the notebook is reading
+only, which is why the table skips it.
 
 Run Notebooks/02_bagging_and_random_forests.ipynb. Eighteen minutes.
 
@@ -892,10 +975,11 @@ The cell to protect is the noise-column sweep. Let them add the columns
 themselves and watch the importance share climb - reading the number off a
 slide does not land the same way as watching it happen.
 
-If time allows, have them try `max_features=None` instead of the default
-`"sqrt"` and predict what happens to the noise share before running it  - 
-it should fall, at the cost of the decorrelation that made the forest work
-in the first place.
+If time allows, section 6 also tries `max_features=None` instead of the
+default `"sqrt"`: every split sees all 22 columns. Ask them to predict the
+noise share before running it. Most will say it falls to about zero, since
+the real features are now always on offer. It falls only to 28%, and the
+accuracy rises from 0.837 to 0.897. Slide 54 explains both.
 :::
 
 # Gradient boosting: correcting mistakes in sequence
@@ -903,8 +987,8 @@ in the first place.
 - Bagging and random forests build trees **independently**, then average
 - **Boosting** builds them **in sequence**: each new tree corrects what the
   trees so far got wrong
-- Each is a shallow **regression tree**, a **weak learner**: leaves predict
-  a mean, splits reduce squared error
+- Each is a shallow **regression tree**, a **weak learner**: it predicts a
+  number, a correction, not a class
 - The learning rate $\alpha$ sets **how much** of each correction is applied
 
 ::: notes
@@ -924,6 +1008,12 @@ average correction of the examples in it, and a split is scored by how much
 it lowers the squared error around those averages. Even
 `GradientBoostingClassifier` grows regression trees inside.
 
+A predictable slip, worth naming now: "the final task is classification, so
+each boosted tree votes default or repaid, like a tree in a forest". It is
+reasonable - every ensemble so far was made of trees that vote. But a boosted
+tree never outputs a class. It outputs a correction that is added to a
+running score, and only the final score is turned into a class.
+
 Name $\alpha$ carefully and tie it to the course's shared notation - this is
 the same symbol as lesson 3's gradient descent learning rate, doing an
 analogous job: how large a step each correction takes.
@@ -931,12 +1021,15 @@ analogous job: how large a step each correction takes.
 Handout section 8.
 :::
 
-# Building the ensemble, one tree at a time
+# Building the ensemble, one tree at a time, for squared error
 
 $$F_0(x) = \bar{y}, \qquad F_t(x) = F_{t-1}(x) + \alpha \cdot h_t(x)$$
 
 ::: notes
-$F_0$ is the flat starting guess, the mean of the target. Each subsequent
+$F_0$ is the flat starting guess: the best single constant for the loss
+being used. For squared error, as on this slide and the next three, that is
+the mean of the target; for classification it will be the log-odds of the
+base rate (slide 45). Each subsequent
 $F_t$ is the previous ensemble plus a scaled correction from the newest
 tree, $h_t$. Read it left to right: start flat, then keep adding small,
 scaled corrections.
@@ -1016,7 +1109,8 @@ Handout section 8.
 # Classification: the same idea, a different gradient
 
 - $y$ is 0 or 1; the score $F$ becomes a probability through lesson 4's
-  logistic function, $p = \sigma(F)$
+  logistic function, $p = \sigma(F)$ (this $\sigma$ is not the $\sigma^2$
+  of the variance slides)
 - The loss is lesson 4's **log-loss**
 - Each tree fits the **pseudo-residual** $y - p$, the negative gradient:
   lesson 4's error term
@@ -1037,14 +1131,28 @@ boosting adds entirely new trees, so the model's structure itself grows
 with training rather than staying fixed.
 
 The sigma here is lesson 4's logistic function, 1 / (1 + e^-F), not the
-sigma squared of the variance slides: say so once, since the same letter has
-just meant something else.
+sigma squared of the variance slides: the slide says so, say it aloud once
+too, since the same letter has just meant something else.
 
 Give them the first step in numbers, because it makes y - p concrete. The
 ensemble starts at the base rate's log-odds: 464 of the 1,200 defaulted, so
 F0 = log(464 / 736) = -0.461, which the logistic function turns back into
 0.387 for everyone. The first tree is fit to y - p: +0.613 for every applicant
 who defaulted, -0.387 for every one who repaid.
+
+A predictable slip: "so the update is p plus alpha times (y - p)". It is
+reasonable, because y - p is a difference of probabilities. But the trees
+correct the score F, not p: F moves by alpha times the tree's output, and
+only then does the logistic function turn the new F into a new p. That is
+what keeps p between 0 and 1 however large the corrections add up.
+
+One detail, if someone has read scikit-learn's source. The tree's
+splits are chosen on y - p exactly as described. The number written in each
+leaf is then recomputed: the sum of y - p over the leaf divided by the sum
+of p(1 - p), one Newton step on the log-loss rather than the plain mean. The
+splits come from the residuals; the size of each step takes the curvature of
+the loss into account. Handout section 9 has it in one sentence; nothing in
+the lesson depends on it.
 
 Handout section 9.
 :::
@@ -1082,10 +1190,14 @@ Handout section 9.
 | 800 | 1.000 | 0.890 ± 0.019 |
 
 ::: notes
-Unlike bagging, boosting keeps reducing training error for as long as it
+Unlike bagging, boosting keeps reducing its training loss for as long as it
 runs, because every new tree is built specifically to reduce what remains  - 
 including the 7% of labels that are noise by construction. There is nothing
-in the algorithm itself that says "stop".
+in the algorithm itself that says "stop". Be exact about which quantity: the
+log-loss on the training data never goes up, while training accuracy only
+follows it on the whole - fit to all 1,200 applicants with 800 trees, it
+dips at a handful of individual steps, too small to show in this table
+(handout section 10).
 
 Point at the peak, 30 trees, and then at 800: training accuracy reached
 1.000 by 200 trees and stayed there, and cross-validated accuracy has
@@ -1108,12 +1220,14 @@ by around 200 trees and sits there. Cross-validated accuracy climbs
 quickly, peaks near 30 trees, and drifts down over the following 770.
 
 The point worth making explicit: the damage per added tree here is small
-and easy to miss on a single run - which is exactly why early stopping
-matters for boosting rather than being optional, even though the overfit is
-gentler than a single unconstrained tree's. Say what early stopping is, since
-the deck has not: set aside part of the training data, watch the score on it
-as trees are added, and stop once it has not improved for a number of rounds.
-In scikit-learn that is the `n_iter_no_change` argument of
+and easy to miss on a single run - which is why the number of trees has to
+be chosen on held-out data, never left to run, even though the overfit is
+gentler than a single unconstrained tree's. There are two ways to choose it.
+This lesson cross-validated a list of tree counts and kept the best, 30.
+The other is early stopping, which the deck has not shown, so say what it
+is: set aside part of the training data, watch the score on it as trees are
+added, and stop once it has not improved for a number of rounds. In
+scikit-learn that is the `n_iter_no_change` argument of
 `GradientBoostingClassifier`.
 
 Handout section 10.
@@ -1143,6 +1257,15 @@ outvote if it turns out to be wrong. Ask the room which direction they'd
 guess is "more regularised" before revealing that it's the *small* $\alpha$
 side, the same kind of inverted-direction trap lesson 6's $C$ was.
 
+A predictable slip: "only alpha times the number of trees matters, so half
+the learning rate with twice the trees gives the same model". It is
+reasonable - the notes above just said both knobs set the total correction.
+But they are not interchangeable: each tree is fit to what the ensemble
+before it still gets wrong, so many small steps follow a different path from
+a few large ones. A large step overshoots on the noisy labels and the next
+trees spend themselves undoing it; a small step lets later trees outvote an
+early mistake. The trade-off is real, the equivalence is not.
+
 Handout section 10.
 :::
 
@@ -1150,11 +1273,11 @@ Handout section 10.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| 1. boosting from scratch, 39-43 | `DecisionTreeRegressor(max_depth=2)` on the residuals, 60 times → MSE 0.0119 at 20 trees |
-| 2. classification, 44-45 | `GradientBoostingClassifier()` in `cross_val_score` → F0 = −0.461; 0.902 |
-| 3. more trees, 46-47 | the same, `learning_rate=0.3`, `n_estimators` from 5 to 800 → peak 0.897 at 30 |
-| 4. learning rate, 48 | the same with `n_estimators=120` and `learning_rate` from 0.02 to 1.0 → best 0.902 at 0.1 |
-| 5. leaderboard, 50 | every model in one `cross_val_score` loop → random forest 0.911 |
+| 1. boosting from scratch, 40-44 | `DecisionTreeRegressor(max_depth=2)` on the residuals, 60 times → MSE 0.0119 at 20 trees |
+| 2. classification, 45-46 | `GradientBoostingClassifier()` in `cross_val_score` → F0 = −0.461; 0.902 |
+| 3. more trees, 47-48 | the same, `learning_rate=0.3`, `n_estimators` from 5 to 800 → peak 0.897 at 30 |
+| 4. learning rate, 49 | the same with `n_estimators=120` and `learning_rate` from 0.02 to 1.0 → best 0.902 at 0.1 |
+| 5. leaderboard, 51 | every model in one `cross_val_score` loop → random forest 0.911 |
 
 ::: notes
 The table is the notebook's map: boosting from scratch on the residuals,
@@ -1207,12 +1330,11 @@ Handout section 11.
 
 # Three findings
 
-- Every ensemble lands within a point and a half of the others: **which
-  strategy** matters far less than **whether you ensemble at all**
+- **On this dataset**, the ensembles land within 1.5 points of each other:
+  **whether you ensemble** matters more than **which**
 - The tuned single tree is close behind, 0.882 against 0.911, and the only
   model here a person can read
-- The **unconstrained tree is the worst model on the list**, despite being
-  the most flexible one
+- The **unconstrained tree is the worst**, though the most flexible
 
 ::: notes
 Read the three findings as a set - together they are this lesson's real
@@ -1249,20 +1371,19 @@ The fourth row is worth a sentence of its own, tying back to the noise
 experiment: with two real features among 22 columns and 1,200 rows, more
 than half the importance already landed on noise. Many rows do not protect
 against it; what matters is how many useless columns compete at each split.
-Permutation importance is on the next slide.
+Permutation importance, the check, was slide 38; the next slide comes back to it.
 
 Handout section 11.
 :::
 
 # 54% of the importance landed on noise
 
-- 20 noise columns, 2 real features: not a small effect, not a bug
-- Each split is offered 4 of the 22 columns: in two splits of three
-  (0.662), neither real feature
-- Averaging shrinks the **prediction's variance**, not the credit given
-  to noise
-- Check: **permutation importance**, the accuracy lost when a held-out
-  column is shuffled
+- 20 noise columns, 2 real ones: not small, not a bug
+- **The menu**: 4 of 22 columns per split; in two splits of three (0.662),
+  no real feature
+- **Small groups**: with all 22 on offer, noise still takes **28%**, from
+  deep splits
+- The check: **permutation importance**, slide 38
 
 ::: notes
 This is the number to carry out of the room. Say it once more, slowly: with
@@ -1274,16 +1395,32 @@ not to. Every lesson so far has left one of these - lesson 1's 77% accuracy
 on coin-flip labels, lesson 3's coefficient of 365 where an unpenalised fit
 wanted billions - and this is lesson 7's.
 
-The second bullet is the mechanism in one number. The square root of 22,
-rounded down, is 4, so each split chooses among 4 random columns. The chance
-that all 4 come from the 20 noise columns is 4,845 / 7,315 = 0.662. At those
-splits the tree still has to pick something, and among 1,200 noisy rows some
-noise column always reduces the impurity a little, by chance.
+The second and third bullets are the mechanism, and there are two causes,
+not one. Take them in order.
 
-The last bullet, permutation importance, is the remedy the handout points
-to: a column the model really uses costs accuracy when its values are
-shuffled; a noise column costs nothing. It is measured on data the forest
-did not train on, so a column cannot earn credit by having been memorised.
+The menu. The square root of 22, rounded down, is 4, so each split chooses
+among 4 random columns. The chance that all 4 come from the 20 noise columns
+is 4,845 / 7,315 = 0.662: two splits in three offer no real feature. At those
+splits the tree still has to pick something, and it picks the noise column
+that happens to separate the classes best.
+
+Small groups. The menu is not the whole story, and notebook 2 shows it: with
+`max_features=None`, every split offered all 22 columns, the noise share
+falls from 54.5% to 28%, not to zero. Deep in a tree a node holds a handful of
+applicants, and among twenty columns of random numbers one will almost always
+separate a handful of applicants a little better than income or debt can,
+purely by chance. Every such split credits noise.
+
+Most will predict the noise share falls to zero with the full menu, and the
+reasoning is sound as far as it goes - a real feature is now always there to
+be chosen near the root. It is the bottom of the trees that it misses. The
+same run raised the accuracy from 0.837 to 0.897: with 20 useless columns out
+of 22, the random menu costs more accuracy than decorrelating the trees buys
+back. The default is a good default, not a law.
+
+The last bullet sends them back to the check of slide 38: shuffling a
+column on held-out data costs the two real features 0.09 and 0.18 of
+accuracy, and each noise column almost nothing.
 
 Handout section 7 has the full mechanism.
 :::
@@ -1302,9 +1439,10 @@ carry the lesson's argument without needing the mathematics behind them
 re-derived.
 
 If they remember one habit from today, make it this: before trusting a
-random forest's importance ranking, ask how many candidate columns compete
-for attention at each split, because that number - not the accuracy score  - 
-is what decides how much noise gets credit it didn't earn.
+random forest's importance ranking, ask how many of the columns could
+plausibly matter at all - many useless columns are what hand credit to
+noise, and the accuracy score gives no warning - and then check the ranking
+by shuffling on held-out data, as slide 38 did.
 
 Next lesson turns from labelled data to unlabelled data. Every model so far
 learned from examples whose answer was known: a price, a class, a default.

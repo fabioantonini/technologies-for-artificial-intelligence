@@ -79,8 +79,10 @@ trees, it becomes the mechanism.
 **The concepts, in order.**
 
 1. **Bagging from scratch**: bootstrap sample, fit a tree, repeat, vote. Test accuracy
-   **0.872**, and scikit-learn's `BaggingClassifier` **0.872** — the same algorithm,
-   not tree-for-tree identical, because the random streams differ.
+   **0.872**, and scikit-learn's `BaggingClassifier` **0.872** — not the same trees,
+   because the random streams differ, yet the same prediction for all 360 test
+   applicants. scikit-learn averages probabilities rather than counting votes; with
+   fully grown trees every probability is 0 or 1, so the two rules coincide.
 2. **Why it works, and the out-of-bag consequence.** The chance a specific row is never
    drawn in $m$ draws tends to $1/e$: **theory 0.3679**, $(1 - 1/m)^m$ at
    $m = 1200$ **0.3677**, simulated **0.3658**. Those left-out rows give a free
@@ -117,6 +119,12 @@ trees, it becomes the mechanism.
    features are left out together with probability 0.662** — two splits in three offer
    only noise, and the tree must split on whichever noise column was drawn. **More than half the forest's importance lands on
    columns that contain nothing.**
+7. **Where the credit comes from, and the check.** With every column offered at every
+   split (`max_features=None`) the noise share falls only to **27.9%**, and accuracy
+   rises from 0.837 to **0.897**: the menu is one cause, deep splits on a handful of
+   applicants the other. Then the check, permutation importance on a held-out 30%:
+   shuffling debt ratio costs **0.175** of accuracy, income **0.088**, and the twenty
+   noise columns between −0.002 and +0.003 (`permutation_importance.png`).
 
 **The two-minute version.** *One tree is unstable, so fit a hundred to bootstrap
 resamples and average them. The from-scratch version matches scikit-learn. Each
@@ -125,8 +133,10 @@ give a free validation score which lands within about 0.003 of cross-validation 
 seeds. Over 30 splits the variance falls: a single tree swings by ±0.018, a forest by
 ±0.014, and its mean accuracy is five points higher. The last section is a warning:
 add twenty noise columns and more than half of the forest's own feature importance
-lands on them, because with four candidates out of 22 per split, the real features are
-usually not even offered.*
+lands on them — partly because with four candidates out of 22 per split the real
+features are usually not even offered, partly because deep splits on a few applicants
+reward noise by chance. Shuffling each column on held-out data tells the two kinds
+apart: the real features cost accuracy, the noise columns almost nothing.*
 
 ---
 

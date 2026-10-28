@@ -8,8 +8,8 @@ date: "Set 13 November 2026 · discussed at the start of lesson 8, Friday 20 Nov
 ## What this exercise is for
 
 Lesson 7's own dataset was clear-cut: every ensemble — bagging, random forest,
-gradient boosting — beat the best single tree, consistently, by about three
-points of cross-validated accuracy or more. It would be easy to leave the
+gradient boosting — beat the best single tree, by 1.5 to 3 points of
+cross-validated accuracy. It would be easy to leave the
 lecture believing an ensemble always beats a single tree by *some* margin.
 
 That is not true, and this exercise is built to show you when and why.
@@ -114,6 +114,13 @@ is chosen by cross-validation rather than guessed, the same folds are used
 for every model at a given product, and question 6 is answered rather than
 quietly skipped.
 
+One more piece of honesty is asked for. If you choose the depth on the same
+folds you then report it on, the tree's score is slightly optimistic: it is
+the best of several tries, and some of its edge is luck. Lesson 7 section 11
+says exactly this about its own depth-8 tree. Say so in a sentence next to
+your table. Nested cross-validation, from lesson 5, removes the bias; use it
+if you want to, but it is not required.
+
 One warning, worth more than it looks: if you fit a `GradientBoostingClassifier`
 with its defaults and it does not look like it is winning anywhere, check
 its `max_depth` before you conclude anything. Lesson 7 section 8 built
@@ -142,10 +149,12 @@ Suggestions, though you may find better ones:
 - for a claim about instability: refit the single tree on a handful of
   independent resamples of the same product (as in section 4) and measure
   how much its predictions, or its chosen splits, actually move;
-- for a claim that averaging is or is not doing useful work: compare a
-  random forest's out-of-bag score against its cross-validated accuracy —
-  section 5.1's agreement to four decimal places is what "doing nothing
-  extra" looks like, and a large gap between the two is worth noticing.
+- for a claim that averaging is or is not doing useful work: compare the
+  single tuned tree with the random forest on the same resampled train/test
+  splits, mean and spread, as notebook 2 section 3 does for the lesson's
+  data. (Comparing a forest's out-of-bag score with its cross-validated
+  accuracy does not answer this: both estimate the accuracy of the same
+  forest, so they agree whether or not averaging helped.)
 
 **What is being marked:** this part carries the most marks in the exercise,
 and the measurements are what separate an explanation from a plausible

@@ -32,8 +32,9 @@ probability $p_c^2$; what is left over is the chance they disagree. → § 2.2
 deep enough isolates single points, and at full depth the training accuracy is
 exactly 1 unless two examples share every feature value but not the label. → § 3
 
-**Breadth-first against best-first growth.** `max_depth` splits every leaf of a level
-before going deeper; `max_leaf_nodes` always expands whichever leaf offers most,
+**A depth cap against a leaf budget.** `max_depth` caps every root-to-leaf path and
+splits every node above the cap that can be split; `max_leaf_nodes` gives the whole
+tree a budget of leaves and spends it best-first, on whichever leaf offers most,
 which is the better knob for a tree meant to be read. → § 4
 
 **Instability.** An early split reroutes everything beneath it, so a small change in
@@ -47,21 +48,24 @@ weaker ones, which are most of the tree, do not. → § 4
 more than once and some not at all. → § 5
 
 **Bagging.** Fit a tree to each bootstrap sample and take the majority vote. The tree
-algorithm is untouched; only what surrounds it changes. → § 5
+algorithm is untouched; only what surrounds it changes. scikit-learn averages the
+trees' probabilities instead, which for fully grown trees is the same thing. → § 5
 
 **Out-of-bag rows.** The rows a given bootstrap sample never drew — free validation
 data for the trees that did not see them. → § 5.1
 
-**Out-of-bag score.** Cross-validation with each tree supplying its own held-out
-fold, so no explicit split is needed. It estimates the same quantity and agrees
+**Out-of-bag score.** Each row scored only by the trees whose bootstrap sample
+missed it — a different third of the forest for each row. It works like
+cross-validation without an explicit split, estimates the same quantity, and agrees
 within its own noise. → § 5.1
 
 **The variance floor.** Averaging drives variance down towards the trees' shared
 correlation times their individual variance — not to zero. Past that point, more
 trees buy nothing. → § 5.2
 
-**What bagging cannot fix.** Bias. Averaging unbiased noisy trees gives an unbiased
-average; averaging trees that share a systematic error preserves it exactly. → § 5.2
+**What bagging cannot fix.** An error every tree shares. Averaging removes the part
+of the trees' mistakes that differs from tree to tree; trees too shallow for the
+rule stay too shallow, however many are averaged. → § 5.2
 
 **Random forest.** Bagging plus one restriction: at each split only a random subset
 of features is offered as a candidate, which forces the trees to disagree and lowers
@@ -70,12 +74,14 @@ the floor. → § 6
 **Feature importance.** The total impurity reduction each feature is credited with,
 summed over every split and tree. Suggestive, not definitive. → § 7
 
-**Why importance misleads with many irrelevant columns.** The very restriction that
-decorrelates the trees also excludes the real features from most splits, so noise
-columns are handed splits with nothing better on the menu. → § 7
+**Why importance misleads with many irrelevant columns.** Two causes. The restriction
+that decorrelates the trees also leaves the real features off the menu at most
+splits; and deep in a tree, on a handful of examples, some noise column separates
+the group a little better by chance. → § 7
 
 **Permutation importance.** The check on it: shuffle one column of held-out data and
-measure how much accuracy drops. A noise column costs nothing. → § 7
+measure how much accuracy drops. A noise column costs almost nothing, up to the
+chance of the shuffle. → § 7.1
 
 
 ## Boosting
@@ -104,15 +110,17 @@ applied. It trades off against the number of trees: both control how much total
 correction the ensemble makes. → § 10
 
 **Early stopping.** Stop adding trees once the score on held-out training data has
-stopped improving. Necessary here, because boosting keeps reducing training error
-for as long as it runs. → § 10
+stopped improving. One of two ways to choose the number of trees, the other being
+to cross-validate it; one of them is needed, because boosting keeps reducing its
+training loss for as long as it runs. → § 10
 
 
 ## Choosing
 
-**Ensembling beats the choice of ensemble.** Every ensembling strategy here lands
-close to the others and all of them closer to the ceiling than any single tree — so
-*whether* you ensemble matters far more than *how*. → § 11
+**Ensembling beats the choice of ensemble, on this dataset.** Every ensembling
+strategy here lands close to the others and all of them closer to the ceiling than
+any single tree — so here *whether* you ensemble matters far more than *how*. The
+exercise shows a dataset where it does not. → § 11
 
 **Flexibility is not an advantage on its own.** The unconstrained tree is the worst
 model on the leaderboard despite being the most flexible: flexibility without a
