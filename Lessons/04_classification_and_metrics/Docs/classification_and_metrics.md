@@ -322,12 +322,30 @@ $$\log(\text{odds after}) = \log(\text{odds before}) + \log(\text{factor}_1) +
   \log(\text{factor}_2) + \dots$$
 
 A starting value plus one term per feature is exactly the form of a linear
-model, $w^\top x + b$: the intercept $b$ is the log-odds of an average drive
-($-6.20$, and $\sigma(-6.20) = 0.2\%$, the first row above), and each term $w_j x_j$ is the logarithm of the
-factor that feature multiplies the odds by. That is why the model puts the line
-on the **log-odds**, and only then turns it back into a probability. Logistic
-regression assumes, in addition, that each feature's term is a straight line in
-that feature.
+model, $w^\top x + b$. The starting value in Bayes' rule is the log-odds before
+any reading, from the base rate alone: for this fleet
+$\log(306 / 7694) = -3.22$, a probability of 3.8%. That is not the intercept.
+Each factor's logarithm depends on its reading, and once the features are
+centred (standardised, as here) the constant part of every such term is folded,
+with the base rate, into one number $b$: the log-odds at $x = 0$, the drive with
+average telemetry ($-6.20$, and $\sigma(-6.20) = 0.2\%$, the first row above).
+Each remaining term $w_j x_j$ is the logarithm of the factor that feature
+multiplies the odds by, relative to an average reading. That is why the model puts the line
+on the **log-odds**, and only then turns it back into a probability. Logistic regression assumes, in addition, that each feature's term is a
+straight line in that feature.
+
+**A predictable mistake: "the intercept is the risk before looking at the
+counters".** The derivation starts from "the odds before" and ends at $b$, so
+the reading is natural. But the risk of a drive drawn at random from the fleet
+is 3.8% (log-odds $-3.22$), while $b$ is the log-odds of the average drive,
+0.2%. The two differ because the failures come from the drives with bad
+telemetry, not from the average one.
+
+**And a second: "logistic regression assumes the counters are independent".**
+Independence given the class was used above only to motivate why evidence adds
+on the log-odds scale. Fitting logistic regression does not require it:
+correlated counters share the weight through their fitted coefficients, which
+is one of its advantages over naive Bayes, which does assume it.
 
 The log-odds also has the range the line needs: the odds have no ceiling, as
 the probability approaches 1 they run off to infinity, and the logarithm
@@ -628,8 +646,9 @@ an identical update rule.
 
 That is not a coincidence, and it is worth knowing why: both are **generalised
 linear models** fitted by maximum likelihood, linear regression assuming
-Gaussian noise and logistic regression assuming Bernoulli outcomes. For the
-whole exponential family the maximum-likelihood gradient takes this form. You do
+Gaussian noise and logistic regression assuming Bernoulli outcomes. For any generalised linear model with its **canonical link** (the identity for
+Gaussian noise, the logit for Bernoulli outcomes) the maximum-likelihood
+gradient takes this form. You do
 not need that theory to use either method — but it explains why the same
 gradient descent code, unchanged, trains both.
 
@@ -722,7 +741,8 @@ There is a third reason, and section 3.4 has already done most of the work for
 it.
 
 $J$ as defined in section 3.3 is **convex** in $(w, b)$, which takes two steps
-to see. Section 3.4 gave the gradient,
+to see. To keep $b$ in the picture, append a constant 1 to every $x^{(i)}$ and
+treat $b$ as one more weight; $w$ and $x$ below include it. Section 3.4 gave the gradient,
 $\partial J/\partial w = \frac{1}{m}\sum_i (p^{(i)} - y^{(i)})\,x^{(i)}$.
 Differentiating it once more, the only thing that depends on $w$ is $p^{(i)}$,
 and by the chain rule through $z^{(i)} = w^\top x^{(i)} + b$ its derivative is
@@ -739,9 +759,11 @@ $u^\top H u \geq 0$ for every direction $u$, and here
 $$u^\top H u = \frac{1}{m}\sum_{i=1}^{m} p^{(i)}\left(1 - p^{(i)}\right)
   \left(\left(x^{(i)}\right)^{\top} u\right)^2 \geq 0$$
 
-because every term is a positive number, $p(1-p)$, multiplying a square. There
-is no direction in which the surface curves downwards. Any local minimum is
-therefore global, and gradient descent cannot be trapped.
+because every term is a positive number, $p(1-p)$, multiplying a square. There is no direction in which the surface curves downwards. Any local minimum
+is therefore global, and gradient descent cannot be trapped. Convexity does not
+promise a unique minimum, nor even a finite one: if a line separates the two
+classes perfectly, the cost keeps falling as the weights grow, and it is the
+penalty scikit-learn adds by default that keeps them finite.
 
 Squared error composed with the sigmoid has no such guarantee, and is in general
 non-convex in $w$. Section 4.2 already shows why, for one failed drive taken as
@@ -956,8 +978,9 @@ $$F_\beta = \frac{1 + \beta^2}
 
 Setting $\beta = 1$ gives equal weights and recovers $F_1$, which is the check
 worth doing on any weighted formula. $\beta > 1$ puts more weight on recall's
-reciprocal, so a poor recall hurts more — $F_2$ is the usual choice when misses
-are costly, as here. $\beta < 1$ favours precision. The square is there so that
+reciprocal, so a poor recall hurts more — $F_2$ is a common choice when misses matter more, as here — but $\beta$
+expresses a preference, not the costs: nothing turns $2600 / 140$ into a
+$\beta$, and section 7.2 acts on the costs directly. $\beta < 1$ favours precision. The square is there so that
 $\beta$ reads as a ratio of importance rather than of reciprocals: at
 $\beta = 2$, recall is worth $\beta^2 = 4$ times precision in the sum, which is the
 convention the name carries.
@@ -984,8 +1007,8 @@ come from. Choosing between those three rows matters more than it looks.
 The per-class $F_1$ values come from the report's rows: 0.988 for the healthy
 class, 0.652 for the failed one ($2 \times 0.768 \times 0.566 / (0.768 + 0.566)$).
 The weighted average is dominated by the healthy class, 1,924 of the 2,000 test
-drives, so it reads close to accuracy and inherits its blindness. **On an
-imbalanced problem, quote the macro average or the minority class directly.**
+drives, so it reads close to accuracy and inherits its blindness. **On an imbalanced problem, quote the minority class directly, and the macro
+average when the classes should count equally.**
 Reporting the weighted average is not incorrect, but it is the number that makes
 a mediocre model look finished.
 
@@ -1078,8 +1101,10 @@ against the positive rate, never against 0.5.
 ### 7.2 Choosing the threshold from costs
 
 
-The only defensible answer requires one ingredient no metric supplies: **what
-the errors cost.** Suppose
+A principled answer needs a criterion that no metric supplies. The one used
+here is **what the errors cost**; other constraints, such as how many alarms the
+technicians can follow up, may justify a different threshold (the homework has
+one). Suppose
 
 ![](cost_curve.png)
 
@@ -1119,6 +1144,12 @@ above it flagging (teal) is.*
 the model, the dataset, or the class balance — only on the *ratio* of the two
 costs. If misses and false alarms cost the same, $t^* = 0.5$ and the default is
 correct. As misses grow more expensive, $t^*$ falls towards zero.
+
+**A predictable mistake: "on an imbalanced problem the threshold belongs below
+0.5".** Every threshold this lesson moves goes down, so the pattern is easy to
+generalise. But the class balance is not in the formula: with calibrated
+probabilities and equal costs, $t^*$ is 0.5 however rare the failures are. The
+threshold falls here because a miss costs 18.6 times a false alarm.
 
 **And the two correct decisions?** The derivation gave them no cost, and a
 student will reasonably ask whether replacing a drive that really was failing
@@ -1415,8 +1446,11 @@ log-odds goes up by about $\log 25$, every odds is multiplied by about 25, and
 the weighted model's 0.5 (odds 1) lands where the plain model's odds were
 $1/25$, a probability of $1/(1 + 25) = 0.038$. Checked on the test set: the plain
 model at 0.038 raises 208 false alarms and misses 8; the weighted model at 0.5
-raises 205 and misses 8; the two agree on 1,987 of the 2,000 drives. In general,
-weights in the ratio $k$ act like a threshold of $1/(1 + k)$.
+raises 205 and misses 8; the two agree on 1,987 of the 2,000 drives. In general, weights in the ratio $k$ act approximately like a threshold of
+$1/(1 + k)$: exactly only for a correctly specified model and a large sample, as
+nearly here, where the labels were generated by a logistic model in these very
+features. With a misspecified model, few data or a strong penalty, weights also
+move the slopes and the ranking.
 
 **A predictable mistake: reading "balanced" as "weighted by what the errors
 cost".** Both are weights and both push towards the failures, so the reading is
@@ -1549,8 +1583,7 @@ missing a healthy drive, macro is the honest one.**
 - **AUC is the probability a random positive outranks a random negative.** It
   measures ranking, is blind to calibration, and **hides imbalance** — report
   the precision-recall curve beside it.
-- **Class weights are the threshold by another name**: weights in the ratio $k$
-  act like a threshold of $1/(1 + k)$. Note how little the AUC moved.
+- **Class weights are the threshold by another name**: weights in the ratio $k$ act approximately like a threshold of $1/(1 + k)$. Note how little the AUC moved.
 - **With more classes**, softmax turns one score per class into probabilities,
   the largest wins, and per-class metrics are averaged macro or weighted.
 

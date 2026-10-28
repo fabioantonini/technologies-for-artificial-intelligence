@@ -95,8 +95,10 @@ means the majority class talking. → § 6.4
 **The threshold.** The line between "leave it" and "act on it". Nothing about the
 fitted model changes as it moves — only which side of it each case falls. → § 7.1
 
-**Cost-optimal threshold.** $t^{*} = C_{FP} / (C_{FP} + C_{FN})$, a function of
-the two error costs alone: not of the model, the dataset, or the class balance.
+**Cost-optimal threshold.** $t^{*} = C_{FP} / (C_{FP} + C_{FN})$. For calibrated
+probabilities, with each cost counted as what the error adds over the right
+decision, a function of the two error costs alone: not of the model, the
+dataset, or the class balance.
 → § 7.2
 
 **Ranking.** The cases sorted by predicted probability, riskiest first. Every
@@ -115,8 +117,9 @@ blind to whether the probabilities themselves mean anything. → § 8.2
 0.7, about 70% are positive. Independent of ranking: a model can rank well and be
 badly calibrated, or be calibrated and rank nothing. → § 7.2, § 8.2
 
-**Average precision (AP).** The area under the precision-recall curve: the
-precision at each threshold, weighted by the recall that threshold adds. A
+**Average precision (AP).** The area under the precision-recall curve, computed
+as a step sum: the precision at each threshold, weighted by the recall that
+threshold adds (not a trapezoid drawn through the points). A
 random ranking scores the positive rate, so AP is read against that, not 0.5.
 → § 7.1
 
@@ -129,8 +132,9 @@ precision-recall curve beside it. → § 8.3
 
 **Class weights.** Make each rare example count as several during training. Note
 that this moves the operating point rather than teaching the model anything new —
-the threshold by another name: weights in the ratio $k$ act like a threshold of
-$1/(1 + k)$. "Balanced" sets the ratio from the class frequencies, not from the
+close to the threshold by another name: weights in the ratio $k$ act like a
+threshold of $1/(1 + k)$, exactly only for a correctly specified model and a
+large sample. "Balanced" sets the ratio from the class frequencies, not from the
 costs. → § 9
 
 **Resampling.** Oversampling the minority class, or synthesising new minority

@@ -79,6 +79,11 @@ for p, odds_before, odds_after, risk_after, step in (
          tolerance=5e-4 if risk_after > 0.9 else 5e-3)
     same(f"2.3 adding 0.10 at p = {p:.4f}", p + 0.10, step, tolerance=5e-4)
 same("2.3 the average drive's risk", average, 0.002, tolerance=5e-4)
+# Section 2.3: the base rate is not the intercept. From the fleet's counts
+# (notebook 1: 8,000 drives, 306 failures), not from the handout's 3.8%.
+failed, fleet = 306, 8000
+same("2.3 the base rate's log-odds", math.log(failed / (fleet - failed)), -3.22)
+same("2.3 the base rate", failed / fleet, 0.038, tolerance=5e-4)
 # Section 2.3's counted table (also slide 10): 1,000 drives, a reading on 60% of
 # failing and 10% of healthy ones. The counts are rebuilt from the shares; the
 # risk after is checked against Bayes' rule in probability form, a second route.

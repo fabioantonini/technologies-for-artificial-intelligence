@@ -44,7 +44,10 @@ them afterwards, to mark yourself, is why they are there.
 
 You may substitute a different binary classification dataset with a positive
 rate below 20% if you prefer, provided you state what it is, where it came from,
-what the two classes mean, and that it runs offline in the container.
+what the two classes mean, and that it runs offline in the container. Read the
+stated costs as the costs of your dataset's two errors. Question 13 needs the
+supplied patient dataset and its published coefficients: skip it if you
+substitute.
 
 Whatever you use, the first thing your notebook must print is the **base
 rate**.

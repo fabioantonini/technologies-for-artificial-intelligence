@@ -275,14 +275,24 @@ So nobody chose the S-shape of slide 8. It is what "evidence multiplies the
 odds" looks like when it is drawn as a probability: steep in the middle, flat
 at both ends.
 
-The step to the next slide: on the log-odds axis, evidence simply adds. Several
-readings, if independent given the class, are one fixed step each, starting
-from the average drive at minus 6.20. A starting value plus one step per
-feature is exactly w-transpose-x plus b, which is why slide 11 puts the line on
-the log-odds. Six is a realistic factor: the coefficient of reallocated
+The step to the next slide: on the log-odds axis, evidence simply adds. Several readings, if independent given the class, are one fixed step each,
+starting from the base rate: the fleet's log-odds before any reading,
+log(306 / 7,694) = -3.22. Centre the features and the constant parts of those
+steps fold, with the base rate, into one number: the intercept b = -6.20, the
+log-odds of the average drive, not of a drive drawn at random. A starting value
+plus one step per feature is exactly w-transpose-x plus b, which is why slide 11
+puts the line on the log-odds. Six is a realistic factor: the coefficient of reallocated
 sectors used to generate the labels is 1.80 per standard deviation, and e to
 the 1.80 is 6.05 (slide 14 reads coefficients this way; slide 15 shows the true
 ones).
+
+Two predictable slips. "The intercept is the risk before looking at the
+counters": that is the base rate, 3.8%; the intercept is the average drive's
+log-odds, 0.2% (slide 16). The difference comes from the tail: the failures are
+the drives with bad telemetry, not the average one. And "logistic regression
+assumes the counters are independent": independence given the class only
+motivates why evidence adds on the log-odds scale. Fitting the model does not
+need it; correlated counters share the weight through their coefficients.
 :::
 
 # Log-odds of p = P(y = 1 | x): a line
@@ -431,7 +441,7 @@ fivefold; the probability moved eight points. Odds ratios multiply odds.
 
 # The truth, and what we recovered
 
-| Feature | True | Fitted, notebook 1 | Odds ×, exp(Fitted) |
+| Feature | True, `disk_data.py` | Fitted, notebook 1 | Odds ×, exp(Fitted) |
 |---|---|---|---|
 | reallocated_sectors | 1.80 | 1.66 | 5.28 |
 | spin_retry_count | 1.15 | 1.17 | 3.22 |
@@ -908,8 +918,10 @@ healthy, including most of the drives that failed. It uses two counters only,
 so that it can be drawn; the six-counter model of slide 31 does better at the
 same 0.5, and still misses 33 of the 76 test failures.
 
-Ask: is that a bad model? Take answers. Then say: the probabilities are fine.
-The threshold of 0.5 is a habit. Telling those two apart is the rest of the
+Ask: is that a bad model? Take answers. Then say: this plot cannot tell. It
+says nothing about whether the probabilities are calibrated; what it shows is
+that moving the threshold trades misses for false alarms without refitting
+anything. The threshold of 0.5 is a habit. Telling those two apart is the rest of the
 lesson.
 
 A predictable slip: "the drives above the line are flagged". A line has two
@@ -1042,10 +1054,10 @@ better model reduces both.
 
 # The four outcomes, and what they cost
 
-- **False positive**: we replace a healthy drive. A technician's hour, €140
-- **False negative**: a drive dies in service. Callout, rebuild, risk, €2,600
+- **False positive (FP)**: we replace a healthy drive. A technician's hour, €140
+- **False negative (FN)**: a drive dies in service. Callout, rebuild, risk, €2,600
 - Both costs are assumptions supplied from outside the data, not measured
-- A correct decision counts as €0: each cost is what the error adds over the right call
+- **True positive (TP)** and **true negative (TN)**, the right calls, count as €0: each cost is what the error adds
 
 ::: notes
 The names are jargon until they are attached to consequences, so attach them
@@ -1148,9 +1160,11 @@ The 0.073 belongs to the flag-everything model, P = 0.038; at P = 0 exactly,
 F1 is 0.
 
 Mention F-beta in one sentence: a version of F1 with a weight beta, where beta
-above 1 counts recall more than precision. That is what you want here, where a
-miss costs about nineteen times a false alarm (2,600 divided by 140 = 18.6). F2 is the
-usual choice. Handout section 6.3.
+above 1 counts recall more than precision. That suits this problem, where a miss costs about nineteen times a false alarm
+(2,600 divided by 140 = 18.6), and F2 is a common choice. A predictable slip: "a
+miss costs 19 times more, so pick a beta to match". Beta is a preference, not
+the costs: nothing turns 18.6 into a beta. To act on the costs, derive the
+threshold from them, slide 53. Handout section 6.3.
 
 A predictable slip: "F2 multiplies recall by 2". In the weighted harmonic
 mean it is recall's reciprocal that gets the weight beta squared = 4, against 1
@@ -1548,7 +1562,7 @@ ranking when the question was about the alarm queue.
 
 - AUC: are failures ranked above healthy drives? Precision-recall: how many alarms are real?
 - On imbalanced data report the **precision-recall curve beside the AUC**, not instead
-- **Average precision (AP)**: the area under that curve, Σₖ (Rₖ − Rₖ₋₁) × Pₖ, each threshold's precision weighted by the recall it adds
+- **Average precision (AP)**: Σₖ (Rₖ − Rₖ₋₁) × Pₖ, a step-sum area: each threshold's precision weighted by the recall it adds
 - Ours: 0.717 (notebook 2); a random ranking: 76 ÷ 2,000 = 0.038
 
 ::: notes
@@ -1656,6 +1670,12 @@ did, and the formula would still say 0.051 while flagging far too few drives.
 If the errors cost the same, t-star is 0.5 and the default was right all along.
 As misses grow more expensive, it falls towards zero.
 
+A predictable slip: "on imbalanced data the threshold belongs below 0.5". Every
+threshold in this lesson moves down, so the pattern is easy to generalise. But
+the class balance is not in the formula: with calibrated probabilities and equal
+costs, t-star is 0.5 however rare the failures. It falls here because a miss
+costs 18.6 false alarms.
+
 Empirically we found 0.078 against a theoretical 0.051, and notebook 3 counts
 what separates them: 45 test drives are scored between the two, and 1 of them
 failed. Flagging them would cost 44 × 140 = €6,160, leaving them cost that one
@@ -1730,8 +1750,10 @@ intercept: it rises from −6.09 to −2.95, by 3.14, close to log 25 = 3.22. Ev
 probability goes up, and the weighted model's 0.5 lands where the plain model's
 1 ÷ (1 + 25) = 0.038 was. Notebook 3 checks it: the plain model at 0.038 raises
 208 false alarms and misses 8; the weighted model at 0.5 raises 205 and misses 8;
-the two agree on 1,987 of the 2,000 test drives. The general rule: weights with
-ratio k behave like a threshold of 1 ÷ (1 + k). Balanced weights land near the
+the two agree on 1,987 of the 2,000 test drives. The general rule, approximately: weights with ratio k behave like a threshold
+of 1 ÷ (1 + k). It is close here because the labels came from a logistic model
+in these very features; with a misspecified model, few data or a strong
+penalty, weights also change the slopes and the ranking. Balanced weights land near the
 cost optimum here only because 25 happens to be close to 18.6.
 :::
 
@@ -1889,7 +1911,7 @@ move the same line at training time.
 
 The first bullet is the first half of the lesson in one line: log loss is what
 maximum likelihood gives, and unlike squared error through the sigmoid it is
-convex, so gradient descent finds the one minimum.
+convex, so any minimum gradient descent finds is the global one.
 :::
 
 # Homework
