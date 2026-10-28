@@ -1,5 +1,5 @@
 ---
-title: "Consolidation: lessons 1 to 3, one call at a time"
+title: "Consolidation: lessons 1 to 4, one call at a time"
 subtitle: "Technologies for Artificial Intelligence — self-study, and two hours in class"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
 date: "Not examinable"
@@ -7,15 +7,15 @@ date: "Not examinable"
 
 ## What this is
 
-Lessons 1 to 3 ran every scikit-learn call on hundreds of rows: 569 tumours, 2,000
-customers, 600 houses. At that size the result of a call is visible, and what the
+Lessons 1 to 4 ran every scikit-learn call on hundreds or thousands of rows: 569
+tumours, 2,000 customers, 600 houses, 8,000 disk drives. At that size the result of a call is visible, and what the
 call *did* is not, and the lesson notebooks often take in one line a step that someone
 new to machine learning needs to see on its own. This folder takes those steps one at
 a time, on two to ten rows, small enough that every number can be checked with a
 pencil.
 
 Each section of a notebook is an **atom**: one idea, one call. Many atoms recompute
-the worked examples of the lesson 2 and lesson 3 commentaries
+the worked examples of the lesson 2, 3 and 4 commentaries
 (`Docs/*_commentary.md`) with the library, so that the arithmetic done by hand and
 the call that does it sit side by side; the numbers are the same.
 
@@ -29,8 +29,8 @@ It is **not examinable**, and it adds no new material. It does not replace the
 lesson notebooks either: every atom names the slide and the notebook section where
 its idea is treated at full scale.
 
-Reading time: about 40 minutes for each of `00`, `02` and `03`, and 15 for `01`, so
-a little over two hours for the four, done properly.
+Reading time: about 40 minutes for each of `00`, `02`, `03` and `04`, and 15 for `01`,
+so about three hours for the five, done properly.
 
 ## How to use an atom
 
@@ -53,13 +53,14 @@ than any number of predictions that came out right.
 
 | File | What it covers | Atoms |
 |-------------------|----------------------|--|
-| `00_the_scikit_learn_api.ipynb` | `fit`, `transform`, `fit_transform`, `predict`, `predict_proba` and the threshold, `score`, the shape of `X`, `random_state`, `Pipeline` | 8 |
+| `00_the_scikit_learn_api.ipynb` | `fit`, `transform`, `fit_transform`, `predict`, `predict_proba` and the threshold, `score`, the shape of `X`, `random_state`, `Pipeline`, `decision_function`, the thresholds behind a curve | 10 |
 | `01_lesson_1_atoms.ipynb` | splitting and `stratify`, the baseline, the confusion matrix, precision and recall | 4 |
 | `02_lesson_2_atoms.ipynb` | looking, missing values, outliers, scaling, encoding, `ColumnTransformer`, the area under the curve, two leaks | 15 |
 | `03_lesson_3_atoms.ipynb` | cost, the normal equation, gradient descent, Ridge and Lasso, what a coefficient means | 15 |
+| `04_lesson_4_atoms.ipynb` | odds and log-odds, log loss, one gradient step, the confusion matrix in order, the two averages, AUC and average precision, a threshold from costs, class weights, softmax | 11 |
 
 They run in the course container like every other notebook, each in a few seconds,
-with no network. Start with `00`: the other three assume it.
+with no network. Start with `00`: the others assume it.
 
 ## The atoms
 
@@ -77,7 +78,9 @@ numbers.
 | 5 | Why arrays, and why `X` has two dimensions | L1 notebook 2; L3 *$\theta$ and X: all parameters, all houses* |
 | 6 | `random_state`: the same randomness, every time | L1 *One split is one measurement* |
 | 7 | `Pipeline`: one `fit`, and every step fitted on the right rows | L1 *Step 5*; L2 *ColumnTransformer + Pipeline* |
-| 8 | The contract, in one table | all three lessons |
+| 8 | The contract, in one table | lessons 1 to 3 |
+| 9 | `decision_function`: the score before the sigmoid | L4 *Log-odds of p = P(y = 1 \| x): a line*; *Three classes: softmax* |
+| 10 | `roc_curve` and `precision_recall_curve` return the thresholds too | L4 *The precision-recall curve*; *The ROC curve* |
 
 ### 01 — lesson 1
 
@@ -128,6 +131,22 @@ numbers.
 | 14 | *The same column, two coefficients* | *What a coefficient actually says* |
 | 15 | When can you trust a coefficient? | *When can you trust a coefficient?* |
 
+### 04 — lesson 4
+
+| # | Atom | Lesson source |
+|--|--------------------------|------------------------|
+| 1 | *Five probabilities, their odds and their log-odds*: `logit` and `expit` | *Why the log-odds* |
+| 2 | *One coefficient, three drives*: odds, not probability | *What the coefficients mean* |
+| 3 | *Four drives, one confident mistake*: `log_loss` | *Surprise: minus the log of a probability*; *Cross-entropy, also called log loss* |
+| 4 | *One step of gradient descent on three drives* | *Lesson 3's gradient* |
+| 5 | *Twenty drives, four of which fail*: `confusion_matrix(...).ravel()` in its order | *Four numbers instead of one*; *Our model, in those terms* |
+| 6 | `classification_report`: the two averages, by hand | *Read the minority class, not the average* |
+| 7 | *The AUC of seven drives*: ties count half, and only the order matters | *What the area means*; *What AUC does not tell you* |
+| 8 | *Average precision of a seven-drive ranking*: a step sum, not a trapezoid | *The rule: report both* |
+| 9 | *A false alarm at 50, a miss at 200*: a threshold applied to the probabilities | *Where the two costs cross*; *Where they cross, in one line* |
+| 10 | *A weight ratio of 4*: `compute_class_weight` and the threshold it stands for | *What class weights do*; *Class weights: the same lever, pulled earlier* |
+| 11 | *Softmax on three scores*, and `predict_proba` for three classes | *Three classes: softmax* |
+
 ## Two hours in class
 
 A selection of thirteen atoms, run together from the projector. For each one: read the
@@ -174,3 +193,11 @@ is where to find it.
   scikit-learn where `fit_transform` is not `fit` followed by `transform`: it
   cross-fits, and atom 02·15 shows the two giving different columns. The leak comes
   back only if `transform` is called on the training rows by hand.
+- **"`tn, fp, fn, tp` or `tp, fp, fn, tn`, it is the same four numbers."** The four
+  names look interchangeable, and the matrix is small. But `.ravel()` reads the matrix
+  row by row, truth in rows, so the order is fixed: TN, FP, FN, TP. Atom 04·5 shows that
+  unpacking in the wrong order raises no error and swaps every metric.
+- **"A high AUC means the probabilities can be trusted."** The AUC is presented as the
+  best single summary of a classifier, so it is natural to read it as a guarantee.
+  Atom 04·7 divides every score by ten: the AUC stays 0.792 while every decision at 0.5
+  changes, because the AUC sees only the order.
