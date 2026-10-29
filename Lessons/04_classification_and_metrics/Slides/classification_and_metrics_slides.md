@@ -177,7 +177,7 @@ straight line in the count gives every sector the same weight: the first adds
 as much to z as the twentieth. But the labels were generated from
 log(1 + count), which gives the first sectors the most weight (handout section
 1.1). The handout's figure in section 2.2 draws what the sectors add to z under
-each of the two. That is why the six-counter model of slide 13 onwards takes
+each of the two. That is why the six-counter model of slide 12 onwards takes
 log(1 + count) as its input.
 
 Right panel: the same relationship inverted - probability on the horizontal
@@ -197,7 +197,7 @@ model the log-odds linearly and then ask for the probability back.
 - Odds, p ÷ (1 − p): no ceiling, from 0 to ∞
 - Log of the odds: no floor either, −∞ to +∞
 - p = 0.99: log(0.99 ÷ 0.01) = log 99 = +4.60; p = 0.5: log(0.5 ÷ 0.5) = log 1 = 0
-- Bonus: coefficients multiply the odds (slide 14)
+- Bonus: on this scale each feature will add a fixed amount, so it will multiply the odds by a fixed factor (slide 14)
 
 ::: notes
 This slide puts in words what the right panel of slide 8 shows. Go through the
@@ -216,7 +216,9 @@ on the inverse of the normal distribution, is the common one, and it gives
 almost the same S-shape. The log-odds wins on three counts, and the shape is
 not one of them:
 
-- the coefficients read as odds multipliers, which is slide 14;
+- the coefficients read as odds multipliers, which is slide 14. The bullet
+  says "each feature will add" because there is no model yet: the
+  coefficients, the weights w, arrive on slide 12, and slide 14 reads them;
 - it is the scale on which Bayes' rule adds evidence: the log-odds after
   seeing a drive's counters equals the log-odds before seeing them (from the
   base rate alone) plus one term per counter, if the counters are independent
@@ -232,7 +234,7 @@ shows first. But many curves have that shape; what singles this one out is the
 log-odds behind it. Handout section 2.3.
 :::
 
-# The same evidence on three drives
+# One reading, three different jumps
 
 ![](evidence_on_the_sigmoid.png)
 
@@ -242,24 +244,36 @@ not a reason: plenty of other functions also stretch (0, 1) onto the whole
 line. This slide gives the reason, in two steps: first why evidence multiplies
 the odds, then what that looks like.
 
-Why it multiplies, by counting, before pointing at the figure. Take 1,000
-drives at 50% risk: 500 will fail, 500 will not. A reading shows up on 60% of
-the failing drives and on 10% of the healthy ones. Among the drives that show
-it, 300 will fail and 50 will not: the odds, failing divided by healthy, go
-from 500 / 500 = 1 to 300 / 50 = 6. The reading scales the failing drives by
-0.6 and the healthy ones by 0.1, so their ratio is multiplied by 0.6 / 0.1 = 6
-whatever it was before - start from 950 and 50 and you get 570 and 5, odds 19
-to 114. That is Bayes' rule written with odds. The figure takes it as given and
-shows the consequence.
+First the word the figure's legend uses. A reading is what one counter shows
+on one drive: a particular value, or range of values, of one feature - say "a
+high count of reallocated sectors". For counting it is a yes-or-no fact: the
+drive shows it or it does not.
+
+Why evidence multiplies, by counting, before pointing at the figure. Take
+1,000 drives at 50% risk: 500 will fail, 500 will not. They are imagined, all
+like the drive in question, only so that percentages become counts. Suppose a
+reading shows up on 60% of the failing drives and on 10% of the healthy ones -
+the two shares are an illustration, not measured on the fleet, and only their
+ratio, 6, matters. Among the drives that show it, 300 will fail and 50 will
+not; our drive shows it, so it is one of the 350. The odds, failing divided by
+healthy, go from 500 / 500 = 1 to 300 / 50 = 6. The reading is a sieve that
+keeps a share of each group, 0.6 of the failing drives and 0.1 of the healthy
+ones, so their ratio is multiplied by 0.6 / 0.1 = 6 whatever it was before -
+start from 950 and 50 and you get 570 and 5, odds 19 to 114. That ratio,
+P(reading | fail) divided by P(reading | healthy), is called the likelihood
+ratio, and it belongs to the reading, not to the drive: that is Bayes' rule
+written with odds. The probability cannot be multiplied the same way: it is
+failing divided by failing plus healthy, both groups sit in its denominator,
+shrunk by different shares, so its change depends on where it started. The
+figure takes the multiplication as given and shows the consequence.
 
 Start from what a linear model does. It adds one contribution per feature,
 and each contribution is the same whatever the other features say. So we want
 the same evidence to act on every drive in the same way, whatever its risk.
 
 The picture shows three drives, marked by the yellow dots: an average drive at
-0.2%, one at 50% and one at 95%. Each receives the same reading - a value one
-of its counters reports, say a high count of reallocated sectors - and it is a
-reading six times more common among drives that fail than among healthy ones. Bayes'
+0.2%, one at 50% and one at 95%. Each receives the same reading, one six
+times more common among drives that fail than among healthy ones. Bayes'
 rule says such a reading multiplies the odds - the probability of failing
 divided by the probability of not failing - by 6, whatever they were before
 (handout section 2.3 shows it by counting 1,000 drives). On the horizontal
@@ -330,17 +344,21 @@ Second, the line has the same form as lesson 3's, but it is not fitted by least
 squares: w and b are chosen by maximum likelihood, which slides 17 to 22 build.
 :::
 
-# The model, in one line
+# The model, and three properties of the sigmoid
 
-$$P(y = 1 \mid x) = \sigma(w^\top x + b), \qquad \sigma(z) = \frac{1}{1 + e^{-z}}$$
+$$P(y = 1 \mid x) = \sigma(w^\top x + b), \qquad \sigma(z) = \frac{1}{1 + e^{-z}} \\ \sigma(0) = \frac{1}{2}, \qquad \sigma(-z) = 1 - \sigma(z) \\ \sigma'(z) = \sigma(z)\,(1 - \sigma(z)) \leq \frac{1}{4}$$
 
 ::: notes
 Read it aloud as a sentence: take the linear model of lesson 3, and instead of
 calling its output a prediction, call it the log-odds and convert.
 
-Name the three properties we will use, without deriving them here - the handout
-section 2.2 does that: sigma of 0 is a half; sigma of minus z is 1 minus sigma
-of z; and the derivative is sigma times one minus sigma.
+The second line carries the three properties we will use, each needed later;
+name them without deriving them here - the handout section 2.2 does that.
+Sigma of 0 is a half: that is why a probability of 0.5 is z = 0, the decision
+boundary of slide 28. Sigma of minus z is 1 minus sigma of z: the probability of
+staying healthy is the same curve read from the other side, which gives the
+y = 0 term of the log loss (slide 24). And the derivative is sigma times one
+minus sigma.
 
 That last one is the one to flag. It is largest in the middle, at sigma = 0.5, where it is 0.5 times 0.5 = one
 quarter, and
@@ -380,16 +398,24 @@ follow; the smooth sigmoid does.
 
 # What the coefficients mean
 
-- Standardised (mean 0, SD 1): one SD more of reallocated sectors adds its true coefficient, 1.80 (slide 15), to the log-odds
-- Adding to a log multiplies the **odds**: log(odds) + 1.80 = log(odds × 6.05), since exp(1.80) = 6.05
-- So: **six times the odds** of failing, slide 10's teal step
+- Coefficients = weights w (`coef_`); intercept b (`intercept_`)
+- Standardised (mean 0, SD 1): one SD more of reallocated sectors adds its true coefficient, 1.80, to the log-odds
+- log(odds) + 1.80 = log(odds × 6.05): **six times the odds**, slide 10's teal step
 - In code: `make_pipeline(StandardScaler(), LogisticRegression())`
 
 ::: notes
 This is the interpretability that keeps logistic regression in production in
-medicine and credit scoring. Three steps, one per bullet.
+medicine and credit scoring. The vocabulary first, then two bullets, each in two
+halves.
 
-First bullet, its first half: why "standardised" comes first. A coefficient
+First bullet: the vocabulary. The coefficients are the numbers w1 to w6 of
+slide 12's equation, one per feature; machine learning calls them weights, and
+scikit-learn stores them in coef_. The constant b is the intercept, in
+intercept_; neural networks call it the bias (lesson 9). Warn now about one
+collision: the "class weights" of slides 55 to 57 are something else - how much
+each training example counts in the cost - and not these w.
+
+Second bullet, its first half: why "standardised" comes first. A coefficient
 says how much z grows when its feature rises by one unit, and the raw units
 differ - a sector, a degree, an hour in service - so raw coefficients cannot
 be compared. StandardScaler (lesson 3) rescales every feature to mean 0 and
@@ -397,25 +423,29 @@ standard deviation 1: from then on, one unit means one standard deviation for
 every feature, and the coefficients can be compared with each other.
 
 Say what one standard deviation means for this counter, because it is not
-"one sector more". The four counters on a logarithmic scale are standardised
-after log(1 + x), so reallocated sectors contribute 1.80 times (log(1 + x)
-minus 0.96) divided by 0.62 to z, where 0.96 and 0.62 are the mean and the
-standard deviation of log(1 + x) over the fleet. One standard deviation more
-adds 0.62 to log(1 + x), which multiplies 1 + x by e to the 0.62 = 1.86: from
-1 sector to 2.7, from 4 to 8.3, from 10 to 19.5. Roughly, the count doubles -
-and each such step multiplies the odds by the same 6.05. That is why the first
-sectors weigh so much: 1 to 2.7 sectors counts as much as 10 to 19.5.
+"one sector more". Go in four steps; handout section 2.4 has them with tables.
+One: the model does not see the count x but log(1 + x), standardised, so
+reallocated sectors contribute 1.80 times (log(1 + x) minus 0.96) divided by
+0.62 to z, where 0.96 and 0.62 are the mean and the standard deviation of
+log(1 + x) over the fleet. Two: one standard deviation more is therefore 0.62
+more on log(1 + x), not one sector more. Three: adding 0.62 to a logarithm
+multiplies what is inside it by e to the 0.62 = 1.86, so 1 + x goes from 2 to
+3.7 (1 sector to 2.7), from 5 to 9.3 (4 to 8.3), from 11 to 20.5 (10 to 19.5):
+roughly, the count doubles, and each such step multiplies the odds by the same
+6.05. Four, the consequence: one extra sector is worth a lot at the start and
+little later. From 0 to 1 sector the odds are multiplied by 7.5, from 1 to 2 by
+3.2, from 4 to 5 by 1.7, from 10 to 11 by 1.3.
 Temperature and hours are standardised on their own values, so for them one
 standard deviation is an ordinary additive step.
 
-First bullet, its second half: this is slide 11's line, log-odds = b + w1 x1
+Second bullet, its second half: this is slide 11's line, log-odds = b + w1 x1
 + ... + w6 x6. Each feature contributes its
 coefficient times its value, so raising reallocated sectors by one standard
 deviation adds exactly its coefficient to the log-odds - 1.80 is the true
 coefficient, the one the data was generated with (next slide) - and it adds
 1.80 whatever the other five counters say. That is what "linear" buys.
 
-Second bullet: why a sum on the log-odds becomes a product on the odds. The
+Third bullet, its first half: why a sum on the log-odds becomes a product on the odds. The
 logarithm turns products into sums, log of a times b is log a plus log b.
 Read it backwards: adding 1.80 to the logarithm of the odds is the same as
 multiplying the odds by exp(1.80), which is 6.05. Check it on an average drive:
@@ -423,7 +453,7 @@ its log-odds are the intercept, minus 6.20, so its odds are exp(-6.20) =
 0.0020. One standard deviation more of reallocated sectors: log-odds minus
 4.40, odds exp(-4.40) = 0.0123. Divide: 6.05.
 
-Third bullet: that is the arrow of slide 10's figure. Every teal arrow was a
+Third bullet, its second half: that is the arrow of slide 10's figure. Every teal arrow was a
 multiplication of the odds by 6, and on the log-odds axis it had the same
 length - 1.79, almost exactly this coefficient. The fitted coefficient on the
 next slide is 1.66, a multiplier of 5.28.
@@ -539,7 +569,7 @@ the example; drives A, B and C are not from the dataset.
 
 Start from what the model does. Fitting means choosing the coefficients w and
 the intercept b. Call one particular choice of w and b a "setting". Given a
-setting, the model of slide 13 turns each drive's counters x into a
+setting, the model of slide 12 turns each drive's counters x into a
 probability of failing: p = sigma(w-transpose-x + b). This slide shows the p
 that one setting, setting 1, gives to each of the three drives.
 
@@ -652,6 +682,8 @@ descent does the searching, as in lesson 3.
 
 # Step 4: minus the log, a cost
 
+The log turns the product into a sum, one term per drive, and keeps the winner; the minus turns largest into smallest: a cost to minimise, as in lesson 3.
+
 | Drive | $y$ | Setting 1: −log of probability of what happened | Setting 2: −log of probability of what happened |
 |---|---|---|---|
 | A | 1 | −log 0.8 = 0.22 | −log 0.3 = 1.20 |
@@ -661,19 +693,33 @@ descent does the searching, as in lesson 3.
 
 ::: notes
 The last step turns "largest likelihood" into "smallest cost", so it can be
-minimised as in lesson 3. Natural logarithms throughout.
+minimised as in lesson 3. Natural logarithms throughout. It is two moves, and
+each has its own reason - the line above the table says both.
 
-Take minus the logarithm of each drive's factor and add them up. Because the
-log of a product is the sum of the logs, the sum is minus the log of the
-likelihood: 0.55 is minus the log of 0.576, and 2.81 is minus the log of 0.060.
-The logarithm keeps the order and the minus sign reverses it, so the better
-setting now has the SMALLER number - 0.55 against 2.81. Setting 1 still wins.
+Why the logarithm. Three reasons, in this order. First, it does not change
+the winner: the log is increasing, so the setting with the larger likelihood
+also has the larger log-likelihood - 0.576 beats 0.060, and log 0.576 = -0.55
+beats log 0.060 = -2.81. Any increasing function would keep the winner; the
+log is chosen because, second, it turns the product into a sum: log of a times
+b times c is log a plus log b plus log c, so each drive contributes its own
+term, and a sum differentiates one term at a time - that is where slide 25's
+gradient comes from. Third, it makes the computation possible at all.
+Notebook 1's gradient descent starts with every coefficient and the intercept
+at zero, so z is 0 for every drive and every p is 0.5. 0.5 multiplied by itself
+6,000 times, once per training drive, is 10 to the power 6,000 times log10 of
+0.5 = 6,000 times minus 0.301 = minus 1806, while the smallest positive number
+a 64-bit float can hold is about 5 times 10 to the minus 324. The computer would
+store exactly zero.
 
-A predictable slip: calling setting 1 "the maximum" and 0.55 "the minimum
-cost". Setting 1 only beats setting 2; other choices of w and b would surely
-make these three outcomes more probable still. The maximum likelihood over
-every possible (w, b) - the same point as the minimum cost - is what fitting
-finds.
+The point to stress: the logarithm is a convenience, not a new assumption. The
+best setting is the same with it or without it.
+
+Why the minus. A probability is at most 1, so its logarithm is at most 0. The
+minus makes every term 0 or more and reverses the order, so the better setting
+now has the SMALLER number - 0.55 against 2.81 - and we minimise, as gradient
+descent does. Read the sum: because the log of a product is the sum of the
+logs, 0.55 is minus the log of 0.576, and 2.81 is minus the log of 0.060.
+Setting 1 still wins.
 
 Read the per-drive numbers too. Minus the log of a probability is called the
 surprise of an outcome: 0 for something you were certain of, large for
@@ -681,19 +727,17 @@ something you said was unlikely. Setting 2 is most surprised by drive A, 1.20,
 because it gave A's failure only 0.3. Maximum likelihood and least total
 surprise are the same choice.
 
-Two reasons we always work with the logarithm, worth saying aloud. A sum
-differentiates one term at a time. And the product itself is too small to
-store. Notebook 1's gradient descent starts with every coefficient and the
-intercept at zero, so z is 0 for every drive and every p is 0.5. 0.5
-multiplied by itself 6,000 times, once per training drive, is 10 to the power
-6,000 times log10 of 0.5 = 6,000 times minus 0.301 = minus 1806, while the smallest positive number a 64-bit float can hold is
-about 5 times 10 to the minus 324. The computer would store exactly zero.
+A predictable slip: calling setting 1 "the maximum" and 0.55 "the minimum
+cost". Setting 1 only beats setting 2; other choices of w and b would surely
+make these three outcomes more probable still. The maximum likelihood over
+every possible (w, b) - the same point as the minimum cost - is what fitting
+finds.
 
 Divide the sum by the number of drives and you have the average surprise: that
 is the cost J that fitting minimises, and scikit-learn's log_loss computes
 exactly this average. The next slide draws the surprise of one drive, and
-slide 24 writes it as a formula, the loss L; J is its average over the drives. Handout sections 3.1
-to 3.3.
+slide 24 writes it as a formula, the loss L, with J, its average over the
+drives, under it. Handout sections 3.1 to 3.3.
 :::
 
 # Surprise: minus the log of a probability
@@ -731,14 +775,15 @@ the loss L. Handout section 3.1.
 
 # Cross-entropy, also called log loss
 
-$$L = -\left[\, y \log p + (1 - y)\log(1 - p) \right]$$
+$$L = -\left[\, y \log p + (1 - y)\log(1 - p) \right] \\ J(w, b) = \frac{1}{m}\sum_{i=1}^{m} L^{(i)}, \qquad p^{(i)} = \sigma(w^\top x^{(i)} + b)$$
 
 ::: notes
-This is the loss on ONE example, L, not the cost over the training set; p is
-the predicted probability, the same number the next slide writes as y-hat. Say
-the other half aloud rather than showing it: the cost J is the average of this over the
-m examples, one over m times the sum. It is left off the slide because,
-written out in full, the formula does not fit at a readable size.
+Two lines, and the difference between them matters. The top line is the loss
+on ONE example, L; p is the predicted probability, the same number the next
+slide writes as y-hat. The bottom line is the cost J: the average of L over the
+m training examples, each with its own p, the model's probability for drive i.
+J is what fitting minimises, and it is the J whose gradient slide 25 takes.
+Written in terms of L it fits; the handout, section 3, writes it out in full.
 
 Nothing new to derive: this is slides 18 to 22 written for one drive in
 symbols. Check it on drive B of slide 18: y = 0 and p = 0.1, so the first term
@@ -780,7 +825,7 @@ Gradient descent then steps w_j in the opposite direction.
 What is new, and what is not. The formula is written with exactly the symbols
 of lesson 3's slide 23. The difference is hidden in y-hat: in lesson 3 it was
 the straight line w-transpose-x plus b, and here it is the sigmoid of that line,
-the probability of slide 13 - which is why the title says so. The cost is
+the probability of slide 12 - which is why the title says so. The cost is
 different too: squared error there, log loss (slide 24) here. Different model,
 different cost, and yet the same gradient.
 
@@ -797,7 +842,7 @@ section 3.4 has it in full. Follow one drive through the chain rule, in three
 links, with p for y-hat and z for w-transpose-x plus b:
 - how the loss changes with p: (p - y) divided by p times (1 - p) - the
   denominator comes from the logarithms in the log loss;
-- how p changes with z: p times (1 - p), the sigmoid's derivative from slide 13;
+- how p changes with z: p times (1 - p), the sigmoid's derivative from slide 12;
 - how z changes with w_j: x_j.
 Multiply the three: the p times (1 - p) cancels, and what is left is (p - y)
 times x_j.
@@ -834,7 +879,7 @@ Right panel is the real argument, so spend the time here. It shows the size
 of the gradient with respect to z, the push gradient descent gives the model.
 Log loss's gradient is p - 1 (slide 25). Squared error's is 2(p - 1) times
 p times (1 - p): the chain rule through the sigmoid brings in its derivative,
-p times one-minus-p, from slide 13, and nothing cancels it. That factor goes to
+p times one-minus-p, from slide 12, and nothing cancels it. That factor goes to
 zero as p goes to zero.
 
 Say it as a sentence: the wronger the model gets, the less squared error asks it
@@ -892,6 +937,20 @@ There is no normal equation for logistic regression. It has to be solved
 iteratively, which is why LogisticRegression has a max_iter argument and
 LinearRegression does not. If a student ever sees a convergence warning, that is
 what it is about.
+
+Someone will ask which algorithm scikit-learn uses. Not our gradient descent:
+the default is solver="lbfgs", limited-memory BFGS, a quasi-Newton method. It
+estimates the curvature of the cost from the last few gradients and uses it to
+choose both the direction and the length of each step, so there is no learning
+rate to set; on notebook 1's data it stops after 15 iterations. And it does not
+minimise the log loss alone: the default adds an L2 penalty, as in lesson 3's
+ridge, with C = 1 (C is the inverse of the penalty strength: the smaller C,
+the stronger the penalty). That penalty is
+why notebook 1's from-scratch coefficients and scikit-learn's differ in the
+second decimal; notebook 1 refits with penalty=None and the two agree. The
+default is wanted, not a bug: with classes a line separates perfectly, the
+unpenalised weights grow without limit (handout section 4.3), and lesson 5
+chooses C by cross-validation.
 :::
 
 # The decision boundary of a two-counter model
@@ -1729,7 +1788,9 @@ could publish.
 ::: notes
 Three steps, in order.
 
-What the weights are. The two numbers on the slide: 6,000 ÷ (2 × 5,770) = 0.52
+What the weights are - and first, what they are not: these class weights are not
+the weights w of slide 12, the coefficients. A class weight says how much each
+training example counts in the cost; w is what the fitting chooses. The two numbers on the slide: 6,000 ÷ (2 × 5,770) = 0.52
 and 6,000 ÷ (2 × 230) = 13.0. The log loss adds one term per training drive. A class
 weight multiplies the term of every drive in that class. "balanced" sets the
 weight to m divided by (2 times the number of drives in the class): 0.52 for a

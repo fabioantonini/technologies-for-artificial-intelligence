@@ -98,6 +98,11 @@ never screenshots of slides. And it is gated: `verify_lesson.check_commentary`
 fails a number it cannot find in the handout, the deck or a notebook output unless
 the file's `numbers-not-from-data` comment lists it with a reason, and its worked
 examples are computed by `Docs/commentary_examples.py`, which the verifier runs.
+And every slide section **opens with a short explanation of the slide** - what it
+says, why it is there, the number on it with its source - before any question:
+a student reading the commentary instead of the lecture must not find a slide
+covered only by the questions someone asked about it. Lesson 4's first version
+missed this on 23 of 62 slides (29 October 2026).
 
 **How a lesson is studied, since lesson 4 (24 October 2026).** Until then each
 lesson was studied in a ChatGPT session on an uploaded copy of the deck, which went

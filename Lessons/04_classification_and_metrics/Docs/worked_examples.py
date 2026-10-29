@@ -527,6 +527,21 @@ same("2.4 e^0.62, one SD of log(1 + x)", step, 1.86, tolerance=5e-3)
 for start, end in ((1, 2.7), (4, 8.3), (10, 19.5)):
     same(f"2.4 one SD more from {start} sectors", (1 + start) * step - 1, end,
          tolerance=0.05)
+for start, inside in ((1, 3.7), (4, 9.3), (10, 20.5)):
+    same(f"2.4 (1 + {start}) x 1.86", (1 + start) * step, inside, tolerance=0.05)
+
+# 2.4 step 4 and slide 14's notes (29 Oct): one extra sector, from the fleet's
+# own SD of log(1 + x), not from the handout's rounded 0.62.
+for start, log_step, z_step, factor in ((0, 0.69, 2.01, 7.5), (1, 0.41, 1.18, 3.2),
+                                        (4, 0.18, 0.53, 1.7), (10, 0.087, 0.25, 1.3)):
+    added = math.log((start + 2) / (start + 1))
+    same(f"2.4 log((x+2)/(x+1)) at {start}", added, log_step, tolerance=5e-3)
+    same(f"2.4 added to z at {start}", 1.80 * added / deviation, z_step, tolerance=5e-3)
+    same(f"2.4 odds factor at {start}", math.exp(1.80 * added / deviation), factor,
+         tolerance=0.05)
+same("2.4 average drive back to a probability", 0.0020 / 1.0020, 0.002, tolerance=5e-4)
+same("2.4 one SD more, back to a probability", math.exp(-4.40) / (1 + math.exp(-4.40)),
+     0.012, tolerance=5e-4)
 
 # Study pass of 25 Oct: F1 in counts, F2, the no-skill baseline, four costs.
 tp, fp, fn = 43, 13, 33

@@ -158,7 +158,7 @@ def evidence_on_the_sigmoid():
                 fontsize=11, color=INK, ha="left", va="center")
 
     ax.plot([], [], color=TEAL, lw=2.4,
-            label="the same reading on every drive: odds × 6")
+            label="the same reading - one counter's value - on every drive: odds × 6")
     ax.plot([], [], color=RUST, lw=2.4, label="what it does to the risk")
     ax.legend(loc="upper left", frameon=False, fontsize=10.5)
     ax.set_xlabel("log-odds  log(p ÷ (1 − p))")

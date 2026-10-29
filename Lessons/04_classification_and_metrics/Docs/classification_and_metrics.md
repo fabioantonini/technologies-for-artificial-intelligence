@@ -412,13 +412,53 @@ one-unit increase in $x_j$. With standardised features, one unit is one standard
 deviation — of the transformed column, for the four counters that section 1.1
 puts on a logarithmic scale.
 
-For those four counters, one standard deviation is not "one more". Reallocated
-sectors enter $z$ as $1.80 \times (\log(1 + x) - 0.96) / 0.62$, where 0.96 and
-0.62 are the mean and the standard deviation of $\log(1 + x)$ over the fleet. One
-standard deviation more adds 0.62 to $\log(1 + x)$, which multiplies $1 + x$ by
-$e^{0.62} = 1.86$: from 1 sector to 2.7, from 4 to 8.3, from 10 to 19.5. Each of
-those steps — roughly a doubling of the count — multiplies the odds by the same
-$e^{1.80} = 6.05$, which is why the first sectors weigh so much. Temperature and
+The **coefficients** are the $w_j$ of the model, one per feature; machine
+learning also calls them **weights**, and scikit-learn stores them in `coef_`.
+The constant $b$ is the **intercept**, stored in `intercept_` (neural networks
+call it the bias). The *class weights* of section 9 are a different thing: how
+much each training example counts in the cost, not a $w_j$.
+
+For the four counters on a logarithmic scale, one standard deviation is not "one
+more", and it takes four steps to see what it is.
+
+**Step 1: what the model sees.** Not the count $x$ of reallocated sectors, but
+$\log(1 + x)$, standardised. So the counter contributes to $z$
+
+$$1.80 \times \frac{\log(1 + x) - 0.96}{0.62}$$
+
+where 0.96 and 0.62 are the mean and the standard deviation of $\log(1 + x)$ over
+the fleet, and 1.80 is the true coefficient.
+
+**Step 2: one standard deviation more is 0.62 more on $\log(1 + x)$** — not one
+sector more. The fraction above grows by exactly 1, and $z$ by 1.80.
+
+**Step 3: adding 0.62 to a logarithm multiplies what is inside it** by
+$e^{0.62} = 1.86$, because $\log(1 + x) + 0.62 = \log\big((1 + x) \times e^{0.62}\big)$.
+In sectors:
+
+| Sectors now, $x$ | $1 + x$ | $(1 + x) \times 1.86$ | Sectors after one SD more |
+|---|---|---|---|
+| 1 | 2 | 3.7 | 2.7 |
+| 4 | 5 | 9.3 | 8.3 |
+| 10 | 11 | 20.5 | 19.5 |
+
+Roughly, the count doubles, and each such step multiplies the odds by the same
+$e^{1.80} = 6.05$: going from 1 sector to 2.7 counts as much as going from 10 to
+19.5.
+
+**Step 4: so one extra sector is worth a lot at the start and little later.**
+Going from $x$ to $x + 1$ adds $1.80 \times \log\big((x + 2) / (x + 1)\big) / 0.62$
+to $z$, and multiplies the odds by $e$ to that:
+
+| One extra sector | Added to $\log(1 + x)$ | Added to $z$ | Odds multiplied by |
+|---|---|---|---|
+| 0 → 1 | $\log(2 / 1) = 0.69$ | 2.01 | 7.5 |
+| 1 → 2 | $\log(3 / 2) = 0.41$ | 1.18 | 3.2 |
+| 4 → 5 | $\log(6 / 5) = 0.18$ | 0.53 | 1.7 |
+| 10 → 11 | $\log(12 / 11) = 0.087$ | 0.25 | 1.3 |
+
+This is why the first sectors weigh so much, and why section 1.1 put the counters
+on a logarithmic scale: the labels were generated that way. Temperature and
 hours are standardised on their own values, so for them one standard deviation
 is an ordinary additive step.
 
@@ -435,7 +475,9 @@ On an average drive, with the true coefficients: its log-odds are the intercept,
 $-6.20$, so its odds are $e^{-6.20} = 0.0020$. One standard deviation more of
 reallocated sectors adds 1.80, giving log-odds of $-4.40$ and odds of
 $e^{-4.40} = 0.0123$ — six times as large, because $e^{1.80} = 6.05$. That is
-the teal step of the figure in section 2.3.
+the teal step of the figure in section 2.3. Back to a probability, with
+$p = \text{odds} / (1 + \text{odds})$: from $0.0020 / 1.0020 = 0.2\%$ to
+$0.0123 / 1.0123 = 1.2\%$.
 
 ![](decision_boundary.png)
 
@@ -527,7 +569,17 @@ likelihood prefers it. Note what the comparison does and does not say: 0.576 on
 its own has no scale, and a likelihood is only useful against another setting;
 and setting 1 is not *the* maximum — it merely beats setting 2. Fitting the model
 is the same comparison made over every possible setting, and the winner of that
-is the maximum likelihood. Taking minus the (natural) logarithm of each factor and adding
+is the maximum likelihood.
+
+The last step turns the product into a cost, in two moves with a reason each
+(section 3.3 has them in full). **The logarithm** does not change the winner —
+it is increasing, so the larger likelihood keeps the larger log — and it turns
+the product into a sum, one term per drive, which can be differentiated term by
+term and, unlike a product of 6,000 factors, does not underflow to zero. **The
+minus** makes every term positive, since the log of a probability is at most 0,
+and turns "largest" into "smallest", so the best setting is the one with the
+smallest cost. The logarithm is a convenience, not a new assumption: the best
+setting is the same with it or without it. Taking minus the (natural) logarithm of each factor and adding
 gives, for setting 1, $-\log 0.8 - \log 0.9 - \log 0.8 = 0.22 + 0.11 + 0.22 =
 0.55$, and for setting 2, $-\log 0.3 - \log 0.4 - \log 0.5 = 1.20 + 0.92 +
 0.69 = 2.81$. The log of a product is the sum of the logs, so
@@ -781,6 +833,28 @@ $X^\top(\sigma(Xw + b) - y) = 0$, which is not linear in $w$ — the sigmoid is 
 the way — and has no algebraic solution. There is **no normal equation for
 logistic regression**. It must be solved iteratively, which is why
 `LogisticRegression` has a `max_iter` argument and `LinearRegression` does not.
+
+**Which iterative method scikit-learn uses.** Not the gradient descent of
+section 3.4. The default is `solver="lbfgs"`: limited-memory
+Broyden–Fletcher–Goldfarb–Shanno (L-BFGS), a quasi-Newton method. Where
+gradient descent takes a step of fixed size $\alpha$ along the gradient, L-BFGS
+estimates the curvature of $J$ — its Hessian — from the last few gradients, and
+uses it to choose both the direction and the length of each step, so there is no
+learning rate to set. On notebook 1's data it stops after 15 iterations, where
+the from-scratch descent ran 4,000. The other solvers (`newton-cg`,
+`newton-cholesky`, `sag`, `saga`, `liblinear`) reach the same minimum by other
+routes; `saga` is the one that supports an L1 penalty, and `liblinear` penalises
+the intercept as well.
+
+And it does not minimise $J$ alone. The default adds an L2 penalty on the
+coefficients, as lesson 3's ridge did, with `C=1.0`; $C$ is the inverse of the
+penalty strength, so a smaller $C$ penalises harder. That is why notebook 1's
+from-scratch coefficients and scikit-learn's differ in the second decimal (1.685
+against 1.664 for reallocated sectors): refitted with `penalty=None`,
+scikit-learn gives 1.690, and the gap closes. The default is wanted, not a bug:
+when a line separates the classes perfectly the unpenalised weights grow without
+limit, as the convexity argument above allows, and lesson 5 shows how to choose
+$C$ by cross-validation.
 
 ---
 
