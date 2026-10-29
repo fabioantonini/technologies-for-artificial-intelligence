@@ -813,14 +813,21 @@ parameters that make the data least surprising.
 
 # Lesson 3's gradient, $\hat{y} = \sigma(w^\top x + b)$
 
-$$\frac{\partial J}{\partial w_j} = \frac{1}{m}\sum_{i=1}^{m} \left(\hat{y}^{(i)} - y^{(i)}\right)x_j^{(i)}$$
+$$\frac{\partial J}{\partial w_j} = \frac{1}{m}\sum_{i=1}^{m} \left(\hat{y}^{(i)} - y^{(i)}\right)x_j^{(i)} \\ \frac{\partial J}{\partial b} = \frac{1}{m}\sum_{i=1}^{m} \left(\hat{y}^{(i)} - y^{(i)}\right)$$
 
 ::: notes
-What the formula says, in words. To find how the cost J changes when the
+What the formulas say, in words. To find how the cost J changes when the
 coefficient w_j is nudged up: take each training drive, compute its error - the
 predicted probability y-hat minus the true label y, which is 0 or 1 - multiply
 that error by the drive's value of feature j, and average over the m drives.
 Gradient descent then steps w_j in the opposite direction.
+
+The second line is the intercept's, and it is the same formula with x_j = 1:
+slide 13 drew b as the weight on a constant input of 1. So the gradient with
+respect to b is simply the average error. If the model over-predicts failure on
+average, b goes down. Notebook 1's code has one line for each: w moves by the
+learning rate times X-transpose times the errors over m, b by the learning rate
+times the mean error.
 
 What is new, and what is not. The formula is written with exactly the symbols
 of lesson 3's slide 23. The difference is hidden in y-hat: in lesson 3 it was
@@ -902,7 +909,13 @@ A second predictable slip, from reading the two panels together: "log loss's
 slope is minus 1 over p". That is the slope of the LEFT blue curve, the
 derivative of minus log p with respect to p. The right panel differentiates with
 respect to z, the log-odds, and there log loss's gradient is p - 1: size 1 - p,
-the straight line from 1 down to 0, as its legend says. The chain rule joins
+the straight line from 1 down to 0, as its legend says. The panel draws the
+SIZE of each gradient - the bars around "gradient" on its vertical axis. A third
+predictable slip follows from that: "the figure says 1 - p and the notebook
+p - 1, so one of them has the sign wrong". Both are right: the gradient is
+p - 1, negative for a failed drive, which makes gradient descent raise z; its
+size is 1 - p. The full derivation, both labels and both costs, is in handout
+section 3.4. The chain rule joins
 the two panels: minus 1 over p, times the sigmoid's derivative p(1 - p), gives
 minus (1 - p). The 1 over p cancels the sigmoid's p, which is why log loss's
 push does not die; squared error has no 1 over p to cancel it.
@@ -1185,7 +1198,7 @@ If someone asks which of the three to report: the answer is that it depends on
 who is asking, which is the honest answer and also the lesson.
 :::
 
-# F1: why the harmonic mean
+# F1 = 2PR ÷ (P + R): why the harmonic mean
 
 ![](harmonic_vs_arithmetic.png)
 
@@ -1582,14 +1595,19 @@ false alarms are 304 in all three fleets, the true alarms 1,127, 261 and 106.
 The next slide reads them.
 :::
 
-# Why the two disagree
+# Why the two curves disagree
 
-- False positive rate (FPR) = FP ÷ (FP + TN) divides by **all 57,575 healthy drives**, untouched by the thinning: 304 ÷ 57,575 = 0.0053 in all three fleets
-- Precision = TP ÷ (TP + FP): FP **stays 304** while TP falls from 1,127 to 106, so the false alarms' share of the alarms grows from 0.21 to 0.74
+- Recall, shared by both curves: TP ÷ (TP + FN), all failures, thinned together: **stays put**
+- False positive rate (FPR), the ROC's: FP ÷ (FP + TN), over **all 57,575 healthy drives**, untouched: 0.0053
+- Precision, the other curve's: TP ÷ (TP + FP); FP **stays 304**, TP falls from 1,127 to 106
 
 ::: notes
 The explanation is entirely in the denominators, and it is worth writing on the
-board.
+board. First say which two numbers the slide compares, and why: the two curves
+of slide 48 share one axis, recall, and differ in one axis each - the false
+positive rate on the ROC, precision on the precision-recall curve. Recall does
+not move, so the disagreement must come from FPR against precision. The three
+bullets go in that order.
 
 Both ROC axes are shares inside one class. Recall is a share of the failures,
 and thinning the failures at random leaves it where it was: 0.50, 0.45, 0.46 at
@@ -1601,7 +1619,12 @@ TP + 304, with TP falling 1,127 → 261 → 106, so precision falls 0.788 → 0.
 (1 − π)). R and FPR are the ROC's axes and stay put; only π moves. Check the
 rarest fleet: 0.459 × 0.004 ÷ (0.459 × 0.004 + 0.0053 × 0.996) = 0.26.
 
-A predictable slip: "precision falls because the false positives grow". They
+Two predictable slips. First, "recall falls too, only more slowly": it does not
+fall at all; TP and FN are both failures, thinned in the same proportion, and
+0.50, 0.45, 0.46 is noise on few remaining failures. A related wording slip is
+calling FN "the false ones": they are failures the model called healthy.
+
+Second, "precision falls because the false positives grow". They
 do not - 304 in every fleet. What grows is their share of the alarms,
 304 ÷ (1,127 + 304) = 0.21 at 3.8% and 304 ÷ (106 + 304) = 0.74 at 0.4%, which
 is 1 − precision. The slip is natural: "the false alarms take over" sounds like
@@ -1619,9 +1642,9 @@ ranking when the question was about the alarm queue.
 
 # The rule: report both
 
-- AUC: are failures ranked above healthy drives? Precision-recall: how many alarms are real?
-- On imbalanced data report the **precision-recall curve beside the AUC**, not instead
-- **Average precision (AP)**: Σₖ (Rₖ − Rₖ₋₁) × Pₖ, a step-sum area: each threshold's precision weighted by the recall it adds
+- AUC: are failures ranked first? Precision-recall: how many alarms are real?
+- On imbalanced data report the **precision-recall curve beside the AUC**
+- **Average precision (AP)**: the precision at each failure's place in the ranking, averaged; Σₖ (Rₖ − Rₖ₋₁) × Pₖ
 - Ours: 0.717 (notebook 2); a random ranking: 76 ÷ 2,000 = 0.038
 
 ::: notes
@@ -1634,9 +1657,15 @@ precision-recall curve: of the alarms it raises, how many are real? On a
 balanced problem the answers travel together; on an imbalanced one the second
 can collapse while the first stands still, as slide 48 showed.
 
-Average precision reads as it is computed: walk down the thresholds from the
-top; each time recall goes up by a step, take the precision at that point; add
-the precisions, each weighted by its recall step. Why a random ranking scores
+Average precision, the idea first, as the bullet now says: every time the
+ranking reaches a failing drive, ask how clean the alarm queue is at that
+moment - the precision there - and average those precisions over the failures.
+That is where the name comes from. The formula says the same thing as an area:
+walk down the thresholds from the top; recall goes up only at a failing drive,
+by 1 ÷ 76 each time; take the precision at that point; add the precisions, each
+weighted by its recall step. The steps are all 1 ÷ 76, so the weighted sum is
+the plain average. Handout section 7.1 draws it for seven drives as three
+rectangles. Why a random ranking scores
 0.038: its precision is the positive rate π at every recall (slide 42 counted
 it), so the weighted average of a constant is that constant, π = 76 ÷ 2,000.
 So AP is read against π, not against 0.5 - which is also why it travels across
@@ -1749,10 +1778,10 @@ the flat bottom of slide 51.
 
 # The caveat you must state
 
-- We chose the threshold **by looking at the test set**
-- That is precisely what lesson 1 forbade
-- Done properly: choose it on a **validation set**, then measure once on the test set (lesson 5)
-- The price of looking, here: t* = 0.051, fixed before looking, costs €49,100 on the test set; 0.078, picked by looking, €45,540
+- We chose the threshold **by looking at the test set**: what lesson 1 forbade
+- Properly: choose it on a **validation set**, measure once on the test set (lesson 5)
+- t* = 0.051, fixed before looking: €49,100 on the test set; 0.078, picked by looking: €45,540
+- **Deploy 0.051**: 0.078's €3,560 was found on the very drives it is measured on
 
 ::: notes
 Say this out loud rather than leaving it in the handout, because it is the
@@ -1776,6 +1805,15 @@ once, at the end.
 
 Until then, treat the 0.078 as a demonstration of a method, not a result anyone
 could publish.
+
+The last bullet answers the question the room will ask: which one do we use?
+0.051. A predictable slip: "0.078 costs less, so it is the better threshold".
+It costs less on the 2,000 drives it was chosen on. Expected over new drives,
+the 45 drives between the two thresholds should hold about 2.76 failures - their
+probabilities add up to that - and leaving them would cost about 2.76 × 2,600 =
+7,176 euros against (45 − 2.76) × 140 = 5,914 for flagging them: the rule of
+t* is right, and this test set simply held one failure among them where almost
+three were expected.
 :::
 
 # What class weights do
@@ -1783,10 +1821,11 @@ could publish.
 - Training multiplies each drive's log-loss term by its **class weight**
 - `class_weight="balanced"`: m ÷ (2 × class size), 0.52 healthy, 13.0 failed
 - A failure counts as 25 healthy drives: **class frequencies**, not costs
-- Same decisions as the plain model at 1 ÷ 26 = 0.038, on 1,987 of 2,000 drives
+- **In effect it only lowers the threshold**: at 0.5 the weighted model decides like the plain one at 0.038
 
 ::: notes
-Three steps, in order.
+This slide is optional: skip it if time is short, because slide 56 carries the
+message on its own. If you do show it, three steps, in order.
 
 What the weights are - and first, what they are not: these class weights are not
 the weights w of slide 12, the coefficients. A class weight says how much each
@@ -1795,7 +1834,12 @@ and 6,000 ÷ (2 × 230) = 13.0. The log loss adds one term per training drive. A
 weight multiplies the term of every drive in that class. "balanced" sets the
 weight to m divided by (2 times the number of drives in the class): 0.52 for a
 healthy drive, 13.0 for a failed one. Each failure therefore counts as 25
-healthy drives - as if the training set held 25 copies of every failure.
+healthy drives - as if the training set held 25 copies of every failure. Why
+the name "balanced": weight times class size is the same for both classes,
+0.52 × 5,770 and 13.0 × 230, both about 3,000, which is m ÷ 2. After weighting,
+each class carries half of the total weight, however many examples it has. The
+2 in the formula is the number of classes; with three classes each would carry
+a third.
 
 Where the 25 comes from: the class frequencies, 5,770 healthy against 230
 failed in training. Not the costs. A predictable slip: reading "balanced" as
@@ -1809,7 +1853,13 @@ at 0.5 it raises 164 false alarms and misses 9, close to the plain model at t*
 What the weights do. For logistic regression the main effect is on the
 intercept: it rises from −6.09 to −2.95, by 3.14, close to log 25 = 3.22. Every
 probability goes up, and the weighted model's 0.5 lands where the plain model's
-1 ÷ (1 + 25) = 0.038 was. Notebook 3 checks it: the plain model at 0.038 raises
+1 ÷ (1 + 25) = 0.038 was - that is the last bullet. The steps, if someone asks:
+the weights multiply every drive's odds by about 25; the weighted model flags
+at p = 0.5, odds of 1; that is plain odds of 1 ÷ 25, and back to a probability,
+(1 ÷ 25) ÷ (1 + 1 ÷ 25) = 1 ÷ 26 = 0.038. Not a coincidence: 1 ÷ (1 + 5,770 ÷
+230) = 230 ÷ 6,000, the failure rate of the training set, so balanced weights
+always act like thresholding the plain model at the rare class's training
+frequency. Notebook 3 checks it: the plain model at 0.038 raises
 208 false alarms and misses 8; the weighted model at 0.5 raises 205 and misses 8;
 the two agree on 1,987 of the 2,000 test drives. The general rule, approximately: weights with ratio k behave like a threshold
 of 1 ÷ (1 + k). It is close here because the labels came from a logistic model
@@ -1823,12 +1873,21 @@ cost optimum here only because 25 happens to be close to 18.6.
 ![](class_weight_costs.png)
 
 ::: notes
+If slide 55 was skipped, one sentence is enough to start: class weights make
+each failure count more in training, and in effect they only lower the
+threshold. The figure shows how much that is worth.
+
 The figure is notebook 3's comparison drawn as bills, one bar per model. Rust
 is the cost of the missed failures, FN times 2,600 euros; gold is the cost of
 the false alarms, FP times 140 euros. The default model misses 33 failures:
 33 times 2,600 plus 13 times 140 is 87,620. The threshold at 0.078 misses 11
 and raises 121 false alarms: 45,540. Balanced weights miss 8 and raise 205:
 8 times 2,600 plus 205 times 140 is 49,500.
+
+Compare the weighted model with the right bar. The 0.078 was found by looking
+at the test set (slide 54), so the fair comparison is the bar at t* = 0.051,
+fixed from the costs: 10 missed and 165 false alarms, 49,100. Balanced weights,
+49,500, and the threshold from the costs, 49,100, cost practically the same.
 
 Point at the AUC under each name: 0.949 against 0.950. Reweighting taught the
 model essentially nothing new about disk failure. What it did was move where the
@@ -1873,14 +1932,18 @@ If time is short, keep the pairs experiment: it turns a definition they would
 otherwise memorise into something they watched happen.
 :::
 
-# Three classes: softmax
+# Three classes: softmax (optional)
 
-- One score per class, zₖ = wₖᵀx + bₖ; **softmax**: exponentiate, divide by the sum
+- One score per class, zₖ = wₖᵀx + bₖ; **softmax**: P(class k) = exp(zₖ) ÷ Σⱼ exp(zⱼ): exponentiate, divide by the sum
 - A degraded drive: scores 0.615, 0.603, −1.218 → 0.466, 0.460, 0.074, called healthy
 - Predicted class = the largest probability, no 0.5 threshold; two classes: the sigmoid of z₁ − z₀
 - In code: `decision_function` (scores), `predict_proba` (softmax)
 
 ::: notes
+Slides 58 to 60 are optional: exercise 4 is a two-class problem and needs none
+of them, and lesson 9 introduces the softmax again for the handwritten digits.
+Show them if there is time after notebook 3.
+
 Real fleets are not healthy-or-dead. A drive can be degraded: readable, but
 reporting errors, and worth replacing at the next maintenance window rather than
 at three in the morning. So three classes.
@@ -1904,7 +1967,7 @@ the negative log of the probability assigned to what actually happened. Handout
 section 10.1. Lesson 9 uses the same softmax for ten digits.
 :::
 
-# More than two classes
+# More than two classes (optional)
 
 ![](multiclass_confusion.png)
 
@@ -1920,7 +1983,7 @@ Precision and recall are computed one class at a time: each class in turn is the
 positive one, the rest are negative.
 :::
 
-# Macro against weighted, one last time
+# Macro against weighted, one last time (optional)
 
 ![](macro_vs_weighted.png)
 

@@ -32,13 +32,13 @@ def odds_and_log_odds():
         values[p] = logit
         assert abs(sigmoid(logit) - p) < 1e-12          # the sigmoid undoes it
         rows.append(f"| {p} | {fmt(p, 2)} ÷ {fmt(1 - p, 2)} = {fmt(odds, 3)} "
-                    f"| {fmt(logit, 2)} |")
+                    f"| log {fmt(odds, 3)} = {fmt(logit, 2)} |")
     assert abs(values[0.2] + values[0.8]) < 1e-12        # symmetric around 0.5
     table = "\n".join(rows)
     return f"""
 ### Worked example — five probabilities, their odds and their log-odds
 
-| probability $p$ | odds $p \\div (1 - p)$ | log-odds $\\log$(odds) |
+| probability $p$ | odds = $p \\div (1 - p)$ | log-odds = $\\log$(odds), natural log |
 |---|---|---|
 {table}
 
@@ -100,18 +100,22 @@ def log_loss_four_drives():
         loss = -(y * math.log(p) + (1 - y) * math.log(1 - p))
         assert abs(loss + math.log(happened)) < 1e-12   # the bracket is an if
         losses.append(loss)
-        rows.append(f"| {name} | {y} | {p} | {fmt(happened, 2)} | {fmt(loss, 3)} |")
+        rule = f"{p}" if y == 1 else f"1 − {p} = {fmt(happened, 2)}"
+        rows.append(f"| {name} | {y} | {p} | {rule} | −log {fmt(happened, 2)} = {fmt(loss, 3)} |")
     cost = sum(losses) / len(losses)
     assert max(losses) == losses[3] and losses[3] > sum(losses[:3])
     table = "\n".join(rows)
     return f"""
 ### Worked example — four drives, one confident mistake
 
-| drive | $y$ | $p$, the P(fail) | probability of what happened | loss $-\\log$ of it |
+The loss of one drive is minus the log of the probability the model gave to what
+happened: $p$ if the drive failed ($y = 1$), $1 - p$ if it stayed healthy ($y = 0$).
+
+| drive | $y$ | $p$, the P(fail) | probability of what happened: $p$ if $y = 1$, $1 - p$ if $y = 0$ | loss $L = -\\log$(probability of what happened) |
 |---|---|---|---|---|
 {table}
 
-The cost is the average: ({' + '.join(fmt(v, 3) for v in losses)}) ÷ 4 =
+The cost $J$ is the average of the four losses: ({' + '.join(fmt(v, 3) for v in losses)}) ÷ 4 =
 **{fmt(cost, 3)}**. Drive D failed after the model gave it 0.05, and its loss alone,
 {fmt(losses[3], 3)}, is larger than the other three together. Log loss is dominated by
 confident mistakes, which is exactly where a fitting procedure should be pushed.
@@ -135,27 +139,46 @@ def one_gradient_step():
     assert abs((cost(h, 0) - cost(-h, 0)) / (2 * h) - grad_w) < 1e-8
     alpha = 0.5
     new_w, new_b = w - alpha * grad_w, b - alpha * grad_b
-    rows = "\n".join(f"| {i + 1} | {x} | {y} | {fmt(p, 1)} | {fmt(e, 1)} | {fmt(e * x, 2)} |"
+    rows = "\n".join(f"| {i + 1} | {x} | {y} | {fmt(p, 1)} | {fmt(p, 1)} − {y} = {fmt(e, 1)} "
+                     f"| {fmt(e, 1)} × ({x}) = {fmt(e * x, 2)} |"
                      for i, (x, y, p, e) in enumerate(zip(xs, ys, ps, errors)))
+    def signed_sum(values, digits):
+        text = fmt(values[0], digits)
+        for v in values[1:]:
+            text += f" − {fmt(-v, digits)}" if v < 0 else f" + {fmt(v, digits)}"
+        return text
+    sum_w = signed_sum([e * x for e, x in zip(errors, xs)], 2)
+    sum_b = signed_sum(errors, 1)
     return f"""
 ### Worked example — one step of gradient descent on three drives
 
-One standardised feature $x$, start at $w = 0$, $b = 0$, so every drive gets
-$p = \\sigma(0) = 0.5$:
+One standardised feature $x$, three drives, and the start of gradient descent:
+$w = 0$ and $b = 0$, so $z = 0 \\times x + 0 = 0$ for every drive and
+$p = \\sigma(0) = 0.5$.
 
-| drive | $x$ | $y$ | $p$ | error $p - y$ | error × $x$ |
+| drive | $x$ | $y$ | $p = \\sigma(wx + b)$ | error = $p - y$ | error × $x$ |
 |---|---|---|---|---|---|
 {rows}
 
-$\\partial J / \\partial w$ = average of the last column = **{fmt(grad_w, 4)}**;
-$\\partial J / \\partial b$ = average of the errors = **{fmt(grad_b, 4)}**. With a
-learning rate $\\alpha = {alpha}$ the step is $w = 0 - {alpha} \\times ({fmt(grad_w, 4)}) =
-{fmt(new_w, 4)}$ and $b = 0 - {alpha} \\times {fmt(grad_b, 4)} = {fmt(new_b, 4)}$.
+The two gradients are the slide's two formulas, averages over the $m = 3$ drives:
+
+- $\\partial J / \\partial w$ = average of the last column = ({sum_w}) ÷ 3 = **{fmt(grad_w, 4)}**
+- $\\partial J / \\partial b$ = average of the errors = ({sum_b}) ÷ 3 = **{fmt(grad_b, 4)}**
+
+The update rule is lesson 3's: step against the gradient, new value = old value
+− $\\alpha$ × gradient. With a learning rate $\\alpha = {alpha}$:
+
+- $w = 0 - {alpha} \\times ({fmt(grad_w, 4)}) = {fmt(new_w, 4)}$
+- $b = 0 - {alpha} \\times {fmt(grad_b, 4)} = {fmt(new_b, 4)}$
+
+What the signs mean: $\\partial J / \\partial w$ is negative, so the cost falls if $w$
+rises, and the step raises $w$; $\\partial J / \\partial b$ is positive, because on
+average the model over-predicts failure (two of the three drives are healthy and
+were given 0.5), so the step lowers $b$.
 
 The failed drive, with a large positive $x$, pulls $w$ up. So does the healthy drive
 at $x = -1$: a larger $w$ lowers its $p$, which is what a healthy drive needs. Only the
-healthy drive at $x = 0.5$ pulls $w$ down, and weakly, because its $x$ is small. The
-intercept goes down because two of the three drives are healthy. That is lesson 3's
+healthy drive at $x = 0.5$ pulls $w$ down, and weakly, because its $x$ is small. That is lesson 3's
 weighted vote, with $p$ in place of the straight line.
 """
 
@@ -214,7 +237,10 @@ def auc_by_pairs():
         points.append((fpr, tpr))
     area = sum((x1 - x0) * (y0 + y1) / 2 for (x0, y0), (x1, y1) in zip(points, points[1:]))
     assert abs(area - auc) < 1e-12
-    rows = "\n".join(f"| {f} | {fmt(w, 1)} of 4 |" for f, w in zip(failing, wins))
+    def beaten(f):
+        parts = [str(h) for h in healthy if f > h] + [f"half of {h} (tie)" for h in healthy if f == h]
+        return ", ".join(parts)
+    rows = "\n".join(f"| {f} | {beaten(f)} | {fmt(w, 1)} of 4 |" for f, w in zip(failing, wins))
     return f"""
 ### Worked example — the AUC of seven drives, by counting pairs
 
@@ -222,8 +248,8 @@ Three failing drives scored 0.9, 0.6, 0.3; four healthy ones scored 0.7, 0.3, 0.
 0.1. There are 3 × 4 = 12 (failing, healthy) pairs. For each failing drive, count the
 healthy drives it outscores, a tie counting half:
 
-| failing drive's score | healthy drives below it |
-|---|---|
+| failing drive's score | healthy drives it outscores | pairs won, a tie counting ½ |
+|---|---|---|
 {rows}
 
 AUC = ({' + '.join(fmt(w, 1) for w in wins)}) ÷ 12 = **{fmt(auc, 3)}**. Drawing the ROC
@@ -248,7 +274,8 @@ def average_precision_by_steps():
             steps.append((k, caught, precision))
     baseline = positives / len(ranking)
     assert ap > baseline
-    rows = "\n".join(f"| {k} | {c} of {k} = {fmt(p, 3)} | {c} of {positives} | 1/{positives} |"
+    rows = "\n".join(f"| {k} | {c} ÷ {k} = {fmt(p, 3)} | {c} ÷ {positives} | 1/{positives} "
+                     f"| 1/{positives} × {fmt(p, 3)} = {fmt(p / positives, 3)} |"
                      for k, c, p in steps)
     terms = " + ".join(f"\\tfrac{{1}}{{{positives}}} \\times {fmt(p, 3)}" for _, _, p in steps)
     return f"""
@@ -258,11 +285,13 @@ Seven drives sorted by score, riskiest first: failed, healthy, failed, healthy,
 healthy, failed, healthy. Recall rises only when the cut passes a failed drive, so
 only those cuts add a step:
 
-| cut after drive | precision there | recall there | recall step |
-|---|---|---|---|
+| cut after drive | precision there = failed ÷ flagged | recall there = failed ÷ {positives} | recall step | step × precision |
+|---|---|---|---|---|
 {rows}
 
-$\\text{{AP}} = {terms} = {fmt(ap, 3)}$. A random ranking would have precision
+$\\text{{AP}} = {terms} = {fmt(ap, 3)}$. The steps are all equal, so this is
+also the plain average of the three precisions: ({' + '.join(fmt(p, 3) for _, _, p in steps)}) ÷ {positives} = {fmt(ap, 3)},
+the precision at each failing drive's place in the ranking, averaged. A random ranking would have precision
 equal to the positive rate at every cut, {positives} ÷ {len(ranking)} = {fmt(baseline, 3)},
 and so an AP of {fmt(baseline, 3)}: that, not 0.5, is the line this ranking has to beat.
 """
@@ -284,12 +313,14 @@ def threshold_from_costs():
     assert c_fp / (c_fp + c_fp) == 0.5
     table = "\n".join(rows)
     return f"""
-### Worked example — a false alarm at {c_fp}, a miss at {c_fn}
+### Worked example — invented costs: a false alarm €{c_fp}, a missed failure €{c_fn}
 
-$t^* = {c_fp} \\div ({c_fp} + {c_fn}) = {fmt(t_star, 2)}$. Check it on two drives,
-comparing the two expected costs directly:
+Suppose $C_{{FP}} = {c_fp}$ and $C_{{FN}} = {c_fn}$, in euros: round numbers made up for the
+example, not the lesson's 140 and 2,600. The formula of slide 53 gives
+$t^* = C_{{FP}} \\div (C_{{FP}} + C_{{FN}}) = {c_fp} \\div ({c_fp} + {c_fn}) = {fmt(t_star, 2)}$.
+Check it on two drives, comparing the two expected costs directly:
 
-| drive's $p$ | expected cost of flagging | expected cost of leaving | decision |
+| drive's $p$ | expected cost of flagging = $(1 - p) \\times C_{{FP}}$ | expected cost of leaving = $p \\times C_{{FN}}$ | decision: the cheaper |
 |---|---|---|---|
 {table}
 
@@ -316,9 +347,12 @@ Give every failure {k} times the weight of a healthy drive. For a correctly spec
 logistic model the main effect is on the intercept, which rises by $\\log {k} =
 {fmt(shift, 3)}$: every odds is multiplied by {k}.
 
-A drive the plain model scores $p = {fmt(p_plain, 2)}$ has odds ${fmt(p_plain, 2)} \\div
-{fmt(1 - p_plain, 2)} = {fmt(odds, 2)}$. Multiplied by {k}, the odds become 1, a probability of
-0.5. So the weighted model's threshold of 0.5 falls where the plain model's
+Follow one drive in three steps.
+
+1. The plain model scores it $p = {fmt(p_plain, 2)}$: odds = $p \\div (1 - p)$ =
+   ${fmt(p_plain, 2)} \\div {fmt(1 - p_plain, 2)} = {fmt(odds, 2)}$.
+2. The weighted model multiplies the odds by {k}: ${fmt(odds, 2)} \\times {k} = 1$.
+3. Back to a probability, $p$ = odds $\\div$ (1 + odds) = $1 \\div (1 + 1) = 0.5$. So the weighted model's threshold of 0.5 falls where the plain model's
 $1 \\div (1 + {k}) = {fmt(threshold, 2)}$ was: the same decisions, reached by moving the
 line at training time instead of after it. With a misspecified model, little data
 or a strong penalty, the weights move the slopes too, and the match is only
@@ -338,14 +372,16 @@ def softmax_three_scores():
     z = 1.5
     two = math.exp(z) / (math.exp(0) + math.exp(z))
     assert abs(two - sigmoid(z)) < 1e-12
-    rows = "\n".join(f"| {name} | {s} | {fmt(e, 3)} | {fmt(e, 3)} ÷ {fmt(total, 3)} = {fmt(p, 3)} |"
+    rows = "\n".join(f"| {name} | {s} | $e^{{{{{s}}}}}$ = {fmt(e, 3)} | {fmt(e, 3)} ÷ {fmt(total, 3)} = {fmt(p, 3)} |"
                      for name, s, e, p in zip(("healthy", "degraded", "failed"), scores, exps, probs))
     return f"""
 ### Worked example — softmax on three scores
 
-| class | score $z_k$ | $e^{{z_k}}$ | probability |
+| class | score $z_k$ | exponentiated, $e^{{z_k}}$ | probability = $e^{{z_k}}$ ÷ sum |
 |---|---|---|---|
 {rows}
+
+The sum in the last column is {' + '.join(fmt(e, 3) for e in exps)} = {fmt(total, 3)}.
 
 The three probabilities add up to 1, and the largest score keeps the largest share:
 the drive is called healthy with {fmt(probs[0], 3)}. With two classes and scores 0 and

@@ -19,7 +19,7 @@ date: "30 October 2026 · reading time about 80 minutes"
 | 1:51–2:16 | **Notebook 2**, live, and the threshold sweep | Slides 39–42 |
 | 2:16–2:30 | Receiver operating characteristic (ROC) curves, the area under them, and where they mislead | Slides 43–50 |
 | 2:30–2:40 | Cost-optimal thresholds and class weights | Slides 51–56 |
-| 2:40–2:55 | **Notebook 3**, live, with the multiclass slides 58–60 | Slide 57 |
+| 2:40–2:55 | **Notebook 3**, live, with the optional multiclass slides 58–60 | Slide 57 |
 | 2:55–3:00 | What to take away; homework | Slides 61–62 |
 | | **Total** | **180 minutes** |
 
@@ -675,22 +675,47 @@ $10^{-12}$ inside the logarithm, and scikit-learn's `log_loss` clips.
 
 ### 3.4 The gradient, and a small miracle
 
-Differentiate the loss for a single example with respect to $z = w^\top x + b$.
-Take $y = 1$, so $L = -\log \sigma(z)$:
+Differentiate the loss for a single example with respect to $z = w^\top x + b$,
+by the chain rule, in four steps. Two derivatives are already known: the loss,
+$L = -\left[y \log p + (1 - y)\log(1 - p)\right]$, and the sigmoid's,
+$dp/dz = p(1 - p)$ (section 2.2).
 
-$$\frac{\partial L}{\partial z}
-  = -\frac{1}{\sigma(z)} \cdot \sigma'(z)
-  = -\frac{\sigma(z)\left(1 - \sigma(z)\right)}{\sigma(z)}
-  = \sigma(z) - 1 = p - y$$
+**Step 1: how $L$ changes with $p$.** The derivative of $\log p$ is $1/p$, that
+of $\log(1 - p)$ is $-1/(1 - p)$:
 
-The $\sigma(1-\sigma)$ from the chain rule cancels against the $1/\sigma$ from
-the logarithm. For $y = 0$ the same cancellation gives $\partial L/\partial z =
-p$, which is again $p - y$. So in both cases
+$$\frac{\partial L}{\partial p} = -\left[\frac{y}{p} - \frac{1 - y}{1 - p}\right]$$
 
-$$\frac{\partial L}{\partial z} = p - y
-  \qquad\Longrightarrow\qquad
-  \frac{\partial J}{\partial w_j} = \frac{1}{m}\sum_{i=1}^{m}
-  \left(\hat{y}^{(i)} - y^{(i)}\right)x_j^{(i)}$$
+**Step 2: the chain rule**, $\partial L/\partial z = (\partial L/\partial p)
+\times (dp/dz)$:
+
+$$\frac{\partial L}{\partial z} = -\left[\frac{y}{p} - \frac{1 - y}{1 - p}\right]
+  p\,(1 - p)$$
+
+**Step 3: multiply into the bracket.** $p(1 - p) / p = 1 - p$ and
+$p(1 - p) / (1 - p) = p$, so
+
+$$\frac{\partial L}{\partial z} = -\left[y(1 - p) - (1 - y)\,p\right]
+  = -\left[y - yp - p + yp\right] = p - y$$
+
+The two $yp$ cancel: the $p(1 - p)$ from the sigmoid has been absorbed by the
+$1/p$ and $1/(1 - p)$ from the logarithms.
+
+**Step 4: the two labels.** For a failed drive, $y = 1$: $\partial L/\partial z
+= p - 1$, negative, of size $1 - p$, which is the straight line in the right
+panel of the figure in section 4.2. For a healthy drive, $y = 0$:
+$\partial L/\partial z = p$.
+
+**From one drive to the cost.** $z = w^\top x + b$ changes with $w_j$ as $x_j$
+and with $b$ as 1, and $J$ is the average of $L$ over the $m$ training drives, so
+
+$$\frac{\partial J}{\partial w_j} = \frac{1}{m}\sum_{i=1}^{m}
+  \left(\hat{y}^{(i)} - y^{(i)}\right)x_j^{(i)}
+  \qquad\qquad
+  \frac{\partial J}{\partial b} = \frac{1}{m}\sum_{i=1}^{m}
+  \left(\hat{y}^{(i)} - y^{(i)}\right)$$
+
+The second is the first with $x_j = 1$, the constant input the intercept
+multiplies: the gradient with respect to $b$ is the average error.
 
 **This is character-for-character the gradient of lesson 3.** Prediction error
 times feature, averaged. A different model and a different cost function produce
@@ -1151,8 +1176,12 @@ So when a paper or a colleague reports 77% precision (our 0.768 at 0.5), the use
 *The table above, drawn as a curve, with three of its rows marked. Each point is one threshold; moving along the curve is the trade the table tabulates. The dashed line is what "no skill" looks like on this problem — the positive rate, 76 / 2,000 = 0.038, not 0.5 — and Section 8 returns to why that baseline matters more than the curve's shape.*
 
 **Where the flat baseline comes from.** A model with no skill flags drives at
-random. Flag $k$ of the 2,000 at random and, on average, the share of failures
-among them is the fleet's share, $76 / 2000 = 0.038$, whatever $k$ is. Flag 500:
+random, which is like drawing drives blind from an urn: a random selection keeps
+the proportions of what it is drawn from. Flag $k$ of the 2,000 at random and, on
+average, the share of failures among them is the test set's share,
+$76 / 2000 = 0.038$, whatever $k$ is: the expected number of failures is
+$k \times 0.038$, so precision is $(k \times 0.038) / k = 0.038$, and $k$ cancels.
+Note that 0.038 is a share of the drives flagged, not a number of drives. Flag 500:
 about $500 \times 0.038 = 19$ of them fail, so precision is $19 / 500 = 0.038$ and
 recall $19 / 76 = 0.25$. Flag 1,000: about 38 fail, precision $38 / 1000 =
 0.038$ again, recall $38 / 76 = 0.50$. Flagging more moves recall along the
@@ -1166,7 +1195,21 @@ time recall goes up, take the precision at that point, weighted by the step:
 $$\text{AP} = \sum_k \left(R_k - R_{k-1}\right) P_k$$
 
 The **average precision (AP)** is a weighted average of precisions, the weights
-being the recall each threshold adds. For our model it is **0.717**
+being the recall each threshold adds. Recall goes up only when the cut passes a
+failing drive, and always by the same step, 1 ÷ 76, so the weights are equal and
+AP is simply **the average of the precisions measured at each failing drive's
+place in the ranking**: each time the model reaches a failure, how clean is the
+queue of alarms at that moment? Seven drives make it visible:
+
+![](ap_rectangles.png)
+
+*Seven drives ranked riskiest first: failed, healthy, failed, healthy, healthy,
+failed, healthy. Look at the three rectangles, one per failing drive: each is 1/3
+wide, the recall it adds, and as tall as the precision where that drive is
+reached, 1 of 1, 2 of 3, 3 of 6. Their areas add up to the AP, 0.722, against
+the random ranking's 3 ÷ 7 = 0.429.*
+
+For our model it is **0.717**
 (`average_precision_score`, notebook 2). For the no-skill model of the previous
 paragraph the precision is the positive rate $\pi = 0.038$ at every recall, and a
 weighted average of a constant is that constant: its AP is $\pi$. So AP is read
@@ -1288,6 +1331,11 @@ minimum of many tries on the same data is biased downwards. A test score is an
 unbiased estimate only if the test set played no part in any choice and is used
 once, at the end.
 
+**So which threshold is deployed? 0.051**, or one chosen on validation data.
+A predictable mistake is to pick 0.078 because it costs less. It does, on the
+2,000 drives it was chosen on; over new drives, the expected costs above say the
+rule of $t^*$ is the right one, and 0.078's advantage was this test set's luck.
+
 ---
 
 ## 8. ROC and AUC
@@ -1357,13 +1405,41 @@ remembering:
 That is, pick one drive that failed and one that did not, at random; AUC is the
 probability the failing one scored higher.
 
-**A sketch of why.** Order all $m_+ m_-$ pairs of one positive and one negative.
-Sweeping the threshold downwards, each step to the right on the ROC plot admits
-one negative and each step upwards admits one positive; the area accumulated
-under the curve counts exactly the pairs in which the positive was admitted
-first — that is, scored higher. Dividing by $m_+ m_-$, the total number of
-pairs, gives the probability. This quantity is the Mann-Whitney $U$ statistic,
-and the identity is standard.
+**Why the area is that probability: the ROC curve is a staircase on a grid.**
+Three steps.
+
+1. **The grid.** Sort the drives by score, riskiest first, and walk down the
+   list. Each failing drive moves the curve up by 1/76, each healthy drive moves
+   it right by 1/1,924. The unit square is therefore cut into 76 rows and 1,924
+   columns: 76 × 1,924 = 146,224 cells, one for every (failing, healthy) pair,
+   each of area 1 ÷ 146,224.
+2. **Which cells lie under the curve.** Take the column of one healthy drive. The
+   curve steps right across that column at the height it has reached so far:
+   (failing drives scored above it) ÷ 76. So the cells under the curve in that
+   column are exactly the pairs in which a failing drive beats this healthy one.
+   A tie is a diagonal step, which cuts its cell in half: a tie counts half.
+3. **Add up the columns.** The area under the curve is (pairs in the right
+   order) ÷ (all pairs): the probability that a random failing drive outscores a
+   random healthy one. In statistics this count is the Mann-Whitney $U$
+   statistic.
+
+![](auc_counted_cells.png)
+
+*Seven drives: three failing, scored 0.9, 0.6 and 0.3, and four healthy, scored
+0.7, 0.3, 0.2 and 0.1, so 3 × 4 = 12 cells. Look at the teal cells under the
+curve: in each the failing drive of its row scores above the healthy drive of
+its column. The cell of the tie at 0.3 is cut by the diagonal step and counts
+half. 9.5 of 12 cells: AUC = 0.792.*
+
+| Column: healthy drive | Failing drives above it | Cells under the curve |
+|---|---|---|
+| 0.7 | 0.9 | 1 |
+| 0.3 | 0.9, 0.6, and the tie with 0.3 | 2 + ½ = 2.5 |
+| 0.2 | all three | 3 |
+| 0.1 | all three | 3 |
+
+AUC = (1 + 2.5 + 3 + 3) ÷ 12 = 9.5 ÷ 12 = 0.792, the same number whether the
+pairs are counted or the area is measured.
 
 **Counted on our test set.** There are $m_+ m_- = 76 \times 1{,}924 = 146{,}224$
 (failing, healthy) pairs; a tie counts half. Notebook 3 counts 7,409 of them in
@@ -1492,19 +1568,27 @@ with `class_weight="balanced"` setting $c_k = m / (K \, m_k)$, where $m_k$ is th
 number of examples of class $k$ — inversely
 proportional to each class's frequency. Here that makes each failure count about
 25 healthy drives: the ratio of the two weights is $m_0 / m_1 = 5770 / 230 = 25$,
-the healthy drives in the training set over the failed ones.
+the healthy drives in the training set over the failed ones. The name says what
+the formula does: weight times class size is $m / K$ for every class, here
+0.52 × 5,770 and 13.0 × 230, both about 3,000, so after weighting each class
+carries the same total weight, half each, however many examples it has.
 
 | Model | TP | FP | FN | Precision, $\frac{TP}{TP + FP}$ | Recall, $\frac{TP}{TP + FN}$ | AUC | Cost = FN × 2,600 + FP × 140 |
 |---|---|---|---|---|---|---|---|
 | Plain, threshold 0.50 | 43 | 13 | 33 | 0.768 | 0.566 | 0.949 | 87,620 |
 | Plain, threshold 0.078 | 65 | 121 | 11 | 0.349 | 0.855 | 0.949 | 45,540 |
+| Plain, threshold 0.051, from the costs | 66 | 165 | 10 | 0.286 | 0.868 | 0.949 | 49,100 |
 | Balanced weights, 0.50 | 68 | 205 | 8 | 0.249 | 0.895 | 0.950 | 49,500 |
 
 ![](class_weight_costs.png)
 
-*The same three models as bills. Look at how the bill splits: rust, the missed
+*The same four models as bills. Look at how the bill splits: rust, the missed
 failures at €2,600 each; gold, the false alarms at €140 each. The AUC beside
-each name hardly changes.*
+each name hardly changes, and the two bottom bars, the threshold from the costs
+and the balanced weights, cost practically the same: €49,100 and €49,500.*
+
+The fair comparison for the weighted model is the threshold fixed from the costs,
+0.051, not 0.078, which was chosen by looking at the test set (section 7.2).
 
 **Look at the AUC column: 0.949 against 0.950.** Reweighting taught the model
 essentially nothing new about disk failure. What it did was move where the model
@@ -1554,7 +1638,10 @@ cross-validation fold**, never before the split, for exactly the reasons lesson
 
 ---
 
-## 10. More than two classes
+## 10. More than two classes (optional)
+
+*This section goes with the optional slides 58 to 60. Exercise 4 is a two-class
+problem and does not need it; lesson 9 introduces the softmax again.*
 
 Real fleets are not healthy-or-dead. A drive can be **degraded**: readable, but
 reporting errors and worth replacing at the next maintenance window rather than

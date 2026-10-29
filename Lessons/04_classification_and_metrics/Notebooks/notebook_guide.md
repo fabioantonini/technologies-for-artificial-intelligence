@@ -154,7 +154,7 @@ and then chooses a threshold from costs.
    against the plain model's 0.949**. Reweighting taught the model nothing new about
    disk failure; it moved where the 0.5 line falls, which is the same lever as the
    threshold.
-6. **More than two classes.** healthy / degraded / failed, and the instruction is to
+6. **More than two classes** (optional, with slides 58–60; not needed for exercise 4). healthy / degraded / failed, and the instruction is to
    **read the off-diagonal cells, not the accuracy**: degraded is the hard class
    (recall 0.498) because it sits between two neighbours that both look like it.
 

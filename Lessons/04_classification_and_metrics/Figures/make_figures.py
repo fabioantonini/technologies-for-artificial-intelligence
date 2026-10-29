@@ -314,6 +314,114 @@ def logistic_neuron():
     save(fig, "logistic_neuron.png")
 
 
+def auc_as_counted_cells():
+    """The ROC staircase of seven drives on its grid: one cell per (failing,
+    healthy) pair, shaded where the failing drive scores higher, so the area
+    under the curve is the share of pairs in the right order."""
+    from matplotlib.patches import Polygon
+    failing = [0.9, 0.6, 0.3]           # rows, bottom to top: reached first to last
+    healthy = [0.7, 0.3, 0.2, 0.1]      # columns, left to right
+    rows, cols = len(failing), len(healthy)
+
+    fig, ax = plt.subplots(figsize=(6.4, 5.0))
+    won = 0.0
+    for j, h in enumerate(healthy):
+        for i, f in enumerate(failing):
+            x0, y0 = j / cols, i / rows
+            w, hgt = 1 / cols, 1 / rows
+            if f > h:
+                ax.add_patch(Rectangle((x0, y0), w, hgt, facecolor=TEAL,
+                                       alpha=0.45, edgecolor="white", lw=1.5))
+                won += 1
+            elif f == h:
+                ax.add_patch(Polygon([(x0, y0), (x0 + w, y0), (x0 + w, y0 + hgt)],
+                                     closed=True, facecolor=TEAL, alpha=0.45,
+                                     edgecolor="white", lw=1.5))
+                ax.add_patch(Polygon([(x0, y0), (x0, y0 + hgt), (x0 + w, y0 + hgt)],
+                                     closed=True, facecolor=RUST, alpha=0.18,
+                                     edgecolor="white", lw=1.5))
+                won += 0.5
+            else:
+                ax.add_patch(Rectangle((x0, y0), w, hgt, facecolor=RUST,
+                                       alpha=0.18, edgecolor="white", lw=1.5))
+    assert won == 9.5
+
+    # The ROC path, walking down the ranking: 0.9 F, 0.7 H, 0.6 F, 0.3 F and H
+    # tied (a diagonal step), 0.2 H, 0.1 H.
+    path = [(0, 0), (0, 1 / 3), (1 / 4, 1 / 3), (1 / 4, 2 / 3), (2 / 4, 1),
+            (3 / 4, 1), (1, 1)]
+    ax.plot(*zip(*path), color=BLUE, lw=2.8, zorder=3)
+    for j, h in enumerate(healthy):
+        ax.text((j + 0.5) / cols, -0.03, f"healthy {h}", ha="center", va="top",
+                fontsize=10, color=SLATE)
+    for i, f in enumerate(failing):
+        ax.text(-0.03, (i + 0.5) / rows, f"failing {f}", ha="right", va="center",
+                fontsize=10, color=SLATE)
+    ax.text(0.5, 1.04, f"{won:g} of {rows * cols} cells under the curve: "
+            f"AUC = {won:g} ÷ {rows * cols} = {won / (rows * cols):.3f}",
+            ha="center", va="bottom", fontsize=11, color=INK)
+    ax.set_xlim(0, 1); ax.set_ylim(0, 1)
+    ax.set_xticks([]); ax.set_yticks([])
+    ax.set_xlabel("false positive rate: one step right per healthy drive",
+                  labelpad=26)
+    ax.set_ylabel("true positive rate: one step up per failing drive",
+                  labelpad=62)
+    fig.tight_layout()
+    save(fig, "auc_counted_cells.png")
+
+
+def ap_as_rectangles():
+    """Average precision of a seven-drive ranking as the area of three
+    rectangles: one per failing drive, as wide as the recall it adds and as
+    tall as the precision where it is reached."""
+    ranking = [1, 0, 1, 0, 0, 1, 0]     # riskiest first: 1 failed, 0 healthy
+    positives = sum(ranking)
+    recall, precision = [], []
+    caught = 0
+    for k, label in enumerate(ranking, start=1):
+        caught += label
+        recall.append(caught / positives)
+        precision.append(caught / k)
+
+    fig, ax = plt.subplots(figsize=(6.8, 4.4))
+    left, total = 0.0, 0.0
+    for k, label in enumerate(ranking):
+        if label:
+            height = precision[k]
+            ax.add_patch(Rectangle((left, 0), 1 / positives, height, facecolor=TEAL,
+                                   alpha=0.45, edgecolor="white", lw=1.5))
+            ax.text(left + 0.5 / positives, 0.2,
+                    f"1/3 × {height:.3f}\n= {height / positives:.3f}",
+                    ha="center", va="center", fontsize=10, color=INK)
+            ax.text(left + 0.5 / positives, height + 0.03,
+                    f"cut after drive {k + 1}:\n{int(round(height * (k + 1)))} of {k + 1} flagged failed",
+                    ha="center", va="bottom", fontsize=9, color=SLATE)
+            total += height / positives
+            left += 1 / positives
+    assert abs(total - 0.722) < 5e-4
+
+    # The top edges of the rectangles: the staircase average precision sums.
+    edges_x, edges_y, left = [], [], 0.0
+    for k, label in enumerate(ranking):
+        if label:
+            edges_x += [left, left + 1 / positives]
+            edges_y += [precision[k], precision[k]]
+            left += 1 / positives
+    ax.plot(edges_x, edges_y, color=BLUE, lw=2.4, zorder=3,
+            label="precision where each failing drive is reached")
+    base = positives / len(ranking)
+    ax.axhline(base, color=SLATE, ls="--", lw=1.4,
+               label=f"random ranking: 3 ÷ 7 = {base:.3f}")
+    ax.set_xlim(0, 1.02); ax.set_ylim(0, 1.32)
+    ax.set_xticks([0, 1 / 3, 2 / 3, 1], ["0", "1/3", "2/3", "1"])
+    ax.set_xlabel("recall: up by 1/3 at each failing drive")
+    ax.set_ylabel("precision")
+    ax.set_title(f"AP = 0.333 + 0.222 + 0.167 = {total:.3f}", fontsize=11)
+    ax.legend(loc="upper right", frameon=False, fontsize=9.5)
+    fig.tight_layout()
+    save(fig, "ap_rectangles.png")
+
+
 if __name__ == "__main__":
     print("figure concettuali della lezione 4:")
     sigmoid_and_odds()
@@ -323,3 +431,5 @@ if __name__ == "__main__":
     harmonic_vs_arithmetic()
     expected_cost_lines()
     logistic_neuron()
+    auc_as_counted_cells()
+    ap_as_rectangles()

@@ -623,4 +623,27 @@ same("10.2 the gap between the averages", 0.883 - 0.707, 0.18, tolerance=5e-3)
 same("slide 55: 6,000 / 11,540", 6000 / 11540, 0.52, tolerance=5e-3)
 same("slide 55: 6,000 / 460", 6000 / 460, 13.0, tolerance=0.05)
 
+
+# Handout pass of 29 Oct, second round, each from the raw counts or scores.
+failing7, healthy7 = [0.9, 0.6, 0.3], [0.7, 0.3, 0.2, 0.1]
+won = sum(1.0 if f > h else 0.5 if f == h else 0.0 for f in failing7 for h in healthy7)
+same("8.2 cells under the curve", won, 9.5, tolerance=0)
+same("8.2 AUC of the seven drives", won / 12, 0.792, tolerance=5e-4)
+ranking7, caught, ap7 = [1, 0, 1, 0, 0, 1, 0], 0, 0.0
+for k, label in enumerate(ranking7, start=1):
+    caught += label
+    ap7 += label * (caught / k) / 3
+same("7.1 AP of the seven drives", ap7, 0.722, tolerance=5e-4)
+same("7.1 random ranking's AP, 3 / 7", 3 / 7, 0.429, tolerance=5e-4)
+same("9 balanced: 0.52 x 5,770", 6000 / (2 * 5770) * 5770, 3000, tolerance=1e-6)
+same("9 balanced: 13.0 x 230", 6000 / (2 * 230) * 230, 3000, tolerance=1e-6)
+same("9 t* row: 165 x 140 + 10 x 2,600", 165 * 140 + 10 * 2600, 49100, tolerance=0)
+same("9 t* row precision 66 / (66 + 165)", 66 / (66 + 165), 0.286, tolerance=5e-4)
+same("9 t* row recall 66 / 76", 66 / 76, 0.868, tolerance=5e-4)
+same("7.1 random flagging, 500 x 0.038", 500 * 76 / 2000, 19, tolerance=0)
+same("notes 54: 2.76 x 2,600", 2.76 * 2600, 7176, tolerance=0.5)
+same("notes 54: (45 - 2.76) x 140", (45 - 2.76) * 140, 5914, tolerance=0.5)
+same("notes 55: 1 / 26", 1 / 26, 0.038, tolerance=5e-4)
+same("notes 55: 230 / 6,000", 230 / 6000, 0.038, tolerance=5e-4)
+
 print(f"lesson 4: {checks} hand-worked numbers recomputed, all agree")

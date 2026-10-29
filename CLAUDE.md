@@ -103,6 +103,11 @@ says, why it is there, the number on it with its source - before any question:
 a student reading the commentary instead of the lecture must not find a slide
 covered only by the questions someone asked about it. Lesson 4's first version
 missed this on 23 of 62 slides (29 October 2026).
+Every worked example, in the commentary and in the handout, shows its working:
+the formula in each column header, the substitution in each cell, an average
+written as its sum divided by m, a rule stated before it is used, then a line on
+what the numbers mean. A number a reader cannot recompute from the page is one
+they cannot check.
 
 **How a lesson is studied, since lesson 4 (24 October 2026).** Until then each
 lesson was studied in a ChatGPT session on an uploaded copy of the deck, which went

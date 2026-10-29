@@ -298,13 +298,13 @@ The log-odds is chosen for three reasons, and the shape is not one of them:
 
 ### Worked example — five probabilities, their odds and their log-odds
 
-| probability $p$ | odds $p \div (1 - p)$ | log-odds $\log$(odds) |
+| probability $p$ | odds = $p \div (1 - p)$ | log-odds = $\log$(odds), natural log |
 |---|---|---|
-| 0.05 | 0.05 ÷ 0.95 = 0.053 | -2.94 |
-| 0.2 | 0.20 ÷ 0.80 = 0.250 | -1.39 |
-| 0.5 | 0.50 ÷ 0.50 = 1.000 | 0.00 |
-| 0.8 | 0.80 ÷ 0.20 = 4.000 | 1.39 |
-| 0.95 | 0.95 ÷ 0.05 = 19.000 | 2.94 |
+| 0.05 | 0.05 ÷ 0.95 = 0.053 | log 0.053 = -2.94 |
+| 0.2 | 0.20 ÷ 0.80 = 0.250 | log 0.250 = -1.39 |
+| 0.5 | 0.50 ÷ 0.50 = 1.000 | log 1.000 = 0.00 |
+| 0.8 | 0.80 ÷ 0.20 = 4.000 | log 4.000 = 1.39 |
+| 0.95 | 0.95 ÷ 0.05 = 19.000 | log 19.000 = 2.94 |
 
 Read the columns from left to right. The probability is squeezed into $[0, 1]$.
 The odds have no ceiling (0.95 already gives 19) but still stop at 0.
@@ -807,18 +807,21 @@ and scikit-learn's `log_loss` clips too.
 
 <!-- example:begin -->
 
-\Needspace{19\baselineskip}
+\Needspace{22\baselineskip}
 
 ### Worked example — four drives, one confident mistake
 
-| drive | $y$ | $p$, the P(fail) | probability of what happened | loss $-\log$ of it |
-|---|---|---|---|---|
-| A | 1 | 0.9 | 0.90 | 0.105 |
-| B | 0 | 0.2 | 0.80 | 0.223 |
-| C | 0 | 0.1 | 0.90 | 0.105 |
-| D | 1 | 0.05 | 0.05 | 2.996 |
+The loss of one drive is minus the log of the probability the model gave to what
+happened: $p$ if the drive failed ($y = 1$), $1 - p$ if it stayed healthy ($y = 0$).
 
-The cost is the average: (0.105 + 0.223 + 0.105 + 2.996) ÷ 4 =
+| drive | $y$ | $p$, the P(fail) | probability of what happened: $p$ if $y = 1$, $1 - p$ if $y = 0$ | loss $L = -\log$(probability of what happened) |
+|---|---|---|---|---|
+| A | 1 | 0.9 | 0.9 | −log 0.90 = 0.105 |
+| B | 0 | 0.2 | 1 − 0.2 = 0.80 | −log 0.80 = 0.223 |
+| C | 0 | 0.1 | 1 − 0.1 = 0.90 | −log 0.90 = 0.105 |
+| D | 1 | 0.05 | 0.05 | −log 0.05 = 2.996 |
+
+The cost $J$ is the average of the four losses: (0.105 + 0.223 + 0.105 + 2.996) ÷ 4 =
 **0.857**. Drive D failed after the model gave it 0.05, and its loss alone,
 2.996, is larger than the other three together. Log loss is dominated by
 confident mistakes, which is exactly where a fitting procedure should be pushed.
@@ -833,7 +836,10 @@ In words: to see how the cost changes when $w_j$ is nudged up, take each drive's
 the predicted probability $\hat{y}$ minus the label $y$, multiply it by the drive's value
 of feature $j$, and average. Gradient descent steps $w_j$ the other way. The symbols are
 exactly lesson 3's; the difference is hidden in $\hat{y}$, which is now the sigmoid of
-the line, and in the cost, log loss instead of squared error.
+the line, and in the cost, log loss instead of squared error. The second line is the
+intercept's: the same formula with $x_j = 1$, because $b$ is the weight on a constant
+input of 1 (slide 13), so $\partial J/\partial b$ is simply the average error. If the
+model over-predicts failure on average, $b$ goes down.
 
 ### Question — is ŷ here the prediction, the probability?
 
@@ -854,28 +860,39 @@ that computes $\hat{y}$ changes.
 
 <!-- example:begin -->
 
-\Needspace{27\baselineskip}
+\Needspace{38\baselineskip}
 
 ### Worked example — one step of gradient descent on three drives
 
-One standardised feature $x$, start at $w = 0$, $b = 0$, so every drive gets
-$p = \sigma(0) = 0.5$:
+One standardised feature $x$, three drives, and the start of gradient descent:
+$w = 0$ and $b = 0$, so $z = 0 \times x + 0 = 0$ for every drive and
+$p = \sigma(0) = 0.5$.
 
-| drive | $x$ | $y$ | $p$ | error $p - y$ | error × $x$ |
+| drive | $x$ | $y$ | $p = \sigma(wx + b)$ | error = $p - y$ | error × $x$ |
 |---|---|---|---|---|---|
-| 1 | 2.0 | 1 | 0.5 | -0.5 | -1.00 |
-| 2 | -1.0 | 0 | 0.5 | 0.5 | -0.50 |
-| 3 | 0.5 | 0 | 0.5 | 0.5 | 0.25 |
+| 1 | 2.0 | 1 | 0.5 | 0.5 − 1 = -0.5 | -0.5 × (2.0) = -1.00 |
+| 2 | -1.0 | 0 | 0.5 | 0.5 − 0 = 0.5 | 0.5 × (-1.0) = -0.50 |
+| 3 | 0.5 | 0 | 0.5 | 0.5 − 0 = 0.5 | 0.5 × (0.5) = 0.25 |
 
-$\partial J / \partial w$ = average of the last column = **-0.4167**;
-$\partial J / \partial b$ = average of the errors = **0.1667**. With a
-learning rate $\alpha = 0.5$ the step is $w = 0 - 0.5 \times (-0.4167) =
-0.2083$ and $b = 0 - 0.5 \times 0.1667 = -0.0833$.
+The two gradients are the slide's two formulas, averages over the $m = 3$ drives:
+
+- $\partial J / \partial w$ = average of the last column = (-1.00 − 0.50 + 0.25) ÷ 3 = **-0.4167**
+- $\partial J / \partial b$ = average of the errors = (-0.5 + 0.5 + 0.5) ÷ 3 = **0.1667**
+
+The update rule is lesson 3's: step against the gradient, new value = old value
+− $\alpha$ × gradient. With a learning rate $\alpha = 0.5$:
+
+- $w = 0 - 0.5 \times (-0.4167) = 0.2083$
+- $b = 0 - 0.5 \times 0.1667 = -0.0833$
+
+What the signs mean: $\partial J / \partial w$ is negative, so the cost falls if $w$
+rises, and the step raises $w$; $\partial J / \partial b$ is positive, because on
+average the model over-predicts failure (two of the three drives are healthy and
+were given 0.5), so the step lowers $b$.
 
 The failed drive, with a large positive $x$, pulls $w$ up. So does the healthy drive
 at $x = -1$: a larger $w$ lowers its $p$, which is what a healthy drive needs. Only the
-healthy drive at $x = 0.5$ pulls $w$ down, and weakly, because its $x$ is small. The
-intercept goes down because two of the three drives are healthy. That is lesson 3's
+healthy drive at $x = 0.5$ pulls $w$ down, and weakly, because its $x$ is small. That is lesson 3's
 weighted vote, with $p$ in place of the straight line.
 
 <!-- example:end -->
@@ -910,6 +927,31 @@ the same place. The argument is the right panel. For a drive with $y = 1$, squar
 error's gradient with respect to $z$ is $2(p - 1)\,p(1 - p)$, and the factor
 $p(1 - p)$ goes to zero as $p$ goes to zero: at $p = 0.001$ the push is 0.002, against
 log loss's 0.999. The wronger the model gets, the less squared error asks it to change.
+
+### Question — where does log loss's gradient with respect to $z$ come from?
+
+By the chain rule, in four steps (handout section 3.4 writes them out).
+
+1. How the loss changes with $p$: $\partial L/\partial p = -[\,y/p - (1 - y)/(1 - p)\,]$,
+   because the derivative of $\log p$ is $1/p$ and that of $\log(1 - p)$ is
+   $-1/(1 - p)$.
+2. The chain rule: multiply by the sigmoid's derivative, $dp/dz = p(1 - p)$ (slide 12).
+3. Multiply into the bracket: $p(1 - p) \div p = 1 - p$ and $p(1 - p) \div (1 - p) = p$,
+   so $\partial L/\partial z = -[\,y(1 - p) - (1 - y)p\,] = -[\,y - yp - p + yp\,] = p - y$.
+   The two $yp$ cancel.
+4. The two labels: for a failed drive, $y = 1$, the gradient is $p - 1$; for a healthy
+   one, $y = 0$, it is $p$.
+
+For squared error the same chain gives $2(p - 1) \times p(1 - p)$, and nothing cancels
+the factor $p(1 - p)$.
+
+### Question — the figure says 1 − p, the notebook p − 1: is one of them wrong?
+
+Neither. The gradient is $p - 1$, negative for a failed drive, which makes gradient
+descent raise $z$. The right panel draws its **size**, as its vertical axis says
+("|gradient|"): $|p - 1| = 1 - p$, and for squared error $|2(p - 1)p(1 - p)| =
+2p(1 - p)^2$. The size is what the panel compares: how hard each cost pushes, not in
+which direction.
 
 ### Question — log loss's slope is −1/p, constant, and squared error's rises then falls?
 
@@ -1240,7 +1282,7 @@ the same 0.667.
 
 ---
 
-## Slide 37 — F1: why the harmonic mean
+## Slide 37 — F1 = 2PR ÷ (P + R): why the harmonic mean
 
 ![](harmonic_vs_arithmetic.png)
 
@@ -1248,7 +1290,11 @@ the same 0.667.
 below one half; the harmonic mean, F1, follows the weaker of the two.*
 
 Precision and recall are two numbers; F1 combines them into one, with the harmonic
-mean, $F_1 = 2PR / (P + R)$, instead of the ordinary average. The figure shows why:
+mean, $F_1 = 2PR / (P + R)$, instead of the ordinary average. The title gives the
+formula; in counts it is $2TP / (2TP + FP + FN)$, and our model's value is on the next
+slide. Why the figure holds recall at 1: it is the model that flags every
+drive, recall 76 ÷ 76 = 1 and precision 76 ÷ 2,000 = 0.038, the simplest case in which
+one of the two numbers is perfect and the other is useless. The figure shows why:
 with recall fixed at 1 and precision falling, the arithmetic mean never drops below one
 half, while F1 follows the weaker of the two down to 0. For our model, precision 0.768
 and recall 0.566 give F1 = 0.652.
@@ -1404,10 +1450,26 @@ chance (notebook 2).
 
 > *Precision always 0.038 = 76 / 2,000, whatever the recall?*
 
-Yes. A model with random scores flags drives at random. Flag 500 of the 2,000: on
-average $500 \times 0.038 = 19$ of them fail, so precision is $19 / 500 = 0.038$ and
-recall $19 / 76 = 0.25$. Flag 1,000: 38 fail, precision 0.038 again, recall 0.50.
-Flagging more moves recall, never precision. So "no skill" is a flat line at the
+Yes, and the reason is that **a random selection keeps the proportions** of what it is
+drawn from. Picture an urn with 2,000 balls, 76 of them red, the drives that fail: 3.8%.
+A model that flags drives at random is drawing balls blind, and whatever handful it
+draws holds, on average, red balls in the same proportion as the urn. Nothing makes the
+red ones more likely to be drawn.
+
+Flag $k$ drives at random. The expected number of failures among them is
+k × 76 ÷ 2,000 = k × 0.038, so precision = failures ÷ flagged = (k × 0.038) ÷ k =
+0.038: $k$ cancels. Recall = failures ÷ 76 = (k × 0.038) ÷ 76 = k ÷ 2,000, the share
+of drives flagged.
+
+| drives flagged, $k$ | failures expected = $k \times 0.038$ | precision = failures ÷ $k$ | recall = failures ÷ 76 |
+|---|---|---|---|
+| 500 | 19 | 19 ÷ 500 = 0.038 | 19 ÷ 76 = 0.25 |
+| 1,000 | 38 | 38 ÷ 1,000 = 0.038 | 38 ÷ 76 = 0.50 |
+
+Two words in that reasoning matter. 0.038 is a **share** of the drives flagged, not a
+number of drives: of 500 flagged, 19 fail. And it holds **on average**: one random draw
+of 500 drives may hold 15 failures or 23, and flagging only a handful gives very
+uneven results. Flagging more moves recall, never precision. So "no skill" is a flat line at the
 positive rate, not at 0.5, which holds only on a balanced problem. Our curve stays far
 above it; its area, the **average precision (AP)**, is 0.717 against 0.038.
 
@@ -1488,6 +1550,22 @@ at random. Ours is 0.949 (`roc_auc_score`, notebook 3), and notebook 3 checks it
 brute force: in 200,000 random (failing, healthy) pairs, the failing drive scores
 higher 94.9% of the time. 0.5 is a random ranking, 1 a perfect one.
 
+Why that probability is an **area**: the ROC curve is a staircase on a grid. Walking
+down the ranking, each failing drive moves the curve up by 1/76 and each healthy drive
+moves it right by 1/1,924, so the unit square is cut into 76 × 1,924 cells, one per
+(failing, healthy) pair. In a healthy drive's column, the curve crosses at the height
+reached so far, the share of failing drives scored above it; so the cells under the
+curve are exactly the pairs in which the failing drive wins. Adding the columns, the
+area is the share of pairs in the right order. A tie is a diagonal step, which cuts its
+cell in half.
+
+![](auc_counted_cells.png)
+
+*The seven drives of the worked example below, on their grid of 3 × 4 = 12 cells. Look
+at the teal cells under the curve: in each, the failing drive of its row outscores the
+healthy drive of its column; the tie at 0.3 is cut by the diagonal and counts half.
+9.5 of 12 cells: AUC = 0.792.*
+
 ### Question — is the AUC a probability or a count?
 
 > *Pick at random one failed and one healthy drive; the AUC is the probability, or the
@@ -1511,11 +1589,11 @@ Three failing drives scored 0.9, 0.6, 0.3; four healthy ones scored 0.7, 0.3, 0.
 0.1. There are 3 × 4 = 12 (failing, healthy) pairs. For each failing drive, count the
 healthy drives it outscores, a tie counting half:
 
-| failing drive's score | healthy drives below it |
-|---|---|
-| 0.9 | 4.0 of 4 |
-| 0.6 | 3.0 of 4 |
-| 0.3 | 2.5 of 4 |
+| failing drive's score | healthy drives it outscores | pairs won, a tie counting ½ |
+|---|---|---|
+| 0.9 | 0.7, 0.3, 0.2, 0.1 | 4.0 of 4 |
+| 0.6 | 0.3, 0.2, 0.1 | 3.0 of 4 |
+| 0.3 | 0.2, 0.1, half of 0.3 (tie) | 2.5 of 4 |
 
 AUC = (4.0 + 3.0 + 2.5) ÷ 12 = **0.792**. Drawing the ROC
 curve threshold by threshold and measuring its area gives the same 0.792: the
@@ -1615,15 +1693,31 @@ a fleet thirty times larger. Both estimate the same ranking ability.
 
 ---
 
-## Slide 49 — Why the two disagree
+## Slide 49 — Why the two curves disagree
 
-The slide explains the disagreement with two denominators. The false positive rate
-divides by all the healthy drives, which the thinning never touched: 304 false alarms
-out of 57,575, 0.0053, in all three fleets. Precision divides by the alarms raised: the
+First, why the slide talks about the false positive rate at all. The two curves of
+slide 48 share one axis, recall: the ROC's vertical axis is the precision-recall
+curve's horizontal one. They differ in one axis each, the false positive rate on the
+ROC and precision on the other. So the slide takes the three in turn. **Recall**,
+TP ÷ (TP + FN), has failures above and below, caught ones and missed ones; thinning the
+failures at random removes both in the same proportion, so it stays put: 0.50, 0.45,
+0.46, noise around one value. The **false positive rate** divides by all the healthy
+drives, which the thinning never touched: 304 false alarms out of 57,575, 0.0053, in all
+three fleets. Precision divides by the alarms raised: the
 304 false alarms stay, while the true positives fall with the failures, from 1,127 to
 106, so the false alarms' share of the alarms grows from 0.21 to 0.74. Each of the
 ROC's two axes is a share inside one class; precision mixes the two classes, which is
 why only precision feels the imbalance.
+
+### Question — why does precision fall faster than recall when failures are removed?
+
+Recall does not fall at all: it moves only by noise. Its numerator and denominator are
+both failures, so thinning them at random leaves the ratio where it was. Precision has
+failures on top but healthy drives in its denominator, through the false positives, and
+those are untouched: TP falls with the failures, FP stays at 304, and precision falls
+from 1,127 ÷ (1,127 + 304) = 0.79 to 106 ÷ (106 + 304) = 0.26. A small wording trap on the
+way: the false negatives are not "the false ones"; they are failures, the ones the model
+called healthy, which is exactly why they thin together with the true positives.
 
 ### Question — FPR unchanged, recall unchanged, so the ROC is fixed; and precision falls because the false positives grow?
 
@@ -1651,8 +1745,19 @@ technician does not see the 57,000 drives left alone; they see the alarm queue.
 The rule that follows: on imbalanced data, report the precision-recall curve beside
 the AUC, not instead of it. The two answer different questions, "are failures ranked
 above healthy drives?" and "how many alarms are real?". The precision-recall curve's
-summary is the **average precision (AP)**, $\sum_k (R_k - R_{k-1}) P_k$: walk down the
-thresholds and add each precision weighted by the recall it adds. Ours is 0.717
+summary is the **average precision (AP)**, and the idea comes before the formula: every
+time the ranking reaches a failing drive, take the precision at that point, how clean
+the queue of alarms is at that moment, and average those precisions over the failures.
+As a formula, $\sum_k (R_k - R_{k-1}) P_k$: recall rises only at a failing drive, by
+1/76 each time, so each precision is weighted by the same step and the weighted sum is
+the plain average.
+
+![](ap_rectangles.png)
+
+*The seven-drive ranking of the worked example below. Look at the three rectangles, one
+per failing drive: each is as wide as the recall it adds, 1/3, and as tall as the
+precision where that drive is reached; their areas add up to the AP, 0.722.*
+ Ours is 0.717
 (notebook 2), read against a random ranking's 76 ÷ 2,000 = 0.038, never against 0.5.
 
 ### Question — "its area": the area of the precision-recall curve?
@@ -1669,7 +1774,7 @@ the positive rate beside it.
 
 <!-- example:begin -->
 
-\Needspace{21\baselineskip}
+\Needspace{23\baselineskip}
 
 ### Worked example — average precision of a seven-drive ranking
 
@@ -1677,13 +1782,15 @@ Seven drives sorted by score, riskiest first: failed, healthy, failed, healthy,
 healthy, failed, healthy. Recall rises only when the cut passes a failed drive, so
 only those cuts add a step:
 
-| cut after drive | precision there | recall there | recall step |
-|---|---|---|---|
-| 1 | 1 of 1 = 1.000 | 1 of 3 | 1/3 |
-| 3 | 2 of 3 = 0.667 | 2 of 3 | 1/3 |
-| 6 | 3 of 6 = 0.500 | 3 of 3 | 1/3 |
+| cut after drive | precision there = failed ÷ flagged | recall there = failed ÷ 3 | recall step | step × precision |
+|---|---|---|---|---|
+| 1 | 1 ÷ 1 = 1.000 | 1 ÷ 3 | 1/3 | 1/3 × 1.000 = 0.333 |
+| 3 | 2 ÷ 3 = 0.667 | 2 ÷ 3 | 1/3 | 1/3 × 0.667 = 0.222 |
+| 6 | 3 ÷ 6 = 0.500 | 3 ÷ 3 | 1/3 | 1/3 × 0.500 = 0.167 |
 
-$\text{AP} = \tfrac{1}{3} \times 1.000 + \tfrac{1}{3} \times 0.667 + \tfrac{1}{3} \times 0.500 = 0.722$. A random ranking would have precision
+$\text{AP} = \tfrac{1}{3} \times 1.000 + \tfrac{1}{3} \times 0.667 + \tfrac{1}{3} \times 0.500 = 0.722$. The steps are all equal, so this is
+also the plain average of the three precisions: (1.000 + 0.667 + 0.500) ÷ 3 = 0.722,
+the precision at each failing drive's place in the ranking, averaged. A random ranking would have precision
 equal to the positive rate at every cut, 3 ÷ 7 = 0.429,
 and so an AP of 0.429: that, not 0.5, is the line this ranking has to beat.
 
@@ -1793,14 +1900,16 @@ because a miss costs 18.6 false alarms, not because failures are rare.
 
 <!-- example:begin -->
 
-\Needspace{19\baselineskip}
+\Needspace{21\baselineskip}
 
-### Worked example — a false alarm at 50, a miss at 200
+### Worked example — invented costs: a false alarm €50, a missed failure €200
 
-$t^* = 50 \div (50 + 200) = 0.20$. Check it on two drives,
-comparing the two expected costs directly:
+Suppose $C_{FP} = 50$ and $C_{FN} = 200$, in euros: round numbers made up for the
+example, not the lesson's 140 and 2,600. The formula of slide 53 gives
+$t^* = C_{FP} \div (C_{FP} + C_{FN}) = 50 \div (50 + 200) = 0.20$.
+Check it on two drives, comparing the two expected costs directly:
 
-| drive's $p$ | expected cost of flagging | expected cost of leaving | decision |
+| drive's $p$ | expected cost of flagging = $(1 - p) \times C_{FP}$ | expected cost of leaving = $p \times C_{FN}$ | decision: the cheaper |
 |---|---|---|---|
 | 0.15 | (1 − 0.15) × 50 = 42.5 | 0.15 × 200 = 30.0 | **leave** |
 | 0.3 | (1 − 0.3) × 50 = 35.0 | 0.3 × 200 = 60.0 | **flag** |
@@ -1839,7 +1948,8 @@ a method, not a result anyone could publish.
 
 ### Question — if 0.078 is cheaper, why not deploy it?
 
-Because "cheaper" was measured on the same drives it was chosen on. On new drives its
+The slide's last bullet answers it: deploy 0.051, or a threshold chosen on validation
+data. "Cheaper" was measured on the same drives it was chosen on. On new drives its
 advantage over $t^*$ would most likely shrink or vanish; the only way to know is to
 choose on one set and measure on another.
 
@@ -1847,14 +1957,18 @@ choose on one set and measure on another.
 
 ## Slide 55 — What class weights do
 
-A second lever against imbalance, pulled at training time instead of after it. A
+This slide is optional in class: slide 56 carries its message. A second lever against
+imbalance, pulled at training time instead of after it. A
 **class weight** multiplies each training drive's log-loss term, so a heavily weighted
 class pulls harder on the fit. These class weights are not the weights $w$ of slide 12:
 they say how much each example counts in the cost, while $w$ is what the fitting
 chooses. `class_weight="balanced"` sets each class's weight to m ÷ (2 × class size):
 0.52 for a healthy drive, 13.0 for a failed one, so a failure counts as 25 healthy
-drives. The weighted model at 0.5 takes the same decisions as the plain model at
-1 ÷ 26 = 0.038, on 1,987 of the 2,000 test drives.
+drives. The name says what this does: weight times class size is the same for both
+classes, 0.52 × 5,770 and 13.0 × 230, both about 3,000, which is m ÷ 2, so each class
+carries half of the total weight. In effect, as the last bullet says, it only lowers the
+threshold: at 0.5 the weighted model decides like the plain one at 0.038, on 1,987 of
+the 2,000 test drives.
 
 ### Question — "balanced" weights: the weights set from the costs of the two errors?
 
@@ -1890,7 +2004,7 @@ the ranking, and the match is only approximate.
 
 <!-- example:begin -->
 
-\Needspace{19\baselineskip}
+\Needspace{22\baselineskip}
 
 ### Worked example — a weight ratio of 4
 
@@ -1898,9 +2012,12 @@ Give every failure 4 times the weight of a healthy drive. For a correctly specif
 logistic model the main effect is on the intercept, which rises by $\log 4 =
 1.386$: every odds is multiplied by 4.
 
-A drive the plain model scores $p = 0.20$ has odds $0.20 \div
-0.80 = 0.25$. Multiplied by 4, the odds become 1, a probability of
-0.5. So the weighted model's threshold of 0.5 falls where the plain model's
+Follow one drive in three steps.
+
+1. The plain model scores it $p = 0.20$: odds = $p \div (1 - p)$ =
+   $0.20 \div 0.80 = 0.25$.
+2. The weighted model multiplies the odds by 4: $0.25 \times 4 = 1$.
+3. Back to a probability, $p$ = odds $\div$ (1 + odds) = $1 \div (1 + 1) = 0.5$. So the weighted model's threshold of 0.5 falls where the plain model's
 $1 \div (1 + 4) = 0.20$ was: the same decisions, reached by moving the
 line at training time instead of after it. With a misspecified model, little data
 or a strong penalty, the weights move the slopes too, and the match is only
@@ -1914,11 +2031,15 @@ approximate.
 
 ![](class_weight_costs.png)
 
-*Three models as bills: missed failures (rust, FN × 2,600) and false alarms (gold,
-FP × 140), with each model's AUC under its name.*
+*Four operating points as bills: missed failures (rust, FN × 2,600) and false alarms
+(gold, FP × 140), with each model's AUC under its name.*
 
-The default misses 33 and pays €87,620; the threshold at 0.078 pays €45,540; balanced
-weights miss 8, raise 205 false alarms and pay €49,500. The AUC under each name, 0.949
+The default misses 33 and pays €87,620; the threshold at 0.078 pays €45,540; the
+threshold fixed from the costs, 0.051, misses 10, raises 165 false alarms and pays
+€49,100; balanced weights miss 8, raise 205 false alarms and pay €49,500. The fair
+comparison for the weighted model is the 0.051 bar, not the 0.078 one, which was chosen
+by looking at the test set (slide 54): and against 0.051 the two cost practically the
+same. The AUC under each name, 0.949
 against 0.950, says reweighting taught the model essentially nothing new about disk
 failure: it moved where the model puts its 0.5 line. That is why class weighting is
 not a remedy for imbalance; the remedy, where one exists, is more positive examples. It
@@ -1957,14 +2078,17 @@ the notebook runs.
 
 ---
 
-# Part IX — More than two classes
+# Part IX — More than two classes (optional)
 
-## Slide 58 — Three classes: softmax
+## Slide 58 — Three classes: softmax (optional)
 
-With three classes, healthy, degraded and failed, one probability no longer suffices.
+Slides 58 to 60 are optional: exercise 4 is a two-class problem and needs none of
+them, and lesson 9 introduces the softmax again for the handwritten digits. With three
+classes, healthy, degraded and failed, one probability no longer suffices.
 The model computes one linear score per class, $z_k = w_k^\top x + b_k$, and the
-**softmax** turns the three scores into three probabilities that add up to 1:
-exponentiate each, divide by their sum. The predicted class is the one with the
+**softmax** turns the three scores into three probabilities that add up to 1,
+$P(\text{class } k) = e^{z_k} \div \sum_j e^{z_j}$: exponentiate each, divide by their
+sum. The predicted class is the one with the
 largest probability; there is no 0.5 threshold. With two classes the softmax is the
 sigmoid of $z_1 - z_0$, so this is the same model, generalised. In code,
 `decision_function` returns the scores and `predict_proba` the softmax.
@@ -1988,15 +2112,17 @@ cross-entropy, minus the log of the probability given to the true class.
 
 <!-- example:begin -->
 
-\Needspace{18\baselineskip}
+\Needspace{20\baselineskip}
 
 ### Worked example — softmax on three scores
 
-| class | score $z_k$ | $e^{z_k}$ | probability |
+| class | score $z_k$ | exponentiated, $e^{z_k}$ | probability = $e^{z_k}$ ÷ sum |
 |---|---|---|---|
-| healthy | 2.0 | 7.389 | 7.389 ÷ 11.213 = 0.659 |
-| degraded | 1.0 | 2.718 | 2.718 ÷ 11.213 = 0.242 |
-| failed | 0.1 | 1.105 | 1.105 ÷ 11.213 = 0.099 |
+| healthy | 2.0 | $e^{{2.0}}$ = 7.389 | 7.389 ÷ 11.213 = 0.659 |
+| degraded | 1.0 | $e^{{1.0}}$ = 2.718 | 2.718 ÷ 11.213 = 0.242 |
+| failed | 0.1 | $e^{{0.1}}$ = 1.105 | 1.105 ÷ 11.213 = 0.099 |
+
+The sum in the last column is 7.389 + 2.718 + 1.105 = 11.213.
 
 The three probabilities add up to 1, and the largest score keeps the largest share:
 the drive is called healthy with 0.659. With two classes and scores 0 and
@@ -2007,7 +2133,7 @@ $\sigma(1.5)$: the sigmoid is softmax with one score fixed at 0.
 
 ---
 
-## Slide 59 — More than two classes
+## Slide 59 — More than two classes (optional)
 
 ![](multiclass_confusion.png)
 
@@ -2027,7 +2153,7 @@ recall and one F1 per class, which the next slide averages.
 
 ---
 
-## Slide 60 — Macro against weighted, one last time
+## Slide 60 — Macro against weighted, one last time (optional)
 
 ![](macro_vs_weighted.png)
 
