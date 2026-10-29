@@ -65,6 +65,7 @@ def odds_not_probability():
         rows.append(f"| {p} | {fmt(odds, 3)} | {fmt(new_odds, 3)} | {fmt(new_p, 3)} "
                     f"| {fmt(new_p / p, 2)} |")
     assert after[0.01] / 0.01 > 1.9 and after[0.9] / 0.9 < 1.1
+    after_half_odds = 1.0 * factor
     table = "\n".join(rows)
     return f"""
 ### Worked example — one coefficient, three drives
@@ -72,9 +73,15 @@ def odds_not_probability():
 Take a coefficient $w = {w}$. One unit more of its feature adds {w} to the log-odds,
 so it multiplies the odds by $e^{{{w}}} = {fmt(factor, 2)}$: roughly doubles them.
 
-| probability before | odds before | odds after, $\\times {fmt(factor, 2)}$ | probability after | probability after ÷ before |
+Each row takes three conversions: odds = $p \\div (1 - p)$; multiply the odds by
+{fmt(factor, 2)}; and back to a probability with $p = \\text{{odds}} \\div (1 + \\text{{odds}})$.
+
+| probability before, $p$ | odds before, $p \\div (1 - p)$ | odds after, $\\times {fmt(factor, 2)}$ | probability after, odds $\\div$ (1 + odds) | probability after ÷ before |
 |---|---|---|---|---|
 {table}
+
+For the drive at 0.5: odds $0.5 \\div 0.5 = 1$, times $e^{{{w}}}$ is {fmt(after_half_odds, 3)},
+and back, ${fmt(after_half_odds, 3)} \\div (1 + {fmt(after_half_odds, 3)}) = {fmt(after[0.5], 3)}$.
 
 The odds double for all three drives. The probability nearly doubles only for the
 rare event; at 0.5 it rises by a third, and at 0.9 it moves five points. "Twice the
