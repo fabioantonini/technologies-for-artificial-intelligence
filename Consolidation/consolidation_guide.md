@@ -53,7 +53,7 @@ than any number of predictions that came out right.
 
 | File | What it covers | Atoms |
 |-------------------|----------------------|--|
-| `00_the_scikit_learn_api.ipynb` | `fit`, `transform`, `fit_transform`, `predict`, `predict_proba` and the threshold, `score`, the shape of `X`, `random_state`, `Pipeline`, `decision_function`, the thresholds behind a curve | 10 |
+| `00_the_scikit_learn_api.ipynb` | `fit`, `transform`, `fit_transform`, `predict`, `predict_proba` and the threshold, `score`, the shape of `X`, `random_state`, `Pipeline`, `decision_function`, the thresholds behind a curve, the defaults `get_params()` shows | 11 |
 | `01_lesson_1_atoms.ipynb` | splitting and `stratify`, the baseline, the confusion matrix, precision and recall | 4 |
 | `02_lesson_2_atoms.ipynb` | looking, missing values, outliers, scaling, encoding, `ColumnTransformer`, the area under the curve, two leaks | 15 |
 | `03_lesson_3_atoms.ipynb` | cost, the normal equation, gradient descent, Ridge and Lasso, what a coefficient means | 15 |
@@ -79,8 +79,9 @@ numbers.
 | 6 | `random_state`: the same randomness, every time | L1 *One split is one measurement* |
 | 7 | `Pipeline`: one `fit`, and every step fitted on the right rows | L1 *Step 5*; L2 *ColumnTransformer + Pipeline* |
 | 8 | The contract, in one table | lessons 1 to 3 |
-| 9 | `decision_function`: the score before the sigmoid | L4 *Log-odds of p = P(y = 1 \| x): a line*; *Three classes: softmax* |
+| 9 | `decision_function`: the score before the sigmoid | L4 *Log-odds of p = P(y = 1 \| x): a line*; *Three classes: softmax (optional)* |
 | 10 | `roc_curve` and `precision_recall_curve` return the thresholds too | L4 *The precision-recall curve*; *The ROC curve* |
+| 11 | `get_params()`: the defaults you did not choose | L4 *And it is convex, which squared error is not*; L4 notebook 1, section 6 |
 
 ### 01 — lesson 1
 
@@ -143,9 +144,9 @@ numbers.
 | 6 | `classification_report`: the two averages, by hand | *Read the minority class, not the average* |
 | 7 | *The AUC of seven drives*: ties count half, and only the order matters | *What the area means*; *What AUC does not tell you* |
 | 8 | *Average precision of a seven-drive ranking*: a step sum, not a trapezoid | *The rule: report both* |
-| 9 | *A false alarm at 50, a miss at 200*: a threshold applied to the probabilities | *Where the two costs cross*; *Where they cross, in one line* |
+| 9 | *Invented costs: a false alarm €50, a missed failure €200*: a threshold applied to the probabilities | *Where the two costs cross*; *Where they cross, in one line* |
 | 10 | *A weight ratio of 4*: `compute_class_weight` and the threshold it stands for | *What class weights do*; *Class weights: the same lever, pulled earlier* |
-| 11 | *Softmax on three scores*, and `predict_proba` for three classes | *Three classes: softmax* |
+| 11 | *Softmax on three scores*, and `predict_proba` for three classes | *Three classes: softmax (optional)* |
 
 ## Two hours in class
 
@@ -197,6 +198,11 @@ is where to find it.
   names look interchangeable, and the matrix is small. But `.ravel()` reads the matrix
   row by row, truth in rows, so the order is fixed: TN, FP, FN, TP. Atom 04·5 shows that
   unpacking in the wrong order raises no error and swaps every metric.
+- **"`LogisticRegression()` fits the plain log loss."** Nothing in the call says
+  otherwise, and lesson 4 derived the plain log loss, so the reading is natural. But
+  the default adds an L2 penalty with `C=1.0`. Atom 00·11 shows it shrinking a
+  coefficient from 0.971 to 0.685 on eight rows, a gap that almost vanishes on
+  6,000, and `get_params()` showing every default before it matters.
 - **"A high AUC means the probabilities can be trusted."** The AUC is presented as the
   best single summary of a classifier, so it is natural to read it as a guarantee.
   Atom 04·7 divides every score by ten: the AUC stays 0.792 while every decision at 0.5
