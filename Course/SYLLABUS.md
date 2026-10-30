@@ -46,7 +46,7 @@ On completion, a student can:
 | 5 | **Experimental methodology** | Train/validation/test; cross-validation; the bias-variance decomposition; learning curves; hyperparameter search; **data leakage in depth**; reproducibility |
 | 6 | **k-NN, Naive Bayes and SVM** | k-nearest neighbours and the curse of dimensionality; Naive Bayes and its independence assumption; support vector machines: margins and the kernel trick |
 | 7 | **Trees and ensembles** | Decision trees; entropy, Gini and information gain; bagging and random forests; boosting and XGBoost; feature importance and interpretability |
-| 8 | **Unsupervised learning** | k-means and its objective; hierarchical clustering; DBSCAN; PCA via eigendecomposition and SVD; t-SNE; anomaly detection |
+| 8 | **Unsupervised learning** | k-means and its objective; hierarchical clustering; DBSCAN; principal component analysis (PCA) as the direction of widest spread; anomaly detection by reconstruction error; t-SNE |
 | 9 | **Neural networks** | From the perceptron to the multilayer network; what a hidden layer does; how a network learns (backpropagation in pictures, one step by hand); TensorFlow/Keras; softmax; early stopping and dropout; the vanishing gradient. The advanced version of the lesson is kept, not examined, in `Advanced/` |
 | 10 | **Convolutional networks and synthesis** | Convolution and pooling; data augmentation; transfer learning; synthesis of the course and where the field goes next |
 

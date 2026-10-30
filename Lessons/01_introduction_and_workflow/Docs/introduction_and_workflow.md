@@ -632,7 +632,7 @@ minimise", and that is wrong. k-means minimises the total squared distance from 
 point to its nearest cluster centre — the **within-cluster sum of squares (WCSS)** —
 which is an empirical risk in exactly the sense of Section 2.1, with the loss measured
 against the model's own summary of the data rather than against a label. Lesson 8
-derives it and proves the algorithm decreases it at every step. Principal component
+computes it by hand on six customers and shows why the algorithm can only decrease it. Principal component
 analysis (PCA), also Lesson 8, minimises reconstruction error the same way.
 
 What is missing is **ground truth to check the answer against**. An algorithm will
@@ -653,7 +653,7 @@ exactly the point.
 number of clusters rises, and with one cluster per example it is exactly zero. That is
 the same memorisation that drives a flexible model's empirical risk to zero, in
 different clothes: nobody labelled anything, and it is still overfitting. Lesson 8
-spends its first half on how to choose that number honestly.
+shows two honest ways to choose that number, the elbow and the silhouette.
 
 ### 5.3 Self-supervised learning
 

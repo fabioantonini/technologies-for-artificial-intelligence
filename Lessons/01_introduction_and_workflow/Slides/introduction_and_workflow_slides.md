@@ -889,8 +889,8 @@ Lesson 8.
 Plant the difficulty now, but plant the right one. It is NOT that there is nothing to
 minimise - k-means minimises the within-cluster sum of squares, which is an empirical
 risk in the sense of slide 17, with the loss measured against the
-model's own summary instead of a label. Lesson 8 derives it and proves the algorithm
-decreases it every step.
+model's own summary instead of a label. Lesson 8 computes it by hand on six customers
+and shows why the algorithm can only decrease it.
 
 What is missing is ground truth to check the answer against. The algorithm ALWAYS
 returns clusters, whether or not the data contains any groups. Whether they mean

@@ -1,443 +1,344 @@
-"""Recompute every number lesson 8 works out by hand.
+#!/usr/bin/env python3
+"""Recompute every number the lesson 8 handout works out by hand.
 
-    python Lessons/08_unsupervised_learning/Docs/worked_examples.py
+The rule this file lives by: **start from the raw inputs, never from the
+handout's own intermediate values.** So the six-customer example is redone with
+plain loops, the silhouette and the adjusted Rand index are recomputed from
+their definitions and compared with scikit-learn, the merge heights are rebuilt
+from Ward's formula, PCA is reached by three routes (the angle formula, the
+eigenvectors, the singular value decomposition), and the reconstruction-error
+detector is rebuilt from the decomposition rather than from `PCA`. Claims that
+could be one lucky draw are rechecked at another seed.
 
-Run by ``tools/verify_lesson.py``. Every check reaches the handout's figure
-from ``retail_data.py``'s generators directly, or from first principles
-(the 2x2 eigenvalue formula, the SVD identity), never from the handout's
-own intermediate numbers.
-
-Tolerances are tighter for pure arithmetic and closed-form identities, and
-looser for anything that depends on scikit-learn's internals (KMeans'
-random restarts, DBSCAN, t-SNE), since this script may run under a
-different scikit-learn version than the teaching container.
+Run it directly, or let `tools/verify_lesson.py 08` discover it.
 """
 
 import sys
+from itertools import combinations
+from math import comb
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
-from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
-from sklearn.metrics import adjusted_rand_score, silhouette_score
-from sklearn.neighbors import NearestNeighbors
-from sklearn.preprocessing import StandardScaler
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "Notebooks"))
-from retail_data import (
+
+from retail_data import (                                        # noqa: E402
     make_customer_segments, make_bot_sessions, make_customer_features,
-    TRUE_N_SEGMENTS, TRUE_N_LATENT_FACTORS, TRUE_BOT_FRACTION, TRUE_N_SESSIONS,
+    TRUE_N_SESSIONS, TRUE_BOT_FRACTION, TRUE_ANOMALY_FRACTION, TRUE_N_CUSTOMERS,
 )
+from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN  # noqa: E402
+from sklearn.metrics import adjusted_rand_score, silhouette_score, silhouette_samples  # noqa: E402
+from sklearn.neighbors import NearestNeighbors                   # noqa: E402
+from sklearn.preprocessing import StandardScaler                 # noqa: E402
+from sklearn.decomposition import PCA                            # noqa: E402
+from scipy.cluster.hierarchy import linkage                      # noqa: E402
 
-HANDOUT = "Lessons/08_unsupervised_learning/Docs/unsupervised_learning.md"
-checks = 0
-
-
-def same(name: str, computed, printed, tolerance=5e-3) -> None:
-    global checks
-    checks += 1
-    if abs(computed - printed) > tolerance:
-        raise SystemExit(
-            f"{HANDOUT}: {name}\n"
-            f"    the handout prints {printed}\n"
-            f"    recomputing gives  {computed}")
+CHECKS = 0
+FAILURES = []
 
 
-def at_least(name: str, computed, floor) -> None:
-    global checks
-    checks += 1
-    if computed < floor:
-        raise SystemExit(
-            f"{HANDOUT}: {name}\n"
-            f"    expected at least {floor}, recomputing gives {computed}")
+def check(label, computed, expected, tol, note=""):
+    """Assert one handout number, and say how it was reached."""
+    global CHECKS
+    CHECKS += 1
+    ok = abs(computed - expected) <= tol
+    mark = "ok " if ok else "FAIL"
+    print(f"  [{mark}] {label:<62s} {computed:>12.6f}  handout {expected:<10.6g}"
+          f"{'  ' + note if note else ''}")
+    if not ok:
+        FAILURES.append(f"{label}: computed {computed!r}, handout says {expected!r}")
 
 
-def at_most(name: str, computed, ceiling) -> None:
-    global checks
-    checks += 1
-    if computed > ceiling:
-        raise SystemExit(
-            f"{HANDOUT}: {name}\n"
-            f"    expected at most {ceiling}, recomputing gives {computed}")
+def section(title):
+    print(f"\n{title}\n{'-' * len(title)}")
 
 
-# ============================================================ Section 1.1
+def sq(p, q):
+    return sum((a - b) ** 2 for a, b in zip(p, q))
 
-segments = make_customer_segments()
+
+def mean_point(points):
+    return tuple(sum(c) / len(points) for c in zip(*points))
+
+
+def ari_by_pairs(a, b):
+    """Adjusted Rand index from its definition: pair counts, then the chance correction."""
+    a, b = np.asarray(a), np.asarray(b)
+    _, a = np.unique(a, return_inverse=True)
+    _, b = np.unique(b, return_inverse=True)
+    table = np.zeros((a.max() + 1, b.max() + 1), dtype=np.int64)
+    np.add.at(table, (a, b), 1)
+    together_both = sum(comb(int(n), 2) for n in table.ravel())
+    together_a = sum(comb(int(n), 2) for n in table.sum(axis=1))
+    together_b = sum(comb(int(n), 2) for n in table.sum(axis=0))
+    pairs = comb(len(a), 2)
+    expected = together_a * together_b / pairs
+    return (together_both - expected) / ((together_a + together_b) / 2 - expected)
+
+
+# =====================================================================
+section("2.3 Six customers by hand")
+A, B, C, D, E, F = (1, 1), (1, 2), (2, 1), (8, 6), (9, 6), (8, 7)
+pts = {"A": A, "B": B, "C": C, "D": D, "E": E, "F": F}
+
+c1, c2 = A, B
+check("C to A, squared", sq(C, c1), 1, 0)
+check("C to B, squared", sq(C, c2), 2, 0)
+check("D to B, squared", sq(D, c2), 65, 0)
+check("D to A, squared", sq(D, c1), 74, 0)
+check("E to B, squared", sq(E, c2), 80, 0)
+check("F to B, squared", sq(F, c2), 74, 0)
+groups = {n: (0 if sq(p, c1) <= sq(p, c2) else 1) for n, p in pts.items()}
+check("round 1 assign gives AC / BDEF", float("".join(n for n in pts if groups[n] == 0) == "AC"), 1, 0)
+wcss = lambda cs: sum(sq(p, cs[groups[n]]) for n, p in pts.items())
+check("round 1 assign, WCSS", wcss((c1, c2)), 220, 0)
+c1 = mean_point([pts[n] for n in pts if groups[n] == 0])
+c2 = mean_point([pts[n] for n in pts if groups[n] == 1])
+check("round 1 move, AC centre x", c1[0], 1.5, 1e-12)
+check("round 1 move, BDEF centre x", c2[0], 6.5, 1e-12)
+check("round 1 move, BDEF centre y", c2[1], 5.25, 1e-12)
+check("round 1 move, B's line", sq(B, c2), 40.8125, 1e-12)
+check("round 1 move, D's line", sq(D, c2), 2.8125, 1e-12)
+check("round 1 move, E's line", sq(E, c2), 6.8125, 1e-12)
+check("round 1 move, F's line", sq(F, c2), 5.3125, 1e-12)
+check("round 1 move, WCSS", wcss((c1, c2)), 56.25, 1e-12)
+check("round 2, B to the first centre", sq(B, c1), 1.25, 1e-12)
+groups = {n: (0 if sq(p, c1) <= sq(p, c2) else 1) for n, p in pts.items()}
+check("round 2 assign, WCSS", wcss((c1, c2)), 16.6875, 1e-12)
+c1 = mean_point([pts[n] for n in pts if groups[n] == 0])
+c2 = mean_point([pts[n] for n in pts if groups[n] == 1])
+check("round 2 move, ABC centre", c1[0], 4 / 3, 1e-12)
+check("round 2 move, DEF centre x", c2[0], 25 / 3, 1e-12)
+check("round 2 move, DEF centre y", c2[1], 19 / 3, 1e-12)
+check("round 2 move, WCSS = 8/3", wcss((c1, c2)), 2.6667, 5e-5)
+again = {n: (0 if sq(p, c1) <= sq(p, c2) else 1) for n, p in pts.items()}
+check("round 3 changes nothing", float(again == groups), 1, 0)
+
+section("2.5 Silhouette of customer B")
+dist = lambda p, q: np.sqrt(sq(p, q))
+a = (dist(B, A) + dist(B, C)) / 2
+b = (dist(B, D) + dist(B, E) + dist(B, F)) / 3
+check("sqrt 2", dist(B, C), 1.414, 5e-4)
+check("sqrt 65", dist(B, D), 8.062, 5e-4)
+check("sqrt 80", dist(B, E), 8.944, 5e-4)
+check("sqrt 74", dist(B, F), 8.602, 5e-4)
+check("a", a, 1.207, 5e-4)
+check("b", b, 8.536, 5e-4)
+check("s = (b - a) / max(a, b)", (b - a) / max(a, b), 0.859, 5e-4)
+six = np.array(list(pts.values()), dtype=float)
+check("same s from scikit-learn silhouette_samples", silhouette_samples(six, [0, 0, 0, 1, 1, 1])[1], 0.859, 5e-4)
+
+# =====================================================================
+section("2.4-2.6 The 2,000 customers")
+customers = make_customer_segments()
+Xs = StandardScaler().fit_transform(customers[["annual_spend_eur", "visits_per_month"]].values)
+
+
+def lloyd(X, centres):
+    """Another implementation of the two moves, written independently of the notebook."""
+    while True:
+        labels = np.linalg.norm(X[:, None] - centres[None], axis=2).argmin(axis=1)
+        new = np.vstack([X[labels == j].mean(axis=0) for j in range(len(centres))])
+        if np.allclose(new, centres):
+            return labels, ((X - new[labels]) ** 2).sum()
+        centres = new
+
+
+finals = np.array([lloyd(Xs, Xs[np.random.default_rng(s).choice(len(Xs), 4, replace=False)])[1]
+                   for s in range(30)])
+check("best WCSS over 30 random starts", finals.min(), 374.1, 0.05)
+check("starts reaching it", np.isclose(finals, finals.min(), atol=0.05).sum(), 29, 0)
+check("worst WCSS over 30 random starts", finals.max(), 1390.4, 0.05)
+check("worst / best, 'more than three times'", float(finals.max() / finals.min() > 3), 1, 0)
+best_sk = KMeans(n_clusters=4, n_init=10, random_state=7).fit(Xs)   # another seed than the notebook
+check("scikit-learn KMeans, another random_state", best_sk.inertia_, 374.0919, 5e-5)
+check("silhouette at k = 4", silhouette_score(Xs, best_sk.labels_), 0.690, 5e-4)
+sil = {k: silhouette_score(Xs, KMeans(n_clusters=k, n_init=10, random_state=7).fit(Xs).labels_)
+       for k in range(2, 9)}
+check("silhouette is highest at k = 4", max(sil, key=sil.get), 4, 0)
+check("ARI against the truth, by pair counting", ari_by_pairs(customers["true_segment"], best_sk.labels_), 0.985, 5e-4)
+check("ARI against the truth, scikit-learn", adjusted_rand_score(customers["true_segment"], best_sk.labels_), 0.985, 5e-4)
+
+# =====================================================================
+section("3. The sessions")
 sessions = make_bot_sessions()
+S = StandardScaler().fit_transform(sessions[["session_duration_min", "pages_viewed"]].values)
+bot = (sessions["true_group"] == "bot").values
+check("bots", bot.sum(), 180, 0)
+check("12% of 1,500", TRUE_BOT_FRACTION * TRUE_N_SESSIONS, 180, 1e-9)
+km = KMeans(n_clusters=2, n_init=10, random_state=3).fit(S)
+check("k-means k = 2, ARI (pair counting)", ari_by_pairs(bot, km.labels_), -0.046, 5e-4)
+bot_cluster = km.labels_[bot][0]
+check("k-means: every bot in one cluster", float((km.labels_[bot] == bot_cluster).all()), 1, 0)
+check("k-means: humans sharing the bots' cluster", ((km.labels_ == bot_cluster) & ~bot).sum(), 780, 0)
+ward = AgglomerativeClustering(n_clusters=2, linkage="ward").fit(S)
+check("Ward cut at 2, ARI (pair counting)", ari_by_pairs(bot, ward.labels_), -0.062, 5e-4)
+for name in ("complete", "average", "single"):
+    other = AgglomerativeClustering(n_clusters=2, linkage=name).fit(S)
+    check(f"{name} linkage does not separate the bots either (ARI < 0.1)",
+          float(adjusted_rand_score(bot, other.labels_) < 0.1), 1, 0)
+
+section("3.3 The merge tree")
+eight = np.array([[1.0, 1.0], [1.6, 1.3], [1.2, 2.3], [4.2, 4.0], [5.0, 4.4], [4.5, 5.3],
+                  [8.2, 1.6], [8.8, 2.6]])
+
+
+def ward_height(p, q):
+    """Ward merge height of two groups, from their sizes and means (scipy's convention)."""
+    na, nb = len(p), len(q)
+    return np.sqrt(2 * na * nb / (na + nb) * sq(eight[p].mean(axis=0), eight[q].mean(axis=0)))
+
+
+check("A + B, as the plain distance sqrt(0.45)", np.sqrt(0.6 ** 2 + 0.3 ** 2), 0.671, 5e-4)
+check("A + B, Ward", ward_height([0], [1]), 0.671, 5e-4)
+check("D + E, Ward", ward_height([3], [4]), 0.894, 5e-4)
+check("G + H, Ward", ward_height([6], [7]), 1.166, 5e-4)
+check("F + DE, Ward", ward_height([5], [3, 4]), 1.275, 5e-4)
+check("C + AB, Ward", ward_height([2], [0, 1]), 1.333, 5e-4)
+check("GH + DEF, Ward", ward_height([6, 7], [3, 4, 5]), 7.193, 5e-4)
+check("the same heights from scipy", linkage(eight, "ward")[:6, 2].round(3).tolist()
+      == [0.671, 0.894, 1.166, 1.275, 1.333, 7.193], 1, 0)
+
+section("3.4 DBSCAN on twelve points, counted by hand")
+twelve = np.array([[2.0, 2.0], [2.6, 2.3], [2.2, 2.9], [3.0, 2.8], [2.7, 3.5], [3.5, 3.4],
+                   [1.6, 2.7], [3.3, 2.2], [4.4, 3.9], [5.3, 4.5], [6.2, 1.4], [1.0, 5.6]])
+within = np.linalg.norm(twelve[:, None] - twelve[None], axis=2) <= 0.9
+core = within.sum(axis=1) >= 4                       # itself included
+border = ~core & (within & core[None, :]).any(axis=1)
+noise = ~core & ~border
+check("core points", core.sum(), 4, 0)
+check("border points", border.sum(), 4, 0)
+check("noise points", noise.sum(), 4, 0)
+check("core points have four to six in their disc", float(set(within.sum(axis=1)[core]) <= {4, 5, 6}), 1, 0)
+check("border points have three", float(set(within.sum(axis=1)[border]) == {3}), 1, 0)
+toy = DBSCAN(eps=0.9, min_samples=4).fit(twelve)
+check("scikit-learn agrees on the noise", float(((toy.labels_ == -1) == noise).all()), 1, 0)
+check("one group", len(set(toy.labels_) - {-1}), 1, 0)
+
+section("3.5-3.7 DBSCAN on the sessions")
+kth = np.sort(np.linalg.norm(S[:, None] - S[None], axis=2), axis=1)[:, 9]   # 10th, itself first
+check("sessions with 10th neighbour beyond 0.30", (kth > 0.30).sum(), 65, 0)
+db = DBSCAN(eps=0.30, min_samples=10).fit(S)
+check("DBSCAN ARI (pair counting)", ari_by_pairs(bot, db.labels_), 0.941, 5e-4)
+bot_group = db.labels_[bot][0]
+check("all 180 bots in one group", (db.labels_[bot] == bot_group).sum(), 180, 0)
+check("humans in the other group", ((db.labels_ != bot_group) & (db.labels_ != -1) & ~bot).sum(), 1303, 0)
+check("humans of 1,320", (~bot).sum(), 1320, 0)
+check("humans placed with the bots", ((db.labels_ == bot_group) & ~bot).sum(), 4, 0)
+check("noise sessions", (db.labels_ == -1).sum(), 13, 0)
+check("noise sessions that are humans", ((db.labels_ == -1) & ~bot).sum(), 13, 0)
+radius = np.linalg.norm(S - S[bot].mean(axis=0), axis=1)
+outer_start = np.percentile(radius[~bot], 95)
+check("noise in the gap: beyond the core, short of the ring",
+      ((db.labels_ == -1) & (radius > radius[bot].max()) & (radius < np.percentile(radius[~bot], 5))).sum(), 2, 0)
+check("noise on the outer edge (beyond 2.1)", ((db.labels_ == -1) & (radius > 2.1)).sum(), 11, 0)
+kept = db.labels_ != -1
+check("silhouette, k-means k = 2", silhouette_score(S, km.labels_), 0.401, 5e-4)
+check("silhouette, DBSCAN", silhouette_score(S[kept], db.labels_[kept]), -0.106, 5e-4)
+per_point = silhouette_samples(S[kept], db.labels_[kept])
+ring = db.labels_[kept] != bot_group
+check("ring points with a negative silhouette, %", 100 * (per_point[ring] < 0).mean(), 99.2, 0.05)
+
+# =====================================================================
+section("4. PCA")
 accounts = make_customer_features()
-
-same("1.1 number of customers", len(segments), 2000, tolerance=0)
-same("1.1 number of true segments", TRUE_N_SEGMENTS, 4, tolerance=0)
-same("1.1 number of sessions", len(sessions), TRUE_N_SESSIONS, tolerance=0)
-same("1.1 bot fraction", TRUE_BOT_FRACTION, 0.12, tolerance=0)
-n_bots_expected = int(round(TRUE_N_SESSIONS * TRUE_BOT_FRACTION))
-same("1.1 number of bot sessions", (sessions["true_group"] == "bot").sum(),
-     n_bots_expected, tolerance=0)
-same("1.1 number of accounts", len(accounts), 2000, tolerance=0)
-same("1.1 number of latent factors", TRUE_N_LATENT_FACTORS, 3, tolerance=0)
-same("1.1 number of planted anomalies", accounts["is_anomaly"].sum(), 40, tolerance=0)
-
-# ============================================================ Section 2.1
-# The 6-point Lloyd's-algorithm worked example, recomputed independently.
-
-X_seg = segments[["annual_spend_eur", "visits_per_month"]].values
-Xs_seg = StandardScaler().fit_transform(X_seg)
-scaler_seg = StandardScaler().fit(X_seg)
-pts = Xs_seg[:6]
-
-
-def assign(pts, centers):
-    d = np.sum((pts[:, None, :] - centers[None, :, :]) ** 2, axis=2)
-    return np.argmin(d, axis=1)
-
-
-def wcss(pts, labels, centers):
-    return float(np.sum((pts - centers[labels]) ** 2))
-
-
-centers = np.array([pts[0], pts[1]])
-expected_wcss = [(15.965, 7.281), (5.491, 4.674), (4.674, 4.674)]
-for it, (assign_expected, update_expected) in enumerate(expected_wcss):
-    labels = assign(pts, centers)
-    w_assign = wcss(pts, labels, centers)
-    same(f"2.1 iteration {it} WCSS after assign step", w_assign, assign_expected, tolerance=5e-3)
-    new_centers = np.array([
-        pts[labels == j].mean(axis=0) if np.any(labels == j) else centers[j]
-        for j in range(2)
-    ])
-    w_update = wcss(pts, labels, new_centers)
-    same(f"2.1 iteration {it} WCSS after update step", w_update, update_expected, tolerance=5e-3)
-    centers = new_centers
-
-if not (assign(pts, centers) == labels).all():
-    raise SystemExit(f"{HANDOUT}: 2.1 the algorithm should have converged by iteration 2")
-checks += 1
-
-# ============================================================ Section 2.2
-# Naive-random vs k-means++ initialisation, a second sweep independent of
-# the notebook's (same recipe, run again here from raw data).
-
-
-def kmeans_pp_init(X, k, rng):
-    n = X.shape[0]
-    centers = [X[rng.integers(n)]]
-    for _ in range(1, k):
-        d2 = np.min([np.sum((X - c) ** 2, axis=1) for c in centers], axis=0)
-        centers.append(X[rng.choice(n, p=d2 / d2.sum())])
-    return np.array(centers)
-
-
-def lloyd(X, centers0, max_iter=200, tol=1e-8):
-    centers = centers0.copy()
-    for _ in range(max_iter):
-        labels = assign(X, centers)
-        new_centers = np.array([
-            X[labels == j].mean(axis=0) if np.any(labels == j) else centers[j]
-            for j in range(len(centers))
-        ])
-        if np.sum((new_centers - centers) ** 2) < tol:
-            centers = new_centers
-            break
-        centers = new_centers
-    labels = assign(X, centers)
-    return wcss(X, labels, centers)
-
-
-naive_results, pp_results = [], []
-for seed in range(30):
-    rng = np.random.default_rng(seed)
-    idx = rng.choice(len(Xs_seg), TRUE_N_SEGMENTS, replace=False)
-    naive_results.append(lloyd(Xs_seg, Xs_seg[idx]))
-    rng = np.random.default_rng(seed)
-    pp_results.append(lloyd(Xs_seg, kmeans_pp_init(Xs_seg, TRUE_N_SEGMENTS, rng)))
-
-naive_results, pp_results = np.array(naive_results), np.array(pp_results)
-same("2.2 best of 30 naive starts", naive_results.min(), 374.1, tolerance=1.0)
-same("2.2 worst of 30 naive starts", naive_results.max(), 1390.4, tolerance=5.0)
-same("2.2 best of 30 k-means++ starts", pp_results.min(), 374.1, tolerance=1.0)
-same("2.2 worst of 30 k-means++ starts", pp_results.max(), 1088.3, tolerance=15.0)
-if not pp_results.max() < naive_results.max():
-    raise SystemExit(f"{HANDOUT}: 2.2 k-means++'s worst case should beat naive's worst case")
-checks += 1
-same("2.2 naive starts reaching the best partition", int(np.isclose(naive_results, naive_results.min(), atol=0.05).sum()), 29, tolerance=0)
-same("2.2 k-means++ starts reaching it", int(np.isclose(pp_results, pp_results.min(), atol=0.05).sum()), 29, tolerance=0)
-
-# ============================================================ Section 2.3
-# The elbow / silhouette table and the final k=4 ARI.
-
-wcss_curve, sil_curve = [], []
-for k in range(1, 9):
-    km = KMeans(n_clusters=k, n_init=10, random_state=0).fit(Xs_seg)
-    wcss_curve.append(km.inertia_)
-    sil_curve.append(silhouette_score(Xs_seg, km.labels_) if k > 1 else None)
-
-expected_wcss_curve = [4000.0, 2128.5, 1125.8, 374.1, 320.6, 286.5, 244.5, 210.4]
-expected_sil_curve = [None, 0.472, 0.564, 0.690, 0.593, 0.525, 0.528, 0.474]
-for k, (w, w_exp, s, s_exp) in enumerate(
-        zip(wcss_curve, expected_wcss_curve, sil_curve, expected_sil_curve), start=1):
-    same(f"2.3 WCSS at k={k}", w, w_exp, tolerance=max(1.0, 0.01 * w_exp))
-    if s is not None:
-        same(f"2.3 silhouette at k={k}", s, s_exp, tolerance=0.01)
-
-if not sil_curve.index(max(sil_curve[1:])) + 1 == 4:
-    raise SystemExit(f"{HANDOUT}: 2.3 silhouette should peak at k=4")
-checks += 1
-
-final_km = KMeans(n_clusters=TRUE_N_SEGMENTS, n_init=10, random_state=0).fit(Xs_seg)
-ari_segments = adjusted_rand_score(segments["true_segment"], final_km.labels_)
-same("2.3 final ARI, customer segments", ari_segments, 0.985, tolerance=0.01)
-
-# ============================================================ Section 3
-# k-means, four linkage rules, and DBSCAN on the bot/human session data.
-
-X_sess = sessions[["session_duration_min", "pages_viewed"]].values
-Xs_sess = StandardScaler().fit_transform(X_sess)
-
-km2 = KMeans(n_clusters=2, n_init=10, random_state=0).fit(Xs_sess)
-ari_km2 = adjusted_rand_score(sessions["true_group"], km2.labels_)
-same("3.1 k-means (k=2) ARI on session data", ari_km2, -0.046, tolerance=0.03)
-
-expected_linkage_ari = {"ward": -0.062, "complete": -0.101, "average": -0.001, "single": -0.001}
-for method, expected in expected_linkage_ari.items():
-    agg = AgglomerativeClustering(n_clusters=2, linkage=method).fit(Xs_sess)
-    ari = adjusted_rand_score(sessions["true_group"], agg.labels_)
-    same(f"3.2 {method}-linkage ARI", ari, expected, tolerance=0.03)
-
-db = DBSCAN(eps=0.30, min_samples=10).fit(Xs_sess)
-ari_db = adjusted_rand_score(sessions["true_group"], db.labels_)
-same("3.3 DBSCAN ARI", ari_db, 0.941, tolerance=0.02)
-same("3.3 DBSCAN core points", len(db.core_sample_indices_), 1435, tolerance=15)
-same("3.3 DBSCAN noise points", int((db.labels_ == -1).sum()), 13, tolerance=5)
-
-noise_true = sessions.loc[db.labels_ == -1, "true_group"]
-at_least("3.3 every noise point is human, not a misplaced bot",
-         (noise_true == "human").mean(), 1.0)
-
-# ============================================================ Section 5
-# The 2x2 hand-solvable eigenvalue example, and the 8-feature PCA table.
-
-cov2 = np.cov(Xs_seg, rowvar=False)
-r = cov2[0, 1]
-eigvals2, eigvecs2 = np.linalg.eigh(cov2)
-order2 = np.argsort(eigvals2)[::-1]
-eigvals2 = eigvals2[order2]
-
-same("5.2 correlation r between spend and visit frequency", r, 0.171, tolerance=0.01)
-# The 1+r / 1-r formula assumes a covariance matrix with an exact unit
-# diagonal; numpy.cov's m-1 denominator leaves the diagonal near but not
-# exactly 1, so the formula is an approximation, not an identity here.
-same("5.2 largest eigenvalue near 1+r", eigvals2[0], 1 + r, tolerance=1e-3)
-same("5.2 smallest eigenvalue near 1-r", eigvals2[1], 1 - r, tolerance=1e-3)
-same("5.2 handout's rounded largest eigenvalue", eigvals2[0], 1.171, tolerance=0.01)
-same("5.2 1 - r, as the handout rounds it", 1 - r, 0.829, tolerance=5e-4)
-same("5.2 eigh's smallest eigenvalue, as printed", eigvals2[1], 0.830, tolerance=5e-4)
-same("5.2 the diagonal np.cov leaves", 2000 / 1999, 1.0005, tolerance=5e-5)
-
-feature_names = [c for c in accounts.columns if c != "is_anomaly"]
-X_acc = accounts[feature_names].values
-Xs_acc = StandardScaler().fit_transform(X_acc)
-n_acc = len(Xs_acc)
-
-cov8 = (Xs_acc.T @ Xs_acc) / (n_acc - 1)
-eigvals8, eigvecs8 = np.linalg.eigh(cov8)
-order8 = np.argsort(eigvals8)[::-1]
-eigvals8 = eigvals8[order8]
-
-Xc = Xs_acc - Xs_acc.mean(axis=0)
-_, S, _ = np.linalg.svd(Xc, full_matrices=False)
-eigvals_svd = (S ** 2) / (n_acc - 1)
-
-sk_pca_full = PCA().fit(Xs_acc)
-
-max_disagreement = max(
-    np.max(np.abs(eigvals8 - eigvals_svd)),
-    np.max(np.abs(eigvals8 - sk_pca_full.explained_variance_)),
-)
-at_most("5.3 eigh vs SVD vs sklearn PCA, largest disagreement", max_disagreement, 1e-8)
-
-expected_eigvals8 = [3.539, 2.568, 1.380, 0.192, 0.104, 0.099, 0.077, 0.043]
-for i, exp in enumerate(expected_eigvals8):
-    same(f"5.4 PC{i+1} eigenvalue", eigvals8[i], exp, tolerance=0.01)
-
-explained_ratio = eigvals8 / eigvals8.sum()
-same("5.4 cumulative variance, first 3 components", explained_ratio[:3].sum(), 0.935, tolerance=0.005)
-same("5.4 variance added by 4th component", explained_ratio[3], 0.024, tolerance=0.005)
-
-# ============================================================ Section 6.1
-# Reconstruction error and the fraud-detection recall/precision.
-
-pca3 = PCA(n_components=TRUE_N_LATENT_FACTORS).fit(Xs_acc)
-reconstructed = pca3.inverse_transform(pca3.transform(Xs_acc))
-recon_error = np.sum((Xs_acc - reconstructed) ** 2, axis=1)
-threshold = np.quantile(recon_error, 0.98)
-flagged = recon_error > threshold
-true_anomaly = accounts["is_anomaly"].values
-caught = int(np.sum(flagged & true_anomaly))
-
-same("6.1 reconstruction-error threshold", threshold, 2.019, tolerance=0.05)
-same("6.1 accounts flagged", int(flagged.sum()), 40, tolerance=3)
-same("6.1 anomalies caught", caught, 37, tolerance=3)
-same("6.1 mean reconstruction error, anomalies", recon_error[true_anomaly].mean(), 4.676, tolerance=0.3)
-same("6.1 mean reconstruction error, genuine accounts", recon_error[~true_anomaly].mean(), 0.431, tolerance=0.05)
-
-# ============================================================ Section 6.2
-# "Anomalies sit closer to the centre" — checked at the notebook's seed AND
-# at two further seeds, since a claim that two quantities differ in a
-# consistent direction needs re-running, not just computing once.
-
-
-def centroid_distances(seed):
-    df = make_customer_features(seed=seed)
-    feats = [c for c in df.columns if c != "is_anomaly"]
-    Xs = StandardScaler().fit_transform(df[feats].values)
-    is_anom = df["is_anomaly"].values
-    pca2 = PCA(n_components=2).fit_transform(Xs)
-    centroid = pca2[~is_anom].mean(axis=0)
-    d_anom = np.linalg.norm(pca2[is_anom] - centroid, axis=1).mean()
-    d_genuine = np.linalg.norm(pca2[~is_anom] - centroid, axis=1).mean()
-    return d_anom, d_genuine
-
-
-d_anom_0, d_genuine_0 = centroid_distances(8003)
-same("6.2 PCA-2D mean distance, anomalies (original seed)", d_anom_0, 1.30, tolerance=0.1)
-same("6.2 PCA-2D mean distance, genuine (original seed)", d_genuine_0, 2.20, tolerance=0.1)
-
-for other_seed in (9001, 12345):
-    d_anom, d_genuine = centroid_distances(other_seed)
-    if not d_anom < d_genuine:
-        raise SystemExit(
-            f"{HANDOUT}: 6.2 claim 'anomalies sit closer to the centre' failed "
-            f"at seed {other_seed}: anomaly dist {d_anom:.3f} vs genuine dist {d_genuine:.3f}")
-    checks += 1
-
-# t-SNE ordering, checked once at the notebook's own seed (t-SNE is
-# expensive and stochastic; the PCA check above already re-runs the
-# generator at two further seeds for the underlying claim about the
-# anomalies themselves).
-tsne_2d = TSNE(n_components=2, perplexity=30, random_state=0, init="pca").fit_transform(Xs_acc)
-centroid_tsne = tsne_2d[~true_anomaly].mean(axis=0)
-d_anom_tsne = np.linalg.norm(tsne_2d[true_anomaly] - centroid_tsne, axis=1).mean()
-d_genuine_tsne = np.linalg.norm(tsne_2d[~true_anomaly] - centroid_tsne, axis=1).mean()
-if not d_anom_tsne < d_genuine_tsne:
-    raise SystemExit(
-        f"{HANDOUT}: 6.2 t-SNE anomalies-closer-to-centre claim failed: "
-        f"anomaly dist {d_anom_tsne:.2f} vs genuine dist {d_genuine_tsne:.2f}")
-checks += 1
-
-
-# ------------------------------ Section 3.4, whether eps transfers to a new week
-#
-# The section's claim is that eps = 0.30 does NOT transfer while the k-distance
-# recipe does. Checking only that 0.30 works on the lesson's own week would
-# confirm the sentence this section was written to replace, so both halves are
-# checked: some week must fail under the constant, and every week must succeed
-# under the recipe.
-
-
-def _knee_eps(Z, min_samples=10):
-    d = np.sort(NearestNeighbors(n_neighbors=min_samples)
-                .fit(Z).kneighbors(Z)[0][:, -1])
-    x = np.linspace(0, 1, len(d))
-    y = (d - d.min()) / (d.max() - d.min())
-    return d[np.argmax(np.abs(y - x))]
-
-
-fixed_aris, knee_aris, collapsed = [], [], 0
-for week_seed in (8002, 1, 2, 3, 4, 5, 6):
-    week = make_bot_sessions(seed=week_seed)
-    week_truth = (week["true_group"] == "bot").astype(int)
-    Zw = StandardScaler().fit_transform(
-        week[["session_duration_min", "pages_viewed"]].values)
-
-    fixed_labels = DBSCAN(eps=0.30, min_samples=10).fit_predict(Zw)
-    knee_labels = DBSCAN(eps=_knee_eps(Zw), min_samples=10).fit_predict(Zw)
-
-    fixed_aris.append(adjusted_rand_score(week_truth, fixed_labels))
-    knee_aris.append(adjusted_rand_score(week_truth, knee_labels))
-    collapsed += len(set(fixed_labels) - {-1}) < 2
-
-at_least("3.4 a fixed eps=0.30 collapses on at least one regenerated week",
-         collapsed, 1)
-at_most("3.4 ... and the worst such week scores essentially zero",
-        min(fixed_aris), 0.05)
-at_least("3.4 the k-distance recipe recovers the split on every week",
-         min(knee_aris), 0.70)
-at_least("3.4 on the lesson's own week the tuned constant beats the recipe",
-         fixed_aris[0] - knee_aris[0], 0.01)
-
-# -------------------------- Section 6.1, the range behind "37 of 40"
-#
-# The handout carries 37 as the memorable figure and 32-38 as what it means.
-# The range is the part worth checking: a detector quoted as a specification
-# would be quoting one quarter's luck.
-caught_counts = []
-for batch_seed in (8003, 1, 2, 3, 4, 5, 6, 7):
-    batch = make_customer_features(seed=batch_seed)
-    batch_label = batch["is_anomaly"].values
-    Zb = StandardScaler().fit_transform(batch[feature_names].values)
-    pb = PCA(n_components=TRUE_N_LATENT_FACTORS).fit(Zb)
-    err = np.sum((Zb - pb.inverse_transform(pb.transform(Zb))) ** 2, axis=1)
-    hit = err > np.quantile(err, 0.98)
-    caught_counts.append(int((hit & batch_label).sum()))
-
-same("6.1 this batch catches the handout's 37", caught_counts[0], 37, tolerance=0)
-at_most("6.1 the worst batch catches materially fewer than 37",
-        min(caught_counts), 34)
-at_least("6.1 ... and the best catches at least 37", max(caught_counts), 37)
-
-# ------------- Section 6.1, the projection really is the nearest point
-#
-# The handout now derives what V_k V_k' x is, rather than asserting it. Checked
-# by search, not by the algebra: against a thousand other points of the same
-# subspace, the projection must be the closest, and the residual orthogonal.
-
-_rng8 = np.random.default_rng(20261113)
-basis = np.linalg.qr(_rng8.normal(size=(9, 3)))[0]          # V_k, orthonormal
-point = _rng8.normal(size=9)
-projected = basis @ (basis.T @ point)
-
-same("6.1 the residual is orthogonal to every component",
-     float(np.abs(basis.T @ (point - projected)).max()), 0.0, tolerance=1e-12)
-
-coords = basis.T @ point
-rivals = basis @ (coords + _rng8.normal(scale=0.4, size=(1_000, 3))).T
-nearest = min(float(np.linalg.norm(point - rivals[:, c]))
-              for c in range(rivals.shape[1]))
-same("6.1 no other point of the subspace is closer",
-     float(np.linalg.norm(point - projected) <= nearest), 1.0, tolerance=0)
-
-# And Pythagoras, on one rival, to the precision the derivation claims.
-rival = rivals[:, 0]
-same("6.1 the two legs add up to the hypotenuse",
-     float(np.linalg.norm(point - rival) ** 2),
-     float(np.linalg.norm(point - projected) ** 2
-           + np.linalg.norm(projected - rival) ** 2), tolerance=1e-10)
-
-# 4: silhouette against ARI on the sessions, both clusterings
-Zs = StandardScaler().fit_transform(sessions[["session_duration_min", "pages_viewed"]].values)
-if True:
-    truth = sessions["true_group"].values
-    km2 = KMeans(n_clusters=2, n_init=10, random_state=0).fit(Zs)
-    db2 = DBSCAN(eps=0.30, min_samples=10).fit(Zs)
-    keep = db2.labels_ != -1
-    same("4 k-means silhouette on the sessions", silhouette_score(Zs, km2.labels_), 0.401, tolerance=5e-4)
-    same("4 DBSCAN silhouette, noise excluded", silhouette_score(Zs[keep], db2.labels_[keep]), -0.106, tolerance=5e-4)
-    same("4 k-means ARI", adjusted_rand_score(truth, km2.labels_), -0.046, tolerance=5e-4)
-    same("4 DBSCAN ARI", adjusted_rand_score(truth, db2.labels_), 0.941, tolerance=5e-4)
-
-# 5.2 and 6.1: customer 13, reconstructed from the first component alone
-Z2 = StandardScaler().fit_transform(segments[["annual_spend_eur", "visits_per_month"]].values)
-w2, V2 = np.linalg.eigh(np.cov(Z2, rowvar=False)); v1 = V2[:, np.argmax(w2)]; v1 = v1 * np.sign(v1[0])
-v2 = V2[:, np.argmin(w2)]
-i13 = int(np.argmax(np.abs(Z2 @ v2)))
-same("6.1 the customer furthest off the diagonal", i13, 13, tolerance=0)
-x13 = Z2[i13]; xh = v1 * (v1 @ x13)
-for got, want, what in ((x13[0], 2.12, "x spend"), (x13[1], -1.45, "x visits"), (xh[0], 0.335, "reconstruction")):
-    same(f"6.1 customer 13, {what}", got, want, tolerance=5e-3)
-same("6.1 customer 13, reconstruction error", (x13 - xh) @ (x13 - xh), 6.37, tolerance=5e-3)
-same("6.1 the residual is perpendicular", abs((x13 - xh) @ v1), 0.0, tolerance=1e-12)
-
-print(f"{checks} numbers recomputed from raw inputs and confirmed against {HANDOUT}.")
+cols = [c for c in accounts.columns if c != "is_anomaly"]
+Z = StandardScaler().fit_transform(accounts[cols].values)
+anomaly = accounts["is_anomaly"].values
+check("anomalies, 2% of 2,000", TRUE_ANOMALY_FRACTION * TRUE_N_CUSTOMERS, 40, 1e-9)
+check("anomalies in the table", anomaly.sum(), 40, 0)
+pair = Z[:, :2]
+r = (pair[:, 0] * pair[:, 1]).mean()                 # standardised: the mean product is r
+check("r, spend and basket value", r, 0.859, 5e-4)
+theta = np.radians(np.arange(0, 180.5, 0.5))
+formula = 1 + r * np.sin(2 * theta)
+check("1 + r sin 2theta is widest at 45 degrees", np.degrees(theta[formula.argmax()]), 45, 0)
+check("1 + r sin 2theta is narrowest at 135 degrees", np.degrees(theta[formula.argmin()]), 135, 0)
+measured = [(pair @ np.array([np.cos(t), np.sin(t)])).var() for t in (0, np.pi / 4, 3 * np.pi / 4)]
+check("variance on the spend axis, measured", measured[0], 1.0, 1e-9)
+check("variance at 45 degrees, measured = 1 + r", measured[1], 1.859, 5e-4)
+check("variance at 135 degrees, measured = 1 - r", measured[2], 0.141, 5e-4)
+values = np.linalg.eigvalsh(np.array([[1, r], [r, 1]]))[::-1]
+check("eigenvalue 1 of [[1, r], [r, 1]]", values[0], 1.859, 5e-4)
+check("eigenvalue 2 of [[1, r], [r, 1]]", values[1], 0.141, 5e-4)
+singular = np.linalg.svd(pair, compute_uv=False)
+check("first share, from the SVD", singular[0] ** 2 / (singular ** 2).sum(), 0.9297, 5e-5)
+check("first share, 1.859 / 2, as a percentage", 100 * (1 + r) / 2, 92.97, 5e-3)
+check("second share, from the SVD", singular[1] ** 2 / (singular ** 2).sum(), 0.0703, 5e-5)
+s8 = np.linalg.svd(Z - Z.mean(axis=0), compute_uv=False) ** 2
+share = s8 / s8.sum()
+check("first three components, % (SVD)", 100 * share[:3].sum(), 93.5, 0.05)
+check("the fourth, % (SVD)", 100 * share[3], 2.4, 0.05)
+
+# =====================================================================
+section("5. Anomalies")
+genuine = accounts.loc[~anomaly, cols]
+fraud = accounts.loc[anomaly, cols]
+inside = ((fraud >= genuine.quantile(0.05)) & (fraud <= genuine.quantile(0.95))).values.mean()
+check("anomaly values inside the genuine 5th-95th range", inside, 1.0, 0)
+
+# 5.2 two columns, rebuilt from the diagonal directly rather than from PCA
+centred = pair - pair.mean(axis=0)
+u = np.array([1, 1]) / np.sqrt(2)
+shadow = centred @ u
+error2 = ((centred - np.outer(shadow, u)) ** 2).sum(axis=1)
+g = np.flatnonzero(~anomaly)[np.abs(shadow[~anomaly]).argmax()]
+f = np.flatnonzero(anomaly)[error2[anomaly].argmax()]
+check("genuine account, distance from the middle", np.linalg.norm(pair[g]), 4.70, 5e-3)
+check("genuine account, reconstruction error", error2[g], 0.01, 5e-3)
+check("anomaly, distance from the middle", np.linalg.norm(pair[f]), 1.96, 5e-3)
+check("anomaly, reconstruction error", error2[f], 3.75, 5e-3)
+
+
+def detector(table):
+    """Reconstruction error from three components, via the SVD, and the 2% flagged."""
+    X = StandardScaler().fit_transform(table[cols].values)
+    centred = X - X.mean(axis=0)
+    _, _, vt = np.linalg.svd(centred, full_matrices=False)
+    kept = vt[:3]
+    rebuilt = centred @ kept.T @ kept
+    e = ((centred - rebuilt) ** 2).sum(axis=1)
+    return e, e > np.quantile(e, 0.98)
+
+
+e, flagged = detector(accounts)
+check("flagged accounts", flagged.sum(), 40, 0)
+check("37 of 40 caught", (flagged & anomaly).sum(), 37, 0)
+check("mean error, anomalies", e[anomaly].mean(), 4.676, 5e-4)
+check("mean error, genuine", e[~anomaly].mean(), 0.431, 5e-4)
+caught = []
+for seed in (8003, 1, 2, 3, 4, 5, 6, 7):
+    table = make_customer_features(seed=seed)
+    _, hit = detector(table)
+    caught.append(int((hit & table["is_anomaly"].values).sum()))
+check("lowest count over eight batches", min(caught), 32, 0)
+check("highest count over eight batches", max(caught), 38, 0)
+check("median count over eight batches", float(np.median(caught)), 36, 0)
+
+section("5.4 The 2-D pictures")
+p2 = PCA(n_components=2).fit_transform(Z)
+middle = p2[~anomaly].mean(axis=0)
+check("PCA picture: anomalies from the middle", np.linalg.norm(p2[anomaly] - middle, axis=1).mean(), 1.30, 5e-3)
+check("PCA picture: genuine from the middle", np.linalg.norm(p2[~anomaly] - middle, axis=1).mean(), 2.20, 5e-3)
+for seed in (1, 2):                                   # not one lucky batch
+    table = make_customer_features(seed=seed)
+    lab = table["is_anomaly"].values
+    q = PCA(n_components=2).fit_transform(StandardScaler().fit_transform(table[cols].values))
+    mid = q[~lab].mean(axis=0)
+    check(f"PCA picture, batch {seed}: anomalies closer to the middle",
+          float(np.linalg.norm(q[lab] - mid, axis=1).mean() < np.linalg.norm(q[~lab] - mid, axis=1).mean()), 1, 0)
+from sklearn.manifold import TSNE                                # noqa: E402
+t2 = TSNE(n_components=2, perplexity=30, random_state=1, init="pca").fit_transform(Z)  # another seed
+mid = t2[~anomaly].mean(axis=0)
+check("t-SNE, another seed: anomalies closer to the middle",
+      float(np.linalg.norm(t2[anomaly] - mid, axis=1).mean() < np.linalg.norm(t2[~anomaly] - mid, axis=1).mean()), 1, 0)
+
+# =====================================================================
+section("Result")
+print(f"\n  {CHECKS} hand-worked numbers recomputed from the raw inputs.")
+if FAILURES:
+    print(f"  {len(FAILURES)} DISAGREE with the handout:\n")
+    for failure in FAILURES:
+        print(f"    - {failure}")
+    sys.exit(1)
+print("  All agree with the handout.\n")

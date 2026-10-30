@@ -150,7 +150,7 @@ instructive if you do not.
 5. Using the number of components you chose, build **two detectors** per
    book, both flagging the 3% of accounts that look most suspicious (3% is
    Meridian's own estimate of its contamination rate — an estimate, not a
-   certainty, the same way the handout's section 6.1 flagged its own
+   certainty, the same way the handout's section 5.3 flagged its own
    top 2%):
    - **"Look at the plot."** Project the standardised data onto its first 2
      principal components and flag the accounts farthest from the origin
@@ -158,7 +158,7 @@ instructive if you do not.
      *is* distance from the data's own centroid).
    - **Reconstruction error.** Using your chosen number of components,
      reconstruct every account and flag the accounts with the largest
-     squared reconstruction error, exactly as section 6.1 does for Aurora's
+     squared reconstruction error, exactly as section 5.3 of the handout does for Aurora's
      table.
 6. Report precision and recall for both detectors, on both books.
 7. A single run of a synthetic generator tells you nothing about whether an
@@ -240,7 +240,7 @@ the two loader functions' bodies.
     own Part 3 numbers, why this construction makes an anomalous account's
     distance from the centroid in a 2-D PCA projection *smaller* on
     average than a genuine account's, rather than larger. The handout's
-    section 6.2 makes the same argument for Aurora's table; restate it for
+    section 5.4 makes the same argument for Aurora's table; restate it for
     this one.
 12. Having seen exactly how each book's anomalies were built: would keeping
     only 1 principal component ever be a defensible choice for a fraud team
@@ -289,7 +289,7 @@ hedged.
 ## Getting help
 
 Email fabio.antonini.1969@gmail.com. There is no lesson between the day this
-is set and the morning it is due, so the inbox is the only channel. If you are stuck on Part 3, section 6.2 of
+is set and the morning it is due, so the inbox is the only channel. If you are stuck on Part 3, section 5.4 of
 the handout does exactly this kind of measurement for Aurora's own account
 table — it claims the anomalies sit closer to the centre than genuine
 accounts do, on average, and then checks that claim at two further seeds

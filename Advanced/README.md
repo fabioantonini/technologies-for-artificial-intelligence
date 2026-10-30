@@ -9,6 +9,7 @@ They are here for the curious, and for a later, more advanced course.
 
 | Folder | What it adds to the lesson taught in its place |
 |---|---|
+| `08_unsupervised_learning_advanced/` | Lesson 8 as first written: k-means' convergence proved and k-means++ measured against random starts, four linkage rules compared on the bot sessions, whether DBSCAN's `eps` transfers to next week's data, principal component analysis derived from the variance-maximisation problem and computed a second way from the singular value decomposition. |
 | `09_neural_networks_advanced/` | Lesson 9 as first written: backpropagation derived in matrix form and coded from scratch in NumPy, gradient checking, the variance argument behind weight initialisation, the vanishing gradient measured layer by layer, optimisers compared, and a yardstick of polygons for how many hidden units a region needs. |
 
 Each folder keeps the layout of a lesson in `Lessons/` - handout, slides, notebooks,

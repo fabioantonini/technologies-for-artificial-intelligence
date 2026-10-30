@@ -108,8 +108,9 @@ stops helping.
 
 ### 1.5 An embedding is lesson 8's dimensionality reduction
 
-Lesson 8 derived principal component analysis twice and used reconstruction
-error to find anomalies that were invisible in any single column. An embedding
+Lesson 8 built principal component analysis as the direction with the widest
+shadow and used reconstruction error to find anomalies that were invisible in
+any single column. An embedding
 is a learned, non-linear version of the same idea: a low-dimensional
 representation in which nearness means something.
 
@@ -117,7 +118,7 @@ Which carries the same consequences. Clustering embeddings to discover topics is
 lesson 8's k-means, with lesson 8's problem — **no labels to check against**, so
 silhouette tells you a clustering is self-consistent and nothing about whether
 it is right. Detecting out-of-distribution inputs by reconstruction error is
-section 6, unchanged.
+lesson 8's section 5, unchanged.
 
 ---
 

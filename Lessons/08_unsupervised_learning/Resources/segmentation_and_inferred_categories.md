@@ -11,14 +11,14 @@ date: "20 November 2026 · reading time about 25 minutes"
 
 ## Why a computer scientist should read this
 
-Section 3.3 of the handout ran DBSCAN on Aurora's session data and, as a
+Section 3.6 of the handout ran DBSCAN on Aurora's session data and, as a
 side effect of finding the bot cluster, produced thirteen sessions the
 algorithm would not put in either group: **noise**, in the technical
 sense of "not confidently either." The handout checked their true label —
 because this is a lesson and the data is synthetic — and reported that
-all thirteen were genuine humans, customers whose one ordinary week
-happened to look, by chance, almost as mechanically regular as a
-script's. That check is a luxury a real bot-detection pipeline never
+all thirteen were genuine humans: customers whose sessions fell where
+the data is thin, two in the gap around the bots' tight core and eleven
+on the sparse outer edge of the human ring. That check is a luxury a real bot-detection pipeline never
 has. Somewhere behind Aurora's thirteen noise points sits a decision — a
 CAPTCHA (Completely Automated Public Turing test to tell Computers and
 Humans Apart) challenge, an order hold, a rate limit, or nothing — made
@@ -89,7 +89,7 @@ Sections 3 through 5 are about exactly that difference.
 
 ## 2. An inferred category has no ground truth to be wrong against
 
-Section 4 of the handout drew a careful line between **internal** metrics —
+Sections 2.6 and 3.7 of the handout drew a careful line between **internal** metrics —
 the silhouette score, computable from the clustering and the data alone —
 and **external** metrics — the adjusted Rand index, computable only because
 this lesson happens to know `retail_data.py`'s `true_segment` column.
@@ -289,7 +289,7 @@ the vocabulary a real pipeline has to be checked against.
 - **DBSCAN's noise bucket and k-means' lowest-value segment are both
   legitimate, correct algorithm outputs that still cost a real person
   something once acted on** — friction for the thirteen genuine sessions
-  of section 3.3, worse terms with no natural correction for the window
+  of section 3.6, worse terms with no natural correction for the window
   shoppers of section 2. The harm sits in what was built on the output,
   not in the output being wrong.
 - **GDPR gives marketing profiling an unconditional objection right
