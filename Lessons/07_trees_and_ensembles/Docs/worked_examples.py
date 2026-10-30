@@ -168,6 +168,39 @@ _best = min(_weighted_from_counts(X[f].values <= t)
             for t in (lambda v: (v[:-1] + v[1:]) / 2)(np.sort(X[f].unique())))
 same("2.2 the lowest weighted Gini of all 2,234 candidates", _best, 0.330, tolerance=5e-4)
 
+# Section 2.1-2.2, the root split counted, and the gains of step 2 found by the
+# independent search run inside each child (not read off scikit-learn's tree).
+_root_left = X["debt_ratio"].values <= 0.82
+same("2.2 defaults in the parent", int(y.sum()), 464, tolerance=0)
+same("2.2 defaults on the left", int(y.values[_root_left].sum()), 249, tolerance=0)
+same("2.2 defaults on the right", int(y.values[~_root_left].sum()), 215, tolerance=0)
+same("2.2 the left weight", 971 / 1200, 0.809, tolerance=5e-4)
+same("2.2 the right weight", 229 / 1200, 0.191, tolerance=5e-4)
+same("2.2 the left term", 971 / 1200 * gini(y.values[_root_left]), 0.3086, tolerance=5e-5)
+same("2.2 the right term", 229 / 1200 * gini(y.values[~_root_left]), 0.0219, tolerance=5e-5)
+same("2.2 the 229 before their split, by 1 - sum of squares",
+     1 - (215 / 229) ** 2 - (14 / 229) ** 2, 0.115, tolerance=5e-4)
+same("2.2 the 229's sum of squares", 0.939 ** 2 + 0.061 ** 2, 0.885, tolerance=5e-4)
+_, _, _gain_left = best_split_independent(X[_root_left].reset_index(drop=True),
+                                          y.values[_root_left])
+_, _, _gain_right = best_split_independent(X[~_root_left].reset_index(drop=True),
+                                           y.values[~_root_left])
+same("2.1 step 2, the income question's gain", _gain_left, 0.0836, tolerance=5e-5)
+same("2.1 step 2, the debt question's gain", _gain_right, 0.0026, tolerance=5e-5)
+_d2 = DecisionTreeClassifier(max_depth=2, random_state=0).fit(X, y)
+_d3 = DecisionTreeClassifier(max_depth=3, random_state=0).fit(X, y)
+_changed = np.flatnonzero(_d2.predict(X) != _d3.predict(X))
+same("2.1 step 3 changes one prediction", len(_changed), 1, tolerance=0)
+same("2.1 training accuracy at depth 2", _d2.score(X, y), 0.8400, tolerance=5e-5)
+same("2.1 training accuracy at depth 3", _d3.score(X, y), 0.8408, tolerance=5e-5)
+_r = _changed[0]
+same("2.1 the changed applicant's income", X["income_k"].iloc[_r], 23.22, tolerance=1e-9)
+same("2.1 the changed applicant's debt", X["debt_ratio"].iloc[_r], 0.9475, tolerance=1e-9)
+if not (X["income_k"].iloc[_r] < TRUE_INCOME_FLOOR and X["debt_ratio"].iloc[_r] > TRUE_DEBT_CEIL
+        and y.iloc[_r] == 0):
+    raise SystemExit(f"{HANDOUT}: 2.1 the changed applicant should be a flipped label")
+checks += 1
+
 # Section 2.2 now says what G *is*: the chance two draws from the group, labelled
 # by its own frequencies, disagree. Checked by drawing pairs, not by the formula.
 _rng7 = np.random.default_rng(20261106)

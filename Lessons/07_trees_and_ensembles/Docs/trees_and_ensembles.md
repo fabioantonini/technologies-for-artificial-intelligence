@@ -10,16 +10,16 @@ date: "20 November 2026 · reading time about 85 minutes"
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
 | 0:00–0:10 | 10 | Exercise 6 discussed; the choice this lesson offers | Slides 2–5 |
-| 0:10–0:32 | 22 | Decision trees: splitting on Gini impurity | Slides 6–19 |
-| 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 20–25 |
-| 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 26 |
-| 1:12–1:24 | 12 | **Break** | Slide 27 |
-| 1:24–1:44 | 20 | Bagging and random forests | Slides 28–39 |
-| 1:44–2:02 | 18 | **Notebook 02** — bagging and random forests | Slide 40 |
-| 2:02–2:24 | 22 | Gradient boosting | Slides 41–50 |
-| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 51 |
-| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 52–57 |
-| | **180** | **Total** | **57 slides, 3 notebooks** |
+| 0:10–0:32 | 22 | Decision trees: splitting on Gini impurity | Slides 6–20 |
+| 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 21–26 |
+| 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 27 |
+| 1:12–1:24 | 12 | **Break** | Slide 28 |
+| 1:24–1:44 | 20 | Bagging and random forests | Slides 29–40 |
+| 1:44–2:02 | 18 | **Notebook 02** — bagging and random forests | Slide 41 |
+| 2:02–2:24 | 22 | Gradient boosting | Slides 42–51 |
+| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 52 |
+| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 53–58 |
+| | **180** | **Total** | **58 slides, 3 notebooks** |
 
 ---
 
@@ -151,7 +151,52 @@ into 87 + 884. Step 2 asks a different question in each
 group, because each is searched on its own. Step 3 shows greed: one cut, at 0.948 — a
 thousandth above the one at 0.947, so the two gold lines overlap — sets
 aside a single applicant from 68, another splits 160 into 90% and 97% default and
-changes no prediction, and neither interior island has been found yet.*
+changes no prediction, and neither interior island has been found yet.
+Each question box also shows the gain its split buys, $\Delta G$ (section 2.2):
+in step 2, 0.0836 for the income question and 0.0026 for the debt one, whose two
+groups are both still mostly defaulted, so that split changes no prediction
+either.*
+
+How little the later rounds buy is worth counting. The four splits of step 3
+change exactly one prediction in 1,200: training accuracy is 0.8400 at depth 2
+and 0.8408 at depth 3. And that one applicant is a flipped label: income 23.22,
+below the floor, and debt 0.9475, above the ceiling, so both rules say default,
+yet the label says repaid. The tree spent a split memorising one noisy label,
+which is section 3's story about depth in miniature. It splits anyway because it
+judges impurity, not decisions: any split whose $\Delta G$ is above zero is
+taken.
+
+**The stopping rules act branch by branch.** A group that is pure, or too small
+to split, or at the depth limit, stops its own branch; the other branches carry
+on, and the tree is finished when every branch has stopped. Without a depth
+limit every branch runs until its group is pure.
+
+**The loop, written out.** Everything in this section and the next, in the
+order the code runs it (notebook 1's `build_tree` and `best_split`):
+
+```python
+def grow(g):
+  if stop(g): return leaf(g)
+  gain = {c: ΔG(g, c) for c in splits(g)}
+  best = max(gain, key=gain.get)
+  if gain[best] <= 0: return leaf(g)
+  L, R = split(g, best)
+  return node(best, grow(L), grow(R))
+```
+
+Line by line: `g` is the group being grown; `stop(g)` is true when the group
+sits at the depth limit, is pure, or has fewer than 2 examples; `leaf(g)`
+predicts the group's majority class; `splits(g)` lists every candidate, a
+feature with one of its midpoint thresholds; `ΔG(g, c)` is the gain of section
+2.2 on the two groups candidate `c` would make; `max(gain, key=gain.get)` picks
+the candidate with the largest gain; `split` makes the two groups, `L` and `R`;
+`node` keeps the question and its two subtrees.
+
+$\Delta G$, defined in section 2.2, does two jobs, both at one node at a time:
+it ranks that node's candidates, and it decides whether the node is split at
+all. Each child then runs the whole loop again on its own examples, with its own
+impurity in the parent's place and its own size as $m$; gains are never added up
+across nodes or compared between them.
 
 ### 2.2 Impurity, and the gain a split buys
 
@@ -161,7 +206,12 @@ classes:
 
 $$G = 1 - \sum_{c=1}^{C} p_c^2$$
 
-where $p_c$ is the fraction of the group belonging to class $c$. For two
+where $p_c$ is the fraction of the group belonging to class $c$. The classes are
+the labels a group can hold: here $C = 2$, defaulted and repaid, and the two
+shares add up to 1. Slide 8's right-hand group of step 1, before it is split
+again, holds 229 applicants of whom 215 defaulted, so $p = 215/229 = 0.939$ for
+defaulted and $14/229 = 0.061$ for repaid, and
+$G = 1 - (0.939^2 + 0.061^2) = 1 - 0.885 = 0.115$: nearly pure. For two
 classes this simplifies to $2p(1-p)$: expand $(1-p)^2$ as $1 - 2p + p^2$, and
 the two $p^2$ terms and the two $1$s cancel, leaving
 $G = 1 - p^2 - (1 - 2p + p^2) = 2p - 2p^2$. It is $0$ when the group is pure
@@ -238,14 +288,22 @@ are the same node by node, since two different trees can agree on every row
 they are shown; the notebook therefore also prints the root split from both,
 and it is the same.
 
-What that split buys, in the formula above. It sends 971 applicants left, of
-whom $p = 0.256$ defaulted, and 229 right, of whom $p = 0.939$ did:
+What that split buys, in the formula above. It sends 971 applicants left and
+229 right. The rule first: count the defaults in each group, divide by its size
+to get $p$, and put $p$ into $2p(1-p)$:
 
-| Group | Applicants | $p$ | $G = 2p(1-p)$ |
-|---|---|---|---|
-| Parent | 1,200 | 0.387 | 0.4743 |
-| Left, `debt_ratio <= 0.82` | 971 | 0.256 | 0.3814 |
-| Right | 229 | 0.939 | 0.1148 |
+| Group | Applicants $m$ | Defaulted | $p$ = defaulted / $m$ | $G = 2p(1-p)$ |
+|---|---|---|---|---|
+| Parent | 1,200 | 464 | 464 / 1,200 = 0.387 | 2 × 0.387 × 0.613 = 0.4743 |
+| Left, `debt_ratio <= 0.82` | 971 | 249 | 249 / 971 = 0.256 | 2 × 0.256 × 0.744 = 0.3814 |
+| Right | 229 | 215 | 215 / 229 = 0.939 | 2 × 0.939 × 0.061 = 0.1148 |
+
+The defaults add up, 249 + 215 = 464, as they must. (The $G$ column is printed
+from the unrounded $p$, which is why its fourth decimal can differ from the
+product of the rounded values shown.) The two children are weighted by their
+share of the parent, $971/1{,}200 = 0.809$ and $229/1{,}200 = 0.191$:
+$0.809 \times 0.3814 + 0.191 \times 0.1148 = 0.3086 + 0.0219 = 0.3305$, below the
+parent's 0.4743. In one line:
 
 $$\Delta G = 0.4743 - \left(\tfrac{971}{1200} \times 0.3814 + \tfrac{229}{1200} \times 0.1148\right)
   = 0.4743 - 0.3305 = 0.1438$$
