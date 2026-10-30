@@ -79,15 +79,24 @@ score can land a little either side of the ceiling by chance.
 Handout section 1.1.
 :::
 
-# Four disconnected risky regions
+# Four risky rules, three risky regions
 
 ![](loan_scatter.png)
 
 ::: notes
 Let it sit for a moment before pointing anything out. Then trace the shape
-out loud: a strip of low income on one edge, a strip of high debt on
-another, and two disconnected rectangles in the interior where neither
-reading alone is remarkable.
+out loud. Four rules make an applicant risky: income below a floor, or debt
+above a ceiling, or income and debt inside one of two "stressed" rectangles,
+where neither reading alone is remarkable. The low-income strip runs up the
+left edge and the high-debt strip along the top, and they meet in the top-left
+corner, so together they are one L-shaped region. The two rectangles stand
+apart, in the interior. Four rules, then, but three separate regions.
+
+A predictable slip: reading the floor and the ceiling as "low income AND high
+debt", one corner of the plane, instead of "low income OR high debt", the
+whole L. It is a reasonable reading, because the two stressed rectangles really
+are an AND of two ranges; the floor and the ceiling are not, each applies on
+its own.
 
 Ask for a straight line that separates repaid from defaulted, exactly as you
 did with the pumps in lesson 6. This time there is a difference worth
@@ -100,21 +109,30 @@ Handout section 1.1.
 
 # No straight line separates them
 
-| Model | Cross-validated accuracy |
-|---|---|
-| Always predict the majority class | 0.613 |
-| Logistic regression | **0.748 ± 0.030** |
+![](loan_logistic.png)
 
 ::: notes
-Unlike lesson 6's pumps, logistic regression clears the baseline by a wide
-margin here - it has learned something. Two of the four risky regions, the
-low-income strip and the high-debt strip, get riskier steadily as one feature
-moves in one direction, and a straight boundary handles that kind of effect
-reasonably well.
+The figure is the line logistic regression actually draws, fitted on all
+1,200 applicants: above it the model predicts default, below it repaid. It
+runs from a debt ratio of 0.40 at an income of 20 thousand euros to 0.88 at
+100 thousand (notebook 1, section 1). The dashed outlines are the true risky
+regions, the L and the two islands.
 
-What it cannot do is wall off the two interior islands without cutting into
-healthy territory everywhere else. Ask the room what kind of boundary could
-close that gap, and let a few guesses land before moving on - a threshold
+The title carries the two numbers to compare. Always predicting the majority
+class, "repaid", scores 0.613, because 38.7% defaulted and 1 - 0.387 = 0.613.
+Logistic regression scores 0.748 ± 0.030 in five-fold cross-validation (the
+± is the standard deviation across the five folds). Unlike lesson 6's pumps,
+it clears the baseline by a wide margin: it has learned something. Most of the
+high-debt strip lies above the line, and the risk there rises steadily as one
+feature moves in one direction, which a straight boundary handles well.
+
+Then point at where the line goes wrong. Bottom left: income below the floor
+with low debt is risky, but it lies below the line; of the 87 applicants there,
+the model predicts 50 as repaid. Far right: at high income the line climbs
+above the ceiling, so debt between 0.82 and 0.88 is predicted repaid. And the
+line cuts straight through both islands, calling part of each healthy and
+the healthy territory beside them risky. Ask the room what kind of boundary could
+close those gaps, and let a few guesses land before moving on - a threshold
 rule, applied more than once, is exactly the answer the rest of the lesson
 builds.
 
@@ -123,16 +141,18 @@ Handout section 1.1.
 
 # The whole algorithm, in one sentence
 
-- Find the (feature, threshold) split that makes the two groups **as pure
-  as possible**
+- Try **every feature and every threshold**; keep the split leaving the
+  **purest** two groups
 - Apply it; repeat on each group, independently
 - Stop at a depth limit, a pure group, or too few examples to split
-- No coefficients and no gradient: each threshold is chosen by **searching** the
-  data
+- No coefficients, no gradient: thresholds are found by **searching**
 - **Greedy**: whichever split helps most *right now*, with no lookahead
 
 ::: notes
 Read the algorithm as one sentence and let it sit - it really is that short.
+The first bullet is the one students compress: nobody chooses the feature
+first. At every node the tree tries every feature and every threshold and
+keeps the best pair; how "best" is scored comes on slides 9 to 16.
 Contrast it explicitly with lessons 3 and 4: no cost function is minimised
 over a continuous parameter, there is no gradient step. The tree still learns
 from the data - which feature to ask about and where to put each threshold -
@@ -146,6 +166,14 @@ them to hold onto that word - it is what explains, later this hour, why a
 shallow tree can miss the interior islands entirely even though the
 information to find them is right there in the data.
 
+A predictable slip: "one feature per level, applied to all the applicants, then
+the next feature". It is a natural reading, because a drawn tree looks like a
+fixed sequence of questions and the first question really is asked of
+everyone. It is wrong in two ways. After the first split each group is
+searched on its own, so the two groups can get different questions; and
+nothing forbids a feature from coming back - the next slide asks about debt
+three times on one path.
+
 Handout section 2.1.
 :::
 
@@ -157,17 +185,27 @@ Handout section 2.1.
 The previous slide's sentence, run three times on the loan data. Each column
 is one more round; on top the cuts in the plane, the new ones in gold, and
 underneath the tree that asks the same questions. Point at the two halves of
-each column in turn: every gold line on top is a gold box underneath.
+each column in turn: every gold line on top is a gold box underneath. The
+legend at the bottom gives the colours: gold, a question added in this step;
+white, a question from an earlier step; teal or rust, a group not split yet.
+Every box, question or group, shows its applicants and the share who
+defaulted.
 
-Step 1: of every possible single question, debt ratio at or below 0.82 is the
-one that leaves the two groups purest - 971 applicants at 26% default against
-229 at 94%. Do not say why it is the best yet; the next slides give the number
-that ranks it.
+Step 1: every possible single question was tried - every threshold on income
+and every threshold on debt, 2,234 candidates - and debt ratio at or below
+0.82 is the one that leaves the two groups purest: 971 applicants at 26%
+default against 229 at 94%. Do not say why it is the best yet; slides 9 to 16
+give the number that ranks it, and slide 15 draws all 2,234 candidates scored.
 
-Step 2 is the word "recursive" made visible. The tree now asks a question
-inside each group, and the two questions are different - income on the left,
-debt again on the right - because each group is searched on its own, without
-regard to the other. That is "independently" in the sentence.
+Step 2 is the word "recursive" made visible, and the place where a student
+asks where the two groups of step 1 went. They are still there: each group's
+box has become the question asked of it. The 971 now reads "income ≤ 28?" with
+971 · 26% under it, and splits into 87 + 884 = 971; the 229 reads
+"debt ≤ 0.947?" and splits into 160 + 69 = 229. A leaf that is split becomes a
+question; its applicants do not go anywhere. The two questions are different -
+income on the left, debt again on the right - because each group is searched
+on its own, without regard to the other. That is "independently" in the
+sentence.
 
 Step 3 is where to slow down, because it shows greed. On the right, one split
 sets aside a single applicant from 68 others - the cut at 0.948, a thousandth
@@ -296,10 +334,12 @@ through on the loan data's actual root split.
 
 # Scanning for the best split
 
-- For a continuous feature, scan **every midpoint** between adjacent sorted
-  values as a candidate threshold
-- Do this for **every feature**; keep the best pair
-- Repeat the search inside each child
+- Sort a feature's values: every **midpoint** between neighbours is a
+  candidate threshold
+- Infinitely many thresholds, but **finitely many splits**: any threshold
+  between the same two neighbours makes the same two groups
+- Score every candidate on **every feature**; keep the best pair, then
+  repeat inside each child
 - **Greedy**: $\Delta G$ is judged one split at a time, never jointly
 
 ::: notes
@@ -308,12 +348,56 @@ concrete about the cost: every feature, every possible threshold, at every
 node, all the way down. It is brute force, and on a dataset this size it is
 cheap.
 
+The second bullet answers the question someone will ask: a threshold is a real
+number, so are there not infinitely many to try? There are, but they make only
+finitely many different splits. At the root, two neighbouring debt ratios in
+the data are 0.8198 and 0.8205, with no applicant between them; a threshold of
+0.8199, 0.8200 or 0.8204 sends the same 971 applicants left and the same 229
+right. So one threshold per gap is enough, and the convention is the midpoint,
+(0.8198 + 0.8205) / 2 = 0.82015, printed 0.820 - halfway, so the threshold sits
+as far as possible from both values seen in training. Debt ratio has 1,139
+distinct values in the data, so 1,138 gaps; income has 1,097, so 1,096. The
+search is exact, not an approximation. A predictable slip is to think it must
+be approximate because thresholds are continuous: the data are finite, so the
+splits are too.
+
 The last bullet is the one to slow down on. A feature that only helps in
 combination with a second split further down the tree can be - and in this
 dataset's two interior islands, is - invisible to a shallow search, because
 $\Delta G$ is never evaluated for two splits together.
 
 Handout section 2.2.
+:::
+
+# Every threshold, scored
+
+![](threshold_scan.png)
+
+::: notes
+The previous slide's search, drawn at the root. Each point on a curve is one
+candidate threshold: on the left the 1,138 on debt ratio, on the right the
+1,096 on income, 2,234 in all. Its height is the weighted Gini impurity of the
+two groups that threshold makes - each group's 2p(1 - p), weighted by its share
+of the 1,200 applicants, so lower is purer. The dotted line at 0.474 is no
+split at all. The search keeps the lowest point on either curve: debt at 0.82,
+0.330. The gain of slide 13 is the drop from the dotted line to that point,
+0.474 - 0.330 = 0.144, worked out on the next slide.
+
+Point at the alternatives. Debt at 0.5 splits 627 applicants at 18% default
+from 573 at 61%: both groups stay mixed, 0.382. On income, the best threshold
+is close to the true floor of 28, but it scores only 0.418, because the
+low-income strip holds 111 applicants and leaves the other 1,089 mixed.
+
+A predictable slip: "the best split puts the most defaults on one side". It
+is a natural reading of "purest", but the score counts proportions, weighted
+by size, not numbers of defaults. Debt at 0.9 makes a right-hand group almost
+as pure as 0.82 does, 129 applicants at 92% default against 229 at 94%, yet
+scores 0.405 against 0.330, because it leaves the large left group more mixed:
+1,071 at 32% against 971 at 26%. And a group pure in "repaid" counts exactly
+as much as one pure in "default": the formula does not ask which class is
+common.
+
+Notebook 1, section 2, "Every threshold, scored". Handout section 2.2.
 :::
 
 # Worked example: the root split
@@ -537,7 +621,7 @@ had never seen. Handout section 3.
 ::: notes
 This is the readability half of the story. The two knobs limit different
 things. A depth cap limits how long any one path can be, and inside that cap
-every node that can be split is split - slide 22's depth-2 tree spent one of
+every node that can be split is split - slide 23's depth-2 tree spent one of
 its three questions on a split that changed no prediction. A leaf budget
 limits how many leaves the whole tree may have, and spends them one at a time
 on whichever leaf gains most. For a tree meant to be read rather than merely
@@ -586,9 +670,9 @@ Handout section 4.
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
 | 1. look at it first, 4-6 | `make_pipeline(StandardScaler(), LogisticRegression())` in `cross_val_score(..., cv=StratifiedKFold(5))` → 0.613 against 0.748 |
-| 2. a tree, split by split, 7-18 | your own `gini` and `best_split`, then `DecisionTreeClassifier(max_depth=d)` → 100.0% identical predictions; gain 0.1438 |
-| 3. the depth dial, 19-22 | `DecisionTreeClassifier(max_depth=d)` in `cross_val_score` → peak 0.882 at depth 8 |
-| 4. what a tree costs, 23-24 | `DecisionTreeClassifier(max_leaf_nodes=9)`, `export_text` → 0.908; two trees agree on 0.883 |
+| 2. a tree, split by split, 7-19 | your own `gini` and `best_split`, then `DecisionTreeClassifier(max_depth=d)` → 100.0% identical predictions; gain 0.1438 |
+| 3. the depth dial, 20-23 | `DecisionTreeClassifier(max_depth=d)` in `cross_val_score` → peak 0.882 at depth 8 |
+| 4. what a tree costs, 24-25 | `DecisionTreeClassifier(max_leaf_nodes=9)`, `export_text` → 0.908; two trees agree on 0.883 |
 
 ::: notes
 The table is the notebook's map: each section, the calls it makes, the slides
@@ -641,7 +725,7 @@ hour's tree as it is, and only what surrounds it is new.
 
 Be precise about "with replacement": some rows appear more than once in a
 given sample, some not at all. That leftover fraction is not wasted - it
-becomes free validation data, on slide 30.
+becomes free validation data, on slide 31.
 
 One detail of the In code line, if asked: scikit-learn's `BaggingClassifier`
 does not count votes, it averages the trees' predicted probabilities. With
@@ -680,7 +764,7 @@ still has 1,200 draws: about 759 different rows, and the other 441 draws are
 repeats of rows already drawn. The tree sees 1,200 rows, some of them twice
 or three times - the next slide counts them.
 
-Ask the room what that leftover third is good for. The answer is slide 30,
+Ask the room what that leftover third is good for. The answer is slide 31,
 after the counts: it is validation data for exactly the trees that never saw it.
 
 Handout section 5.1.
@@ -711,14 +795,14 @@ disagreement - the raw material of bagging - comes from. Handout section 5.1.
 
 - Predict each row by a vote of only the trees that never saw it: the
   accuracy of those votes is the **OOB score**, with no rows set aside
-- A 300-tree random forest (bagged trees plus one rule, slide 34): OOB
+- A 300-tree random forest (bagged trees plus one rule, slide 35): OOB
   **0.9117**; 5-fold cross-validation **0.9117 ± 0.021**
 - The four-decimal match is **luck**: over twelve seeds the two differ by
   0.0026 on average, well inside ±0.021
 
 ::: notes
 The forest here comes four slides before its definition: a random forest is
-bagging with one extra rule, which slide 34 gives, and scikit-learn computes
+bagging with one extra rule, which slide 35 gives, and scikit-learn computes
 the OOB score for it with `oob_score=True`. For this slide, read it as "300
 bagged trees".
 
@@ -803,7 +887,7 @@ random forest, two slides on. Handout section 5.2.
 Across 30 random 70/30 splits of the loan data, both numbers moved in
 the predicted direction. The mean rose, because bagging also averages out
 some of a deep tree's overfitting; the spread fell, which is what the
-formula of slide 31 leads us to expect. Say precisely what was measured,
+formula of slide 32 leads us to expect. Say precisely what was measured,
 because it is not the formula's quantity: the formula is about the variance
 of one prediction over bootstrap samples, while this table is the spread of
 test accuracy over 30 different train/test splits, which also carries the
@@ -912,7 +996,7 @@ average over hundreds of trees to wash out noise is entirely reasonable  -
 the variance-reduction result of the averaging slides is real and measured, and it
 does point the same way. It reduces the variance of the *prediction*. It
 does not guarantee small importance for irrelevant columns. Two things hand
-credit to noise, and slide 54 takes them apart: the random, incomplete menu
+credit to noise, and slide 55 takes them apart: the random, incomplete menu
 at each split, and the deep splits on small groups, where some noise column
 always lowers the impurity a little by chance.
 
@@ -956,11 +1040,11 @@ Handout section 7.1.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| 1. bagging from scratch, 27 | `train_test_split`, your bagging against `BaggingClassifier`, `accuracy_score` → 0.872 and 0.872 |
-| 2. why averaging works, 28-32 | `oob_score=True`: `.oob_score_` against `cross_val_score` → 0.9117 both; 0.0026 over 12 seeds |
-| 3. variance, measured, 33-35 | tree, `BaggingClassifier`, `RandomForestClassifier`, 30 splits → spread 0.0185, 0.0153, 0.0137 |
-| 5. feature importance, 36-37 | `.feature_importances_`, 0 to 20 noise columns → 54.5% on noise |
-| 6. checking the importances, 38 | `permutation_importance`, test split → real 0.09 and 0.18, noise ≈ 0 |
+| 1. bagging from scratch, 28 | `train_test_split`, your bagging against `BaggingClassifier`, `accuracy_score` → 0.872 and 0.872 |
+| 2. why averaging works, 29-33 | `oob_score=True`: `.oob_score_` against `cross_val_score` → 0.9117 both; 0.0026 over 12 seeds |
+| 3. variance, measured, 34-36 | tree, `BaggingClassifier`, `RandomForestClassifier`, 30 splits → spread 0.0185, 0.0153, 0.0137 |
+| 5. feature importance, 37-38 | `.feature_importances_`, 0 to 20 noise columns → 54.5% on noise |
+| 6. checking the importances, 39 | `permutation_importance`, test split → real 0.09 and 0.18, noise ≈ 0 |
 
 ::: notes
 The table is the notebook's map: bagging from scratch and against
@@ -979,7 +1063,7 @@ If time allows, section 6 also tries `max_features=None` instead of the
 default `"sqrt"`: every split sees all 22 columns. Ask them to predict the
 noise share before running it. Most will say it falls to about zero, since
 the real features are now always on offer. It falls only to 28%, and the
-accuracy rises from 0.837 to 0.897. Slide 54 explains both.
+accuracy rises from 0.837 to 0.897. Slide 55 explains both.
 :::
 
 # Gradient boosting: correcting mistakes in sequence
@@ -1029,7 +1113,7 @@ $$F_0(x) = \bar{y}, \qquad F_t(x) = F_{t-1}(x) + \alpha \cdot h_t(x)$$
 $F_0$ is the flat starting guess: the best single constant for the loss
 being used. For squared error, as on this slide and the next three, that is
 the mean of the target; for classification it will be the log-odds of the
-base rate (slide 45). Each subsequent
+base rate (slide 46). Each subsequent
 $F_t$ is the previous ensemble plus a scaled correction from the newest
 tree, $h_t$. Read it left to right: start flat, then keep adding small,
 scaled corrections.
@@ -1273,11 +1357,11 @@ Handout section 10.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| 1. boosting from scratch, 40-44 | `DecisionTreeRegressor(max_depth=2)` on the residuals, 60 times → MSE 0.0119 at 20 trees |
-| 2. classification, 45-46 | `GradientBoostingClassifier()` in `cross_val_score` → F0 = −0.461; 0.902 |
-| 3. more trees, 47-48 | the same, `learning_rate=0.3`, `n_estimators` from 5 to 800 → peak 0.897 at 30 |
-| 4. learning rate, 49 | the same with `n_estimators=120` and `learning_rate` from 0.02 to 1.0 → best 0.902 at 0.1 |
-| 5. leaderboard, 51 | every model in one `cross_val_score` loop → random forest 0.911 |
+| 1. boosting from scratch, 41-45 | `DecisionTreeRegressor(max_depth=2)` on the residuals, 60 times → MSE 0.0119 at 20 trees |
+| 2. classification, 46-47 | `GradientBoostingClassifier()` in `cross_val_score` → F0 = −0.461; 0.902 |
+| 3. more trees, 48-49 | the same, `learning_rate=0.3`, `n_estimators` from 5 to 800 → peak 0.897 at 30 |
+| 4. learning rate, 50 | the same with `n_estimators=120` and `learning_rate` from 0.02 to 1.0 → best 0.902 at 0.1 |
+| 5. leaderboard, 52 | every model in one `cross_val_score` loop → random forest 0.911 |
 
 ::: notes
 The table is the notebook's map: boosting from scratch on the residuals,
@@ -1371,7 +1455,7 @@ The fourth row is worth a sentence of its own, tying back to the noise
 experiment: with two real features among 22 columns and 1,200 rows, more
 than half the importance already landed on noise. Many rows do not protect
 against it; what matters is how many useless columns compete at each split.
-Permutation importance, the check, was slide 38; the next slide comes back to it.
+Permutation importance, the check, was slide 39; the next slide comes back to it.
 
 Handout section 11.
 :::
@@ -1383,7 +1467,7 @@ Handout section 11.
   no real feature
 - **Small groups**: with all 22 on offer, noise still takes **28%**, from
   deep splits
-- The check: **permutation importance**, slide 38
+- The check: **permutation importance**, slide 39
 
 ::: notes
 This is the number to carry out of the room. Say it once more, slowly: with
@@ -1418,7 +1502,7 @@ same run raised the accuracy from 0.837 to 0.897: with 20 useless columns out
 of 22, the random menu costs more accuracy than decorrelating the trees buys
 back. The default is a good default, not a law.
 
-The last bullet sends them back to the check of slide 38: shuffling a
+The last bullet sends them back to the check of slide 39: shuffling a
 column on held-out data costs the two real features 0.09 and 0.18 of
 accuracy, and each noise column almost nothing.
 
@@ -1442,7 +1526,7 @@ If they remember one habit from today, make it this: before trusting a
 random forest's importance ranking, ask how many of the columns could
 plausibly matter at all - many useless columns are what hand credit to
 noise, and the accuracy score gives no warning - and then check the ranking
-by shuffling on held-out data, as slide 38 did.
+by shuffling on held-out data, as slide 39 did.
 
 Next lesson turns from labelled data to unlabelled data. Every model so far
 learned from examples whose answer was known: a price, a class, a default.

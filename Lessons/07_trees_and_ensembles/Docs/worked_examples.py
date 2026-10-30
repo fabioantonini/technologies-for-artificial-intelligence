@@ -106,6 +106,68 @@ if root_feature != "debt_ratio" or abs(root_threshold - TRUE_DEBT_CEIL) > 0.02:
         f"    recomputing gives {root_feature} <= {root_threshold}")
 checks += 1
 
+# Section 1.1, the line logistic regression draws. Found by bisection on the
+# fitted model's own probabilities, not from its coefficients as the notebook does.
+from sklearn.linear_model import LogisticRegression                      # noqa: E402
+from sklearn.pipeline import make_pipeline                               # noqa: E402
+from sklearn.preprocessing import StandardScaler                         # noqa: E402
+_line = make_pipeline(StandardScaler(), LogisticRegression(max_iter=2_000)).fit(X, y)
+
+
+def _debt_on_line(income):
+    lo, hi = -1.0, 2.0
+    for _ in range(60):
+        mid = (lo + hi) / 2
+        p_mid = _line.predict_proba(pd.DataFrame({"income_k": [income], "debt_ratio": [mid]}))[0, 1]
+        lo, hi = (mid, hi) if p_mid < 0.5 else (lo, mid)
+    return (lo + hi) / 2
+
+
+same("1.1 the logistic line at income 20", _debt_on_line(20), 0.40, tolerance=0.006)
+same("1.1 the logistic line at income 100", _debt_on_line(100), 0.88, tolerance=0.006)
+_inc, _debt = X["income_k"].values, X["debt_ratio"].values
+_floor_low = (_inc < TRUE_INCOME_FLOOR) & (_debt <= TRUE_DEBT_CEIL)
+same("1.1 applicants below the floor and the ceiling", _floor_low.sum(), 87, tolerance=0)
+same("1.1 of them predicted repaid", (_line.predict(X)[_floor_low] == 0).sum(), 50, tolerance=0)
+
+# Section 2.2, infinitely many thresholds and finitely many splits. Counted with
+# pandas and the default counts directly, not with the gini() helper.
+_n_debt, _n_income = X["debt_ratio"].nunique(), X["income_k"].nunique()
+same("2.2 distinct debt ratios", _n_debt, 1139, tolerance=0)
+same("2.2 distinct incomes", _n_income, 1097, tolerance=0)
+same("2.2 candidates at the root", (_n_debt - 1) + (_n_income - 1), 2234, tolerance=0)
+_below = X.loc[X["debt_ratio"] <= 0.82, "debt_ratio"].max()
+_above = X.loc[X["debt_ratio"] > 0.82, "debt_ratio"].min()
+same("2.2 the neighbour below 0.82", _below, 0.8198, tolerance=1e-9)
+same("2.2 the neighbour above 0.82", _above, 0.8205, tolerance=1e-9)
+same("2.2 their midpoint", (_below + _above) / 2, 0.82015, tolerance=1e-9)
+for _t in (0.8199, 0.8200, 0.8204):
+    same(f"2.2 threshold {_t} sends 971 left", int((X["debt_ratio"] <= _t).sum()), 971, tolerance=0)
+
+
+def _weighted_from_counts(mask):
+    total = len(y)
+    out = 0.0
+    for side in (mask, ~mask):
+        m_side, d_side = int(side.sum()), int(y.values[side].sum())
+        out += m_side / total * 2 * (d_side / m_side) * (1 - d_side / m_side)
+    return out
+
+
+for _feature, _t, _left, _pl, _pr, _g in (("debt_ratio", 0.5, 627, 0.18, 0.61, 0.382),
+                                         ("debt_ratio", 0.82, 971, 0.26, 0.94, 0.330),
+                                         ("debt_ratio", 0.9, 1071, 0.32, 0.92, 0.405),
+                                         ("income_k", 28, 111, 0.91, 0.33, 0.418)):
+    _mask = X[_feature].values <= _t
+    same(f"2.2 {_feature} <= {_t}: left count", int(_mask.sum()), _left, tolerance=0)
+    same(f"2.2 {_feature} <= {_t}: left default rate", y.values[_mask].mean(), _pl, tolerance=0.005)
+    same(f"2.2 {_feature} <= {_t}: right default rate", y.values[~_mask].mean(), _pr, tolerance=0.005)
+    same(f"2.2 {_feature} <= {_t}: weighted Gini", _weighted_from_counts(_mask), _g, tolerance=5e-4)
+_best = min(_weighted_from_counts(X[f].values <= t)
+            for f in ("debt_ratio", "income_k")
+            for t in (lambda v: (v[:-1] + v[1:]) / 2)(np.sort(X[f].unique())))
+same("2.2 the lowest weighted Gini of all 2,234 candidates", _best, 0.330, tolerance=5e-4)
+
 # Section 2.2 now says what G *is*: the chance two draws from the group, labelled
 # by its own frequencies, disagree. Checked by drawing pairs, not by the formula.
 _rng7 = np.random.default_rng(20261106)

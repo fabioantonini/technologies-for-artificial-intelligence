@@ -10,16 +10,16 @@ date: "20 November 2026 · reading time about 85 minutes"
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
 | 0:00–0:10 | 10 | Exercise 6 discussed; the choice this lesson offers | Slides 2–5 |
-| 0:10–0:32 | 22 | Decision trees: splitting on Gini impurity | Slides 6–18 |
-| 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 19–24 |
-| 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 25 |
-| 1:12–1:24 | 12 | **Break** | Slide 26 |
-| 1:24–1:44 | 20 | Bagging and random forests | Slides 27–38 |
-| 1:44–2:02 | 18 | **Notebook 02** — bagging and random forests | Slide 39 |
-| 2:02–2:24 | 22 | Gradient boosting | Slides 40–49 |
-| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 50 |
-| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 51–56 |
-| | **180** | **Total** | **56 slides, 3 notebooks** |
+| 0:10–0:32 | 22 | Decision trees: splitting on Gini impurity | Slides 6–19 |
+| 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 20–25 |
+| 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 26 |
+| 1:12–1:24 | 12 | **Break** | Slide 27 |
+| 1:24–1:44 | 20 | Bagging and random forests | Slides 28–39 |
+| 1:44–2:02 | 18 | **Notebook 02** — bagging and random forests | Slide 40 |
+| 2:02–2:24 | 22 | Gradient boosting | Slides 41–50 |
+| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 51 |
+| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 52–57 |
+| | **180** | **Total** | **57 slides, 3 notebooks** |
 
 ---
 
@@ -53,11 +53,20 @@ and debt levels that are each unremarkable alone but risky together.
 
 ![](loan_scatter.png)
 
-*1,200 applicants. The risky region is not one shape but four: a strip of
-low income, a strip of high debt, and two disconnected rectangles where
-income and debt are each ordinary but the combination is not. No single
-straight line separates repaid from defaulted, because the class you would
-have to isolate is not even one connected region.*
+*1,200 applicants. Four rules make an applicant risky: low income, or high
+debt, or one of two rectangles where income and debt are each ordinary but the
+combination is not. The low-income strip (left edge) and the high-debt strip
+(top) meet in the top-left corner and form one L-shaped region; the two
+rectangles stand apart from it. Four rules, three separate regions. No single
+straight line separates repaid from defaulted, because the class you would have
+to isolate is not even one connected region.*
+
+**A predictable mistake** is to read the floor and the ceiling as "low income
+*and* high debt", the top-left corner only. The reading is reasonable, because
+the two stressed rectangles really are an *and* of two ranges. But the floor
+and the ceiling each apply on their own, so the risky region they make is the
+whole L: an applicant with income below the floor is risky at any debt, and one
+with debt above the ceiling is risky at any income.
 
 7% of labels are flipped after the rule is applied — the noise floor this
 lesson works against, and the reason no model below should be read as failing
@@ -74,12 +83,30 @@ so the majority baseline is 0.613.
 
 Unlike lesson 6's pump data — where logistic regression matched the
 baseline exactly and had learned nothing — here it clears the baseline by a
-wide margin. Two of the four risky regions, the low-income strip and the
-high-debt strip, are monotonic in one feature — the risk rises steadily as
-income falls or as debt rises — and a linear boundary captures monotonic
-effects reasonably well. What it cannot do is wall off the two
-*interior* islands without cutting into healthy territory everywhere else,
-and closing that gap is what the rest of this lesson is about.
+wide margin. Two of the four rules, the income floor and the debt ceiling,
+are monotonic in one feature — the risk rises steadily as income falls or as
+debt rises — and a linear boundary captures monotonic effects reasonably
+well. Where it goes wrong is easiest to see by drawing the line it fits.
+
+![](loan_logistic.png)
+
+*The boundary logistic regression draws when fitted on all 1,200 applicants:
+above the blue line it predicts default, below it repaid. The dashed outlines
+are the true risky regions. Look at the three places the line disagrees with
+them: the bottom of the low-income strip, below the line; the right end of the
+high-debt strip, where the line climbs above the ceiling; and the two islands,
+which the line cuts straight through.*
+
+The line runs from a debt ratio of 0.40 at an income of 20 thousand euros to
+0.88 at 100 thousand: almost a threshold on debt alone, tilted slightly. Its
+three failures are the three places the true rule is not a half-plane. Of the
+87 applicants with income below the floor and debt below the ceiling, it
+predicts 50 as repaid, though the rule makes all of them risky. At high income
+it misses debt ratios between the ceiling, 0.82, and the line, 0.88. And it
+cannot wall off the two *interior* islands without calling part of each
+healthy and the healthy territory beside them risky. A boundary built from
+thresholds, applied more than once, can do all three, and that is what the
+rest of this lesson builds.
 
 ---
 
@@ -100,14 +127,27 @@ sequence of yes/no questions, chosen greedily, and "greedily" matters: at
 every step the tree takes whichever split helps most *right now*, with no
 mechanism for looking ahead to a split that would help more two levels down.
 
+**A predictable mistake** is to read the algorithm as "one feature per level,
+applied to all the examples, then the next feature". It is a natural reading:
+a drawn tree looks like a fixed sequence of questions, and the first question
+really is asked of everyone. It is wrong twice over. Nobody chooses the
+feature: at every node the tree tries every feature and every threshold and
+keeps the best pair. And after the first split each group is searched on its
+own, so the two groups can be asked different questions, and a feature can
+come back as often as it helps — in the figure below, one path asks about debt
+three times.
+
 The recursion is easiest to see run. Three rounds of it on the loan data:
 
 ![](tree_growth.png)
 
 *Each column is one more round of "find the best question, apply it, repeat
 inside each group". On top, the cuts in the plane of the data, the ones added in
-that round in gold; underneath, the tree asking the same questions, each leaf
-with its applicants and default rate. Step 2 asks a different question in each
+that round in gold; underneath, the tree asking the same questions. Every box
+shows its applicants and their default rate, a question as well as a group not
+yet split: when a group is split its box becomes the question asked of it, so
+the 971 of step 1 reads "income ≤ 28?" in step 2, with 971 under it, and splits
+into 87 + 884. Step 2 asks a different question in each
 group, because each is searched on its own. Step 3 shows greed: one cut, at 0.948 — a
 thousandth above the one at 0.947, so the two gold lines overlap — sets
 aside a single applicant from 68, another splits 160 into 90% and 97% default and
@@ -153,6 +193,36 @@ child. This is what makes the algorithm greedy: $\Delta G$ is evaluated one
 split at a time, never for a pair of splits jointly, so a feature that only
 helps in combination with a second split further down can be — and in this
 dataset's two interior islands, is — invisible to a shallow tree.
+
+**Infinitely many thresholds, finitely many splits.** A threshold is a real
+number, so there are infinitely many to choose from, but they make only
+finitely many different splits: any two thresholds between the same two
+neighbouring values send exactly the same examples left. At the root, two
+neighbouring debt ratios in the data are 0.8198 and 0.8205; a threshold of
+0.8199, 0.8200 or 0.8204 makes the same 971 / 229 split. One threshold per gap
+is therefore enough, and the convention is the midpoint,
+$(0.8198 + 0.8205)/2 = 0.82015$, which keeps it as far as possible from both
+values seen in training. A feature with $k$ distinct values has $k - 1$ gaps:
+debt ratio has 1,139 distinct values here and income 1,097, so the root search
+scores $1{,}138 + 1{,}096 = 2{,}234$ candidates. The search is exact, not an
+approximation — the predictable mistake is to assume it must be approximate
+because thresholds are continuous.
+
+![](threshold_scan.png)
+
+*Every candidate threshold at the root, scored by the weighted Gini impurity of
+the two groups it makes (lower is purer; the dotted line, 0.474, is no split at
+all). Look for the lowest point on either curve: debt at 0.82, 0.330. Debt at
+0.5 leaves both groups mixed (0.382); income's best threshold, near the true
+floor of 28, only reaches 0.418.*
+
+**A predictable mistake** is to read "purest" as "the most defaults on one
+side". The score counts proportions, each weighted by its group's size, not
+numbers of defaults. Debt at 0.9 makes a right-hand group almost as pure as
+0.82 does — 129 applicants at 92% default against 229 at 94% — but leaves the
+large left group more mixed, 1,071 at 32% against 971 at 26%, and its weighted
+impurity is 0.405 against 0.330. A group pure in "repaid" counts as much as one
+pure in "default": $2p(1-p)$ does not ask which class is common.
 
 **Worked example.** On the full 1,200 applicants, $p = 0.387$ defaulted, so
 $G(\text{parent}) = 2 \times 0.387 \times 0.613 = 0.474$. The best root split

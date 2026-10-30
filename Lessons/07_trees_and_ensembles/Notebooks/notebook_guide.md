@@ -20,20 +20,26 @@ date: "20 November 2026 · three notebooks"
 The notebook implements the splitting rule, checks it against scikit-learn, turns the
 depth dial, and ends on the instability that the next notebook exists to cure.
 
-**The data.** 1,200 loan applicants, **38.7% defaulted**, with four separate risky
-patches — not one class surrounding another as in lesson 6.
+**The data.** 1,200 loan applicants, **38.7% defaulted**, with four risky rules
+making three separate risky regions (an L of low income or high debt, and two
+islands) — not one class surrounding another as in lesson 6.
 
 **The concepts, in order.**
 
 1. **Look at it first.** No straight line separates the classes, but logistic
    regression still reaches **0.748 ± 0.030** against a baseline of 0.613, because
-   two of the four risky regions, very low income and very high debt, are monotonic
-   in one feature. Not lesson
-   6's flat failure — a different shape of difficulty.
+   two of the four risky rules, very low income and very high debt, are monotonic
+   in one feature. Its line runs from debt 0.40 at income 20 to 0.88 at income 100,
+   and misses the bottom of the low-income strip and both islands
+   (`loan_logistic.png`). Not lesson 6's flat failure — a different shape of
+   difficulty.
 2. **A tree, split by split**: find the (feature, threshold) pair that makes the two
    resulting groups as pure as possible, apply it, repeat. Checked against
    scikit-learn at four depths and agreeing **exactly** — 0.8400, 0.8408, 0.8758,
-   0.9508. Then the root split in numbers: `debt_ratio <= 0.82` sends 971 left
+   0.9508. The growth drawn three rounds deep (`tree_growth.png`): a group that is
+   split becomes the question asked of it. Every threshold scored at the root
+   (`threshold_scan.png`): **2,234** candidates, 1,138 on debt and 1,096 on income,
+   and debt at 0.82 the lowest weighted Gini, 0.330. Then the root split in numbers: `debt_ratio <= 0.82` sends 971 left
    (p 0.256, G 0.3814) and 229 right (p 0.939, G 0.1148); weighted 0.3305 against
    the parent's 0.4743, **gain 0.1438** — drawn on the Gini curve (`gini_root_split.png`).
 3. **Depth is the bias-variance dial**, and the table shows both ends:
