@@ -2,7 +2,7 @@
 title: "Lesson 8: Unsupervised Learning"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "20 November 2026"
+date: "27 November 2026"
 ---
 
 # Agenda
@@ -1117,14 +1117,14 @@ Handout summary.
 
 # Homework
 
-- **Exercise 8**, discussed at the start of lesson 9, **Friday 27 November**
+- **Exercise 8**, discussed at the start of lesson 9, **Friday 4 December**
 - `Exercises/08_unsupervised_learning.md`
 - Two account books: predict, **before plotting**, where a 2-D plot will
   find the fraud and where it will not
 
 ::: notes
 Set it explicitly and say when it comes back: the first ten minutes of lesson 9,
-Friday 27 November. Nothing is collected; at the exam one of the ten exercises
+Friday 4 December. Nothing is collected; at the exam one of the ten exercises
 is drawn and the student talks through their own notebook.
 
 The exercise gives two account books from one fictional bank. On one, flagging

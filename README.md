@@ -57,13 +57,13 @@ the Monday after, since it is study material rather than lecture support.
 | 1 | 2 Oct | Introduction and the machine learning workflow |
 | 2 | 9 Oct | Data: exploration and preparation |
 | 3 | 16 Oct | Regression |
-| 4 | 23 Oct | Classification and evaluation metrics |
-| 5 | 30 Oct | Experimental methodology and model selection |
-| 6 | 6 Nov | k-NN, Naive Bayes and support vector machines |
-| 7 | 13 Nov | Trees and ensembles |
-| 8 | 20 Nov | Unsupervised learning |
-| 9 | 27 Nov | Neural networks |
-| 10 | 4 Dec | Convolutional networks and course synthesis |
+| 4 | 30 Oct, ending 6 Nov | Classification and evaluation metrics |
+| 5 | 6 Nov | Experimental methodology and model selection |
+| 6 | 13 Nov | k-NN, Naive Bayes and support vector machines |
+| 7 | 20 Nov | Trees and ensembles |
+| 8 | 27 Nov | Unsupervised learning |
+| 9 | 4 Dec | Neural networks |
+| 10 | 11 Dec | Convolutional networks and course synthesis |
 
 Large language models, transformers, RAG and agents are **not** covered — they belong
 to a separate course in the programme. [`Course/BRIDGE.md`](Course/BRIDGE.md) is a

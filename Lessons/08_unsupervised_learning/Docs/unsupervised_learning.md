@@ -2,7 +2,7 @@
 title: "Unsupervised Learning"
 subtitle: "Lesson 8 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "20 November 2026 · reading time about 70 minutes"
+date: "27 November 2026 · reading time about 70 minutes"
 ---
 
 ## Lesson plan
@@ -764,7 +764,7 @@ sitting near the middle of every picture.
 ### Homework
 
 `Exercises/08_unsupervised_learning.md`, discussed at the start of lesson 9,
-**Friday 27 November 2026**.
+**Friday 4 December 2026**.
 
 ### Notation used in this lesson
 

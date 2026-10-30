@@ -2,7 +2,7 @@
 title: "Lesson 8 — What Each Notebook Shows"
 subtitle: "Notebook guide, lesson 8 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "20 November 2026 · three notebooks"
+date: "27 November 2026 · three notebooks"
 ---
 
 > A short guide to this lesson's notebooks. For each one: what it is for, the
