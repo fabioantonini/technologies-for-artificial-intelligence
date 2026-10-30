@@ -2223,7 +2223,7 @@ The reflex to keep: before believing any accuracy, ask for the base rate.
 
 Exercise 4 gives a new imbalanced dataset, patients who may be readmitted to hospital,
 and asks for a classifier, a threshold chosen from a stated cost ratio, and a paragraph
-defending the choice. It is discussed at the start of the lesson on Friday 6 November.
+defending the choice. It is discussed at the start of the lesson on Friday 13 November.
 What matters at the exam is the paragraph, not the classifier, which is a few lines
 anyone can write. Two traps are planted on purpose: the dataset has a decoy column, as
 this one did, and the exercise asks for the AUC and the average precision together;

@@ -2,7 +2,7 @@
 title: "Lesson 9: Neural Networks"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "27 November 2026"
+date: "4 December 2026"
 ---
 
 # Agenda
@@ -1215,7 +1215,7 @@ for. Handout sections 3.4 and 5.5.
 
 # Homework
 
-- **Exercise 9**, discussed at the start of lesson 10, **Friday 4 December**
+- **Exercise 9**, discussed at the start of lesson 10, **Friday 11 December**
 - `Exercises/09_neural_networks.md`
 - Two batches from Meridian's two final-test stations: on which one is a
   hidden layer worth it, and why?
@@ -1224,7 +1224,7 @@ for. Handout sections 3.4 and 5.5.
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten minutes
-of lesson 10, Friday 4 December. Nothing is collected; we discuss it, and at
+of lesson 10, Friday 11 December. Nothing is collected; we discuss it, and at
 the exam one of the ten exercises is drawn and the student talks through their
 own notebook.
 

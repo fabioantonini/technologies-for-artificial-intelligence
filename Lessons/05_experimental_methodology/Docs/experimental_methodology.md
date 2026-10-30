@@ -2,26 +2,32 @@
 title: "Experimental Methodology"
 subtitle: "Lesson 5 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "30 October 2026 · reading time about 95 minutes"
+date: "6 November 2026 · reading time about 95 minutes"
 ---
 
 ## Lesson plan
 
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
-| 0:00–0:10 | 10 | Exercise 4 discussed; the promise we broke | Slides 2–4 |
-| 0:10–0:27 | 17 | One split is a lottery | Slides 5–11 |
-| 0:27–0:47 | 20 | Cross-validation, and when it needs care | Slides 12–19 |
-| 0:47–1:07 | 20 | **Notebook 01** — the split lottery | Slide 20 |
-| 1:07–1:17 | 10 | **Break** | Slide 21 |
-| 1:17–1:39 | 22 | Bias, variance and the noise floor | Slides 22–28 |
-| 1:39–1:51 | 12 | Learning curves and what they prescribe | Slides 29–30 |
-| 1:51–2:11 | 20 | **Notebook 02** — measuring the decomposition | Slide 31 |
-| 2:11–2:31 | 20 | Leakage that survives cross-validation | Slides 32–39 |
-| 2:31–2:40 | 9 | The debt paid; seeds; reproducibility | Slides 40–43 |
-| 2:40–2:55 | 15 | **Notebook 03** — leakage and honest search | Slide 44 |
-| 2:55–3:00 | 5 | What to put in a report; summary; homework | Slides 45–47 |
+| 0:00–0:45 | 45 | **Lesson 4, concluded**: receiver operating characteristic (ROC) curves and the area under the curve (AUC), the threshold from costs, its notebook 3; exercise 4 set | Lesson 4's deck, from its slide 43 |
+| 0:45–0:50 | 5 | The plan for today; the promise we broke | Slides 2–4 |
+| 0:50–1:05 | 15 | One split is a lottery | Slides 5–11 |
+| 1:05–1:20 | 15 | Cross-validation, and when it needs care (16–17 optional) | Slides 12–19 |
+| 1:20–1:35 | 15 | **Notebook 01** — the split lottery | Slide 20 |
+| 1:35–1:45 | 10 | **Break** | Slide 21 |
+| 1:45–2:01 | 16 | Bias, variance and the noise floor (27–28 optional) | Slides 22–28 |
+| 2:01–2:10 | 9 | Learning curves and what they prescribe | Slides 29–30 |
+| 2:10–2:30 | 20 | Leakage that survives cross-validation | Slides 32–39 |
+| 2:30–2:35 | 5 | The debt paid (42–43 optional) | Slides 40–43 |
+| 2:35–2:50 | 15 | **Notebook 03** — leakage and honest search | Slide 44 |
+| 2:50–3:00 | 10 | What to put in a report; summary; homework | Slides 45–47 |
 | | **180** | **Total** | **47 slides, 3 notebooks** |
+
+*This plan is for Friday 6 November 2026, when lesson 4 ran over into the first
+three quarters of an hour. Notebook 02 (slide 31) and the slides marked (optional)
+— 16 and 17, 27 and 28, 42 and 43 — are left for self-study; the sections of this
+handout that cover them are unchanged. With a full three hours, notebook 02 runs
+live for twenty minutes after slide 30.*
 
 ---
 
@@ -872,7 +878,7 @@ questions open — and section 7.3 suggests how large the correction tends to be
 
 ### Homework
 
-`Exercises/05_experimental_methodology.md`, discussed at the start of Lesson 6, **Friday 6 November 2026**.
+`Exercises/05_experimental_methodology.md`, discussed at the start of Lesson 6, **Friday 13 November 2026**.
 
 ### Notation used in this lesson
 

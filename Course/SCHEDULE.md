@@ -3,27 +3,32 @@
 **Technologies for Artificial Intelligence** — Università degli Studi dell'Aquila
 First-year MSc in Computer Science, autumn 2026.
 
-Ten lessons of three hours, every Friday from 2 October to 4 December 2026.
+Ten lessons of three hours, every Friday from 2 October to 11 December 2026.
 Total: **30 hours**.
+
+The calendar moved by one week in October: on 23 October the class worked through
+the consolidation notebooks (`Consolidation/`) in place of lesson 4, and lesson 4,
+taught on 30 October, ran over into the first three quarters of an hour of
+6 November. Every date from lesson 5 on is one week later than first announced.
 
 | # | Date | Lesson | Materials |
 |---|---|---|---|
 | 1 | Fri 2 Oct 2026 | Introduction and the machine learning workflow | [`01_introduction_and_workflow`](../Lessons/01_introduction_and_workflow) |
 | 2 | Fri 9 Oct 2026 | Data: exploration and preparation | [`02_data_exploration_and_preparation`](../Lessons/02_data_exploration_and_preparation) |
 | 3 | Fri 16 Oct 2026 | Regression | [`03_regression`](../Lessons/03_regression) |
-| 4 | Fri 23 Oct 2026 | Classification and evaluation metrics | [`04_classification_and_metrics`](../Lessons/04_classification_and_metrics) |
-| 5 | Fri 30 Oct 2026 | Experimental methodology and model selection | [`05_experimental_methodology`](../Lessons/05_experimental_methodology) |
-| 6 | Fri 6 Nov 2026 | k-NN, Naive Bayes and support vector machines | [`06_knn_naive_bayes_svm`](../Lessons/06_knn_naive_bayes_svm) |
-| 7 | Fri 13 Nov 2026 | Trees and ensembles | [`07_trees_and_ensembles`](../Lessons/07_trees_and_ensembles) |
-| 8 | Fri 20 Nov 2026 | Unsupervised learning | [`08_unsupervised_learning`](../Lessons/08_unsupervised_learning) |
-| 9 | Fri 27 Nov 2026 | Neural networks | [`09_neural_networks`](../Lessons/09_neural_networks) |
-| 10 | Fri 4 Dec 2026 | Convolutional networks and course synthesis | [`10_convolutional_networks`](../Lessons/10_convolutional_networks) |
+| 4 | Fri 30 Oct 2026, ending Fri 6 Nov | Classification and evaluation metrics | [`04_classification_and_metrics`](../Lessons/04_classification_and_metrics) |
+| 5 | Fri 6 Nov 2026 | Experimental methodology and model selection | [`05_experimental_methodology`](../Lessons/05_experimental_methodology) |
+| 6 | Fri 13 Nov 2026 | k-NN, Naive Bayes and support vector machines | [`06_knn_naive_bayes_svm`](../Lessons/06_knn_naive_bayes_svm) |
+| 7 | Fri 20 Nov 2026 | Trees and ensembles | [`07_trees_and_ensembles`](../Lessons/07_trees_and_ensembles) |
+| 8 | Fri 27 Nov 2026 | Unsupervised learning | [`08_unsupervised_learning`](../Lessons/08_unsupervised_learning) |
+| 9 | Fri 4 Dec 2026 | Neural networks | [`09_neural_networks`](../Lessons/09_neural_networks) |
+| 10 | Fri 11 Dec 2026 | Convolutional networks and course synthesis | [`10_convolutional_networks`](../Lessons/10_convolutional_networks) |
 
 ## Assessment dates
 
 | Milestone | Date |
 |---|---|
-| Weekly exercises | Set at the end of each lesson, discussed at the start of the next. Nothing is collected: one of the ten is drawn at the exam and you talk through your own notebook. Exercise 10 has no lesson after it, so it is worked for the exam alone. |
+| Weekly exercises | Set at the end of each lesson, discussed at the start of the next. Exercises 4 and 5 are both set on 6 November and both discussed on 13 November. Nothing is collected: one of the ten is drawn at the exam and you talk through your own notebook. Exercise 10 has no lesson after it, so it is worked for the exam alone. |
 | Exam: one of the ten exercises drawn and discussed | **Three sittings between January and February 2027.** The dates are set by the degree programme and are not yet published; this table is updated when they are. |
 
 ## Material release policy

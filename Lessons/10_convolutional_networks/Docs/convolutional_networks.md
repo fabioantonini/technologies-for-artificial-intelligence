@@ -2,7 +2,7 @@
 title: "Convolutional Networks, and Course Synthesis"
 subtitle: "Lesson 10 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "4 December 2026 · reading time about 100 minutes"
+date: "11 December 2026 · reading time about 100 minutes"
 ---
 
 ## Lesson plan
@@ -765,7 +765,7 @@ build one of these systems from being able to say whether it is any good.
 ### Homework
 
 **Exercise 10** — see `Exercises/10_convolutional_networks.md`. Work it by **Friday
-11 December 2026** — the one exercise with no lesson after it to discuss it, so it
+18 December 2026** — the one exercise with no lesson after it to discuss it, so it
 is worked for the exam alone. It is the last exercise of the course, and the one
 you will have had least practice defending; write the reasoning down as you go.
 

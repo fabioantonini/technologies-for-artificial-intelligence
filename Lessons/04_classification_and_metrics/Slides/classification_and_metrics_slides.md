@@ -2041,12 +2041,13 @@ convex, so any minimum gradient descent finds is the global one.
 
 # Homework
 
-- **Exercise 4**, discussed at the start of **Friday 6 November**
+- **Exercise 4**, discussed at the start of **Friday 13 November**
 - Build a classifier, choose a threshold from a stated cost ratio, defend it
 
 ::: notes
-Set it explicitly and say out loud when it comes back: the first ten
-minutes of next Friday, 6 November.
+Set it explicitly and say out loud when it comes back: the start of Friday
+13 November, together with exercise 5. (Lesson 4 ran over two Fridays: this
+slide is reached on 6 November, after which lesson 5 begins the same day.)
 
 Emphasise which part matters at the exam, where one of the ten exercises is
 drawn and they talk through their own notebook. The classifier is a few lines
@@ -2058,6 +2059,7 @@ as this one did, and the exercise asks them to report AUC and average precision
 together. Anyone reporting AUC alone will be reporting a number that looks
 better than the model is.
 
-Next week: experimental methodology. Cross-validation, bias-variance, and the
-honest way to make every choice we made by hand today.
+Next: experimental methodology, straight after this slide. Cross-validation,
+bias-variance, and the honest way to make every choice we made by hand in this
+lesson.
 :::

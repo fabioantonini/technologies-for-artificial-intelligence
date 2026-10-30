@@ -2,16 +2,23 @@
 title: "Lesson 6: k-NN, Naive Bayes and Support Vector Machines"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "6 November 2026"
+date: "13 November 2026"
 ---
 
 # Before we start
 
-- Exercise 5, which we discuss now
-- The score that was too good, and what the honest number cost you
+- Exercises 4 and 5, which we discuss now
+- The threshold you chose; the score that was too good, and what the honest number cost you
 
 ::: notes
-Nothing is collected. What matters is how each student found the problems, not
+Nothing is collected. Two exercises this time, because lesson 4 ran over into
+6 November and both were set that day; keep each to about five minutes.
+
+Exercise 4 first, briefly: ask two people to defend their threshold out loud -
+that is the rehearsal for the exam - and name the recurring mistake if it
+appeared, choosing the threshold by sweeping it on the test set.
+
+Then exercise 5. What matters is how each student found the problems, not
 the final score, so ask the room what they found and listen for what they
 missed.
 
@@ -1717,12 +1724,12 @@ Handout section 7 lists all of this with the section numbers.
 
 # Homework
 
-- **Exercise 6**, discussed at the start of **Friday 13 November**
+- **Exercise 6**, discussed at the start of **Friday 20 November**
 - A dataset, three families, and a defence of which one you chose
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten
-minutes of next Friday, 13 November.
+minutes of next Friday, 20 November.
 
 If this exercise is drawn at the exam, what counts is the reasoning, not the
 accuracy. A well-argued choice that scores slightly worse beats a lucky winner

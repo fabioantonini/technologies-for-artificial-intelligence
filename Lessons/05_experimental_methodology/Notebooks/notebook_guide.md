@@ -2,7 +2,7 @@
 title: "Lesson 5 — What Each Notebook Shows"
 subtitle: "Notebook guide, lesson 5 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "30 October 2026 · three notebooks"
+date: "6 November 2026 · three notebooks"
 ---
 
 > A short guide to this lesson's notebooks. For each one: what it is for, the
@@ -66,7 +66,7 @@ a spread you are supposed to report.*
 
 ---
 
-# Notebook 02 — `02_bias_variance_and_learning_curves`
+# Notebook 02 — `02_bias_variance_and_learning_curves` (self-study on 6 November)
 
 ## What the error is made of
 

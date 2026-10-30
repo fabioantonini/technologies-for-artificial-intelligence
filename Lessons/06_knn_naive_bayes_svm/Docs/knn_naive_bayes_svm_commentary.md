@@ -1892,7 +1892,7 @@ model and expensive for anything built on a distance.
 ## Slide 69 — Homework
 
 Exercise 6 gives you a dataset and asks you to compare the three families and defend the
-one you choose. It is discussed at the start of the lesson on Friday 13 November. What
+one you choose. It is discussed at the start of the lesson on Friday 20 November. What
 matters in the exam is the reasoning in your notebook, not the accuracy: a well-argued
 choice that scores slightly lower beats a lucky winner with no justification. The argument
 must refer to the data, in the way the squared distances and the fitted ellipse explained

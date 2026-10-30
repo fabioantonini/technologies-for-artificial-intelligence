@@ -2,7 +2,7 @@
 title: "Lesson 6 — What Each Notebook Shows"
 subtitle: "Notebook guide, lesson 6 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "6 November 2026 · three notebooks"
+date: "13 November 2026 · three notebooks"
 ---
 
 > A short guide to this lesson's notebooks. For each one: what it is for, the

@@ -2,7 +2,7 @@
 title: "Experimental Methodology — Key Concepts"
 subtitle: "Lesson 5 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "30 October 2026 · a one-page index"
+date: "6 November 2026 · a one-page index"
 ---
 
 An index, not a summary. Each entry says what a term means and where the handout

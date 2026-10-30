@@ -2,7 +2,7 @@
 title: "Trees and Ensembles"
 subtitle: "Lesson 7 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "13 November 2026 · reading time about 85 minutes"
+date: "20 November 2026 · reading time about 85 minutes"
 ---
 
 ## Lesson plan
@@ -875,7 +875,7 @@ and are not affected — and they are still the two best rows.
 
 ### Homework
 
-`Exercises/07_trees_and_ensembles.md`, discussed at the start of Lesson 8, **Friday 20 November 2026**.
+`Exercises/07_trees_and_ensembles.md`, discussed at the start of Lesson 8, **Friday 27 November 2026**.
 
 ### Notation used in this lesson
 

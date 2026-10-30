@@ -10,7 +10,7 @@
 Course material for **Technologies for Artificial Intelligence**, first-year MSc in
 Computer Science, Università degli Studi dell'Aquila — autumn 2026.
 
-Ten lessons of three hours, every Friday from 2 October to 4 December 2026.
+Ten lessons of three hours, every Friday from 2 October to 11 December 2026.
 
 > A first course in machine learning for people who can already program: the methods,
 > the mathematics underneath them, and the experimental discipline to tell a result

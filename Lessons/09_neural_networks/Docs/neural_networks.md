@@ -2,7 +2,7 @@
 title: "Neural Networks"
 subtitle: "Lesson 9 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "27 November 2026 · reading time about 70 minutes"
+date: "4 December 2026 · reading time about 70 minutes"
 ---
 
 ## Lesson plan
@@ -620,7 +620,7 @@ notices.** Lesson 10 is about networks that do notice.
 ### Homework
 
 `Exercises/09_neural_networks.md`, discussed at the start of Lesson 10,
-**Friday 4 December 2026**.
+**Friday 11 December 2026**.
 
 ### Notation used in this lesson
 

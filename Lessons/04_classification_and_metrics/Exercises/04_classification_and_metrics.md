@@ -2,7 +2,7 @@
 title: "Exercise 4 — Classification and Evaluation Metrics"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 30 October 2026 · discussed at the start of lesson 5, Friday 6 November 2026"
+date: "Set 6 November 2026 · discussed at the start of lesson 6, Friday 13 November 2026"
 ---
 
 ## What this exercise is for
@@ -18,7 +18,7 @@ and defend one decision that the data cannot make for you.
 course container. Written answers go in markdown cells beside the evidence for
 them.
 
-Nothing is handed in: lesson 5 opens by discussing this exercise, and at the
+Nothing is handed in: lesson 6 opens by discussing this exercise, together with exercise 5, and at the
 exam one of the ten is drawn for you to talk through your own notebook.
 
 ---

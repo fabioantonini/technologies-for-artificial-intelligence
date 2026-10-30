@@ -2,23 +2,29 @@
 title: "Lesson 5: Experimental Methodology"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "30 October 2026"
+date: "6 November 2026"
 ---
 
-# Before we start
+# Before we start: lesson 4, concluded
 
-- Exercise 4, which we discuss now
-- The threshold you chose, and how you chose it
+- First, lesson 4's last slides: receiver operating characteristic (ROC) curves, the area under the curve (AUC), the threshold from costs, notebook 3
+- Exercise 4 is set at their end; exercises 4 and 5 are both discussed on 13 November
+- Then lesson 5, with a few parts left for self-study, marked (optional)
 
 ::: notes
-Nothing to collect. The defence of the threshold is the part that matters, so
-ask two people to give theirs out loud - that is the rehearsal for the exam,
-where one of the ten exercises is drawn and discussed.
+Lesson 4 ran over two Fridays: on 30 October it reached its slide 42, so this
+Friday opens with its remaining slides, about forty-five minutes, from its slide
+43 to its homework slide, where exercise 4 is set officially. Its optional slides
+(55, 58 to 60) can be skipped.
 
-The recurring mistake to name, if it appeared: choosing the threshold by
-sweeping it on the test set. The exercise sheet said that doing so loses no marks
-if it is declared - and today is the lesson that shows why it matters rather than
-asserting that it does.
+Lesson 5 then has about two hours and a quarter instead of three. Nothing is cut
+from the material: the slides marked (optional) - 16 and 17, 27 and 28, 42 and
+43 - and notebook 2 are left for self-study, and the handout covers them all.
+Say so at the start, so nobody thinks they missed something.
+
+Exercises 4 and 5 are both discussed at the start of lesson 6, Friday 13
+November. Students have already loaded exercise 4's data and fitted a logistic
+regression, so the two together are a fair week's work.
 :::
 
 # We broke a promise on purpose
@@ -321,7 +327,7 @@ The rule: stratify whenever a class is rare. Which, as lesson 4 established, is
 whenever the problem is interesting.
 :::
 
-# How much does it help?
+# How much does it help? (optional)
 
 | Over 40 seeds | Single split | 5-fold cross-validation |
 |---|---|---|
@@ -331,6 +337,9 @@ whenever the problem is interesting.
 | best − worst | 0.0881 | 0.0149 |
 
 ::: notes
+Optional on 6 November: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 Forty seeds, changing nothing but the seed. Cross-validation has a seed of its
 own - shuffle differently and the folds change - so it reduces the variance of
 the estimate, it does not abolish it.
@@ -354,13 +363,16 @@ a single validation set with enough rows that its own error bar is tolerable.
 What it does NOT fix is the subject of slides 32 to 39.
 :::
 
-# How many folds?
+# How many folds? (optional)
 
 - **k = 5 or 10** in practice
 - Larger k: less pessimistic, more expensive, folds more correlated
 - k = m is **leave-one-out**
 
 ::: notes
+Optional on 6 November: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 The question always comes, so answer it before it does.
 
 Larger k means each fold trains on more data, so the estimate is less
@@ -434,7 +446,7 @@ That gap is the most common cause of a model failing after deployment.
 The table is the notebook's map: each section, the calls it makes, the slides
 that introduced the idea, and the number to come back with.
 
-Run notebook 01. Twenty minutes.
+Run notebook 01. Fifteen minutes.
 
 Have them run the five-seed cell first and watch seed 3 return 1.000 before you
 say anything about it.
@@ -583,12 +595,15 @@ the failure.
 The dotted line is the noise floor at 484.
 :::
 
-# The floor you cannot go below
+# The floor you cannot go below (optional)
 
 - Noise variance is **484** = 22², the noise put into the data, at every complexity
 - A reported error well below a known floor means **contamination**, not excellence
 
 ::: notes
+Optional on 6 November: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 The noise column never moves, because it is a property of the data rather than
 of the model. No model, no algorithm and no quantity of data brings the expected
 error below it.
@@ -602,7 +617,7 @@ Connects forward to the last hour, where we manufacture exactly that symptom
 deliberately.
 :::
 
-# The best model depends on how much data you have
+# The best model depends on how much data you have (optional)
 
 | Degree | m = 25 | m = 60 | m = 150 |
 |---|---|---|---|
@@ -611,6 +626,9 @@ deliberately.
 | 12 | 32,328,366.2 | 7,626.9 | 899.0 |
 
 ::: notes
+Optional on 6 November: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 The same experiment at three sample sizes. The best degree moves from 2 to 5 as
 the data grows, because there is now enough of it to pin down the extra
 coefficients and the variance has fallen accordingly.
@@ -695,7 +713,7 @@ data almost always helps and never makes a model worse. It just does not help
 THIS failure, and fifteen lines of code tell you which failure you have.
 :::
 
-# Notebook 2, live
+# Notebook 2, self-study (optional)
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
@@ -706,8 +724,11 @@ THIS failure, and fifteen lines of code tell you which failure you have.
 
 
 ::: notes
-The table maps each section to its calls and its number. Run notebook 02.
-Twenty minutes.
+The table maps each section to its calls and its number. On 6 November this
+notebook is left for self-study: show the table, say what each section measures,
+and that its numbers are on slides 23 to 30, which were just shown.
+
+When there is a full three hours, run it live, for twenty minutes.
 
 The cell to protect is the decomposition table where the sum equals the measured
 error to twelve decimal places. Let them see the identity hold rather than
@@ -945,12 +966,15 @@ weakness costs a little credibility; an unstated one costs all of it when
 somebody else fails to reproduce your number.
 :::
 
-# A fixed seed buys repeatability, not stability
+# A fixed seed buys repeatability, not stability (optional)
 
 - 30 seeds, all perfectly reproducible: **0.913 to 1.000**
 - `AUC 1.000 (random_state=3)` is reproducible **and** misleading
 
 ::: notes
+Optional on 6 November: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 Every one of those thirty runs is exactly reproducible by anyone with the same
 code. They disagree with each other by nearly nine points.
 
@@ -965,13 +989,16 @@ The second one is also the way to write up every exercise from here on - it is
 what the exam asks them to defend.
 :::
 
-# What to fix, and what to write down
+# What to fix, and what to write down (optional)
 
 - Every `random_state`, and `np.random.default_rng(seed)`
 - **Library versions**: defaults change between releases
 - What you could **not** fix: threads, graphics processing unit (GPU) non-determinism
 
 ::: notes
+Optional on 6 November: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 Practical checklist. The container exists for the second item: it pins the
 environment so that their result and the examiner's are the same result.
 
@@ -1046,12 +1073,12 @@ one they are most likely to be asked at the exam about whichever exercise is dra
 
 # Homework
 
-- **Exercise 5**, discussed at the start of **Friday 6 November**
+- **Exercise 5**, discussed at the start of **Friday 13 November**
 - A result that is too good. Find out why, then produce the honest number
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten
-minutes of next Friday, 6 November.
+minutes of next Friday, 13 November.
 
 The shape of it: they are given a notebook that reports an excellent score, and
 the score is wrong. They have to find the reason, fix it, report the honest

@@ -23,6 +23,9 @@ date: "30 October 2026 · reading time about 80 minutes"
 | 2:55–3:00 | What to take away; homework | Slides 61–62 |
 | | **Total** | **180 minutes** |
 
+*Taught over two Fridays in 2026: slides 1 to 42 on 30 October, slides 43 to 62 at
+the start of 6 November, before lesson 5.*
+
 ---
 
 ## 1. From a number to a decision
@@ -1750,7 +1753,7 @@ missing a healthy drive, macro is the honest one.**
 
 ### Homework
 
-`Exercises/04_classification_and_metrics.md`, discussed at the start of Lesson 5, **Friday 6 November 2026**.
+`Exercises/04_classification_and_metrics.md`, discussed at the start of Lesson 6, **Friday 13 November 2026**.
 
 ### Notation used in this lesson
 
