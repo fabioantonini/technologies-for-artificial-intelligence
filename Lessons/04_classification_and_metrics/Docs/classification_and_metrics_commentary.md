@@ -267,8 +267,14 @@ each probability has exactly one log-odds, and back.
 ### Question — why do odds help? They look more complicated than a probability
 
 Because evidence acts on them in the simplest possible way: it **multiplies** them.
-A reading that is six times more common among failing drives multiplies the odds by
-6, whatever they were before (slide 10 shows why by counting drives). A probability
+Take a **reading**, what one counter shows on one drive, such as "a high count of
+reallocated sectors", and suppose it shows up on 60% of the drives that will fail and
+on 10% of the healthy ones. Those two shares are made up for the example; their
+ratio, 0.6 ÷ 0.1 = 6, is chosen close to the real effect of one standard deviation of
+reallocated sectors in this fleet, $e^{1.80} = 6.05$ (slide 14). A reading six times
+more common among failing drives multiplies the odds by 6, whatever they were before:
+of 1,000 drives at 50%, 500 fail and 500 do not, odds 1; among those showing the
+reading, 300 fail and 50 do not, odds 6. Slide 10 does the count in full. A probability
 cannot be treated that way: adding a fixed amount breaks at the edges (0.95 + 0.10 is
 1.05), and multiplying it breaks too. Odds times 6 are always valid odds. The
 logarithm then turns each multiplication into an addition, and a sum of one term per
@@ -330,8 +336,16 @@ The evidence is a **reading**: what one counter shows on one drive, a particular
 or range of values of one feature, such as "a high count of reallocated sectors". For
 the counting below it is a yes-or-no fact: the drive shows it or it does not. The
 reading here is six times more common among drives that fail than among healthy ones,
-so it multiplies the odds by 6. The three drives start from 0.2% (the average drive),
-50% and 95%; the teal arrows are equal, the rust arrows are +1, +36 and +4 points.
+so it multiplies the odds by 6. On the log-odds axis, multiplying the odds by 6 is
+adding $\log 6 = 1.79$, whatever the start: that is why the three teal arrows are
+equal. In probability the same factor gives three different jumps, the rust arrows:
+
+| drive | risk before, $p$ | odds before = $p \div (1 - p)$ | odds after = odds × 6 | risk after = odds ÷ (1 + odds) | jump |
+|---|---|---|---|---|---|
+| average | 0.2% | 0.002 | 0.002 × 6 = 0.012 | 0.012 ÷ (1 + 0.012) = 1.2% | +1 point |
+| uncertain | 50% | 0.5 ÷ 0.5 = 1 | 1 × 6 = 6 | 6 ÷ (1 + 6) = 86% | +36 points |
+| nearly sure | 95% | 0.95 ÷ 0.05 = 19 | 19 × 6 = 114 | 114 ÷ (1 + 114) = 99.1% | +4 points |
+
 That contrast is why slide 11 puts the line on the log-odds and not on the
 probability.
 
