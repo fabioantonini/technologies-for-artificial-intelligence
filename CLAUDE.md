@@ -173,7 +173,7 @@ it is what makes ten mathematically serious handouts feasible part-time.
 Course/            SYLLABUS.md, SCHEDULE.md, PREREQUISITES.md, template.pptx, Setup/
 Lessons/NN_topic/  Docs/ Slides/ Notebooks/ Quizzes/ Exercises/ Figures/ Resources/
 Assessment/        Exam/ Exercises/
-Workshop/          the two-hour in-class workshop held after lesson 5: notebook, checks, data, guide, deck
+Workshop/          a two-hour in-class workshop, built but not scheduled (dropped 30 Oct 2026): notebook, checks, data, guide, deck
 
 tools/             build.py, verify_lesson.py, check_code_blocks.py, make_template.py, postprocess_pptx.py, render_math.py, release.py
 ```
