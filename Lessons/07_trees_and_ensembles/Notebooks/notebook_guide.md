@@ -71,7 +71,9 @@ training accuracy climbs to a perfect 1.000 while cross-validated accuracy peaks
 depth 8 and falls back. At depth 2 the tree finds the two big regions and misses the
 two islands; at depth 8 it finds all four. The last section is the reason notebook 2
 exists: resample the same 1,200 applicants and the root split barely moves, but the two
-trees disagree on 12% of their predictions.*
+trees give opposite verdicts to 140 applicants, almost all around the islands
+(`two_trees_disagree.png`). On the way, a nine-leaf tree cross-validates at 0.901,
+above the depth-8 tree.*
 
 ---
 
@@ -177,14 +179,16 @@ builds them **in sequence**, each one correcting what the ensemble so far got wr
    |---|---|---|
    | random forest, 100 trees | **0.911** | 97.9% |
    | bagging, 100 trees | 0.904 | 97.2% |
+   | single tree, 9 leaves | 0.901 | 96.9% |
    | gradient boosting, 30 trees | 0.897 | 96.5% |
    | single tree, depth 8 | 0.882 | 94.9% |
    | single tree, unconstrained | 0.852 | — |
    | logistic regression | 0.748 | — |
    | majority baseline | 0.613 | — |
 
-   All three ensembles land within two points of each other and closer to the ceiling
-   than either single tree.
+   The three ensembles land within two points of each other, and a nine-leaf tree sits
+   among them: the rule is made of rectangles, which a small tree draws well. What the
+   ensembles buy here is steadiness more than score.
 
 **The two-minute version.** *Boosting fits shallow trees in sequence, each one
 correcting the previous ensemble's mistakes. On regression you can watch it happen: one

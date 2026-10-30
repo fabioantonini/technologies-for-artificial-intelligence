@@ -117,10 +117,14 @@ training loss for as long as it runs. → § 10
 
 ## Choosing
 
-**Ensembling beats the choice of ensemble, on this dataset.** Every ensembling
-strategy here lands close to the others and all of them closer to the ceiling than
-any single tree — so here *whether* you ensemble matters far more than *how*. The
-exercise shows a dataset where it does not. → § 11
+**Ensembling beats the choice of ensemble, on this dataset.** The ensembling
+strategies here land close to one another, so here *whether* you ensemble matters
+more than *how*. The exercise shows a dataset where it does not. → § 11
+
+**A budget of leaves.** `max_leaf_nodes` caps how many leaves a tree may grow and
+spends them best-first; on this dataset, whose rule is made of rectangles, a small
+budgeted tree gets close to the ensembles, and what the ensembles add is
+steadiness. → § 4, § 11
 
 **Flexibility is not an advantage on its own.** The unconstrained tree is the worst
 model on the leaderboard despite being the most flexible: flexibility without a

@@ -201,6 +201,41 @@ if not (X["income_k"].iloc[_r] < TRUE_INCOME_FLOOR and X["debt_ratio"].iloc[_r] 
     raise SystemExit(f"{HANDOUT}: 2.1 the changed applicant should be a flipped label")
 checks += 1
 
+# Batch 3 (30 Oct): the slips, the folds, the leaves, the budgeted tree, the two trees.
+same("2.2 the slip: 1 minus the weighted average", 1 - 0.3305, 0.6695, tolerance=1e-9)
+same("2.2 the slip: a count rebuilt from 26%", 0.26 * 971, 252, tolerance=0.5)
+same("2.2 the true left share", 249 / 971, 0.256, tolerance=5e-4)
+same("2.2 the children's p, weighted, is the parent's",
+     971 / 1200 * (249 / 971) + 229 / 1200 * (215 / 229), 464 / 1200, tolerance=1e-12)
+same("2.2 the rounded version drifts to 0.386", 0.809 * 0.256 + 0.191 * 0.939, 0.386, tolerance=5e-4)
+same("2.2 249 + 215 over 1,200", (249 + 215) / 1200, 0.387, tolerance=5e-4)
+_f8 = cross_val_score(DecisionTreeClassifier(max_depth=8, random_state=0), X, y, cv=folds)
+for _k, _c in enumerate((210, 211, 215, 214, 209)):
+    same(f"3 depth 8, fold {_k + 1} correct of 240", round(_f8[_k] * 240), _c, tolerance=0)
+same("3 depth 8, the folds' standard deviation", _f8.std(), 0.010, tolerance=5e-4)
+from loan_data import _true_default                                    # noqa: E402
+_rule = _true_default(X["income_k"].values, X["debt_ratio"].values).astype(int)
+same("3 flipped labels in this sample", int((_rule != y.values).sum()), 85, tolerance=0)
+same("3 the true rule's score", (_rule == y.values).mean(), 0.929, tolerance=5e-4)
+for _d, _leaves, _median, _ones in ((2, 4, 123.5, 0), (None, 156, 2, 72)):
+    _t = DecisionTreeClassifier(max_depth=_d, random_state=0).fit(X, y)
+    _sizes = _t.tree_.n_node_samples[_t.tree_.children_left < 0]
+    same(f"3 depth {_d}: leaves", len(_sizes), _leaves, tolerance=0)
+    same(f"3 depth {_d}: median leaf", float(np.median(_sizes)), _median, tolerance=0)
+    same(f"3 depth {_d}: one-applicant leaves", int((_sizes == 1).sum()), _ones, tolerance=0)
+same("3 the unconstrained tree's real depth",
+     DecisionTreeClassifier(random_state=0).fit(X, y).get_depth(), 24, tolerance=0)
+_cv9 = cross_val_score(DecisionTreeClassifier(max_leaf_nodes=9, random_state=0), X, y, cv=folds)
+same("4 nine leaves, cross-validated mean", _cv9.mean(), 0.901, tolerance=0.02)
+same("4 nine leaves, cross-validated spread", _cv9.std(), 0.020, tolerance=0.01)
+_sa = X.sample(frac=0.65, random_state=1)
+_sb = X.sample(frac=0.65, random_state=2)
+same("4 each sample holds 780", len(_sa), 780, tolerance=0)
+same("4 the two samples share 499", len(set(_sa.index) & set(_sb.index)), 499, tolerance=0)
+_ta = DecisionTreeClassifier(max_depth=6, random_state=0).fit(_sa, y.loc[_sa.index])
+_tb = DecisionTreeClassifier(max_depth=6, random_state=0).fit(_sb, y.loc[_sb.index])
+same("4 opposite verdicts", int((_ta.predict(X) != _tb.predict(X)).sum()), 140, tolerance=3)
+
 # Section 2.2 now says what G *is*: the chance two draws from the group, labelled
 # by its own frequencies, disagree. Checked by drawing pairs, not by the formula.
 _rng7 = np.random.default_rng(20261106)

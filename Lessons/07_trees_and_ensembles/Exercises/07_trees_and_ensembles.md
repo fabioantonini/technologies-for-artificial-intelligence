@@ -7,12 +7,13 @@ date: "Set 20 November 2026 · discussed at the start of lesson 8, Friday 27 Nov
 
 ## What this exercise is for
 
-Lesson 7's own dataset was clear-cut: every ensemble — bagging, random forest,
-gradient boosting — beat the best single tree, by 1.5 to 3 points of
-cross-validated accuracy. It would be easy to leave the
-lecture believing an ensemble always beats a single tree by *some* margin.
+Lesson 7's leaderboard put every ensemble — bagging, random forest, gradient
+boosting — 1.5 to 3 points of cross-validated accuracy above the depth-tuned
+single tree, and then a nine-leaf tree among them, at 0.901. It would be easy to
+leave the lecture with either lesson: that an ensemble always beats a single
+tree by *some* margin, or that a small tree is always enough.
 
-That is not true, and this exercise is built to show you when and why.
+Neither is true, and this exercise is built to show you when and why.
 
 You get **two loan products from the same lender**, built the same way a
 rule, applied, then a slice of labels flipped to stand in for outcomes the

@@ -11,15 +11,15 @@ date: "20 November 2026 · reading time about 85 minutes"
 |---|---|---|---|
 | 0:00–0:10 | 10 | Exercise 6 discussed; the choice this lesson offers | Slides 2–5 |
 | 0:10–0:32 | 22 | Decision trees: splitting on Gini impurity | Slides 6–20 |
-| 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 21–26 |
-| 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 27 |
-| 1:12–1:24 | 12 | **Break** | Slide 28 |
-| 1:24–1:44 | 20 | Bagging and random forests | Slides 29–40 |
-| 1:44–2:02 | 18 | **Notebook 02** — bagging and random forests | Slide 41 |
-| 2:02–2:24 | 22 | Gradient boosting | Slides 42–51 |
-| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 52 |
-| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 53–58 |
-| | **180** | **Total** | **58 slides, 3 notebooks** |
+| 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 21–27 |
+| 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 28 |
+| 1:12–1:24 | 12 | **Break** | Slide 29 |
+| 1:24–1:44 | 20 | Bagging and random forests | Slides 30–41 |
+| 1:44–2:02 | 18 | **Notebook 02** — bagging and random forests | Slide 42 |
+| 2:02–2:24 | 22 | Gradient boosting | Slides 43–52 |
+| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 53 |
+| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 54–59 |
+| | **180** | **Total** | **59 slides, 3 notebooks** |
 
 ---
 
@@ -196,7 +196,29 @@ $\Delta G$, defined in section 2.2, does two jobs, both at one node at a time:
 it ranks that node's candidates, and it decides whether the node is split at
 all. Each child then runs the whole loop again on its own examples, with its own
 impurity in the parent's place and its own size as $m$; gains are never added up
-across nodes or compared between them.
+across nodes or compared between them in this loop (section 4's
+`max_leaf_nodes` is the exception, and compares them on purpose).
+
+What the two constructors return is worth saying, because the code hides it.
+`leaf(g)` is a new object that keeps one thing, the majority class of `g`, as
+its prediction; it does not keep the examples. `node(best, grow(L), grow(R))`
+holds the question and the two subtrees. Python evaluates the arguments first,
+so both recursive calls run all the way down before the node that holds them is
+built: the tree is assembled from the leaves upward, depth first. At the root,
+`node((debt, 0.82), grow(the 971), grow(the 229))`. And
+`max(gain, key=gain.get)` returns the candidate with the largest gain, not the
+gain itself. **Two predictable mistakes** come from reading it too fast: "the
+function returns `g`" (it returns a leaf built from `g`) and "`max` gives the
+best gain" (it gives the best candidate).
+
+**Training builds the tree; inference walks it.** To predict for a new
+applicant, start at the root; at each question go left if the applicant's value
+is at or below the threshold, right otherwise, until a leaf, and return its
+class (notebook 1's `predict_one`). The two costs are lopsided: training scores
+every candidate at every node, while a prediction is at most `max_depth`
+comparisons, 8 for the best tree here, however large the training set was.
+Lesson 6's k-nearest neighbours is the opposite: nothing to train, and every
+prediction compares the new point with all the training points.
 
 ### 2.2 Impurity, and the gain a split buys
 
@@ -228,6 +250,14 @@ disagree with the rest:
 $$P(\text{disagree}) = 1 - \sum_{c=1}^{C} p_c^2 = G$$
 
 A pure group cannot disagree with itself, which is why $G = 0$ there.
+
+*A note of history.* The name is Italian. Corrado Gini (1884–1965) was a
+statistician and the first president, in 1926, of the Istituto Centrale di
+Statistica, the body that became ISTAT. $1 - \sum_c p_c^2$ is his index of
+heterogeneity ("mutabilità", 1912); Breiman, Friedman, Olshen and Stone made it
+the splitting criterion of their CART trees in 1984, and scikit-learn kept it.
+It is not the Gini coefficient of income inequality, his better-known index —
+the same man, a different quantity.
 
 A candidate split divides a parent group of $m_P$ examples into a left child of
 $m_L$ examples and a right child of $m_R = m_P - m_L$. Its value is the
@@ -308,13 +338,27 @@ parent's 0.4743. In one line:
 $$\Delta G = 0.4743 - \left(\tfrac{971}{1200} \times 0.3814 + \tfrac{229}{1200} \times 0.1148\right)
   = 0.4743 - 0.3305 = 0.1438$$
 
+**Two predictable mistakes** in this arithmetic. The first is to subtract the
+weighted average from 1 instead of from the parent's impurity:
+$1 - 0.3305 = 0.6695$, larger than the parent's whole impurity. It is natural,
+because the Gini formula itself starts with "$1 -$"; the check is that a split
+cannot remove more impurity than the parent had, so $\Delta G \le G(\text{parent})$,
+and with two classes never above 0.5. The second is to rebuild a count from a
+rounded percentage: the figure in section 2.1 prints the left group as 26%
+default, and $0.26 \times 971 = 252$, not 249 — the true share is
+$249/971 = 25.6\%$. The counts come first.
+
 ![](gini_root_split.png)
 
 *The Gini curve $2p(1-p)$ with the parent (black) and the two children (teal
 and rust). The children's size-weighted average (gold) lies on the straight
 line between them, and the curve bulges above every such line — so any split
 that separates the classes at all lowers the weighted impurity. The gap, 0.144,
-is the gain; the tree takes the split whose gap is largest.*
+is the gain; the tree takes the split whose gap is largest. The square sits
+exactly under the parent because the children's $p$, averaged with the same
+weights, gives the parent's back — with counts it is exact,
+$\tfrac{971}{1200} \cdot \tfrac{249}{971} + \tfrac{229}{1200} \cdot \tfrac{215}{229} = \tfrac{249 + 215}{1200} = \tfrac{464}{1200} = 0.387$
+— because a split moves defaulters between groups, it does not create any.*
 
 > **Try this:** using `Notebooks/loan_data.py`, compute $G$ for the group of
 > applicants with `income_k < 28` (the income-floor rule alone) and compare
@@ -346,7 +390,7 @@ features drawn at random, as here, that does not occur. That number demonstrates
 enough to memorise, not that anything has been learned — the same reading
 lesson 6 gave $k = 1$'s training accuracy of 1.000.
 
-| `max_depth` | Training accuracy | Cross-validated accuracy |
+| `max_depth` | Training accuracy | Cross-validated, 5 folds (mean ± standard deviation) |
 |---|---|---|
 | 2 | 0.840 | 0.836 ± 0.024 |
 | 4 | 0.843 | 0.827 ± 0.025 |
@@ -357,6 +401,15 @@ lesson 6 gave $k = 1$'s training accuracy of 1.000.
 | 16 | 0.993 | 0.852 ± 0.021 |
 | unconstrained | **1.000** | 0.852 ± 0.021 |
 
+The cross-validated column is lesson 5's five-fold stratified
+cross-validation: the 1,200 are cut into five folds of 240 with the same
+default share, and five times the tree trains on 960 and is scored on the 240
+it did not see. At depth 8 the five scores are 210, 211, 215, 214 and 209
+correct out of 240, so the mean is
+$(0.875 + 0.879 + 0.896 + 0.892 + 0.871)/5 = 0.882$, and the ± is their standard
+deviation, 0.010: how much the score moves from one fold to another, not a
+confidence interval.
+
 ![](depth_curve.png)
 
 *Training accuracy climbs monotonically towards 1.000. Cross-validated
@@ -364,7 +417,25 @@ accuracy rises, peaks at depth 8, and then falls back — even though the
 model keeps getting more flexible. Past the peak, every extra split is
 spent fitting some of the 7% of labels this dataset deliberately flips,
 and a flipped label has no pattern to learn; a tree that classifies it
-"correctly" on the training set has memorised it, not generalised.*
+"correctly" on the training set has memorised it, not generalised. The shaded
+band is ± one standard deviation across the five folds; "20" on the axis stands
+for the unconstrained tree, whose real depth is 24.*
+
+**Two ways to see the overfitting.** *Who votes in a leaf.* A leaf predicts the
+majority of its applicants. At depth 2 the tree has 4 leaves with a median of
+123.5 applicants each, a vote of a hundred; the unconstrained tree has 156
+leaves with a median of 2, and 72 of them hold a single applicant — a
+prediction made from one person's label, lesson 6's $k = 1$. *The line at
+0.929.* The true rule itself scores $1{,}115/1{,}200 = 0.929$ on these labels,
+because 85 were flipped. A training accuracy above that line means the tree
+agrees with the labels better than the truth does, so it must be reproducing
+flipped labels: depth 8 is just past it at 0.951, and the unconstrained tree
+has learned all 85. The ceiling (the gold line) is the best a model can expect
+on *new* applicants, whose flipped labels it cannot know; on its own training
+data it can do better by memorising, which is why the training curve crosses
+the line and the cross-validated one never does. **A predictable mistake** is
+to read a training score above the ceiling as a bug: impossible on new data,
+expected on training data.
 
 Read the two columns against each other, never in isolation. The peak sits
 at depth 8 — deep enough to isolate both stressed islands, shallow enough to
@@ -381,11 +452,13 @@ questions. The tree asks three in all — it is step 2 of the figure in section
 groups both predicted "default", so it changes no prediction and draws no line.
 The boundary shows only the income floor and the debt ceiling — the two
 biggest, easiest-to-find regions — and neither interior island is visible at
-all. At depth 8 both islands appear as
-clean rectangles, close to the rule that generated the data. At full depth
-the boundary has grown a fringe of tiny rectangles chasing individual
-flipped labels: not a smoother version of the depth-8 boundary, a noisier
-one.*
+all. At depth 8 both islands appear,
+close to the rectangles of the generating rule though not exact, and a few
+thin slivers have already started — its training accuracy, 0.951, is past the
+0.929 line. At full depth the boundary has grown a fringe of tiny rectangles
+chasing individual flipped labels, in both colours — rust in healthy territory,
+teal inside the risky strips: not a smoother version of the depth-8 boundary,
+a noisier one.*
 
 **The predictable mistake, and why the instinct is sound.** It is entirely
 reasonable to expect a more flexible model to do at least as well as a less
@@ -408,12 +481,18 @@ not that particular split is worth having — the depth-2 tree of section 3 spen
 one of its three questions on a split that changed no prediction.
 `max_leaf_nodes` is a **budget of leaves** for the whole tree, spent
 **best-first**: the tree always expands whichever current leaf offers the
-largest $\Delta G$, so a small budget of splits goes to the ones that matter
-most. For a tree meant to be read rather than merely scored, that is the better
+largest gain — compared across all the current leaves, each leaf's $\Delta G$
+weighted by its share of all the examples — so a small budget of splits goes to
+the ones that matter most. It is the one place where gains at different nodes
+are compared. For a tree meant to be read rather than merely scored, that is the better
 knob.
 
 With `max_leaf_nodes = 9` the tree reaches 90.8% training accuracy in nine
-leaves, and every threshold is recognisable from the generating rule: 28 for
+leaves and, more to the point, **0.901 cross-validated** (± 0.020) — above the
+depth-8 tree's 0.882 with its 71 leaves. Nine leaves spent where they gain most
+beat 71 spent evenly, because this dataset's rule is made of axis-aligned
+rectangles, the very shape a few well-placed thresholds draw. (The 9 was chosen
+for readability, not by trying budgets on the folds.) Every threshold is recognisable from the generating rule: 28 for
 the income floor, 0.82 for the debt ceiling, 34.92 and 58.00 tracing the
 outline of the first stressed island. That printout is the entire model — a
 sequence of if/else statements a loan officer could apply by hand — and it
@@ -424,11 +503,20 @@ the point further.
 
 The cost is **instability**. An early split near the root reroutes
 everything beneath it, so a small change in the training data can change
-the tree's shape. Two trees at `max_depth = 6`, each fit to its own random
-65% of the 1,200 applicants (drawn without replacement), find the debt ceiling within
-0.001 of each other — the evidence for it is overwhelming, so it barely
-moves — but grow 31 and 33 leaves respectively and **disagree on 11.7% of
-predictions** on the full dataset. The strongest split is stable because the
+the tree's shape. Two trees at `max_depth = 6`, each fit to its own random 780
+of the 1,200 applicants — drawn **without replacement**, so no one twice, like
+cards dealt without putting them back; the two samples share 499 — find the
+debt ceiling within 0.001 of each other: the evidence for it is overwhelming,
+so it barely moves. But they grow 31 and 33 leaves and give **opposite verdicts
+to 140 of the 1,200 applicants** (11.7%): for those 140, the answer depends on
+which sample the bank happened to train on.
+
+![](two_trees_disagree.png)
+
+*The two trees' boundaries and, right, the 140 applicants they disagree on.
+Look at where the gold points sit: almost all around the two islands, where each
+split was decided by a few dozen applicants. The strips, decided by hundreds,
+agree.* The strongest split is stable because the
 signal behind it is unambiguous; the weaker splits, each supported by far
 fewer points, are not, and they are most of what determines a tree's final
 shape.
@@ -449,6 +537,10 @@ cancel. That is **bagging** (**b**ootstrap **agg**regat**ing**):
 > training rows, so some appear more than once and some not at all. Fit a
 > tree to it. Repeat `n_estimators` times. To predict, ask every tree and
 > take the majority vote.
+
+*A note of history:* bagging is Leo Breiman's, published in 1996 as "Bagging
+predictors" — the same Breiman who co-wrote the CART trees of 1984 and, five
+years later, the random forest.
 
 Nothing about the tree itself changes — bagging reuses section 2's
 algorithm unmodified and changes only what surrounds it.
@@ -581,6 +673,10 @@ each test set.
 ---
 
 ## 6. Random forests: decorrelating the trees
+
+*A note of history:* Breiman's "Random Forests" appeared in 2001, the same
+year as his essay "Statistical Modeling: The Two Cultures", a defence of judging
+models by how well they predict.
 
 The variance floor in section 5.2 is $\rho\sigma^2$, so shrinking it further
 means shrinking $\rho$ — making the trees agree with each other less.
@@ -739,6 +835,12 @@ which columns matter, ask which ones could plausibly matter at all.
 ---
 
 ## 8. Gradient boosting: correcting mistakes in sequence
+
+*A note of history:* the first boosting algorithm to work in practice was
+AdaBoost, by Yoav Freund and Robert Schapire (1995–1997), which reweighted the
+examples the trees so far got wrong; it won them the Gödel Prize in 2003. Jerome
+Friedman's 2001 paper recast the idea as gradient descent on a loss — the
+version this section teaches and scikit-learn implements.
 
 Bagging and random forests build trees **independently** and average at the
 end. **Boosting** builds trees **in sequence**: each new tree is fit
@@ -930,6 +1032,7 @@ Every method from this lesson, on the same five folds:
 | Single tree, unconstrained | 0.852 |
 | Single tree, `max_depth = 8` | 0.882 |
 | Gradient boosting, 30 trees | 0.897 |
+| Single tree, `max_leaf_nodes = 9` | 0.901 |
 | Bagging, 100 trees | 0.904 |
 | **Random forest, 100 trees** | **0.911** |
 
@@ -938,14 +1041,16 @@ reaches it, and none should — a model that classified the flipped labels
 "correctly" would be modelling the noise, not the rule.*
 
 Three findings, read together, are this lesson's real content. First, on this
-dataset every ensemble — bagging, the random forest, gradient boosting — lands within
-about a point and a half of the others and closer to the ceiling than either
-single tree, tuned or not: which ensembling *strategy* you pick matters far
-less than whether you ensemble at all. Second, the single tuned tree is not
-far behind them, at 0.882 against the random forest's 0.911, and it is the
-only model on this table a person could read start to finish — the
-accuracy-interpretability trade this lesson opened with, restated as
-numbers. Third, the unconstrained tree is the worst model on this list
+dataset the ensembles — bagging, the random forest, gradient boosting — land
+within about a point and a half of each other: which ensembling *strategy* you
+pick matters less than whether you ensemble at all. Second, a single tree sits
+among them: the nine-leaf tree of section 4 reaches 0.901, above gradient
+boosting and a point behind bagging, and a person can read it start to finish.
+On data whose rule is a handful of axis-aligned rectangles, a small tree is
+nearly enough; what the ensembles buy here is less a higher score than a
+steadier one — section 5.2 measured how much less a forest's score moves from
+one split of the data to another, and section 4 showed where a single tree's
+verdicts wobble. Third, the unconstrained tree is the worst model on this list
 despite being, in a narrow sense, the most flexible one: flexibility without
 a stopping rule is not an advantage, a point this course has now made with
 several different methods.
@@ -962,7 +1067,8 @@ One caveat, in lesson 5's terms. Depth 8 and 30 boosted trees were chosen
 because they scored best on the same five folds as the leaderboard, so those two leaderboard rows are
 slightly optimistic; nested cross-validation would remove the bias. Bagging
 and the random forest ran at their defaults, chose nothing on these folds,
-and are not affected — and they are still the two best rows.
+and are not affected — and they are still the two best rows. The nine-leaf
+budget was chosen for readability, not on these folds.
 
 ---
 
@@ -975,8 +1081,9 @@ and are not affected — and they are still the two best rows.
   **depth 8** (0.882); an unconstrained tree reached training accuracy
   **1.000** and lost 3 points of cross-validated accuracy for it.
 - A tree's strongest split survives resampling almost unchanged; its weaker
-  splits do not, and disagreement between two 65%-resampled trees reached
-  11.7% of predictions.
+  splits do not: two trees grown on 65% samples gave opposite verdicts to 140
+  of the 1,200 applicants (11.7%), almost all around the islands. A budget of
+  nine leaves (`max_leaf_nodes`) cross-validated at 0.901, above depth 8.
 - Bagging averages trees fit to bootstrap resamples. Each sample leaves
   about **36.8%** of rows out-of-bag — the standard limit
   $(1-1/m)^m \to e^{-1}$ — which is why the OOB score is free validation;
@@ -998,8 +1105,9 @@ and are not affected — and they are still the two best rows.
   Cross-validated accuracy peaked near 30 trees and drifted down by about a
   point over the next 770, a gentler overfit than a single unconstrained
   tree's but not an absent one.
-- On this dataset, every ensemble method landed within about a point and a
-  half of the others, all closer to the noise ceiling than any single tree.
+- On this dataset the ensembles landed within about a point and a half of
+  each other, the random forest on top at 0.911 — and the nine-leaf tree came
+  within a point of bagging, because the rule is made of rectangles.
 
 ### Homework
 
