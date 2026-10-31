@@ -43,13 +43,18 @@ def save(fig, name):
 
 
 def kfold_diagram(k=5):
-    """The validation block moving along, one row per fold."""
-    fig, ax = plt.subplots(figsize=(8.6, 3.8))
+    """The validation fold moving along: one row per round, one column per fold,
+    one score per round, and the estimate as their mean."""
+    fig, ax = plt.subplots(figsize=(9.6, 4.2))
 
     for fold in range(k):
-        y = k - fold - 1
+        ax.text(fold + 0.47, k + 0.05, f"fold {fold + 1}", ha="center",
+                va="bottom", fontsize=10, color=SLATE)
+
+    for round_ in range(k):
+        y = k - round_ - 1
         for block in range(k):
-            is_valid = block == fold
+            is_valid = block == round_
             ax.add_patch(Rectangle(
                 (block, y), 0.94, 0.78,
                 facecolor=GOLD if is_valid else "#DCE6F0",
@@ -58,16 +63,20 @@ def kfold_diagram(k=5):
                     ha="center", va="center", fontsize=9.5,
                     color=INK if is_valid else SLATE,
                     fontweight="bold" if is_valid else "normal")
-        ax.text(-0.25, y + 0.39, f"fold {fold + 1}", ha="right", va="center",
+        ax.text(-0.25, y + 0.39, f"round {round_ + 1}", ha="right", va="center",
                 fontsize=10, color=SLATE)
+        ax.annotate("", xy=(k + 0.35, y + 0.39), xytext=(k + 0.02, y + 0.39),
+                    arrowprops=dict(arrowstyle="->", color=SLATE, lw=1.1))
+        ax.text(k + 0.42, y + 0.39, f"score {round_ + 1}", ha="left",
+                va="center", fontsize=10, color=INK)
 
-    ax.text(k / 2, k + 0.15, "the dataset, cut into 5 equal parts",
+    ax.text(k / 2, k + 0.55, "the dataset, cut into 5 equal parts (folds)",
             ha="center", fontsize=11, color=INK)
-    ax.annotate("", xy=(k - 0.06, k - 0.12), xytext=(0, k - 0.12),
-                arrowprops=dict(arrowstyle="<->", color=SLATE, lw=1.2))
+    ax.text(k + 0.42, -0.3, "estimate =\n(score 1 + ... + score 5) ÷ 5",
+            ha="left", va="top", fontsize=10, color=INK, fontweight="bold")
 
-    ax.set_xlim(-1.7, k + 0.1)
-    ax.set_ylim(-0.35, k + 0.45)
+    ax.set_xlim(-1.7, k + 1.75)
+    ax.set_ylim(-1.05, k + 0.85)
     ax.axis("off")
     fig.tight_layout()
     save(fig, "kfold_diagram.png")
@@ -122,6 +131,6 @@ def nested_cv_diagram():
 
 
 if __name__ == "__main__":
-    print("figure concettuali della lezione 5:")
+    print("conceptual figures for lesson 5:")
     kfold_diagram()
     nested_cv_diagram()

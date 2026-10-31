@@ -47,10 +47,10 @@ Section 8 of the handout pays it off, and slide 40 shows the number.
 
 # Today: how to tell whether it works
 
-- One split is a lottery, and how wide the lottery is
+- One train/test split gives one number; another split gives another. How far apart?
 - Cross-validation: what it estimates, and what it does not
-- Bias, variance, and the floor you cannot go below
-- Learning curves: which fix to buy
+- Bias, variance, and the part of the error no model can remove
+- Learning curves: will more data help, or is a different model needed?
 - Leakage that survives cross-validation
 
 ::: notes
@@ -70,8 +70,8 @@ wrong while looking right.
 # A test score is a measurement
 
 - You would not report a poll of forty people to three decimals
-- Holding data out makes the estimate **unbiased**
-- It does nothing to make it **precise**
+- Holding data out makes the estimate **unbiased**: right on average, over all the splits you might have drawn
+- It does nothing to make it **precise**: close to the truth on the one split you did draw
 
 ::: notes
 This distinction is the whole first half of the lesson, and it is routinely
@@ -89,14 +89,16 @@ it.
 
 # The fleet, cut down
 
-- Lesson 4's drives, reduced to **800**, of which **29 fail**
-- Not to exaggerate: 800 rows with 29 positives is the ordinary case
+- Lesson 4's drives, reduced to **800**, of which **29 fail** (3.6%)
+- A few hundred rows with a few dozen positives is the ordinary case
 - In code: lesson 4's model, `make_pipeline(StandardScaler(), LogisticRegression())`,
   on `train_test_split(X, y, test_size=0.25, stratify=y)`, scored by `roc_auc_score`
 
 ::: notes
 The model is lesson 4's, unchanged: scaled features, logistic regression, scored
-by AUC on a stratified 75/25 split - the In code line names each piece.
+by AUC (area under the receiver operating characteristic curve) on a stratified
+75/25 split - the In code line names each piece. The failure rate is about
+lesson 4's: 29 of 800 is 3.6%, against 306 of 8,000, 3.8%.
 
 Justify the reduction explicitly, because a sharp student will otherwise suspect
 the demonstration is rigged.
@@ -132,8 +134,9 @@ question.
 
 # Why so wide?
 
-- Each test set holds **7 failures**
-- Every AUC (area under the receiver operating characteristic curve) rests on seven
+- Each test set takes 25% of the 29 failures: 0.25 × 29 = 7.25, so **7 failures** among 200 drives
+- The AUC asks only how those 7 failing drives are ranked against the 193 healthy ones: 7 × 193 = 1,351 pairs
+- One failing drive slipping below 20 more healthy ones costs 20 ÷ 1,351 = 0.015 of AUC
 
 ::: notes
 This is the arithmetic behind the previous slide, and it generalises into the
@@ -146,18 +149,24 @@ positives and a stable estimate. Eight hundred gives 29, and it does not.
 Give them the question to carry away: how many positive examples are in the test
 set? If the answer is under about fifty, treat every metric as provisional.
 
-Worth connecting to lesson 4: this is the same reason precision collapsed there
-while AUC did not notice.
+The third bullet makes the count concrete, with lesson 4's reading of AUC as the
+fraction of failing-healthy pairs ranked the right way round: there are only 7 x
+193 = 1,351 pairs, and they come in seven bundles of 193, one per failing drive.
+One drive ranked a little lower moves twenty pairs at once and the AUC by 0.015 -
+over half of the 0.024 standard deviation of slide 7.
+
+Worth connecting to lesson 4: this is the same reason the precision METRIC (the
+share of flagged drives that really fail) collapsed there while AUC did not
+notice. Say "metric" aloud: slide 5 used "precise" for the error bar of an
+estimate, a different thing.
 :::
 
 # Parameters and hyperparameters
 
-- **Parameters** — estimated by the fit: $w$, $b$
-- **Hyperparameters** — not estimated: penalty $\lambda$, neighbours, depth, threshold
-- Not "set before the fit": the threshold is chosen after it
-- Training error would prefer $\lambda = 0$, so they are chosen by
-  **comparison**, on unseen data
-- scikit-learn's C is a **reciprocal** penalty: C = 0.01 is the strongest
+- **Parameters**: estimated by the fit, $w$ and $b$
+- **Hyperparameters**: not estimated by the fit: penalty $\lambda$ (lesson 3), threshold (lesson 4), neighbours (lesson 6), tree depth (lesson 7)
+- Minimising training error would always pick $\lambda = 0$, so they are chosen by **comparing** models on data the fit did not see
+- scikit-learn's C plays the role of 1/$\lambda$: the smaller C, the stronger the penalty
 
 ::: notes
 One slide, because every choice in the rest of the lesson is a choice of one of
@@ -167,7 +176,11 @@ Parameters are what the fit estimates: coefficients and intercept.
 Hyperparameters are what it does not - lesson 3's penalty, lesson 6's neighbours,
 lesson 7's tree depth, and lesson 4's threshold.
 
-Third bullet is worth a sentence, because the obvious shorthand is wrong and a
+Neighbours and tree depth are named ahead of their lessons: say so, they only
+need to know that such settings exist.
+
+Then say what is not on the slide: some hyperparameters are fixed before the
+fit (lambda), some after it (the threshold). That is worth a sentence, because the obvious shorthand is wrong and a
 sharp student will catch it. "Fixed before the fit" is true of the penalty,
 which sits inside the cost being minimised, and false of the threshold, which is
 chosen afterwards on probabilities the fit has already produced. What they share
@@ -182,12 +195,15 @@ is what the rest of today is about, and why it costs what it costs.
 
 Last bullet is the trap in the next table: C is the reciprocal of the penalty,
 so C = 0.01 is the most heavily regularised of the three, not the least.
+(scikit-learn multiplies the data term by C instead of the penalty by lambda; up
+to the factor m the two are the same thing, which is why "plays the role of" and
+not "equals".)
 Handout section 3.
 :::
 
-# Now the expensive part: choosing, on each of 200 splits
+# On each of slide 7's 200 splits, three models compete
 
-| Three models | Mean AUC | Times it scored highest |
+| Model (C = 1, the default, is slide 7's) | Mean test AUC over the 200 splits | Splits it won (chance: 200 ÷ 3 ≈ 67) |
 |---|---|---|
 | C = 0.01 | 0.9549 | 91 |
 | C = 1 | 0.9549 | 71 |
@@ -200,9 +216,11 @@ C = 0.01, is the most heavily penalised model, not the least.
 Reporting a noisy number is bad. Choosing with one is worse, because noise does
 not average out when it is used to decide - it decides.
 
-Say what was done first, since the title only hints at it: 200 splits, the three
-models scored on each, and on each split the one with the highest AUC declared
-best.
+Say what was done first: the same 200 splits as slide 7, the three models
+fitted on each training part and scored on its test part, and on each split the
+one with the highest AUC declared the winner. 91 + 71 + 38 = 200, one winner
+per split; with three identical models chance alone would give each about 200 ÷
+3 = 67.
 
 Read the first column, then the last. The three models are the SAME: their mean
 AUCs differ by at most 0.0005, about fifty times less than the standard deviation
@@ -217,13 +235,17 @@ you will report that one of these is best with a number to support it. That
 conclusion is noise wearing the clothes of a result.
 :::
 
-# The same three models, drawn honestly
+# The same three models: who wins, and how they score
 
 ![](single_split_selection.png)
 
 ::: notes
-Left: the win counts, against the dashed line showing what pure chance would
-give. Right: the actual distributions, sitting on top of each other.
+Left: the win counts, against the dashed line at 200 ÷ 3 = 67, what pure chance
+would give. Right: the 200 test AUCs of each model, as a box plot - say how to
+read one, it is the first in the course: the box holds the middle half of the 200
+scores, the line inside it is the median, the whiskers reach the rest, and the
+circles are the few scores unusually far out. The three boxes sit at the same
+height.
 
 The right panel is the truth about these three models. The left panel is what a
 single experiment reports.
@@ -243,8 +265,10 @@ them. The difficulty is that you cannot afford several test sets - every row
 spent on testing is a row not spent on training.
 
 Cross-validation resolves it by rotating which part is held out. Cut the data
-into k parts, train on k-1, score on the one left out - the validation fold -
-and repeat until every part has been the validation fold exactly once.
+into k parts, the folds, train on k-1, score on the one left out - the validation
+fold - and repeat until every part has been the validation fold exactly once.
+Read the figure row by row: each row is one round, each column one fold, and each
+round ends with one score; the estimate is the mean of the five.
 
 Say why it is labelled validation and not test, because the code will contradict
 the slide. Lesson 1's three roles: training fits, validation chooses, test
@@ -261,12 +285,18 @@ extra steps.
 
 # What it actually estimates
 
-- The performance of a **procedure**, not of one fitted model
-- Slightly **pessimistic**: with 5 folds, each model trains on 80% of the data
+- The performance of a **procedure** (the whole recipe), not of one fitted model
+- Slightly **pessimistic**: with 5 folds, each model trains on 4/5 = 80% of the data
+- Seed 0: the mean of the five fold AUCs is **0.9514**
 - In code: `cross_val_score(model, X, y, cv=StratifiedKFold(5, shuffle=True),
   scoring="roc_auc")`, one score per fold
 
 ::: notes
+The number on the slide: the five fold AUCs at seed 0 are 0.929, 0.958, 0.984,
+0.939 and 0.947; their mean is 4.757 ÷ 5 = 0.9514, their standard deviation
+0.0187. The procedure is the recipe as a whole - scaling, model, its settings -
+refitted from scratch in every fold.
+
 Two consequences, both of which surprise people.
 
 First: there are k different fitted models in the calculation, and the reported
@@ -284,9 +314,9 @@ Handout section 4.2 has both in symbols.
 
 # Report the spread, but not as a confidence interval
 
-- With 5 folds, any two training sets share **three quarters** of their rows
-- The scores are correlated, so the usual standard error, s ÷ √k (s the standard
-  deviation of the k fold scores), is optimistic
+- With 5 folds each training set is 4 folds, and any two share 3 of them: **3/4** of their rows
+- So the fold scores are correlated, and the usual standard error s ÷ √k (s the standard deviation of the k fold scores) comes out **too small**
+- Report the mean and s, call s a spread, and treat a small difference between two models as unresolved
 
 ::: notes
 The temptation is to quote s over root k - the standard deviation of the fold
@@ -308,7 +338,7 @@ and treat small differences between models as unresolved.
 
 # Stratify when a class is rare
 
-| Fold | Plain KFold | StratifiedKFold |
+| Fold (seed 3) | KFold: folds cut at random | StratifiedKFold: each fold keeps 3.6% failures |
 |---|---|---|
 | 1 | 7 failures of 160 | 5 of 160 |
 | 2 | **1 failure of 160** | 6 of 160 |
@@ -329,25 +359,28 @@ whenever the problem is interesting.
 
 # How much does it help? (optional)
 
-| Over 40 seeds | Single split | 5-fold cross-validation |
+| Test AUC, C = 1, seeds 0-39 | Single 75/25 split | 5-fold cross-validation |
 |---|---|---|
 | worst | 0.9119 | 0.9439 |
 | best | 1.0000 | 0.9588 |
 | mean | 0.9600 | 0.9532 |
 | best − worst | 0.0881 | 0.0149 |
+| standard deviation | 0.0221 | 0.0032 |
 
 ::: notes
 Optional on 6 November: skip in class if time is short, and say it is left for
 self-study, with the handout.
 
-Forty seeds, changing nothing but the seed. Cross-validation has a seed of its
+Forty seeds, changing nothing but the seed. The single-split column is the first
+40 of slide 7's 200 splits, seeds 0 to 39, which is why its mean is 0.960 and not
+slide 7's 0.955: forty draws centre less exactly than two hundred. Cross-validation has a seed of its
 own - shuffle differently and the folds change - so it reduces the variance of
 the estimate, it does not abolish it.
 
 The range, best minus worst, falls from 0.0881 to 0.0149, and the standard
-deviation by a factor of about seven (0.0221 to 0.0032). Say which one "seven"
-refers to: a student who divides the two ranges on the slide gets six, and will
-ask.
+deviation, last row, by a factor of about seven: 0.0221 ÷ 0.0032 = 6.9 (the
+notebook, unrounded, prints 6.8). Say which one "seven" refers to: a student who
+divides the two ranges gets 0.0881 ÷ 0.0149 = 5.9, and will ask.
 
 Then the centres, because someone will have noticed in notebook 1 that
 cross-validation came out lower: 0.953 against 0.960. That gap is about two
@@ -366,8 +399,8 @@ What it does NOT fix is the subject of slides 32 to 39.
 # How many folds? (optional)
 
 - **k = 5 or 10** in practice
-- Larger k: less pessimistic, more expensive, folds more correlated
-- k = m is **leave-one-out**
+- Larger k: less pessimistic, more fits to run, fold scores more correlated
+- k = m (m the number of rows) is **leave-one-out**: every row is a validation fold on its own
 
 ::: notes
 Optional on 6 November: skip in class if time is short, and say it is left for
@@ -390,16 +423,17 @@ different shuffles, averaged - buys more than moving from 5 to 10.
 
 # When the rows are not independent
 
-- Ten readings from the **same drive**, split at random
-- Nine in training, one in test
+- Suppose the table held ten readings per drive (lesson 4's has one row per drive)
+- A random split puts nine of a drive's readings in training and one in test
 - The model recognises the drive, not the failure
 
 ::: notes
 Everything so far assumed rows are independent draws. That assumption is
 violated constantly and silently, and random k-fold gives no warning.
 
-The concrete case, which they will meet: your table has ten telemetry readings
-per drive. A random split puts nine of a drive's readings in training and one in
+The concrete case, which they will meet - a hypothetical one here, since the
+fleet table has one row per drive: suppose it had ten telemetry readings per
+drive. A random split puts nine of a drive's readings in training and one in
 test. The model does not need to learn anything about failure - it learns to
 recognise that drive, and the test row is nearly a duplicate of a training row.
 
@@ -413,8 +447,8 @@ machine, any panel data.
 
 # Split by the thing you must generalise to
 
-- Same entity in two folds → **GroupKFold**
-- Predicting the future → **TimeSeriesSplit**
+- If one drive (or patient, or customer) has several rows: **GroupKFold** keeps all its rows in the same fold
+- If the model must predict the future: **TimeSeriesSplit** trains on the past and validates on what comes after it
 
 ::: notes
 The rule that covers both: split along the axis you need to generalise across.
@@ -438,7 +472,7 @@ That gap is the most common cause of a model failing after deployment.
 | two honest experiments, 5-6 | `train_test_split(..., random_state=seed)`, `make_pipeline(StandardScaler(), LogisticRegression())`, `roc_auc_score` → seed 3 gives 1.000 |
 | how wide, 7-8 | the same, 200 times → 0.885 to 1.000 |
 | choosing on one split, 9-11 | three values of C, a winner per split → 91, 71 and 38 wins |
-| k-fold by hand, 12-14 | `StratifiedKFold`, then `cross_val_score` → 0.9514 ± 0.0187, identical |
+| k-fold by hand, 12-14 | `StratifiedKFold`, then `cross_val_score` → mean 0.9514, standard deviation 0.0187, by hand and by scikit-learn alike |
 | stratify, 15-16 | `KFold` against `StratifiedKFold` → a fold with 1 failure; best − worst 0.0881 against 0.0149 |
 
 
@@ -451,8 +485,8 @@ Run notebook 01. Fifteen minutes.
 Have them run the five-seed cell first and watch seed 3 return 1.000 before you
 say anything about it.
 
-The cell worth protecting if time runs short is the 200-split model selection  - 
-it is the one that changes behaviour rather than just adding knowledge.
+The cell worth protecting if time runs short is the 200-split model selection - it
+is the one that changes behaviour rather than just adding knowledge.
 :::
 
 # Break
@@ -919,18 +953,35 @@ from the inside, and it is why it is unpopular.
 
 # The debt, paid
 
-| Fit on 56%, choose on 19%, report on 25% | Cost on the test set |
-|---|---|
-| threshold 0.50, the default | 10,540 EUR |
-| threshold chosen on **validation** | **4,700 EUR** |
-| threshold chosen on **test** | 3,300 EUR |
+| Slide 6's 800 drives: fit on 450, choose on 150, report on 200 (7 failures) | Missed × 2,600 + false alarms × 140 | Cost on the test set |
+|---|---|---|
+| 0.50, the default | 4 × 2,600 + 1 × 140 | 10,540 EUR |
+| 0.050, chosen on **validation** | 1 × 2,600 + 15 × 140 | **4,700 EUR** |
+| 0.171, chosen on **test** | 1 × 2,600 + 5 × 140 | 3,300 EUR |
 
 ::: notes
-Lesson 4's threshold, done properly. Split three ways, as the table header says:
-fit on 56%, choose the threshold on 19%, report once on the remaining 25%.
+Lesson 4's threshold, done properly - but on slide 6's 800 drives, not lesson
+4's 8,000, so do not compare these euros with lesson 4's 87,620 and 45,540: a
+test set of 200 drives with 7 failures has a smaller bill. Split three ways, as
+the table header says: fit on 450 drives (56%), choose the threshold on 150
+(19%, with 5 failures), report once on the remaining 200 (25%). The middle column
+is the bill, counted: the default misses 4 of the 7 failures; both other
+thresholds miss 1, and differ only in false alarms, 15 against 5.
+
+Then point at 0.050. The validation set chose almost exactly lesson 4's t* =
+140 ÷ 2,740 = 0.051, the threshold the costs alone gave before anyone looked at
+data. With 5 failures in the validation set part of that is luck, but it is the
+point to land: the formula was already the honest answer; what needed paying was
+the 0.078 lesson 4 picked by looking at its test set.
 
 The honest threshold is WORSE on the test set than the cheating one. It is
 supposed to be - and this is the slide where that finally makes sense to them.
+The 1,400 euros between them are 10 false alarms that this particular test set
+happened to let 0.171 avoid.
+
+A predictable slip: "the debt is paid, so the number improves". The reasoning is
+natural - doing things properly ought to be rewarded - but paying the debt makes
+the reported number WORSE: it removes the luck the cheating number had borrowed.
 
 The cheating figure describes a threshold tuned to this particular test set, and
 there is no reason it survives contact with the next two hundred drives. The

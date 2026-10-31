@@ -81,13 +81,14 @@ measurement with a standard error.
 
 
 Take the disk fleet from lesson 4 and cut it to **800 drives, 29 of which
-fail**. That is not to exaggerate the effect — 800 records with 29 positives is
-a far more ordinary situation than 8,000, and the numbers below are what the
-honest version of that situation looks like.
+fail** (29 ÷ 800 = 3.6%, against lesson 4's 306 of 8,000, 3.8%). This is no
+exaggeration of the effect: a few hundred records with a few dozen positives is a
+far more ordinary situation than 8,000, and the numbers below are what that
+situation looks like when every step is done correctly.
 
 ![](split_lottery.png)
 
-*Two hundred legitimate splits of the same 800 drives. Every one of these is a correctly performed experiment; the dashed lines are the worst and the best. The right-hand tail is the dangerous end — a flattering score is the one nobody goes back to question.*
+*Two hundred legitimate splits of the same 800 drives, the same logistic regression (C = 1) on each, and each test set holding 200 drives of which 7 fail. Every one of these is a correctly performed experiment; the dashed lines are the worst and the best. The right-hand tail is the dangerous end — a flattering score is the one nobody goes back to question.*
 
 Split it 75/25, fit a logistic regression, and score it with the area under
 the receiver operating
@@ -158,6 +159,17 @@ positive example appears in $m_-$ of them, so a single unlucky positive moves
 many pairs at once. Seven positives are seven pieces of evidence however many
 healthy drives accompany them.
 
+**Worked through.** Here $m_+ = 7$ and $m_- = 193$, so there are
+$7 \times 193 = 1{,}351$ pairs, in seven bundles of 193, one bundle per failing
+drive. Suppose one failing drive is scored a little lower on another split and
+slips below 20 more healthy drives than before. Twenty of its pairs turn from
+right to wrong, and the AUC falls by
+
+$$\frac{20}{m_+ \, m_-} = \frac{20}{1{,}351} = 0.015,$$
+
+over half the standard deviation of 0.024 measured across the 200 splits. One
+drive, ranked slightly differently, is enough.
+
 If you remember one diagnostic question from this lesson, make it: *how many
 positive examples are in the test set?*
 
@@ -172,7 +184,7 @@ decides.
 
 ![](single_split_selection.png)
 
-*Left: how often each of the three models was declared best, against the dashed line that pure chance would give. Right: their actual distributions, sitting on top of one another. The right panel is the truth; the left is what a single experiment reports.*
+*Left: how often each of the three models was declared best, against the dashed line at 200 ÷ 3 ≈ 67, what pure chance would give. Right: the 200 test AUCs of each model as a box plot — the box holds the middle half of the scores, the line inside it is the median, the whiskers reach the rest and the circles mark scores unusually far out. The three boxes sit at the same height. The right panel is the truth; the left is what a single experiment reports.*
 
 **First the word, because the rest of the lesson leans on it.** A fitted model
 holds two kinds of number. The ones the fit **estimates** from the data — the
@@ -251,7 +263,7 @@ never saw it.** It is not testing on training data with extra steps.
 
 ![](kfold_diagram.png)
 
-*The validation block rotates. Every row is predicted exactly once, by a model trained without it — which is what makes this legitimate rather than testing on training data with extra steps.*
+*Each column is a fold, each row a round. In each round the gold fold is held out, a model is fitted on the other four and scored on it; the five scores are averaged into the estimate. Every row is predicted exactly once, by a model trained without it — which is what makes this legitimate rather than testing on training data with extra steps.*
 
 **Why *validation* and not *test*.** Lesson 1 gave the three roles: training
 fits, validation chooses, test reports once. The block that rotates here is
@@ -401,8 +413,11 @@ not. It is among the most common reasons a model fails after deployment.
 Cross-validation reduces the variance of the estimate. It does not abolish it:
 it has a random seed of its own, and shuffling differently cuts different folds
 and gives a different answer. So the honest comparison is **how far the number
-moves when nothing but the seed changes** — forty times, for a single split and
-for 5-fold cross-validation:
+moves when nothing but the seed changes** — forty times, seeds 0 to 39, for a
+single split and for 5-fold cross-validation, the same C = 1 model throughout.
+The single-split column is the first forty of Section 2.2's two hundred splits,
+which is why its mean is 0.960 and not 0.955: forty draws centre less exactly
+than two hundred.
 
 | | Single 75/25 split | 5-fold cross-validation |
 |---|---|---|
@@ -783,16 +798,39 @@ the data afterwards, and report the nested figure.
 The debt from section 1.1, now paid. Split three ways: **train** to fit,
 **validation** to choose, **test** to report once.
 
-| Policy | Cost on the test set |
-|---|---|
-| threshold 0.50 (the default) | 10,540 EUR |
-| threshold 0.050, chosen on the **validation** set | **4,700 EUR** |
-| threshold 0.171, chosen on the **test** set | 3,300 EUR |
+The data are Section 2.2's 800 drives, not lesson 4's 8,000, so the euros below
+are not comparable with lesson 4's 87,620 and 45,540: the bill is smaller
+because the test set is. The split: 200 drives (25%, 7 failures) set aside as
+the test set; of the remaining 600, 150 (5 failures) become the validation set
+and 450 the training set — 56%, 19% and 25% of the whole. The costs are lesson
+4's, 140 EUR for a false alarm and 2,600 EUR for a missed failure.
+
+| Policy | Missed × 2,600 + false alarms × 140 | Cost on the test set |
+|---|---|---|
+| threshold 0.50 (the default) | 4 × 2,600 + 1 × 140 | 10,540 EUR |
+| threshold 0.050, chosen on the **validation** set | 1 × 2,600 + 15 × 140 | **4,700 EUR** |
+| threshold 0.171, chosen on the **test** set | 1 × 2,600 + 5 × 140 | 3,300 EUR |
+
+Both chosen thresholds catch 6 of the 7 failures; they differ only in false
+alarms, 15 against 5. The 1,400 EUR between them is ten healthy drives that this
+particular test set happened to let 0.171 leave alone.
+
+**Look at 0.050.** It sits next to lesson 4's $t^* = 140 / 2{,}740 = 0.051$, the
+threshold the two costs give before any data are seen, provided the
+probabilities are calibrated. With five failures in the validation set part of
+the agreement is luck, but the lesson stands: the formula was already the honest
+answer. What needed paying was the 0.078 lesson 4 found by sweeping its test
+set.
 
 The honest threshold is worse on the test set than the cheating one. **It is
 supposed to be.** The cheating figure describes a threshold tuned to this
 particular test set and there is no reason it survives contact with the next two
 hundred drives; the honest figure is an unbiased estimate of what happens next.
+
+**A predictable mistake: "the debt is paid, so the number improves."** The
+instinct is reasonable — doing things properly ought to be rewarded — but paying
+the debt makes the reported number *worse*, because it removes the luck the
+cheating number had borrowed from the test set.
 
 Note the cost of doing it properly: we now train on 56% of the data instead of
 75%, because the validation set has to come from somewhere. On a small dataset

@@ -353,4 +353,67 @@ same("3 the heavy penalty shrinks the coefficient vector to 0.52", norms[0], 0.5
      tolerance=5e-3)
 same("3 against 2.45 with almost none", norms[2], 2.45, tolerance=5e-3)
 
+# ------------------------------- Section 2.4, one failing drive moves 20 pairs
+#
+# Not the formula 20 / (7 x 193) again: build a ranking of 7 failing and 193
+# healthy drives, move one failing drive below 20 more healthy ones, and ask
+# roc_auc_score how much the AUC fell.
+labels = np.r_[np.ones(7), np.zeros(193)]
+ranking = np.r_[np.arange(300, 307), np.arange(100, 293)].astype(float)
+before = roc_auc_score(labels, ranking)
+moved = ranking.copy()
+moved[0] = 272.5          # now 273..292, 20 healthy drives, sit above it
+after = roc_auc_score(labels, moved)
+same("2.4 there are 7 x 193 = 1,351 failing-healthy pairs", 7 * 193, 1351, tolerance=0)
+same("2.4 slipping below 20 more healthy drives costs 0.015 of AUC",
+     before - after, 0.015, tolerance=5e-4)
+same("2.4 which is exactly 20 pairs out of 1,351", (before - after) * 1351, 20,
+     tolerance=1e-9)
+
+# ---------------------------------- Section 8, lesson 4's threshold, honestly
+#
+# Rebuilt from the fleet: the three-way split, the model, and the bill at each
+# threshold counted as missed failures and false alarms.
+from sklearn.pipeline import Pipeline                               # noqa: E402
+
+X_rest, X_test8, y_rest, y_test8 = train_test_split(
+    fleet_X, fleet_y, test_size=0.25, random_state=0, stratify=fleet_y)
+X_fit, X_valid8, y_fit, y_valid8 = train_test_split(
+    X_rest, y_rest, test_size=0.25, random_state=0, stratify=y_rest)
+same("8 the test set holds 200 drives", len(y_test8), 200, tolerance=0)
+same("8 7 of them failing", int(y_test8.sum()), 7, tolerance=0)
+same("8 the validation set holds 150 drives", len(y_valid8), 150, tolerance=0)
+same("8 5 of them failing", int(y_valid8.sum()), 5, tolerance=0)
+same("8 and the model is fitted on 450", len(y_fit), 450, tolerance=0)
+
+threshold_model = Pipeline([("scale", StandardScaler()),
+                            ("model", LogisticRegression(max_iter=2_000))]
+                           ).fit(X_fit, y_fit)
+test_p = threshold_model.predict_proba(X_test8)[:, 1]
+grid = np.linspace(0.01, 0.9, 200)
+valid_p = threshold_model.predict_proba(X_valid8)[:, 1]
+
+
+def bill(y_true, p, t):
+    flagged = p >= t
+    return (int((~flagged & (y_true == 1)).sum()),
+            int((flagged & (y_true == 0)).sum()))
+
+
+chosen = grid[int(np.argmin([2600 * bill(y_valid8, valid_p, t)[0]
+                             + 140 * bill(y_valid8, valid_p, t)[1] for t in grid]))]
+cheat = grid[int(np.argmin([2600 * bill(y_test8, test_p, t)[0]
+                            + 140 * bill(y_test8, test_p, t)[1] for t in grid]))]
+same("8 the validation set chooses 0.050", chosen, 0.050, tolerance=5e-4)
+same("8 the test set would choose 0.171", cheat, 0.171, tolerance=5e-4)
+same("8 next to lesson 4's t* = 140 / 2,740 = 0.051", 140 / 2740, 0.051,
+     tolerance=5e-4)
+for t, missed, alarms, cost in ((0.5, 4, 1, 10_540), (chosen, 1, 15, 4_700),
+                                (cheat, 1, 5, 3_300)):
+    got = bill(y_test8, test_p, t)
+    same(f"8 at {t:.3f}: {missed} missed", got[0], missed, tolerance=0)
+    same(f"8 at {t:.3f}: {alarms} false alarms", got[1], alarms, tolerance=0)
+    same(f"8 at {t:.3f}: {cost:,} EUR", 2600 * got[0] + 140 * got[1], cost,
+         tolerance=0)
+
 print(f"lesson 5: {checks} hand-worked numbers recomputed, all agree")
