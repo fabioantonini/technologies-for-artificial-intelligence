@@ -416,4 +416,206 @@ for t, missed, alarms, cost in ((0.5, 4, 1, 10_540), (chosen, 1, 15, 4_700),
     same(f"8 at {t:.3f}: {cost:,} EUR", 2600 * got[0] + 140 * got[1], cost,
          tolerance=0)
 
+# ------------------------- Sections 2.1, 2.2, 2.4: the small arithmetic
+#
+# Each from its inputs, not from the printed result.
+same("2.1 the poll of forty: standard error of a proportion near one half",
+     float(np.sqrt(0.5 * 0.5 / 40)), 0.079, tolerance=5e-4)
+same("2.2 lesson 4's 25% test set: 306 x 0.25", 306 * 0.25, 76.5, tolerance=1e-9)
+same("2.2 the histogram's bins are about 0.004 wide", (1.000 - 0.885) / 28, 0.004,
+     tolerance=5e-4)
+same("2.4 seven failures of 200 is 3.5%", 7 / 200 * 100, 3.5, tolerance=1e-9)
+same("2.4 twenty pairs turned wrong: 1,331 of 1,351", 1331 / 1351, 0.985,
+     tolerance=5e-4)
+
+# ------------------------- Section 3: wins, ties and the winning margin
+#
+# The notebook's strict ">" once gave every tie to the first model listed. Here
+# ties are found directly, as equal AUCs on the same split.
+from collections import Counter                                       # noqa: E402
+
+
+def three_models(seeds):
+    rows = []
+    for seed in seeds:
+        Xa, Xb, ya, yb = train_test_split(fleet_X, fleet_y, test_size=0.25,
+                                          random_state=seed, stratify=fleet_y)
+        rows.append([roc_auc_score(yb, make_pipeline(
+            StandardScaler(), LogisticRegression(max_iter=2_000, C=c_value)
+        ).fit(Xa, ya).predict_proba(Xb)[:, 1]) for c_value in (0.01, 1.0, 100.0)])
+    rows = np.array(rows)
+    top = rows == rows.max(axis=1, keepdims=True)
+    tied = top.sum(axis=1) > 1
+    outright = [int((top[:, i] & ~tied).sum()) for i in range(3)]
+    patterns = Counter(tuple(np.flatnonzero(r)) for r in top[tied])
+    ordered = np.sort(rows, axis=1)
+    return rows, outright, int(tied.sum()), patterns, ordered[:, -1] - ordered[:, -2]
+
+
+rows3, outright3, ties3, patterns3, margins3 = three_models(range(200))
+for name, got, printed in (("C = 0.01", outright3[0], 89), ("C = 1", outright3[1], 42),
+                           ("C = 100", outright3[2], 38)):
+    same(f"3 {name} wins outright on {printed} splits", got, printed, tolerance=0)
+same("3 31 splits are ties", ties3, 31, tolerance=0)
+same("3 29 of them between C = 1 and C = 100", patterns3[(1, 2)], 29, tolerance=0)
+same("3 one between C = 0.01 and C = 1", patterns3[(0, 1)], 1, tolerance=0)
+same("3 and one three-way", patterns3[(0, 1, 2)], 1, tolerance=0)
+same("3 the median winning margin is 0.0015", float(np.median(margins3)), 0.0015,
+     tolerance=5e-5)
+same("3 its mean 0.0039", float(margins3.mean()), 0.0039, tolerance=5e-5)
+same("3 its largest 0.0296", float(margins3.max()), 0.0296, tolerance=5e-5)
+same("3 the mean AUCs: C = 0.01", float(rows3[:, 0].mean()), 0.9549, tolerance=5e-5)
+same("3 the mean AUCs: C = 100", float(rows3[:, 2].mean()), 0.9544, tolerance=5e-5)
+_, outright_other, _, _, _ = three_models(range(200, 400))
+same("3 on seeds 200-399 C = 0.01 wins outright 86 times", outright_other[0], 86,
+     tolerance=0)
+same("3 and C = 1 and C = 100 41 each", outright_other[1] + outright_other[2], 82,
+     tolerance=0)
+same("3 two recipes: 3 candidates x 5 folds", 3 * 5, 15, tolerance=0)
+
+# ------------------------- Section 4.1 and 4.2: the five round models
+from sklearn.model_selection import KFold, cross_val_score            # noqa: E402
+
+same("4.1 five folds of 160 drives", len(fleet_y) / 5, 160, tolerance=0)
+same("4.1 so each round trains on 640", len(fleet_y) * 4 / 5, 640, tolerance=0)
+
+rounds = StratifiedKFold(n_splits=5, shuffle=True, random_state=0)
+round_models = [make_pipeline(StandardScaler(), LogisticRegression(max_iter=2_000))
+                .fit(fleet_X.iloc[a], fleet_y.iloc[a]) for a, _ in rounds.split(fleet_X, fleet_y)]
+power = [float(m[-1].coef_[0][list(fleet_X.columns).index("power_on_hours")])
+         for m in round_models]
+seek = [float(m[-1].coef_[0][list(fleet_X.columns).index("seek_error_rate")])
+        for m in round_models]
+same("4.2 power-on hours weighs 0.010 at the least", min(power), 0.010, tolerance=5e-4)
+same("4.2 and 0.353 at the most", max(power), 0.353, tolerance=5e-4)
+same("4.2 seek errors change sign across the rounds",
+     float(min(seek) < 0 < max(seek)), 1.0, tolerance=0)
+flags = np.array([m.predict_proba(fleet_X)[:, 1] >= 0.5 for m in round_models])
+for r, printed in enumerate((15, 17, 13, 14, 13)):
+    same(f"4.2 round {r + 1}'s model flags {printed} drives at 0.5",
+         int(flags[r].sum()), printed, tolerance=0)
+same("4.2 the five disagree on 8 drives",
+     int((flags.any(axis=0) & ~flags.all(axis=0)).sum()), 8, tolerance=0)
+
+# ------------------------- Section 4.3: the naive interval against new fleets
+seed0 = cross_val_score(make_pipeline(StandardScaler(), LogisticRegression(max_iter=2_000)),
+                        fleet_X, fleet_y, scoring="roc_auc", cv=rounds)
+same("4.3 s = 0.0187 at seed 0", float(seed0.std()), 0.0187, tolerance=5e-5)
+same("4.3 so s / sqrt(5) = 0.0084", float(seed0.std() / np.sqrt(5)), 0.0084,
+     tolerance=5e-5)
+same("4.3 and the naive interval is +/- 0.016",
+     float(1.96 * seed0.std() / np.sqrt(5)), 0.016, tolerance=5e-4)
+
+fleet_scores = []
+for fleet_seed in range(1000, 1300):
+    Xn, yn = load_fleet(800, random_state=fleet_seed)
+    fleet_scores.append(cross_val_score(
+        make_pipeline(StandardScaler(), LogisticRegression(max_iter=2_000)),
+        Xn, yn, scoring="roc_auc",
+        cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=0)))
+fleet_scores = np.array(fleet_scores)
+fleet_means = fleet_scores.mean(axis=1)
+fleet_se = fleet_scores.std(axis=1, ddof=1) / np.sqrt(5)
+centre = fleet_means.mean()
+same("4.3 across 300 new fleets the mean moves by 0.0165",
+     float(fleet_means.std(ddof=1)), 0.0165, tolerance=5e-5)
+same("4.3 that is +/- 0.032 at 95%", float(1.96 * fleet_means.std(ddof=1)), 0.032,
+     tolerance=5e-4)
+same("4.3 the round scores correlate by only 0.023",
+     float(np.corrcoef(fleet_scores.T)[~np.eye(5, dtype=bool)].mean()), 0.023,
+     tolerance=5e-4)
+same("4.3 the naive interval covers the centre in 80% of fleets",
+     float((np.abs(fleet_means - centre) <= 1.96 * fleet_se).mean()), 0.80,
+     tolerance=5e-3)
+same("4.3 and with t = 2.776 in 88%",
+     float((np.abs(fleet_means - centre) <= 2.776 * fleet_se).mean()), 0.88,
+     tolerance=5e-3)
+
+# ------------------------- Section 4.4: one failure, a perfect fold
+plain_auc = cross_val_score(make_pipeline(StandardScaler(), LogisticRegression(max_iter=2_000)),
+                            fleet_X, fleet_y, scoring="roc_auc",
+                            cv=KFold(n_splits=5, shuffle=True, random_state=3))
+plain_counts = [int(fleet_y.iloc[v].sum()) for _, v in
+                KFold(n_splits=5, shuffle=True, random_state=3).split(fleet_X)]
+same("4.4 KFold's fold 2 holds one failure", plain_counts[1], 1, tolerance=0)
+same("4.4 and scores a perfect 1.000", float(plain_auc[1]), 1.0, tolerance=1e-12)
+same("4.4 both columns hold 29 failures", sum(plain_counts), 29, tolerance=0)
+same("4.4 a fold should hold 29 / 5 = 5.8", 29 / 5, 5.8, tolerance=1e-9)
+same("4.4 a stratified fold has about 6 x 154 pairs", 6 * 154, 924, tolerance=0)
+
+# ------------------------- Section 4.5: more folds against repeated folds
+from sklearn.model_selection import LeaveOneOut, RepeatedStratifiedKFold  # noqa: E402
+import warnings                                                        # noqa: E402
+
+
+def procedure_spread(make_cv):
+    estimates = np.array([cross_val_score(
+        make_pipeline(StandardScaler(), LogisticRegression(max_iter=2_000)),
+        fleet_X, fleet_y, scoring="roc_auc", cv=make_cv(s)).mean() for s in range(40)])
+    return float(estimates.mean()), float(estimates.std(ddof=1))
+
+
+for label, make_cv, mean_printed, sd_printed in (
+        ("5-fold", lambda s: StratifiedKFold(5, shuffle=True, random_state=s), 0.9532, 0.0033),
+        ("10-fold", lambda s: StratifiedKFold(10, shuffle=True, random_state=s), 0.9539, 0.0036),
+        ("5-fold x 2", lambda s: RepeatedStratifiedKFold(n_splits=5, n_repeats=2,
+                                                         random_state=s), 0.9530, 0.0025),
+        ("5-fold x 10", lambda s: RepeatedStratifiedKFold(n_splits=5, n_repeats=10,
+                                                          random_state=s), 0.9533, 0.0009)):
+    got_mean, got_sd = procedure_spread(make_cv)
+    same(f"4.5 {label}: mean of the 40 estimates", got_mean, mean_printed, tolerance=5e-5)
+    same(f"4.5 {label}: standard deviation across seeds", got_sd, sd_printed,
+         tolerance=5e-5)
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    loo = cross_val_score(make_pipeline(StandardScaler(), LogisticRegression(max_iter=2_000)),
+                          fleet_X, fleet_y, scoring="roc_auc", cv=LeaveOneOut())
+same("4.5 leave-one-out with AUC is nan in every round", float(np.isnan(loo).all()), 1.0,
+     tolerance=0)
+
+# ------------------------- Section 4.6: ten readings per drive
+from sklearn.ensemble import RandomForestClassifier                    # noqa: E402
+from sklearn.model_selection import GroupKFold                         # noqa: E402
+from sklearn.neighbors import KNeighborsClassifier                     # noqa: E402
+
+readings = 10
+noise_rng = np.random.default_rng(0)
+column_sd = fleet_X.std().values
+X_read = pd.DataFrame(np.repeat(fleet_X.values, readings, axis=0)
+                      + noise_rng.normal(0, 0.05, (len(fleet_X) * readings,
+                                                   fleet_X.shape[1])) * column_sd,
+                      columns=fleet_X.columns)
+y_read = pd.Series(np.repeat(fleet_y.values, readings))
+drive_id = np.repeat(np.arange(len(fleet_X)), readings)
+for label, model, printed in (
+        ("logistic regression", make_pipeline(StandardScaler(),
+                                              LogisticRegression(max_iter=2_000)),
+         (0.960, 0.950, 0.951)),
+        ("1-nearest neighbour", make_pipeline(StandardScaler(), KNeighborsClassifier(1)),
+         (1.000, 0.620, 0.622)),
+        ("random forest", RandomForestClassifier(300, random_state=0, n_jobs=-1),
+         (0.999, 0.896, 0.890))):
+    shuffled = cross_val_score(model, X_read, y_read, scoring="roc_auc",
+                               cv=StratifiedKFold(5, shuffle=True, random_state=0)).mean()
+    grouped = cross_val_score(model, X_read, y_read, scoring="roc_auc",
+                              cv=GroupKFold(5), groups=drive_id).mean()
+    single_row = cross_val_score(model, fleet_X, fleet_y, scoring="roc_auc",
+                                 cv=StratifiedKFold(5, shuffle=True, random_state=0)).mean()
+    same(f"4.6 {label}, rows split at random", float(shuffled), printed[0], tolerance=5e-4)
+    same(f"4.6 {label}, each drive kept together", float(grouped), printed[1],
+         tolerance=5e-4)
+    same(f"4.6 {label}, one row per drive", float(single_row), printed[2], tolerance=5e-4)
+
+# GroupKFold with groups of different sizes: one drive of ten readings among 799
+# drives of one, never split.
+sizes = np.r_[np.zeros(10, int), np.arange(1, 800)]
+for _, held in GroupKFold(5).split(np.zeros((len(sizes), 1)), groups=sizes):
+    inside = int((sizes[held] == 0).sum())
+    same("4.6 the ten readings of one drive stay in one fold",
+         float(inside in (0, 10)), 1.0, tolerance=0)
+
+# ------------------------- Section 4.7: what the right-hand column costs
+same("4.7 forty seeds of five rounds are 200 fits", 40 * 5, 200, tolerance=0)
+
 print(f"lesson 5: {checks} hand-worked numbers recomputed, all agree")

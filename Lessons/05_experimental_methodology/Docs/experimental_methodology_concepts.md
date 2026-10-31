@@ -47,6 +47,11 @@ it. → § 3
 **`C` in scikit-learn.** The reciprocal of a penalty strength, so small `C` is heavy
 regularisation. It runs opposite to lesson 3's $\lambda$. → § 3
 
+**Two recipes for choosing a hyperparameter.** One fixed before the fit needs its
+own fits for every candidate, then a refit of the winner; one chosen after the fit,
+like a threshold, is tried on the probabilities of a single fit. Either way the test
+set is scored once, at the end. → § 3
+
 
 ## Cross-validation
 
@@ -54,16 +59,23 @@ regularisation. It runs opposite to lesson 3's $\lambda$. → § 3
 on the one left out, the validation fold, rotating until every row has been predicted exactly once by a
 model that never saw it. → § 4.1
 
+**Fold and round.** A fold is a part of the data; a round is one fit and one
+score, so one model per round. scikit-learn calls a round a split. → § 4.1
+
 **What it estimates.** The performance of a *procedure* applied to a dataset of
 about this size — not of any one fitted model, of which there are $k$. → § 4.2
 
-**Its pessimism.** Each fold trains on a fraction of the data, so the estimate
+**Its pessimism.** Each round's model trains on a fraction of the data, so the estimate
 describes a slightly smaller training set than the one you will ship. The bias is
 in the safe direction. → § 4.2
 
-**Why the usual error bar is optimistic.** The fold scores are not independent: any
-two training sets share most of their rows, and positively correlated measurements
-carry less information than independent ones. → § 4.3
+**Confidence interval.** An estimate plus or minus about two standard errors, a
+range built to contain the true value in 95 of 100 repeated experiments. → § 4.3
+
+**Why the usual error bar is optimistic.** $s/\sqrt{k}$ assumes independent
+scores. Overlapping training sets can correlate them, and a standard deviation
+computed from a handful of scores is itself rough, too small more often than
+not. → § 4.3
 
 **The variance of a mean of correlated measurements.** The variance of a sum
 collects the covariances as well as the variances, which is the term
@@ -72,8 +84,13 @@ $s/\sqrt{k}$ silently sets to zero. → § 4.3
 **Stratified folds.** Folds that keep each class in its overall proportion, so a
 rare class cannot land almost entirely in one of them. → § 4.4
 
+**Repeated k-fold.** The whole cross-validation run with several shuffles and
+averaged; it removes the dependence on how the folds were cut, not the uncertainty
+about new data. → § 4.5
+
 **Grouped folds.** Splitting along the axis you must generalise across, when
-several rows share a source — a patient, a document, a machine. → § 4.6
+several rows share a source — a patient, a document, a machine. The group label
+is passed apart from the features and is never one of them. → § 4.6
 
 **Time-ordered splits.** Training on a prefix and testing on what comes next,
 because real use always predicts forward. → § 4.6

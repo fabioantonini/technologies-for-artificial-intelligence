@@ -2,9 +2,10 @@
 
     python Figures/make_figures.py
 
-Data figures come from the notebooks. These two are diagrams of a *procedure*
-rather than plots of numbers: how k-fold rotates the validation block, and how nested
-cross-validation puts a second loop around the first. Both are far easier to
+Data figures come from the notebooks. These three are diagrams of a *procedure*
+rather than plots of numbers: the two recipes for choosing a hyperparameter, how
+k-fold rotates the validation block, and how nested cross-validation puts a second
+loop around the first. Both are far easier to
 understand as a picture than as a paragraph, and both are the kind of thing
 that otherwise gets drawn badly on a whiteboard.
 """
@@ -40,6 +41,51 @@ def save(fig, name):
     fig.savefig(OUT / name, dpi=150, bbox_inches="tight", facecolor="white")
     plt.close(fig)
     print(f"  {name}")
+
+
+def two_recipes():
+    """How a hyperparameter is chosen: one fit per candidate when it sits inside
+    the cost (lambda), one fit in all when it acts on the output (the threshold)."""
+    fig, axes = plt.subplots(1, 2, figsize=(11.6, 5.6))
+    recipes = [
+        ("Fixed before the fit: the penalty (C), tree depth, neighbours",
+         ["1. Set the test set aside",
+          "2. For each candidate, C = 0.01, 1, 100:\n5-fold cross-validation on the rest\n= 5 fits each, 3 × 5 = 15 fits",
+          "3. Keep the C with the best mean score",
+          "4. Refit with that C on all non-test data\n(fit number 16)",
+          "5. Score the test set, once"],
+         BLUE),
+        ("Chosen after the fit: the decision threshold",
+         ["1. Set the test set aside,\nthen cut a validation set from the rest",
+          "2. Fit the model on the training part:\none fit in all",
+          "3. Predict probabilities on the validation set",
+          "4. Try every threshold on those probabilities;\nkeep the cheapest",
+          "5. Score the test set, once"],
+         TEAL),
+    ]
+    for ax, (title, steps, colour) in zip(axes, recipes):
+        heights = [1.25 if "\n" in s and s.count("\n") == 2 else
+                   0.95 if "\n" in s else 0.7 for s in steps]
+        y = 0.0
+        for index, (step, h) in enumerate(zip(steps, heights)):
+            last = index == len(steps) - 1
+            ax.add_patch(Rectangle((0, y - h), 10, h,
+                                   facecolor=RUST if last else "#DCE6F0",
+                                   alpha=.25 if last else 1.0,
+                                   edgecolor=colour, linewidth=1.4))
+            ax.text(0.35, y - h / 2, step, ha="left", va="center", fontsize=10.5,
+                    color=INK, fontweight="bold" if last else "normal")
+            if not last:
+                ax.annotate("", xy=(5, y - h - 0.32), xytext=(5, y - h - 0.02),
+                            arrowprops=dict(arrowstyle="->", color=SLATE, lw=1.3))
+            y -= h + 0.34
+        ax.set_title(title, fontsize=11.5, color=colour, fontweight="bold",
+                     loc="left")
+        ax.set_xlim(-0.1, 10.1)
+        ax.set_ylim(y + 0.1, 0.15)
+        ax.axis("off")
+    fig.tight_layout(w_pad=2.5)
+    save(fig, "two_recipes.png")
 
 
 def kfold_diagram(k=5):
@@ -132,5 +178,6 @@ def nested_cv_diagram():
 
 if __name__ == "__main__":
     print("conceptual figures for lesson 5:")
+    two_recipes()
     kfold_diagram()
     nested_cv_diagram()

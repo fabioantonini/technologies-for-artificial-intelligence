@@ -34,14 +34,19 @@ number it produces.
    working, a delightful one makes you stop and publish.
 3. **Choosing with a noisy number.** Three logistic regressions differing only in
    penalty: mean area under the receiver operating characteristic curve (AUC) **0.9549, 0.9549, 0.9544** — identical to three decimals — and
-   they are declared best **91, 71 and 38 times** out of 200. The winner is noise
-   wearing the clothes of a result.
+   they win outright **89, 42 and 38 times** out of 200, with 31 ties, by a median
+   margin of **0.0015** against the 0.024 a single measurement wobbles by. The
+   winner is noise wearing the clothes of a result.
 4. **k-fold cross-validation**, implemented by hand and matched against scikit-learn
-   **exactly** (agreement 0.00e+00), giving **0.9514 ± 0.0187**. Report the spread: five
-   fold scores are five measurements of the same quantity.
+   **exactly** (agreement 0.00e+00), giving a mean of **0.9514** and a standard
+   deviation of **0.0187**. The five rounds fit five different models — power-on
+   hours weighs 0.010 in one and 0.353 in another — so the mean belongs to the
+   procedure. And 300 new fleets show the real spread of the cross-validated
+   number, **0.0165**, about twice the 0.0084 that s ÷ √5 promises.
 5. **Stratification is not optional here.** Plain `KFold` gives folds with 1, 5, 7, 7
-   and 9 failures out of 160; `StratifiedKFold` gives 5, 6, 6, 6, 6 against a
-   fleet-wide rate of 3.62%.
+   and 9 failures out of 160 — and the fold with one failure scores a perfect
+   **1.000** — while `StratifiedKFold` gives 5, 6, 6, 6, 6 against a fleet-wide rate
+   of 3.62%.
 6. **How much it helps**, the comparison across 40 seeds:
 
    | | single 75/25 split | 5-fold CV |
