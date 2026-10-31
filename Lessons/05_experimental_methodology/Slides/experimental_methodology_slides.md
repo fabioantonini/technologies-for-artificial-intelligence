@@ -710,24 +710,28 @@ Ten minutes. The second half is bias-variance, which needs them awake.
 
 # Where does the error come from?
 
-- **Bias²**: (average prediction − truth)²: the average model is wrong
-- **Variance**: the spread of the models around their average
-- **Noise** σ²: the target itself is uncertain
-- Lesson 3's energy curve, 300 training sets of 25 days, each fitted with
+- **Bias²** = (average prediction − truth)², over the training sets
+- **Variance**: spread of the fitted models around that average
+- **Noise** σ²: the data scatter around the true curve
+- Lesson 3's energy curve: 300 training sets of 25 days, each fitted with
   `make_pipeline(PolynomialFeatures(degree), LinearRegression())`
 
 ::: notes
 Set up the decomposition in words before any algebra, and say first that the data
 changes: lesson 3's energy-against-temperature curve comes back, because here we
-need the true curve, and we built it ourselves. Each training set is 25 days, the
-noise has a standard deviation of 22 kWh, and we draw 300 such training sets.
+need the true curve, and we built it ourselves. Each training set is 25 days, at
+temperatures drawn uniformly between -5 and 38 °C; the noise has a standard
+deviation of 22 kWh; and we draw 300 such training sets. Every error that follows
+is averaged over those 300 training sets and over 220 test temperatures from -4
+to 37 °C.
 
 Imagine drawing many training sets from the same source and fitting the same
 model to each. You get many models, and they fail in two distinguishable ways.
 
-They may agree with each other and all be wrong - a straight line fitted to a
-curve gives nearly the same line every time and every one misses the curvature.
-That is bias: consistently, confidently wrong.
+They may all be wrong in the same way - a straight line fitted to a curve misses
+the curvature every time, whichever sample it gets. That is bias: consistently
+wrong. (The lines do not agree closely with each other, as the next slide shows;
+that is a separate matter.)
 
 Or they may disagree wildly - a twelfth-degree polynomial on twenty-five points
 gives a different wild curve every time. That is variance: unreliable, whatever
@@ -743,10 +747,14 @@ model at all.
 
 ::: notes
 Each faint line is a model fitted to a DIFFERENT training sample from the same
-curve. In real life you drew exactly one of them and never knew about the rest.
+curve. Forty of the 300 are drawn, so the panel stays readable; the red average
+is taken over all 300. In real life you drew exactly one of them and never knew
+about the rest.
 
-Left, degree 1: the lines lie almost on top of each other - stable - and the red
-average is nowhere near the black truth. That gap is bias.
+Left, degree 1: every line misses the curvature in the same way, and the red
+average is nowhere near the black truth. That gap is bias. Do not call these
+lines stable: they fan out visibly, more than degree 3's - slide 28 gives the
+number, 723.8 against 125.8, and its notes explain why.
 
 Middle, degree 3: average tracks the truth, spread is modest. Both small.
 
@@ -754,14 +762,17 @@ Right, degree 12: through the middle it follows the truth better than degree 1
 ever could, and at the edges the lines fly off and drag the average off the top
 of the plot with them. That scatter is variance.
 
-Two things to point at in the right panel. The scatter is worst WHERE THE DATA
-RUNS OUT - beyond about 30 degrees nothing constrains the fit. Extrapolation is
-where flexible models embarrass themselves.
+Two things to point at in the right panel. The scatter is worst at the EDGES of
+the temperature range, at both ends: there every training point lies on one side,
+so nothing holds the polynomial down on the other. It is not that the data runs
+out - the 25 temperatures are spread evenly from -5 to 38 °C, about 4.7 of them
+above 30 on average. The edges are where flexible models embarrass themselves,
+and beyond them, extrapolation is worse still.
 
 And any one of those faint lines is a model somebody actually deployed.
 :::
 
-# The decomposition
+# Expected error = bias² + variance + noise
 
 $$\mathbb{E}\left[(y - \hat{f})^2\right] = \text{bias}^2 + \text{variance} + \sigma^2$$
 
@@ -782,19 +793,27 @@ as a schematic. Here it is measured.
 
 # Measured, on 25 observations
 
-| Degree | bias² | Variance | Noise | Total |
+| Degree | bias² | Variance | Noise | Total = bias² + variance + noise |
 |---|---|---|---|---|
 | 1 | 5,250.8 | 723.8 | 484.0 | 6,458.6 |
 | 2 | 59.6 | 70.8 | 484.0 | **614.3** |
+| 3 | 44.5 | 125.8 | 484.0 | 654.4 |
 | 5 | 8.9 | 368.9 | 484.0 | 861.8 |
 | 12 | 153,537.3 | 32,174,344.9 | 484.0 | 32,328,366.2 |
 
 ::: notes
+Each row is averaged over the 300 training sets of 25 days and the 220 test
+temperatures. The totals add the unrounded parts, so a student adding the printed
+ones may be off in the last digit: 59.6 + 70.8 + 484.0 = 614.4, printed 614.3.
+
 Noise is 484 in every row - point at the column and say that it never
 moves, because it is a property of the data and not of the model.
 
 Degree 1 is a bias problem: bias² of 5,250, two orders of magnitude above the
-next row. Stable in shape and wrong everywhere.
+next row. Wrong everywhere, in the same way.
+
+Degree 3 is the "about right" panel of slide 26: 654.4, close to degree 2's
+614.3, the minimum.
 
 Do not say it has the smallest variance - it does not, 723.8 against degree 2's
 70.8, and it is on the slide. Every universe draws its own 25 temperatures, and
@@ -813,13 +832,13 @@ average of the fitted curves is not a meaningful curve, so the bias term
 inherits the instability. Read the two together.
 :::
 
-# The picture everyone has seen, now measured
+# Bias, variance and total error against degree, measured
 
 ![](bias_variance_tradeoff.png)
 
 ::: notes
-The classic picture, and the one place where the classic picture is usually
-drawn without anyone checking it. The textbook version: bias falling
+The textbook picture of this trade-off, measured instead of drawn. Many of them
+will meet the drawn version later, in every machine-learning text. The textbook version: bias falling
 monotonically, variance rising, the total a U. Two of those three are not what
 the measurement gives.
 
@@ -843,7 +862,7 @@ The dotted line is the noise floor at 484.
 # The floor you cannot go below (optional)
 
 - Noise variance is **484** = 22², the noise put into the data, at every complexity
-- A reported error well below a known floor means **contamination**, not excellence
+- A **test** error well below a known floor means leakage or a mistake in the evaluation, not excellence
 
 ::: notes
 Optional on 6 November: skip in class if time is short, and say it is left for
@@ -851,7 +870,9 @@ self-study, with the handout.
 
 The noise column never moves, because it is a property of the data rather than
 of the model. No model, no algorithm and no quantity of data brings the expected
-error below it.
+error on NEW data below it. Training error is another matter: degree 12 on its own
+25 points goes far below 484, by fitting the noise. That is why the bullet says
+test error.
 
 The corollary is a practical diagnostic worth writing down: if you know your
 measurement precision and your model beats it, something has leaked. This is a
@@ -864,7 +885,7 @@ deliberately.
 
 # The best model depends on how much data you have (optional)
 
-| Degree | m = 25 | m = 60 | m = 150 |
+| Degree; total error at training-set size m | m = 25 | m = 60 | m = 150 |
 |---|---|---|---|
 | 2 | **614.3** | 570.6 | 555.3 |
 | 5 | 861.8 | **540.9** | **506.9** |
@@ -878,8 +899,10 @@ The same experiment at three sample sizes. The best degree moves from 2 to 5 as
 the data grows, because there is now enough of it to pin down the extra
 coefficients and the variance has fallen accordingly.
 
-Degree 12 improves by a factor of four thousand between 25 and 60 observations,
-and of thirty-six thousand by 150, and is still the worst model in its column.
+Degree 12 improves by a factor of four thousand between 25 and 60 observations
+(32,328,366.2 ÷ 7,626.9 = 4,239), and of thirty-six thousand by 150 (÷ 899.0 =
+35,960), and is still the worst of the three rows shown. Not of all six: at 150
+the straight line, degree 1, is worse, 5,861.5 (handout section 5.4).
 
 Then the sentence worth putting on the board: "which model is best" is not a
 question about models. It is a question about models AND the quantity of data
@@ -898,16 +921,22 @@ reproduce for them. Neither experiment was wrong.
 Everything so far needed the true function. Learning curves need only data you
 have, which is why they are the practical tool.
 
-Train on 15% of each training fold, then on larger shares, eight sizes up to all
-of it, plotting training score and cross-validated score against the number of
-examples used. The data is the 800 drives again; the first bullet of the next
-slide names the scikit-learn call that does it.
+5-fold cross-validation on the 800 drives, so each round's training part is 640
+drives. Train on 15% of it, 96 drives, then on larger shares, eight sizes up to all
+640, plotting training score and cross-validated score against the number of
+examples used. The first bullet of the next slide names the scikit-learn call.
 
-Left, one feature only: the curves MEET, and they meet LOW - 0.715 against 0.718
- -  and the validation curve is flat from the first point to the last.
+Left, one feature only, power_on_hours, logistic regression with C = 1: the curves
+MEET, and they meet LOW - 0.715 against 0.718 - and the validation curve is
+exactly flat, 0.718 at every size. Say why, because a sharp student will ask:
+with a single feature, logistic regression ranks the drives in that feature's own
+order whatever coefficient it learns, so its AUC is power_on_hours' own AUC and
+no amount of data can move it. It is the extreme case of bias, chosen to make the
+shape unmistakable.
 
-Right, six features plus 150 columns of pure noise: training exactly 1.000
-against validation 0.847, a gap of 0.15.
+Right, six features plus 150 columns of pure noise, logistic regression with
+C = 1000, almost no penalty: training exactly 1.000 against validation 0.847, a
+gap of 0.15.
 
 Then read the right-hand curve to the end, because this is where the room gets
 it wrong. It climbs to
@@ -915,7 +944,7 @@ it wrong. It climbs to
 below its own high point.
 
 Someone will say it is still rising, because the last segment goes up by 0.014.
-Have the answer ready: across the five folds that step is -0.030, +0.050,
+Have the answer ready: across the five rounds that step is -0.030, +0.050,
 +0.006, -0.009, +0.053. It is a wiggle inside a band of about 0.04, not a trend.
 A slope smaller than its band is not a slope.
 
@@ -925,11 +954,11 @@ looks like when most columns carry nothing, which is most feature tables.
 
 # Which fix to buy
 
-- A learning curve: training and cross-validated score against training-set
-  size, `learning_curve(model, X, y, cv=folds, scoring="roc_auc")`
-- Curves **meet low** → bias. More data will **not** help
-- Wide gap, validation **still rising** → more data **will**
-- Wide gap, validation **flat** → regularise, drop features. **Ours is this one**
+- A learning curve: both scores against training-set size,
+  `learning_curve(model, X, y, cv=folds, scoring="roc_auc")`
+- Curves **meet low**: bias. More data will **not** help
+- Wide gap, validation **still rising**: more data **will** help
+- Wide gap, validation **flat**: regularise, drop features. **Slide 32, right, is this one**
 
 ::: notes
 This slide is the practical payoff of the entire second hour, so do not rush it.

@@ -98,11 +98,12 @@ because real use always predicts forward. → § 4.6
 
 ## What error is made of
 
-**Bias.** Being consistently, confidently wrong: models fitted to different samples
-agree with each other and all miss the truth. → § 5.1
+**Bias.** Being consistently wrong: models fitted to different samples all miss
+the truth in the same way. Not the bias of an estimate, which sections 2 and 7
+use. → § 5.1
 
 **Variance.** Being unreliable: models fitted to different samples disagree wildly,
-worst where the data runs out. → § 5.1
+worst at the edges of the range, where all the points lie on one side. → § 5.1
 
 **Irreducible noise.** The part of the error that is a property of the data, not of
 the model. No method and no quantity of data goes below it. → § 5.1
@@ -110,8 +111,9 @@ the model. No method and no quantity of data goes below it. → § 5.1
 **The decomposition.** Expected squared error equals bias squared plus variance
 plus noise. An identity, not an approximation. → § 5.2
 
-**The noise floor.** The value that decomposition's last term sets. A reported error
-*below* it is evidence of contamination, not of excellence. → § 5.3
+**The noise floor.** The value that decomposition's last term sets. A test error
+*below* it is evidence of leakage, not of excellence; a training error can go
+below it by fitting the noise. → § 5.3
 
 **Model choice depends on sample size.** The complexity that minimises total error
 moves as data grows — which is why a paper's result on a larger dataset may

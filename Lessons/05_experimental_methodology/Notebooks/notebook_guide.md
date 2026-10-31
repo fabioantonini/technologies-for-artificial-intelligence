@@ -111,7 +111,7 @@ model can remove.
    training **1.000** against validation 0.847, a gap of 0.153.
 6. **And read the slope to the end.** The high-variance curve climbs to **0.857 at 251
    examples** and then moves sideways — 0.834, 0.847, 0.835, 0.832, 0.847 — ending
-   *below* its own peak. The last step rises by 0.014, but per fold it is −0.030,
+   *below* its own peak. The last step rises by 0.014, but per round it is −0.030,
    +0.050, +0.006, −0.009, +0.053: **a slope smaller than its own band is not a
    slope.**
 

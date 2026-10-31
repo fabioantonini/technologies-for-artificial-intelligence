@@ -712,11 +712,12 @@ ways.
 
 ![](many_universes.png)
 
-*Each faint line is the same model fitted to a different training sample. Left, the lines agree with each other and all miss the truth: that is bias. Right, they disagree wildly, worst where the data runs out: that is variance. In real life you drew one of these lines and never saw the others.*
+*Each faint line is the same model fitted to a different training sample of 25 days; forty of the 300 are drawn, and the red average is over all 300. Left, every line misses the curvature in the same way: that is bias. (They also fan out, more than the middle panel's; section 5.3 explains why.) Right, they disagree wildly, worst at both edges of the temperature range, where all the training points lie on one side: that is variance. In real life you drew one of these lines and never saw the others.*
 
-**They may agree with each other and all be wrong.** A straight line fitted to a
-curve gives nearly the same straight line every time, and every one of them
-misses the curvature. That is **bias**: being consistently, confidently wrong.
+**They may all be wrong in the same way.** A straight line fitted to a curve
+misses the curvature every time, whichever sample it gets. That is **bias**:
+being consistently wrong. Whether the lines also agree with *each other* is a
+separate question, and here, as section 5.3 measures, they do not.
 
 **They may disagree wildly with each other.** A twelfth-degree polynomial
 fitted to twenty-five points gives a different wild curve every time. That is
@@ -779,14 +780,17 @@ $3 \times 10^{-12}$ — which is floating-point equality.
 ### 5.3 What it looks like on real numbers
 
 
-Energy against outdoor temperature, 25 training observations, 300 samples, noise
-variance 484:
+Energy against outdoor temperature, from the curve `true_curve` in
+`Notebooks/methodology_data.py`: 25 training observations at temperatures drawn
+uniformly between −5 and 38 °C, 300 training sets, noise variance $22^2 = 484$.
+Every number below is averaged over the 300 training sets and over 220 test
+temperatures from −4 to 37 °C:
 
 ![](bias_variance_tradeoff.png)
 
 *The total error is a U whose minimum, at degree 2, is the model you want. What to look at is the red curve after degree 5: bias² climbs four orders of magnitude, which is not what the textbook picture of bias leads you to expect. The prose below explains it, and the explanation is the point of the section. The scale is logarithmic — on a linear axis degree 12 would flatten everything else onto the baseline — and the dotted line is the noise floor at 484, which no model crosses.*
 
-| Degree | bias² | Variance | Noise | Total |
+| Degree | bias² | Variance | Noise | Total = bias² + variance + noise |
 |---|---|---|---|---|
 | 1 | 5,250.8 | 723.8 | 484.0 | 6,458.6 |
 | 2 | 59.6 | 70.8 | 484.0 | **614.3** |
@@ -795,9 +799,12 @@ variance 484:
 | 9 | 80.1 | 65,186.0 | 484.0 | 65,750.1 |
 | 12 | 153,537.3 | 32,174,344.9 | 484.0 | 32,328,366.2 |
 
+The totals add the unrounded parts, so the printed ones can differ in the last
+digit: $59.6 + 70.8 + 484.0 = 614.4$, printed 614.3.
+
 **Degree 1 is a bias problem** — its bias² is 5,250.8, two orders of magnitude
-above the next row, and its total error is the second worst in the table. Stable
-in shape and wrong everywhere.
+above the next row, and its total error is the third worst in the table. Wrong
+everywhere, and in the same way on every sample.
 
 **Its variance is not the smallest, though, and that is worth a minute.** The
 textbook picture has variance rising with complexity from the very first point;
@@ -832,15 +839,18 @@ instability. **Read the two numbers together.**
 property of the data. It is the floor: no model, no algorithm and no quantity of
 data brings the expected error below it.
 
-That has a practical corollary worth stating plainly. **A reported error below
-the noise floor is evidence of contamination, not of excellence.** If you know
-your measurement precision and your model beats it, something has leaked.
+That has a practical corollary worth stating plainly. **A test error below the
+noise floor is evidence of leakage or of a mistake in the evaluation, not of
+excellence.** If you know your measurement precision and your model beats it on
+data it never saw, something has leaked. The condition matters: the floor bounds
+the error on *new* data. A training error can go far below it — degree 12 on its
+own 25 points does, by fitting the noise.
 
 ### 5.4 The optimum depends on how much data you have
 
 The same experiment at three training-set sizes, showing total expected error:
 
-| Degree | m = 25 | m = 60 | m = 150 |
+| Degree; total error at training-set size $m$ | m = 25 | m = 60 | m = 150 |
 |---|---|---|---|
 | 1 | 6,458.6 | 5,998.6 | 5,861.5 |
 | 2 | **614.3** | 570.6 | 555.3 |
@@ -850,7 +860,10 @@ The same experiment at three training-set sizes, showing total expected error:
 | 12 | 32,328,366.2 | 7,626.9 | 899.0 |
 
 The best degree moves from **2 to 5** as the sample grows. Degree 12 improves by
-a factor of four thousand and remains the worst model in its column.
+a factor of $32{,}328{,}366.2 \div 7{,}626.9 = 4{,}239$ between 25 and 60
+observations and of $32{,}328{,}366.2 \div 899.0 = 35{,}960$ by 150. It is the
+worst model at 25 and at 60; at 150 it has overtaken the straight line, whose
+5,861.5 no quantity of data repairs — bias does not shrink with $m$.
 
 > **"Which model is best?" is not a question about models. It is a question
 > about models *and* the quantity of data you have.**
@@ -869,24 +882,34 @@ the same diagnosis from data you actually have.
 
 ![](learning_curves.png)
 
-*Two diagnoses. Left: the curves meet, and meet low — bias, and more data will not help. Right: a gap of 0.15 that does not close — variance. Read the right-hand curve to the end, though, rather than stopping at its rise: it climbs to 0.857 at 251 examples and then moves sideways, finishing below its own high point at 0.847. Both halves are information, and Section 6.1 says what each one licenses.*
+*Two diagnoses. Left: the curves meet, and meet low — bias, and more data will not help; the validation curve is exactly flat, for the reason given below the table. Right: a gap of 0.15 that does not close — variance. Read the right-hand curve to the end, though, rather than stopping at its rise: it climbs to 0.857 at 251 examples and then moves sideways, finishing below its own high point at 0.847. Both halves are information, and Section 6.1 says what each one licenses.*
 
-**The construction.** Train on 15% of the data, then 25%, and so on to 100%,
-plotting both the training score and the cross-validated score against the
-number of examples used. The *shapes* carry the diagnosis.
+**The construction.** 5-fold cross-validation on the 800 drives, so each round's
+training part holds 640. Train on 15% of it, 96 drives, then on eight evenly
+spaced sizes up to all 640, plotting both the training score and the
+cross-validated score against the number of examples used. The *shapes* carry the
+diagnosis.
 
-Measured on the fleet, with two deliberately broken models:
+Measured on the fleet, with two deliberately broken logistic regressions:
 
 | Model | Training | Validation | Gap | Validation trend |
 |---|---|---|---|---|
-| One feature only | 0.715 | 0.718 | −0.002 | 0.718 → 0.718, flat |
-| 6 features + 150 noise columns | **1.000** | 0.847 | +0.153 | 0.760 → 0.857 by 251, then flat |
+| `power_on_hours` only, C = 1 | 0.715 | 0.718 | −0.002 | 0.718 at every size: exactly flat |
+| 6 features + 150 noise columns, C = 1000 | **1.000** | 0.847 | +0.153 | from 0.760, up to 0.857 at 251, then level |
+
+**Why the left curve is exactly flat.** With a single feature, logistic regression
+ranks the drives in that feature's own order whatever coefficient it learns, so
+its AUC is the AUC of `power_on_hours` itself, 0.718, and no amount of training
+data can move it. It is the extreme case of bias, chosen to make the shape
+unmistakable; a real high-bias curve rises a little at first and then flattens
+low.
 
 ### 6.1 Reading them
 
 **High bias.** The curves meet, and they meet *low*. The model is equally
 mediocre on data it has seen and data it has not, because it has extracted
-everything available to it and that is not enough.
+everything available to it and that is not enough — on the left, literally
+everything one column's ordering contains.
 
 - *Helps:* a more flexible model, better features, less regularisation.
 - *Does not help:* **more data.** The curve is already flat; more rows land on
@@ -921,7 +944,7 @@ that it will change nothing.
 
 **And measure the slope against the band before believing it.** The right-hand
 curve ends on a segment that rises by 0.014, which the eye reads as a curve
-still climbing. Across the five folds that step is −0.030, +0.050, +0.006,
+still climbing. Across the five rounds that step is −0.030, +0.050, +0.006,
 −0.009, +0.053: an average of +0.014 with a standard deviation of 0.036. The
 curve's highest point is at 251 examples, 0.857, and it finishes *below* it at
 0.847. A slope smaller than the band drawn around it is not a slope.
@@ -1128,13 +1151,13 @@ your result and your marker's result are the same result.
   perfect 1.000** depending only on the seed.
 - **The precision is governed by the count of the rarer class.** Ask how many
   positives are in the test set.
-- **Selecting on one split selects noise.** Three identical models each won a
-  share of 200 splits: 91, 71, 38.
+- **Selecting on one split selects noise.** Three equally good models won 89, 42
+  and 38 of 200 splits outright, 31 ties, by a median margin of 0.0015.
 - **Cross-validation** rotates a validation fold, estimates a *procedure*, is
-  slightly pessimistic, and its folds are correlated — so quote the spread, not
-  a confidence interval.
+  slightly pessimistic, and s ÷ √k understates its uncertainty by about half — so
+  quote the spread, not a confidence interval.
 - **bias² + variance + noise is an identity**, verified to $3 \times 10^{-12}$.
-  The noise floor never moves, and beating it means contamination.
+  The noise floor never moves, and a test error below it means leakage.
 - **The best model depends on how much data you have.**
 - **Learning curves prescribe the fix.** Curves meeting low mean bias, and more
   data will not help.

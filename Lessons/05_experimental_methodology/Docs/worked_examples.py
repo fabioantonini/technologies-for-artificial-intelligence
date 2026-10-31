@@ -618,4 +618,39 @@ for _, held in GroupKFold(5).split(np.zeros((len(sizes), 1)), groups=sizes):
 # ------------------------- Section 4.7: what the right-hand column costs
 same("4.7 forty seeds of five rounds are 200 fits", 40 * 5, 200, tolerance=0)
 
+# ------------------------- Sections 5.3, 5.4 and 6: the second hour's arithmetic
+same("5.3 printed parts of degree 2 add to 614.4", 59.6 + 70.8 + 484.0, 614.4,
+     tolerance=1e-9)
+same("5.3 degree 2's unrounded total is 614.3", sum(universes(2, True, 0)) + 484.0,
+     614.3, tolerance=0.05)
+same("5.1 about 4.7 of 25 uniform temperatures fall above 30 degrees",
+     25 * (38 - 30) / (38 - (-5)), 4.7, tolerance=0.05)
+same("5.4 degree 12 improves 4,239-fold from 25 to 60", 32_328_366.2 / 7_626.9, 4239,
+     tolerance=0.5)
+same("5.4 and 35,960-fold by 150", 32_328_366.2 / 899.0, 35960, tolerance=0.5)
+deg1_150 = sum(universes(1, True, 0, n_train=150)) + 484.0
+deg12_150 = sum(universes(12, True, 0, n_train=150)) + 484.0
+same("5.4 at m = 150 the straight line's total is 5,861.5", deg1_150, 5861.5,
+     tolerance=0.1)
+same("5.4 so at 150 degree 12 is no longer the worst",
+     float(deg12_150 < deg1_150), 1.0, tolerance=0)
+
+# 6: one feature alone. The validation AUC cannot move, because the fitted
+# logistic regression ranks drives in the feature's own order.
+one_counts, _, one_valid = learning_curve(
+    make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, C=1.0)),
+    fleet_X[["power_on_hours"]], fleet_y, train_sizes=np.linspace(0.15, 1.0, 8),
+    cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=0), scoring="roc_auc")
+same("6 the first learning-curve size is 96 drives", int(one_counts[0]), 96, tolerance=0)
+same("6 and the last 640", int(one_counts[-1]), 640, tolerance=0)
+same("6 one feature: the validation curve is exactly flat",
+     float(np.ptp(one_valid, axis=0).max()), 0.0, tolerance=1e-12)
+pooled = []
+for _, valid_rows in StratifiedKFold(n_splits=5, shuffle=True,
+                                     random_state=0).split(fleet_X, fleet_y):
+    pooled.append(roc_auc_score(fleet_y.iloc[valid_rows],
+                                fleet_X["power_on_hours"].iloc[valid_rows]))
+same("6 at power_on_hours' own AUC, 0.718", float(np.mean(pooled)), 0.718,
+     tolerance=5e-4)
+
 print(f"lesson 5: {checks} hand-worked numbers recomputed, all agree")
