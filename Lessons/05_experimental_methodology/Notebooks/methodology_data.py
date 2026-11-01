@@ -53,7 +53,7 @@ NOISE_SD = 22.0
 
 
 def true_curve(temperature):
-    """Daily energy use against outdoor temperature.
+    """Daily energy use against the day's mean outdoor temperature.
 
     Heating below and cooling above, so the curve has a minimum near 18 °C; the
     sine term is a mild seasonal habit that a straight line cannot follow and a
@@ -64,6 +64,10 @@ def true_curve(temperature):
 
 def sample_energy(n_samples: int, rng: np.random.Generator):
     """Draw one independent training set from the curve.
+
+    Each row is one day: its mean outdoor temperature, drawn uniformly between
+    -5 and 38 °C (days scattered over a year, not consecutive), and that day's
+    energy use with noise.
 
     Called repeatedly with the same generator, it produces the many parallel
     universes that the bias-variance decomposition averages over.

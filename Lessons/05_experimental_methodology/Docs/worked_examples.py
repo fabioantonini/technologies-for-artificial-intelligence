@@ -670,7 +670,7 @@ def at_thirty(degree, seed=0, n_train=25, n_samples=300):
 truth_30 = 240 + 0.55 * (30 - 18) ** 2 + 12 * np.sin(30 / 4)
 same("5.2 the truth at 30 degrees is 330.5", truth_30, 330.5, tolerance=0.05)
 for degree, printed in ((1, (303.6, 723.9, 856.1, 2063.9, 215.6, 364.7)),
-                        (3, (321.0, 89.8, 98.1, 671.8, 293.6, 373.0))):
+                        (2, (323.1, 53.7, 58.4, 596.1, 299.1, 346.5))):
     p30 = at_thirty(degree)
     average, low, high = p30.mean(), p30.min(), p30.max()
     bias_squared = (average - truth_30) ** 2
@@ -692,7 +692,7 @@ for degree, printed in ((1, (303.6, 723.9, 856.1, 2063.9, 215.6, 364.7)),
          simulated, total, tolerance=0.01 * total)
 same("5.2 printed degree-1 parts add to 2,064.0", 723.9 + 856.1 + 484.0, 2064.0,
      tolerance=1e-9)
-same("5.2 and degree 3's to 671.9", 89.8 + 98.1 + 484.0, 671.9, tolerance=1e-9)
+same("5.2 and degree 2's to 596.1", 53.7 + 58.4 + 484.0, 596.1, tolerance=1e-9)
 same("5.2 the bias itself is a signed gap, -26.9 kWh", 303.6 - 330.5, -26.9,
      tolerance=1e-9)
 same("5.2 squaring the printed gap gives 723.6", round((303.6 - 330.5) ** 2, 1),
@@ -756,6 +756,15 @@ for n_days, degree, train_printed, valid_printed in (
          train_printed, tolerance=0.06)
     same(f"6 {n_days} days, degree {degree}, validation {valid_printed}", valid,
          valid_printed, tolerance=0.06)
+
+# Slide 25's 25 days are the first of section 5's 300 training sets. The
+# straight line fitted to them must give the first of the 300 predictions at
+# 30 degrees that section 5.2 prints, 300.8.
+days_25, energy_25 = sample_energy(25, np.random.default_rng(0))
+same("5.5 slide 25's sample is the first of the 300: its line gives 300.8 at 30",
+     np.polyval(np.polyfit(days_25, energy_25, 1), 30.0), 300.8, tolerance=0.05)
+same("5.5 and so does the first of at_thirty's 300", at_thirty(1)[0],
+     np.polyval(np.polyfit(days_25, energy_25, 1), 30.0), tolerance=1e-9)
 
 train5, valid5 = by_hand(25, 5)
 same("6 degree 5's gap on 25 days is 352.6", valid5 - train5, 352.6, tolerance=0.06)

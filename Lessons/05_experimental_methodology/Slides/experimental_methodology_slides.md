@@ -715,7 +715,7 @@ Ten minutes. The second half is bias-variance, which needs them awake.
 # Error too high: more data, or another model?
 
 - Daily energy use from the outdoor temperature, as in lesson 3
-- A straight line on 25 days: validation mean squared error (MSE) **6,064.3 kWh²**
+- A straight line on 25 days spread over the year: validation mean squared error (MSE) **6,064.3 kWh²**
 - **More days** or **another model**: each cures a different error, the wrong one nothing
 - To choose, find where the error comes from: first where we know the truth, then on real data
 
@@ -725,7 +725,9 @@ Ask the room: more data or another model? Most will say more data. Do not
 correct them yet; slide 37 gives the answer on these same 25 days.
 
 Where the number comes from: one sample of 25 days from the curve of the next
-slide, 5-fold cross-validation, so each round fits the line on 20 days and
+slide. Not 25 consecutive days - one month never spans −5 to 38 °C - but 25
+days scattered over the year, each with its mean outdoor temperature drawn at
+random, uniformly, between −5 and 38 °C. Then 5-fold cross-validation, so each round fits the line on 20 days and
 scores it on the other 5; 6,064.3 is the average of the five validation MSEs.
 Notebook 2, section 4, prints it. It is a VALIDATION error, computed inside the
 training data: the test set is not touched while we diagnose (lesson 1's rule,
@@ -757,11 +759,10 @@ Bienenstock and Doursat brought it into machine learning in 1992, in "Neural
 networks and the bias/variance dilemma". Handout section 5.
 :::
 
-# The experiment: a world where we know the truth
+# A lab where we know the truth
 
-- Real data never shows the true curve or the noise; here we write both ourselves
-- Truth: f(t) = 240 + 0.55 (t − 18)² + 12 sin(t/4) kWh at t °C; noise of standard deviation 22 kWh
-- 300 training sets of 25 random days, −5 to 38 °C
+- Truth: f(t) = 240 + 0.55 (t − 18)² + 12 sin(t/4) kWh, t = daily mean temperature (°C); noise 22 kWh (standard deviation)
+- 300 new training sets of 25 days at −5 to 38 °C, each drawn afresh (slide 25's is the first)
 - Polynomials of degree 1 to 12: `make_pipeline(PolynomialFeatures(d), LinearRegression())`
 
 ::: notes
@@ -772,8 +773,15 @@ mean squared error (MSE). The next slides split that squared error into three
 parts - two that belong to the model, one to the data - and slides 30 and 31
 measure each with numbers.
 
-Then the data. One observation
-is one day: an outdoor temperature and that day's energy use.
+Then the data. One observation is one day: that day's mean outdoor
+temperature and its total energy use. The 18 in the formula is the classic
+balance temperature of degree days, the measure energy utilities have used since
+the early twentieth century: below about 18 °C of daily mean a building heats,
+above it cools, and both cost energy. A caveat if someone checks the range: a
+daily MEAN of 38 °C is extreme - Italian heat waves stay around 33-35 °C as
+daily means - and the temperatures are drawn uniformly, so a −5 °C day is as
+likely as a 20 °C one, unlike a real year. The range is chosen to show the
+curvature and the edges, not for realism; the data are synthetic.
 
 Lesson 3 also predicted energy from temperature, with the same noise of 22 kWh,
 so the setting is familiar. A predictable mistake is to think this is lesson 3's
@@ -788,7 +796,16 @@ truth, and to know the floor we need the noise level. Real data gives neither.
 
 Then the procedure. Draw 25 days at random, fit the polynomial, keep the model;
 do it 300 times. For each degree that gives 300 models, all trained the same way
-on different days. In real life you would have one of them. Every error that
+on different days. In real life you would have one of them. Slide 25's 25 days
+are the first of the 300 (same generator, same seed).
+
+A predictable mistake: "the 300 models come from different splits of slide 25's
+25 days". Natural, since slides 13 to 22 always split one dataset. But the 300
+training sets are NEW, independent samples, each drawn afresh from the curve -
+new temperatures, new noise - which only a curve we wrote allows. Splits of one
+sample would not do: models trained on parts of the same 25 days share most of
+their data, so they agree more than models from truly different samples, and
+the variance would come out too small. Every error that
 follows is computed from these 300 models, at 220 test temperatures spaced
 evenly from −4 to 37 °C.
 :::
@@ -806,14 +823,16 @@ never knew about the rest.
 
 Left, degree 1: every line misses the curvature in the same way, and the red
 average is nowhere near the black truth. That gap, between red and black, is
-bias. The lines also fan out, more than degree 3's: that fan is variance, not
+bias. The lines also fan out, more than degree 2's: that fan is variance, not
 bias. A predictable mistake is to read bias off the fan - "the lines diverge,
 so the bias is high" - which is natural, since both are error. But bias is
 about where the average sits, and variance about how far the lines sit from it.
 Slide 32 gives the numbers, bias² 5,250.8 and variance 723.8, and its notes
 explain why a straight line pivots.
 
-Middle, degree 3: average tracks the truth, spread is modest. Both small.
+Middle, degree 2: average tracks the truth, spread is modest. Both small. It is
+the best model of the table on slide 32 and of the U on slide 33, which is why
+it is the one drawn here.
 
 Right, degree 12: through the middle it follows the truth better than degree 1
 ever could, and at the edges the lines fly off and drag the average off the top
@@ -839,7 +858,7 @@ And any one of those faint lines is a model somebody actually deployed.
 $$\mathbb{E}\left[(y - \hat{f})^2\right] = \text{bias}^2 + \text{variance} + \sigma^2$$
 
 ::: notes
-This is what the experiment measures. The left side is slide 26's last bullet:
+This is what the experiment measures. The left side is slide 25's question made precise:
 the squared error of a model on a new day, averaged. The right side is the
 split, three terms the next slide defines and slides 30 and 31 measure.
 
@@ -938,13 +957,13 @@ as slide 32's 614.4 against 614.3.
 The variance is the spread of the 300 predictions: a standard deviation of 29.3
 kWh, so squared, 856.1.
 
-Two checks, if someone asks. Degree 3 at the same temperature: average 321.0,
-bias² 89.8, variance 98.1, noise 484.0, total 671.8 (the printed parts add to
-671.9) - three times smaller. And a
+Two checks, if someone asks. Degree 2, the middle panel of slide 27, at the
+same temperature: average 323.1, bias² 53.7, variance 58.4, noise 484.0, total
+596.1 - three and a half times smaller (2,063.9 ÷ 596.1 = 3.46). And a
 check that does not use the formula: give each of the 300 models 2,000 new days
 at 30 °C, truth plus fresh noise, and average the squared errors. The notebook
-gets 2,061.0 for degree 1 and 670.0 for degree 3, within sampling error of the
-formula's 2,063.9 and 671.8.
+gets 2,061.0 for degree 1 and 594.2 for degree 2, within sampling error of the
+formula's 2,063.9 and 596.1.
 
 Noise is the one term nobody estimates here: we added it, so we know it. On real
 data it cannot be separated out.
@@ -1009,10 +1028,10 @@ moves, because it is a property of the data and not of the model.
 Degree 1 is a bias problem: bias² of 5,250, two orders of magnitude above the
 next row. Wrong everywhere, in the same way.
 
-Degree 3 is the "about right" panel of slide 27: 654.4, close to degree 2's
-614.3, the minimum.
+Degree 2 is the "about right" panel of slide 27, and the minimum, 614.3;
+degree 3 is close behind, 654.4.
 
-Do not say it has the smallest variance - it does not, 723.8 against degree 2's
+Do not say degree 1 has the smallest variance - it does not, 723.8 against degree 2's
 70.8, and it is on the slide. Every universe draws its own 25 temperatures, and
 a straight line that cannot follow the curve pivots according to where they
 fell. Handout section 5.3 measures what happens when the temperatures are held

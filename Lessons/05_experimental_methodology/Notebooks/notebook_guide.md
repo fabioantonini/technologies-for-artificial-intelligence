@@ -87,7 +87,7 @@ lesson 3's dataset. 25 days per universe, 300 universes, irreducible noise of
 **The concepts, in order.**
 
 1. **Three hundred parallel universes.** Three panels — degree 1 wrong in the same
-   way every time (bias) and fanning out too (variance), degree 3 about right,
+   way every time (bias) and fanning out too (variance), degree 2 about right (the best model of the table below),
    degree 12 flying apart at the edges. In real life you drew one
    of those lines and never saw the rest.
 2. **Measuring the three parts.** First at one temperature, 30 °C, for degree 1:

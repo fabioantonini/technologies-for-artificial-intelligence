@@ -829,26 +829,27 @@ example does too. Take the 300 straight lines (degree 1) of section 5.1, each
 fitted to its own 25 days, and ask every one of them for the energy at
 $x = 30$ °C. Notebook 2, section 2, prints each step:
 
-| Step | Formula | Degree 1 | Degree 3 |
+| Step | Formula | Degree 1 | Degree 2 |
 |---|---|---|---|
 | The truth | $f(30)$, known because we wrote $f$ | 330.5 | 330.5 |
-| The 300 predictions | one per model | 300.8, 317.1, 304.8, … from 215.6 to 364.7 | 333.9, 310.2, 319.9, … from 293.6 to 373.0 |
-| Their average $\bar{f}(30)$ | sum ÷ 300 | 303.6 | 321.0 |
-| bias² | $(\bar{f}(30) - f(30))^2$ | $(303.6 - 330.5)^2 = 723.9$ | $(321.0 - 330.5)^2 = 89.8$ |
-| Variance | sum of $(\hat{f}(30) - \bar{f}(30))^2$ ÷ 300 | 856.1 | 98.1 |
+| The 300 predictions | one per model | 300.8, 317.1, 304.8, … from 215.6 to 364.7 | 334.1, 323.4, 318.5, … from 299.1 to 346.5 |
+| Their average $\bar{f}(30)$ | sum ÷ 300 | 303.6 | 323.1 |
+| bias² | $(\bar{f}(30) - f(30))^2$ | $(303.6 - 330.5)^2 = 723.9$ | $(323.1 - 330.5)^2 = 53.7$ |
+| Variance | sum of $(\hat{f}(30) - \bar{f}(30))^2$ ÷ 300 | 856.1 | 58.4 |
 | Noise | $\sigma^2 = 22^2$ | 484.0 | 484.0 |
-| Expected error | bias² + variance + noise | 2,063.9 | 671.8 |
+| Expected error | bias² + variance + noise | 2,063.9 | 596.1 |
 
 Everything is computed on unrounded values, so the printed ones can be off in
 the last digit: $(-26.9)^2$ gives 723.6, and the printed parts add to 2,064.0
-and 671.9. Read the degree-1 column as one sentence: a straight line trained on
+(degree 2's add exactly, to 596.1). Read the degree-1 column as one sentence: a straight line trained on
 25 random days, asked about a new day at 30 °C, misses by a squared error of about
 2,064 kWh² on average — 724 because it cannot bend, 856 because it depends on
 which 25 days it saw, 484 because the new day is itself noisy. The noise is not
 estimated from the models: we know it because we added it, and on real data it
 cannot be separated out. A check that does not use the formula gives each model
 2,000 new days at 30 °C and averages the squared errors: 2,061.0 for degree 1
-and 670.0 for degree 3, within sampling error of the formula.
+and 594.2 for degree 2, within sampling error of the formula. Degree 2 is the
+middle panel of section 5.1's figure and the best model of section 5.3's table.
 
 **Then at every temperature, and the average.** Section 5.3's table repeats this
 at each of 220 test temperatures and averages them:
@@ -865,9 +866,19 @@ Energy against outdoor temperature, one observation per day, from the curve
 
 $$f(t) = 240 + 0.55\,(t - 18)^2 + 12 \sin(t/4) \text{ kWh}$$
 
-Each training set is 25 days at temperatures drawn uniformly between −5 and
+Here $t$ is the day's mean outdoor temperature; the 18 is the balance
+temperature of the degree days energy utilities use, below which a building
+heats and above which it cools. Each training set is 25 days scattered over the
+year, not consecutive, at mean temperatures drawn uniformly between −5 and
 38 °C, with energy $f(t)$ plus noise of standard deviation 22 kWh, so a noise
-variance of $22^2 = 484$; there are 300 training sets. Every number below is
+variance of $22^2 = 484$. The uniform draw is not a real year, where extreme
+days are rare, and a daily mean of 38 °C is extreme: the range is chosen to
+cover the curvature and the edges. There are 300 training sets, each a **new,
+independent sample** drawn afresh from the curve; the 25 days of section 5.1's
+question are the first of them. **A predictable mistake** is to read them as
+300 splits of one sample, as cross-validation makes; splits share most of their
+data, so models trained on them agree too much and the variance would come out
+too small. Every number below is
 averaged over the 300 training sets and over 220 test temperatures from −4 to
 37 °C.
 
