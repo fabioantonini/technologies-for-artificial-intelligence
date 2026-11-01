@@ -109,8 +109,8 @@ lesson 3's dataset. 25 days per universe, 300 universes, irreducible noise of
    that cannot follow the curve pivots according to where they fell. Hold the
    temperatures fixed and the variance column climbs from the first row: **33.9, 55.3,
    81.9, 154.5, 709.2, 2,669.8.**
-4. **More data moves the answer.** The best degree is 2 at $n = 25$ and **5** at
-   $n = 60$ and $n = 150$: the optimum moves right as the data grows, because there is
+4. **More data moves the answer.** The best degree is 2 at $m = 25$ and **5** at
+   $m = 60$ and $m = 150$: the optimum moves right as the data grows, because there is
    finally enough of it to pin down the extra coefficients.
 5. **Without the truth: training against validation error.** One sample of 25 days,
    5-fold cross-validation with `cross_validate(..., return_train_score=True)`, the

@@ -165,10 +165,10 @@ twenty rows. Atoms 9 to 11 repeat notebook 3's search and take about a minute.
 | 6 | `RepeatedStratifiedKFold`: the seed moves the score less | *Change only the seed, 40 times*; *How many folds?* (optional) |
 | 7 | Ten readings per drive: `GroupKFold`, 1.000 against 0.620 | *When the rows are not independent*; *Split by the thing you must generalise to* |
 | 8 | Training against validation error with `cross_validate(..., return_train_score=True)` | *Without the truth: two errors you can still measure* |
-| 9 | `GridSearchCV`: 25 candidates, `best_score_` before the refit | *GridSearchCV: try all, keep the best*; *The best of 25 scores is inflated* |
+| 9 | `GridSearchCV`: 25 candidates, `best_score_` before the refit | *GridSearchCV: try all, keep the best*; *The best of 25 scores is inflated: 0.800 for a worthless model* |
 | 10 | Nested cross-validation, one outer round at a time | *Cross-validate the whole search*; *Nested cross-validation: it measures what choosing costs* |
 | 11 | A fresh test set is centred on the truth | *Why it does not return to 0.5* |
-| 12 | The threshold: a sweep of 200 candidates on the validation drives | *The debt, paid* |
+| 12 | The threshold: a sweep of 200 candidates on the validation drives | *The debt, paid: report 4,700 EUR, the threshold chosen on validation* |
 | 13 | Seeds: the same seed, the same number, and still a spread | *A fixed seed buys repeatability, not stability*; *What to fix, and what to write down* (optional) |
 
 ## Two hours in class

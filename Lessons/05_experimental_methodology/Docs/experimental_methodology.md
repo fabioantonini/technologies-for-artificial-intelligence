@@ -25,7 +25,7 @@ date: "6 November 2026 · reading time about 95 minutes"
 
 *This plan is for Friday 6 November 2026, when lesson 4 ran over into the first
 three quarters of an hour. Notebook 02 (slide 41) and the slides marked (optional)
-— 19 and 20, 31 and 32, 34 and 35, 52 and 53 — are left for self-study; the sections of this
+— 19 and 20, 31 and 32, 34 and 35, 54 and 55 — are left for self-study; the sections of this
 handout that cover them are unchanged. With a full three hours, notebook 02 runs
 live for twenty minutes after slide 40.*
 
@@ -158,8 +158,11 @@ $$\mathrm{SE} = \sqrt{\frac{p(1 - p)}{m_+}}$$
 Adding ten thousand of them leaves the error bar on recall precisely where it
 was, because recall was never measured on them. It is $m_+$, and only $m_+$,
 that buys precision — which is the arithmetic under the rule of thumb worth
-carrying: **the precision of a classification metric is governed by the count of
-the rarer class, not by the size of the dataset.**
+carrying: **when one class is rare, the precision of a metric computed on it —
+recall here, and in practice AUC, every pair of which needs a positive — is
+governed by the count of the rarer class, not by the size of the dataset.** A
+metric computed on the negatives, such as specificity, depends on their count
+instead, and with 771 healthy drives that is the one that comes cheap.
 
 Put the three fleet sizes through it, at a recall of about 0.9:
 
@@ -413,8 +416,10 @@ scored. The number is a property of the recipe — scale, then logistic regressi
 with C = 1, trained on 640 drives. Section 4.7 adds a second piece of evidence:
 forty seeds give forty sets of five models, and the mean barely moves.
 
-**The estimate is slightly pessimistic.** Every round's model trains on a fraction
-$1 - 1/k$ of the data, and less training data means a slightly worse model. So
+**The estimate is usually slightly pessimistic.** Every round's model trains on a
+fraction $1 - 1/k$ of the data, and less training data usually means a slightly
+worse model — usually, because on a finite sample a learning curve need not rise
+at every step. So
 $\hat{R}_{CV}$ estimates the risk of a model trained on 80% of your data (for
 $k = 5$), while the model you eventually ship is trained on 100% of it. The bias
 is in the safe direction, and it shrinks as $k$ grows — which is the argument
@@ -424,9 +429,11 @@ for leave-one-out cross-validation, where $k = m$.
 
 **First, what a confidence interval is.** The standard error of an estimate is
 how far it would move if the whole experiment were repeated on a new dataset —
-lesson 1, section 2.4, and the poll of section 2.1. A 95% confidence interval is
-the estimate plus or minus 1.96 standard errors: built that way, it contains the
-true value in 95 of 100 repeated experiments.
+lesson 1, section 2.4, and the poll of section 2.1. An approximate 95% confidence
+interval is the estimate plus or minus 1.96 standard errors: built that way, it
+contains the true value in about 95 of 100 repeated experiments. Approximate,
+because it leans on the normal curve and on a standard error that is itself
+right.
 
 Having $k$ scores, the temptation is to quote a standard error
 $s/\sqrt{k}$ — $s$ the standard deviation of the $k$ round scores — and treat it
@@ -498,6 +505,13 @@ part of the error matters more, $\rho$ grows and the first reason takes over.
 are correlated". The training sets overlap, but each score is measured on its own
 disjoint fold — here $\rho = 0.023$.
 
+**Checks.** The $s = 0.0187$ above is the standard deviation of the five round
+scores divided by 5, NumPy's default (`std()`, `ddof=0`). Dividing by 4 instead
+(`std(ddof=1)`, the usual sample standard deviation) gives 0.0209, and
+$0.0209 \div \sqrt{5} = 0.0094$. The real spread, 0.0165, is then about 1.8
+times the naive one rather than twice; the conclusion does not change. Neither
+version is a valid standard error for five dependent fold scores.
+
 **In practice:** report the mean and the spread of the rounds, describe the
 spread as a spread rather than a confidence interval, and treat small
 differences between models as unresolved.
@@ -524,7 +538,7 @@ and deals each class into the folds in turn.
 Fold 2 on the left holds **one** failing drive and scores a perfect 1.000: that
 drive happened to rank above all 159 healthy ones — 159 pairs, where a stratified
 fold has about $6 \times 154 = 924$. An AUC computed from a single positive
-example is not a measurement of anything. Stratification does not promise a
+example is defined, but it rests on one drive: all 159 pairs share it. Stratification does not promise a
 smaller spread on every seed — here the stratified scores spread a little more —
 it promises that no score rests on one drive. **A predictable mistake:** "each
 fold of 160 holds 29 failures".
@@ -569,6 +583,12 @@ is the dependence on the fold cut. The uncertainty about new data, 0.0165 in
 section 4.3, stays. (The 0.0033 here is section 4.7's 0.0032 with $m - 1$ instead
 of $m$ in the denominator.)
 
+**A predictable mistake:** "ten repeats of 5-fold give 50 independent tests, so
+fifty times the evidence". The software returns 50 scores, and averaging more
+measurements usually buys precision. But all 50 reuse the same 800 drives:
+repetition removes the dependence on the fold cut, as the table shows, and
+nothing else.
+
 ### 4.6 When the rows are not independent
 
 Everything above assumed the rows are independent draws from $\mathcal{D}$. That
@@ -576,8 +596,9 @@ assumption is violated constantly, silently, and without any warning from the
 code.
 
 **The picture first.** Suppose the table holds ten telemetry readings per drive
-rather than one. A random split puts nine of a drive's readings in the training
-set and one in the test set. The model does not have to learn anything about
+rather than one. A random 5-fold split puts about eight of a drive's readings in
+the training set and two in the validation fold, in every round ($10 \times 4/5 = 8$
+on average; the exact count varies from drive to drive). The model does not have to learn anything about
 failure: it learns to recognise *that drive*, and the test row is very nearly a
 duplicate of a training row.
 
@@ -681,8 +702,16 @@ tested — which seven of the 29 failures the score is computed from, and which
 rows the model was fitted on. It is a materially different experiment. Changing
 the seed of a cross-validation changes only which rows travel together: every
 row is still predicted exactly once, by a model that still trained on about the
-same number of rows, and all 29 failures still count towards the score. There is
-far less left for the seed to move.
+same number of rows, and all 29 failures still count towards the score, each in
+the AUC of its own fold. There is far less left for the seed to move.
+
+**A predictable mistake** is to take the mean of the five fold AUCs for one AUC
+computed on all 800 out-of-fold predictions pooled. It is natural — every drive
+is predicted exactly once — but they are different calculations: the pooled AUC
+also ranks drives scored by different models against each other, so it depends
+on whether the five models score on the same scale. On this fleet they do, and
+the two nearly coincide: 0.9519 pooled (`cross_val_predict`, seed 0) against
+the mean 0.9514. With less similar models they drift apart.
 
 **What 0.0032 is not:** the error bar of 0.9514. It is how far cross-validation
 moves when only the fold cut changes on the same 800 drives. On new data it moves
@@ -757,8 +786,8 @@ fitted to twenty-five points gives a different wild curve every time. That is
 It is worst at the two ends of the plot, for two reasons. At an edge every
 training point lies on one side, so nothing holds the polynomial down on the
 other. And the ends are partly extrapolation: the 25 temperatures are drawn
-between −5 and 38 °C, and the expected minimum of $n$ uniform draws sits
-$1/(n+1)$ of the range above the bottom, so the coldest day is on average
+between −5 and 38 °C, and the expected minimum of $m$ uniform draws sits
+$1/(m+1)$ of the range above the bottom, so the coldest day is on average
 $-5 + 43/26 = -3.3$ °C and the warmest $38 - 43/26 = 36.3$ °C, while the plot
 runs from −4 to 37 °C. In more than half the training sets the coldest day is
 warmer than −4 °C: $(42/43)^{25} = 0.55$.
@@ -966,9 +995,15 @@ degree-12 polynomial nearly interpolates, and an interpolating model is a
 machine for amplifying noise.
 
 Its bias² also looks terrible, which seems to contradict the claim that flexible
-models have low bias. It does not: with variance this large, the *average* of
-the fitted curves is not a meaningful curve, so the bias term inherits the
-instability. **Read the two numbers together.**
+models have low bias. Bias and variance stay separate quantities; what fails here
+is the *measurement*. A few of the 300 degree-12 fits fly off at the edges of the
+range, where every training point lies on one side, and those few dominate both
+columns. The average of 300 such curves is itself unstable: an estimated bias²
+carries the uncertainty of that average, on average variance ÷ 300 =
+32,174,344.9 ÷ 300 ≈ 107,000 kWh², the same size as the 153,537.3 measured. And
+another seed does not settle it: on seeds 1 to 5, bias² runs from 39,016 to
+1,566,449 and variance from 2.8 million to 547 million. **Read the two numbers
+together**: degree 12 is unusable, and its exact digits mean nothing.
 
 **The noise column never moves.** 484, at every complexity, because it is a
 property of the data. It is the floor: no model, no algorithm and no quantity of
@@ -1167,8 +1202,9 @@ everything one column's ordering contains.
 validation score. The gap is the diagnosis; what to do about it is written in
 the *slope* of the validation curve, and the two must be read separately.
 
-- **Still rising at the right edge?** Then more data is the remedy, and the
-  rising curve is the evidence that it will pay. This is the only case in which
+- **Still rising at the right edge, by more than the fold-to-fold spread?** Then
+  more data is the likely remedy, and the rising curve is the evidence that it
+  should pay. This is the only case in which
   "collect more" is a defensible plan rather than a hope.
 - **Risen and then flattened**, which is what the figure above actually shows —
   0.76 to 0.86 by 250 examples, and level from there? Then the gap is real but
@@ -1188,7 +1224,7 @@ that it will change nothing.
 ### 6.2 The one-line diagnostic
 
 > **Is the gap large, and is the validation curve still rising at the right
-> edge?** Both together are the only case in which more data is the answer. A
+> edge, by more than its spread?** Both together are the only case in which more data is the answer. A
 > curve that has levelled off says more rows buy nothing — whether it levelled
 > off with the curves together (bias) or far apart (variance, which is what our
 > own figure shows).
@@ -1235,6 +1271,12 @@ selector = SelectKBest(f_classif, k=10).fit(noise, y)   # all the data
 chosen = noise.loc[:, selector.get_support()]
 cross_val_score(model, chosen, y, cv=folds, scoring="roc_auc")
 ```
+
+`f_classif` scores each column by its F statistic: the between-class variance (how
+far the failing and the healthy drives' means sit from the overall mean) divided by
+the within-class variance (how widely each class scatters around its own mean). A
+large value says the two classes' averages are far apart compared with their
+scatter; `SelectKBest` keeps the ten largest.
 
 **Cross-validated AUC: 0.931.** Four of the five folds land between 0.92 and
 0.98 — which is exactly what a trustworthy result looks like.
@@ -1401,6 +1443,12 @@ The inner loop may overfit its own data as much as it likes; the outer fold was
 never part of it. Nested cross-validation is what you use when you need an
 honest estimate of *"how well does my whole procedure, tuning included, do?"*
 
+**A predictable mistake:** "0.670 is the score of the model I ship". The search
+ends with a refit and the procedure returns one number, so it reads as a model
+and its score. But the model refitted on all 800 drives is none of the five
+outer-round models that produced 0.670: the figure measures the procedure,
+search included, as section 4.2's 0.9514 measured a recipe.
+
 **It is not a way to choose hyperparameters** — it produces $k$ possibly
 different winners. It is a way to estimate what choosing costs. Choose on all
 the data afterwards, and report the nested figure.
@@ -1508,19 +1556,22 @@ your result and your marker's result are the same result.
 - **A test score is a measurement with an error bar.** Holding data out makes
   it unbiased, not precise. On 800 drives the same model scored **0.885 to a
   perfect 1.000** depending only on the seed.
-- **The precision is governed by the count of the rarer class.** Ask how many
-  positives are in the test set.
+- **When one class is rare, its count governs the precision** of recall and, in
+  practice, of AUC. Ask how many positives are in the test set.
 - **Selecting on one split selects noise.** Three equally good models won 89, 42
   and 38 of 200 splits outright, 31 ties, by a median margin of 0.0015.
 - **Cross-validation** rotates a validation fold, estimates a *procedure*, is
-  slightly pessimistic, and s ÷ √k understates its uncertainty by about half — so
+  usually slightly pessimistic, and s ÷ √k understates its uncertainty by about half — so
   quote the spread, not a confidence interval.
 - **bias² + variance + noise is an identity**, verified to $3 \times 10^{-12}$.
-  The noise floor never moves, and a test error below it means leakage.
+  The noise floor never moves, and a test error well below it means leakage or a
+  mistake in the evaluation.
 - **The best model depends on how much data you have.**
 - **Learning curves prescribe the fix.** Training and validation curves that
   meet at a poor score mean bias, and more data will not help; a gap between
-  them means variance, and more data or a stronger penalty narrows it.
+  them means variance: more data helps only while the validation curve is still
+  rising by more than its spread; once it is flat, a stronger penalty or fewer
+  features.
 - **Cross-validation is honest only about what runs inside it**: select and
   tune inside it, and report the nested figure. Three things it cannot remove:
   the sample's chance correlations (selection from 2,000 noise columns still

@@ -281,6 +281,25 @@ same("5.3 bias squared is smallest at degree 5",
 same("5.3 and degree 12's is the worst in the table",
      max(bias_by_degree, key=bias_by_degree.get), 12, tolerance=0)
 
+# 5.3: degree 12's two numbers are unstable measurements. The noise an average of
+# 300 curves carries into bias squared is variance / 300; and other seeds give
+# very different values for both columns.
+same("5.3 degree 12's bias squared, seed 0", redrawn[12][0], 153537.3, tolerance=0.1)
+same("5.3 degree 12's variance, seed 0", redrawn[12][1], 32174344.9, tolerance=0.1)
+same("5.3 variance / 300 is about 107,000", redrawn[12][1] / 300, 107_000,
+     tolerance=500)
+degree12_other = [universes(12, True, seed) for seed in range(1, 6)]
+same("5.3 seeds 1-5: bias squared from 39,016",
+     min(b for b, _ in degree12_other), 39016, tolerance=0.5)
+same("5.3 to 1,566,449", max(b for b, _ in degree12_other), 1566449, tolerance=0.5)
+same("5.3 variance from 2.8 million", min(v for _, v in degree12_other) / 1e6, 2.8,
+     tolerance=0.05)
+same("5.3 to 547 million", max(v for _, v in degree12_other) / 1e6, 547, tolerance=0.5)
+
+# 2.4: the healthy count that specificity rests on; 4.6: readings in training.
+same("2.4 healthy drives 800 - 29 = 771", 800 - 29, 771, tolerance=0)
+same("4.6 ten readings, four folds of five in training: 8", 10 * 4 / 5, 8, tolerance=0)
+
 # --------------------------------------- Section 6, the shape of a curve
 #
 # Section 6.1 reads a slope, which is the kind of claim that survives being
@@ -506,6 +525,22 @@ same("4.3 so s / sqrt(5) = 0.0084", float(seed0.std() / np.sqrt(5)), 0.0084,
 same("4.3 and the naive interval is +/- 0.016",
      float(1.96 * seed0.std() / np.sqrt(5)), 0.016, tolerance=5e-4)
 
+# 4.3's Checks paragraph: the same five scores with the sample spread (ddof=1).
+same("4.3 Checks: std(ddof=1) gives 0.0209", float(seed0.std(ddof=1)), 0.0209,
+     tolerance=5e-5)
+same("4.3 Checks: and 0.0209 / sqrt(5) = 0.0094",
+     float(seed0.std(ddof=1) / np.sqrt(5)), 0.0094, tolerance=5e-5)
+
+# 4.7: the mean of five fold AUCs against one AUC over the pooled out-of-fold
+# predictions - a different calculation, recomputed by a different call.
+from sklearn.model_selection import cross_val_predict                 # noqa: E402
+pooled = cross_val_predict(make_pipeline(StandardScaler(), LogisticRegression(max_iter=2_000)),
+                           fleet_X, fleet_y, cv=rounds, method="predict_proba")[:, 1]
+same("4.7 pooled out-of-fold AUC at seed 0 is 0.9519",
+     roc_auc_score(fleet_y, pooled), 0.9519, tolerance=5e-5)
+same("4.7 against the mean of the five fold AUCs, 0.9514",
+     float(seed0.mean()), 0.9514, tolerance=5e-5)
+
 fleet_scores = []
 for fleet_seed in range(1000, 1300):
     Xn, yn = load_fleet(800, random_state=fleet_seed)
@@ -521,6 +556,9 @@ same("4.3 across 300 new fleets the mean moves by 0.0165",
      float(fleet_means.std(ddof=1)), 0.0165, tolerance=5e-5)
 same("4.3 that is +/- 0.032 at 95%", float(1.96 * fleet_means.std(ddof=1)), 0.032,
      tolerance=5e-4)
+same("4.3 Checks: with ddof=1 the real spread is about 1.8 times the naive one",
+     float(fleet_means.std(ddof=1) / (seed0.std(ddof=1) / np.sqrt(5))), 1.8,
+     tolerance=0.05)
 same("4.3 the round scores correlate by only 0.023",
      float(np.corrcoef(fleet_scores.T)[~np.eye(5, dtype=bool)].mean()), 0.023,
      tolerance=5e-4)

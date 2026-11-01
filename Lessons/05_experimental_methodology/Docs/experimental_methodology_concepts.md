@@ -12,7 +12,8 @@ before an exercise that there is no word here you could not define.
 
 ## A score is a measurement
 
-**Unbiased is not precise.** Holding data out makes a test score right on average.
+**Unbiased is not precise.** Holding data out makes a test score right on average,
+over the test sets one might have drawn, for the model that was fitted.
 It does nothing whatever to make it repeatable, and the two are routinely
 confused. → § 2.1
 
@@ -20,8 +21,9 @@ confused. → § 2.1
 sample gives a different number, and how different is a property of the sample's
 size. → § 2.2
 
-**The count of the rarer class.** What actually governs the precision of a
-classification metric — not the size of the dataset. The diagnostic question is
+**The count of the rarer class.** What governs the precision of a metric
+computed on the rare class — recall, and in practice the area under the curve (AUC) — not the size of the
+dataset. The diagnostic question is
 *how many positives are in the test set?* → § 2.4
 
 **Why it is the rarer class.** A metric computed over the positives is a proportion
@@ -112,7 +114,8 @@ the model. No method and no quantity of data goes below it. → § 5.1
 plus noise. An identity, not an approximation. → § 5.2
 
 **The noise floor.** The value that decomposition's last term sets. A test error
-*below* it is evidence of leakage, not of excellence; a training error can go
+*well below* it is evidence of leakage, not of excellence (a small test set can
+dip under it by luck); a training error can go
 below it by fitting the noise. → § 5.3
 
 **Model choice depends on sample size.** The complexity that minimises total error
@@ -134,8 +137,8 @@ of examples used. The *shapes* carry the diagnosis. → § 6
 features help; more data does not. → § 6.1
 
 **High variance.** A wide gap between a high training score and a lower validation
-one. What to do depends on the *slope*: still rising means collect more, flattened
-means regularise or simplify. → § 6.1
+one. What to do depends on the *slope*: still rising by more than its spread means
+collecting more is likely to pay, flattened means regularise or simplify. → § 6.1
 
 
 ## Leakage cross-validation cannot catch

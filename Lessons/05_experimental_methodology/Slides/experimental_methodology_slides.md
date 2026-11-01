@@ -82,7 +82,7 @@ is a third thing.
 # A test score is a measurement
 
 - You would not report a poll of forty people to three decimals
-- Holding data out makes the estimate **unbiased**: right on average, over all the splits you might have drawn
+- Holding data out makes the estimate **unbiased**: right on average over all the test sets you might have drawn, for the model you fitted
 - It does nothing to make it **precise**: close to the truth on the one split you did draw
 
 ::: notes
@@ -378,10 +378,10 @@ extra steps.
 # What it actually estimates
 
 - The performance of a **procedure** (the whole recipe), not of one fitted model
-- Slightly **pessimistic**: with 5 folds, each model trains on 4/5 = 80% of the data
-- Seed 0: the mean of the five round AUCs is **0.9514**
-- In code: `cross_val_score(model, X, y, cv=StratifiedKFold(5, shuffle=True),
-  scoring="roc_auc")`, one score per round
+- Usually slightly **pessimistic**: each model trains on 4/5 = 80% of the data
+- Seed 0: mean of the five round AUCs, **0.9514**
+- In code: `cross_val_score(model, X, y, cv=StratifiedKFold(5, shuffle=True,
+  random_state=0), scoring="roc_auc")`
 
 ::: notes
 The number on the slide: the five round AUCs at seed 0 are 0.929, 0.958, 0.984,
@@ -433,14 +433,16 @@ five models, and the mean barely moves.
 
 # Report the spread, but not as a confidence interval
 
-- 95% **confidence interval**: estimate ± 1.96 × standard error; it would contain the truth in 95 of 100 repeated experiments
+- Approximate 95% **confidence interval** (normal approximation): estimate ± 1.96 × standard error; it would contain the truth in about 95 of 100 repeated experiments
 - s ÷ √k (s: standard deviation of the k round scores) is **too small**: training sets share 3 of 4 folds, and s rests on only 5 scores
 - Report the mean and s, call s a spread, treat small differences as unresolved
 
 ::: notes
 Recall the interval first, from lesson 1 and slide 5's poll: the standard error
 is how far the estimate would move if the whole experiment were repeated on a new
-dataset, and estimate plus or minus 1.96 standard errors is a 95% interval.
+dataset, and estimate plus or minus 1.96 standard errors is an approximate 95%
+interval - approximate because it leans on the normal curve and on a standard
+error that is itself right.
 
 The temptation is to quote s over root k - the standard deviation of the round
 scores divided by the square root of the number of rounds - and call it a
@@ -466,7 +468,7 @@ Practical instruction: quote the mean and the spread, call the spread a spread,
 and treat small differences between models as unresolved.
 :::
 
-# The real spread is twice the naive one
+# On 300 new fleets, the real spread is twice the naive one
 
 ![](naive_interval_too_narrow.png)
 
@@ -503,7 +505,8 @@ it moves on new data.
 Point at fold 2 of the left column: one failing drive, and a perfect 1.000. That
 single drive happened to rank above all 159 healthy ones - 159 pairs, where a
 stratified fold has about 6 × 154 = 924. An AUC computed from a single positive
-example is not a measurement of anything - and nothing in the code warns you.
+example is defined, but it rests on one drive: all 159 pairs share it - and
+nothing in the code warns you.
 
 The counts: the 29 failures are among all 800 drives, so a fold of 160 should
 hold 29 ÷ 5 = 5.8 of them, which as whole drives is 5 or 6. Both columns hold the
@@ -547,7 +550,12 @@ a mean of five round AUCs, so the column is 40 × 5 = 200 fits.
 What the seed changes is the reason for the gap. For a single split it picks
 which 200 drives are tested, so which 7 of the 29 failures count. For
 cross-validation it only changes how the 800 are cut into folds: every drive is
-still predicted once, and all 29 failures count.
+still predicted once, and all 29 failures count, each in the AUC of its own fold.
+
+A predictable slip: "the mean of the five fold AUCs is the AUC of all 800
+out-of-fold predictions". Every drive is predicted once, so it sounds right;
+but pooling ranks drives scored by different models against each other, so
+the two are different calculations (handout section 4.7).
 
 The range, best minus worst, falls from 0.0881 to 0.0149, and the standard
 deviation, last number in each line, by a factor of about seven: 0.0221 ÷ 0.0032 = 6.9 (the
@@ -611,12 +619,17 @@ to 10. Measured on 40 seeds: 5-fold, 5 fits, standard deviation 0.0033; 10-fold,
 same 10 fits, 0.0025; repeated ten times, 50 fits, 0.0009. What repetition
 removes is the dependence on the fold cut; the uncertainty about new data, 0.0165,
 stays.
+
+A predictable slip: "ten repeats of 5-fold give me 50 independent tests". The
+software returns 50 scores, and more measurements usually buy precision; but
+all 50 reuse the same 800 drives, so repetition removes the dependence on the
+fold cut and nothing else.
 :::
 
 # When the rows are not independent
 
 - Suppose the table held ten readings per drive (lesson 4's has one row per drive)
-- A random split puts nine of a drive's readings in training and one in test
+- A random 5-fold split puts about eight of a drive's ten readings in training and two in validation, in every round
 - The model recognises the drive, not the failure
 
 ::: notes
@@ -625,8 +638,8 @@ violated constantly and silently, and random k-fold gives no warning.
 
 The concrete case, which they will meet - a hypothetical one here, since the
 fleet table has one row per drive: suppose it had ten telemetry readings per
-drive. A random split puts nine of a drive's readings in training and one in
-test. The model does not need to learn anything about failure - it learns to
+drive. A random 5-fold split puts about eight of a drive's ten readings in
+training and two in validation, in every round. The model does not need to learn anything about failure - it learns to
 recognise that drive, and the test row is nearly a duplicate of a training row.
 
 The score is excellent and the model is worthless on a drive it has never seen,
@@ -650,6 +663,7 @@ machine, any panel data.
 # Split by the thing you must generalise to
 
 - If one drive (or patient, or customer) has several rows: **GroupKFold** keeps all its rows in the same fold
+- The final test split too: no drive on both sides (`GroupShuffleSplit`)
 - If the model must predict the future: **TimeSeriesSplit** trains on the past and validates on what comes after it
 
 ::: notes
@@ -1060,9 +1074,11 @@ polynomial nearly interpolates, and an interpolating model is a machine for
 amplifying noise.
 
 Someone will notice that degree 12 also has the worst bias², which contradicts
-"flexible models have low bias". It does not: with variance this large the
-average of the fitted curves is not a meaningful curve, so the bias term
-inherits the instability. Read the two together.
+"flexible models have low bias". Bias and variance stay separate quantities;
+what fails is the measurement. A few wild fits dominate both columns, the
+average of 300 such curves is itself unstable, and another seed gives very
+different numbers for both (handout section 5.3). Read the two together:
+degree 12 is unusable, and its exact digits mean nothing.
 :::
 
 # The total error is a U: too rigid on the left, too flexible on the right
@@ -1171,7 +1187,7 @@ reproduce for them. Neither experiment was wrong.
 - One training set, f and σ unknown: cross-validation inside it, test set untouched, gives two errors
 - **Training error**, on the days the model was fitted to: it has followed them, so it hides its variance
 - **Validation error**, on the fold it did not see: it pays bias, variance and noise
-- Training error above what you need: **bias**. Validation far above training: **variance**
+- Training error too high for the task: **bias**. Validation far above training: **variance**
 
 ::: notes
 In code, notebook 2 section 4: cross_validate(model, X, y,
@@ -1339,7 +1355,7 @@ looks like when most columns carry nothing, which is most feature tables.
 # Which fix to buy
 
 - Curves meet at a **poor** score: bias. More data will **not** help; change the model
-- Wide gap, validation **still rising**: more data **will** help
+- Wide gap, validation **still rising** by more than its spread: more data **likely** helps
 - Wide gap, validation **flat**: stronger penalty (smaller C) or **remove features** (slide 39, right)
 - Slide 25's line is bias: degree 2, same 25 days, **450.4**
 - The test set: scored once, after the fix
@@ -1426,7 +1442,7 @@ If time is short, skip the three-sample-size comparison and assign it as reading
 
 - Labels: slide 6's 800 drives, 29 failures; features: **2,000 columns of random noise**
 - No link to the label: honest AUC **0.500** for any model
-- Keep the 10 columns with the highest F-test (gap between class means, against the spread), `SelectKBest(f_classif, k=10)`; then cross-validate a logistic regression on them: 5 rounds, train on 640 drives, score 160
+- Keep the 10 columns with the highest F-test (between-class variance ÷ within-class variance), `SelectKBest(f_classif, k=10)`; then cross-validate a logistic regression on them: 5 rounds, train on 640 drives, score 160
 
 ::: notes
 Set this up carefully, because the demonstration only lands if they believe the
@@ -1663,6 +1679,12 @@ One clarification that always comes up, so pre-empt it: nested cross-validation
 is NOT a way to choose hyperparameters - it produces k possibly different
 winners. It is a way to estimate what choosing costs. You choose on all the data
 afterwards, and you report the nested figure.
+
+A predictable slip: "0.670 is the score of the model I ship". The search ends
+with a refit and the procedure returns one number, so it reads as a model and
+its score; but the model refitted on all 800 drives is none of the five
+outer-round models that produced 0.670. The figure measures the procedure,
+search included.
 :::
 
 # Each piece of discipline costs score: 0.931, 0.800, 0.670, 0.500
