@@ -1424,18 +1424,17 @@ If time is short, skip the three-sample-size comparison and assign it as reading
 
 # Now: what cross-validation does not protect you from
 
-- 2,000 columns of **pure random noise**, 800 rows, 29 positives
-- No relationship to the label whatsoever
-- The honest score of any model on it is **0.500**
-- The plan: keep the 10 columns whose F-test against the label scores highest,
-  `SelectKBest(f_classif, k=10)`, then cross-validate
+- Labels: slide 6's 800 drives, 29 failures; features replaced by **2,000 columns of pure random noise**
+- No relationship to the label: any model's honest AUC is **0.500**
+- The plan: keep the 10 columns whose F-test (gap between the two classes' means, against the spread) is highest, `SelectKBest(f_classif, k=10)`, then cross-validate
 
 ::: notes
 Set this up carefully, because the demonstration only lands if they believe the
 data is genuinely empty.
 
 Two thousand columns drawn from a standard normal, independent of the label and
-of each other. There is nothing to find. Any model's honest AUC is one half.
+of each other; the labels are the real ones, the 29 failures among slide 6's
+800 drives. There is nothing to find. Any model's honest AUC is one half.
 
 Tell them what is coming so they can watch for it: we are going to write code
 that looks completely reasonable, and get 0.93.
@@ -1449,14 +1448,18 @@ counts columns, not folds.
 # The code almost everyone writes
 
 ```python
+model = make_pipeline(StandardScaler(), LogisticRegression(max_iter=2000))
+cv = StratifiedKFold(5, shuffle=True, random_state=0)
 sel = SelectKBest(f_classif, k=10)
 sel.fit(noise, y)
 X = noise.loc[:, sel.get_support()]
-cross_val_score(model, X, y, cv=cv)
+cross_val_score(model, X, y, cv=cv, scoring="roc_auc")
 ```
 
 ::: notes
-Read it aloud as the sentence a practitioner would say: "two thousand features
+The first two lines are the model and the folds, as in the first half of today:
+standardise, then logistic regression; five stratified folds. Then read the rest
+aloud as the sentence a practitioner would say: "two thousand features
 is too many, so let me keep the ten most predictive ones, then cross-validate a
 model on those."
 
@@ -1469,14 +1472,15 @@ Do not reveal the bug yet. Ask them to find it before the next slide.
 
 # 0.931
 
-- Cross-validated AUC **0.931** on data with no signal
-- Four of five folds between 0.92 and 0.98
+- Cross-validated AUC **0.931** on data with no signal; folds 0.928, 0.979, 0.975, 0.943, 0.832
+- The bug is `sel.fit(noise, y)`: the selector saw **every row**, validation folds included
+- It kept the 10 columns that best matched the labels it would later be graded on
 
 ::: notes
-The result. The folds are 0.928, 0.979, 0.975, 0.943 and 0.832: close
-agreement, which is exactly what a trustworthy result looks like.
+The result. Four of the five folds sit between 0.92 and 0.98: close agreement,
+which is exactly what a trustworthy result looks like.
 
-Now the bug, which is on the first line: SelectKBest was shown EVERY row,
+Then the bug, sel.fit(noise, y): SelectKBest was shown EVERY row,
 including the rows that would later serve as validation folds. It searched two
 thousand columns for the ones that best matched labels it had already seen, and
 handed the winners to cross-validation.
@@ -1490,9 +1494,8 @@ is committed in published work regularly.
 
 # Fix it, and look what happens
 
-- Selection moved **inside** the pipeline, refitted in every round:
-  `Pipeline([("select", SelectKBest(f_classif, k=10)), ("scale", ...), ("model", ...)])`
-- 20 different fold seeds: **0.658** on average, 0.576 to 0.759
+- Selection moved **inside** the pipeline, refitted in every round: `Pipeline([("select", SelectKBest(f_classif, k=10)), ("scale", StandardScaler()), ("model", LogisticRegression())])`
+- 20 different fold seeds, 0 to 19: **0.658** on average, 0.576 to 0.759
 - The truth is still 0.500
 
 ::: notes
@@ -1512,6 +1515,7 @@ this topic stop at "put it in a Pipeline" and imply the problem is solved.
 - With 2,000 columns and 800 rows, some columns match the label **by accident**
 - That accident belongs to the **sample**, not to the split
 - Every fold contains it
+- What helps: a test set set aside **before** any search, fewer candidates, or more rows
 
 ::: notes
 This is the most useful idea in the lesson, so take the time.
@@ -1534,14 +1538,15 @@ What helps: a test set held out before any of this and used once; fewer
 candidates; or more rows. Nothing else.
 :::
 
-# Hyperparameter search is the same problem
+# The best of 25 scores is inflated: 0.800 for a worthless model
 
-| `GridSearchCV`, 5 values of k × 5 of C | AUC |
+| `GridSearchCV`: k = 2, 5, 10, 20, 40 columns × C = 0.01, 0.1, 1, 10, 100 | AUC |
 |---|---|
-| best of 25 candidates, `best_score_` | **0.7999** |
-| average candidate | 0.7265 |
-| nested cross-validation, next slide | 0.6699 |
-| the truth, by construction | 0.5 |
+| best of the 25 candidates, `best_score_` | **0.800** |
+| average candidate | 0.726 |
+| worst candidate | 0.684 |
+| nested cross-validation, next slide | 0.670 |
+| the truth, by construction | 0.500 |
 
 ::: notes
 Choosing between configurations is choosing, and choosing on data costs the same
@@ -1553,16 +1558,18 @@ two rows now.
 The number a practitioner reports is best_score_, and it is the MAXIMUM of 25
 noisy estimates. The maximum of a set of noisy numbers is biased upward even
 when every one measures the same quantity - and here they nearly do, since the
-average candidate is 0.7265 and the worst is 0.6840.
+average candidate is 0.726 and the worst is 0.684.
 
-So 0.7999 is not the performance of the chosen configuration. It is the
+So 0.800 is not the performance of the chosen configuration. It is the
 performance of whichever configuration got luckiest.
 
-The optimism is +0.13, which is larger than most differences anyone reports
-between competing methods.
+The optimism is 0.800 − 0.670 = 0.13, which is larger than most differences
+anyone reports between competing methods. Hyperparameter search is the same
+problem as the selection of the last slides: choosing on the data you then
+report.
 :::
 
-# Nested cross-validation
+# Nested cross-validation: it measures what choosing costs
 
 ![](nested_cv_diagram.png)
 
@@ -1575,6 +1582,12 @@ times.
 
 The inner loop may overfit its own data as much as it likes; the outer block was
 never part of it.
+
+The figure shows outer round 1 of 5, and inside it the 5-fold search over the
+25 candidates (inner seed 1, outer seed 2 in notebook 3).
+
+The nested figure is honest but itself noisy: its five outer folds range widely
+(handout section 7.4). Say so in one sentence; the numbers stay in the handout.
 
 One clarification that always comes up, so pre-empt it: nested cross-validation
 is NOT a way to choose hyperparameters - it produces k possibly different
@@ -1589,7 +1602,7 @@ afterwards, and you report the nested figure.
 ::: notes
 The summary of the whole last hour, on one axis. Same data, containing nothing.
 
-0.500 is the truth. 0.6699 is nested cross-validation. 0.7999 is what the search
+0.500 is the truth. 0.670 is nested cross-validation. 0.800 is what the search
 reports. 0.931 is selection before cross-validation.
 
 Say clearly: nobody in this picture wrote dishonest code. The difference between
@@ -1716,8 +1729,8 @@ Commit the code that produced the number, not a tidied-up version of it.
 |---|---|
 | the catastrophe, 42-44 | `SelectKBest(f_classif, k=10)` on every row, then `cross_val_score` → 0.931 |
 | selection inside the round, 45-46 | `Pipeline` with the selector as its first step → 0.658 |
-| the search, 47 | `GridSearchCV`, `best_score_` → 0.7999 |
-| nested, 48-49 | `cross_val_score(GridSearchCV(...), cv=outer)` → 0.6699 |
+| the search, 47 | `GridSearchCV`, `best_score_` → 0.800 |
+| nested, 48-49 | `cross_val_score(GridSearchCV(honest, grid, cv=inner), noise, y, cv=outer)` → 0.670 |
 | the threshold, honestly, 50-51 | `train_test_split` twice → 4,700 EUR against 10,540 |
 | seeds, 52-53 | 30 values of `random_state` → 0.913 to 1.000 |
 

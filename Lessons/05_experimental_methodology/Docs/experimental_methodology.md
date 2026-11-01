@@ -1308,7 +1308,7 @@ Measure the search, not the winner.
 
 ![](nested_cv_diagram.png)
 
-*The entire search runs inside the outer training part. The outer test block was never involved in choosing anything, which is why its score is the one you may report.*
+*Outer round 1 of 5, drawn as notebook 3 runs it: the entire search, a 5-fold cross-validation over the 25 candidates, runs inside the outer training part. The outer test fifth was never involved in choosing anything, which is why its score is the one you may report; the five outer scores are averaged.*
 
 - **Outer loop:** hold out a fifth of the data.
 - **Inner loop:** run the entire search on the remaining four fifths.
@@ -1321,6 +1321,14 @@ honest estimate of *"how well does my whole procedure, tuning included, do?"*
 **It is not a way to choose hyperparameters** — it produces $k$ possibly
 different winners. It is a way to estimate what choosing costs. Choose on all
 the data afterwards, and report the nested figure.
+
+**Checks, for whoever wants the detail.** The nested figure is honest but not
+precise. Its five outer folds score 0.698, 0.852, 0.754, 0.487 and 0.558, a
+mean of 0.6699 with a standard deviation of 0.13: one fold lands below chance,
+another at 0.85. Each outer test fifth holds 160 drives and only about six
+failures, so each fold's AUC rests on a handful of positives — section 2.4's
+point about the rarer class. The search's own figures, as notebook 3 prints them to four decimals: best 0.7999,
+average 0.7265, worst 0.6840; the slides round them to three decimals.
 
 ---
 

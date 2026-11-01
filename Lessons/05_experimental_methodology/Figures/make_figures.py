@@ -129,48 +129,62 @@ def kfold_diagram(k=5):
 
 
 def nested_cv_diagram():
-    """Why there have to be two loops, and which one you may look at."""
-    fig, ax = plt.subplots(figsize=(9.2, 4.2))
+    """Why there have to be two loops, and which one you may look at.
 
-    # Outer loop: one row, a held-out block on the right.
-    ax.add_patch(Rectangle((0, 3.0), 6.4, 0.8, facecolor="#DCE6F0",
-                           edgecolor=SLATE, linewidth=1.2))
-    ax.text(3.2, 3.4, "outer training part  (4/5)", ha="center", va="center",
-            fontsize=10.5, color=SLATE)
-    ax.add_patch(Rectangle((6.5, 3.0), 1.6, 0.8, facecolor=RUST, alpha=.28,
-                           edgecolor=SLATE, linewidth=1.2))
-    ax.text(7.3, 3.4, "outer test", ha="center", va="center", fontsize=10.5,
-            fontweight="bold", color=INK)
-    ax.text(-0.2, 3.4, "outer", ha="right", va="center", fontsize=11,
+    Drawn to match notebook 3: 5 outer folds, and inside each outer training
+    part a 5-fold search over the 25 candidates.
+    """
+    fig, ax = plt.subplots(figsize=(9.6, 5.2))
+    width = 8.0
+
+    # Outer loop: round 1 of 5, the last fifth held out.
+    ax.text(width / 2, 4.75, "Outer round 1 of 5: one fifth of the 800 drives held out",
+            ha="center", va="center", fontsize=11.5, color=INK, fontweight="bold")
+    for block in range(5):
+        held = block == 4
+        ax.add_patch(Rectangle((block * 1.6, 3.85), 1.5, 0.6,
+                               facecolor=RUST if held else "#DCE6F0",
+                               alpha=.35 if held else 1.0,
+                               edgecolor=SLATE, linewidth=1.2))
+        ax.text(block * 1.6 + 0.75, 4.15, "outer test" if held else "train",
+                ha="center", va="center", fontsize=10,
+                fontweight="bold" if held else "normal",
+                color=INK if held else SLATE)
+    ax.text(-0.2, 4.15, "outer", ha="right", va="center", fontsize=11,
             color=INK, fontweight="bold")
 
-    # Inner loop: the outer training part, split again, several times.
-    for row, fold in enumerate(range(3)):
-        y = 1.75 - row * 0.62
-        for block in range(4):
-            is_test = block == fold
-            ax.add_patch(Rectangle((block * 1.6, y), 1.5, 0.5,
-                                   facecolor=GOLD if is_test else "#EDF2F8",
-                                   edgecolor=SLATE, linewidth=1.0))
-            ax.text(block * 1.6 + 0.75, y + 0.25,
-                    "valid" if is_test else "train", ha="center", va="center",
-                    fontsize=9, color=INK if is_test else SLATE)
-    ax.text(-0.2, 1.35, "inner", ha="right", va="center", fontsize=11,
-            color=INK, fontweight="bold")
-
-    ax.annotate("", xy=(3.2, 2.55), xytext=(3.2, 2.95),
+    ax.annotate("", xy=(3.15, 3.35), xytext=(3.15, 3.8),
                 arrowprops=dict(arrowstyle="->", color=SLATE, lw=1.4))
-    ax.text(3.45, 2.72, "the whole search runs in here", fontsize=9.5,
+    ax.text(3.4, 3.57, "the whole search runs on these 4/5 only", fontsize=10,
             color=SLATE, va="center")
 
-    ax.text(0, 0.02, "The inner loop may overfit itself as much as it likes.",
-            fontsize=10.5, color=INK)
-    ax.text(0, -0.38,
-            "The outer test block was never part of it: that is the number you report.",
-            fontsize=10.5, color=INK, fontweight="bold")
+    # Inner loop: the outer training part, split into 5 folds.
+    inner_width = 6.3 / 5
+    for row in range(5):
+        y = 2.85 - row * 0.5
+        for block in range(5):
+            valid = block == row
+            ax.add_patch(Rectangle((block * inner_width, y), inner_width - 0.08, 0.4,
+                                   facecolor=GOLD if valid else "#EDF2F8",
+                                   edgecolor=SLATE, linewidth=1.0))
+            ax.text(block * inner_width + (inner_width - 0.08) / 2, y + 0.2,
+                    "valid" if valid else "train", ha="center", va="center",
+                    fontsize=8.5, color=INK if valid else SLATE)
+    ax.text(-0.2, 2.05, "inner", ha="right", va="center", fontsize=11,
+            color=INK, fontweight="bold")
+    ax.text(6.45, 2.05, "5 folds,\nfor each of the\n25 candidates:\nthe winner",
+            ha="left", va="center", fontsize=9.5, color=SLATE)
 
-    ax.set_xlim(-1.5, 8.4)
-    ax.set_ylim(-0.7, 4.1)
+    ax.text(0, 0.05, "The winner is scored once on the outer test fifth, which never "
+            "took part in choosing it.", fontsize=10.5, color=INK)
+    ax.text(0, -0.35, "Repeated for each of the 5 outer folds: 5 searches, 5 scores, "
+            "averaged = the number you report.", fontsize=10.5, color=INK,
+            fontweight="bold")
+    ax.text(0, -0.75, "It measures what choosing costs; it does not choose.",
+            fontsize=10.5, color=INK)
+
+    ax.set_xlim(-1.5, 8.6)
+    ax.set_ylim(-1.0, 5.0)
     ax.axis("off")
     fig.tight_layout()
     save(fig, "nested_cv_diagram.png")
