@@ -780,6 +780,16 @@ and $\operatorname{Var}(\varepsilon) = \sigma^2$. Fix a test point $x$, and writ
 $\hat{f}$ for the model fitted to a random training set. The expectation below is
 over both the training set and the noise in the new observation $y$.
 
+In the lab's terms: $x$ is a temperature, say 30 °C; $y$ is the **energy**
+measured on a new day at that temperature, in kWh — the truth $f(30) = 330.5$
+plus fresh noise, so $y$ is random too; $\hat{f}(x)$ is the prediction of **one**
+model, fitted to one random set of 25 days. **Two predictable mistakes**, both
+natural on a first read: taking $y$ for the temperature, when the temperature is
+the input $x$; and taking $\hat{f}$ for the 300 models, as if one predicted with
+their average. In real life you train one model and predict with it. The 300
+are averaged only to *measure* how wrong such a model is, and the average model
+$\bar{f}$ below exists only in a lab like this one, where it measures the bias.
+
 $$\mathbb{E}\left[(y - \hat{f}(x))^2\right]
  = \mathbb{E}\left[(f(x) + \varepsilon - \hat{f}(x))^2\right]$$
 
@@ -815,14 +825,14 @@ $$\boxed{\;\mathbb{E}\left[(y - \hat{f}(x))^2\right]
 
 **Why the bias appears squared.** The bias itself, $\bar{f}(x) - f(x)$, is a gap
 with a sign, in the units of the target: kWh here, and negative where the average
-model sits below the truth. It comes out squared because the quantity being
-decomposed is a squared error, and squared it is in kWh², the units of the
-variance and of $\sigma^2$, which is what lets the three terms be added. A bias of
+model sits below the truth. Nobody squares it by choice: expanding the average
+squared error, as above, produces the term $(f(x) - \bar{f}(x))^2$ by itself.
+Squared, it is in kWh², the units of the variance and of $\sigma^2$, which is
+what lets the three terms be added. A bias of
 +26.9 kWh and one of −26.9 kWh cost the same.
 
-**This is an identity, not an approximation.** Notebook 2 checks it numerically
-on 300 independently drawn training sets, and the two sides agree to within
-$3 \times 10^{-12}$ — which is floating-point equality.
+**This is an identity, not an approximation**: the two sides are equal exactly.
+The checks at the end of this section confirm it on the numbers.
 
 **In numbers, at 30 °C.** The derivation fixed one test point $x$, so the
 example does too. Take the 300 straight lines (degree 1) of section 5.1, each
@@ -839,17 +849,30 @@ $x = 30$ °C. Notebook 2, section 2, prints each step:
 | Noise | $\sigma^2 = 22^2$ | 484.0 | 484.0 |
 | Expected error | bias² + variance + noise | 2,063.9 | 596.1 |
 
-Everything is computed on unrounded values, so the printed ones can be off in
-the last digit: $(-26.9)^2$ gives 723.6, and the printed parts add to 2,064.0
-(degree 2's add exactly, to 596.1). Read the degree-1 column as one sentence: a straight line trained on
-25 random days, asked about a new day at 30 °C, misses by a squared error of about
-2,064 kWh² on average — 724 because it cannot bend, 856 because it depends on
-which 25 days it saw, 484 because the new day is itself noisy. The noise is not
-estimated from the models: we know it because we added it, and on real data it
-cannot be separated out. A check that does not use the formula gives each model
-2,000 new days at 30 °C and averages the squared errors: 2,061.0 for degree 1
-and 594.2 for degree 2, within sampling error of the formula. Degree 2 is the
-middle panel of section 5.1's figure and the best model of section 5.3's table.
+Read the degree-1 column as one sentence: a straight line trained on 25 random
+days, asked about a new day at 30 °C, misses by a squared error of about 2,064
+kWh² on average — 724 because it cannot bend, 856 because it depends on which
+25 days it saw, 484 because the new day is itself noisy. Degree 2, the middle
+panel of section 5.1's figure and the best model of section 5.3's table, misses
+by 596, three and a half times less. The noise is not estimated from the models:
+we know it because we added it, and on real data it cannot be separated out. The
+slides show degree 1 only, rounded to whole numbers so that the column adds up:
+724 + 856 + 484 = 2,064.
+
+**Checks, for whoever wants to recompute.** Three, none needed to follow the
+argument.
+
+- *Rounding.* Every value above is computed unrounded, so the printed ones can
+  be off in the last digit: $(-26.9)^2$ gives 723.6, because the unrounded
+  average and truth are 303.55 and 330.46; and degree 1's printed parts add to
+  2,064.0 against a total of 2,063.9.
+- *Without the formula.* Give each of the 300 models 2,000 new days at 30 °C,
+  truth plus fresh noise, and average the 600,000 squared errors: 2,061.0 for
+  degree 1 and 594.2 for degree 2, within sampling error of the formula's
+  2,063.9 and 596.1.
+- *Over all temperatures.* Notebook 2, section 2, computes both sides at the 220
+  test temperatures for six degrees; they agree to within $3 \times 10^{-12}$,
+  which is floating-point equality.
 
 **Then at every temperature, and the average.** Section 5.3's table repeats this
 at each of 220 test temperatures and averages them:

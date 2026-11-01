@@ -855,7 +855,7 @@ And any one of those faint lines is a model somebody actually deployed.
 
 # Expected error on a new day = bias² + variance + noise
 
-$$\mathbb{E}\left[(y - \hat{f})^2\right] = \text{bias}^2 + \text{variance} + \sigma^2$$
+$$\mathbb{E}\left[(y - \hat{f}(x))^2\right] = \text{bias}^2 + \text{variance} + \sigma^2$$
 
 ::: notes
 This is what the experiment measures. The left side is slide 25's question made precise:
@@ -868,9 +868,11 @@ is the whole trick.
 
 Read the symbols on the previous slide's figure. Pick one test temperature x,
 say 30 °C, and imagine a vertical line through it in each panel.
-- f-hat is where ONE faint line crosses that vertical: the prediction of one
+- x is the input, the temperature: 30 °C.
+- f-hat(x) is where ONE faint line crosses that vertical: the prediction of one
   model, fitted to one random training set of 25 days.
-- y is a new day at 30 °C: the truth plus fresh noise.
+- y is the ENERGY measured on a new day at 30 °C: the truth, 330.5 kWh, plus
+  fresh noise. Not the temperature.
 - E averages over everything that is random: which of the 300 training sets the
   model came from, and the noise in the new day.
 So the left side is the average squared miss of a model trained on random days,
@@ -880,37 +882,49 @@ at x, and sigma squared the noise variance, 484. The next slide says what each
 term means and why bias appears squared; slide 30 does it with numbers.
 
 The important claim is that this is an IDENTITY, not an approximation or a
-useful metaphor. Notebook 2 checks it on 300 independently drawn training sets
-and the two sides agree to 2.7 times ten to the minus twelve - floating-point
-equality.
+useful metaphor: the two sides are equal, exactly. The handout (end of section
+5.2) and notebook 2 check it two ways without using it; there is no need to
+quote those checks in class.
 
 That matters pedagogically: they have seen this picture in every textbook drawn
 as a schematic. Here it is measured.
 :::
 
-# What each term means, and why it is squared
+# What each term means
 
-- f̂: one model's prediction at x; y: a new day at x; 𝔼: average over the 300 models and the noise
-- **Bias** = average prediction − truth, in kWh, can be negative; squared, like the error, so the three terms add
-- **Variance** = average of (prediction − average prediction)²: how much the models disagree
-- **Noise** σ² = 22² = 484: the days' scatter around the curve; known because we added it
+- A new day at x = 30 °C: y = its energy (kWh); f̂(x) = ONE model's prediction; 𝔼 = average over models and noise
+- **Bias** = average prediction − truth (kWh, signed); the mean squared error, expanded, yields bias²
+- **Variance** = average of (prediction − average prediction)²: the models' disagreement
+- **Noise** σ² = 22² = 484: the days' scatter; known because we added it
 
 ::: notes
-The symbols first, because the formula slide could not carry them: f-hat is one
-faint line read at a temperature x, y is a new day at x (the truth plus fresh
-noise), and the expectation averages over which training set the model came
-from and over that noise. On real data y is the one thing you can measure; f and
-sigma are what only this lab knows.
+The symbols first, because the formula slide could not carry them. x is the
+input, a temperature such as 30 °C. y is the energy measured on a new day at
+that temperature, in kWh: the truth, 330.5 at 30 °C, plus fresh noise - so y is
+random too. f-hat(x) is the prediction of ONE model, one faint line read at x.
+The expectation averages over two random things: which of the 300 training sets
+the model came from, and the noise of the new day.
+
+Two predictable mistakes, both natural on a first read. "y is the temperature,
+30 °C": no, the temperature is x; y is what we predict. And "f-hat is the 300
+models, and we predict with their average": no, in real life you train ONE
+model and predict with it. Each line is the model you might have had; the 300
+are averaged only to MEASURE how wrong such a model is. The average model exists
+only in this lab, to measure bias.
+
+On real data y is the one thing you can measure; f and sigma are what only this
+lab knows.
 
 Then the three terms of the formula, in words, now that the picture has shown them.
 
 Bias first. It is a gap with a sign: the average of the 300 predictions minus
 the truth, in kWh. At 30 °C, for the straight line, 303.6 − 330.5 = −26.9 kWh:
-the average line sits below the curve there. Why does it appear squared? Because
-the error we set out to measure is squared, (y − f-hat)². Expand that square -
-handout section 5.2 does it in five lines - and the gap between the average model
-and the truth comes out squared, in kWh², the units of the other two terms. That
-is what lets the three be added. A bias of +26.9 and one of −26.9 cost the same.
+the average line sits below the curve there. Why does it appear squared? Not by
+analogy with the error, and not by choice: it is what the mathematics produces.
+We set out to average the squared error, (y − f-hat)²; expand that average -
+handout section 5.2 does it in five lines - and one of the terms that comes out
+is exactly (truth − average model)², the bias squared, in kWh² like the other
+two. That is why the three can be added. A bias of +26.9 and one of −26.9 cost the same.
 
 Variance: how far the individual models sit from their own average, squared and
 averaged - the fan of the previous figure. Bias asks where the average model
@@ -925,17 +939,17 @@ So bias and variance belong to the model, the noise to the data. The next slide
 puts numbers on all three, at 30 °C.
 :::
 
-# From 300 models to three numbers, at 30 °C
+# The straight line (degree 1) at 30 °C, in three numbers
 
 | Step, degree 1 | Formula | Value |
 |---|---|---|
 | The truth | f(30), known because we wrote f | 330.5 |
 | The 300 predictions | one per model | 300.8, 317.1, 304.8, and so on, from 215.6 to 364.7 |
 | Their average | sum ÷ 300 | 303.6 |
-| **bias²** | (303.6 − 330.5)² | **723.9** |
-| **Variance** | sum of (prediction − 303.6)² ÷ 300 | **856.1** |
-| **Noise** | 22² | **484.0** |
-| Expected error | bias² + variance + noise, unrounded | **2,063.9** |
+| **bias²** | (303.6 − 330.5)² | **724** |
+| **Variance** | sum of (prediction − 303.6)² ÷ 300 | **856** |
+| **Noise** | 22² | **484** |
+| Expected error | bias² + variance + noise | **2,064** |
 
 ::: notes
 The bridge from the picture to the table on slide 32: the formula holds at one
@@ -948,25 +962,13 @@ asked about a new day at 30 °C, misses by a squared error of about 2,064 kWh² 
 average - 724 because the line cannot bend, 856 because it depends on which 25
 days it saw, 484 because the new day is itself noisy.
 
-Rounding, before someone checks: every number is computed from unrounded
-values. Squaring the printed gap gives (−26.9)² = 723.6, not 723.9, because the
-unrounded average is 303.55 and the truth 330.46. And the printed parts add to
-723.9 + 856.1 + 484.0 = 2,064.0, printed 2,063.9 - the same last-digit effect
-as slide 32's 614.4 against 614.3.
+The kWh² values are rounded to whole numbers so that the column adds up on the
+slide: 724 + 856 + 484 = 2,064. Noise is the one term nobody estimates here: we
+added it, so we know it. On real data it cannot be separated out.
 
-The variance is the spread of the 300 predictions: a standard deviation of 29.3
-kWh, so squared, 856.1.
-
-Two checks, if someone asks. Degree 2, the middle panel of slide 27, at the
-same temperature: average 323.1, bias² 53.7, variance 58.4, noise 484.0, total
-596.1 - three and a half times smaller (2,063.9 ÷ 596.1 = 3.46). And a
-check that does not use the formula: give each of the 300 models 2,000 new days
-at 30 °C, truth plus fresh noise, and average the squared errors. The notebook
-gets 2,061.0 for degree 1 and 594.2 for degree 2, within sampling error of the
-formula's 2,063.9 and 596.1.
-
-Noise is the one term nobody estimates here: we added it, so we know it. On real
-data it cannot be separated out.
+If someone asks whether the formula really holds: the handout (end of section
+5.2) checks it without the formula, on simulated new days. Leave the numbers
+there; this slide carries one example, degree 1 at 30 °C.
 :::
 
 # All 220 test temperatures, degree 1 (optional)
@@ -986,7 +988,7 @@ Red is bias²: zero where the straight line happens to cross the curve, near 5
 and 28 °C, and large at the two ends and in the middle, where the line
 passes above the bottom of the curve. Its average over the 220 temperatures, the
 dashed line, is 5,250.8. So 30 °C was a lucky spot for degree 1: its bias²
-there, 723.9, is far below the average.
+there, 724, is far below the average.
 
 Blue is variance: lowest in the middle, where the days are dense, and rising
 toward both ends, where the line pivots. Its average is 723.8.
