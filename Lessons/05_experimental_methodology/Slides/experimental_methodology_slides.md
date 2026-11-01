@@ -42,7 +42,7 @@ Keep the debt visible through the whole lesson, because nearly every error today
 has the same shape: a choice was made by looking at data that was then used to
 report the result.
 
-Section 8 of the handout pays it off, and slide 46 shows the number.
+Section 8 of the handout pays it off, and slide 50 shows the number.
 :::
 
 # Today: how to tell whether it works
@@ -72,7 +72,7 @@ validation set, the three sets and their three jobs, and what to put in a report
 
 One word to flag now, because it changes meaning halfway through. "Bias" is used
 twice today. On slide 5 and in the leakage part it is the bias of an ESTIMATE: a
-measured score that is systematically too high or too low. On slides 25 to 34 it
+measured score that is systematically too high or too low. On slides 26 to 35 it
 is the bias of a MODEL: a model too simple to follow the truth, wrong in the same
 way on every training set. A predictable slip is to merge them - "cross-validation
 removes bias" - when it removes neither: it makes the estimate more precise, which
@@ -256,7 +256,7 @@ minimised, so one fit cannot serve every value: each candidate needs its own fit
 With cross-validation (slide 13) every candidate costs k fits: three values of C
 times five folds is 15 fits. The best mean wins, the winner is refitted once on
 all the data that is not the test set - fit number 16 - and the test set is
-scored once. scikit-learn's GridSearchCV does exactly this loop (slide 43): with
+scored once. scikit-learn's GridSearchCV does exactly this loop (slide 47): with
 refit=True, its default, best_estimator_ is that sixteenth model.
 
 With a fixed validation set instead of cross-validation the loop is the same with
@@ -266,7 +266,7 @@ validation set, then a refit on training plus validation, then the test once.
 Right, a hyperparameter chosen after the fit. The threshold acts on probabilities
 the model has already produced, so one fit serves every candidate: fit once,
 predict on the validation set, try every threshold on those probabilities, keep
-the cheapest. Slide 46 does it for lesson 4's costs.
+the cheapest. Slide 50 does it for lesson 4's costs.
 
 Both end the same way: the test set is touched once, at the end, after every
 choice has been made. Handout section 3.
@@ -398,7 +398,7 @@ actually have. The next slide shows the five models.
 
 When nothing is being chosen, this is the measurement: the model you ship is the
 same recipe refitted on all 800 drives, and 0.9514 is its estimate. A test set is
-needed only when something was chosen (slide 43).
+needed only when something was chosen (slide 47).
 
 Second: every round's model trains on four fifths of the data, so it estimates the
 performance of a model trained on less data than the one you will eventually
@@ -571,7 +571,7 @@ What it costs is k fits instead of one. For everything in this course that is
 seconds. For a large network it is a real decision, and the usual compromise is
 a single validation set with enough rows that its own error bar is tolerable.
 
-What it does NOT fix is the subject of slides 38 to 45.
+What it does NOT fix is the subject of slides 42 to 49.
 :::
 
 # How many folds? (optional)
@@ -712,21 +712,67 @@ is the one that changes behaviour rather than just adding knowledge.
 Ten minutes. The second half is bias-variance, which needs them awake.
 :::
 
-# The experiment: 300 training sets
+# Error too high: more data, or another model?
 
-- **Goal**: split the squared error on a new day into three parts, and measure each
-- Daily energy at t °C, written by us: f(t) = 240 + 0.55 (t − 18)² + 12 sin(t/4) kWh
-- 300 training sets of 25 random days, −5 to 38 °C, noise of standard deviation 22 kWh
-- Each fitted with `make_pipeline(PolynomialFeatures(degree), LinearRegression())`, degree 1 to 12
+- Daily energy use from the outdoor temperature, as in lesson 3
+- A straight line on 25 days: validation mean squared error (MSE) **6,064.3 kWh²**
+- **More days** or **another model**: each cures a different error, the wrong one nothing
+- To choose, find where the error comes from: first where we know the truth, then on real data
 
 ::: notes
-Say the goal first, because the next eight slides serve it. A model trained on
-some days is asked about a new day; its error is measured squared, as lesson 3's
-mean squared error (MSE). We will split that squared error into three parts -
-two that belong to the model, one to the data - and measure each with numbers.
-The formula two slides on is the split; slides 29 and 30 do the measuring.
+This is the question the second hour answers, so pose it as a real decision.
+Ask the room: more data or another model? Most will say more data. Do not
+correct them yet; slide 37 gives the answer on these same 25 days.
 
-Then the data. One observation One observation
+Where the number comes from: one sample of 25 days from the curve of the next
+slide, 5-fold cross-validation, so each round fits the line on 20 days and
+scores it on the other 5; 6,064.3 is the average of the five validation MSEs.
+Notebook 2, section 4, prints it. It is a VALIDATION error, computed inside the
+training data: the test set is not touched while we diagnose (lesson 1's rule,
+and slide 51's three sets).
+
+The arc, in five steps, so you can say where we are at any moment:
+1. The question (this slide).
+2. The lab, slides 26 to 35: a world where we wrote the truth ourselves, so we
+   can see where the error comes from. There it splits exactly into three parts,
+   bias², variance and noise, and each needs a different cure.
+3. What follows in the lab: the total is a U over complexity; there is a floor
+   no model goes below; the best model moves with the amount of data.
+4. Back to real data, slides 36 to 39: we do not know the truth, but training
+   error against validation error shows the same two parts, and learning curves
+   add the training-set size.
+5. The decision, slide 40: which fix to buy - and the answer to this slide.
+
+Why go through the lab at all, if cross-validation does the diagnosis? Because
+cross-validation gives two numbers, and the decomposition is what says what they
+mean. The formula is the WHY, cross-validation the HOW. Four things only the
+formula gives: why training error measures bias and the gap measures variance;
+why more data cures variance and not bias; that there is a floor, so a test
+error below it is leakage; why the best model depends on the amount of data. A
+doctor reads symptoms in the clinic, but learnt what they mean in physiology,
+where the mechanism is known; the lab is our physiology.
+
+History, if there is a minute: the decomposition is old in statistics, and Geman,
+Bienenstock and Doursat brought it into machine learning in 1992, in "Neural
+networks and the bias/variance dilemma". Handout section 5.
+:::
+
+# The experiment: a world where we know the truth
+
+- Real data never shows the true curve or the noise; here we write both ourselves
+- Truth: f(t) = 240 + 0.55 (t − 18)² + 12 sin(t/4) kWh at t °C; noise of standard deviation 22 kWh
+- 300 training sets of 25 random days, −5 to 38 °C
+- Polynomials of degree 1 to 12: `make_pipeline(PolynomialFeatures(d), LinearRegression())`
+
+::: notes
+The lab of the arc. Slide 25 asked where the error comes from; here we build a
+world in which that can be seen, because we know the answer. A model trained on
+some days is asked about a new day; its error is measured squared, as lesson 3's
+mean squared error (MSE). The next slides split that squared error into three
+parts - two that belong to the model, one to the data - and slides 30 and 31
+measure each with numbers.
+
+Then the data. One observation
 is one day: an outdoor temperature and that day's energy use.
 
 Lesson 3 also predicted energy from temperature, with the same noise of 22 kWh,
@@ -747,12 +793,13 @@ follows is computed from these 300 models, at 220 test temperatures spaced
 evenly from −4 to 37 °C.
 :::
 
-# Three hundred parallel universes
+# Three hundred parallel universes: one model each
 
 ![](many_universes.png)
 
 ::: notes
-Before any definition, look at the models. Each faint line is a model fitted to a
+Before any definition, look at the models; the figure's title says how to read
+it. Each faint line is a model fitted to a
 DIFFERENT training set of 25 days from the same curve. Forty of the 300 are drawn, so the panel stays readable; the red
 average is taken over all 300. In real life you drew exactly one of them and
 never knew about the rest.
@@ -763,7 +810,7 @@ bias. The lines also fan out, more than degree 3's: that fan is variance, not
 bias. A predictable mistake is to read bias off the fan - "the lines diverge,
 so the bias is high" - which is natural, since both are error. But bias is
 about where the average sits, and variance about how far the lines sit from it.
-Slide 31 gives the numbers, bias² 5,250.8 and variance 723.8, and its notes
+Slide 32 gives the numbers, bias² 5,250.8 and variance 723.8, and its notes
 explain why a straight line pivots.
 
 Middle, degree 3: average tracks the truth, spread is modest. Both small.
@@ -787,14 +834,14 @@ more than half of the training sets the coldest day is warmer than −4 °C,
 And any one of those faint lines is a model somebody actually deployed.
 :::
 
-# Expected error = bias² + variance + noise
+# Expected error on a new day = bias² + variance + noise
 
 $$\mathbb{E}\left[(y - \hat{f})^2\right] = \text{bias}^2 + \text{variance} + \sigma^2$$
 
 ::: notes
-This is what the experiment measures. The left side is the goal of slide 25:
+This is what the experiment measures. The left side is slide 26's last bullet:
 the squared error of a model on a new day, averaged. The right side is the
-split, three terms the next slide defines and slides 29 and 30 measure.
+split, three terms the next slide defines and slides 30 and 31 measure.
 
 State it, do not derive it - handout section 5.2 does that in five lines, and it
 is worth reading because the derivation is short and the cross terms vanishing
@@ -811,7 +858,7 @@ So the left side is the average squared miss of a model trained on random days,
 predicting a new day at x. On the right, bias² is the squared gap between the red
 and black curves at x, variance the spread of the faint lines around the red one
 at x, and sigma squared the noise variance, 484. The next slide says what each
-term means and why bias appears squared; slide 29 does it with numbers.
+term means and why bias appears squared; slide 30 does it with numbers.
 
 The important claim is that this is an IDENTITY, not an approximation or a
 useful metaphor. Notebook 2 checks it on 300 independently drawn training sets
@@ -824,13 +871,19 @@ as a schematic. Here it is measured.
 
 # What each term means, and why it is squared
 
-- **Bias** = average prediction − truth, in kWh: it can be negative
-- **Squared** because the error is measured squared: bias² is in kWh², like the other two terms, so the three add
-- **Variance** = average of (prediction − average prediction)²: how much the 300 models disagree
-- **Noise** σ² = 22² = 484: the days scatter around the curve; we know it because we added it
+- f̂: one model's prediction at x; y: a new day at x; 𝔼: average over the 300 models and the noise
+- **Bias** = average prediction − truth, in kWh, can be negative; squared, like the error, so the three terms add
+- **Variance** = average of (prediction − average prediction)²: how much the models disagree
+- **Noise** σ² = 22² = 484: the days' scatter around the curve; known because we added it
 
 ::: notes
-The three terms of the formula, in words, now that the picture has shown them.
+The symbols first, because the formula slide could not carry them: f-hat is one
+faint line read at a temperature x, y is a new day at x (the truth plus fresh
+noise), and the expectation averages over which training set the model came
+from and over that noise. On real data y is the one thing you can measure; f and
+sigma are what only this lab knows.
+
+Then the three terms of the formula, in words, now that the picture has shown them.
 
 Bias first. It is a gap with a sign: the average of the 300 predictions minus
 the truth, in kWh. At 30 °C, for the straight line, 303.6 − 330.5 = −26.9 kWh:
@@ -866,8 +919,8 @@ puts numbers on all three, at 30 °C.
 | Expected error | bias² + variance + noise, unrounded | **2,063.9** |
 
 ::: notes
-The bridge from the picture to the table on slide 31: the formula holds at one
-test temperature at a time, so do it at one. The 300 degree-1 models of slide 26,
+The bridge from the picture to the table on slide 32: the formula holds at one
+test temperature at a time, so do it at one. The 300 degree-1 models of slide 27,
 each asked for its prediction at 30 °C. The numbers are printed by notebook 2,
 section 2, "First at one temperature".
 
@@ -880,7 +933,7 @@ Rounding, before someone checks: every number is computed from unrounded
 values. Squaring the printed gap gives (−26.9)² = 723.6, not 723.9, because the
 unrounded average is 303.55 and the truth 330.46. And the printed parts add to
 723.9 + 856.1 + 484.0 = 2,064.0, printed 2,063.9 - the same last-digit effect
-as slide 31's 614.4 against 614.3.
+as slide 32's 614.4 against 614.3.
 
 The variance is the spread of the 300 predictions: a standard deviation of 29.3
 kWh, so squared, 856.1.
@@ -897,7 +950,7 @@ Noise is the one term nobody estimates here: we added it, so we know it. On real
 data it cannot be separated out.
 :::
 
-# From one temperature to the table
+# From 30 °C to all 220 test temperatures, degree 1
 
 ![](error_by_temperature.png)
 
@@ -920,11 +973,12 @@ The averages make the first row of the next slide: 5,250.8 + 723.8 + 484.0 =
 6,458.6. Every row of that table is built the same way, one degree at a time.
 
 And the caveat, once more: we can split the error into three only because we
-know the truth and the noise. On real data you see only the total, on a test
-set. Slide 35's learning curves are the tool for real data.
+know the truth and the noise. On real data y is measured, but f and sigma are
+not, so you never see the three parts. Slide 36 says what you can measure
+instead, and slide 37 shows it gives the same diagnosis.
 :::
 
-# Measured, on 25 observations
+# Every degree, on 25 days: degree 1 fails by bias, degree 12 by variance
 
 | Degree | bias² | Variance | Noise | Total = bias² + variance + noise |
 |---|---|---|---|---|
@@ -936,7 +990,7 @@ set. Slide 35's learning curves are the tool for real data.
 
 ::: notes
 Each row is averaged over the 300 training sets of 25 days and the 220 test
-temperatures, as slide 30 showed for degree 1. The totals add the unrounded parts, so a student adding the printed
+temperatures, as slide 31 showed for degree 1. The totals add the unrounded parts, so a student adding the printed
 ones may be off in the last digit: 59.6 + 70.8 + 484.0 = 614.4, printed 614.3.
 
 Noise is 484 in every row - point at the column and say that it never
@@ -945,7 +999,7 @@ moves, because it is a property of the data and not of the model.
 Degree 1 is a bias problem: bias² of 5,250, two orders of magnitude above the
 next row. Wrong everywhere, in the same way.
 
-Degree 3 is the "about right" panel of slide 26: 654.4, close to degree 2's
+Degree 3 is the "about right" panel of slide 27: 654.4, close to degree 2's
 614.3, the minimum.
 
 Do not say it has the smallest variance - it does not, 723.8 against degree 2's
@@ -965,7 +1019,7 @@ average of the fitted curves is not a meaningful curve, so the bias term
 inherits the instability. Read the two together.
 :::
 
-# Bias, variance and total error against degree, measured
+# The total error is a U: too rigid on the left, too flexible on the right
 
 ![](bias_variance_tradeoff.png)
 
@@ -1020,6 +1074,7 @@ deliberately.
 
 | Degree; total error at training-set size m | m = 25 | m = 60 | m = 150 |
 |---|---|---|---|
+| 1 | 6,458.6 | 5,998.6 | 5,861.5 |
 | 2 | **614.3** | 570.6 | 555.3 |
 | 5 | 861.8 | **540.9** | **506.9** |
 | 12 | 32,328,366.2 | 7,626.9 | 899.0 |
@@ -1032,10 +1087,15 @@ The same experiment at three sample sizes. The best degree moves from 2 to 5 as
 the data grows, because there is now enough of it to pin down the extra
 coefficients and the variance has fallen accordingly.
 
+Read the first row against slide 25's question. The straight line goes from
+6,458.6 to 5,861.5 with six times the data: more days barely help, because its
+error is bias, and bias does not shrink with m. Degree 2 on the same 25 days is
+already at 614.3.
+
 Degree 12 improves by a factor of four thousand between 25 and 60 observations
 (32,328,366.2 ÷ 7,626.9 = 4,239), and of thirty-six thousand by 150 (÷ 899.0 =
-35,960), and is still the worst of the three rows shown. Not of all six: at 150
-the straight line, degree 1, is worse, 5,861.5 (handout section 5.4).
+35,960). At 150 it has overtaken the straight line, 899.0 against 5,861.5:
+variance shrinks with data, bias does not (handout section 5.4).
 
 Then the sentence worth putting on the board: "which model is best" is not a
 question about models. It is a question about models AND the quantity of data
@@ -1046,13 +1106,116 @@ model beating a small one on a dataset far bigger than theirs, and it does not
 reproduce for them. Neither experiment was wrong.
 :::
 
-# Learning curves: the same diagnosis, without knowing the truth
+# Without the truth: two errors you can still measure
+
+- Real data: one training set, f and σ unknown; cross-validation inside it, test set untouched, gives two errors
+- **Training error**, on the days the model was fitted to: it has followed them, so it hides its variance
+- **Validation error**, on the fold it did not see: it pays bias, variance and noise
+- Training error high: **bias**. Validation far above training: **variance**
+
+::: notes
+In code, notebook 2 section 4: cross_validate(model, X, y,
+cv=KFold(5, shuffle=True), scoring="neg_mean_squared_error",
+return_train_score=True) - the same cross_validate as cross_val_score, asked to
+return the training scores too.
+
+Back to the world of slide 25. Everything from slide 26 to 35 needed the true
+curve and 300 training sets; real life gives one training set and no truth. What
+it does give is the measured y on every day, and that is enough for two errors.
+
+Training error: score each round's model on the days it was fitted to. A model
+that has seen those days has already bent towards them, noise included, so the
+spread that variance measures - how differently it would come out on other days -
+does not show. What is left is roughly its bias plus the noise it did not chase.
+
+Validation error: score it on the fold it did not see. That is a new day for the
+model, so it pays everything the formula of slide 28 lists.
+
+Hence the reading, which is the formula put to work: training error high, bias;
+a gap between the two, variance. Without the lab this rule would be a recipe to
+memorise; with it, it is a consequence.
+
+A predictable mistake: "on real data f is unknown, so the decomposition is only a
+proof that cannot be used". It is reasonable - none of slide 32's columns can be
+computed on real data. But the decomposition is what says what the two measurable
+errors mean, and why the cures of slide 40 work.
+
+The test set stays out: both errors come from cross-validation inside the
+training data. Slide 37 does it on the 25 days of slide 25. Handout section 5.5.
+:::
+
+# One sample of 25 days: the two errors tell what the lab told
+
+| Degree | Training MSE, kWh² | Validation MSE, kWh² | Reading | What the lab measured (slide 32) |
+|---|---|---|---|---|
+| 1 | 5,155.7 | 6,064.3 | both high and close: **bias** | bias² 5,250.8 |
+| 2 | 312.8 | **450.4** | lowest validation: **the best** | lowest total, 614.3 |
+| 5 | 262.4 | 615.1 | training below the noise, 484; a gap: **variance** | variance 368.9 against degree 2's 70.8 |
+
+::: notes
+One sample of 25 days from the curve of slide 26, drawn with seed 0, 5-fold
+cross-validation with KFold(shuffle=True, random_state=0); each number is the
+average over the five rounds. Notebook 2, section 4.
+
+Read it row by row against the lab.
+
+Degree 1: both errors high and close together. The line is just as wrong on days
+it has seen as on days it has not, which is what bias looks like. The lab said
+bias² 5,250.8. Slide 25's 6,064.3 is this row: so the answer to slide 25 is
+already here - the straight line's error is bias, and more days will not cure it.
+Slide 35's first row confirms it in the lab: six times the data, 6,458.6 down to
+5,861.5 only.
+
+Degree 2: the lowest validation error, 450.4, the best of the four; in the lab
+it was the lowest total too.
+
+Degree 5: training 262.4 is BELOW the noise variance of 484. No model can predict
+new days better than the noise allows, so a training error below it means the
+model has fitted part of the noise. Validation 615.1, a gap of 352.6: variance.
+
+Degree 3 sits between, 306.1 against 525.6; degree 12 is left out because, with
+unscaled powers up to t to the twelfth, the solver loses precision and its
+training error is not trustworthy.
+
+The numbers differ from the lab's, and must: these are one sample and five folds
+of 20 days, the lab is an average over 300 samples. What carries over is the
+ordering and the pattern, and that is all a diagnosis needs.
+
+With 150 days (handout section 5.5): degree 5's gap falls from 352.6 to 58.3 -
+more data cured its variance - while degree 1 stays high, 7,281.1 against
+8,058.6.
+:::
+
+# Learning curves: would more data help?
+
+- Slide 37's two errors, repeated at growing training-set sizes: `learning_curve(model, X, y, cv=folds, scoring="roc_auc")`
+- On lesson 4's 800 drives, scored by the area under the curve (AUC): **higher is better**, so poor = **low** curves
+- Two models broken on purpose: one feature only; 6 features + 150 noise columns, almost no penalty
+
+::: notes
+Slide 37 answered "bias or variance?" at one size. The question of slide 25 was
+about buying data, and that needs the errors at several sizes.
+
+Why switch to the drives: the method is the same for any score, and on the
+drives we can show both failures with real features. Say clearly that the score
+flips direction: an error is better low, an AUC is better high. So on the next
+slide "bad" is LOW, the mirror image of the energy table.
+
+The data: here the demo uses all 800 drives with 5-fold cross-validation,
+because nothing from it is reported as a final score. In practice set the test
+set aside first and run the learning curve on the rest.
+
+The two models: the rigid one sees only power_on_hours; the flexible one sees the
+six features plus 150 columns of random noise with C = 1000, so almost no
+penalty.
+:::
+
+# Learning curves: left the curves meet low, right a gap that stops closing
 
 ![](learning_curves.png)
 
 ::: notes
-Everything so far needed the true function. Learning curves need only data you
-have, which is why they are the practical tool.
+The figure's title repeats the reading key: AUC, higher is better.
 
 5-fold cross-validation on the 800 drives, so each round's training part is 640
 drives. Train on 15% of it, 96 drives, then on larger shares, eight sizes up to all
@@ -1087,11 +1250,11 @@ looks like when most columns carry nothing, which is most feature tables.
 
 # Which fix to buy
 
-- A learning curve: both scores against training-set size,
-  `learning_curve(model, X, y, cv=folds, scoring="roc_auc")`
-- Curves **meet low**: bias. More data will **not** help
+- Curves meet at a **poor** score: bias. More data will **not** help; change the model
 - Wide gap, validation **still rising**: more data **will** help
-- Wide gap, validation **flat**: regularise, drop features. **Slide 35, right, is this one**
+- Wide gap, validation **flat**: regularise, drop features (slide 39, right)
+- Slide 25's line is bias: degree 2 on the same 25 days, **450.4**
+- The test set: scored once, after the fix
 
 ::: notes
 This slide is the practical payoff of the entire second hour, so do not rush it.
@@ -1118,22 +1281,40 @@ Name the predictable mistake and defend the instinct: prescribing data for a
 bias problem is what almost everyone does, and the reasoning is sound - more
 data almost always helps and never makes a model worse. It just does not help
 THIS failure, and fifteen lines of code tell you which failure you have.
+
+Close the arc: this was slide 25's question. The straight line on 25 days had
+both errors high and close, so its problem was bias. A month spent collecting
+days would have bought almost nothing (slide 35: 6,458.6 down to 5,861.5 with six
+times the data); changing the model to degree 2 brings the validation error from
+6,064.3 to 450.4 on the same 25 days.
+
+"Meet at a poor score" is written that way on purpose: for an error, poor is
+HIGH, as in the energy table; for an AUC, poor is LOW, as in the drive curves.
+
+And the test set. Every number in this diagnosis came from cross-validation
+inside the training data. The test set is scored once, after the fix is chosen.
+A predictable mistake is to diagnose on the test error - it is the number
+everyone looks at, so the instinct is natural. But if the final test score
+disappoints and you go back and change the model, the test set has become a
+validation set (slide 51, "Three sets, three jobs"): its number is no longer
+honest, and the report must say so or use fresh data.
 :::
 
 # Notebook 2, self-study (optional)
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| 300 parallel universes, 25-26 | `PolynomialFeatures` then `LinearRegression`, in `make_pipeline`, fitted 300 times |
-| the three parts measured, 27-33 | NumPy on the 300 predictions → sum and measured error agree to 2.73e-12 |
-| more data moves the answer, 34 | the same at 25, 60 and 150 days → best degree 2, then 5 |
-| learning curves, 35-36 | `learning_curve` with `StratifiedKFold` → 0.715 against 0.718; 1.000 against 0.847 |
+| 300 parallel universes, 26-27 | `PolynomialFeatures` then `LinearRegression`, in `make_pipeline`, fitted 300 times |
+| the three parts measured, 28-34 | NumPy on the 300 predictions → sum and measured error agree to 2.73e-12 |
+| more data moves the answer, 35 | the same at 25, 60 and 150 days → best degree 2, then 5 |
+| without the truth, 25 and 36-37 | `cross_validate` with `KFold`, `return_train_score=True` → degree 1: 5,155.7 against 6,064.3 |
+| learning curves, 38-40 | `learning_curve` with `StratifiedKFold` → 0.715 against 0.718; 1.000 against 0.847 |
 
 
 ::: notes
 The table maps each section to its calls and its number. On 6 November this
 notebook is left for self-study: show the table, say what each section measures,
-and that its numbers are on slides 26 to 36, which were just shown.
+and that its numbers are on slides 25 to 40, which were just shown.
 
 When there is a full three hours, run it live, for twenty minutes.
 
@@ -1437,12 +1618,12 @@ Commit the code that produced the number, not a tidied-up version of it.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the catastrophe, 38-40 | `SelectKBest(f_classif, k=10)` on every row, then `cross_val_score` → 0.931 |
-| selection inside the round, 41-42 | `Pipeline` with the selector as its first step → 0.658 |
-| the search, 43 | `GridSearchCV`, `best_score_` → 0.7999 |
-| nested, 44-45 | `cross_val_score(GridSearchCV(...), cv=outer)` → 0.6699 |
-| the threshold, honestly, 46-47 | `train_test_split` twice → 4,700 EUR against 10,540 |
-| seeds, 48-49 | 30 values of `random_state` → 0.913 to 1.000 |
+| the catastrophe, 42-44 | `SelectKBest(f_classif, k=10)` on every row, then `cross_val_score` → 0.931 |
+| selection inside the round, 45-46 | `Pipeline` with the selector as its first step → 0.658 |
+| the search, 47 | `GridSearchCV`, `best_score_` → 0.7999 |
+| nested, 48-49 | `cross_val_score(GridSearchCV(...), cv=outer)` → 0.6699 |
+| the threshold, honestly, 50-51 | `train_test_split` twice → 4,700 EUR against 10,540 |
+| seeds, 52-53 | 30 values of `random_state` → 0.913 to 1.000 |
 
 
 ::: notes

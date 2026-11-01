@@ -15,19 +15,19 @@ date: "6 November 2026 · reading time about 95 minutes"
 | 1:05–1:20 | 15 | Cross-validation, and when it needs care (19–20 optional) | Slides 13–22 |
 | 1:20–1:35 | 15 | **Notebook 01** — the split lottery | Slide 23 |
 | 1:35–1:45 | 10 | **Break** | Slide 24 |
-| 1:45–2:01 | 16 | Bias, variance and the noise floor (33–34 optional) | Slides 25–34 |
-| 2:01–2:10 | 9 | Learning curves and what they prescribe | Slides 35–36 |
-| 2:10–2:30 | 20 | Leakage that survives cross-validation | Slides 38–45 |
-| 2:30–2:35 | 5 | The debt paid (48–49 optional) | Slides 46–49 |
-| 2:35–2:50 | 15 | **Notebook 03** — leakage and honest search | Slide 50 |
-| 2:50–3:00 | 10 | What to put in a report; summary; homework | Slides 51–53 |
-| | **180** | **Total** | **53 slides, 3 notebooks** |
+| 1:45–2:03 | 18 | The question, then the lab: bias, variance and the noise floor (34–35 optional) | Slides 25–35 |
+| 2:03–2:13 | 10 | Without the truth: training against validation error, learning curves, which fix to buy | Slides 36–40 |
+| 2:13–2:30 | 17 | Leakage that survives cross-validation | Slides 42–49 |
+| 2:30–2:35 | 5 | The debt paid (52–53 optional) | Slides 50–53 |
+| 2:35–2:50 | 15 | **Notebook 03** — leakage and honest search | Slide 54 |
+| 2:50–3:00 | 10 | What to put in a report; summary; homework | Slides 55–57 |
+| | **180** | **Total** | **57 slides, 3 notebooks** |
 
 *This plan is for Friday 6 November 2026, when lesson 4 ran over into the first
-three quarters of an hour. Notebook 02 (slide 37) and the slides marked (optional)
-— 19 and 20, 33 and 34, 48 and 49 — are left for self-study; the sections of this
+three quarters of an hour. Notebook 02 (slide 41) and the slides marked (optional)
+— 19 and 20, 34 and 35, 52 and 53 — are left for self-study; the sections of this
 handout that cover them are unchanged. With a full three hours, notebook 02 runs
-live for twenty minutes after slide 36.*
+live for twenty minutes after slide 40.*
 
 ---
 
@@ -705,10 +705,30 @@ trustworthy result. Section 7 shows it happening.
 
 ### 5.1 The picture first
 
+**The question.** Your model's validation error is too high. You can spend the
+next month collecting more data or changing the model, and the two cure
+different kinds of error: buy the wrong one and the month changes nothing. A
+straight line fitted to 25 days of the energy data below has a cross-validated
+mean squared error of 6,064.3 kWh²; section 5.5 says which cure it needs.
+
 **What we are after.** A model trained on some data is asked about a new case,
 and its error is measured squared, as lesson 3's mean squared error. This
 section splits that squared error into three parts, two that belong to the model
-and one that belongs to the data, and then measures each with numbers.
+and one that belongs to the data, and then measures each with numbers. It does
+so in a lab: data we generated ourselves, so the true curve $f$ and the noise
+$\sigma$ are known. On real data the target $y$ is measured but $f$ and
+$\sigma$ are not, and you have one training set, not three hundred. Section 5.5
+brings the diagnosis back to real data, and section 6 adds the training-set
+size.
+
+**Why the lab, if real data cannot use the formula?** Cross-validation gives
+two numbers per model; the decomposition is what says what they mean. The
+formula is the *why*, cross-validation the *how*. Only the formula explains why
+training error tracks bias and the gap tracks variance, why more data cures
+variance and not bias, why there is a floor below which a test error means
+leakage, and why the best model depends on the amount of data. The decomposition
+is old in statistics; Geman, Bienenstock and Doursat brought it into machine
+learning in 1992, in "Neural networks and the bias/variance dilemma".
 
 Imagine drawing many different training sets from the same source and fitting
 the same model to each. You get many models, and they fail in two distinguishable
@@ -945,20 +965,101 @@ This explains a pattern you will meet constantly: a paper reports that a large
 model beat a small one on a dataset far bigger than yours, and the result does
 not reproduce for you. Neither experiment was wrong.
 
+
+### 5.5 Without the truth: training error against validation error
+
+Everything above needed $f$, $\sigma$ and 300 training sets. Real life gives one
+training set and the measured $y$. That is enough for two errors per model,
+computed by cross-validation **on the training data, with the test set
+untouched**:
+
+- **Training error**: each round's model scored on the days it was fitted to. It
+  has already bent towards those days, noise included, so the spread that
+  variance measures does not show; what it reflects is, roughly, bias plus the
+  noise the model did not chase.
+- **Validation error**: the same model on the fold it did not see. That is a new
+  day for it, so it pays bias, variance and noise.
+
+So a high training error points to bias, and a validation error far above the
+training error points to variance. The rule is the decomposition put to work.
+
+One sample of 25 days from the curve of section 5.3 (seed 0), 5-fold
+cross-validation (`KFold(n_splits=5, shuffle=True, random_state=0)`), so each
+round fits on 20 days and scores the other 5; each number is the average over
+the five rounds, from notebook 2, section 4. In code:
+`cross_validate(model, X, y, cv=folds, scoring="neg_mean_squared_error", return_train_score=True)`.
+
+| Degree | Training MSE | Validation MSE | Gap = validation − training | Reading |
+|---|---|---|---|---|
+| 1 | 5,155.7 | 6,064.3 | 908.5 | both high and close: bias |
+| 2 | 312.8 | **450.4** | 137.7 | lowest validation: the best |
+| 3 | 306.1 | 525.6 | 219.5 | |
+| 5 | 262.4 | 615.1 | 352.6 | training below 484: variance |
+
+The gaps are computed from the unrounded errors, so $615.1 - 262.4 = 352.7$ is
+printed 352.6.
+
+Read it against the lab. **Degree 1** is as wrong on the days it has seen as on
+the days it has not: bias, and the lab measured its bias² at 5,250.8. **Degree
+2** has the lowest validation error, as it had the lowest total in the lab.
+**Degree 5** has a training error of 262.4, *below* the noise variance of 484:
+no model predicts new days better than the noise allows, so a training error
+below it means the model has fitted part of the noise. Its gap is the widest of
+the four. Degree 12 is left out: with unscaled powers up to $t^{12}$ the
+least-squares solver loses precision, and its training error is not
+trustworthy.
+
+The numbers differ from the lab's, and must: one sample and five folds of 20
+days against an average over 300 samples. What carries over is the ordering,
+and a diagnosis needs nothing more.
+
+**The answer to the question of section 5.1.** The straight line's error is
+bias, so more days will not cure it: in the lab, six times the data takes it
+only from 6,458.6 to 5,861.5 (section 5.4). Changing the model to degree 2
+brings the validation error from 6,064.3 to 450.4 on the same 25 days.
+
+With a sample of 150 days the same table reads:
+
+| Degree | Training MSE | Validation MSE | Gap |
+|---|---|---|---|
+| 1 | 7,281.1 | 8,058.6 | 777.5 |
+| 2 | 593.5 | 627.0 | 33.5 |
+| 3 | 584.2 | 628.4 | 44.2 |
+| 5 | 537.8 | **596.0** | 58.3 |
+
+Degree 5's gap falls from 352.6 to 58.3 and it now has the lowest validation
+error, as the lab found at 150 days: more data cured its variance. Degree 1 stays
+high. That it comes out *higher* than on 25 days is the sample, not the size: a
+different draw of 150 days, where the lab's average over 300 draws falls.
+
+**A predictable mistake** is to conclude that, since $f$ is unknown on real
+data, the decomposition is only a proof with no use. It is a reasonable
+reading — none of the lab's columns can be computed on real data. But the
+decomposition is what gives the two measurable errors their meaning, and what
+says which cure each one needs.
+
 ---
 
 ## 6. Learning curves
 
 
-The decomposition above required knowing $f$ and $\sigma$. Learning curves give
-the same diagnosis from data you actually have.
+Section 5.5 measured the training and the validation error at one
+training-set size. A learning curve measures them at several sizes and plots
+both, which adds what the question of section 5.1 needs: whether more data would
+help.
+
+The example switches to lesson 4's drives, scored by the area under the curve
+(AUC). The method is the same for any score, but the direction flips: an error is
+better low, an AUC is better high, so here a poor model shows as *low* curves.
 
 ![](learning_curves.png)
 
-*Two diagnoses. Left: the curves meet, and meet low — bias, and more data will not help; the validation curve is exactly flat, for the reason given below the table. Right: a gap of 0.15 that does not close — variance. Read the right-hand curve to the end, though, rather than stopping at its rise: it climbs to 0.857 at 251 examples and then moves sideways, finishing below its own high point at 0.847. Both halves are information, and Section 6.1 says what each one licenses.*
+*Two diagnoses, on lesson 4's 800 drives; the score is the AUC, so higher is better and a poor model shows as low curves. Left: the curves meet, and meet low — bias, and more data will not help; the validation curve is exactly flat, for the reason given below the table. Right: a gap of 0.15 that does not close — variance. Read the right-hand curve to the end, though, rather than stopping at its rise: it climbs to 0.857 at 251 examples and then moves sideways, finishing below its own high point at 0.847. Both halves are information, and Section 6.1 says what each one licenses.*
 
 **The construction.** 5-fold cross-validation on the 800 drives, so each round's
-training part holds 640. Train on 15% of it, 96 drives, then on eight evenly
+training part holds 640. The demo uses all 800 drives because nothing from it
+is reported as a final score; in practice, set the test set aside first and run
+the learning curve on the rest. Train on 15% of it, 96 drives, then on eight evenly
 spaced sizes up to all 640, plotting both the training score and the
 cross-validated score against the number of examples used. The *shapes* carry the
 diagnosis.
@@ -1027,6 +1128,15 @@ instinct behind it is entirely sound — more data almost always helps, it is th
 one intervention that never makes a model worse, and it is what every textbook
 recommends. It simply does not help *this* failure, and a learning curve is
 fifteen lines of code that tells you which failure you have.
+
+**And the test set stays out of the diagnosis.** Every number in sections 5.5
+and 6 comes from cross-validation inside the training data; the test set is
+scored once, after the fix is chosen. **A predictable mistake** is to diagnose on
+the test error — it is the number everyone looks at, so the instinct is natural.
+But if the final test score disappoints and you change the model because of it,
+the test set has become a validation set (section 8: train to fit, validation
+to choose, test to report once), and its
+number is no longer an honest estimate.
 
 ---
 

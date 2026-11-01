@@ -112,10 +112,17 @@ lesson 3's dataset. 25 days per universe, 300 universes, irreducible noise of
 4. **More data moves the answer.** The best degree is 2 at $n = 25$ and **5** at
    $n = 60$ and $n = 150$: the optimum moves right as the data grows, because there is
    finally enough of it to pin down the extra coefficients.
-5. **Learning curves**, the diagnostic that needs no truth. High bias: the curves meet
+5. **Without the truth: training against validation error.** One sample of 25 days,
+   5-fold cross-validation with `cross_validate(..., return_train_score=True)`, the
+   test set untouched. Degree 1: training **5,155.7**, validation **6,064.3**, both
+   high and close, so bias. Degree 2: lowest validation, **450.4**. Degree 5: training
+   **262.4**, below the noise of 484, validation 615.1, so variance. The same reading
+   as the lab, without knowing the truth; with 150 days degree 5's gap falls from
+   352.6 to 58.3.
+6. **Learning curves**, which add the training-set size. High bias: the curves meet
    **low**, 0.715 against 0.718, flat from the first point to the last. High variance:
    training **1.000** against validation 0.847, a gap of 0.153.
-6. **And read the slope to the end.** The high-variance curve climbs to **0.857 at 251
+7. **And read the slope to the end.** The high-variance curve climbs to **0.857 at 251
    examples** and then moves sideways — 0.834, 0.847, 0.835, 0.832, 0.847 — ending
    *below* its own peak. The last step rises by 0.014, but per round it is −0.030,
    +0.050, +0.006, −0.009, +0.053: **a slope smaller than its own band is not a
@@ -126,8 +133,10 @@ draws 300 training sets from a known curve and measures bias, variance and noise
 separately. The three add up to the measured error to twelve decimal places, so the
 decomposition is an identity, not a metaphor. Degree 12 has a variance of 32 million.
 The optimal degree moves from 2 to 5 as the data grows from 25 points to 60, so "the
-right model" depends on how much data you have. Then learning curves, which give the
-same diagnosis without knowing the truth: curves that meet low mean bias and more data
+right model" depends on how much data you have. Then the diagnosis without the truth:
+on one sample of 25 days, training error against validation error reads exactly
+what the lab measured - degree 1 both high (bias), degree 5 training below the noise
+with a gap (variance). Learning curves add the training-set size: curves that meet low mean bias and more data
 will not help; a wide gap means variance. And read the slope to the end — ours peaks
 at 251 examples and then goes flat, which says more rows would buy nothing.*
 

@@ -729,4 +729,39 @@ same("5.1 and the simulation agrees, 0.55", float(np.mean(draws.min(axis=1) > -4
      (42 / 43) ** 25, tolerance=0.005)
 
 
+# ------------------ Section 6, training against validation, without the truth
+# The handout's table: one sample of 25 days (and one of 150), 5-fold
+# cross-validation. Rebuilt with the folds walked by hand and each polynomial
+# fitted by numpy.polyfit rather than scikit-learn's pipeline.
+from sklearn.model_selection import KFold                              # noqa: E402
+
+def by_hand(n_days, degree):
+    temperature, energy = sample_energy(n_days, np.random.default_rng(0))
+    train_errors, valid_errors = [], []
+    for fit_rows, held_rows in KFold(n_splits=5, shuffle=True,
+                                     random_state=0).split(temperature):
+        coefficients = np.polyfit(temperature[fit_rows], energy[fit_rows], degree)
+        train_errors.append(np.mean((np.polyval(coefficients, temperature[fit_rows])
+                                     - energy[fit_rows]) ** 2))
+        valid_errors.append(np.mean((np.polyval(coefficients, temperature[held_rows])
+                                     - energy[held_rows]) ** 2))
+    return sum(train_errors) / 5, sum(valid_errors) / 5
+
+for n_days, degree, train_printed, valid_printed in (
+        (25, 1, 5155.7, 6064.3), (25, 2, 312.8, 450.4), (25, 3, 306.1, 525.6),
+        (25, 5, 262.4, 615.1), (150, 1, 7281.1, 8058.6), (150, 2, 593.5, 627.0),
+        (150, 3, 584.2, 628.4), (150, 5, 537.8, 596.0)):
+    train, valid = by_hand(n_days, degree)
+    same(f"6 {n_days} days, degree {degree}, training {train_printed}", train,
+         train_printed, tolerance=0.06)
+    same(f"6 {n_days} days, degree {degree}, validation {valid_printed}", valid,
+         valid_printed, tolerance=0.06)
+
+train5, valid5 = by_hand(25, 5)
+same("6 degree 5's gap on 25 days is 352.6", valid5 - train5, 352.6, tolerance=0.06)
+assert train5 < NOISE_SD ** 2, "degree 5's training error must sit below 484"
+train5, valid5 = by_hand(150, 5)
+same("6 and on 150 days 58.3", valid5 - train5, 58.3, tolerance=0.06)
+
+
 print(f"lesson 5: {checks} hand-worked numbers recomputed, all agree")

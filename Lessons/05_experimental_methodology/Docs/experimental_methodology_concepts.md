@@ -119,6 +119,11 @@ below it by fitting the noise. → § 5.3
 moves as data grows — which is why a paper's result on a larger dataset may
 honestly fail to reproduce on yours. → § 5.4
 
+**Training error against validation error.** The diagnosis without the truth:
+training error high means bias; validation far above training means variance.
+Both come from cross-validation inside the training data, never from the test
+set. → § 5.5
+
 
 ## Learning curves
 
