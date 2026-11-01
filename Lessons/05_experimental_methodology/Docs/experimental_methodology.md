@@ -705,6 +705,10 @@ trustworthy result. Section 7 shows it happening.
 
 ### 5.1 The picture first
 
+**What we are after.** A model trained on some data is asked about a new case,
+and its error is measured squared, as lesson 3's mean squared error. This
+section splits that squared error into three parts, two that belong to the model
+and one that belongs to the data, and then measures each with numbers.
 
 Imagine drawing many different training sets from the same source and fitting
 the same model to each. You get many models, and they fail in two distinguishable
@@ -788,6 +792,13 @@ $$\boxed{\;\mathbb{E}\left[(y - \hat{f}(x))^2\right]
  = \underbrace{(f(x) - \bar{f}(x))^2}_{\text{bias}^2}
  + \underbrace{\mathbb{E}\left[(\hat{f}(x) - \bar{f}(x))^2\right]}_{\text{variance}}
  + \underbrace{\sigma^2}_{\text{noise}}\;}$$
+
+**Why the bias appears squared.** The bias itself, $\bar{f}(x) - f(x)$, is a gap
+with a sign, in the units of the target: kWh here, and negative where the average
+model sits below the truth. It comes out squared because the quantity being
+decomposed is a squared error, and squared it is in kWh², the units of the
+variance and of $\sigma^2$, which is what lets the three terms be added. A bias of
++26.9 kWh and one of −26.9 kWh cost the same.
 
 **This is an identity, not an approximation.** Notebook 2 checks it numerically
 on 300 independently drawn training sets, and the two sides agree to within

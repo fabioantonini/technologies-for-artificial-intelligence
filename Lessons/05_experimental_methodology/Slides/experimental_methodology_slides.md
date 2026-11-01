@@ -714,13 +714,19 @@ Ten minutes. The second half is bias-variance, which needs them awake.
 
 # The experiment: 300 training sets
 
+- **Goal**: split the squared error on a new day into three parts, and measure each
 - Daily energy at t °C, written by us: f(t) = 240 + 0.55 (t − 18)² + 12 sin(t/4) kWh
-- One training set: 25 random days from −5 to 38 °C, noise of standard deviation 22 kWh
-- 300 training sets, the same polynomial on each, degrees 1 to 12
-- In code: `make_pipeline(PolynomialFeatures(degree), LinearRegression())`
+- 300 training sets of 25 random days, −5 to 38 °C, noise of standard deviation 22 kWh
+- Each fitted with `make_pipeline(PolynomialFeatures(degree), LinearRegression())`, degree 1 to 12
 
 ::: notes
-Start from the data, because the next eight slides all use it. One observation
+Say the goal first, because the next eight slides serve it. A model trained on
+some days is asked about a new day; its error is measured squared, as lesson 3's
+mean squared error (MSE). We will split that squared error into three parts -
+two that belong to the model, one to the data - and measure each with numbers.
+The formula two slides on is the split; slides 29 and 30 do the measuring.
+
+Then the data. One observation One observation
 is one day: an outdoor temperature and that day's energy use.
 
 Lesson 3 also predicted energy from temperature, with the same noise of 22 kWh,
@@ -741,41 +747,13 @@ follows is computed from these 300 models, at 220 test temperatures spaced
 evenly from −4 to 37 °C.
 :::
 
-# Three ways the 300 models can be wrong
-
-- **Bias**: the average of the 300 models misses the truth. bias² = (average prediction − truth)²
-- **Variance**: the 300 models disagree with one another. Variance = average of (prediction − average prediction)²
-- **Noise**: the days scatter around the true curve. σ² = 22² = 484, known because we added it
-- Bias and variance belong to the model; the noise belongs to the data
-
-::: notes
-Set up the three parts in words before any algebra.
-
-The 300 models fail in two distinguishable ways.
-
-They may all be wrong in the same way - a straight line fitted to a curve misses
-the curvature every time, whichever 25 days it gets. Their average then sits
-away from the truth. That is bias: consistently wrong.
-
-Or they may disagree with one another - a twelfth-degree polynomial on 25 points
-gives a different wild curve every time. That is variance: unreliable, whatever
-the average looks like.
-
-The two are separate questions. Bias asks where the average model sits; variance
-asks how far the individual models sit from that average. A model can have
-both, and degree 1 here does, as the next slide shows.
-
-Underneath both sits the noise in the measurements, which is not a property of
-the model at all. We know it is 22² = 484 only because we generated the data.
-:::
-
 # Three hundred parallel universes
 
 ![](many_universes.png)
 
 ::: notes
-Each faint line is a model fitted to a DIFFERENT training set of 25 days from the
-same curve. Forty of the 300 are drawn, so the panel stays readable; the red
+Before any definition, look at the models. Each faint line is a model fitted to a
+DIFFERENT training set of 25 days from the same curve. Forty of the 300 are drawn, so the panel stays readable; the red
 average is taken over all 300. In real life you drew exactly one of them and
 never knew about the rest.
 
@@ -814,6 +792,10 @@ And any one of those faint lines is a model somebody actually deployed.
 $$\mathbb{E}\left[(y - \hat{f})^2\right] = \text{bias}^2 + \text{variance} + \sigma^2$$
 
 ::: notes
+This is what the experiment measures. The left side is the goal of slide 25:
+the squared error of a model on a new day, averaged. The right side is the
+split, three terms the next slide defines and slides 29 and 30 measure.
+
 State it, do not derive it - handout section 5.2 does that in five lines, and it
 is worth reading because the derivation is short and the cross terms vanishing
 is the whole trick.
@@ -828,8 +810,8 @@ say 30 °C, and imagine a vertical line through it in each panel.
 So the left side is the average squared miss of a model trained on random days,
 predicting a new day at x. On the right, bias² is the squared gap between the red
 and black curves at x, variance the spread of the faint lines around the red one
-at x, and sigma squared the noise variance, 484. The next slide does it with
-numbers.
+at x, and sigma squared the noise variance, 484. The next slide says what each
+term means and why bias appears squared; slide 29 does it with numbers.
 
 The important claim is that this is an IDENTITY, not an approximation or a
 useful metaphor. Notebook 2 checks it on 300 independently drawn training sets
@@ -838,6 +820,37 @@ equality.
 
 That matters pedagogically: they have seen this picture in every textbook drawn
 as a schematic. Here it is measured.
+:::
+
+# What each term means, and why it is squared
+
+- **Bias** = average prediction − truth, in kWh: it can be negative
+- **Squared** because the error is measured squared: bias² is in kWh², like the other two terms, so the three add
+- **Variance** = average of (prediction − average prediction)²: how much the 300 models disagree
+- **Noise** σ² = 22² = 484: the days scatter around the curve; we know it because we added it
+
+::: notes
+The three terms of the formula, in words, now that the picture has shown them.
+
+Bias first. It is a gap with a sign: the average of the 300 predictions minus
+the truth, in kWh. At 30 °C, for the straight line, 303.6 − 330.5 = −26.9 kWh:
+the average line sits below the curve there. Why does it appear squared? Because
+the error we set out to measure is squared, (y − f-hat)². Expand that square -
+handout section 5.2 does it in five lines - and the gap between the average model
+and the truth comes out squared, in kWh², the units of the other two terms. That
+is what lets the three be added. A bias of +26.9 and one of −26.9 cost the same.
+
+Variance: how far the individual models sit from their own average, squared and
+averaged - the fan of the previous figure. Bias asks where the average model
+sits; variance asks how far the models sit from that average. Separate
+questions: a model can have both, and degree 1 here does.
+
+Noise: the scatter of the days around the true curve, 22² = 484. It belongs to
+the data, not to the model, so no model removes it. We know it only because we
+generated the data; on real data it cannot be separated out.
+
+So bias and variance belong to the model, the noise to the data. The next slide
+puts numbers on all three, at 30 °C.
 :::
 
 # From 300 models to three numbers, at 30 °C
@@ -854,7 +867,7 @@ as a schematic. Here it is measured.
 
 ::: notes
 The bridge from the picture to the table on slide 31: the formula holds at one
-test temperature at a time, so do it at one. The 300 degree-1 models of slide 27,
+test temperature at a time, so do it at one. The 300 degree-1 models of slide 26,
 each asked for its prediction at 30 °C. The numbers are printed by notebook 2,
 section 2, "First at one temperature".
 
@@ -932,7 +945,7 @@ moves, because it is a property of the data and not of the model.
 Degree 1 is a bias problem: bias² of 5,250, two orders of magnitude above the
 next row. Wrong everywhere, in the same way.
 
-Degree 3 is the "about right" panel of slide 27: 654.4, close to degree 2's
+Degree 3 is the "about right" panel of slide 26: 654.4, close to degree 2's
 614.3, the minimum.
 
 Do not say it has the smallest variance - it does not, 723.8 against degree 2's
@@ -1111,8 +1124,8 @@ THIS failure, and fifteen lines of code tell you which failure you have.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| 300 parallel universes, 25-27 | `PolynomialFeatures` then `LinearRegression`, in `make_pipeline`, fitted 300 times |
-| the three parts measured, 28-33 | NumPy on the 300 predictions → sum and measured error agree to 2.73e-12 |
+| 300 parallel universes, 25-26 | `PolynomialFeatures` then `LinearRegression`, in `make_pipeline`, fitted 300 times |
+| the three parts measured, 27-33 | NumPy on the 300 predictions → sum and measured error agree to 2.73e-12 |
 | more data moves the answer, 34 | the same at 25, 60 and 150 days → best degree 2, then 5 |
 | learning curves, 35-36 | `learning_curve` with `StratifiedKFold` → 0.715 against 0.718; 1.000 against 0.847 |
 
@@ -1120,7 +1133,7 @@ THIS failure, and fifteen lines of code tell you which failure you have.
 ::: notes
 The table maps each section to its calls and its number. On 6 November this
 notebook is left for self-study: show the table, say what each section measures,
-and that its numbers are on slides 27 to 36, which were just shown.
+and that its numbers are on slides 26 to 36, which were just shown.
 
 When there is a full three hours, run it live, for twenty minutes.
 

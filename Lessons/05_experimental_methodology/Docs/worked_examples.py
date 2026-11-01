@@ -693,6 +693,8 @@ for degree, printed in ((1, (303.6, 723.9, 856.1, 2063.9, 215.6, 364.7)),
 same("5.2 printed degree-1 parts add to 2,064.0", 723.9 + 856.1 + 484.0, 2064.0,
      tolerance=1e-9)
 same("5.2 and degree 3's to 671.9", 89.8 + 98.1 + 484.0, 671.9, tolerance=1e-9)
+same("5.2 the bias itself is a signed gap, -26.9 kWh", 303.6 - 330.5, -26.9,
+     tolerance=1e-9)
 same("5.2 squaring the printed gap gives 723.6", round((303.6 - 330.5) ** 2, 1),
      723.6, tolerance=1e-9)
 
