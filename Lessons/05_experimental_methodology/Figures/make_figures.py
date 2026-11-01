@@ -146,7 +146,8 @@ def nested_cv_diagram():
                                facecolor=RUST if held else "#DCE6F0",
                                alpha=.35 if held else 1.0,
                                edgecolor=SLATE, linewidth=1.2))
-        ax.text(block * 1.6 + 0.75, 4.15, "outer test" if held else "train",
+        ax.text(block * 1.6 + 0.75, 4.15,
+                "outer test\n160 drives" if held else "train\n160 drives",
                 ha="center", va="center", fontsize=10,
                 fontweight="bold" if held else "normal",
                 color=INK if held else SLATE)
@@ -155,8 +156,8 @@ def nested_cv_diagram():
 
     ax.annotate("", xy=(3.15, 3.35), xytext=(3.15, 3.8),
                 arrowprops=dict(arrowstyle="->", color=SLATE, lw=1.4))
-    ax.text(3.4, 3.57, "the whole search runs on these 4/5 only", fontsize=10,
-            color=SLATE, va="center")
+    ax.text(3.4, 3.57, "these 640 drives only, re-split into 5 new inner folds of 128",
+            fontsize=10, color=SLATE, va="center")
 
     # Inner loop: the outer training part, split into 5 folds.
     inner_width = 6.3 / 5
@@ -172,14 +173,14 @@ def nested_cv_diagram():
                     fontsize=8.5, color=INK if valid else SLATE)
     ax.text(-0.2, 2.05, "inner", ha="right", va="center", fontsize=11,
             color=INK, fontweight="bold")
-    ax.text(6.45, 2.05, "5 folds,\nfor each of the\n25 candidates:\nthe winner",
+    ax.text(6.45, 2.05, "for each of the\n25 candidates:\ntrain on 512,\nscore on 128;\n"
+            "best mean wins,\nrefitted on the 640",
             ha="left", va="center", fontsize=9.5, color=SLATE)
 
-    ax.text(0, 0.05, "The winner is scored once on the outer test fifth, which never "
-            "took part in choosing it.", fontsize=10.5, color=INK)
-    ax.text(0, -0.35, "Repeated for each of the 5 outer folds: 5 searches, 5 scores, "
-            "averaged = the number you report.", fontsize=10.5, color=INK,
-            fontweight="bold")
+    ax.text(0, 0.05, "The winner is scored once on the 160 outer test drives: 0.698.",
+            fontsize=10.5, color=INK)
+    ax.text(0, -0.35, "5 outer rounds: (0.698 + 0.852 + 0.754 + 0.487 + 0.558) ÷ 5 = 0.670",
+            fontsize=10.5, color=INK, fontweight="bold")
     ax.text(0, -0.75, "It measures what choosing costs; it does not choose.",
             fontsize=10.5, color=INK)
 

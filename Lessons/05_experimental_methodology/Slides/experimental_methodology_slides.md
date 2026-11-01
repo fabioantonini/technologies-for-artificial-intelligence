@@ -1543,15 +1543,18 @@ possibilities on a small sample. No rearrangement of the same 800 rows removes a
 pattern that is genuinely in those 800 rows and absent from the world.
 
 What helps: a test set held out before any of this and used once; fewer
-candidates; or more rows. Nothing else.
+candidates; or more rows. Nothing else. A fresh test set has chance correlations
+too, but in other columns, which the model does not use; in new rows the chosen
+columns' correlation is a fresh coin toss, on average zero.
 :::
 
 # GridSearchCV: try all, keep the best
 
-- **k** = columns `SelectKBest` keeps: 2, 5, 10, 20, 40 (here k counts **columns, not folds**)
-- **C** = penalty setting, smaller is stronger: 0.01, 0.1, 1, 10, 100; 5 × 5 = **25 combinations**
-- Each scored by 5-fold cross-validation, slide 45's pipeline: 25 × 5 = **125 fits**
-- Highest mean AUC wins: `best_params_` (k = 20, C = 10), `best_score_`; refitted on all 800 drives
+- **k** = columns kept: 2, 5, 10, 20, 40 (**columns, not folds**)
+- **C** = penalty, smaller is stronger: 0.01, 0.1, 1, 10, 100; **25 pairs**
+- Each pair: 5-fold cross-validation, 25 × 5 = **125 fits**
+- Best mean AUC wins: `best_params_` (k = 20, C = 10); `best_score_` = that mean
+- Then refitted on all 800, **not scored again**
 
 ::: notes
 Slide 45's honest pipeline still has two settings someone has to choose: how
@@ -1566,7 +1569,13 @@ and inner is StratifiedKFold(5, shuffle=True, random_state=1).
 
 It tries all 25 combinations, scores each by 5-fold cross-validation, keeps the
 one with the highest mean AUC, and refits it on all the data: best_estimator_
-is that refitted model.
+is that refitted model. The order matters: best_score_ comes from the folds,
+before the refit. The refitted model is the one you ship, and it is not scored:
+scored on the 800 drives it trained on, it would give a training score.
+
+A second predictable mistake: "best_score_ is the AUC of the model refitted on
+all the drives". Natural, because the refit is the last thing the slide lists;
+but the score was computed first, on the folds.
 
 A predictable mistake: "k in the grid is the number of folds". The reasoning is
 natural - k has meant the folds since slide 13 - but here k is the selector's
@@ -1582,6 +1591,7 @@ parameter, the number of columns kept. The folds are fixed at 5 by cv=inner.
 | worst candidate | 0.684 |
 | nested cross-validation, next slide | 0.670 |
 | the truth, by construction | 0.500 |
+| optimism of the search, 0.800 − 0.670 | 0.130 |
 
 ::: notes
 Choosing between configurations is choosing, and choosing on data costs the same
@@ -1641,7 +1651,10 @@ The inner loop may overfit its own data as much as it likes; the outer block was
 never part of it.
 
 The figure shows outer round 1 of 5, and inside it the 5-fold search over the
-25 candidates (inner seed 1, outer seed 2 in notebook 3).
+25 candidates (inner seed 1, outer seed 2 in notebook 3). Point at the arrow: the
+640 drives pass to the search as one block and are re-split into 5 new inner
+folds of 128; the inner folds are not the 4 outer blocks of 160. Over the 5
+rounds every drive is in the outer test exactly once.
 
 The nested figure is honest but itself noisy: its five outer folds range widely
 (handout section 7.4). Say so in one sentence; the numbers stay in the handout.
@@ -1652,7 +1665,7 @@ winners. It is a way to estimate what choosing costs. You choose on all the data
 afterwards, and you report the nested figure.
 :::
 
-# Four ways to measure the same worthless model
+# Each piece of discipline costs score: 0.931, 0.800, 0.670, 0.500
 
 ![](leakage_ladder.png)
 
@@ -1667,25 +1680,36 @@ Say clearly: nobody in this picture wrote dishonest code. The difference between
 which data.
 
 Each step to the left is a piece of discipline, and each one costs a chunk of
-the score you would otherwise have reported. That is what discipline feels like
+the score you would otherwise have reported.
+
+Even the nested 0.670 stays 0.17 above the truth: the chance correlations belong
+to the 800-drive sample (slide 46), so no re-split removes them. Only a test set
+set aside before any search, fewer candidates or more rows expose it. That is what discipline feels like
 from the inside, and it is why it is unpopular.
 :::
 
 # The debt, paid: report 4,700 EUR, the threshold chosen on validation
 
-| Slide 6's 800 drives: fit on 450, choose on 150, report on 200 (7 failures) | missed failures × 2,600 EUR + false alarms × 140 EUR | Cost on the test set |
+| Threshold, for one logistic regression fit on 450 of slide 6's 800 drives | missed failures × 2,600 EUR + false alarms × 140 EUR | Cost on the 200 test drives (7 failures) |
 |---|---|---|
-| 0.50, the default | 4 × 2,600 + 1 × 140 | 10,540 EUR |
-| 0.050, chosen on **validation** | 1 × 2,600 + 15 × 140 | **4,700 EUR** |
-| 0.171, chosen on **test** | 1 × 2,600 + 5 × 140 | 3,300 EUR |
+| 0.50, the default: nothing chosen | 4 × 2,600 + 1 × 140 | 10,540 EUR |
+| 0.050: the cheapest of 200 thresholds from 0.01 to 0.9, tried on the 150 **validation** drives | 1 × 2,600 + 15 × 140 | **4,700 EUR** |
+| 0.171: the same sweep, on the 200 **test** drives (lesson 4's way) | 1 × 2,600 + 5 × 140 | 3,300 EUR |
 
 ::: notes
 Lesson 4's threshold, done properly - but on slide 6's 800 drives, not lesson
 4's 8,000, so do not compare these euros with lesson 4's: a test set of 200
-drives with 7 failures has a smaller bill. Split three ways, as the table header
-says: fit on 450 drives, choose the threshold on 150, report once on the
-remaining 200. The middle column
-is the bill, counted: the default misses 4 of the 7 failures; both other
+drives with 7 failures has a smaller bill. Split three ways: fit on 450 drives,
+choose the threshold on 150, report once on the remaining 200. ONE model, fitted
+once on the 450, serves all three rows; they differ only in the threshold, and
+all three bills are counted on the same 200 test drives. Row 1 chooses nothing.
+Row 2 sweeps 200 thresholds from 0.01 to 0.9 on the validation drives'
+probabilities and keeps the cheapest; row 3 runs the same sweep on the test set.
+
+A predictable mistake: reading the first header as row 1's label ("fitted on 450,
+chosen on 150"). It describes the model every row shares; row 1 chooses nothing.
+
+The middle column is the bill, counted: the default misses 4 of the 7 failures; both other
 thresholds miss 1, and differ only in false alarms, 15 against 5.
 
 Then point at 0.050. The validation set chose almost exactly lesson 4's t* =
@@ -1766,7 +1790,7 @@ what the exam asks them to defend.
 
 # What to fix, and what to write down (optional)
 
-- Fix every `random_state`, and seed NumPy with `np.random.default_rng(seed)`
+- Fix every `random_state` (the split, the folds), and seed your own NumPy draws with `np.random.default_rng(seed)`: a rerun gives the same number
 - **Library versions**: defaults change between releases
 - What you could **not** fix: parallel computations that finish in a different order, graphics processing unit (GPU) non-determinism
 
@@ -1807,13 +1831,20 @@ reliably.
 
 # What to put in a report
 
-- The metric, the **spread**, and how it was estimated
+- The metric, its **spread** (standard deviation of the fold scores, slide 16), and how it was estimated (e.g. stratified 5-fold, seed 0)
 - How many **positives** the test set held
 - Every seed, and every library version
 - Which choices were made on which data
 
 ::: notes
 A checklist they can apply to every remaining exercise and to anything they read.
+
+The first item in code: scores = cross_val_score(...) with the folds written
+out, then scores.mean() and scores.std(); in the report, "AUC 0.951 ± 0.019
+(standard deviation over 5 folds), stratified 5-fold, seed 0". Not s ÷ √5, not a
+confidence interval: slide 17 showed the real spread is twice that. With a single
+test set there is one number and no spread of its own, which is why the second
+item asks for the positives.
 
 The four items map to the four failures of today: a number without a spread
 hides the lottery; a metric without a positive count hides why the spread is
@@ -1828,16 +1859,28 @@ unanswered - and roughly how large the correction is likely to be.
 
 # What to take away
 
-- **A test score is a measurement.** 0.885 to a perfect **1.000**, same model
+- **A score is a measurement**: 0.885 to **1.000**
 - **Choosing on one split chooses noise**
-- **bias² + variance + noise**: training error shows bias, the gap shows variance; more data cures only variance
-- **Cross-validation protects against fold leakage, nothing more**: select and tune inside it, report the nested figure
+- **Training error shows bias, the gap variance**
+- **Cross-validation is honest only about what runs inside it**. It cannot remove
+    - chance correlations in the sample: 0.658 on pure noise
+    - the luck of choosing: 0.800 reported, 0.670 nested
+    - dependent rows, unless split with `GroupKFold`
 
 ::: notes
 Close on the number they opened with. Seed 3, AUC 1.000, on a model whose honest
 performance is 0.951.
 
-The third bullet is slides 25 to 40 in one line, the fourth slides 42 to 51.
+The third bullet is slides 25 to 40 in one line: bias² + variance + noise, read
+without the truth; and more data cures only the variance, the gap. The fourth
+bullet is slides 42 to 51.
+
+The fourth bullet's three limits, each with its cure. The sample's chance
+correlations: no re-split of the same rows removes them; a test set set aside
+before any search, fewer candidates or more rows do. The luck of choosing: report
+the nested figure, not best_score_. Rows that are not independent: keep each
+drive's readings in one fold with GroupKFold, or cross-validation itself leaks
+between folds.
 
 If they remember one habit from today, make it this: before believing any
 reported score, ask what the base rate is, how many positives are in the test

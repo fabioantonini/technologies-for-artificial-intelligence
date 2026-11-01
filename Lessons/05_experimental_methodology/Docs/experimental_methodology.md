@@ -1272,6 +1272,21 @@ the spurious correlation was never fold-specific.
 **What does help:** a test set held out before any of this began and used
 exactly once; fewer candidates; or more rows. Nothing else.
 
+**But a fresh test set has chance correlations too.** It does, in other
+columns, which the model does not use. The model uses the columns chosen because
+they matched the labels of the 800 training drives; in new rows their
+correlation with the label is a fresh coin toss, positive or negative, zero on
+average. So a fresh test set is centred on the truth, though one of them can
+still land high by luck.
+
+**Checks, for whoever wants the detail.** Simulated: the honest pipeline
+($k = 10$) and the search's winner of section 7.3, both fitted on notebook 3's
+800 noise rows, scored on 40 fresh sets of 800 drives — new labels from the
+fleet generator, new noise columns. The honest pipeline averages an AUC of 0.509,
+from 0.40 to 0.68; the search's winner averages 0.512. Centred on 0.5, as the
+truth requires, and noisy, which is why a report states how many positives its
+test set held.
+
 ### 7.3 Hyperparameter search is the same problem
 
 
@@ -1292,6 +1307,10 @@ that chooses them, in four steps:
    `best_score_` is its mean AUC.
 4. **The winner is refitted on all the data**; `best_estimator_` is that model.
 
+The order matters: `best_score_` is computed in step 3, on the folds, before the
+refit. The refitted model is the one you ship, and it is not scored: scored on
+the 800 drives it trained on, it would give a training score.
+
 In notebook 3 it is one line, `GridSearchCV(honest, grid, cv=inner,
 scoring="roc_auc").fit(noise, y)`, where `grid` has the keys `"select__k"` and
 `"model__C"` (the step's name, two underscores, the parameter's name) and
@@ -1300,7 +1319,9 @@ scoring="roc_auc").fit(noise, y)`, where `grid` has the keys `"select__k"` and
 **A predictable mistake: "$k$ in the grid is the number of folds."** The reading
 is natural — $k$ has meant the folds since section 4 — but here it is the
 selector's parameter, the number of columns kept; the folds are fixed at 5 by
-`cv=inner`.
+`cv=inner`. **A second one: "`best_score_` is the AUC of the model refitted on
+all the drives."** Natural, since the refit is the last step listed, but the
+score was computed first, on the folds.
 
 The 25 combinations on that signal-free table:
 
@@ -1315,6 +1336,7 @@ The 25 combinations on that signal-free table:
 | worst candidate | 0.6840 |
 | nested cross-validation | 0.6699 |
 | the truth, by construction | 0.5 |
+| optimism of the search, 0.7999 − 0.6699 | 0.1300 |
 
 The number a practitioner reports is `best_score_`, and it is the **maximum of
 25 noisy estimates**. The maximum of a set of noisy numbers is biased upward
@@ -1346,20 +1368,33 @@ cross_val_score(GridSearchCV(honest, grid, cv=inner, scoring="roc_auc"),
                 noise, y, cv=outer, scoring="roc_auc")
 ```
 
-Five outer folds of $800 / 5 = 160$ drives. In each outer round the search runs
-on the other 640, with its own five inner folds — train on
-$640 \times 4/5 = 512$, score on $640 / 5 = 128$ — picks a winner, refits it on
-the 640, and that model is scored once on the 160 it never saw. Per outer round
-that is 125 fits for the search plus one refit; $5 \times 126 = 630$ fits in all.
-The mean of the five outer scores is **0.6699**.
+**Outer round 1, step by step,** with notebook 3's seeds (outer 2, inner 1):
+
+1. **Set aside outer fold 1:** $800 / 5 = 160$ drives, about six failures.
+   Nothing that follows sees them.
+2. **The other 640 pass to the search as one block** and are re-split into five
+   new inner folds of $640 / 5 = 128$; the inner folds are not the four outer
+   blocks of 160. For each of the 25 candidates, five inner rounds: train on
+   $640 \times 4/5 = 512$, score the AUC on 128; the mean of the five is that
+   candidate's score. $25 \times 5 = 125$ fits.
+3. **The best inner mean wins.** It is this search's own `best_score_`, inflated
+   as in section 7.3, and it is thrown away.
+4. **The winner is refitted on the 640:** fit 126.
+5. **That one model is scored once on the 160 set aside:** AUC 0.698.
+
+Rounds 2 to 5 repeat everything with another outer fold, and possibly another
+winner: 0.852, 0.754, 0.487 and 0.558. Every drive is in the outer test exactly
+once, and the whole procedure costs $5 \times 126 = 630$ fits. The nested figure
+is the mean of the five outer scores:
+
+$$\frac{0.698 + 0.852 + 0.754 + 0.487 + 0.558}{5} = \frac{3.349}{5} = 0.670$$
+
+(0.6699 unrounded). The inner loop **chooses**, and its scores are thrown away;
+the outer loop only **measures**, on drives that took no part in the choice.
 
 ![](nested_cv_diagram.png)
 
-*Outer round 1 of 5, drawn as notebook 3 runs it: the entire search, a 5-fold cross-validation over the 25 candidates, runs inside the outer training part. The outer test fifth was never involved in choosing anything, which is why its score is the one you may report; the five outer scores are averaged.*
-
-- **Outer loop:** hold out a fifth of the data.
-- **Inner loop:** run the entire search on the remaining four fifths.
-- Score the search's chosen model on the held-out fifth. Repeat five times.
+*Outer round 1 of 5, drawn as notebook 3 runs it: look at the arrow. The 640 training drives are re-split into five new inner folds of 128, and the whole search runs there; the 160 outer test drives were never involved in choosing anything, which is why their score, 0.698, is one you may report. The bottom line averages the five rounds.*
 
 The inner loop may overfit its own data as much as it likes; the outer fold was
 never part of it. Nested cross-validation is what you use when you need an
@@ -1391,11 +1426,17 @@ the test set; of the remaining 600, 150 (5 failures) become the validation set
 and 450 the training set — 56%, 19% and 25% of the whole. The costs are lesson
 4's, 140 EUR for a false alarm and 2,600 EUR for a missed failure.
 
-| Policy | Missed × 2,600 + false alarms × 140 | Cost on the test set |
+One logistic regression, standardised first, is fitted once on the 450
+training drives and serves every row below; the rows differ only in the
+threshold, and every bill is counted on the same 200 test drives. "Chosen" means
+a sweep: 200 thresholds from 0.01 to 0.9, each priced on a set's predicted
+probabilities, the cheapest kept.
+
+| Threshold | Missed × 2,600 + false alarms × 140 | Cost on the 200 test drives |
 |---|---|---|
-| threshold 0.50 (the default) | 4 × 2,600 + 1 × 140 | 10,540 EUR |
-| threshold 0.050, chosen on the **validation** set | 1 × 2,600 + 15 × 140 | **4,700 EUR** |
-| threshold 0.171, chosen on the **test** set | 1 × 2,600 + 5 × 140 | 3,300 EUR |
+| 0.50, the default: nothing chosen | 4 × 2,600 + 1 × 140 | 10,540 EUR |
+| 0.050, the sweep on the 150 **validation** drives | 1 × 2,600 + 15 × 140 | **4,700 EUR** |
+| 0.171, the same sweep on the 200 **test** drives | 1 × 2,600 + 5 × 140 | 3,300 EUR |
 
 Both chosen thresholds catch 6 of the 7 failures; they differ only in false
 alarms, 15 against 5. The 1,400 EUR between them is ten healthy drives that this
@@ -1479,9 +1520,14 @@ your result and your marker's result are the same result.
 - **Learning curves prescribe the fix.** Training and validation curves that
   meet at a poor score mean bias, and more data will not help; a gap between
   them means variance, and more data or a stronger penalty narrows it.
-- **Cross-validation protects against fold leakage, not against searching a
-  large space on a small sample.** Selection from 2,000 noise columns still
-  scored 0.658 done fold-honestly.
+- **Cross-validation is honest only about what runs inside it**: select and
+  tune inside it, and report the nested figure. Three things it cannot remove:
+  the sample's chance correlations (selection from 2,000 noise columns still
+  scored 0.658 done fold-honestly, section 7.2; a test set set aside first,
+  fewer candidates or more rows expose them); the luck of choosing
+  (`best_score_` 0.7999 against a nested 0.6699, sections 7.3-7.4); and rows that
+  are not independent, unless each drive's readings stay in one fold
+  (`GroupKFold`, section 4.6).
 - **`best_score_` is the maximum of many noisy estimates.** Nested
   cross-validation measures the search.
 - **Split along the axis you must generalise across** — `GroupKFold` when rows

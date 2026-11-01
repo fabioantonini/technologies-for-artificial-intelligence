@@ -852,4 +852,41 @@ same("7.4 each winner is refitted on 640", max(FitCounter.sizes), 640, tolerance
 same("7.4 inner folds score 128 drives", min(FitCounter.scored), 128, tolerance=0)
 same("7.4 outer folds score 160 drives", max(FitCounter.scored), 160, tolerance=0)
 
+# 7.4: the nested figure as the mean of its five outer scores, as printed.
+outer_scores = (0.698, 0.852, 0.754, 0.487, 0.558)
+same("7.4 the five outer scores sum to 3.349", sum(outer_scores), 3.349, tolerance=1e-9)
+same("7.4 and their mean is 0.670", sum(outer_scores) / 5, 0.670, tolerance=5e-4)
+
+# 7.2: a fresh test set is centred on the truth. Rebuilt from notebook 3's
+# recipe (the noise from default_rng(0)), then scored on 40 new fleets with new
+# noise; nothing is taken from the notebook's outputs.
+from sklearn.feature_selection import SelectKBest, f_classif           # noqa: E402
+from sklearn.metrics import roc_auc_score as fresh_auc                 # noqa: E402
+from sklearn.pipeline import Pipeline                                  # noqa: E402
+
+columns = [f"n{i}" for i in range(2_000)]
+noise_800 = pd.DataFrame(np.random.default_rng(0).normal(size=(800, 2_000)),
+                         columns=columns)
+honest_k10 = Pipeline([("select", SelectKBest(f_classif, k=10)),
+                       ("scale", StandardScaler()),
+                       ("model", LogisticRegression(max_iter=2_000))])
+search_winner = GridSearchCV(
+    honest_k10, {"select__k": [2, 5, 10, 20, 40], "model__C": [0.01, 0.1, 1, 10, 100]},
+    cv=StratifiedKFold(5, shuffle=True, random_state=1), scoring="roc_auc"
+).fit(noise_800, fleet_y)
+honest_k10.fit(noise_800, fleet_y)
+on_fresh = {"honest": [], "winner": []}
+for fresh_seed in range(1, 41):
+    _, y_fresh = load_fleet(800, random_state=1000 + fresh_seed)
+    X_fresh = pd.DataFrame(np.random.default_rng(10_000 + fresh_seed).normal(
+        size=(800, 2_000)), columns=columns)
+    on_fresh["honest"].append(fresh_auc(y_fresh, honest_k10.predict_proba(X_fresh)[:, 1]))
+    on_fresh["winner"].append(fresh_auc(y_fresh, search_winner.predict_proba(X_fresh)[:, 1]))
+same("7.2 fresh test sets: the honest pipeline averages 0.509",
+     float(np.mean(on_fresh["honest"])), 0.509, tolerance=5e-4)
+same("7.2 lowest fresh test set 0.40", min(on_fresh["honest"]), 0.40, tolerance=5e-3)
+same("7.2 highest fresh test set 0.68", max(on_fresh["honest"]), 0.68, tolerance=5e-3)
+same("7.2 the search's winner averages 0.512",
+     float(np.mean(on_fresh["winner"])), 0.512, tolerance=5e-4)
+
 print(f"lesson 5: {checks} hand-worked numbers recomputed, all agree")
