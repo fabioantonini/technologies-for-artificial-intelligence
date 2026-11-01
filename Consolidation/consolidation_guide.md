@@ -1,5 +1,5 @@
 ---
-title: "Consolidation: lessons 1 to 4, one call at a time"
+title: "Consolidation: lessons 1 to 5, one call at a time"
 subtitle: "Technologies for Artificial Intelligence — self-study, and two hours in class"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
 date: "Not examinable"
@@ -7,7 +7,7 @@ date: "Not examinable"
 
 ## What this is
 
-Lessons 1 to 4 ran every scikit-learn call on hundreds or thousands of rows: 569
+Lessons 1 to 5 ran every scikit-learn call on hundreds or thousands of rows: 569
 tumours, 2,000 customers, 600 houses, 8,000 disk drives. At that size the result of a call is visible, and what the
 call *did* is not, and the lesson notebooks often take in one line a step that someone
 new to machine learning needs to see on its own. This folder takes those steps one at
@@ -29,8 +29,8 @@ It is **not examinable**, and it adds no new material. It does not replace the
 lesson notebooks either: every atom names the slide and the notebook section where
 its idea is treated at full scale.
 
-Reading time: about 40 minutes for each of `00`, `02`, `03` and `04`, and 15 for `01`,
-so about three hours for the five, done properly.
+Reading time: about 40 minutes for each of `00`, `02`, `03`, `04` and `05`, and 15 for
+`01`, so about three and a half hours for the six, done properly.
 
 ## How to use an atom
 
@@ -58,6 +58,7 @@ than any number of predictions that came out right.
 | `02_lesson_2_atoms.ipynb` | looking, missing values, outliers, scaling, encoding, `ColumnTransformer`, the area under the curve, two leaks | 15 |
 | `03_lesson_3_atoms.ipynb` | cost, the normal equation, gradient descent, Ridge and Lasso, what a coefficient means | 15 |
 | `04_lesson_4_atoms.ipynb` | odds and log-odds, log loss, one gradient step, the confusion matrix in order, the two averages, AUC and average precision, a threshold from costs, class weights, softmax | 11 |
+| `05_lesson_5_atoms.ipynb` | cross-validation round by round, the five round models, the spread and the report line, stratified, repeated and grouped folds, training against validation error, `GridSearchCV`, nested cross-validation one round at a time, a fresh test set, the threshold sweep, seeds | 13 |
 
 They run in the course container like every other notebook, each in a few seconds,
 with no network. Start with `00`: the others assume it.
@@ -148,6 +149,28 @@ numbers.
 | 10 | *A weight ratio of 4*: `compute_class_weight` and the threshold it stands for | *What class weights do*; *Class weights: the same lever, pulled earlier* |
 | 11 | *Softmax on three scores*, and `predict_proba` for three classes | *Three classes: softmax (optional)* |
 
+### 05 — lesson 5
+
+Lesson 5 is about measuring, so most of its atoms run on the lesson's own data, the 800
+drives and the 25 days, where the slides' numbers come from; atoms 1 and 5 use ten and
+twenty rows. Atoms 9 to 11 repeat notebook 3's search and take about a minute.
+
+| # | Atom | Lesson source |
+|--|--------------------------|------------------------|
+| 1 | Cross-validation on ten days: who trains, who is held out; `neg_mean_squared_error` | *k-fold cross-validation* |
+| 2 | Five round AUCs and their mean, 0.9514, by hand and with `cross_val_score` | *What it actually estimates* |
+| 3 | Five rounds, five different models, and a sixth you ship | *Five rounds, five different models* |
+| 4 | The spread: $s$ by hand, `std()` against `std(ddof=1)`, and the report line | *Report the spread, but not as a confidence interval*; *What to put in a report* |
+| 5 | `KFold` against `StratifiedKFold`, on twenty rows and on the 800 drives at seed 3 | *Stratify when a class is rare* |
+| 6 | `RepeatedStratifiedKFold`: the seed moves the score less | *Change only the seed, 40 times*; *How many folds?* (optional) |
+| 7 | Ten readings per drive: `GroupKFold`, 1.000 against 0.620 | *When the rows are not independent*; *Split by the thing you must generalise to* |
+| 8 | Training against validation error with `cross_validate(..., return_train_score=True)` | *Without the truth: two errors you can still measure* |
+| 9 | `GridSearchCV`: 25 candidates, `best_score_` before the refit | *GridSearchCV: try all, keep the best*; *The best of 25 scores is inflated* |
+| 10 | Nested cross-validation, one outer round at a time | *Cross-validate the whole search*; *Nested cross-validation: it measures what choosing costs* |
+| 11 | A fresh test set is centred on the truth | *Why it does not return to 0.5* |
+| 12 | The threshold: a sweep of 200 candidates on the validation drives | *The debt, paid* |
+| 13 | Seeds: the same seed, the same number, and still a spread | *A fixed seed buys repeatability, not stability*; *What to fix, and what to write down* (optional) |
+
 ## Two hours in class
 
 A selection of thirteen atoms, run together from the projector. For each one: read the
@@ -207,3 +230,13 @@ is where to find it.
   best single summary of a classifier, so it is natural to read it as a guarantee.
   Atom 04·7 divides every score by ten: the AUC stays 0.792 while every decision at 0.5
   changes, because the AUC sees only the order.
+- **"`cross_val_score` returns the error."** For a regression it returns the error with
+  a minus sign: its scorers are all "higher is better", so `neg_mean_squared_error`
+  makes a larger error a smaller number. The name says so, and it is still easy to read
+  past. Atom 05·1 shows five MSEs from 274.6 to 1,569.0 kWh² coming back as −274.6 to
+  −1,569.0.
+- **"`best_score_` is the AUC of the model `GridSearchCV` hands back."** The refit is the
+  last thing the search does, so it is natural to think the score belongs to it. But the
+  score is the winner's mean over the folds, computed before the refit, and the refitted
+  model is never scored. Atom 05·9 shows `best_score_` equal to the highest of the 25
+  means, 0.7999, on data with no signal at all.

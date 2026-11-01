@@ -1377,8 +1377,9 @@ cross_val_score(GridSearchCV(honest, grid, cv=inner, scoring="roc_auc"),
    blocks of 160. For each of the 25 candidates, five inner rounds: train on
    $640 \times 4/5 = 512$, score the AUC on 128; the mean of the five is that
    candidate's score. $25 \times 5 = 125$ fits.
-3. **The best inner mean wins.** It is this search's own `best_score_`, inflated
-   as in section 7.3, and it is thrown away.
+3. **The best inner mean wins.** It is this search's own `best_score_`: a
+   maximum, so optimistic on average as in section 7.3, though on inner folds of
+   128 drives with four or five failures the noise can hide it. It is thrown away.
 4. **The winner is refitted on the 640:** fit 126.
 5. **That one model is scored once on the 160 set aside:** AUC 0.698.
 
