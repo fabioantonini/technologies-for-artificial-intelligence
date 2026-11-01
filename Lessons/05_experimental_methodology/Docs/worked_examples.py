@@ -773,4 +773,38 @@ train5, valid5 = by_hand(150, 5)
 same("6 and on 150 days 58.3", valid5 - train5, 58.3, tolerance=0.06)
 
 
+# ------------------ Sections 5.3 and 5.5, the counts, the floor, the roots
+# 5.3: the same 300 training sets serve every degree. Read from notebook 2
+# itself: decompose() calls fit_many with seed 0 and the table loop passes no
+# other seed, so every degree draws the same samples.
+import json                                                            # noqa: E402
+notebook_2 = json.loads((Path(__file__).resolve().parent.parent / "Notebooks"
+                         / "02_bias_variance_and_learning_curves.ipynb").read_text())
+source_2 = "".join("".join(cell["source"]) for cell in notebook_2["cells"]
+                   if cell["cell_type"] == "code")
+assert "def fit_many(degree, n_train=25, n_samples=300, seed=0)" in source_2
+assert "def decompose(degree, n_train=25, n_samples=300, seed=0)" in source_2
+assert "bias_squared, variance, noise, expected_mse = decompose(degree)" in source_2
+checks += 1
+same("5.3 1,800 models", 6 * 300, 1800, tolerance=0)
+same("5.3 396,000 predictions", 6 * 300 * 220, 396000, tolerance=0)
+
+# 5.3: even the true curve can score below half the floor on a small test set.
+# Simulated here, not taken from the chi-squared table the handout quotes.
+noise_draws = np.random.default_rng(11)
+for n_days, printed, tolerance in ((5, 0.22, 0.01), (50, 0.0012, 0.0004)):
+    errors = noise_draws.normal(0, NOISE_SD, (400_000, n_days)) ** 2
+    share = float(np.mean(errors.mean(axis=1) < NOISE_SD ** 2 / 2))
+    same(f"5.3 true curve below half the floor on {n_days} days", share, printed,
+         tolerance=tolerance)
+
+# 5.5: the roots, from the cross-validated errors rebuilt above.
+for n_degree, train_rmse, valid_rmse in ((1, 72, 78), (2, 18, 21)):
+    train, valid = by_hand(25, n_degree)
+    same(f"5.5 degree {n_degree} trains at {train_rmse} kWh", train ** 0.5,
+         train_rmse, tolerance=0.5)
+    same(f"5.5 degree {n_degree} validates at {valid_rmse} kWh", valid ** 0.5,
+         valid_rmse, tolerance=0.5)
+
+
 print(f"lesson 5: {checks} hand-worked numbers recomputed, all agree")

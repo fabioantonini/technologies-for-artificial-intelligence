@@ -971,7 +971,7 @@ If someone asks whether the formula really holds: the handout (end of section
 there; this slide carries one example, degree 1 at 30 °C.
 :::
 
-# All 220 test temperatures, degree 1 (optional)
+# Degree 1 at 220 temperatures, −4 to 37 °C, then averaged (optional)
 
 ![](error_by_temperature.png)
 
@@ -981,8 +981,15 @@ self-study, with the handout. If skipped, go from slide 30 straight to the U of
 slide 33, and say that each of its points is the 30 °C computation averaged over
 220 temperatures.
 
-The same three numbers as the previous slide, now at every test temperature from
-−4 to 37 °C, for degree 1. Notebook 2 draws it, right after the 30 °C example.
+The same computation as the previous slide, repeated at every temperature of a
+grid, for degree 1 only. Why a grid: the error depends on the temperature, so to
+get ONE number per degree - the table of the next slide - the 30 °C computation
+is repeated at 220 temperatures evenly spaced from −4 to 37 °C (one every 0.19
+°C) and averaged; in effect, an average over the whole range. 220 is arbitrary:
+any fine grid gives nearly the same averages. −4 to 37 sits just inside the
+data's −5 to 38, so the models are not judged where no day can fall. The grid is
+TEST_TEMPERATURE in methodology_data.py. Notebook 2 draws the figure, right after
+the 30 °C example.
 
 Red is bias²: zero where the straight line happens to cross the curve, near 5
 and 28 °C, and large at the two ends and in the middle, where the line
@@ -993,7 +1000,9 @@ there, 724, is far below the average.
 Blue is variance: lowest in the middle, where the days are dense, and rising
 toward both ends, where the line pivots. Its average is 723.8.
 
-The dotted line is the noise, 484 everywhere.
+The dotted line is the noise, 484 everywhere: sigma squared does not depend on
+the temperature. The total at each temperature is not drawn; it is the sum of
+the three curves.
 
 The averages make the first row of the next slide: 5,250.8 + 723.8 + 484.0 =
 6,458.6. Every row of that table is built the same way, one degree at a time.
@@ -1012,6 +1021,7 @@ instead, and slide 37 shows it gives the same diagnosis.
 | 2 | 59.6 | 70.8 | 484.0 | **614.3** |
 | 3 | 44.5 | 125.8 | 484.0 | 654.4 |
 | 5 | 8.9 | 368.9 | 484.0 | 861.8 |
+| 9 | 80.1 | 65,186.0 | 484.0 | 65,750.1 |
 | 12 | 153,537.3 | 32,174,344.9 | 484.0 | 32,328,366.2 |
 
 ::: notes
@@ -1021,7 +1031,12 @@ slide 33, and say that each of its points is the 30 °C computation averaged ove
 220 temperatures.
 
 Each row is averaged over the 300 training sets of 25 days and the 220 test
-temperatures, as slide 31 showed for degree 1. The totals add the unrounded parts, so a student adding the printed
+temperatures, as slide 31 showed for degree 1. The count, if asked: the SAME 300
+training sets serve every degree (the notebook restarts from seed 0), so the
+degrees differ only in the model, a fair comparison; 6 degrees × 300 = 1,800
+models, each asked at 220 temperatures, 396,000 predictions. No new day is
+simulated: bias² and variance need only the predictions and the truth, and the
+noise enters exactly, as 484. The totals add the unrounded parts, so a student adding the printed
 ones may be off in the last digit: 59.6 + 70.8 + 484.0 = 614.4, printed 614.3.
 
 Noise is 484 in every row - point at the column and say that it never
@@ -1100,7 +1115,16 @@ test error.
 The corollary is a practical diagnostic worth writing down: if you know your
 measurement precision and your model beats it, something has leaked. This is a
 real check used in engineering and in the physical sciences, and it catches
-errors nothing else catches.
+errors nothing else catches. Slide 37 shows the training side: degree 5 trains
+at 262.4, below 484, on days it has seen.
+
+Two conditions, both on the slide in short. "Well below", not just below: the
+floor bounds the EXPECTED error, and a small test set can dip under it by luck -
+on 5 test days even the true curve scores below half the floor about one time in
+five (handout section 5.3). And "known": here 484 is known because we added it;
+on real data the floor comes from outside, the instrument's stated precision or
+repeated measurements under the same conditions. Without it the check cannot be
+made.
 
 Connects forward to the last hour, where we manufacture exactly that symptom
 deliberately.
@@ -1108,7 +1132,7 @@ deliberately.
 
 # The best model depends on how much data you have (optional)
 
-| Degree; total error at training-set size m | m = 25 | m = 60 | m = 150 |
+| Degree; total error at training-set size m (bold: lowest in its column) | m = 25 | m = 60 | m = 150 |
 |---|---|---|---|
 | 1 | 6,458.6 | 5,998.6 | 5,861.5 |
 | 2 | **614.3** | 570.6 | 555.3 |
@@ -1144,10 +1168,10 @@ reproduce for them. Neither experiment was wrong.
 
 # Without the truth: two errors you can still measure
 
-- Real data: one training set, f and σ unknown; cross-validation inside it, test set untouched, gives two errors
+- One training set, f and σ unknown: cross-validation inside it, test set untouched, gives two errors
 - **Training error**, on the days the model was fitted to: it has followed them, so it hides its variance
 - **Validation error**, on the fold it did not see: it pays bias, variance and noise
-- Training error high: **bias**. Validation far above training: **variance**
+- Training error above what you need: **bias**. Validation far above training: **variance**
 
 ::: notes
 In code, notebook 2 section 4: cross_validate(model, X, y,
@@ -1170,6 +1194,22 @@ model, so it pays everything the formula of slide 28 lists.
 Hence the reading, which is the formula put to work: training error high, bias;
 a gap between the two, variance. Without the lab this rule would be a recipe to
 memorise; with it, it is a consequence.
+
+What is unknown is the TRUE rule f, not our model: our model we choose.
+
+"High" against what? In the lab the reference was the noise, 484; on real data
+sigma is unknown, so the reference comes from outside. First, the error the task
+needs. Take the root of the mean squared error, the root mean squared error
+(RMSE), which is in kWh, the typical daily miss: the straight line trains at
+√5,155.7 = 72 kWh and validates at √6,064.3 = 78 kWh. If the building manager
+needs forecasts within about 50 kWh to buy energy ahead, the line already misses
+by more on the days it has SEEN - the easiest test there is - so it cannot do
+better on new ones: too rigid, bias, and more days will not change that. Degree
+2 trains at √312.8 = 18 and validates at √450.4 = 21 kWh, both within 50.
+Second, the instrument's known precision, when you have it. Third, a more
+flexible model: if degree 2 trains at 312.8 and the line stays at 5,155.7, the
+line cannot follow the data. And both problems can come together: training high
+AND validation far above it. Pure bias is training high with validation close.
 
 A predictable mistake: "on real data f is unknown, so the decomposition is only a
 proof that cannot be used". It is reasonable - none of slide 32's columns can be
@@ -1203,7 +1243,11 @@ Slide 35's first row confirms it in the lab: six times the data, 6,458.6 down to
 5,861.5 only.
 
 Degree 2: the lowest validation error, 450.4, the best of the four; in the lab
-it was the lowest total too.
+it was the lowest total too. Best on VALIDATION, not on training: degree 5 trains
+lower, 262.4 against 312.8. A predictable mistake is to pick the model with the
+lowest training error - natural, it looks like the most accurate - and it would
+pick degree 5, the one chasing the noise. The choice is always made on the
+validation error.
 
 Degree 5: training 262.4 is BELOW the noise variance of 484. No model can predict
 new days better than the noise allows, so a training error below it means the
@@ -1235,7 +1279,9 @@ about buying data, and that needs the errors at several sizes.
 Why switch to the drives: the method is the same for any score, and on the
 drives we can show both failures with real features. Say clearly that the score
 flips direction: an error is better low, an AUC is better high. So on the next
-slide "bad" is LOW, the mirror image of the energy table.
+slide "bad" is LOW, the mirror image of the energy table. A predictable mistake
+is to call the AUC "the error" - natural after twelve slides of errors - and then
+read the curves upside down. The AUC is a score: 1 is perfect, 0.5 is chance.
 
 The data: here the demo uses all 800 drives with 5-fold cross-validation,
 because nothing from it is reported as a final score. In practice set the test
@@ -1252,6 +1298,12 @@ penalty.
 
 ::: notes
 The figure's title repeats the reading key: AUC, higher is better.
+
+What the x axis counts: the 800 drives are cut into 5 folds of 160. In each
+round one fold of 160 validates and the other four, 640 drives, are the training
+part; the curve trains on a growing share of those 640, from 96 up to all 640,
+and always scores the same 160 held-out drives. Each point is the mean of the 5
+rounds, so each model is refitted 8 sizes × 5 rounds = 40 times.
 
 5-fold cross-validation on the 800 drives, so each round's training part is 640
 drives. Train on 15% of it, 96 drives, then on larger shares, eight sizes up to all
@@ -1288,8 +1340,8 @@ looks like when most columns carry nothing, which is most feature tables.
 
 - Curves meet at a **poor** score: bias. More data will **not** help; change the model
 - Wide gap, validation **still rising**: more data **will** help
-- Wide gap, validation **flat**: regularise, drop features (slide 39, right)
-- Slide 25's line is bias: degree 2 on the same 25 days, **450.4**
+- Wide gap, validation **flat**: stronger penalty (smaller C) or **remove features** (slide 39, right)
+- Slide 25's line is bias: degree 2, same 25 days, **450.4**
 - The test set: scored once, after the fix
 
 ::: notes
@@ -1317,6 +1369,14 @@ Name the predictable mistake and defend the instinct: prescribing data for a
 bias problem is what almost everyone does, and the reasoning is sound - more
 data almost always helps and never makes a model worse. It just does not help
 THIS failure, and fifteen lines of code tell you which failure you have.
+
+Two wording points. Bias is the curves meeting LOW, at a poor score: two curves
+meeting high, near 1, are a model that works. And "remove features" means
+removing columns - here the 150 noise columns. A predictable mistake is to hear
+"drop" and think of dropout, the neural-network technique of lesson 9; it has
+nothing to do with it. The stronger penalty is lesson 3's lambda: in
+LogisticRegression it is set through C, and a smaller C is a stronger penalty;
+the right-hand model used C = 1000, almost none.
 
 Close the arc: this was slide 25's question. The straight line on 25 days had
 both errors high and close, so its problem was bias. A month spent collecting

@@ -903,7 +903,15 @@ question are the first of them. **A predictable mistake** is to read them as
 data, so models trained on them agree too much and the variance would come out
 too small. Every number below is
 averaged over the 300 training sets and over 220 test temperatures from −4 to
-37 °C.
+37 °C. The 220 are an evenly spaced grid, one every 0.19 °C: the error depends on
+the temperature, so to get one number per degree the 30 °C computation of section
+5.2 is repeated at each of them and averaged — in effect, an average over the
+whole range. Any fine grid gives nearly the same averages; −4 to 37 sits just
+inside the data's −5 to 38. The **same** 300 training sets serve every degree, so
+the degrees differ only in the model: 6 degrees × 300 = 1,800 models, each asked
+at 220 temperatures, 396,000 predictions. No new day is simulated: bias² and
+variance need only the predictions and the truth, and the noise enters exactly,
+as 484.
 
 **A predictable mistake** is to take this for lesson 3's dataset. The setting is
 the same, energy against temperature with noise of 22 kWh, and so is the shape.
@@ -973,6 +981,16 @@ data it never saw, something has leaked. The condition matters: the floor bounds
 the error on *new* data. A training error can go far below it — degree 12 on its
 own 25 points does, by fitting the noise.
 
+Two more conditions make the check usable. **Well below, not just below**: the
+floor bounds the *expected* error, and a small test set can dip under it by luck.
+Even the true curve, scored on $n$ new days, has a mean squared error equal to the
+mean of $n$ squared noises, $\sigma^2 \chi^2_n / n$. On 5 test days it falls below
+half the floor, 242, with probability 0.22 — about one time in five; on 50 days,
+with probability 0.0012. **Known from outside**: here 484 is known because we
+added it; on real data the floor comes from the instrument's stated precision or
+from repeated measurements under the same conditions, and without it the check
+cannot be made.
+
 ### 5.4 The optimum depends on how much data you have
 
 The same experiment at three training-set sizes, showing total expected error:
@@ -1016,6 +1034,23 @@ untouched**:
 
 So a high training error points to bias, and a validation error far above the
 training error points to variance. The rule is the decomposition put to work.
+What is unknown is the *true rule* $f$, not our model, which we choose.
+
+**High against what?** In the lab the reference was the noise, 484; on real data
+$\sigma$ is unknown, so the reference comes from outside. First, the error the
+task needs. The root of the mean squared error, the root mean squared error
+(RMSE), is in kWh, the typical daily miss: the straight line below trains at
+$\sqrt{5{,}155.7} = 72$ kWh and validates at $\sqrt{6{,}064.3} = 78$ kWh. If a
+building manager needs forecasts within about 50 kWh to buy energy ahead, the
+line already misses by more on the days it has *seen*, the easiest test there is,
+so it cannot do better on new ones: it is too rigid, and more days will not
+change that. Degree 2 trains at $\sqrt{312.8} = 18$ and validates at
+$\sqrt{450.4} = 21$ kWh, both within 50. Second, the instrument's known
+precision, when there is one. Third, a more flexible model: if degree 2 trains
+at 312.8 where the line stays at 5,155.7, the line cannot follow the data. And
+the two problems can come together, a high training error *and* a validation
+error far above it; pure bias is a high training error with the validation error
+close to it.
 
 One sample of 25 days from the curve of section 5.3 (seed 0), 5-fold
 cross-validation (`KFold(n_splits=5, shuffle=True, random_state=0)`), so each
@@ -1036,7 +1071,10 @@ printed 352.6.
 Read it against the lab. **Degree 1** is as wrong on the days it has seen as on
 the days it has not: bias, and the lab measured its bias² at 5,250.8. **Degree
 2** has the lowest validation error, as it had the lowest total in the lab.
-**Degree 5** has a training error of 262.4, *below* the noise variance of 484:
+**A predictable mistake** is to pick the model with the lowest *training*
+error, which looks like the most accurate: it would pick degree 5, 262.4 against
+degree 2's 312.8, the one chasing the noise. The choice is made on the
+validation error. **Degree 5** has a training error of 262.4, *below* the noise variance of 484:
 no model predicts new days better than the noise allows, so a training error
 below it means the model has fitted part of the noise. Its gap is the widest of
 the four. Degree 12 is left out: with unscaled powers up to $t^{12}$ the
@@ -1091,7 +1129,9 @@ better low, an AUC is better high, so here a poor model shows as *low* curves.
 *Two diagnoses, on lesson 4's 800 drives; the score is the AUC, so higher is better and a poor model shows as low curves. Left: the curves meet, and meet low — bias, and more data will not help; the validation curve is exactly flat, for the reason given below the table. Right: a gap of 0.15 that does not close — variance. Read the right-hand curve to the end, though, rather than stopping at its rise: it climbs to 0.857 at 251 examples and then moves sideways, finishing below its own high point at 0.847. Both halves are information, and Section 6.1 says what each one licenses.*
 
 **The construction.** 5-fold cross-validation on the 800 drives, so each round's
-training part holds 640. The demo uses all 800 drives because nothing from it
+training part holds 640 and the validation fold 160. The curve trains on a
+growing share of the 640 and always scores the same 160 held-out drives, so each
+model is refitted 8 sizes × 5 rounds = 40 times. The demo uses all 800 drives because nothing from it
 is reported as a final score; in practice, set the test set aside first and run
 the learning curve on the rest. Train on 15% of it, 96 drives, then on eight evenly
 spaced sizes up to all 640, plotting both the training score and the
@@ -1133,9 +1173,12 @@ the *slope* of the validation curve, and the two must be read separately.
 - **Risen and then flattened**, which is what the figure above actually shows —
   0.76 to 0.86 by 250 examples, and level from there? Then the gap is real but
   more rows of the same kind have stopped buying anything. The remedies left are
-  the other ones: stronger regularisation, fewer features, a simpler model. In
+  the other ones: a stronger penalty (lesson 3's $\lambda$; in
+  `LogisticRegression` a smaller `C`), removing features, a simpler model. In
   that figure the 150 noise columns are the problem, and no quantity of rows
-  removes a column.
+  removes a column. "Removing features" means dropping columns; **a predictable
+  mistake** is to hear "drop" and think of dropout, a neural-network technique
+  (lesson 9) that has nothing to do with it.
 
 **The practical point, and it is worth stating separately:** the plot tells you
 whether the expensive remedy is worth buying *before* you buy it. Collecting data
