@@ -807,4 +807,49 @@ for n_degree, train_rmse, valid_rmse in ((1, 72, 78), (2, 18, 21)):
          valid_rmse, tolerance=0.5)
 
 
+# 7.3-7.4: the fits a search and a nested search make, counted by running them
+# on a model that only counts its own fits, not by multiplying.
+from sklearn.base import BaseEstimator, ClassifierMixin                # noqa: E402
+from sklearn.model_selection import (GridSearchCV, ParameterGrid,      # noqa: E402
+                                     cross_val_score)
+
+
+class FitCounter(BaseEstimator, ClassifierMixin):
+    fits, sizes, scored = 0, [], []
+
+    def __init__(self, k=1, C=1.0):
+        self.k, self.C = k, C
+
+    def fit(self, X, y):
+        FitCounter.fits += 1
+        FitCounter.sizes.append(len(X))
+        self.classes_ = np.unique(y)
+        return self
+
+    def predict_proba(self, X):
+        FitCounter.scored.append(len(X))
+        p = np.random.default_rng(len(X)).random(len(X))
+        return np.column_stack([1 - p, p])
+
+
+count_grid = {"k": [2, 5, 10, 20, 40], "C": [0.01, 0.1, 1, 10, 100]}
+count_y = fleet_y.to_numpy() if hasattr(fleet_y, "to_numpy") else np.asarray(fleet_y)
+count_X = np.zeros((len(count_y), 1))
+same("7.3 the grid has 25 combinations", len(ParameterGrid(count_grid)), 25,
+     tolerance=0)
+FitCounter.fits, FitCounter.sizes = 0, []
+GridSearchCV(FitCounter(), count_grid, refit=False, scoring="roc_auc",
+             cv=StratifiedKFold(5, shuffle=True, random_state=1)).fit(count_X, count_y)
+same("7.3 the search makes 125 fits", FitCounter.fits, 125, tolerance=0)
+FitCounter.fits, FitCounter.sizes, FitCounter.scored = 0, [], []
+cross_val_score(GridSearchCV(FitCounter(), count_grid, scoring="roc_auc",
+                             cv=StratifiedKFold(5, shuffle=True, random_state=1)),
+                count_X, count_y, scoring="roc_auc",
+                cv=StratifiedKFold(5, shuffle=True, random_state=2))
+same("7.4 nested cross-validation makes 630 fits", FitCounter.fits, 630, tolerance=0)
+same("7.4 inner models train on 512 drives", min(FitCounter.sizes), 512, tolerance=0)
+same("7.4 each winner is refitted on 640", max(FitCounter.sizes), 640, tolerance=0)
+same("7.4 inner folds score 128 drives", min(FitCounter.scored), 128, tolerance=0)
+same("7.4 outer folds score 160 drives", max(FitCounter.scored), 160, tolerance=0)
+
 print(f"lesson 5: {checks} hand-worked numbers recomputed, all agree")

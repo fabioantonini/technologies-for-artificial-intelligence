@@ -18,8 +18,8 @@ Friday opens with its remaining slides, about forty-five minutes, from its slide
 (55, 58 to 60) can be skipped.
 
 Lesson 5 then has about two hours and a quarter instead of three. Nothing is cut
-from the material: the slides marked (optional) - 19 and 20, 33 and 34, 48 and
-49 - and notebook 2 are left for self-study, and the handout covers them all.
+from the material: the slides marked (optional) - 19 and 20, 31 and 32, 34 and 35, 54
+and 55 - and notebook 2 are left for self-study, and the handout covers them all.
 Say so at the start, so nobody thinks they missed something.
 
 Exercises 4 and 5 are both discussed at the start of lesson 6, Friday 13
@@ -42,7 +42,7 @@ Keep the debt visible through the whole lesson, because nearly every error today
 has the same shape: a choice was made by looking at data that was then used to
 report the result.
 
-Section 8 of the handout pays it off, and slide 50 shows the number.
+Section 8 of the handout pays it off, and slide 52 shows the number.
 :::
 
 # Today: how to tell whether it works
@@ -72,7 +72,7 @@ validation set, the three sets and their three jobs, and what to put in a report
 
 One word to flag now, because it changes meaning halfway through. "Bias" is used
 twice today. On slide 5 and in the leakage part it is the bias of an ESTIMATE: a
-measured score that is systematically too high or too low. On slides 26 to 35 it
+measured score that is systematically too high or too low. On slides 25 to 40 it
 is the bias of a MODEL: a model too simple to follow the truth, wrong in the same
 way on every training set. A predictable slip is to merge them - "cross-validation
 removes bias" - when it removes neither: it makes the estimate more precise, which
@@ -266,7 +266,7 @@ validation set, then a refit on training plus validation, then the test once.
 Right, a hyperparameter chosen after the fit. The threshold acts on probabilities
 the model has already produced, so one fit serves every candidate: fit once,
 predict on the validation set, try every threshold on those probabilities, keep
-the cheapest. Slide 50 does it for lesson 4's costs.
+the cheapest. Slide 52 does it for lesson 4's costs.
 
 Both end the same way: the test set is touched once, at the end, after every
 choice has been made. Handout section 3.
@@ -398,7 +398,7 @@ actually have. The next slide shows the five models.
 
 When nothing is being chosen, this is the measurement: the model you ship is the
 same recipe refitted on all 800 drives, and 0.9514 is its estimate. A test set is
-needed only when something was chosen (slide 47).
+needed only when something was chosen (slide 48).
 
 Second: every round's model trains on four fifths of the data, so it estimates the
 performance of a model trained on less data than the one you will eventually
@@ -571,7 +571,7 @@ What it costs is k fits instead of one. For everything in this course that is
 seconds. For a large network it is a real decision, and the usual compromise is
 a single validation set with enough rows that its own error bar is tolerable.
 
-What it does NOT fix is the subject of slides 42 to 49.
+What it does NOT fix is the subject of slides 42 to 51.
 :::
 
 # How many folds? (optional)
@@ -731,7 +731,7 @@ random, uniformly, between −5 and 38 °C. Then 5-fold cross-validation, so eac
 scores it on the other 5; 6,064.3 is the average of the five validation MSEs.
 Notebook 2, section 4, prints it. It is a VALIDATION error, computed inside the
 training data: the test set is not touched while we diagnose (lesson 1's rule,
-and slide 51's three sets).
+and slide 53's three sets).
 
 The arc, in five steps, so you can say where we are at any moment:
 1. The question (this slide).
@@ -1392,7 +1392,7 @@ inside the training data. The test set is scored once, after the fix is chosen.
 A predictable mistake is to diagnose on the test error - it is the number
 everyone looks at, so the instinct is natural. But if the final test score
 disappoints and you go back and change the model, the test set has become a
-validation set (slide 51, "Three sets, three jobs"): its number is no longer
+validation set (slide 53, "Three sets, three jobs"): its number is no longer
 honest, and the report must say so or use fresh data.
 :::
 
@@ -1424,9 +1424,9 @@ If time is short, skip the three-sample-size comparison and assign it as reading
 
 # Now: what cross-validation does not protect you from
 
-- Labels: slide 6's 800 drives, 29 failures; features replaced by **2,000 columns of pure random noise**
-- No relationship to the label: any model's honest AUC is **0.500**
-- The plan: keep the 10 columns whose F-test (gap between the two classes' means, against the spread) is highest, `SelectKBest(f_classif, k=10)`, then cross-validate
+- Labels: slide 6's 800 drives, 29 failures; features: **2,000 columns of random noise**
+- No link to the label: honest AUC **0.500** for any model
+- Keep the 10 columns with the highest F-test (gap between class means, against the spread), `SelectKBest(f_classif, k=10)`; then cross-validate a logistic regression on them: 5 rounds, train on 640 drives, score 160
 
 ::: notes
 Set this up carefully, because the demonstration only lands if they believe the
@@ -1443,6 +1443,14 @@ The last bullet names the selector. f_classif scores each column by how far apar
 its means are for the two classes, relative to its spread (an analysis-of-variance
 F-test), and SelectKBest keeps the k best. Point out the clash of letters: this k
 counts columns, not folds.
+
+The procedure in four steps, so nobody wonders where the training happens:
+(1) the data, 800 drives, their real labels, 2,000 noise columns; (2) the
+selector looks at all 800 rows once and keeps 10 columns; (3) inside
+cross_val_score, 5 rounds: each trains a logistic regression on 640 drives using
+only those 10 columns and scores the AUC on the other 160; (4) the five AUCs are
+averaged. Cross-validation IS training and scoring five times, which is why the
+word alone hides the training.
 :::
 
 # The code almost everyone writes
@@ -1538,6 +1546,33 @@ What helps: a test set held out before any of this and used once; fewer
 candidates; or more rows. Nothing else.
 :::
 
+# GridSearchCV: try all, keep the best
+
+- **k** = columns `SelectKBest` keeps: 2, 5, 10, 20, 40 (here k counts **columns, not folds**)
+- **C** = penalty setting, smaller is stronger: 0.01, 0.1, 1, 10, 100; 5 × 5 = **25 combinations**
+- Each scored by 5-fold cross-validation, slide 45's pipeline: 25 × 5 = **125 fits**
+- Highest mean AUC wins: `best_params_` (k = 20, C = 10), `best_score_`; refitted on all 800 drives
+
+::: notes
+Slide 45's honest pipeline still has two settings someone has to choose: how
+many columns the selector keeps, and how strong the logistic regression's
+penalty is. GridSearchCV is the loop that chooses them, the same loop as slide
+10's recipe, written once for you.
+
+In notebook 3 it is one line: GridSearchCV(honest, grid, cv=inner,
+scoring="roc_auc").fit(noise, y), where grid is a dictionary with "select__k"
+and "model__C" as keys - the step's name, two underscores, the parameter's name -
+and inner is StratifiedKFold(5, shuffle=True, random_state=1).
+
+It tries all 25 combinations, scores each by 5-fold cross-validation, keeps the
+one with the highest mean AUC, and refits it on all the data: best_estimator_
+is that refitted model.
+
+A predictable mistake: "k in the grid is the number of folds". The reasoning is
+natural - k has meant the folds since slide 13 - but here k is the selector's
+parameter, the number of columns kept. The folds are fixed at 5 by cv=inner.
+:::
+
 # The best of 25 scores is inflated: 0.800 for a worthless model
 
 | `GridSearchCV`: k = 2, 5, 10, 20, 40 columns × C = 0.01, 0.1, 1, 10, 100 | AUC |
@@ -1550,10 +1585,8 @@ candidates; or more rows. Nothing else.
 
 ::: notes
 Choosing between configurations is choosing, and choosing on data costs the same
-honesty. GridSearchCV tries every combination of five values of k (columns kept)
-and five of C, 25 in all, each scored by 5-fold cross-validation, on the same
-signal-free table. The nested row is explained on the next slide; read the first
-two rows now.
+honesty. This is the last slide's search, run on the same signal-free table. The
+nested row is explained on the next two slides; read the first three rows now.
 
 The number a practitioner reports is best_score_, and it is the MAXIMUM of 25
 noisy estimates. The maximum of a set of noisy numbers is biased upward even
@@ -1569,16 +1602,40 @@ problem as the selection of the last slides: choosing on the data you then
 report.
 :::
 
+# Cross-validate the whole search
+
+- Ordinary cross-validation scores **one fixed** model; `GridSearchCV`'s folds **choose and score**: `best_score_` is the luckiest of 25
+- Nested: `cross_val_score(GridSearchCV(honest, grid, cv=inner), noise, y, cv=outer)`
+- Each outer round: the search on 640 drives picks a winner, scored **once** on the other 160
+- Mean of the 5 outer scores: **0.670**
+
+::: notes
+Start from what they already trust. Ordinary cross-validation measures a fixed
+model, say k = 10 and C = 1: nothing is chosen while it measures, so its mean is
+honest. GridSearchCV gives its folds two jobs at once - choose among 25
+candidates, and score the winner - and the winner is whichever got luckiest on
+those very folds.
+
+The analogy that works: a student allowed to pick which exam to sit after seeing
+all the questions. The mark is real, and it says little about the next exam.
+
+Nested cross-validation separates the two jobs. The whole search, choosing
+included, is treated as the model, and cross_val_score measures it like any
+other model. outer is StratifiedKFold(5, shuffle=True, random_state=2): five
+outer folds of 160. In each outer round the search runs on the other 640 drives
+with its own five inner folds - train on 512, score on 128 - picks a winner,
+refits it on the 640, and that model is scored once on the 160 it never saw.
+
+What it costs to run: per outer round, 125 fits for the search plus 1 refit; 5
+× 126 = 630 fits. The mean of the five outer scores is 0.670.
+:::
+
 # Nested cross-validation: it measures what choosing costs
 
 ![](nested_cv_diagram.png)
 
 ::: notes
-Measure the search, not the winner.
-
-Outer loop holds out a fifth. The entire search runs inside the remaining four
-fifths. Score the search's chosen model on the held-out fifth. Repeat five
-times.
+Measure the search, not the winner. The figure is the last slide, drawn.
 
 The inner loop may overfit its own data as much as it likes; the outer block was
 never part of it.
@@ -1614,9 +1671,9 @@ the score you would otherwise have reported. That is what discipline feels like
 from the inside, and it is why it is unpopular.
 :::
 
-# The debt, paid
+# The debt, paid: report 4,700 EUR, the threshold chosen on validation
 
-| Slide 6's 800 drives: fit on 450, choose on 150, report on 200 (7 failures) | Missed × 2,600 + false alarms × 140 | Cost on the test set |
+| Slide 6's 800 drives: fit on 450, choose on 150, report on 200 (7 failures) | missed failures × 2,600 EUR + false alarms × 140 EUR | Cost on the test set |
 |---|---|---|
 | 0.50, the default | 4 × 2,600 + 1 × 140 | 10,540 EUR |
 | 0.050, chosen on **validation** | 1 × 2,600 + 15 × 140 | **4,700 EUR** |
@@ -1624,10 +1681,10 @@ from the inside, and it is why it is unpopular.
 
 ::: notes
 Lesson 4's threshold, done properly - but on slide 6's 800 drives, not lesson
-4's 8,000, so do not compare these euros with lesson 4's 87,620 and 45,540: a
-test set of 200 drives with 7 failures has a smaller bill. Split three ways, as
-the table header says: fit on 450 drives (56%), choose the threshold on 150
-(19%, with 5 failures), report once on the remaining 200 (25%). The middle column
+4's 8,000, so do not compare these euros with lesson 4's: a test set of 200
+drives with 7 failures has a smaller bill. Split three ways, as the table header
+says: fit on 450 drives, choose the threshold on 150, report once on the
+remaining 200. The middle column
 is the bill, counted: the default misses 4 of the 7 failures; both other
 thresholds miss 1, and differ only in false alarms, 15 against 5.
 
@@ -1635,7 +1692,7 @@ Then point at 0.050. The validation set chose almost exactly lesson 4's t* =
 140 ÷ 2,740 = 0.051, the threshold the costs alone gave before anyone looked at
 data. With 5 failures in the validation set part of that is luck, but it is the
 point to land: the formula was already the honest answer; what needed paying was
-the 0.078 lesson 4 picked by looking at its test set.
+the threshold lesson 4 picked by looking at its test set.
 
 The honest threshold is WORSE on the test set than the cheating one. It is
 supposed to be - and this is the slide where that finally makes sense to them.
@@ -1650,8 +1707,8 @@ The cheating figure describes a threshold tuned to this particular test set, and
 there is no reason it survives contact with the next two hundred drives. The
 honest figure is an unbiased estimate of what happens next.
 
-Note the cost: we now train on 56% of the data instead of 75%, because the
-validation set has to come from somewhere. On a small dataset that hurts - which
+Note the cost: we now fit on 450 drives instead of 600, because the validation
+set has to come from somewhere. On a small dataset that hurts - which
 is the argument for choosing by cross-validation on the training portion and
 keeping the test set whole.
 :::
@@ -1661,6 +1718,7 @@ keeping the test set whole.
 - **Train**: fit the parameters
 - **Validation**: make every choice: model, hyperparameters, threshold
 - **Test**: report. Touched **once**
+- Change anything after looking at the test set, and it has become a validation set
 
 ::: notes
 The organising principle of the whole lesson, on one slide. Put it on the board
@@ -1670,9 +1728,10 @@ Every choice belongs to the validation set. Which model, which penalty, which
 features, which threshold, when to stop training, whether to try a different
 approach entirely - all of it.
 
-The test set has exactly one job and one use. The moment you look at it and
-change something in response, it has become a validation set, and you no longer
-have a test set at all.
+The test set has exactly one job and one use. The last bullet is the rule that
+breaks most often: the moment you look at it and change something in response,
+it has become a validation set, and you no longer have a test set at all - the
+cheating row of the last slide.
 
 The honest thing to say aloud, because they will do it anyway: everyone looks
 twice sometimes. The requirement is that you SAY SO in the report. A stated
@@ -1682,7 +1741,8 @@ somebody else fails to reproduce your number.
 
 # A fixed seed buys repeatability, not stability (optional)
 
-- 30 seeds, all perfectly reproducible: **0.913 to 1.000**
+- 30 seeds of the train/test split (600 drives to fit, 200 to test), same model: **0.913 to 1.000**
+- Every run is perfectly reproducible
 - `AUC 1.000 (random_state=3)` is reproducible **and** misleading
 
 ::: notes
@@ -1697,7 +1757,8 @@ the spread.
 
 Contrast the two ways of writing the same experiment up. "AUC 1.000,
 random_state=3" - fully reproducible, thoroughly misleading. "AUC 0.951 plus or
-minus 0.019 over 5-fold cross-validation, seed 0" - reproducible and honest.
+minus 0.019 over 5-fold cross-validation, seed 0" - reproducible and honest; those
+are slide 14's five round AUCs at seed 0: mean 0.9514, standard deviation 0.0187.
 
 The second one is also the way to write up every exercise from here on - it is
 what the exam asks them to defend.
@@ -1705,9 +1766,9 @@ what the exam asks them to defend.
 
 # What to fix, and what to write down (optional)
 
-- Every `random_state`, and `np.random.default_rng(seed)`
+- Fix every `random_state`, and seed NumPy with `np.random.default_rng(seed)`
 - **Library versions**: defaults change between releases
-- What you could **not** fix: threads, graphics processing unit (GPU) non-determinism
+- What you could **not** fix: parallel computations that finish in a different order, graphics processing unit (GPU) non-determinism
 
 ::: notes
 Optional on 6 November: skip in class if time is short, and say it is left for
@@ -1729,10 +1790,10 @@ Commit the code that produced the number, not a tidied-up version of it.
 |---|---|
 | the catastrophe, 42-44 | `SelectKBest(f_classif, k=10)` on every row, then `cross_val_score` → 0.931 |
 | selection inside the round, 45-46 | `Pipeline` with the selector as its first step → 0.658 |
-| the search, 47 | `GridSearchCV`, `best_score_` → 0.800 |
-| nested, 48-49 | `cross_val_score(GridSearchCV(honest, grid, cv=inner), noise, y, cv=outer)` → 0.670 |
-| the threshold, honestly, 50-51 | `train_test_split` twice → 4,700 EUR against 10,540 |
-| seeds, 52-53 | 30 values of `random_state` → 0.913 to 1.000 |
+| the search, 47-48 | `GridSearchCV`, `best_score_` → 0.800 |
+| nested, 49-51 | `cross_val_score(GridSearchCV(honest, grid, cv=inner), noise, y, cv=outer)` → 0.670 |
+| the threshold, honestly, 52-53 | `train_test_split` twice → 4,700 EUR against 10,540 |
+| seeds, 54-55 | 30 values of `random_state` → 0.913 to 1.000 |
 
 
 ::: notes
@@ -1769,13 +1830,14 @@ unanswered - and roughly how large the correction is likely to be.
 
 - **A test score is a measurement.** 0.885 to a perfect **1.000**, same model
 - **Choosing on one split chooses noise**
-- **bias² + variance + noise** is an identity, and the noise floor never moves
-- **Curves that meet low mean bias**: more data will not help
-- **Cross-validation protects against fold leakage, nothing more**
+- **bias² + variance + noise**: training error shows bias, the gap shows variance; more data cures only variance
+- **Cross-validation protects against fold leakage, nothing more**: select and tune inside it, report the nested figure
 
 ::: notes
 Close on the number they opened with. Seed 3, AUC 1.000, on a model whose honest
 performance is 0.951.
+
+The third bullet is slides 25 to 40 in one line, the fourth slides 42 to 51.
 
 If they remember one habit from today, make it this: before believing any
 reported score, ask what the base rate is, how many positives are in the test

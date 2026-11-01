@@ -17,11 +17,11 @@ date: "6 November 2026 · reading time about 95 minutes"
 | 1:35–1:45 | 10 | **Break** | Slide 24 |
 | 1:45–2:00 | 15 | The question, then the lab: bias, variance and the noise floor (31–32, 34–35 optional) | Slides 25–35 |
 | 2:00–2:10 | 10 | Without the truth: training against validation error, learning curves, which fix to buy | Slides 36–40 |
-| 2:10–2:30 | 20 | Leakage that survives cross-validation | Slides 42–49 |
-| 2:30–2:35 | 5 | The debt paid (52–53 optional) | Slides 50–53 |
-| 2:35–2:50 | 15 | **Notebook 03** — leakage and honest search | Slide 54 |
-| 2:50–3:00 | 10 | What to put in a report; summary; homework | Slides 55–57 |
-| | **180** | **Total** | **57 slides, 3 notebooks** |
+| 2:10–2:30 | 20 | Leakage that survives cross-validation | Slides 42–51 |
+| 2:30–2:35 | 5 | The debt paid (54–55 optional) | Slides 52–55 |
+| 2:35–2:50 | 15 | **Notebook 03** — leakage and honest search | Slide 56 |
+| 2:50–3:00 | 10 | What to put in a report; summary; homework | Slides 57–59 |
+| | **180** | **Total** | **59 slides, 3 notebooks** |
 
 *This plan is for Friday 6 November 2026, when lesson 4 ran over into the first
 three quarters of an hour. Notebook 02 (slide 41) and the slides marked (optional)
@@ -1277,8 +1277,32 @@ exactly once; fewer candidates; or more rows. Nothing else.
 
 Section 3 chose between three values of one hyperparameter. A real search
 chooses between dozens, over several hyperparameters at once — and choosing is
-choosing, whatever it is called, so it costs the same honesty. A grid of 25
-combinations on that signal-free table:
+choosing, whatever it is called, so it costs the same honesty.
+
+Section 7.2's honest pipeline still has two settings someone must choose: $k$,
+the number of columns `SelectKBest` keeps, and $C$, the setting of the logistic
+regression's penalty (smaller $C$, stronger penalty). `GridSearchCV` is the loop
+that chooses them, in four steps:
+
+1. **A grid.** $k \in \{2, 5, 10, 20, 40\}$ and $C \in \{0.01, 0.1, 1, 10, 100\}$:
+   $5 \times 5 = 25$ combinations.
+2. **Each combination scored by 5-fold cross-validation** with the honest
+   pipeline: $25 \times 5 = 125$ fits.
+3. **The highest mean AUC wins.** `best_params_` names it ($k = 20$, $C = 10$),
+   `best_score_` is its mean AUC.
+4. **The winner is refitted on all the data**; `best_estimator_` is that model.
+
+In notebook 3 it is one line, `GridSearchCV(honest, grid, cv=inner,
+scoring="roc_auc").fit(noise, y)`, where `grid` has the keys `"select__k"` and
+`"model__C"` (the step's name, two underscores, the parameter's name) and
+`inner` is `StratifiedKFold(5, shuffle=True, random_state=1)`.
+
+**A predictable mistake: "$k$ in the grid is the number of folds."** The reading
+is natural — $k$ has meant the folds since section 4 — but here it is the
+selector's parameter, the number of columns kept; the folds are fixed at 5 by
+`cv=inner`.
+
+The 25 combinations on that signal-free table:
 
 ![](leakage_ladder.png)
 
@@ -1305,6 +1329,29 @@ reports between methods.
 
 
 Measure the search, not the winner.
+
+Ordinary cross-validation measures a *fixed* model, say $k = 10$ and $C = 1$:
+nothing is chosen while it measures, so its mean is honest. `GridSearchCV`
+gives the same folds two jobs at once — choose among 25 candidates, and score
+the winner — and the winner is whichever got luckiest on those very folds. It
+is a student allowed to pick which exam to sit after reading all the
+questions: the mark is real, and it says little about the next exam.
+
+Nested cross-validation separates the two jobs. The whole search, choosing
+included, is treated as the model, and cross-validated like any other:
+
+```python
+outer = StratifiedKFold(5, shuffle=True, random_state=2)
+cross_val_score(GridSearchCV(honest, grid, cv=inner, scoring="roc_auc"),
+                noise, y, cv=outer, scoring="roc_auc")
+```
+
+Five outer folds of $800 / 5 = 160$ drives. In each outer round the search runs
+on the other 640, with its own five inner folds — train on
+$640 \times 4/5 = 512$, score on $640 / 5 = 128$ — picks a winner, refits it on
+the 640, and that model is scored once on the 160 it never saw. Per outer round
+that is 125 fits for the search plus one refit; $5 \times 126 = 630$ fits in all.
+The mean of the five outer scores is **0.6699**.
 
 ![](nested_cv_diagram.png)
 
@@ -1391,8 +1438,9 @@ LogisticRegression(..., random_state=0)     # solvers that sample
 np.random.default_rng(0)                    # your own generation
 ```
 
-**But a fixed seed buys repeatability, not stability.** Thirty seeds on the
-fleet gave scores from 0.913 to a perfect 1.000 — and every one of those runs is
+**But a fixed seed buys repeatability, not stability.** Thirty seeds of the
+train/test split (600 drives to fit, 200 to test), same model, gave scores
+from 0.913 to a perfect 1.000 — and every one of those runs is
 exactly reproducible by anyone with the same code.
 
 `AUC 1.000 (random_state=3)` is fully reproducible and thoroughly misleading.
@@ -1404,7 +1452,8 @@ honest.
 - **Record library versions.** `numpy`, `pandas` and `scikit-learn` change
   defaults between releases; a result nobody can reproduce in two years was not
   reproducible.
-- **Name what you could not fix** — thread scheduling, GPU non-determinism.
+- **Name what you could not fix** — parallel computations that finish in a
+  different order, graphics processing unit (GPU) non-determinism.
 - **Commit the code that produced the number**, not a cleaned-up version of it.
 
 The course container exists for this reason: it pins the environment so that
@@ -1427,8 +1476,9 @@ your result and your marker's result are the same result.
 - **bias² + variance + noise is an identity**, verified to $3 \times 10^{-12}$.
   The noise floor never moves, and a test error below it means leakage.
 - **The best model depends on how much data you have.**
-- **Learning curves prescribe the fix.** Curves meeting low mean bias, and more
-  data will not help.
+- **Learning curves prescribe the fix.** Training and validation curves that
+  meet at a poor score mean bias, and more data will not help; a gap between
+  them means variance, and more data or a stronger penalty narrows it.
 - **Cross-validation protects against fold leakage, not against searching a
   large space on a small sample.** Selection from 2,000 noise columns still
   scored 0.658 done fold-honestly.
