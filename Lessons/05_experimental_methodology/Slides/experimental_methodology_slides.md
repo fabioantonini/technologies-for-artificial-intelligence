@@ -950,11 +950,16 @@ Noise is the one term nobody estimates here: we added it, so we know it. On real
 data it cannot be separated out.
 :::
 
-# From 30 °C to all 220 test temperatures, degree 1
+# All 220 test temperatures, degree 1 (optional)
 
 ![](error_by_temperature.png)
 
 ::: notes
+Optional on 6 November: skip in class if time is short, and say it is left for
+self-study, with the handout. If skipped, go from slide 30 straight to the U of
+slide 33, and say that each of its points is the 30 °C computation averaged over
+220 temperatures.
+
 The same three numbers as the previous slide, now at every test temperature from
 −4 to 37 °C, for degree 1. Notebook 2 draws it, right after the 30 °C example.
 
@@ -978,7 +983,7 @@ not, so you never see the three parts. Slide 36 says what you can measure
 instead, and slide 37 shows it gives the same diagnosis.
 :::
 
-# Every degree, on 25 days: degree 1 fails by bias, degree 12 by variance
+# Every degree, on 25 days (optional)
 
 | Degree | bias² | Variance | Noise | Total = bias² + variance + noise |
 |---|---|---|---|---|
@@ -989,6 +994,11 @@ instead, and slide 37 shows it gives the same diagnosis.
 | 12 | 153,537.3 | 32,174,344.9 | 484.0 | 32,328,366.2 |
 
 ::: notes
+Optional on 6 November: skip in class if time is short, and say it is left for
+self-study, with the handout. If skipped, go from slide 30 straight to the U of
+slide 33, and say that each of its points is the 30 °C computation averaged over
+220 temperatures.
+
 Each row is averaged over the 300 training sets of 25 days and the 220 test
 temperatures, as slide 31 showed for degree 1. The totals add the unrounded parts, so a student adding the printed
 ones may be off in the last digit: 59.6 + 70.8 + 484.0 = 614.4, printed 614.3.
@@ -1024,13 +1034,18 @@ inherits the instability. Read the two together.
 ![](bias_variance_tradeoff.png)
 
 ::: notes
+Read it as the answer to the lab: degree 1, on the left, fails by bias (bias²
+5,250.8 against variance 723.8); degree 12, on the right, by variance (32 million);
+degree 2 is best, 614.3. Each point averages the 30 °C computation of slide 30 over
+220 test temperatures.
+
 The textbook picture of this trade-off, measured instead of drawn. Many of them
 will meet the drawn version later, in every machine-learning text. The textbook version: bias falling
 monotonically, variance rising, the total a U. Two of those three are not what
 the measurement gives.
 
 Bias² falls only as far as degree 5 - 5,250 down to 8.9 - and then climbs to
-153,537, for the reason on the previous slide: at that variance the average of
+153,537, for the reason in slide 32's notes: at that variance the average of
 the fits is not a meaningful curve. And variance starts at 723.8, drops to 70.8
 at degree 2, and only then rises.
 
@@ -1146,7 +1161,7 @@ training data. Slide 37 does it on the 25 days of slide 25. Handout section 5.5.
 
 # One sample of 25 days: the two errors tell what the lab told
 
-| Degree | Training MSE, kWh² | Validation MSE, kWh² | Reading | What the lab measured (slide 32) |
+| Degree | Training MSE, kWh² | Validation MSE, kWh² | Reading | What the lab measured |
 |---|---|---|---|---|
 | 1 | 5,155.7 | 6,064.3 | both high and close: **bias** | bias² 5,250.8 |
 | 2 | 312.8 | **450.4** | lowest validation: **the best** | lowest total, 614.3 |

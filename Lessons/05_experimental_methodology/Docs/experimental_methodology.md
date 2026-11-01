@@ -15,9 +15,9 @@ date: "6 November 2026 · reading time about 95 minutes"
 | 1:05–1:20 | 15 | Cross-validation, and when it needs care (19–20 optional) | Slides 13–22 |
 | 1:20–1:35 | 15 | **Notebook 01** — the split lottery | Slide 23 |
 | 1:35–1:45 | 10 | **Break** | Slide 24 |
-| 1:45–2:03 | 18 | The question, then the lab: bias, variance and the noise floor (34–35 optional) | Slides 25–35 |
-| 2:03–2:13 | 10 | Without the truth: training against validation error, learning curves, which fix to buy | Slides 36–40 |
-| 2:13–2:30 | 17 | Leakage that survives cross-validation | Slides 42–49 |
+| 1:45–2:00 | 15 | The question, then the lab: bias, variance and the noise floor (31–32, 34–35 optional) | Slides 25–35 |
+| 2:00–2:10 | 10 | Without the truth: training against validation error, learning curves, which fix to buy | Slides 36–40 |
+| 2:10–2:30 | 20 | Leakage that survives cross-validation | Slides 42–49 |
 | 2:30–2:35 | 5 | The debt paid (52–53 optional) | Slides 50–53 |
 | 2:35–2:50 | 15 | **Notebook 03** — leakage and honest search | Slide 54 |
 | 2:50–3:00 | 10 | What to put in a report; summary; homework | Slides 55–57 |
@@ -25,7 +25,7 @@ date: "6 November 2026 · reading time about 95 minutes"
 
 *This plan is for Friday 6 November 2026, when lesson 4 ran over into the first
 three quarters of an hour. Notebook 02 (slide 41) and the slides marked (optional)
-— 19 and 20, 34 and 35, 52 and 53 — are left for self-study; the sections of this
+— 19 and 20, 31 and 32, 34 and 35, 52 and 53 — are left for self-study; the sections of this
 handout that cover them are unchanged. With a full three hours, notebook 02 runs
 live for twenty minutes after slide 40.*
 
