@@ -653,4 +653,78 @@ for _, valid_rows in StratifiedKFold(n_splits=5, shuffle=True,
 same("6 at power_on_hours' own AUC, 0.718", float(np.mean(pooled)), 0.718,
      tolerance=5e-4)
 
+# ------------------------- Section 5.2, the decomposition at one temperature
+#
+# The same 300 training sets as notebook 2 (same generator, same seed), but
+# fitted with numpy's polyfit instead of the scikit-learn pipeline, and the
+# truth written out as a formula rather than taken from true_curve.
+def at_thirty(degree, seed=0, n_train=25, n_samples=300):
+    rng = np.random.default_rng(seed)
+    predictions = []
+    for _ in range(n_samples):
+        temperature, energy = sample_energy(n_train, rng)
+        predictions.append(np.polyval(np.polyfit(temperature, energy, degree), 30.0))
+    return np.array(predictions)
+
+
+truth_30 = 240 + 0.55 * (30 - 18) ** 2 + 12 * np.sin(30 / 4)
+same("5.2 the truth at 30 degrees is 330.5", truth_30, 330.5, tolerance=0.05)
+for degree, printed in ((1, (303.6, 723.9, 856.1, 2063.9, 215.6, 364.7)),
+                        (3, (321.0, 89.8, 98.1, 671.8, 293.6, 373.0))):
+    p30 = at_thirty(degree)
+    average, low, high = p30.mean(), p30.min(), p30.max()
+    bias_squared = (average - truth_30) ** 2
+    variance = np.var(p30)
+    total = bias_squared + variance + NOISE_SD ** 2
+    for label, value, shown in (("average", average, printed[0]),
+                                ("bias squared", bias_squared, printed[1]),
+                                ("variance", variance, printed[2]),
+                                ("expected error", total, printed[3]),
+                                ("lowest prediction", low, printed[4]),
+                                ("highest prediction", high, printed[5])):
+        same(f"5.2 degree {degree} at 30 degrees: {label}", value, shown,
+             tolerance=0.05)
+    # Without the formula: new days at 30 degrees, on a noise stream of our own.
+    new_days = truth_30 + np.random.default_rng(7).normal(0, NOISE_SD,
+                                                          (len(p30), 2000))
+    simulated = float(np.mean((new_days - p30[:, None]) ** 2))
+    same(f"5.2 degree {degree}: simulated new days agree with the formula",
+         simulated, total, tolerance=0.01 * total)
+same("5.2 printed degree-1 parts add to 2,064.0", 723.9 + 856.1 + 484.0, 2064.0,
+     tolerance=1e-9)
+same("5.2 and degree 3's to 671.9", 89.8 + 98.1 + 484.0, 671.9, tolerance=1e-9)
+same("5.2 squaring the printed gap gives 723.6", round((303.6 - 330.5) ** 2, 1),
+     723.6, tolerance=1e-9)
+
+# The figure's claim: degree 1's bias squared touches zero near 5 and 28 degrees.
+profile = []
+rng = np.random.default_rng(0)
+for _ in range(300):
+    temperature, energy = sample_energy(25, rng)
+    profile.append(np.polyval(np.polyfit(temperature, energy, 1), TEST_TEMPERATURE))
+profile_bias = (np.mean(profile, axis=0) - TEST_TRUTH) ** 2
+cold, warm = TEST_TEMPERATURE < 15, TEST_TEMPERATURE >= 15
+same("5.2 degree 1's bias squared is lowest near 5 degrees",
+     TEST_TEMPERATURE[cold][profile_bias[cold].argmin()], 5, tolerance=1)
+same("5.2 and near 28 degrees", TEST_TEMPERATURE[warm][profile_bias[warm].argmin()],
+     28, tolerance=1)
+same("5.2 its average over 220 temperatures is 5,250.8", profile_bias.mean(),
+     5250.8, tolerance=0.1)
+
+# 5.1: the ends of the plot are partly extrapolation. The formula for the
+# expected minimum of n uniforms, checked against draws of our own.
+draws = np.random.default_rng(3).uniform(-5, 38, (200_000, 25))
+same("5.1 the coldest of 25 days is on average -3.3", -5 + 43 / 26, -3.3,
+     tolerance=0.05)
+same("5.1 and the simulation agrees", draws.min(axis=1).mean(), -5 + 43 / 26,
+     tolerance=0.01)
+same("5.1 the warmest is on average 36.3", 38 - 43 / 26, 36.3, tolerance=0.05)
+same("5.1 and the simulation agrees, warm end", draws.max(axis=1).mean(),
+     38 - 43 / 26, tolerance=0.01)
+same("5.1 the coldest day is above -4 in 0.55 of the sets", (42 / 43) ** 25, 0.55,
+     tolerance=0.01)
+same("5.1 and the simulation agrees, 0.55", float(np.mean(draws.min(axis=1) > -4)),
+     (42 / 43) ** 25, tolerance=0.005)
+
+
 print(f"lesson 5: {checks} hand-worked numbers recomputed, all agree")

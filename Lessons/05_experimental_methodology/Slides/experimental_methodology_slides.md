@@ -18,8 +18,8 @@ Friday opens with its remaining slides, about forty-five minutes, from its slide
 (55, 58 to 60) can be skipped.
 
 Lesson 5 then has about two hours and a quarter instead of three. Nothing is cut
-from the material: the slides marked (optional) - 19 and 20, 30 and 31, 45 and
-46 - and notebook 2 are left for self-study, and the handout covers them all.
+from the material: the slides marked (optional) - 19 and 20, 33 and 34, 48 and
+49 - and notebook 2 are left for self-study, and the handout covers them all.
 Say so at the start, so nobody thinks they missed something.
 
 Exercises 4 and 5 are both discussed at the start of lesson 6, Friday 13
@@ -42,7 +42,7 @@ Keep the debt visible through the whole lesson, because nearly every error today
 has the same shape: a choice was made by looking at data that was then used to
 report the result.
 
-Section 8 of the handout pays it off, and slide 43 shows the number.
+Section 8 of the handout pays it off, and slide 46 shows the number.
 :::
 
 # Today: how to tell whether it works
@@ -72,7 +72,7 @@ validation set, the three sets and their three jobs, and what to put in a report
 
 One word to flag now, because it changes meaning halfway through. "Bias" is used
 twice today. On slide 5 and in the leakage part it is the bias of an ESTIMATE: a
-measured score that is systematically too high or too low. On slides 25 to 31 it
+measured score that is systematically too high or too low. On slides 25 to 34 it
 is the bias of a MODEL: a model too simple to follow the truth, wrong in the same
 way on every training set. A predictable slip is to merge them - "cross-validation
 removes bias" - when it removes neither: it makes the estimate more precise, which
@@ -256,7 +256,7 @@ minimised, so one fit cannot serve every value: each candidate needs its own fit
 With cross-validation (slide 13) every candidate costs k fits: three values of C
 times five folds is 15 fits. The best mean wins, the winner is refitted once on
 all the data that is not the test set - fit number 16 - and the test set is
-scored once. scikit-learn's GridSearchCV does exactly this loop (slide 40): with
+scored once. scikit-learn's GridSearchCV does exactly this loop (slide 43): with
 refit=True, its default, best_estimator_ is that sixteenth model.
 
 With a fixed validation set instead of cross-validation the loop is the same with
@@ -266,7 +266,7 @@ validation set, then a refit on training plus validation, then the test once.
 Right, a hyperparameter chosen after the fit. The threshold acts on probabilities
 the model has already produced, so one fit serves every candidate: fit once,
 predict on the validation set, try every threshold on those probabilities, keep
-the cheapest. Slide 43 does it for lesson 4's costs.
+the cheapest. Slide 46 does it for lesson 4's costs.
 
 Both end the same way: the test set is touched once, at the end, after every
 choice has been made. Handout section 3.
@@ -398,7 +398,7 @@ actually have. The next slide shows the five models.
 
 When nothing is being chosen, this is the measurement: the model you ship is the
 same recipe refitted on all 800 drives, and 0.9514 is its estimate. A test set is
-needed only when something was chosen (slide 40).
+needed only when something was chosen (slide 43).
 
 Second: every round's model trains on four fifths of the data, so it estimates the
 performance of a model trained on less data than the one you will eventually
@@ -522,17 +522,20 @@ whenever the problem is interesting.
 
 # Change only the seed, 40 times: how far does the score move? (optional)
 
-| Test AUC, C = 1, seeds 0-39 | Single 75/25 split | 5-fold cross-validation |
-|---|---|---|
-| worst | 0.9119 | 0.9439 |
-| best | 1.0000 | 0.9588 |
-| mean | 0.9600 | 0.9532 |
-| best − worst | 0.0881 | 0.0149 |
-| standard deviation | 0.0221 | 0.0032 |
+![](cv_vs_single_split.png)
 
 ::: notes
 Optional on 6 November: skip in class if time is short, and say it is left for
 self-study, with the handout.
+
+What to look at: the two dashed lines, the means, almost on top of each other;
+then the widths. The single split spreads from 0.912 to 1.000, cross-validation
+stays between 0.944 and 0.959. The same 40 seeds as numbers, test AUC:
+
+- single 75/25 split: worst 0.9119, best 1.0000, mean 0.9600, best − worst
+  0.0881, standard deviation 0.0221;
+- 5-fold cross-validation: worst 0.9439, best 0.9588, mean 0.9532, best − worst
+  0.0149, standard deviation 0.0032.
 
 Forty seeds, changing nothing but the seed. The single-split column is the first
 40 of slide 7's 200 splits, seeds 0 to 39, which is why its mean is 0.960 and not
@@ -547,7 +550,7 @@ cross-validation it only changes how the 800 are cut into folds: every drive is
 still predicted once, and all 29 failures count.
 
 The range, best minus worst, falls from 0.0881 to 0.0149, and the standard
-deviation, last row, by a factor of about seven: 0.0221 ÷ 0.0032 = 6.9 (the
+deviation, last number in each line, by a factor of about seven: 0.0221 ÷ 0.0032 = 6.9 (the
 notebook, unrounded, prints 6.8). Say which one "seven" refers to: a student who
 divides the two ranges gets 0.0881 ÷ 0.0149 = 5.9, and will ask.
 
@@ -560,14 +563,15 @@ Then the centres, because someone will have noticed in notebook 1 that
 cross-validation came out lower: 0.953 against 0.960. That gap is about two
 standard errors on forty draws, and with a different forty seeds it reverses
 sign. So cross-validation is neither more optimistic nor more pessimistic here -
-it is less arbitrary. The histogram with both on the same bins is in notebook 1
-and in handout section 4.7.
+it is less arbitrary. The histogram on the slide puts both on the same bins, so
+the bar heights compare directly; it comes from notebook 1 and is in handout
+section 4.7.
 
 What it costs is k fits instead of one. For everything in this course that is
 seconds. For a large network it is a real decision, and the usual compromise is
 a single validation set with enough rows that its own error bar is tolerable.
 
-What it does NOT fix is the subject of slides 35 to 42.
+What it does NOT fix is the subject of slides 38 to 45.
 :::
 
 # How many folds? (optional)
@@ -708,37 +712,61 @@ is the one that changes behaviour rather than just adding knowledge.
 Ten minutes. The second half is bias-variance, which needs them awake.
 :::
 
-# Where does the error come from?
+# The experiment: 300 training sets
 
-- **Bias²** = (average prediction − truth)², over the training sets
-- **Variance**: spread of the fitted models around that average
-- **Noise** σ²: the data scatter around the true curve
-- Lesson 3's energy curve: 300 training sets of 25 days, each fitted with
-  `make_pipeline(PolynomialFeatures(degree), LinearRegression())`
+- Daily energy at t °C, written by us: f(t) = 240 + 0.55 (t − 18)² + 12 sin(t/4) kWh
+- One training set: 25 random days from −5 to 38 °C, noise of standard deviation 22 kWh
+- 300 training sets, the same polynomial on each, degrees 1 to 12
+- In code: `make_pipeline(PolynomialFeatures(degree), LinearRegression())`
 
 ::: notes
-Set up the decomposition in words before any algebra, and say first that the data
-changes: lesson 3's energy-against-temperature curve comes back, because here we
-need the true curve, and we built it ourselves. Each training set is 25 days, at
-temperatures drawn uniformly between -5 and 38 °C; the noise has a standard
-deviation of 22 kWh; and we draw 300 such training sets. Every error that follows
-is averaged over those 300 training sets and over 220 test temperatures from -4
-to 37 °C.
+Start from the data, because the next eight slides all use it. One observation
+is one day: an outdoor temperature and that day's energy use.
 
-Imagine drawing many training sets from the same source and fitting the same
-model to each. You get many models, and they fail in two distinguishable ways.
+Lesson 3 also predicted energy from temperature, with the same noise of 22 kWh,
+so the setting is familiar. A predictable mistake is to think this is lesson 3's
+dataset; the axes and the noise invite it. It is not: lesson 3 used a plain
+parabola, 240 + 1.15 (t − 18)², 30 days, temperatures from −5 to 35 °C. Here
+the parabola is gentler and carries a seasonal sine term, so no polynomial of
+any degree matches the curve exactly, and every degree keeps some bias. The
+function is `true_curve` in `Notebooks/methodology_data.py`; handout section 5.3.
+
+Why a curve we wrote: to measure how far models are from the truth we need the
+truth, and to know the floor we need the noise level. Real data gives neither.
+
+Then the procedure. Draw 25 days at random, fit the polynomial, keep the model;
+do it 300 times. For each degree that gives 300 models, all trained the same way
+on different days. In real life you would have one of them. Every error that
+follows is computed from these 300 models, at 220 test temperatures spaced
+evenly from −4 to 37 °C.
+:::
+
+# Three ways the 300 models can be wrong
+
+- **Bias**: the average of the 300 models misses the truth. bias² = (average prediction − truth)²
+- **Variance**: the 300 models disagree with one another. Variance = average of (prediction − average prediction)²
+- **Noise**: the days scatter around the true curve. σ² = 22² = 484, known because we added it
+- Bias and variance belong to the model; the noise belongs to the data
+
+::: notes
+Set up the three parts in words before any algebra.
+
+The 300 models fail in two distinguishable ways.
 
 They may all be wrong in the same way - a straight line fitted to a curve misses
-the curvature every time, whichever sample it gets. That is bias: consistently
-wrong. (The lines do not agree closely with each other, as the next slide shows;
-that is a separate matter.)
+the curvature every time, whichever 25 days it gets. Their average then sits
+away from the truth. That is bias: consistently wrong.
 
-Or they may disagree wildly - a twelfth-degree polynomial on twenty-five points
+Or they may disagree with one another - a twelfth-degree polynomial on 25 points
 gives a different wild curve every time. That is variance: unreliable, whatever
 the average looks like.
 
-Underneath both sits noise in the measurements, which is not a property of the
-model at all.
+The two are separate questions. Bias asks where the average model sits; variance
+asks how far the individual models sit from that average. A model can have
+both, and degree 1 here does, as the next slide shows.
+
+Underneath both sits the noise in the measurements, which is not a property of
+the model at all. We know it is 22² = 484 only because we generated the data.
 :::
 
 # Three hundred parallel universes
@@ -746,15 +774,19 @@ model at all.
 ![](many_universes.png)
 
 ::: notes
-Each faint line is a model fitted to a DIFFERENT training sample from the same
-curve. Forty of the 300 are drawn, so the panel stays readable; the red average
-is taken over all 300. In real life you drew exactly one of them and never knew
-about the rest.
+Each faint line is a model fitted to a DIFFERENT training set of 25 days from the
+same curve. Forty of the 300 are drawn, so the panel stays readable; the red
+average is taken over all 300. In real life you drew exactly one of them and
+never knew about the rest.
 
 Left, degree 1: every line misses the curvature in the same way, and the red
-average is nowhere near the black truth. That gap is bias. Do not call these
-lines stable: they fan out visibly, more than degree 3's - slide 28 gives the
-number, 723.8 against 125.8, and its notes explain why.
+average is nowhere near the black truth. That gap, between red and black, is
+bias. The lines also fan out, more than degree 3's: that fan is variance, not
+bias. A predictable mistake is to read bias off the fan - "the lines diverge,
+so the bias is high" - which is natural, since both are error. But bias is
+about where the average sits, and variance about how far the lines sit from it.
+Slide 31 gives the numbers, bias² 5,250.8 and variance 723.8, and its notes
+explain why a straight line pivots.
 
 Middle, degree 3: average tracks the truth, spread is modest. Both small.
 
@@ -764,10 +796,15 @@ of the plot with them. That scatter is variance.
 
 Two things to point at in the right panel. The scatter is worst at the EDGES of
 the temperature range, at both ends: there every training point lies on one side,
-so nothing holds the polynomial down on the other. It is not that the data runs
-out - the 25 temperatures are spread evenly from -5 to 38 °C, about 4.7 of them
-above 30 on average. The edges are where flexible models embarrass themselves,
-and beyond them, extrapolation is worse still.
+so nothing holds the polynomial down on the other. And the plot runs a little
+beyond the data. The 25 temperatures are drawn between −5 and 38 °C, but the
+coldest of 25 such draws is on average −5 + 43 ÷ 26 = −3.3 °C and the warmest
+38 − 43 ÷ 26 = 36.3 °C (for n uniform draws the expected minimum sits one
+(n + 1)-th of the range above the bottom), while the test temperatures run from
+−4 to 37 °C. So at the two ends of the plot a model is often extrapolating: in
+more than half of the training sets the coldest day is warmer than −4 °C,
+(42 ÷ 43)²⁵ = 0.55. The middle is where the days are dense - about
+25 × 8 ÷ 43 = 4.7 of them fall above 30 °C.
 
 And any one of those faint lines is a model somebody actually deployed.
 :::
@@ -781,14 +818,97 @@ State it, do not derive it - handout section 5.2 does that in five lines, and it
 is worth reading because the derivation is short and the cross terms vanishing
 is the whole trick.
 
+Read the symbols on the previous slide's figure. Pick one test temperature x,
+say 30 °C, and imagine a vertical line through it in each panel.
+- f-hat is where ONE faint line crosses that vertical: the prediction of one
+  model, fitted to one random training set of 25 days.
+- y is a new day at 30 °C: the truth plus fresh noise.
+- E averages over everything that is random: which of the 300 training sets the
+  model came from, and the noise in the new day.
+So the left side is the average squared miss of a model trained on random days,
+predicting a new day at x. On the right, bias² is the squared gap between the red
+and black curves at x, variance the spread of the faint lines around the red one
+at x, and sigma squared the noise variance, 484. The next slide does it with
+numbers.
+
 The important claim is that this is an IDENTITY, not an approximation or a
-useful metaphor. The symbols: y is a new observation, f-hat the model's prediction for it, sigma
-squared the noise variance; the expectation averages over the training sets and
-the noise. Notebook 2 checks it on 300 independently drawn training sets and the
-two sides agree to 2.7 times ten to the minus twelve - floating-point equality.
+useful metaphor. Notebook 2 checks it on 300 independently drawn training sets
+and the two sides agree to 2.7 times ten to the minus twelve - floating-point
+equality.
 
 That matters pedagogically: they have seen this picture in every textbook drawn
 as a schematic. Here it is measured.
+:::
+
+# From 300 models to three numbers, at 30 °C
+
+| Step, degree 1 | Formula | Value |
+|---|---|---|
+| The truth | f(30), known because we wrote f | 330.5 |
+| The 300 predictions | one per model | 300.8, 317.1, 304.8, and so on, from 215.6 to 364.7 |
+| Their average | sum ÷ 300 | 303.6 |
+| **bias²** | (303.6 − 330.5)² | **723.9** |
+| **Variance** | sum of (prediction − 303.6)² ÷ 300 | **856.1** |
+| **Noise** | 22² | **484.0** |
+| Expected error | bias² + variance + noise, unrounded | **2,063.9** |
+
+::: notes
+The bridge from the picture to the table on slide 31: the formula holds at one
+test temperature at a time, so do it at one. The 300 degree-1 models of slide 27,
+each asked for its prediction at 30 °C. The numbers are printed by notebook 2,
+section 2, "First at one temperature".
+
+Read the last row as one sentence: a straight line trained on 25 random days,
+asked about a new day at 30 °C, misses by a squared error of about 2,064 kWh² on
+average - 724 because the line cannot bend, 856 because it depends on which 25
+days it saw, 484 because the new day is itself noisy.
+
+Rounding, before someone checks: every number is computed from unrounded
+values. Squaring the printed gap gives (−26.9)² = 723.6, not 723.9, because the
+unrounded average is 303.55 and the truth 330.46. And the printed parts add to
+723.9 + 856.1 + 484.0 = 2,064.0, printed 2,063.9 - the same last-digit effect
+as slide 31's 614.4 against 614.3.
+
+The variance is the spread of the 300 predictions: a standard deviation of 29.3
+kWh, so squared, 856.1.
+
+Two checks, if someone asks. Degree 3 at the same temperature: average 321.0,
+bias² 89.8, variance 98.1, noise 484.0, total 671.8 (the printed parts add to
+671.9) - three times smaller. And a
+check that does not use the formula: give each of the 300 models 2,000 new days
+at 30 °C, truth plus fresh noise, and average the squared errors. The notebook
+gets 2,061.0 for degree 1 and 670.0 for degree 3, within sampling error of the
+formula's 2,063.9 and 671.8.
+
+Noise is the one term nobody estimates here: we added it, so we know it. On real
+data it cannot be separated out.
+:::
+
+# From one temperature to the table
+
+![](error_by_temperature.png)
+
+::: notes
+The same three numbers as the previous slide, now at every test temperature from
+−4 to 37 °C, for degree 1. Notebook 2 draws it, right after the 30 °C example.
+
+Red is bias²: zero where the straight line happens to cross the curve, near 5
+and 28 °C, and large at the two ends and in the middle, where the line
+passes above the bottom of the curve. Its average over the 220 temperatures, the
+dashed line, is 5,250.8. So 30 °C was a lucky spot for degree 1: its bias²
+there, 723.9, is far below the average.
+
+Blue is variance: lowest in the middle, where the days are dense, and rising
+toward both ends, where the line pivots. Its average is 723.8.
+
+The dotted line is the noise, 484 everywhere.
+
+The averages make the first row of the next slide: 5,250.8 + 723.8 + 484.0 =
+6,458.6. Every row of that table is built the same way, one degree at a time.
+
+And the caveat, once more: we can split the error into three only because we
+know the truth and the noise. On real data you see only the total, on a test
+set. Slide 35's learning curves are the tool for real data.
 :::
 
 # Measured, on 25 observations
@@ -803,7 +923,7 @@ as a schematic. Here it is measured.
 
 ::: notes
 Each row is averaged over the 300 training sets of 25 days and the 220 test
-temperatures. The totals add the unrounded parts, so a student adding the printed
+temperatures, as slide 30 showed for degree 1. The totals add the unrounded parts, so a student adding the printed
 ones may be off in the last digit: 59.6 + 70.8 + 484.0 = 614.4, printed 614.3.
 
 Noise is 484 in every row - point at the column and say that it never
@@ -812,7 +932,7 @@ moves, because it is a property of the data and not of the model.
 Degree 1 is a bias problem: bias² of 5,250, two orders of magnitude above the
 next row. Wrong everywhere, in the same way.
 
-Degree 3 is the "about right" panel of slide 26: 654.4, close to degree 2's
+Degree 3 is the "about right" panel of slide 27: 654.4, close to degree 2's
 614.3, the minimum.
 
 Do not say it has the smallest variance - it does not, 723.8 against degree 2's
@@ -958,7 +1078,7 @@ looks like when most columns carry nothing, which is most feature tables.
   `learning_curve(model, X, y, cv=folds, scoring="roc_auc")`
 - Curves **meet low**: bias. More data will **not** help
 - Wide gap, validation **still rising**: more data **will** help
-- Wide gap, validation **flat**: regularise, drop features. **Slide 32, right, is this one**
+- Wide gap, validation **flat**: regularise, drop features. **Slide 35, right, is this one**
 
 ::: notes
 This slide is the practical payoff of the entire second hour, so do not rush it.
@@ -991,16 +1111,16 @@ THIS failure, and fifteen lines of code tell you which failure you have.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| 300 parallel universes, 25-26 | `PolynomialFeatures` then `LinearRegression`, in `make_pipeline`, fitted 300 times |
-| the three parts measured, 27-30 | NumPy on the 300 predictions → sum and measured error agree to 2.73e-12 |
-| more data moves the answer, 31 | the same at 25, 60 and 150 days → best degree 2, then 5 |
-| learning curves, 32-33 | `learning_curve` with `StratifiedKFold` → 0.715 against 0.718; 1.000 against 0.847 |
+| 300 parallel universes, 25-27 | `PolynomialFeatures` then `LinearRegression`, in `make_pipeline`, fitted 300 times |
+| the three parts measured, 28-33 | NumPy on the 300 predictions → sum and measured error agree to 2.73e-12 |
+| more data moves the answer, 34 | the same at 25, 60 and 150 days → best degree 2, then 5 |
+| learning curves, 35-36 | `learning_curve` with `StratifiedKFold` → 0.715 against 0.718; 1.000 against 0.847 |
 
 
 ::: notes
 The table maps each section to its calls and its number. On 6 November this
 notebook is left for self-study: show the table, say what each section measures,
-and that its numbers are on slides 26 to 33, which were just shown.
+and that its numbers are on slides 27 to 36, which were just shown.
 
 When there is a full three hours, run it live, for twenty minutes.
 
@@ -1304,12 +1424,12 @@ Commit the code that produced the number, not a tidied-up version of it.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the catastrophe, 35-37 | `SelectKBest(f_classif, k=10)` on every row, then `cross_val_score` → 0.931 |
-| selection inside the round, 38-39 | `Pipeline` with the selector as its first step → 0.658 |
-| the search, 40 | `GridSearchCV`, `best_score_` → 0.7999 |
-| nested, 41-42 | `cross_val_score(GridSearchCV(...), cv=outer)` → 0.6699 |
-| the threshold, honestly, 43-44 | `train_test_split` twice → 4,700 EUR against 10,540 |
-| seeds, 45-46 | 30 values of `random_state` → 0.913 to 1.000 |
+| the catastrophe, 38-40 | `SelectKBest(f_classif, k=10)` on every row, then `cross_val_score` → 0.931 |
+| selection inside the round, 41-42 | `Pipeline` with the selector as its first step → 0.658 |
+| the search, 43 | `GridSearchCV`, `best_score_` → 0.7999 |
+| nested, 44-45 | `cross_val_score(GridSearchCV(...), cv=outer)` → 0.6699 |
+| the threshold, honestly, 46-47 | `train_test_split` twice → 4,700 EUR against 10,540 |
+| seeds, 48-49 | 30 values of `random_state` → 0.913 to 1.000 |
 
 
 ::: notes

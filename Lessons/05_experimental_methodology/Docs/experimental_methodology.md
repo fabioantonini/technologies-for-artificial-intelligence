@@ -15,19 +15,19 @@ date: "6 November 2026 · reading time about 95 minutes"
 | 1:05–1:20 | 15 | Cross-validation, and when it needs care (19–20 optional) | Slides 13–22 |
 | 1:20–1:35 | 15 | **Notebook 01** — the split lottery | Slide 23 |
 | 1:35–1:45 | 10 | **Break** | Slide 24 |
-| 1:45–2:01 | 16 | Bias, variance and the noise floor (30–31 optional) | Slides 25–31 |
-| 2:01–2:10 | 9 | Learning curves and what they prescribe | Slides 32–33 |
-| 2:10–2:30 | 20 | Leakage that survives cross-validation | Slides 35–42 |
-| 2:30–2:35 | 5 | The debt paid (45–46 optional) | Slides 43–46 |
-| 2:35–2:50 | 15 | **Notebook 03** — leakage and honest search | Slide 47 |
-| 2:50–3:00 | 10 | What to put in a report; summary; homework | Slides 48–50 |
-| | **180** | **Total** | **50 slides, 3 notebooks** |
+| 1:45–2:01 | 16 | Bias, variance and the noise floor (33–34 optional) | Slides 25–34 |
+| 2:01–2:10 | 9 | Learning curves and what they prescribe | Slides 35–36 |
+| 2:10–2:30 | 20 | Leakage that survives cross-validation | Slides 38–45 |
+| 2:30–2:35 | 5 | The debt paid (48–49 optional) | Slides 46–49 |
+| 2:35–2:50 | 15 | **Notebook 03** — leakage and honest search | Slide 50 |
+| 2:50–3:00 | 10 | What to put in a report; summary; homework | Slides 51–53 |
+| | **180** | **Total** | **53 slides, 3 notebooks** |
 
 *This plan is for Friday 6 November 2026, when lesson 4 ran over into the first
-three quarters of an hour. Notebook 02 (slide 34) and the slides marked (optional)
-— 19 and 20, 30 and 31, 45 and 46 — are left for self-study; the sections of this
+three quarters of an hour. Notebook 02 (slide 37) and the slides marked (optional)
+— 19 and 20, 33 and 34, 48 and 49 — are left for self-study; the sections of this
 handout that cover them are unchanged. With a full three hours, notebook 02 runs
-live for twenty minutes after slide 33.*
+live for twenty minutes after slide 36.*
 
 ---
 
@@ -712,16 +712,32 @@ ways.
 
 ![](many_universes.png)
 
-*Each faint line is the same model fitted to a different training sample of 25 days; forty of the 300 are drawn, and the red average is over all 300. Left, every line misses the curvature in the same way: that is bias. (They also fan out, more than the middle panel's; section 5.3 explains why.) Right, they disagree wildly, worst at both edges of the temperature range, where all the training points lie on one side: that is variance. In real life you drew one of these lines and never saw the others.*
+*Each faint line is the same model fitted to a different training sample of 25 days; forty of the 300 are drawn, and the red average is over all 300. Left, every line misses the curvature in the same way, and the red average sits away from the black truth: that gap is bias. The lines also fan out, more than the middle panel's: that fan is variance, not bias (section 5.3 explains why). Right, they disagree wildly, worst at both edges of the temperature range, where all the training points lie on one side: that is variance. In real life you drew one of these lines and never saw the others.*
 
 **They may all be wrong in the same way.** A straight line fitted to a curve
 misses the curvature every time, whichever sample it gets. That is **bias**:
 being consistently wrong. Whether the lines also agree with *each other* is a
 separate question, and here, as section 5.3 measures, they do not.
 
+**A predictable mistake** is to read bias off the fan of lines: "the lines
+diverge, so the bias is high". It is a natural reading, since both are error.
+But bias is about where the *average* line sits against the truth, and variance
+about how far the individual lines sit from that average. Degree 1's lines fan
+out, and that fan is its variance; its bias is the gap between the red and the
+black curves.
+
 **They may disagree wildly with each other.** A twelfth-degree polynomial
 fitted to twenty-five points gives a different wild curve every time. That is
 **variance**: being unreliable, whatever the average may look like.
+
+It is worst at the two ends of the plot, for two reasons. At an edge every
+training point lies on one side, so nothing holds the polynomial down on the
+other. And the ends are partly extrapolation: the 25 temperatures are drawn
+between −5 and 38 °C, and the expected minimum of $n$ uniform draws sits
+$1/(n+1)$ of the range above the bottom, so the coldest day is on average
+$-5 + 43/26 = -3.3$ °C and the warmest $38 - 43/26 = 36.3$ °C, while the plot
+runs from −4 to 37 °C. In more than half the training sets the coldest day is
+warmer than −4 °C: $(42/43)^{25} = 0.55$.
 
 And underneath both sits the **noise** in the measurements, which no model
 removes because it is not a property of the model.
@@ -777,14 +793,60 @@ $$\boxed{\;\mathbb{E}\left[(y - \hat{f}(x))^2\right]
 on 300 independently drawn training sets, and the two sides agree to within
 $3 \times 10^{-12}$ — which is floating-point equality.
 
+**In numbers, at 30 °C.** The derivation fixed one test point $x$, so the
+example does too. Take the 300 straight lines (degree 1) of section 5.1, each
+fitted to its own 25 days, and ask every one of them for the energy at
+$x = 30$ °C. Notebook 2, section 2, prints each step:
+
+| Step | Formula | Degree 1 | Degree 3 |
+|---|---|---|---|
+| The truth | $f(30)$, known because we wrote $f$ | 330.5 | 330.5 |
+| The 300 predictions | one per model | 300.8, 317.1, 304.8, … from 215.6 to 364.7 | 333.9, 310.2, 319.9, … from 293.6 to 373.0 |
+| Their average $\bar{f}(30)$ | sum ÷ 300 | 303.6 | 321.0 |
+| bias² | $(\bar{f}(30) - f(30))^2$ | $(303.6 - 330.5)^2 = 723.9$ | $(321.0 - 330.5)^2 = 89.8$ |
+| Variance | sum of $(\hat{f}(30) - \bar{f}(30))^2$ ÷ 300 | 856.1 | 98.1 |
+| Noise | $\sigma^2 = 22^2$ | 484.0 | 484.0 |
+| Expected error | bias² + variance + noise | 2,063.9 | 671.8 |
+
+Everything is computed on unrounded values, so the printed ones can be off in
+the last digit: $(-26.9)^2$ gives 723.6, and the printed parts add to 2,064.0
+and 671.9. Read the degree-1 column as one sentence: a straight line trained on
+25 random days, asked about a new day at 30 °C, misses by a squared error of about
+2,064 kWh² on average — 724 because it cannot bend, 856 because it depends on
+which 25 days it saw, 484 because the new day is itself noisy. The noise is not
+estimated from the models: we know it because we added it, and on real data it
+cannot be separated out. A check that does not use the formula gives each model
+2,000 new days at 30 °C and averages the squared errors: 2,061.0 for degree 1
+and 670.0 for degree 3, within sampling error of the formula.
+
+**Then at every temperature, and the average.** Section 5.3's table repeats this
+at each of 220 test temperatures and averages them:
+
+![](error_by_temperature.png)
+
+*Degree 1, the same 300 models at each test temperature. Look at the red curve: bias² is zero where the straight line crosses the true curve, near 5 and 28 °C, and large at both ends and in the middle, so its average, the dashed line at 5,250.8, is far above its value at 30 °C. Variance, in blue, rises toward the ends, where the line pivots; it averages 723.8. With the noise, 484, the three averages make the first row of section 5.3's table: 6,458.6.*
+
 ### 5.3 What it looks like on real numbers
 
 
-Energy against outdoor temperature, from the curve `true_curve` in
-`Notebooks/methodology_data.py`: 25 training observations at temperatures drawn
-uniformly between −5 and 38 °C, 300 training sets, noise variance $22^2 = 484$.
-Every number below is averaged over the 300 training sets and over 220 test
-temperatures from −4 to 37 °C:
+Energy against outdoor temperature, one observation per day, from the curve
+`true_curve` in `Notebooks/methodology_data.py`:
+
+$$f(t) = 240 + 0.55\,(t - 18)^2 + 12 \sin(t/4) \text{ kWh}$$
+
+Each training set is 25 days at temperatures drawn uniformly between −5 and
+38 °C, with energy $f(t)$ plus noise of standard deviation 22 kWh, so a noise
+variance of $22^2 = 484$; there are 300 training sets. Every number below is
+averaged over the 300 training sets and over 220 test temperatures from −4 to
+37 °C.
+
+**A predictable mistake** is to take this for lesson 3's dataset. The setting is
+the same, energy against temperature with noise of 22 kWh, and so is the shape.
+The curve is not: lesson 3 used a plain parabola, $240 + 1.15\,(t - 18)^2$, on 30
+days between −5 and 35 °C. This one is gentler and carries a seasonal sine term,
+so no polynomial of any degree matches it exactly and every degree keeps some
+bias. We wrote it ourselves because measuring bias needs the truth, and the
+noise floor needs the noise level; real data gives neither.
 
 ![](bias_variance_tradeoff.png)
 

@@ -79,16 +79,22 @@ a spread you are supposed to report.*
 **why**, and answers with a decomposition that is checked, not asserted — possible only
 because the true function is ours to choose.
 
-**The data.** Energy against outdoor temperature, 25 training observations per
-universe, 300 universes, irreducible noise of **22 kWh**, so a variance of **484** no
-model can remove.
+**The data.** Energy against outdoor temperature, one observation per day, from a
+curve written for this lesson, $f(t) = 240 + 0.55\,(t - 18)^2 + 12 \sin(t/4)$: not
+lesson 3's dataset. 25 days per universe, 300 universes, irreducible noise of
+**22 kWh**, so a variance of **484** no model can remove.
 
 **The concepts, in order.**
 
-1. **Three hundred parallel universes.** Three panels — degree 1 stable and wrong,
-   degree 3 about right, degree 12 flying apart at the edges. In real life you drew one
+1. **Three hundred parallel universes.** Three panels — degree 1 wrong in the same
+   way every time (bias) and fanning out too (variance), degree 3 about right,
+   degree 12 flying apart at the edges. In real life you drew one
    of those lines and never saw the rest.
-2. **Measuring the three parts**, and the identity holding to floating point:
+2. **Measuring the three parts.** First at one temperature, 30 °C, for degree 1:
+   the 300 predictions average 303.6 against a truth of 330.5, so bias² **723.9**,
+   variance **856.1**, noise 484.0, expected error **2,063.9**. Then the same at
+   each of 220 test temperatures, averaged, and the identity holding to floating
+   point:
 
    | degree | bias² | variance | noise | total |
    |---|---|---|---|---|
