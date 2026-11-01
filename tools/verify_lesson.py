@@ -1214,6 +1214,12 @@ CREST_ROWS = (487, 551)
 CREST_INK = 236
 CREST_TOLERANCE = 40
 
+#: The slide number that postprocess_pptx adds (since 1 November 2026) sits in
+#: the footer band just left of the crest, ending at 8.2 in, column 820. Its
+#: digits are not overflowing text, so this box is blanked like the crest is.
+SLIDE_NUMBER_ROWS = (515, 556)
+SLIDE_NUMBER_COLUMNS = (690, 826)
+
 
 def check_deck_overflow(lesson: Path, report: Report) -> None:
     """Look at the rendered deck and find text that runs off the slide.
@@ -1252,6 +1258,8 @@ def check_deck_overflow(lesson: Path, report: Report) -> None:
                 crest = ink[CREST_ROWS[0]:CREST_ROWS[1],
                             CREST_BOX[0]:CREST_BOX[1]].sum()
                 ink[:, CREST_COLUMNS[0]:CREST_COLUMNS[1]] = False
+                ink[SLIDE_NUMBER_ROWS[0]:SLIDE_NUMBER_ROWS[1],
+                    SLIDE_NUMBER_COLUMNS[0]:SLIDE_NUMBER_COLUMNS[1]] = False
                 rows = np.where(ink.any(axis=1))[0]
                 number = int(page.stem.split("-")[-1])
                 if len(rows) and rows.max() > DECK_TEXT_FLOOR:

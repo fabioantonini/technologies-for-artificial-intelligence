@@ -538,6 +538,57 @@ def overfull_text_slides(path: Path) -> list[tuple[int, str]]:
 FIXED_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
 
 
+#: Where the slide number sits: left of the university crest in the
+#: bottom-right corner (the crest starts at 8.57 in), right-aligned, in the
+#: footer band below the body placeholder (which ends at 5.02 in). The
+#: template's own slide-number placeholder lies under the crest, and pandoc
+#: never instantiates it anyway, which is why every deck shipped without numbers
+#: until 1 November 2026.
+SLIDE_NUMBER_BOX = (7.0, 5.2, 1.2, 0.3)    # left, top, width, height, inches
+SLIDE_NUMBER_PT = 11
+SLIDE_NUMBER_COLOUR = "4A5568"
+
+
+def add_slide_numbers(path: Path) -> int:
+    """Put a live slide-number field on every slide but the title slide.
+
+    A field rather than typed text, so a slide moved or added in PowerPoint
+    renumbers itself. LibreOffice renders the same field, so the PDF carries the
+    numbers too.
+    """
+    from pptx.util import Inches, Pt
+
+    deck = Presentation(str(path))
+    added = 0
+    for number, slide in enumerate(deck.slides, start=1):
+        if number == 1:
+            continue
+        left, top, width, height = (Inches(v) for v in SLIDE_NUMBER_BOX)
+        box = slide.shapes.add_textbox(left, top, width, height)
+        box.name = "Slide Number"
+        frame = box.text_frame
+        frame.margin_left = frame.margin_right = 0
+        frame.margin_top = frame.margin_bottom = 0
+        paragraph = frame.paragraphs[0]
+        p_el = paragraph._p
+        p_pr = p_el.get_or_add_pPr()
+        p_pr.set("algn", "r")
+        field = etree.SubElement(p_el, qn("a:fld"))
+        field.set("id", "{5C1D2E7A-0B4F-4C3B-9E1A-0D5E2F6A7B80}")
+        field.set("type", "slidenum")
+        r_pr = etree.SubElement(field, qn("a:rPr"))
+        r_pr.set("lang", "en-GB")
+        r_pr.set("sz", str(SLIDE_NUMBER_PT * 100))
+        fill = etree.SubElement(r_pr, qn("a:solidFill"))
+        colour = etree.SubElement(fill, qn("a:srgbClr"))
+        colour.set("val", SLIDE_NUMBER_COLOUR)
+        text = etree.SubElement(field, qn("a:t"))
+        text.text = str(number)
+        added += 1
+    deck.save(str(path))
+    return added
+
+
 def make_deterministic(path: Path) -> bool:
     """Strip the timestamps that change on every build.
 
@@ -587,6 +638,7 @@ def process(path: Path, verbose: bool = True) -> bool:
         pinned = pin_geometry(path)
         reflowed, crowded, squeezed = relayout_content_slides(path)
         overfull = overfull_text_slides(path)
+        numbered = add_slide_numbers(path)  # after the fill checks: not body text
         renumbered = renumber_oversized_ids(path)
         make_deterministic(path)  # must run last: it rewrites the package
     except Exception as exc:  # keep the original rather than a broken file
@@ -606,6 +658,8 @@ def process(path: Path, verbose: bool = True) -> bool:
             detail.append(f"{pinned} shape(s) pinned")
         if reflowed:
             detail.append(f"{reflowed} content slide(s) reflowed")
+        if numbered:
+            detail.append(f"{numbered} slide(s) numbered")
         if renumbered:
             detail.append(f"{renumbered} oversized id(s) renumbered")
         print(f"  {path.name}: {'; '.join(detail) if detail else 'nothing to fix'}")
