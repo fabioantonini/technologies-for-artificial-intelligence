@@ -336,6 +336,47 @@ if not (tree_mean < bag_mean <= rf_mean + 0.01):
         f"got means {tree_mean:.4f}, {bag_mean:.4f}, {rf_mean:.4f}")
 checks += 1
 
+# ------------------------- Section 6, one column per split, and rho measured
+
+# n = 2, so "sqrt" offers floor(sqrt(2)) = 1 column. The correlation is computed
+# here by hand from covariances, not with np.corrcoef as the notebook does.
+def _rho_by_hand(votes):
+    centred = votes - votes.mean(axis=1, keepdims=True)
+    cov = centred @ centred.T / votes.shape[1]
+    sd = np.sqrt(np.diag(cov))
+    corr = cov / np.outer(sd, sd)
+    return float(corr[np.triu_indices(len(votes), k=1)].mean())
+
+
+def _forest_vs_bagging(seed):
+    Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.3, random_state=seed, stratify=y)
+    out = {}
+    for name, model in (
+            ("bagging", BaggingClassifier(DecisionTreeClassifier(random_state=0),
+                                          n_estimators=100, random_state=0)),
+            ("forest", RandomForestClassifier(n_estimators=100, random_state=0))):
+        trees = model.fit(Xtr, ytr).estimators_
+        votes = np.array([tr.predict(Xte.values) for tr in trees]).astype(float)
+        roots = [X.columns[tr.tree_.feature[0]] for tr in trees]
+        out[name] = (roots.count("debt_ratio"), _rho_by_hand(votes),
+                     float((votes == yte.values).mean()))
+    return out
+
+
+same("6 columns per split, floor(sqrt(2))", int(np.sqrt(2)), 1, tolerance=0)
+same("6 pairs of 100 trees, 100 x 99 / 2", 100 * 99 // 2, 4950, tolerance=0)
+_s0 = _forest_vs_bagging(0)
+same("6 all 100 bagged trees open on debt_ratio", _s0["bagging"][0], 100, tolerance=0)
+same("6 the forest's open 51 on debt_ratio", _s0["forest"][0], 51, tolerance=0)
+same("6 rho between bagged trees 0.774", _s0["bagging"][1], 0.774, tolerance=5e-4)
+same("6 rho between forest trees 0.700", _s0["forest"][1], 0.700, tolerance=5e-4)
+same("6 a bagged tree alone 0.837", _s0["bagging"][2], 0.837, tolerance=5e-4)
+same("6 a forest tree alone 0.828", _s0["forest"][2], 0.828, tolerance=5e-4)
+# The comparison, not the digits, must survive another split.
+_s1 = _forest_vs_bagging(1)
+same("6 on split seed 1 the forest's trees are still less correlated",
+     float(_s1["forest"][1] < _s1["bagging"][1]), 1.0, tolerance=0)
+
 # --------------------------------------- Section 7, feature importance and noise
 
 k_considered = int(np.sqrt(22))

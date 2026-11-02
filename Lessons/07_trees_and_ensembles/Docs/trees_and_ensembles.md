@@ -693,6 +693,24 @@ $\rho$ and lets the variance floor drop further, without changing the
 splitting rule itself. It is bagging with the menu of candidate splits
 shrunk at random, every time a split is made.
 
+**On the loan data the menu is as small as it gets.** With $n = 2$,
+$\lfloor\sqrt{2}\rfloor = 1$: each split is offered one of the two columns, drawn
+at random. Notebook 2, section 4, counts what that does on the first of the 30
+splits. All 100 bagged trees open with the same question, on `debt_ratio`; the
+forest's 100 open 51 on `debt_ratio` and 49 on `income_k`, because half the time
+the root is offered income alone. And $\rho$ itself can be measured: the
+correlation between two trees' 0/1 predictions on the 360 test applicants,
+averaged over all $100 \times 99 \div 2 = 4{,}950$ pairs, is **0.774** for bagging
+and **0.700** for the forest.
+
+The price is paid tree by tree: denied the better column at some splits, a forest
+tree alone scores 0.828 mean test accuracy against a bagged tree's 0.837. The
+ensemble is still better, because what averaging needs is trees that err
+*differently*, not trees that are each the best available. **A predictable
+mistake** is to expect the restriction to make the forest worse, since every tree
+is weaker. The reasoning is right about the trees; the formula of section 5.2 says
+why it is wrong about their average.
+
 Measured on the same 30 splits as section 5.2, a 100-tree random forest
 reaches mean accuracy **0.908** with standard deviation **0.0137** — both a
 better mean and a tighter spread than plain bagging's 0.902 and 0.0153,

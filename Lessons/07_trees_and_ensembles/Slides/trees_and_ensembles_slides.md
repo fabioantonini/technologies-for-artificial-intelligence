@@ -904,13 +904,12 @@ come back with that framing fresh.
 
 # Bagging: averaging away the instability
 
-- Trees differ across samples, so **many trees, averaged** should partly
-  cancel their mistakes
+- Slide 27: two trees disagree on 140 of 1,200 applicants, so **many trees,
+  combined** should cancel some of their mistakes
 - **Bootstrap sample**: $m$ rows drawn **with replacement** from the $m$
-  training rows
-- One tree per sample, `n_estimators` times; predict by **majority vote**.
-  That is **bagging**: bootstrap aggregating
-- In code: `BaggingClassifier()`, whose default model is a decision tree
+  rows: some twice, some never
+- One tree per sample, `n_estimators` times, then a **majority vote**:
+  **bagging** (bootstrap aggregating), `BaggingClassifier()`
 
 ::: notes
 State the logic before the name. Slides 26 and 27, before the break, measured
@@ -927,7 +926,8 @@ Be precise about "with replacement": some rows appear more than once in a
 given sample, some not at all. That leftover fraction is not wasted - it
 becomes free validation data, on slide 33.
 
-One detail of the In code line, if asked: scikit-learn's `BaggingClassifier`
+In code, BaggingClassifier() uses a decision tree as its model by default.
+One detail, if asked: scikit-learn's `BaggingClassifier`
 does not count votes, it averages the trees' predicted probabilities. With
 fully grown trees the two are the same thing: every leaf is pure, so each
 tree's probability is 0 or 1, and averaging 0s and 1s is counting votes. So
@@ -945,13 +945,13 @@ title "Bagging predictors" - the same Breiman who co-wrote the CART trees of
 
 # How much data one bootstrap sample sees
 
-- One row is missed by all $m$ draws with probability $(1 - 1/m)^m$, which
-  tends to $e^{-1} \approx 0.368$ as $m$ grows
-- So about **63.2%** of the distinct rows are drawn at least once
-- The remaining **36.8%** are left out entirely: called
+- One draw misses a given row with probability $1 - 1/m$; all $m$
+  independent draws miss it with probability $(1 - 1/m)^m$, which tends to
+  $e^{-1} \approx 0.368$ as $m$ grows
+- So about **63.2%** of the distinct rows are drawn; the other **36.8%** are
   **out-of-bag (OOB)**
-- At $m = 1{,}200$: a single simulated draw left out 36.6% of rows, close to
-  the limit
+- The sample still has $m$ rows: at $m = 1{,}200$, about 759 distinct, and
+  the other 441 are repeats
 
 ::: notes
 Give the one line of reasoning, not the limit. Each draw misses a given row
@@ -960,11 +960,12 @@ missed by all of them with probability (1 - 1/m) to the power m. At m = 1,200
 that is 0.3677; as m grows it tends to 1/e, 0.368, which is the standard
 exponential limit worked out in handout section 5.1. What matters here is the
 consequence: every bootstrap tree automatically leaves out over a third of
-the rows, and never sees them.
+the rows, and never sees them. One simulated draw at m = 1,200 left out
+36.6% of the rows, close to the limit; the next slide counts it.
 
 A predictable slip: "so each tree is trained on 63.2% of the data, 759 rows".
-It is reasonable, because 63.2% is the number on the slide. But the sample
-still has 1,200 draws: about 759 different rows, and the other 441 draws are
+It is reasonable, because 63.2% is the number on the slide. But, as the last
+bullet says, the sample still has 1,200 draws: about 759 different rows, and the other 441 draws are
 repeats of rows already drawn. The tree sees 1,200 rows, some of them twice
 or three times - the next slide counts them.
 
@@ -997,12 +998,12 @@ disagreement - the raw material of bagging - comes from. Handout section 5.1.
 
 # Out-of-bag: free validation
 
-- Predict each row by a vote of only the trees that never saw it: the
-  accuracy of those votes is the **OOB score**, with no rows set aside
-- A 300-tree random forest (bagged trees plus one rule, slide 37): OOB
-  **0.9117**; 5-fold cross-validation **0.9117 ± 0.021**
-- The four-decimal match is **luck**: over twelve seeds the two differ by
-  0.0026 on average, well inside ±0.021
+- Score each row by a vote of only the trees that never saw it (about a
+  third): that accuracy is the **OOB score**, no rows set aside
+- 300 bagged trees plus one rule (a random forest, slide 37): OOB **0.9117**;
+  5-fold cross-validation **0.9117**, standard deviation **0.021**
+- The four-decimal match is **luck**: over twelve seeds they differ by 0.0026
+  on average, well inside 0.021
 
 ::: notes
 The forest here comes four slides before its definition: a random forest is
@@ -1036,17 +1037,19 @@ Handout section 5.1.
 
 # Why averaging reduces variance
 
-- Model each tree's prediction as noisy, with variance $\sigma^2$ over the
-  bootstrap sample it drew, and let $\rho$ be the correlation between two trees
-- The average of $B$ trees has variance $\sigma^2/B + \rho\sigma^2 (B-1)/B$:
-  a **floor** of $\rho\sigma^2$, **not zero**: more trees soon buy little
-- Averaging **cannot repair an error every tree shares**: trees too shallow
-  for the rule stay too shallow, however many are averaged
+- One tree's prediction: variance $\sigma^2$ across bootstrap samples; $\rho$:
+  the correlation between two trees
+- Average of $B$ trees: $B$ variances $\sigma^2$ plus $B(B-1)$ covariances
+  $\rho\sigma^2$, divided by $B^2$, gives $\sigma^2/B + \rho\sigma^2 (B-1)/B$
+- As $B$ grows: a **floor** of $\rho\sigma^2$, **not zero**
+- Averaging **cannot repair an error every tree shares**: too shallow stays
+  too shallow
 
 ::: notes
-State the headline, not the algebra - the covariance expansion behind this
-is in handout section 5.2, and it does not belong on a slide. Read the
-formula on the slide in two pieces: the first term, sigma squared over B,
+Where the formula comes from, in words: the variance of a sum of B trees is
+their B variances plus the B(B - 1) covariances between pairs, and an average
+divides the sum by B, so its variance by B squared. The full expansion is in
+handout section 5.2. Read the result in two pieces: the first term, sigma squared over B,
 shrinks as trees are added; the second, (B - 1)/B times rho sigma squared,
 grows towards rho sigma squared and stays there. The two consequences
 are what matter: there is a floor variance cannot fall below, set by how
@@ -1107,15 +1110,16 @@ Handout section 5.2.
 
 # Random forests: decorrelating the trees
 
-- The floor is $\rho\sigma^2$: lowering it means making the trees agree
-  **less**
-- Bagged trees see **every feature**, so a strong one pulls them all the
-  same way
-- A **random forest** offers each split a random subset of `max_features`
-  (default $\sqrt{n}$, rounded down), lowering $\rho$
-- In code: `RandomForestClassifier()`, 100 trees by default
+- The floor is $\rho\sigma^2$: lower it by making the trees agree **less**
+- Bagging: every split sees **every feature**; all 100 trees open on `debt_ratio`
+- **Random forest**, `RandomForestClassifier()`: each split sees `max_features`
+  random columns (default $\sqrt{n}$, rounded down); here $n = 2$, so **one**
+- Roots 51 `debt_ratio`, 49 `income_k`; two trees correlate **0.70**, not
+  0.77: $\rho$ falls
 
 ::: notes
+In code, RandomForestClassifier() grows 100 trees by default.
+
 Connect this directly to the previous slide's algebra: if the floor is
 $\rho\sigma^2$, the only way to push it lower is to push $\rho$ down, and
 bootstrap resampling alone only does that partially, because every bagged
@@ -1125,6 +1129,22 @@ The random forest's one change is a restriction, not an addition: at each
 split, only a random handful of candidate features is even offered. That
 forces disagreement between trees at the same point in the tree, purely by
 denying them the same menu.
+
+On the loan data the menu is as small as it gets: n = 2, the square root of 2
+rounded down is 1, so each split is offered one of the two columns, drawn at
+random. Notebook 2 section 4 counts what that does, on the first of slide
+36's 30 splits. All 100 bagged trees open with the same question, on
+debt_ratio; the forest's open 51 on debt_ratio and 49 on income_k, because
+half the time the root is offered income alone. And rho itself, measured:
+the correlation between two trees' 0/1 predictions on the 360 test
+applicants, averaged over all 4,950 pairs of the 100 trees, is 0.774 for
+bagging and 0.700 for the forest.
+
+The trade, because someone will ask: each forest tree alone is a little
+worse, 0.828 against 0.837 mean test accuracy, since some splits are denied
+the better column. The forest is still the better ensemble (next slide),
+because what averaging needs is trees that err differently, not trees that
+are each the best possible.
 
 Handout section 6.
 
@@ -1148,7 +1168,8 @@ Read it left to right: the boxes rise and narrow together. In numbers, the
 means are 0.856, 0.902 and 0.908, and the standard deviations 0.0185, 0.0153
 and 0.0137. The random forest beats plain bagging on both counts - a better
 mean and a tighter spread - consistent with $\rho$ having fallen further, as
-the restriction on the previous slide predicts. The step from bagging to the
+the restriction on the previous slide predicts - and measured there, 0.77
+to 0.70. The step from bagging to the
 forest is much smaller than the step from one tree to bagging: averaging did
 most of the work, decorrelating added a little more.
 
