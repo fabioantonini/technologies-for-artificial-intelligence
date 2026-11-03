@@ -57,7 +57,7 @@ than any number of predictions that came out right.
 | `01_lesson_1_atoms.ipynb` | splitting and `stratify`, the baseline, the confusion matrix, precision and recall | 4 |
 | `02_lesson_2_atoms.ipynb` | looking, missing values, outliers, scaling, encoding, `ColumnTransformer`, the area under the curve, two leaks | 15 |
 | `03_lesson_3_atoms.ipynb` | cost, the normal equation, gradient descent, Ridge and Lasso, what a coefficient means | 15 |
-| `04_lesson_4_atoms.ipynb` | odds and log-odds, log loss, one gradient step, the confusion matrix in order, the two averages, AUC and average precision, a threshold from costs, class weights, softmax | 11 |
+| `04_lesson_4_atoms.ipynb` | odds and log-odds, log loss, one gradient step, the confusion matrix in order, the two averages, AUC and average precision, a threshold from costs, class weights, softmax, the whole chain on one fitted model | 12 |
 | `05_lesson_5_atoms.ipynb` | cross-validation round by round, the five round models, the spread and the report line, stratified, repeated and grouped folds, training against validation error, `GridSearchCV`, nested cross-validation one round at a time, a fresh test set, the threshold sweep, seeds | 13 |
 
 They run in the course container like every other notebook, each in a few seconds,
@@ -148,6 +148,7 @@ numbers.
 | 9 | *Invented costs: a false alarm €50, a missed failure €200*: a threshold applied to the probabilities | *Where the two costs cross*; *Where they cross, in one line* |
 | 10 | *A weight ratio of 4*: `compute_class_weight` and the threshold it stands for | *What class weights do*; *Class weights: the same lever, pulled earlier* |
 | 11 | *Softmax on three scores*, and `predict_proba` for three classes | *Three classes: softmax (optional)* |
+| 12 | *Twelve drives, one counter*: `fit`, the odds multiplier, 0.5 against $t^*$, `confusion_matrix`, precision, recall, `roc_auc_score` | *What the coefficients mean*; *Four numbers instead of one*; *Where they cross, in one line*; *What the area means* |
 
 ### 05 — lesson 5
 
