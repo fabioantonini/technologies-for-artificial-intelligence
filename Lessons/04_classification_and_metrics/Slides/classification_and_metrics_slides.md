@@ -1934,8 +1934,8 @@ otherwise memorise into something they watched happen.
 
 # Three classes: softmax (optional)
 
-- One score per class, zₖ = wₖᵀx + bₖ; **softmax**: P(class k) = exp(zₖ) ÷ Σⱼ exp(zⱼ): exponentiate, divide by the sum
-- A degraded drive: scores 0.615, 0.603, −1.218 → 0.466, 0.460, 0.074, called healthy
+- One score per class (healthy, degraded, failed), zₖ = wₖᵀx + bₖ; **softmax**: P(class k) = exp(zₖ) ÷ Σⱼ exp(zⱼ): exponentiate, divide by the sum
+- A degraded drive: scores 0.615, 0.603, −1.218 → 0.466, 0.460, 0.074, called healthy, wrongly
 - Predicted class = the largest probability, no 0.5 threshold; two classes: the sigmoid of z₁ − z₀
 - In code: `decision_function` (scores), `predict_proba` (softmax)
 
