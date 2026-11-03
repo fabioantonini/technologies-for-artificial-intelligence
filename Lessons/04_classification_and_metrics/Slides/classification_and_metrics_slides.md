@@ -1597,7 +1597,7 @@ The next slide reads them.
 
 # Why the two curves disagree
 
-- Recall, shared by both curves: TP ÷ (TP + FN), all failures, thinned together: **stays put**
+- Recall, shared by both curves: TP ÷ (TP + FN); TP and FN are both failures, thinned in the same proportion: **stays put**
 - False positive rate (FPR), the ROC's: FP ÷ (FP + TN), over **all 57,575 healthy drives**, untouched: 0.0053
 - Precision, the other curve's: TP ÷ (TP + FP); FP **stays 304**, TP falls from 1,127 to 106
 
