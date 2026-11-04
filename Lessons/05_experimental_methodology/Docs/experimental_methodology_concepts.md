@@ -110,8 +110,13 @@ worst at the edges of the range, where all the points lie on one side. → § 5.
 **Irreducible noise.** The part of the error that is a property of the data, not of
 the model. No method and no quantity of data goes below it. → § 5.1
 
-**The decomposition.** Expected squared error equals bias squared plus variance
-plus noise. An identity, not an approximation. → § 5.2
+**The bias–variance decomposition.** Expected squared error equals bias squared
+plus variance plus noise. An identity, not an approximation; it holds for squared
+error, not for accuracy or AUC. → § 5.2
+
+**The bias–variance trade-off.** The decomposition's consequence: more
+flexibility lowers bias and raises variance, so the total error over complexity
+is a U, and the best model sits at its bottom. → § 5.3
 
 **The noise floor.** The value that decomposition's last term sets. A test error
 *well below* it is evidence of leakage, not of excellence (a small test set can

@@ -44,23 +44,26 @@ def save(fig, name):
 
 
 def two_recipes():
-    """How a hyperparameter is chosen: one fit per candidate when it sits inside
-    the cost (lambda), one fit in all when it acts on the output (the threshold)."""
+    """How a hyperparameter is chosen on a validation set: one fit per candidate
+    when it sits inside the cost (lambda), one fit in all when it acts on the
+    output (the threshold). Sizes are slide 52's split of the 800 drives."""
     fig, axes = plt.subplots(1, 2, figsize=(11.6, 5.6))
+    split = ("1. Set 200 test drives aside; cut 150 validation\n"
+             "drives from the other 600: 450 left to train")
     recipes = [
         ("Fixed before the fit: the penalty (C), tree depth, neighbours",
-         ["1. Set the test set aside",
-          "2. For each candidate, C = 0.01, 1, 100:\n5-fold cross-validation on the rest\n= 5 fits each, 3 × 5 = 15 fits",
-          "3. Keep the C with the best mean score",
-          "4. Refit with that C on all non-test data\n(fit number 16)",
-          "5. Score the test set, once"],
+         [split,
+          "2. For each candidate, C = 0.01, 1, 100:\nfit on the 450, score on the 150\n= one fit each, 3 fits",
+          "3. Keep the C with the best validation score:\nthe winner is a value of C, not a model",
+          "4. Refit with that C on all 600 non-test drives\n(fit number 4)",
+          "5. Score the 200 test drives, once"],
          BLUE),
         ("Chosen after the fit: the decision threshold",
-         ["1. Set the test set aside,\nthen cut a validation set from the rest",
-          "2. Fit the model on the training part:\none fit in all",
-          "3. Predict probabilities on the validation set",
+         [split,
+          "2. Fit the model on the 450:\none fit in all",
+          "3. Predict probabilities on the 150 validation drives",
           "4. Try every threshold on those probabilities;\nkeep the cheapest",
-          "5. Score the test set, once"],
+          "5. Score the 200 test drives, once"],
          TEAL),
     ]
     for ax, (title, steps, colour) in zip(axes, recipes):

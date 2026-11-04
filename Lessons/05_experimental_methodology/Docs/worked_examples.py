@@ -491,6 +491,22 @@ same("3 on seeds 200-399 C = 0.01 wins outright 86 times", outright_other[0], 86
 same("3 and C = 1 and C = 100 41 each", outright_other[1] + outright_other[2], 82,
      tolerance=0)
 same("3 two recipes: 3 candidates x 5 folds", 3 * 5, 15, tolerance=0)
+same("3 two recipes on a validation set: one fit per candidate, refit is fit 4",
+     3 * 1 + 1, 4, tolerance=0)
+same("3 the validation split: 800 - 200 test - 150 validation leaves 450",
+     800 - 200 - 150, 450, tolerance=0)
+
+# Section 3's worked split: the first seed without a tie is seed 1.
+first_untied = int(np.argmax(~(np.sort(rows3, axis=1)[:, -1]
+                               == np.sort(rows3, axis=1)[:, -2])))
+same("3 the worked split is seed 1", first_untied, 1, tolerance=0)
+for column, printed in ((0, 0.9756), (2, 0.9667), (1, 0.9660)):
+    same(f"3 seed 1, model {column}: AUC {printed}", rows3[1, column], printed,
+         tolerance=5e-5)
+same("3 seed 1's margin: 0.9756 - 0.9667 = 0.0089", margins3[1], 0.0089,
+     tolerance=5e-5)
+same("3 the printed margin from the printed AUCs", 0.9756 - 0.9667, 0.0089,
+     tolerance=1e-9)
 
 # ------------------------- Section 4.1 and 4.2: the five round models
 from sklearn.model_selection import KFold, cross_val_score            # noqa: E402
@@ -926,5 +942,76 @@ same("7.2 lowest fresh test set 0.40", min(on_fresh["honest"]), 0.40, tolerance=
 same("7.2 highest fresh test set 0.68", max(on_fresh["honest"]), 0.68, tolerance=5e-3)
 same("7.2 the search's winner averages 0.512",
      float(np.mean(on_fresh["winner"])), 0.512, tolerance=5e-4)
+
+# ------------------- 4 November study pass: numbers added to slides and handout
+
+# 5.1 and slide 25: the straight line's cross-validated error, back in kWh.
+same("5.1 sqrt(6,064.3) is about 78 kWh", float(np.sqrt(6064.3)), 78, tolerance=0.5)
+# 5.2 and slide 30: the expected error at 30 °C, back in kWh.
+same("5.2 sqrt(2,063.9) is about 45 kWh", float(np.sqrt(2063.9)), 45, tolerance=0.5)
+# Slide 37: the gap from the printed errors.
+same("5.5 615.1 - 262.4 is about 353", 615.1 - 262.4, 353, tolerance=0.5)
+
+# 7.1 and slide 42: why pure noise offers ten good-looking columns. Rebuilt from
+# notebook 3's recipe (default_rng(0), 800 x 2,000), not from its outputs.
+fails = noise_800.values[np.asarray(fleet_y) == 1]
+healthy = noise_800.values[np.asarray(fleet_y) == 0]
+same("7.1 29 failing drives", len(fails), 29, tolerance=0)
+same("7.1 a mean of 29 wobbles by 1/sqrt(29) = 0.19", 1 / np.sqrt(29), 0.19,
+     tolerance=5e-3)
+same("7.2 and of 290 by 1/sqrt(290) = 0.06", 1 / np.sqrt(290), 0.06, tolerance=5e-3)
+mean_gap = fails.mean(axis=0) - healthy.mean(axis=0)
+gap_se = np.sqrt(1 / len(fails) + 1 / len(healthy))
+kept = SelectKBest(f_classif, k=10).fit(noise_800, fleet_y).get_support()
+kept_gap = np.abs(mean_gap[kept])
+same("7.1 the ten kept columns: smallest shift 0.52", kept_gap.min(), 0.52, tolerance=5e-3)
+same("7.1 largest shift 0.77", kept_gap.max(), 0.77, tolerance=5e-3)
+same("7.1 in standard errors: from 2.8", kept_gap.min() / gap_se, 2.8, tolerance=0.05)
+same("7.1 to 4.1", kept_gap.max() / gap_se, 4.1, tolerance=0.05)
+same("7.1 only 6 of 2,000 columns beyond 3 standard errors",
+     int((np.abs(mean_gap) / gap_se > 3).sum()), 6, tolerance=0)
+same("7.1 0.931 is the mean of its five folds",
+     (0.928 + 0.979 + 0.975 + 0.943 + 0.832) / 5, 0.931, tolerance=5e-4)
+
+# 7.3 and slide 47: best_score_ as the mean of the winner's five round AUCs, from
+# the search rebuilt above.
+results = search_winner.cv_results_
+same("7.3 the winner is k = 20", search_winner.best_params_["select__k"], 20, tolerance=0)
+same("7.3 and C = 10", search_winner.best_params_["model__C"], 10, tolerance=0)
+winner_rounds = [results[f"split{j}_test_score"][search_winner.best_index_]
+                 for j in range(5)]
+for j, printed in enumerate((0.750, 0.754, 0.879, 0.740, 0.877)):
+    same(f"7.3 the winner's round {j + 1}: {printed}", winner_rounds[j], printed,
+         tolerance=5e-4)
+same("7.3 the five printed rounds sum to 4.000",
+     0.750 + 0.754 + 0.879 + 0.740 + 0.877, 4.000, tolerance=1e-9)
+order = np.argsort(-results["mean_test_score"])
+for rank, (k_cols, c_value, printed) in enumerate(((20, 1, 0.798), (20, 100, 0.798))):
+    params = results["params"][order[rank + 1]]
+    same(f"7.3 runner-up {rank + 1}: k = {k_cols}", params["select__k"], k_cols, tolerance=0)
+    same(f"7.3 runner-up {rank + 1}: C = {c_value}", params["model__C"], c_value, tolerance=0)
+    same(f"7.3 runner-up {rank + 1} scores {printed}",
+         results["mean_test_score"][order[rank + 1]], printed, tolerance=5e-4)
+last = results["params"][order[-1]]
+same("7.3 the last is k = 2", last["select__k"], 2, tolerance=0)
+same("7.3 with C = 0.01", last["model__C"], 0.01, tolerance=0)
+for j, printed in enumerate((0.717, 0.641, 0.712, 0.610, 0.739)):
+    same(f"7.3 the last's round {j + 1}: {printed}",
+         results[f"split{j}_test_score"][order[-1]], printed, tolerance=5e-4)
+same("7.3 the luck of the winner, best - average, 0.0734 as printed",
+     0.7999 - 0.7265, 0.0734, tolerance=1e-9)
+same("7.3 and unrounded about 0.073",
+     search_winner.best_score_ - results["mean_test_score"].mean(), 0.073,
+     tolerance=1e-3)
+same("7.3 on the slide, 0.800 - 0.726 = 0.074", 0.800 - 0.726, 0.074, tolerance=1e-9)
+same("7.3 fits: 5 values of k x 5 of C x 5 folds, then the refit",
+     5 * 5 * 5 + 1, 126, tolerance=0)
+same("7.4 what nested cross-validation leaves above the truth",
+     0.670 - 0.500, 0.170, tolerance=1e-9)
+same("7.4 the optimism of the search", 0.7999 - 0.6699, 0.1300, tolerance=1e-9)
+
+# 8 and slide 52: what paying the debt costs.
+same("8 the honest threshold costs 1,400 EUR more", 4_700 - 3_300, 1_400, tolerance=0)
+same("8 42% more than the cheating figure", 1_400 / 3_300, 0.42, tolerance=5e-3)
 
 print(f"lesson 5: {checks} hand-worked numbers recomputed, all agree")

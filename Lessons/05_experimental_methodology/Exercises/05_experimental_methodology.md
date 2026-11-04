@@ -117,6 +117,8 @@ what the job actually consists of.
 
 A good paragraph tends to note: that the honest figure still describes a useful
 model; that 40 turbines is a small sample and the spread across folds is wide;
+that the AUC ranks weekly readings while the maintenance decision is about
+turbines — 480 rows, but only 40 independent units;
 what the corrected AUC does and does not promise about any individual turbine; and that
 a decision threshold has not been chosen yet, which is a separate conversation
 about the cost of a needless inspection against a missed failure.
