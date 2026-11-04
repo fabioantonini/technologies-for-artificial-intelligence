@@ -153,24 +153,28 @@ numbers.
 ### 05 — lesson 5
 
 Lesson 5 is about measuring, so most of its atoms run on the lesson's own data, the 800
-drives and the 25 days, where the slides' numbers come from; atoms 1 and 5 use ten and
-twenty rows. Atoms 9 to 11 repeat notebook 3's search and take about a minute.
+drives and the 25 days, where the slides' numbers come from; atoms 2 and 6 use ten and
+twenty rows. Atoms 12 to 14 repeat notebook 3's search and take about a minute. On
+6 November atoms 3-4 replace notebook 1 in class, and atoms 11-13 notebook 3.
 
 | # | Atom | Lesson source |
 |--|--------------------------|------------------------|
-| 1 | Cross-validation on ten days: who trains, who is held out; `neg_mean_squared_error` | *k-fold cross-validation: the validation set, rotated* |
-| 2 | Five round AUCs and their mean, 0.9514, by hand and with `cross_val_score` | *What it actually estimates* |
-| 3 | Five rounds, five different models, and a sixth you ship | *Five rounds, five different models; you ship a sixth, fitted on all 800* |
-| 4 | The spread: $s$ by hand, `std()` against `std(ddof=1)`, and the report line | *Report the spread, but not as a confidence interval*; *What to put in a report* |
-| 5 | `KFold` against `StratifiedKFold`, on twenty rows and on the 800 drives at seed 3 | *Stratify when a class is rare* |
-| 6 | `RepeatedStratifiedKFold`: the seed moves the score less | *Change only the seed, 40 times*; *How many folds?* (optional) |
-| 7 | Ten readings per drive: `GroupKFold`, 1.000 against 0.620 | *When the rows are not independent*; *Split by the thing you must generalise to* |
-| 8 | Training against validation error with `cross_validate(..., return_train_score=True)` | *Without the truth: two errors you can still measure* |
-| 9 | `GridSearchCV`: 25 candidates, `best_score_` before the refit | *GridSearchCV: try all, keep the best*; *The best of 25 scores is inflated: 0.800 for a worthless model* |
-| 10 | Nested cross-validation, one outer round at a time | *Nested cross-validation: slide 10's recipe, five times*; *Nested cross-validation: it measures what choosing costs* |
-| 11 | A fresh test set is centred on the truth | *Why it does not return to 0.5* |
-| 12 | The threshold: a sweep of 200 candidates on the validation drives | *The debt, paid: the honest threshold costs 1,400 EUR more* |
-| 13 | Seeds: the same seed, the same number, and still a spread | *A fixed seed buys repeatability, not stability*; *What to fix, and what to write down* (optional) |
+| 1 | Choosing C on a validation set: 450 / 150 / 200, the winner is a number, refit on 600 | *Choosing a hyperparameter on a validation set: two recipes*; *The same three models: who wins, and how they score* |
+| 2 | Cross-validation on ten days: who trains, who is held out; `neg_mean_squared_error` | *k-fold cross-validation: the validation set, rotated* |
+| 3 | Five round AUCs and their mean, 0.9514, by hand and with `cross_val_score` | *What it actually estimates* |
+| 4 | Five rounds, five different models, and a sixth you ship | *Five rounds, five different models; you ship a sixth, fitted on all 800* |
+| 5 | The spread: $s$ by hand, `std()` against `std(ddof=1)`, and the report line | *Report the spread, but not as a confidence interval*; *What to put in a report* |
+| 6 | `KFold` against `StratifiedKFold`, on twenty rows and on the 800 drives at seed 3 | *Stratify when a class is rare* |
+| 7 | `RepeatedStratifiedKFold`: the seed moves the score less | *Change only the seed, 40 times*; *How many folds?* (optional) |
+| 8 | Ten readings per drive: `drive_id`, `GroupKFold`, 1.000 against 0.620 | *When the rows are not independent*; *Split by the thing you must generalise to* |
+| 9 | Bias, variance and noise at 30 °C, by hand: 723.9 + 856.1 + 484 | *The bias–variance decomposition*; *The straight line (degree 1) at 30 °C, in three numbers* |
+| 10 | Training against validation error with `cross_validate(..., return_train_score=True)` | *Without the truth: two errors you can still measure* |
+| 11 | 0.931 on pure noise with the selector outside, 0.649 inside; the F-test made visible | *Now: what cross-validation does not protect you from*; *0.931*; *Fix it, and look what happens* |
+| 12 | `GridSearchCV`: 25 candidates, the winner's five round AUCs, `best_score_` before the refit | *GridSearchCV: try all, keep the best*; *The best of 25 scores is inflated: 0.800 for a worthless model* |
+| 13 | Nested cross-validation, one outer round at a time | *Nested cross-validation: slide 10's recipe, five times*; *Nested cross-validation: it measures what choosing costs* |
+| 14 | A fresh test set is centred on the truth | *Why it does not return to 0.5* |
+| 15 | The threshold: a sweep of 200 candidates on the validation drives | *The debt, paid: the honest threshold costs 1,400 EUR more* |
+| 16 | Seeds: the same seed, the same number, and still a spread | *A fixed seed buys repeatability, not stability*; *What to fix, and what to write down* (optional) |
 
 ## Two hours in class
 

@@ -12,10 +12,10 @@ date: "6 November 2026 · reading time about 95 minutes"
 | 0:00–1:00 | 60 | **Lesson 4, concluded**: receiver operating characteristic (ROC) curves and the area under the curve (AUC), the threshold from costs, its notebook 3; exercise 4 set | Lesson 4's deck, from its slide 43 |
 | 1:00–1:05 | 5 | The plan for today; the promise we broke | Slides 2–4 |
 | 1:05–1:15 | 10 | One split is a lottery; parameters and hyperparameters; the validation set (11–12 in a minute if short) | Slides 5–12 |
-| 1:15–1:35 | 20 | Cross-validation, stratification, grouped rows (19–20 optional); atoms 2 and 3 in place of notebook 01 | Slides 13–23 |
+| 1:15–1:35 | 20 | Cross-validation, stratification, grouped rows (19–20 optional); atoms 3 and 4 in place of notebook 01 | Slides 13–23 |
 | 1:35–1:45 | 10 | **Break** | Slide 24 |
 | 1:45–2:10 | 25 | The question, the lab, the decomposition; without the truth; learning curves; which fix to buy (31–32, 34–35 optional) | Slides 25–40 |
-| 2:10–2:40 | 30 | **Leakage that survives cross-validation**, the heart of the lesson; atoms 9 and 10 in place of notebook 03 | Slides 42–51 |
+| 2:10–2:40 | 30 | **Leakage that survives cross-validation**, the heart of the lesson; atoms 11 to 13 in place of notebook 03 | Slides 42–51 |
 | 2:40–2:50 | 10 | The debt paid; three sets, three jobs (54–55 optional); what to put in a report | Slides 52–57 |
 | 2:50–3:00 | 10 | What to take away; homework | Slides 58–59 |
 | | **180** | **Total** | **59 slides, 3 notebooks, the atoms** |
@@ -719,7 +719,7 @@ of the drive the reading came from.
 | … | | | | | … |
 | 7,999 | 1.39 | 0.69 | … | 0 | 799 |
 
-*The first rows of the simulation, as atom 7 prints them: a drive's ten readings are nearly the same, with the same label.*
+*The first rows of the simulation, as atom 8 prints them: a drive's ten readings are nearly the same, with the same label.*
 
 `cross_val_score(model, X, y, groups=drive_id, cv=GroupKFold(n_splits=5),
 scoring="roc_auc")` puts all rows with the same `drive_id` in one fold: each
@@ -1655,7 +1655,7 @@ cross-validation separated choosing from scoring, but inside the same sample. Th
 exam never seen still comes from the same question bank, with its quirks. Only
 an exam from another school — new data: a test set set aside before any search,
 or fresh rows — brings the number back to 0.5, as section 7.2's checks and atom
-11 show.
+14 show.
 
 > Each piece of discipline removes a decision taken on the scoring data, and
 > each one costs score. Only new data removes the sample's accident too.
@@ -1794,8 +1794,8 @@ your result and your marker's result are the same result.
 - **Cross-validation is honest only about what runs inside it**: select and
   tune inside it, and report the nested figure. Three things it cannot remove:
   the sample's chance correlations (selection from 2,000 noise columns still
-  scored 0.658 done fold-honestly, section 7.2; a test set set aside first,
-  fewer candidates or more rows expose them); the luck of choosing
+  scored 0.658 done fold-honestly, section 7.2; a test set set aside first
+  exposes them, fewer candidates or more rows shrink them); the luck of choosing
   (`best_score_` 0.7999 against a nested 0.6699, sections 7.3-7.4); and rows that
   are not independent, unless each drive's readings stay in one fold
   (`GroupKFold`, section 4.6).
