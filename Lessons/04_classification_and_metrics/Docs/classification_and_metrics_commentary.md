@@ -2152,7 +2152,8 @@ $\sigma(1.5)$: the sigmoid is softmax with one score fixed at 0.
 ![](multiclass_confusion.png)
 
 *Three classes. Read the off-diagonal cells: degraded drives are confused with both
-neighbours.*
+neighbours. Each class's recall, on the right, is its diagonal cell divided by its row;
+its precision, above, is the diagonal cell divided by its column.*
 
 The confusion matrix grows to three by three: truth in rows, prediction in columns,
 the right calls on the diagonal, every error off it. Degraded sits between two

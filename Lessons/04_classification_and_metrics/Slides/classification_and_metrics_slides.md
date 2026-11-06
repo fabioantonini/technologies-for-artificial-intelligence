@@ -1980,7 +1980,11 @@ it from a distance: 121 degraded drives were called healthy, 31 failed drives
 were called degraded.
 
 Precision and recall are computed one class at a time: each class in turn is the
-positive one, the rest are negative.
+positive one, the rest are negative. The figure writes them out. Recall runs along
+each row: the diagonal cell divided by the row total, for degraded 129 ÷ 259 =
+0.498. Precision runs down each column: the diagonal cell divided by the column
+total, for degraded 129 ÷ 214 = 0.603. Degraded is the class with the lowest
+recall: the model finds half of the degraded drives.
 :::
 
 # Macro against weighted, one last time (optional)

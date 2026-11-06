@@ -1687,7 +1687,7 @@ rest are negative. On our three conditions, from notebook 3:
 
 ![](multiclass_confusion.png)
 
-*Read the off-diagonal cells rather than the accuracy. Degraded is the hard class: it sits between two neighbours that both resemble it, and the model confuses it in both directions.*
+*Read the off-diagonal cells rather than the accuracy. Degraded is the hard class: it sits between two neighbours that both resemble it, and the model confuses it in both directions. Each class in turn is the positive one: its recall, written to the right, is the diagonal cell divided by its row; its precision, written above, is the diagonal cell divided by its column.*
 
 | Class | Precision | Recall | $F_1$ | Support |
 |---|---|---|---|---|
