@@ -14,8 +14,8 @@ date: "20 November 2026 · reading time about 85 minutes"
 | 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 21–27 |
 | 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 28 |
 | 1:12–1:24 | 12 | **Break** | Slide 29 |
-| 1:24–1:44 | 20 | Bagging and random forests | Slides 30–44 |
-| 1:44–2:02 | 18 | **Notebook 02** — bagging and random forests | Slide 45 |
+| 1:24–1:49 | 25 | Bagging and random forests | Slides 30–44 |
+| 1:49–2:02 | 13 | **Notebook 02** — bagging and random forests | Slide 45 |
 | 2:02–2:24 | 22 | Gradient boosting | Slides 46–55 |
 | 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 56 |
 | 2:42–3:00 | 18 | The full leaderboard; homework | Slides 57–62 |

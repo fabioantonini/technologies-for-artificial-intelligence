@@ -1327,7 +1327,7 @@ scikit-learn, the out-of-bag score checked against cross-validation, the
 variance measured over 30 splits, the noise-column experiment, and the
 permutation check of the previous slide.
 
-Run Notebooks/02_bagging_and_random_forests.ipynb. Eighteen minutes.
+Run Notebooks/02_bagging_and_random_forests.ipynb. Thirteen minutes.
 
 The cell to protect is the noise-column sweep. Let them add the columns
 themselves and watch the importance share climb - reading the number off a
