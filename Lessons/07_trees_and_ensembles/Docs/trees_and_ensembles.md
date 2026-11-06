@@ -14,12 +14,12 @@ date: "20 November 2026 · reading time about 85 minutes"
 | 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 21–27 |
 | 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 28 |
 | 1:12–1:24 | 12 | **Break** | Slide 29 |
-| 1:24–1:44 | 20 | Bagging and random forests | Slides 30–42 |
-| 1:44–2:02 | 18 | **Notebook 02** — bagging and random forests | Slide 43 |
-| 2:02–2:24 | 22 | Gradient boosting | Slides 44–53 |
-| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 54 |
-| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 55–60 |
-| | **180** | **Total** | **60 slides, 3 notebooks** |
+| 1:24–1:44 | 20 | Bagging and random forests | Slides 30–44 |
+| 1:44–2:02 | 18 | **Notebook 02** — bagging and random forests | Slide 45 |
+| 2:02–2:24 | 22 | Gradient boosting | Slides 46–55 |
+| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 56 |
+| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 57–62 |
+| | **180** | **Total** | **62 slides, 3 notebooks** |
 
 ---
 
@@ -550,6 +550,15 @@ and combined by a vote, should have mistakes that partly cancel. That is
 predictors" — the same Breiman who co-wrote the CART trees of 1984 and, five
 years later, the random forest.
 
+![](bagging_drawn.png)
+
+*Bagging drawn, on the 840 training loans of notebook 2's first split. Top: three
+of the 100 bootstrap samples — a dot's size grows with the times that loan was
+drawn, and missed loans are absent. Bottom: the fully grown tree each sample
+produces, three different shapes from the same 840 loans, and the majority vote of
+all 100, which keeps the strips and the islands and drops most single-tree
+slivers.*
+
 Nothing about the tree itself changes — bagging reuses section 2's
 algorithm unmodified and changes only what surrounds it. Three details are
 worth stating. The $m$ rows are the **training** rows: in notebook 2, the 840
@@ -820,7 +829,17 @@ forest's 100 open 51 on `debt_ratio` and 49 on `income_k`, because half the time
 the root is offered income alone. A tree denied `debt_ratio` at the root can
 still use it further down, since the draw is repeated at every split. The trees
 start differently, grow differently, and make their mistakes in different
-places.
+places. Counted the way section 4 counted two trees, two bagged trees give
+opposite verdicts on 38 of the 360 test applicants on average, two forest trees
+on 50.
+
+![](forest_vs_bagging_trees.png)
+
+*Three bagged trees (top) and three forest trees (bottom), with the question at
+their root, trained on the first of the 30 splits. The bagged trees all open on
+debt and draw the same strips; the forest's fill the plane differently. Right:
+where each ensemble's 100 trees split their vote, darker where the split is
+closer to half — wider for the forest.*
 
 The price is paid tree by tree: denied the better column at some splits, a forest
 tree alone scores 0.828 mean test accuracy against a bagged tree's 0.837. The

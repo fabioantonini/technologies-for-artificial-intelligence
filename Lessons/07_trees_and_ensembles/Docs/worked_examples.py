@@ -416,6 +416,18 @@ _s0 = _forest_vs_bagging(0)
 same("6 all 100 bagged trees open on debt_ratio", _s0["bagging"][0], 100, tolerance=0)
 same("6 the forest's open 51 on debt_ratio", _s0["forest"][0], 51, tolerance=0)
 same("6 a bagged tree alone 0.837", _s0["bagging"][2], 0.837, tolerance=5e-4)
+# How often two trees give opposite verdicts, averaged over the 4,950 pairs, from
+# the vote counts alone: an applicant with k of 100 trees voting "default" has
+# k (100 - k) disagreeing pairs - not by comparing pairs of trees as notebook 2 does.
+_Xtr6, _Xte6, _ytr6, _ = train_test_split(X, y, test_size=0.3, random_state=0, stratify=y)
+for _name, _model, _printed in (
+        ("bagging", BaggingClassifier(DecisionTreeClassifier(random_state=0), n_estimators=100, random_state=0), 38),
+        ("forest", RandomForestClassifier(n_estimators=100, random_state=0), 50)):
+    _model.fit(_Xtr6, _ytr6)
+    _cols = getattr(_model, "estimators_features_", [np.arange(2)] * 100)
+    _k = sum(t.predict(_Xte6.to_numpy()[:, c]) for t, c in zip(_model.estimators_, _cols))
+    _pairs_apart = (_k * (100 - _k)).sum() / 4950
+    same(f"6 two {_name} trees differ on {_printed} of 360 test applicants", _pairs_apart, _printed, tolerance=0.5)
 same("6 a forest tree alone 0.828", _s0["forest"][2], 0.828, tolerance=5e-4)
 # The comparison, not the digits, must survive another split.
 _s1 = _forest_vs_bagging(1)

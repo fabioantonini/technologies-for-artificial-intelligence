@@ -952,6 +952,26 @@ title "Bagging predictors" - the same Breiman who co-wrote the CART trees of
 1984 and, five years later, the random forest.
 :::
 
+# Bagging, drawn
+
+![](bagging_drawn.png)
+
+::: notes
+The previous slide as one picture, from notebook 2, section 1: the 840
+training loans of its first split. Top row: three of the 100 bootstrap
+samples. A dot's size grows with the number of times that loan was drawn, and
+the loans a sample missed are simply absent - each sample holds about 530
+different loans of the 840. Bottom row: the fully grown tree each sample
+produces, and on the right the majority vote of all 100.
+
+Let the room compare the three trees first: three samples of the same 840
+loans, three different shapes - slide 27 again, now a hundred times over. Then
+the vote: the two strips and the two islands survive, and most single-tree
+slivers do not, because a sliver one tree draws, most of the others do not.
+
+Handout section 5.
+:::
+
 # How much data one bootstrap sample sees
 
 - One draw misses a row with probability $1 - 1/m$; $m$ independent
@@ -1161,12 +1181,32 @@ as an industrial consultant, also wrote that year's "Statistical Modeling: The
 Two Cultures", a defence of judging models by how well they predict.
 :::
 
+# Bagged trees against forest trees
+
+![](forest_vs_bagging_trees.png)
+
+::: notes
+Top row bagging, bottom row the random forest, both trained on the first of
+the 30 splits (notebook 2, section 4). The three bagged trees all open on debt
+and draw the same two strips. The forest's open on debt or on income and fill
+the plane differently: tree 2, offered only debt at many of its splits, is
+nearly all horizontal bands.
+
+On the right, where each ensemble's 100 trees split their vote - darker where
+the split is closer to half. Then the count, the same one slide 27 made for two
+trees: two bagged trees give opposite verdicts on 38 of the 360 test
+applicants, on average over all pairs; two forest trees on 50. Less alike, so
+the vote has more private mistakes to cancel.
+
+Handout section 6.
+:::
+
 # Random forests, measured
 
 ![](ensemble_variance.png)
 
 ::: notes
-The same 30 random 70/30 splits as slide 37, now with the random forest added
+The same 30 random 70/30 splits as slide 38, now with the random forest added
 (notebook 2, section 3). Each dot is one split's test accuracy; the box holds
 the middle half of the 30, the red line is the median.
 
@@ -1274,12 +1314,12 @@ Handout section 7.1.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| 1. bagging from scratch, 30 | `train_test_split`, your bagging against `BaggingClassifier`, `accuracy_score` → 0.872 both; 1 of 29 flipped right |
-| 2. why averaging works, 31-36 | `oob_score=True`: `.oob_score_` against `cross_val_score` → 0.9083, 0.9025 |
-| 3. variance, measured, 37, 39 | tree, bagging, `RandomForestClassifier`, 30 splits → 0.856, 0.902, 0.908 |
-| 4. what a forest adds, 38 | `.estimators_`, `tree_.feature[0]` → roots 100, 51 and 49 |
-| 5. feature importance, 40-41 | `.feature_importances_`, 0 to 20 noise columns → 54.5% on noise |
-| 6. checking the importances, 42 | `permutation_importance`, test split → real 0.09 and 0.18, noise ≈ 0 |
+| 1. bagging from scratch, 30-31 | `train_test_split`, your bagging against `BaggingClassifier`, `accuracy_score` → 0.872 both; 1 of 29 flipped right |
+| 2. why averaging works, 32-37 | `oob_score=True`: `.oob_score_` against `cross_val_score` → 0.9083, 0.9025 |
+| 3. variance, measured, 38, 41 | tree, bagging, `RandomForestClassifier`, 30 splits → 0.856, 0.902, 0.908 |
+| 4. what a forest adds, 39-40 | `.estimators_`, `tree_.feature[0]` → roots 100, 51 and 49 |
+| 5. feature importance, 42-43 | `.feature_importances_`, 0 to 20 noise columns → 54.5% on noise |
+| 6. checking the importances, 44 | `permutation_importance`, test split → real 0.09 and 0.18, noise ≈ 0 |
 
 ::: notes
 The table is the notebook's map: bagging from scratch and against
@@ -1597,11 +1637,11 @@ Handout section 10.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| 1. boosting from scratch, 44-48 | `DecisionTreeRegressor(max_depth=2)` on the residuals, 60 times → MSE 0.0119 at 20 trees |
-| 2. classification, 49-50 | `GradientBoostingClassifier()` in `cross_val_score` → F0 = −0.461; 0.902 |
-| 3. more trees, 51-52 | the same, `learning_rate=0.3`, `n_estimators` from 5 to 800 → peak 0.897 at 30 |
-| 4. learning rate, 53 | the same with `n_estimators=120` and `learning_rate` from 0.02 to 1.0 → best 0.902 at 0.1 |
-| 5. leaderboard, 55 | every model in one `cross_val_score` loop → random forest 0.911 |
+| 1. boosting from scratch, 46-50 | `DecisionTreeRegressor(max_depth=2)` on the residuals, 60 times → MSE 0.0119 at 20 trees |
+| 2. classification, 51-52 | `GradientBoostingClassifier()` in `cross_val_score` → F0 = −0.461; 0.902 |
+| 3. more trees, 53-54 | the same, `learning_rate=0.3`, `n_estimators` from 5 to 800 → peak 0.897 at 30 |
+| 4. learning rate, 55 | the same with `n_estimators=120` and `learning_rate` from 0.02 to 1.0 → best 0.902 at 0.1 |
+| 5. leaderboard, 57 | every model in one `cross_val_score` loop → random forest 0.911 |
 
 ::: notes
 The table is the notebook's map: boosting from scratch on the residuals,
@@ -1705,7 +1745,7 @@ The fourth row is worth a sentence of its own, tying back to the noise
 experiment: with two real features among 22 columns and 1,200 rows, more
 than half the importance already landed on noise. Many rows do not protect
 against it; what matters is how many useless columns compete at each split.
-Permutation importance, the check, was slide 42; the next slide comes back to it.
+Permutation importance, the check, was slide 44; the next slide comes back to it.
 
 Handout section 11.
 :::
@@ -1717,7 +1757,7 @@ Handout section 11.
   no real feature
 - **Small groups**: with all 22 on offer, noise still takes **28%**, from
   deep splits
-- The check: **permutation importance**, slide 42
+- The check: **permutation importance**, slide 44
 
 ::: notes
 This is the number to carry out of the room. Say it once more, slowly: with
@@ -1752,7 +1792,7 @@ same run raised the accuracy from 0.837 to 0.897: with 20 useless columns out
 of 22, the random menu costs more accuracy than decorrelating the trees buys
 back. The default is a good default, not a law.
 
-The last bullet sends them back to the check of slide 42: shuffling a
+The last bullet sends them back to the check of slide 44: shuffling a
 column on held-out data costs the two real features 0.09 and 0.18 of
 accuracy, and each noise column almost nothing.
 
@@ -1776,7 +1816,7 @@ If they remember one habit from today, make it this: before trusting a
 random forest's importance ranking, ask how many of the columns could
 plausibly matter at all - many useless columns are what hand credit to
 noise, and the accuracy score gives no warning - and then check the ranking
-by shuffling on held-out data, as slide 42 did.
+by shuffling on held-out data, as slide 44 did.
 
 Next lesson turns from labelled data to unlabelled data. Every model so far
 learned from examples whose answer was known: a price, a class, a default.
