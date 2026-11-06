@@ -16,6 +16,9 @@ Two loaders, two jobs.
                       pure noise, for testing whether feature importance and
                       cross-validated accuracy survive irrelevant columns.
 
+And one helper for teaching, ``flipped_labels``: which applicants' labels were
+flipped after the rule was applied. A real lender never knows this.
+
 Everything is offline and reproducible: same seed, same numbers, anywhere.
 """
 
@@ -83,6 +86,19 @@ def load_loans(n_samples: int = 1_200, random_state: int = RANDOM_STATE):
 
     X = pd.DataFrame({"income_k": income.round(2), "debt_ratio": debt.round(4)})
     return X, pd.Series(default, name="default")
+
+
+def flipped_labels(n_samples: int = 1_200, random_state: int = RANDOM_STATE):
+    """Which of ``load_loans``' labels were flipped after the rule was applied.
+
+    Replays the generator's own random draws, so the mask matches
+    ``load_loans(n_samples, random_state)`` row for row: True where the label
+    says the opposite of what the rule gives for that applicant.
+    """
+    rng = np.random.default_rng(random_state)
+    rng.uniform(20.0, 100.0, n_samples)      # income, as in load_loans
+    rng.uniform(0.0, 1.0, n_samples)         # debt ratio
+    return pd.Series(rng.random(n_samples) < LABEL_NOISE, name="flipped")
 
 
 def load_with_noise(n_noise: int, n_samples: int = 1_200,

@@ -52,16 +52,18 @@ algorithm is untouched; only what surrounds it changes. scikit-learn averages th
 trees' probabilities instead, which for fully grown trees is the same thing. → § 5
 
 **Out-of-bag rows.** The rows a given bootstrap sample never drew — free validation
-data for the trees that did not see them. → § 5.1
+data for the trees that did not see them. Out-of-bag is decided tree by tree: the
+rows are still training rows, and the other trees see them. → § 5.1
 
 **Out-of-bag score.** Each row scored only by the trees whose bootstrap sample
-missed it — a different third of the forest for each row. It works like
+missed it — a different third of the ensemble for each row. It works like
 cross-validation without an explicit split, estimates the same quantity, and agrees
 within its own noise. → § 5.1
 
-**The variance floor.** Averaging drives variance down towards the trees' shared
-correlation times their individual variance — not to zero. Past that point, more
-trees buy nothing. → § 5.2
+**The variance floor.** Averaging cancels each tree's private luck but not what the
+trees share, because they all grow from the same data: variance falls towards the
+trees' correlation times their individual variance — not to zero. Past that point,
+more trees buy nothing. → § 5.2
 
 **What bagging cannot fix.** An error every tree shares. Averaging removes the part
 of the trees' mistakes that differs from tree to tree; trees too shallow for the

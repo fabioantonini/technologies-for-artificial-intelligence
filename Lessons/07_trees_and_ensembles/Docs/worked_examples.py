@@ -29,6 +29,8 @@ from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "Notebooks"))
 from loan_data import (LABEL_NOISE, TRUE_DEBT_CEIL, TRUE_INCOME_FLOOR,
+                        TRUE_ISLAND_A_DEBT, TRUE_ISLAND_A_INCOME,
+                        TRUE_ISLAND_B_DEBT, TRUE_ISLAND_B_INCOME,
                         load_loans, load_with_noise)
 
 HANDOUT = "Lessons/07_trees_and_ensembles/Docs/trees_and_ensembles.md"
@@ -236,6 +238,38 @@ _ta = DecisionTreeClassifier(max_depth=6, random_state=0).fit(_sa, y.loc[_sa.ind
 _tb = DecisionTreeClassifier(max_depth=6, random_state=0).fit(_sb, y.loc[_sb.index])
 same("4 opposite verdicts", int((_ta.predict(X) != _tb.predict(X)).sum()), 140, tolerance=3)
 
+# Section 4's root contrast inside each sample, counted at the true ceiling 0.82
+# rather than read off the fitted trees: no applicant of either sample lies between
+# 0.82 and the tree's own threshold, so the two partitions are the same.
+for _name, _s, _low_rate in (("A", _sa, 24.5), ("B", _sb, 24.8)):
+    _d, _o = _s["debt_ratio"].to_numpy(), y.loc[_s.index].to_numpy()
+    same(f"4 sample {_name}: 636 below the ceiling", int((_d <= 0.82).sum()), 636, tolerance=0)
+    same(f"4 sample {_name}: 144 above it", int((_d > 0.82).sum()), 144, tolerance=0)
+    same(f"4 sample {_name}: default rate below", 100 * _o[_d <= 0.82].mean(), _low_rate, tolerance=0.05)
+    same(f"4 sample {_name}: default rate above", 100 * _o[_d > 0.82].mean(), 93.8, tolerance=0.05)
+same("4 sample A's neighbours: midpoint of 0.8198 and 0.8205", (0.8198 + 0.8205) / 2, 0.82015, tolerance=1e-9)
+same("4 sample B's neighbours: midpoint of 0.8182 and 0.8205", (0.8182 + 0.8205) / 2, 0.81935, tolerance=1e-9)
+same("4 sample A holds the applicant at 0.8198", int((_sa["debt_ratio"] == 0.8198).sum()), 1, tolerance=0)
+same("4 sample B lacks it", int((_sb["debt_ratio"] == 0.8198).sum()), 0, tolerance=0)
+same("4 sample B's largest debt below 0.82", _sb["debt_ratio"][_sb["debt_ratio"] <= 0.82].max(), 0.8182, tolerance=1e-9)
+
+# Where the 140 opposite verdicts sit: distance from each island box, computed
+# per axis (0 inside), against the rule's own constants.
+_dis = (_ta.predict(X) != _tb.predict(X))
+_inc, _dr = X.loc[_dis, "income_k"].to_numpy(), X.loc[_dis, "debt_ratio"].to_numpy()
+def _gap(v, lo, hi):
+    return np.maximum(0, np.maximum(lo - v, v - hi))
+_near = np.zeros(len(_inc), bool); _inside = np.zeros(len(_inc), bool)
+for _bi, _bd in ((TRUE_ISLAND_A_INCOME, TRUE_ISLAND_A_DEBT), (TRUE_ISLAND_B_INCOME, TRUE_ISLAND_B_DEBT)):
+    _gi, _gd = _gap(_inc, *_bi), _gap(_dr, *_bd)
+    _inside |= (_gi == 0) & (_gd == 0)
+    _near |= (_gi <= 4.0) & (_gd <= 0.05)
+same("4 disagreements inside the islands", int(_inside.sum()), 75, tolerance=0)
+same("4 disagreements in or within 4k / 0.05 of them", int(_near.sum()), 105, tolerance=0)
+same("4 which is three in four", _near.sum() / _dis.sum(), 0.75, tolerance=0.01)
+same("4 disagreements below the income floor", int((_inc < TRUE_INCOME_FLOOR).sum()), 11, tolerance=0)
+same("4 disagreements above the debt ceiling", int((_dr > TRUE_DEBT_CEIL).sum()), 11, tolerance=0)
+
 # Section 2.2 now says what G *is*: the chance two draws from the group, labelled
 # by its own frequencies, disagree. Checked by drawing pairs, not by the formula.
 _rng7 = np.random.default_rng(20261106)
@@ -285,29 +319,51 @@ same("5.1 (1-1/m)^m at m=1200", theory, 0.3677, tolerance=5e-4)
 same("5.1 the 1/e limit", np.exp(-1), 0.368, tolerance=5e-4)
 same("5.1 the fraction kept, 1 - 1/e", 1 - np.exp(-1), 0.632, tolerance=5e-4)
 
-rf_oob = RandomForestClassifier(n_estimators=200, oob_score=True, random_state=0).fit(X, y)
-rf_cv = cross_val_score(RandomForestClassifier(n_estimators=200, random_state=0), X, y, cv=folds)
-same("5.1 OOB score against cross-validated accuracy",
-     rf_oob.oob_score_, rf_cv.mean(), tolerance=0.015)
-same("5.1 OOB score against the handout's 0.9117", rf_oob.oob_score_, 0.9117, tolerance=0.02)
+# The out-of-bag score of 300 bagged trees, recomputed by hand: for each loan, the
+# trees whose bootstrap sample missed it vote, and their majority is compared with
+# the label - not read from oob_score_.
+_bag300 = BaggingClassifier(DecisionTreeClassifier(random_state=0), n_estimators=300,
+                            oob_score=True, random_state=0).fit(X, y)
+_Xa = X.to_numpy()
+_missed = np.array([np.bincount(r, minlength=m) == 0 for r in _bag300.estimators_samples_])
+_tree_votes = np.array([t.predict(_Xa[:, f]) for t, f in
+                        zip(_bag300.estimators_, _bag300.estimators_features_)])
+_oob_share = (_tree_votes * _missed).sum(axis=0) / _missed.sum(axis=0)
+_oob_right = int(((_oob_share > 0.5).astype(int) == y.to_numpy()).sum())
+same("5.1 out-of-bag trees per loan, about 0.368 x 300 = 110", _missed.sum(axis=0).mean(), 110, tolerance=1)
+same("5.1 fewest out-of-bag trees for a loan", int(_missed.sum(axis=0).min()), 81, tolerance=0)
+same("5.1 most out-of-bag trees for a loan", int(_missed.sum(axis=0).max()), 133, tolerance=0)
+same("5.1 OOB: loans right, by hand", _oob_right, 1090, tolerance=2)
+same("5.1 OOB score 0.9083", _oob_right / m, 0.9083, tolerance=2e-3)
+same("5.1 scikit-learn's oob_score_ agrees", _bag300.oob_score_, _oob_right / m, tolerance=2e-3)
+# Cross-validation by an explicit fold loop rather than cross_val_score.
+_fold_right = []
+for _tr, _te in folds.split(X, y):
+    _b = BaggingClassifier(DecisionTreeClassifier(random_state=0), n_estimators=300,
+                           random_state=0).fit(X.iloc[_tr], y.iloc[_tr])
+    _fold_right.append(int((_b.predict(X.iloc[_te]) == y.iloc[_te].to_numpy()).sum()))
+for _got, _printed in zip(_fold_right, (212, 215, 223, 222, 211)):
+    same("5.1 cross-validation: right in a fold of 240", _got, _printed, tolerance=0)
+same("5.1 cross-validation: 1,083 of 1,200 right", sum(_fold_right), 1083, tolerance=0)
+same("5.1 cross-validated mean 0.9025", np.mean(_fold_right) / 240, 0.9025, tolerance=5e-5)
+same("5.1 cross-validated spread 0.021", np.std(np.array(_fold_right) / 240), 0.021, tolerance=5e-4)
 
-# The handout used to offer one seed's four-decimal match as the demonstration.
-# It now says that match is luck, and THAT is the claim needing a check - one
-# that runs the opposite way to a tolerance. Confirm some other seed disagrees
-# materially: a check that could only ever pass would prove nothing.
+# The gap between the two is luck of the same small size on other seeds. A check
+# that runs the other way too: some seed must differ materially.
 oob_cv_gaps = []
 for seed in range(6):
-    _oob = RandomForestClassifier(n_estimators=150, oob_score=True,
-                                  random_state=seed).fit(X, y).oob_score_
+    _oob = BaggingClassifier(DecisionTreeClassifier(random_state=0), n_estimators=150,
+                             oob_score=True, random_state=seed).fit(X, y).oob_score_
     _cv = cross_val_score(
-        RandomForestClassifier(n_estimators=150, random_state=seed), X, y,
+        BaggingClassifier(DecisionTreeClassifier(random_state=0), n_estimators=150,
+                          random_state=seed), X, y,
         cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)).mean()
     oob_cv_gaps.append(abs(_oob - _cv))
 
-at_least("5.1 four-decimal agreement is luck: some seed differs materially",
+at_least("5.1 the two do not always agree: some seed differs materially",
          max(oob_cv_gaps), 0.001)
-same("5.1 typical |OOB - CV| gap across seeds",
-     float(np.mean(oob_cv_gaps)), 0.0026, tolerance=0.004)
+same("5.1 typical |OOB - CV| gap across seeds, against the twelve-seed 0.0040",
+     float(np.mean(oob_cv_gaps)), 0.0040, tolerance=0.004)
 
 # ------------------------------- Section 5.2 and 6, variance reduction
 
@@ -336,17 +392,9 @@ if not (tree_mean < bag_mean <= rf_mean + 0.01):
         f"got means {tree_mean:.4f}, {bag_mean:.4f}, {rf_mean:.4f}")
 checks += 1
 
-# ------------------------- Section 6, one column per split, and rho measured
+# ------------------------- Section 6, one column per split
 
-# n = 2, so "sqrt" offers floor(sqrt(2)) = 1 column. The correlation is computed
-# here by hand from covariances, not with np.corrcoef as the notebook does.
-def _rho_by_hand(votes):
-    centred = votes - votes.mean(axis=1, keepdims=True)
-    cov = centred @ centred.T / votes.shape[1]
-    sd = np.sqrt(np.diag(cov))
-    corr = cov / np.outer(sd, sd)
-    return float(corr[np.triu_indices(len(votes), k=1)].mean())
-
+# n = 2, so "sqrt" offers floor(sqrt(2)) = 1 column.
 
 def _forest_vs_bagging(seed):
     Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.3, random_state=seed, stratify=y)
@@ -358,24 +406,23 @@ def _forest_vs_bagging(seed):
         trees = model.fit(Xtr, ytr).estimators_
         votes = np.array([tr.predict(Xte.values) for tr in trees]).astype(float)
         roots = [X.columns[tr.tree_.feature[0]] for tr in trees]
-        out[name] = (roots.count("debt_ratio"), _rho_by_hand(votes),
+        out[name] = (roots.count("debt_ratio"), None,
                      float((votes == yte.values).mean()))
     return out
 
 
 same("6 columns per split, floor(sqrt(2))", int(np.sqrt(2)), 1, tolerance=0)
-same("6 pairs of 100 trees, 100 x 99 / 2", 100 * 99 // 2, 4950, tolerance=0)
 _s0 = _forest_vs_bagging(0)
 same("6 all 100 bagged trees open on debt_ratio", _s0["bagging"][0], 100, tolerance=0)
 same("6 the forest's open 51 on debt_ratio", _s0["forest"][0], 51, tolerance=0)
-same("6 rho between bagged trees 0.774", _s0["bagging"][1], 0.774, tolerance=5e-4)
-same("6 rho between forest trees 0.700", _s0["forest"][1], 0.700, tolerance=5e-4)
 same("6 a bagged tree alone 0.837", _s0["bagging"][2], 0.837, tolerance=5e-4)
 same("6 a forest tree alone 0.828", _s0["forest"][2], 0.828, tolerance=5e-4)
 # The comparison, not the digits, must survive another split.
 _s1 = _forest_vs_bagging(1)
-same("6 on split seed 1 the forest's trees are still less correlated",
-     float(_s1["forest"][1] < _s1["bagging"][1]), 1.0, tolerance=0)
+same("6 on split seed 1 bagging still opens every tree on debt_ratio",
+     _s1["bagging"][0], 100, tolerance=0)
+at_least("6 on split seed 1 the forest still opens a third or more on income",
+         100 - _s1["forest"][0], 33)
 
 # --------------------------------------- Section 7, feature importance and noise
 
@@ -511,6 +558,28 @@ _vote = (np.stack([t.predict(Xte_b) for t in _trees]).mean(axis=0) >= 0.5).astyp
 same("5 own bagging and BaggingClassifier agree on every test applicant",
      (_vote == bag_b.predict(Xte_b)).mean(), 1.0, tolerance=0)
 
+# Section 5's flipped labels, found by replaying the generator's draws and applying
+# the rule to the unrounded values - not with loan_data.flipped_labels().
+_g = np.random.default_rng(42)
+_inc_raw, _debt_raw = _g.uniform(20.0, 100.0, 1200), _g.uniform(0.0, 1.0, 1200)
+_rule = ((_inc_raw < TRUE_INCOME_FLOOR) | (_debt_raw > TRUE_DEBT_CEIL)
+         | ((_inc_raw >= TRUE_ISLAND_A_INCOME[0]) & (_inc_raw <= TRUE_ISLAND_A_INCOME[1])
+            & (_debt_raw >= TRUE_ISLAND_A_DEBT[0]) & (_debt_raw <= TRUE_ISLAND_A_DEBT[1]))
+         | ((_inc_raw >= TRUE_ISLAND_B_INCOME[0]) & (_inc_raw <= TRUE_ISLAND_B_INCOME[1])
+            & (_debt_raw >= TRUE_ISLAND_B_DEBT[0]) & (_debt_raw <= TRUE_ISLAND_B_DEBT[1]))).astype(int)
+_flip = _rule != y.to_numpy()
+same("5 labels flipped in all", int(_flip.sum()), 85, tolerance=0)
+for _name, _Xs, _ys, _n_flip, _n_right, _share in (
+        ("training", Xtr_b, ytr_b, 56, 55, 0.67), ("test", Xte_b, yte_b, 29, 1, 0.05)):
+    _f = _flip[_Xs.index.to_numpy()]
+    _tv = np.array([t.predict(_Xs.to_numpy()[:, f]) for t, f in
+                    zip(bag_b.estimators_, bag_b.estimators_features_)])
+    _maj = (_tv.mean(axis=0) > 0.5).astype(int)
+    same(f"5 {_name}: flipped labels", int(_f.sum()), _n_flip, tolerance=0)
+    same(f"5 {_name}: the vote gets right", int((_maj[_f] == _ys.to_numpy()[_f]).sum()), _n_right, tolerance=0)
+    same(f"5 {_name}: share of trees voting the flipped label",
+         float((_tv[:, _f] == _ys.to_numpy()[_f]).mean()), _share, tolerance=0.005)
+
 # ---------------------------------------- 5.1, draws against distinct rows
 distinct = 1200 * (1 - (1 - 1 / 1200) ** 1200)
 same("5.1 about 759 distinct rows in one bootstrap sample", distinct, 759, tolerance=0.5)
@@ -592,9 +661,22 @@ from math import exp, factorial
 for k, printed in ((0, 0.368), (1, 0.368), (2, 0.184), (3, 0.061)):
     same(f"5.1 limit share drawn {k} times", exp(-1) / factorial(k), printed, tolerance=5e-4)
 same("5.1 'about one in four' drawn twice or more", 1 - 2 * exp(-1), 0.25, tolerance=0.02)
+same("5.1 1 - 2/e = 0.264", 1 - 2 * exp(-1), 0.264, tolerance=5e-4)
+# The exact share at m = 1,200, C(m, k) (1/m)^k (1 - 1/m)^(m - k), against the table.
+for k, printed in ((0, 0.3677), (1, 0.3680), (2, 0.1840), (3, 0.0613), (4, 0.0153)):
+    same(f"5.1 exact share drawn {k} times at m = 1,200",
+         comb(1200, k) * (1 / 1200) ** k * (1 - 1 / 1200) ** (1200 - k), printed, tolerance=5e-5)
+same("5.1 C(m, 2) / m^2 is close to 1/2!", comb(1200, 2) / 1200 ** 2, 0.4996, tolerance=5e-5)
+# The one simulated sample of notebook 2, drawn again with the same seed.
+_times = np.bincount(np.random.default_rng(0).integers(0, 1200, size=1200), minlength=1200)
+for k, printed in ((0, 0.366), (1, 0.382), (2, 0.168), (3, 0.061), (4, 0.020)):
+    same(f"5.1 one sample: share drawn {k} times", (_times == k).mean(), printed, tolerance=6e-4)
+same("5.1 one sample: drawn twice or more, 303 of 1,200", int((_times >= 2).sum()), 303, tolerance=0)
 
 # ---------------------------------------- 5.2, the floor at rho = 0.5
 same("5.2 a hundred trees at rho 0.5", 1 / 100 + 99 / 100 * 0.5, 0.505, tolerance=1e-9)
+same("5.2 ten trees at rho 0.5", 1 / 10 + 9 / 10 * 0.5, 0.550, tolerance=1e-9)
+same("5 bagging gets about 17 more of the 360 right", 360 * (0.902315 - 0.856204), 16.6, tolerance=0.05)
 
 # ---------------------------------------- 7, both real features left out
 same("7 C(20,4)", comb(20, 4), 4845, tolerance=0)

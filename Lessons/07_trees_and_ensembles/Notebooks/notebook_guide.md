@@ -71,7 +71,7 @@ training accuracy climbs to a perfect 1.000 while cross-validated accuracy peaks
 depth 8 and falls back. At depth 2 the tree finds the two big regions and misses the
 two islands; at depth 8 it finds all four. The last section is the reason notebook 2
 exists: resample the same 1,200 applicants and the root split barely moves, but the two
-trees give opposite verdicts to 140 applicants, almost all around the islands
+trees give opposite verdicts to 140 applicants, three in four in or next to the islands
 (`two_trees_disagree.png`). On the way, a nine-leaf tree cross-validates at 0.901,
 above the depth-8 tree.*
 
@@ -94,12 +94,13 @@ trees, it becomes the mechanism.
 2. **Why it works, and the out-of-bag consequence.** The chance a specific row is never
    drawn in $m$ draws tends to $1/e$: **theory 0.3679**, $(1 - 1/m)^m$ at
    $m = 1200$ **0.3677**, simulated **0.3658**. Those left-out rows give a free
-   validation score: **OOB 0.9117 against cross-validated 0.9117 ± 0.0210** on this
-   seed. The bootstrap counted: 0.366 of rows drawn never, 0.382 once, 0.168 twice,
-   against the limit $e^{-1}/k!$ (`bootstrap_counts.png`).
+   validation score. The bootstrap counted: 0.366 of the loans drawn never, 0.382 once,
+   0.168 twice, against the theory $e^{-1}/k!$ (`bootstrap_counts.png`). Ten trees and
+   eight loans show who votes on what (`oob_grid.png`); at full size, 300 bagged trees
+   score **OOB 0.9083 against cross-validated 0.9025 ± 0.0208**.
 3. **With the honesty the course requires.** Over twelve seeds the typical gap between
-   OOB and CV is **0.0026** and the worst **0.0075**, matching to four decimals in 2 of
-   12. The agreement on one seed is luck; the closeness is the property.
+   OOB and CV is **0.0040** and the worst **0.0075**: the closeness is the property, the
+   exact digits are luck.
 4. **Variance reduction, measured over 30 splits:**
 
    | | mean accuracy | std across splits |
