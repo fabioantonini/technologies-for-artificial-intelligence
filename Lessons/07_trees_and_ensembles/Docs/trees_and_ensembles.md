@@ -14,12 +14,12 @@ date: "20 November 2026 · reading time about 85 minutes"
 | 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 21–27 |
 | 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 28 |
 | 1:12–1:24 | 12 | **Break** | Slide 29 |
-| 1:24–1:49 | 25 | Bagging and random forests | Slides 30–44 |
-| 1:49–2:02 | 13 | **Notebook 02** — bagging and random forests | Slide 45 |
-| 2:02–2:24 | 22 | Gradient boosting | Slides 46–55 |
-| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 56 |
-| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 57–62 |
-| | **180** | **Total** | **62 slides, 3 notebooks** |
+| 1:24–1:49 | 25 | Bagging and random forests | Slides 30–45 |
+| 1:49–2:02 | 13 | **Notebook 02** — bagging and random forests | Slide 46 |
+| 2:02–2:24 | 22 | Gradient boosting | Slides 47–56 |
+| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 57 |
+| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 58–63 |
+| | **180** | **Total** | **63 slides, 3 notebooks** |
 
 ---
 
@@ -578,6 +578,32 @@ each draws its own bootstrap samples. They still make the same prediction for
 all 360 applicants of its test split, 0.872 accuracy both — with 100 trees, the
 luck of any one bootstrap sample is outvoted.
 
+**Why a vote cancels a tree's mistakes, one applicant at a time.** A tree's
+verdict on an applicant depends on two things: what the data really say in
+that part of the plane, the same for every tree, and the luck of its own
+bootstrap sample, different for every tree. A mistake caused by luck falls on
+different applicants for different trees, so on any one applicant the unlucky
+trees are a minority and the vote outvotes them. In notebook 2's test split,
+the applicant at income 39.22 and debt ratio 0.9721, who defaulted, gets
+"default" from 69 of the 100 trees and "repaid" from 31, tree 1 among them; the
+vote is right. Over the 360 test applicants, one tree alone is wrong on 58.7 on
+average; the vote gets 18.9 of those right, and is itself wrong on 46.
+
+So bagging does not *create* disagreements: a single tree already has them,
+unseen. The bootstrap imitates collecting the loans again, without new data,
+and **bagging averages what an unstable tree would have answered on many
+plausible datasets**. It follows that bagging helps only unstable models. On the
+same split, a depth-2 tree scores 0.806 and a bagging of 100 depth-2 trees also
+0.806: those trees barely change from one sample to the next, and there is
+nothing to average. The unconstrained tree goes from 0.825 to 0.872.
+
+A comparison worth making: is bagging to a deep tree what cross-validation is
+to logistic regression? No. Cross-validation *measures* how much a result
+depends on the sample; bagging *reduces* that dependence. The closer analogy is
+lesson 3's Ridge on the degree-12 polynomial: a flexible, unstable model and a
+remedy for its variance — Ridge by restraining the coefficients, bagging by
+averaging many models. Neither touches the bias.
+
 **A predictable mistake, and why it is reasonable.** "The trees cancel each
 other's errors." Section 4's picture is all disagreement, so the reading is
 natural. But the vote cancels only the part of the mistakes that changes from
@@ -623,6 +649,14 @@ draws: about 759 *different* rows, and the other 441 draws are repeats of rows
 already drawn. The tree is fit to 1,200 rows, some of them two or three times
 over, which is what the next paragraph counts.
 
+One identity follows from the counting. The 1,200 draws are the different rows
+plus the repeated draws; the 1,200 rows are the different rows plus the rows
+never drawn. So the repeated draws are exactly as many as the out-of-bag rows:
+every repeat takes the place of a row left out. The rows drawn twice or more
+are fewer, about $1{,}200 \times 0.264 = 317$, because some take three or four
+draws. In notebook 2 the bagging is trained on 840 rows, so a sample holds about
+$840 \times 0.632 = 531$ different loans.
+
 **A second predictable mistake.** "The out-of-bag rows are left out of the
 training set." The word *out* invites it, because it sounds like a test set.
 But out-of-bag is decided tree by tree: a row is missing from *this* tree's
@@ -643,6 +677,12 @@ because each of the $k$ factors $m, m-1, \ldots$ divided by $m$ tends to 1.
 Second, $(1 - 1/m)^{m-k}$ tends to $e^{-1}$, as above. So
 
 $$P(k) \xrightarrow{m \to \infty} \frac{e^{-1}}{k!}$$
+
+Why "once" is as common as "never" has a picture: throw 1,200 balls at random
+into 1,200 boxes, one ball per box on average, and there are about as many
+empty boxes as boxes with exactly one ball. With a mean of one draw per row,
+$P(1)/P(0) = 1{,}200/1{,}199$; with 2,400 draws, "once" would be twice as likely
+as "never".
 
 In words: $k = 0$ leaves nothing to choose, so $P(0) = e^{-1}$, the out-of-bag
 share. $k = 1$ has $m$ choices, each worth $1/m$, so $P(1) = 1 \times e^{-1}$
@@ -686,12 +726,13 @@ score**, with no rows set aside and no extra fit.
 
 ![](oob_grid.png)
 
-*Ten bagged trees on all 1,200 loans, eight of the loans shown. Grey: the
+*Ten bagged trees on all 1,200 loans, the first eight loans shown. Grey: the
 loan is in that tree's sample (×2 = drawn twice), so that tree does not vote
 on it. Gold: the tree never saw the loan, and its vote is shown, D for
 defaulted, R for repaid. The out-of-bag verdict is the majority of the gold
-votes; the OOB score is the share of loans, out of all 1,200, where it
-matches the true label.*
+votes (an exact tie goes to "repaid", the first class, as in scikit-learn); the
+OOB score is the share of loans, out of all 1,200, where it matches the true
+label.*
 
 At full size, notebook 2 fits 300 bagged trees on all 1,200 loans, with no
 split. Each loan is judged by the trees that never saw it — 110.5 of the 300 on
@@ -699,7 +740,21 @@ average, as $0.368 \times 300 = 110$ predicts, from 81 to 133 — and the vote i
 right on 1,090 of the 1,200 loans: an OOB score of **0.9083**. To compare,
 5-fold cross-validation of the same ensemble trains five ensembles, each on 960
 loans, and scores each on the other 240: 212, 215, 223, 222 and 211 right, 1,083
-of 1,200, a mean of **0.9025 ± 0.021**.
+of 1,200, a mean of **0.9025 ± 0.021**. Both are accuracies, the share of
+verdicts that are right. Step by step:
+
+| Round: the group left out | Right of its 240 | Accuracy = right ÷ 240 | Deviation = accuracy − 0.9025 | Deviation² |
+|---|---|---|---|---|
+| 1 | 212 | 0.8833 | −0.0192 | 0.000367 |
+| 2 | 215 | 0.8958 | −0.0067 | 0.000044 |
+| 3 | 223 | 0.9292 | +0.0267 | 0.000711 |
+| 4 | 222 | 0.9250 | +0.0225 | 0.000506 |
+| 5 | 211 | 0.8792 | −0.0233 | 0.000544 |
+
+The mean of the five accuracies is their sum divided by 5, 0.9025 — equal to
+1,083/1,200 because the groups are the same size. The standard deviation is
+$\sqrt{0.002174 / 5} = 0.0208$. numpy's `np.std` divides by 5, the number of
+rounds; dividing by 4, as some statistics texts do, gives 0.023.
 
 The two answer the same question — how does the ensemble do on loans it never
 saw? — with different bookkeeping. In 5-fold cross-validation each fold is
@@ -759,14 +814,29 @@ labels of section 5 showed. Bagging is above all a variance tool. It does
 nothing for trees that are too shallow to represent the rule in the first
 place.
 
+The floor can also be **measured**, because the generator can draw fresh
+datasets — as if the lender had collected another 1,200 loans. Notebook 2 draws
+40 of them, trains a bagging of 100 trees on each, and asks every one the same
+300 imaginary applicants. With one tree, the verdict on an applicant changes
+between two datasets on 14.5% of the applicants; with 9 trees on 6.2%; with 99
+on 3.9%, and the curve is flat from about 50 trees on.
+
+![](verdict_change.png)
+
+*Measured on 40 fresh datasets: the share of applicants whose verdict changes
+from one dataset to another, for an ensemble of the first 1 to 99 trees. It
+falls fast and stops above zero: what is left is shared by every tree, because
+every tree grew from the same 1,200 loans.*
+
 ![](variance_floor.png)
 
-*Computed from the formula, not measured. The horizontal axis is the number
-of trees in the ensemble; the vertical axis is how much of one tree's wobble
-the average still has; one curve for each share the trees have in common.
-Trees that share nothing average it away; trees that share part stop at the
-dotted floor however many are added — sharing half, ten trees keep 0.550 and a
-hundred 0.505. To go lower, trees must be less alike: section 6.*
+*Computed from the formula above, not measured. Horizontal axis: the number
+of trees $B$. Vertical axis: the variance of the average of $B$ trees'
+verdicts, as a share of one tree's variance, $1/B + \rho(B-1)/B$. One curve for
+each correlation $\rho$ between two trees. Uncorrelated trees average the
+variance away; correlated ones stop at the dotted floor $\rho$ however many
+are added — at $\rho = 0.5$, ten trees keep 0.550 and a hundred 0.505. To go
+lower, trees must be less alike: section 6.*
 
 **Worked example.** Notebook 2 splits the 1,200 loans at random into 840 for
 training and 360 for test, trains one unconstrained tree and a bagging of 100
@@ -776,13 +846,17 @@ different splits.
 ![](bagging_vs_tree.png)
 
 *The procedure on top; below, each dot one split's test accuracy, the red line
-the mean of the 30. Bagging is higher on average and its dots a little closer
+the mean of the 30, and a grey line joining the two models on the same split —
+every line rises. Bagging is higher on average and its dots a little closer
 together.*
 
 | Model | Mean test accuracy over the 30 splits | Standard deviation across the 30 |
 |---|---|---|
 | One unconstrained tree | 0.856 | 0.0185 |
 | Bagging, 100 trees | **0.902** | **0.0153** |
+
+The comparison is paired: on each split both models see the same 840 and the
+same 360. Split by split, bagging is ahead on all 30, by 3 to 33 applicants.
 
 On 360 test applicants, $(0.902 - 0.856) \times 360 = 16.6$: bagging gets about
 **17 more right** each time, on average, because the single tree's slivers and
@@ -821,6 +895,11 @@ trees are forced to consider different features at the same point in the tree,
 without any change to the splitting rule itself. It is bagging with the menu of
 candidate splits shrunk at random, every time a split is made.
 
+**A predictable mistake**: "$n$ is the number of classes". Reasonable, because
+here both are 2. But $n$ counts the columns: with the 22 columns of section 7,
+each split gets $\lfloor\sqrt{22}\rfloor = 4$ of them, while the classes are
+still 2.
+
 **On the loan data the menu is as small as it gets.** With $n = 2$,
 $\lfloor\sqrt{2}\rfloor = 1$: each split is offered one of the two columns, drawn
 at random. Notebook 2, section 4, counts what that does on the first of the 30
@@ -835,8 +914,9 @@ on 50.
 
 ![](forest_vs_bagging_trees.png)
 
-*Three bagged trees (top) and three forest trees (bottom), with the question at
-their root, trained on the first of the 30 splits. The bagged trees all open on
+*Three bagged trees (top: the first three) and three forest trees (bottom: the
+first that opens on debt and the first two that open on income, chosen to show
+both), with the question at their root, trained on the first of the 30 splits. The bagged trees all open on
 debt and draw the same strips; the forest's fill the plane differently. Right:
 where each ensemble's 100 trees split their vote, darker where the split is
 closer to half — wider for the forest.*
@@ -852,12 +932,15 @@ why it is wrong about their average.
 Measured on the same 30 splits as section 5.2, a 100-tree random forest
 reaches mean accuracy **0.908** with standard deviation **0.0137** — both a
 better mean and a tighter spread than plain bagging's 0.902 and 0.0153,
-consistent with the trees being less alike.
+consistent with the trees being less alike. Measured as in section 5.2, on 40
+fresh datasets: with another 1,200 loans the vote of 99 bagged trees changes its
+verdict on 3.9% of the applicants, the forest's on 2.6%.
 
 ![](ensemble_variance.png)
 
-*Test accuracy over 30 random 70/30 splits, single tree against bagging
-against random forest. Reading left to right: the median rises, the box
+*Left: test accuracy over 30 random 70/30 splits, single tree against bagging
+against random forest, the red line the mean. Right: how many verdicts change
+with another 1,200 loans, bagging against the forest. Reading left to right: the median rises, the box
 narrows, and the whiskers pull in — mean and spread both improve together,
 as sections 5.2 and 6 lead us to expect.*
 
@@ -865,11 +948,24 @@ as sections 5.2 and 6 lead us to expect.*
 
 ## 7. Feature importance, and its limits
 
-A random forest reports **feature importance**: the total impurity
-reduction each feature is responsible for, summed and averaged across every
-tree and every split. It is tempting to read this as "the forest tells you
-which features matter" — and with only the two real features in this
-dataset, it does exactly that.
+A random forest reports **feature importance**: how much each column helped
+the splits. Each split's gain $\Delta G$, weighted by the share of applicants it
+splits, is credited to the column it asks about; the credits are summed per
+column over every split of every tree and divided by their total, so that the
+columns add up to 1. On the depth-2 tree of section 3:
+
+| Split | Column | Applicants | Gain $\Delta G$ | Weight = applicants ÷ 1,200 | Credit = $\Delta G$ × weight |
+|---|---|---|---|---|---|
+| root | debt ratio ≤ 0.82 | 1,200 | 0.1438 | 1.0000 | 0.1438 |
+| left | income ≤ 28 | 971 | 0.0836 | 0.8092 | 0.0676 |
+| right | debt ratio ≤ 0.947 | 229 | 0.0026 | 0.1908 | 0.0005 |
+
+Debt ratio is credited $0.1438 + 0.0005 = 0.1443$ and income 0.0676, a total of
+0.2119; divided by it, debt ratio 0.681 and income 0.319 — what
+`feature_importances_` returns for that tree. A 300-tree forest on the 1,200
+loans gives debt ratio 0.608 and income 0.392. It is tempting to read this as
+"the forest tells you which features matter" — and with only the two real
+features in this dataset, it does exactly that.
 
 The question is what happens once most of the columns carry nothing.
 
@@ -1206,7 +1302,7 @@ On data whose rule is a handful of axis-aligned rectangles, a small tree is
 nearly enough; what the ensembles buy here is less a higher score than a
 steadier one. On the same 30 random splits as section 5.2, the nine-leaf tree
 averages 0.897 with a standard deviation of 0.020, the random forest 0.908 with
-0.0137; section 4 showed where a single tree's verdicts wobble. Third, the unconstrained tree is the worst model on this list
+0.0137; section 4 showed where a single tree's verdicts change. Third, the unconstrained tree is the worst model on this list
 despite being, in a narrow sense, the most flexible one: flexibility without
 a stopping rule is not an advantage, a point this course has now made with
 several different methods.

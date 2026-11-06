@@ -744,5 +744,95 @@ same("7 menus with no real feature, C(20, 4)", comb(20, 4), 4845, tolerance=0)
 same("7 all menus of 4 from 22, C(22, 4)", comb(22, 4), 7315, tolerance=0)
 same("9 the starting probability, 464 / 1,200", 464 / 1200, 0.387, tolerance=5e-4)
 
+# ---------------------------------------- batch 5: the vote, one applicant at a time
+# Counted from the 100 trees' votes on notebook 2's own model (bag_b, section 5 above).
+_V = np.array([t.predict(Xte_b.to_numpy()[:, f]) for t, f in zip(bag_b.estimators_, bag_b.estimators_features_)])
+_R = _V == yte_b.to_numpy()
+_vote_ok = ((_V.sum(axis=0) > 50).astype(int) == yte_b.to_numpy())
+same("5 one tree alone is wrong on 58.7 of 360", (~_R).sum(axis=1).mean(), 58.7, tolerance=0.05)
+same("5 the vote fixes 18.9 of a tree's errors", ((~_R) & _vote_ok).sum(axis=1).mean(), 18.9, tolerance=0.05)
+same("5 the vote is wrong on 46 of 360", int((~_vote_ok).sum()), 46, tolerance=0)
+_i = int(np.flatnonzero((Xte_b["income_k"].to_numpy() == 39.22) & (Xte_b["debt_ratio"].to_numpy() == 0.9721))[0])
+same("5 the example applicant: 69 trees right", int(_R[:, _i].sum()), 69, tolerance=0)
+same("5 the example applicant: tree 1 is wrong", int(_R[0, _i]), 0, tolerance=0)
+# Bagging a stable model: depth-2 trees.
+_sh = DecisionTreeClassifier(max_depth=2, random_state=0).fit(Xtr_b, ytr_b).score(Xte_b, yte_b)
+_bsh = BaggingClassifier(DecisionTreeClassifier(max_depth=2, random_state=0), n_estimators=100,
+                         random_state=1).fit(Xtr_b, ytr_b).score(Xte_b, yte_b)
+same("5 a depth-2 tree, 0.806", _sh, 0.806, tolerance=5e-4)
+same("5 bagging 100 depth-2 trees gains nothing, 0.806", _bsh, 0.806, tolerance=5e-4)
+same("5 an unconstrained tree on the same split, 0.825",
+     DecisionTreeClassifier(random_state=0).fit(Xtr_b, ytr_b).score(Xte_b, yte_b), 0.825, tolerance=5e-4)
+# How many verdicts change with another 1,200 loans: 10 fresh datasets here, not
+# notebook 2's 40, and other points - the levels must come out close.
+_pts = np.column_stack([np.random.default_rng(5).uniform(20, 100, 300), np.random.default_rng(6).uniform(0, 1, 300)])
+_bv, _fv = [], []
+for _d in range(10):
+    _Xd, _yd = load_loans(random_state=2000 + _d)
+    _bm = BaggingClassifier(DecisionTreeClassifier(), n_estimators=99, random_state=_d).fit(_Xd.to_numpy(), _yd.to_numpy())
+    _fm = RandomForestClassifier(n_estimators=99, random_state=_d).fit(_Xd.to_numpy(), _yd.to_numpy())
+    _bv.append(np.array([t.predict(_pts[:, f]) for t, f in zip(_bm.estimators_, _bm.estimators_features_)]))
+    _fv.append(np.array([t.predict(_pts) for t in _fm.estimators_]))
+def _change(votes, b):
+    v = np.array(votes)[:, :b, :].mean(axis=1) > 0.5
+    return np.mean([(v[i] != v[j]).mean() for i in range(len(v)) for j in range(i + 1, len(v))])
+same("5.2 one tree: about 14.5% of verdicts change", 100 * _change(_bv, 1), 14.5, tolerance=3)
+same("5.2 99 bagged trees: about 3.9%", 100 * _change(_bv, 99), 3.9, tolerance=1.5)
+same("6 99 forest trees: about 2.6%", 100 * _change(_fv, 99), 2.6, tolerance=1.2)
+at_least("6 the forest's verdicts change less than bagging's", 100 * (_change(_bv, 99) - _change(_fv, 99)), 0.0)
+# The paired comparison on the 30 splits.
+_gain = []
+for _seed in range(30):
+    _a, _b, _ya, _yb = train_test_split(X, y, test_size=0.3, random_state=_seed, stratify=y)
+    _t = DecisionTreeClassifier(random_state=0).fit(_a, _ya).predict(_b) == _yb.to_numpy()
+    _g = BaggingClassifier(DecisionTreeClassifier(random_state=0), n_estimators=100,
+                           random_state=0).fit(_a, _ya).predict(_b) == _yb.to_numpy()
+    _gain.append(int(_g.sum() - _t.sum()))
+same("5.2 bagging ahead in 30 of 30 splits", sum(g > 0 for g in _gain), 30, tolerance=0)
+same("5.2 by at least 3 applicants", min(_gain), 3, tolerance=0)
+same("5.2 by at most 33 applicants", max(_gain), 33, tolerance=0)
+# Bootstrap counting.
+same("5.1 P(once) / P(never) = 1,200 / 1,199",
+     (1200 * (1 / 1200) * (1 - 1 / 1200) ** 1199) / ((1 - 1 / 1200) ** 1200), 1200 / 1199, tolerance=1e-12)
+same("5.1 with 2,400 draws, once is twice as likely as never",
+     (2400 * (1 / 1200) * (1 - 1 / 1200) ** 2399) / ((1 - 1 / 1200) ** 2400), 2.0, tolerance=0.002)
+_t1 = np.bincount(np.random.default_rng(11).integers(0, 1200, 1200), minlength=1200)
+same("5.1 repeated draws equal the rows never drawn", int(1200 - (_t1 > 0).sum()), int((_t1 == 0).sum()), tolerance=0)
+same("5.1 drawn twice or more, about 1,200 x 0.264 = 317", 1200 * (1 - 2 * np.exp(-1)), 317, tolerance=0.5)
+same("5.1 840 x 0.632 = 531 distinct", 840 * (1 - (1 - 1 / 840) ** 840), 531, tolerance=0.5)
+# The standard deviation of the five fold accuracies, step by step.
+_fold = np.array([212, 215, 223, 222, 211]) / 240
+for _got, _printed in zip(_fold, (0.8833, 0.8958, 0.9292, 0.9250, 0.8792)):
+    same("5.1 a fold's accuracy", _got, _printed, tolerance=5e-5)
+for _got, _printed in zip(_fold - 0.9025, (-0.0192, -0.0067, 0.0267, 0.0225, -0.0233)):
+    same("5.1 a fold's deviation from 0.9025", _got, _printed, tolerance=5e-5)
+for _got, _printed in zip((_fold - 0.9025) ** 2, (0.000367, 0.000044, 0.000711, 0.000506, 0.000544)):
+    same("5.1 a squared deviation", _got, _printed, tolerance=5e-7)
+same("5.1 their sum", ((_fold - 0.9025) ** 2).sum(), 0.002174, tolerance=5e-7)
+same("5.1 divided by 5", ((_fold - 0.9025) ** 2).sum() / 5, 0.000435, tolerance=5e-7)
+same("5.1 its square root", np.sqrt(((_fold - 0.9025) ** 2).sum() / 5), 0.0208, tolerance=5e-5)
+same("5.1 dividing by 4 instead", np.sqrt(((_fold - 0.9025) ** 2).sum() / 4), 0.023, tolerance=5e-4)
+# Feature importance by hand, slide 8's depth-2 tree.
+_t2 = DecisionTreeClassifier(max_depth=2, random_state=0).fit(X, y).tree_
+_credit = {"income_k": 0.0, "debt_ratio": 0.0}
+_cr = []
+for _n in range(_t2.node_count):
+    _l, _r = _t2.children_left[_n], _t2.children_right[_n]
+    if _l < 0:
+        continue
+    _nP, _nL, _nR = _t2.n_node_samples[[_n, _l, _r]]
+    _gain_n = _t2.impurity[_n] - (_nL * _t2.impurity[_l] + _nR * _t2.impurity[_r]) / _nP
+    _cr.append(_nP / 1200 * _gain_n)
+    _credit[X.columns[_t2.feature[_n]]] += _nP / 1200 * _gain_n
+for _got, _printed in zip(_cr, (0.1438, 0.0676, 0.0005)):
+    same("7 a split's credit, gain x share", _got, _printed, tolerance=5e-5)
+same("7 credit summed for debt", _credit["debt_ratio"], 0.1443, tolerance=5e-5)
+same("7 total credit", sum(_credit.values()), 0.2119, tolerance=5e-5)
+same("7 debt's importance, scaled", _credit["debt_ratio"] / sum(_credit.values()), 0.681, tolerance=5e-4)
+same("7 income's importance, scaled", _credit["income_k"] / sum(_credit.values()), 0.319, tolerance=5e-4)
+_rf300 = RandomForestClassifier(n_estimators=300, random_state=0).fit(X, y)
+same("7 a 300-tree forest: debt 0.61", _rf300.feature_importances_[1], 0.608, tolerance=5e-4)
+same("7 a 300-tree forest: income 0.39", _rf300.feature_importances_[0], 0.392, tolerance=5e-4)
+
 print(f"{checks} numbers recomputed from raw inputs and confirmed against "
       f"{HANDOUT}.")
