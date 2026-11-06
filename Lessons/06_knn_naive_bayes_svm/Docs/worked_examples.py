@@ -295,9 +295,11 @@ same("4.4 the interacting baseline", max(yi.mean(), 1 - yi.mean()), 0.523,
      tolerance=5e-4)
 
 # The handout explains 0.404 by the accidental difference in class means.
-# Check that difference is the size claimed: about 0.17 against a spread near 1.
-gap = abs(Xi.groupby(yi).mean().diff().iloc[-1]).max()
-same("4.4 the accidental gap between class means", gap, 0.17, tolerance=0.02)
+# Check that difference is the size claimed: 0.18 on sensor A, 0.14 on
+# sensor B, against a spread near 1.
+gaps = Xi.groupby(yi).mean().diff().iloc[-1].abs()
+same("4.4 the accidental gap between class means, sensor A", gaps["sensor_a"], 0.18, tolerance=5e-3)
+same("4.4 the accidental gap between class means, sensor B", gaps["sensor_b"], 0.14, tolerance=5e-3)
 spread = Xi.std().mean()
 if not 0.8 < spread < 1.3:
     raise SystemExit(f"4.4 the spread is {spread:.2f}, not 'near 1' as claimed")

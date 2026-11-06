@@ -102,7 +102,7 @@ follows.
 
 ---
 
-## Slide 5 — The shape of the problem
+## Slide 5 — The shape of the problem: healthy pumps in the middle, faulty all around
 
 ![](pump_scatter.png)
 
@@ -180,7 +180,7 @@ chosen by cross-validation and not by taste.
 
 ---
 
-## Slide 8 — Distance is all it has
+## Slide 8 — "Closest" means the smallest Euclidean distance
 
 The Euclidean distance,
 $$d(x, x') = \sqrt{\sum_{j=1}^{n} (x_j - x'_j)^2},$$
@@ -234,7 +234,7 @@ neighbour.
 
 ---
 
-## Slide 10 — k is the bias-variance dial, made visible
+## Slide 10 — k sets the balance between bias and variance
 
 $k$ is the most intuitive example of lesson 5's bias-variance trade-off.
 
@@ -254,7 +254,7 @@ are broken. For this dataset it holds.
 
 ---
 
-## Slide 11 — Measured on the pumps
+## Slide 11 — Measured on the pumps: training against cross-validated accuracy
 
 | $k$ | Training | Cross-validation |
 |---:|---:|---:|
@@ -276,7 +276,7 @@ gradual. Many hyperparameters have a reasonably good *region*, not one narrow op
 
 ---
 
-## Slide 12 — The two curves, and the two lines that bound them
+## Slide 12 — Accuracy against k, between the baseline and the noise ceiling
 
 ![](knn_choosing_k.png)
 
@@ -298,7 +298,7 @@ both low and close together are typical of high bias.
 
 ---
 
-## Slide 13 — The same data at three values of k
+## Slide 13 — The boundary k-NN draws at k = 1, 15 and 401
 
 ![](knn_boundaries.png)
 
@@ -336,7 +336,7 @@ A deployed logistic regression, by contrast, is a vector $w$ and an intercept $b
 
 # Part III — The curse of dimensionality
 
-## Slide 15 — Now the price: add columns of nothing
+## Slide 15 — An experiment: add columns of pure noise
 
 The experiment: keep the two informative features, vibration and pressure, and append
 columns $z_1, \dots, z_p$ of pure noise, $z_j \sim \mathcal{N}(0, 1)$. The function
@@ -348,7 +348,7 @@ column enters the distance.
 
 ---
 
-## Slide 16 — The signal never left
+## Slide 16 — The two real readings are still there, and accuracy still falls
 
 | Total columns | Accuracy |
 |---:|---:|
@@ -513,7 +513,7 @@ contain $c$, so it is the same number whether we are scoring "healthy" or "fault
 
 ---
 
-## Slide 26 — The decision drops the denominator
+## Slide 26 — Drop the denominator: it is the same for every class
 
 $$\hat{y} = \mathrm{arg\,max}_c \; P(x \mid y = c)\,P(y = c)$$
 
@@ -623,7 +623,7 @@ class" means, and why it is a different statement from "independent".
 
 ---
 
-## Slide 28 — The factorisation the assumption buys
+## Slide 28 — The assumption, written: a product of n densities
 
 $$P(x \mid y = c) = \prod_{j=1}^{n} P(x_j \mid y = c)$$
 
@@ -673,7 +673,7 @@ is two priors, four means and four variances: ten numbers.
 
 ---
 
-## Slide 30 — Ten numbers, and the widths decide
+## Slide 30 — Training computes ten numbers: the widths separate the classes
 
 | Class | Prior | Vibration mean | Vibration sd | Pressure mean | Pressure sd |
 |---|---|---|---|---|---|
@@ -691,7 +691,7 @@ Naive Bayes compares widths instead, and widths are where the information is.
 
 ---
 
-## Slide 31 — 48 Hz: one bell is 86 times the other
+## Slide 31 — A pump at 48 Hz, 5.6 bar: there the faulty bell is 86 times higher
 
 ![](nb_bells_one_pump.png)
 
@@ -717,7 +717,7 @@ its total area is still 1.
 
 ---
 
-## Slide 32 — Add the natural logs: same winner
+## Slide 32 — Take logs: the product becomes a sum
 
 $$\ln\left[P(y = c) \prod_{j} P(x_j \mid y = c)\right] = \ln P(y = c) + \sum_{j} \ln P(x_j \mid y = c)$$
 
@@ -773,7 +773,7 @@ the denominator that slide 26 dropped, recovered.
 
 ---
 
-## Slide 35 — Why the gap is enough
+## Slide 35 — Software uses only the gap between the two log totals
 
 The same result reached without computing the two scores, which is how software does
 it. Divide the numerator and the denominator of $0.01585 / (0.01585 + 0.000305)$ by
@@ -792,7 +792,7 @@ the gap, is lesson 4's sigmoid.
 
 ---
 
-## Slide 36 — A wonderful bargain, and almost never true
+## Slide 36 — A cheap model, built on an assumption that is almost never true
 
 The slide holds two halves, and both matter. The bargain is real: one pass of training,
 and almost no extra cost per added feature, which is why Naive Bayes can handle ten
@@ -808,7 +808,7 @@ needs the right class to come out on top, not the probabilities to be correct.
 
 ---
 
-## Slide 37 — On the pumps, it scores 0.933
+## Slide 37 — Naive Bayes on the pumps: 0.933
 
 | Model | Accuracy |
 |---|---|
@@ -851,7 +851,7 @@ other reasons, for instance features that carry no information.
 
 ---
 
-## Slide 38 — Uncorrelated, but not independent
+## Slide 38 — Uncorrelated within each class, but not independent
 
 | Correlation, within the class | vibration and pressure | their squared distances from the design point |
 |---|---|---|
@@ -971,7 +971,7 @@ interacting sensors of slide 40 it is broken and ruins the model.
 
 ---
 
-## Slide 39 — Wrong densities, right boundary
+## Slide 39 — The densities are wrong, but the boundary they draw is about right
 
 ![](nb_boundary_vs_envelope.png)
 
@@ -987,7 +987,7 @@ right.** A false assumption is cheap when it leaves the boundary the right shape
 
 ---
 
-## Slide 40 — One step away: when the signal is an interaction
+## Slide 40 — A second dataset: the signal is an interaction
 
 A second pair of sensors on the same fleet, with a rule that is perfectly reasonable
 engineering: both readings high is the designed high-load mode, both low is idle, and
@@ -1001,7 +1001,7 @@ exactly the structure that the independence assumption cannot represent.
 
 ---
 
-## Slide 41 — What Naive Bayes gets to see
+## Slide 41 — Each sensor alone: the two classes look the same
 
 ![](interaction_marginals.png)
 
@@ -1035,7 +1035,7 @@ on its own carries almost no information about the class.**
   That is the baseline for this dataset.
 - The correlations of each sensor with the label, +0.081 and −0.064, are close to zero:
   there is almost no straight-line relation between one sensor's value and being faulty.
-- The class means differ by about 0.17 on each sensor, against a spread of about 1.1
+- The class means differ by 0.18 on sensor A and 0.14 on sensor B, against a spread of about 1.1
   within each class. That gap is small compared with the spread, and it is a product of
   this particular finite sample, not of the rule that generated the data.
 
@@ -1091,14 +1091,14 @@ a time.
 
 Second, 0.404 is **below chance**: below the majority baseline of 0.523, and below a coin
 flip. How can a model with no information do worse than guessing? Because it does not
-know it has no information. The small gaps between the class means, about 0.17, are the
+know it has no information. The small gaps between the class means, 0.18 and 0.14, are the
 only per-feature evidence it has, so it follows them. They are accidents of this sample,
 and here they point the wrong way. **A model with no signal does not sit politely at
 50%: it follows whatever accidental structure it can find.**
 
 ---
 
-## Slide 43 — Its probabilities are not probabilities
+## Slide 43 — Its probabilities cannot be trusted
 
 On the interacting sensors, Naive Bayes is on average 0.567 sure of itself when it is
 right and 0.555 when it is wrong: practically the same. Its reported probability carries
@@ -1215,7 +1215,7 @@ Naive Bayes still the right choice?
 
 # Part V — Support vector machines
 
-## Slide 45 — The margin: a criterion that is not the error
+## Slide 45 — The margin: choosing among lines that all fit
 
 When the two classes can be separated by a line, there are infinitely many lines that do
 it, and every one of them has zero training error. So the training error cannot choose
@@ -1278,7 +1278,7 @@ $w$ **is** a wider margin, which is why the SVM minimises $\lVert w \rVert$.
 
 ---
 
-## Slide 46 — Three points decide everything
+## Slide 46 — 80 points in two groups: three of them fix the line (support vectors)
 
 ![](svm_margin.png)
 
@@ -1314,7 +1314,7 @@ in who gets a vote at prediction (slide 60).
 
 ---
 
-## Slide 48 — The hinge stops at zero
+## Slide 48 — The hinge loss stops at zero; lesson 4's log loss never does
 
 ![](hinge_vs_log_loss.png)
 
@@ -1351,7 +1351,7 @@ zero is where support vectors come from.
 
 ---
 
-## Slide 49 — A wide slab, minus what the violations cost
+## Slide 49 — The SVM objective: a wide slab (small w), plus C times the slack
 
 $$\min_{w, b, \xi} \ \tfrac{1}{2}\|w\|^2 + C\sum_i \xi_i$$
 
@@ -1473,7 +1473,7 @@ changed, `kernel="rbf"`, reaches 0.947, the best number of the lesson.
 
 ---
 
-## Slide 52 — A high support-vector fraction is a free warning
+## Slide 52 — Many support vectors: a free warning
 
 A support vector is a point on the margin or inside it. If 79% of the training set is in
 that position, there is no empty space between the classes at all: the model has been
@@ -1486,7 +1486,7 @@ query.
 
 ---
 
-## Slide 53 — The kernel trick: they needed different coordinates
+## Slide 53 — A new coordinate makes the classes separable
 
 Take the scatter plot of slide 5 and add a third coordinate: each pump's distance from
 the design point. Lift every point to that height. Healthy pumps rise a little, faulty
@@ -1513,23 +1513,12 @@ coordinates there is impossible. The next slides show that it is also unnecessar
 
 ---
 
-## Slide 55 — And the map is never computed
-
-The claim: the SVM's solution depends on the data **only through inner products between
-pairs of points**. So instead of computing the new coordinates, we need only a function
-that returns the inner product *in the new space* while computing only with the original
-coordinates. The radial basis function does this for an infinite-dimensional space at the
-cost of one exponential per pair. Why the solution depends only on inner products is the
-content of slide 56.
-
----
-
-## Slide 56 — The boundary is a weighted vote of the pumps
+## Slide 55 — The SVM's solution: w is a weighted sum of the training pumps
 
 $$w = \sum_{i=1}^{m} a_i\, y_i\, x_i, \qquad a_i \geq 0$$
 
-This slide is the bridge between "lift the data" (slide 54) and "the map is never
-computed" (slide 55). It is the result of what the handout calls the **dual
+This slide is the bridge between "lift the data" (slide 54) and "the new coordinates
+are never computed" (slide 56). It is the result of what the handout calls the **dual
 formulation**, and its message fits in one sentence: **the best $w$ is not a new vector
 the optimisation invents, but a weighted sum of the training points themselves**, one
 weight $a_i$ per pump. (Most texts write $\alpha_i$ for these weights; this course keeps
@@ -1577,7 +1566,18 @@ Why bother with a second form of the same problem? For the three reasons above:
 3. the data appears only in inner products, so a kernel can replace them, and that is
    what makes the kernel trick possible at all.
 
-Without the dual, slide 55's claim would be an unexplained assertion.
+Without the dual, slide 56's claim would be an unexplained assertion.
+
+---
+
+## Slide 56 — So the new coordinates are never computed
+
+The claim: the SVM's solution depends on the data **only through inner products between
+pairs of points**. So instead of computing the new coordinates, we need only a function
+that returns the inner product *in the new space* while computing only with the original
+coordinates. The radial basis function does this for an infinite-dimensional space at the
+cost of one exponential per pair. Why the solution depends only on inner products was
+shown on slide 55.
 
 ---
 
@@ -1629,7 +1629,7 @@ that shape among many others.
 
 ---
 
-## Slide 58 — The radial basis function, written out
+## Slide 58 — The RBF kernel: similarity falls with distance
 
 $$K(x, x') = \exp\left(-\gamma \|x - x'\|^2\right)$$
 
@@ -1682,7 +1682,7 @@ of these numbers, so a pump three spreads away is, in effect, not consulted.
 
 ## Slide 59 — Training: one weight per pump
 
-Training means finding the weights $a_i$ of slide 56. It is not gradient descent: the
+Training means finding the weights $a_i$ of slide 55. It is not gradient descent: the
 solver picks **two** weights at a time and sets them to their best values with all the
 others fixed, then repeats until nothing improves. Two at a time, because the weights
 must satisfy $\sum_i a_i y_i = 0$, so moving one alone would break that equality. The
@@ -1763,7 +1763,7 @@ the whole neighbourhood decides.
 
 ---
 
-## Slide 62 — The highest training score, the lowest honest one
+## Slide 62 — The highest training score, the lowest cross-validated one
 
 | Setting | Training | Cross-validated |
 |---|---|---|
@@ -1781,7 +1781,7 @@ anything that transfers.
 
 ---
 
-## Slide 63 — How far one vote reaches
+## Slide 63 — How far one support vector's vote reaches, for four values of γ
 
 ![](rbf_reach.png)
 
@@ -1795,7 +1795,7 @@ slide, predict what the boundary will look like.
 
 ---
 
-## Slide 64 — Overfitting you can see
+## Slide 64 — Overfitting you can see: the boundary at the three settings
 
 ![](svm_gamma_c.png)
 
@@ -1827,7 +1827,7 @@ produced.
 
 ---
 
-## Slide 66 — The three compared, on identical data
+## Slide 66 — The three families compared, on the same pumps and the same folds
 
 | Model | Accuracy |
 |---|---|

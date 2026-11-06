@@ -83,7 +83,11 @@ perfectly consistent.
 > the majority vote.
 
 There is no training step. "Fitting" means storing the data, which is why k-NN
-is called a **lazy learner** — an unusually honest name for an algorithm.
+is called a **lazy learner**: all the work waits until a prediction is asked for.
+
+*A note of history.* The method was described by Evelyn Fix and Joseph Hodges
+in a 1951 report for the US Air Force; Thomas Cover and Peter Hart analysed its
+error in 1967.
 
 Two decisions hide in that sentence, and both matter.
 
@@ -169,6 +173,10 @@ the price.
 Add columns of **pure noise** — drawn from a normal distribution, unrelated to
 anything. The two real readings are untouched, so the problem is exactly as
 solvable as before. Only the number of columns changes.
+
+*A note of history.* The phrase "curse of dimensionality" is Richard Bellman's,
+from his 1957 book on dynamic programming, where every added variable made his
+computations explode.
 
 | Noise columns | Total columns | Accuracy | Above baseline |
 |---|---|---|---|
@@ -297,6 +305,9 @@ $$P(y = c \mid x) = \frac{P(x \mid y = c)\,P(y = c)}{P(x)}$$
 
 $P(y = c)$ is the prior — a count. $P(x)$ is identical across classes, so it
 cannot change which class wins and can be dropped.
+
+*A note of history.* The rule is Thomas Bayes's, an English minister; his essay
+was published in 1763, after his death, by his friend Richard Price.
 
 **Dropped for choosing, not lost.** $P(x)$ is the probability of seeing this
 combination of readings whatever the class — by the law of total probability,
@@ -712,8 +723,8 @@ valley between them:
 Set this beside the pumps of Section 4.2. There the two classes' bells also
 shared a centre, but their widths differed almost threefold — 1.695 against
 4.636 Hz — and the widths carried the class. Here centre and width both
-coincide, and nothing carries it. The one difference left, the 0.17 between the
-centres, comes from the sample holding more faulty pumps with A high (359) than
+coincide, and nothing carries it. The one difference left, 0.167 − (−0.012) =
+0.18 between the centres on sensor A (0.14 on sensor B), comes from the sample holding more faulty pumps with A high (359) than
 with B high (253).
 
 | Model | Accuracy |
@@ -727,8 +738,8 @@ with B high (253).
 
 **0.404 — below chance, and well below the majority baseline.**
 
-Being below chance looks impossible, and the explanation is the 0.17 just
-found. The class means on each sensor differ by about that much against a spread
+Being below chance looks impossible, and the explanation is the 0.18 just
+found. The class means differ by 0.18 on sensor A and 0.14 on sensor B, against a spread
 near 1, purely as an artefact of a finite sample. That accident is the *only*
 per-feature evidence available, Naive Bayes has nothing else to multiply, and in
 this sample it points the wrong way.
@@ -772,6 +783,11 @@ Naive Bayes, you have learned something quickly and cheaply.
 ## 5. Support vector machines
 
 ### 5.1 The margin: a different criterion
+
+*A note of history.* The margin idea goes back to Vladimir Vapnik and Alexey
+Chervonenkis in the Soviet Union in the 1960s. The version with slack (Section
+5.2) is Corinna Cortes and Vapnik's, 1995; kernels (Section 5.4) were joined to
+the margin by Bernhard Boser, Isabelle Guyon and Vapnik at Bell Labs in 1992.
 
 On separable data there are infinitely many separating lines, and **every one of
 them has zero training error**. Minimising the error therefore cannot choose

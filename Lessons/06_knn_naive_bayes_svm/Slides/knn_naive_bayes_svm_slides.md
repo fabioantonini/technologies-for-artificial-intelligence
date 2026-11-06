@@ -7,8 +7,10 @@ date: "13 November 2026"
 
 # Before we start
 
-- Exercises 4 and 5, which we discuss now
-- The threshold you chose; the score that was too good, and what the honest number cost you
+- Exercise 4: which threshold did you choose for the classifier, and how
+  did you defend it?
+- Exercise 5: the score that looked too good. Which problems did you find
+  behind it, and what score was left once you had fixed them?
 
 ::: notes
 Nothing is collected. Two exercises this time, because lesson 4 ran over into
@@ -34,11 +36,11 @@ looks right and is not, in a way of its own.
 
 # Today: the first lesson that offers a choice
 
-- **k-nearest neighbours (k-NN)**, and the **curse of dimensionality** that
-  limits it
-- **Naive Bayes**: one strong assumption, a cheap model
-- **Support vector machines (SVM)**: margins and kernels
-- Which family to choose, and why that beats tuning
+- **k-nearest neighbours (k-NN)**, and the **curse of dimensionality**
+  that limits it
+- **Naive Bayes**: a probability model, very cheap to train
+- **Support vector machines (SVM)**: the widest margin, then kernels
+- How to choose a model family, and why that matters more than tuning
 
 ::: notes
 The agenda, and one sentence about the whole lesson that is worth saying slowly.
@@ -60,10 +62,13 @@ Handout section 1 sets this out in a paragraph each.
 
 # 1,200 pumps, two readings each
 
-- Vibration in Hz, pressure in bar
+- 1,200 simulated pumps, two sensor readings each: vibration in hertz (Hz),
+  pressure in bar
 - A pump is faulty when its readings fall **outside the design envelope** (the
   range it was built to run in), too low as readily as too high
-- **61.3%** faulty; 4% of the labels are deliberately flipped
+- 735 of the 1,200 are faulty: **61.3%**
+- 4% of the labels are flipped on purpose, as sensor errors: no model can
+  score above about **0.96** (the noise ceiling)
 
 ::: notes
 Describe the physical fact first, before showing the picture, and let them
@@ -82,7 +87,7 @@ each other in isolation.
 Handout section 1.1.
 :::
 
-# The shape of the problem
+# The shape of the problem: healthy pumps in the middle, faulty all around
 
 ![](pump_scatter.png)
 
@@ -105,9 +110,9 @@ k = 1.
 
 # What a straight boundary costs
 
-| Model | Cross-validated accuracy |
+| Model | Accuracy, 5-fold cross-validation (mean ± sd over the folds) |
 |---|---|
-| Always predict the majority class | 0.613 |
+| Always predict the majority class: 735 ÷ 1,200 | 0.613 |
 | Logistic regression (lesson 4) | **0.613 ± 0.000** |
 
 ::: notes
@@ -129,13 +134,17 @@ mediocre result rather than what it is: no learning at all.
 
 # k-nearest neighbours: the whole algorithm
 
-- To classify a new point, find the **k closest** training points and take the
-  majority vote
-- There is no training step: "fitting" means **storing the data**
-- Called a **lazy learner**: an unusually honest name for an algorithm
+- A line fails, so try a method that assumes no shape: to classify a new
+  pump, take the majority vote of the **k closest** training pumps
+- There is no training step: "fitting" only **stores the data** (a **lazy
+  learner**: the work waits until a prediction is asked for)
 - In code: `KNeighborsClassifier(n_neighbors=5)`
 
 ::: notes
+A historical note: the method was described by Evelyn Fix and Joseph Hodges in
+a 1951 report for the US Air Force, and its error was analysed by Thomas Cover
+and Peter Hart in 1967.
+
 The whole method is one sentence, and it is worth pausing on how strange that
 is after three weeks of optimisation. There is no cost function, no gradient, no
 parameters. Nothing is estimated.
@@ -150,7 +159,7 @@ neighbours k to use - and both change the result. Take them in that order.
 Handout section 2.1.
 :::
 
-# Distance is all it has
+# "Closest" means the smallest Euclidean distance
 
 $$d(x, x') = \sqrt{\sum_{j=1}^{n} (x_j - x'_j)^2}$$
 
@@ -171,9 +180,11 @@ Handout section 2.1 has it with the scaling argument attached.
 
 # Scale first, or vibration decides everything
 
-- Vibration runs over **tens of Hz**; pressure over **a couple of bar**
-- Unscaled, a one-bar pressure difference is invisible beside a ten-Hz one
-- Lesson 2's scaling argument, arriving with **immediate consequences**
+- Vibration varies over about **18 Hz**, pressure over about **2.3 bar**
+- Unscaled, pumps 10 Hz apart are at distance 10, pumps 1 bar apart at
+  distance 1: vibration decides who the neighbours are
+- The fix (lesson 2): **standardise** each column: subtract its mean,
+  divide by its standard deviation
 - In code: `make_pipeline(StandardScaler(), KNeighborsClassifier(5))`
 
 ::: notes
@@ -193,14 +204,14 @@ Practical instruction: k-NN goes in a Pipeline with StandardScaler, always, and 
 required.
 :::
 
-# k is the bias-variance dial, made visible
+# k sets the balance between bias and variance
 
-- **Small k**: the boundary follows every point, mislabelled ones included.
-  Low bias, high variance
-- **Large k**: the vote is taken over a wide neighbourhood, and eventually
-  stops following real structure. High bias, low variance
-- At k = 1 the training accuracy is **exactly 1.000**, unless two identical
-  points carry different labels
+- **Small k**: the vote follows each training point, mislabelled ones
+  included. Low bias, high variance (lesson 5)
+- **Large k**: a vote over a wide neighbourhood smooths away real structure
+  too. High bias, low variance
+- At k = 1 the training accuracy is **exactly 1.000**: each training pump is
+  its own nearest neighbour
 
 ::: notes
 Lesson 5 split the error into bias and variance, and had to train the model on
@@ -218,9 +229,9 @@ data. Here the perfect score is guaranteed by how k = 1 works, whatever the data
 Handout section 2.2.
 :::
 
-# Measured on the pumps
+# Measured on the pumps: training against cross-validated accuracy
 
-| k | Training | Cross-validated |
+| k | Training accuracy | Cross-validated accuracy, 5 folds |
 |---|---|---|
 | 1 | **1.000** | 0.912 |
 | 5 | 0.953 | **0.944** |
@@ -247,7 +258,7 @@ everywhere, not just on data it has not seen. That is what high bias looks like:
 Compare 0.944 against the ceiling of 0.96, not against 1.000.
 :::
 
-# The two curves, and the two lines that bound them
+# Accuracy against k, between the baseline and the noise ceiling
 
 ![](knn_choosing_k.png)
 
@@ -268,7 +279,7 @@ training curve alone. The answer is the far left, k = 1, one of the worst models
 cross-validated score.
 :::
 
-# The same data at three values of k
+# The boundary k-NN draws at k = 1, 15 and 401
 
 ![](knn_boundaries.png)
 
@@ -294,10 +305,11 @@ Handout section 2.2 carries the same three panels.
 
 # What k-NN costs
 
-- No training time at all: you pay at **every prediction** instead
-- A naive implementation compares the query against **every** training row:
-  `O(mn)` for m rows and n features
-- **The model is the dataset.** You cannot ship one without the other
+- Training costs nothing; the cost comes at **every prediction** instead
+- A direct implementation compares each new pump with **every** training
+  row: about m × n operations for m rows and n features
+- To predict, the model needs the whole training set: **deploying the model
+  means handing over the data**
 
 ::: notes
 The first cost is engineering. For 1,200 pumps it is nothing. For ten million
@@ -316,15 +328,20 @@ customer's server, to a third party. That is a legal question before it is a
 technical one. This lesson's Resources document and lesson 2's cover it.
 :::
 
-# Now the price: add columns of nothing
+# An experiment: add columns of pure noise
 
-- Extra columns of **pure noise**, drawn from a normal distribution
-- The two real readings are **untouched**: the problem is exactly as solvable
-- Only the number of columns changes
+- Keep the 1,200 pumps and their two real readings **unchanged**
+- Add columns of **pure noise**: normal random numbers, unrelated to the label
+- Only the number of columns changes: the problem is as solvable as before
+- Same model each time: standardised k-NN, k = 15, 5-fold cross-validation
 
 ::: notes
 Set the experiment up carefully before showing the result, because the whole
 force of it depends on them believing that nothing was taken away.
+
+The model is k-NN with k = 15, not the best k = 5: on the two real columns
+it scores 0.938 against 0.944 (slide 11), and a wider vote is the fairer test
+of whether noise columns hurt.
 
 Say it twice if necessary: the signal is still there. Both original columns are
 present, unmodified, and still sufficient to solve the problem perfectly. We are
@@ -339,9 +356,9 @@ next slide is why.
 Handout section 3.1.
 :::
 
-# The signal never left
+# The two real readings are still there, and accuracy still falls
 
-| Total columns | Accuracy | Above baseline |
+| Columns: 2 real + noise | Cross-validated accuracy | Accuracy − baseline 0.613 |
 |---|---|---|
 | 2 | 0.938 | +0.325 |
 | 12 | 0.762 | +0.149 |
@@ -370,12 +387,12 @@ dimensions, not of this dataset.
 
 # Why: distances stop varying
 
-- Scatter points in a cube, pick one, measure its **nearest** and its
-  **farthest** neighbour
-- In two dimensions those are very different numbers, which is what makes
-  "nearest" a meaningful word
-- Each new dimension adds its own squared difference, and the contributions
-  **average out**
+- Scatter 1,000 random points in a cube; for a new point, measure the
+  distance to its **nearest** and its **farthest** neighbour
+- In two dimensions the two differ a lot: that is what makes "nearest" mean
+  something
+- Each extra dimension adds a squared difference to every distance: over
+  many dimensions **all distances come out about the same**
 
 ::: notes
 Give the picture in words before showing it - the figure is on the next slide,
@@ -390,6 +407,9 @@ Now add dimensions. Every new coordinate contributes its own squared difference
 to every pairwise distance. Those contributions are independent draws from the
 same distribution, so by the law of large numbers their sum grows while its spread, relative to its
 size, shrinks: every distance ends up close to the same value.
+
+The name is Richard Bellman's, from his 1957 book on dynamic programming,
+where adding variables made his computations explode.
 
 Say explicitly that this has nothing to do with k-NN, or with machine learning
 at all. It is a fact about high-dimensional Euclidean space. k-NN is simply the
@@ -419,7 +439,7 @@ plot: at that width, "nearest" has already stopped meaning much.
 
 # Nearest divided by farthest
 
-| Dimensions | nearest ÷ farthest |
+| Dimensions | nearest distance ÷ farthest distance, mean over 60 points |
 |---|---|
 | 2 | 0.016 |
 | 10 | 0.263 |
@@ -444,10 +464,12 @@ nearest neighbour is already a quarter of the way to being an arbitrary point.
 
 # In 100 dimensions the nearest point is 70% as far as the farthest
 
-- In **two** dimensions it is **2%**: "nearest" picks out something special
-- In **one hundred** it is **70%**: the nearest point is barely nearer than a
-  random one
-- A vote among "the five nearest" becomes a vote among five taken at random
+- In **two** dimensions the ratio is 0.016: the nearest point is at **2%**
+  of the farthest distance, so "nearest" picks out something special
+- In **one hundred** it is 0.701, **70%**: the nearest point is barely nearer
+  than a point picked at random
+- So a vote among "the five nearest" is almost a vote among five pumps
+  taken at random: that is why 52 columns fell to the baseline
 
 ::: notes
 This is the number to carry out of today, so slow down and say it twice.
@@ -469,12 +491,12 @@ Handout section 3.2.
 
 # What the curse is, and is not
 
-- **Not** that high-dimensional problems are unlearnable: lesson 9's networks
-  work in thousands of dimensions
-- That **methods built on distance lose their footing**, because the quantity
-  they depend on stops varying
-- k-NN, k-means (lesson 8), and the radial basis function (RBF) kernel of
-  support vector machines, later today
+- **Not** that problems with many columns cannot be learned: a linear model
+  gives a useless column a coefficient near zero, and loses almost nothing
+- It is that **methods built on distances stop working**, because every
+  distance comes out about the same
+- For k-NN, every column is part of the distance: choose the columns before
+  any distance is computed, inside the pipeline
 
 ::: notes
 Correct the overstatement before it forms, because "the curse of dimensionality"
@@ -505,7 +527,7 @@ each fold only - lesson 5's rule again.
 | the straight line, 4-6 | `LogisticRegression` scored by `cross_val_score` over `StratifiedKFold` folds → 0.613 |
 | k-NN, scaled first, 7-9 | `make_pipeline(StandardScaler(), KNeighborsClassifier(k))` |
 | choosing k, 10-13 | `cross_val_score` for each k → 0.944 at k = 5 |
-| columns of noise, 15-16 | the same pipeline on `load_with_noise(d)` → 0.602 at 52 columns |
+| columns of noise, 15-16 | the pipeline with k = 15 on `load_with_noise(d)` → 0.602 at 52 columns |
 | distances stop varying, 17-20 | NumPy only: nearest ÷ farthest → 0.701 in 100 dimensions |
 
 ::: notes
@@ -537,13 +559,17 @@ back awake.
 
 # Naive Bayes: turn the question around
 
-- We want the probability of the class **given** the readings
-- The prior P(y = c) is the class's share of the data; the denominator is the
-  same for every class and cancels
-- Everything hard sits in one term: the probability of **this exact combination
-  of readings** among examples of that class
+- A second family, built on probabilities: we want P(y = c | x), the
+  probability of class c **given** the readings x
+- Bayes' rule rewrites it with what the data can give: how common each
+  class is, and how its readings are spread
+- The hard part: how likely **this exact combination of readings** is among
+  pumps of that class
 
 ::: notes
+The rule is Thomas Bayes's, an English minister; his essay was published in
+1763, after his death, by his friend Richard Price.
+
 Say the strategy in words before the symbols appear. We want a quantity we
 cannot estimate directly. Bayes' rule trades it for quantities we might be able
 to estimate. That exchange is the whole idea.
@@ -583,7 +609,7 @@ section 3.1 works the same rule through with counts if anyone wants it in
 numbers rather than symbols.
 :::
 
-# The decision drops the denominator
+# Drop the denominator: it is the same for every class
 
 $$\hat{y} = \mathrm{arg\,max}_c \; P(x \mid y = c)\,P(y = c)$$
 
@@ -607,10 +633,12 @@ carries a worked example with the pumps' priors.
 
 # The assumption: independent, given the class
 
-- **Given the class, the features are independent of one another**
-- The joint density then factorises into n one-dimensional densities
-- Each factor is estimated from the rows of that class alone
-- In code: `GaussianNB()`
+- To make P(x | y = c) estimable, Naive Bayes assumes: **given the class,
+  the features are independent of one another**
+- Then the density of all n readings together is the product of n
+  one-dimensional densities, one per feature
+- Each one-dimensional density is estimated from the pumps of that class
+  alone. In code: `GaussianNB()`
 
 ::: notes
 One assumption, stated in one line, and everything follows from it.
@@ -631,7 +659,7 @@ exactly zero (this is called underflow). Handout section 4.2 has
 the log form.
 :::
 
-# The factorisation the assumption buys
+# The assumption, written: a product of n densities
 
 $$P(x \mid y = c) = \prod_{j=1}^{n} P(x_j \mid y = c)$$
 
@@ -668,12 +696,15 @@ Let them count: two priors, four means, four variances. Ten. The next slide
 shows all ten. Handout section 4.2.
 :::
 
-# Ten numbers, and the widths decide
+# Training computes ten numbers: the widths separate the classes
 
-| Class | Prior | Vibration mean | Vibration sd | Pressure mean | Pressure sd |
-|---|---|---|---|---|---|
-| Healthy | 0.3875 | 41.986 Hz | **1.695** | 5.617 bar | **0.219** |
-| Faulty | 0.6125 | 42.015 Hz | **4.636** | 5.616 bar | **0.576** |
+| Fitted on the 1,200 pumps | Healthy | Faulty |
+|---|---|---|
+| Prior: the class's share of the pumps | 465 ÷ 1,200 = 0.3875 | 735 ÷ 1,200 = 0.6125 |
+| Vibration mean | 41.986 Hz | 42.015 Hz |
+| Vibration standard deviation | **1.695 Hz** | **4.636 Hz** |
+| Pressure mean | 5.617 bar | 5.616 bar |
+| Pressure standard deviation | **0.219 bar** | **0.576 bar** |
 
 ::: notes
 Let them read the means first and find the surprise themselves: the two
@@ -697,7 +728,7 @@ pressure, and a bell with a standard deviation of 0.219 bar has to peak at about
 1.82 for its total area to be 1. Handout section 4.2 works the pump through term by term.
 :::
 
-# 48 Hz: one bell is 86 times the other
+# A pump at 48 Hz, 5.6 bar: there the faulty bell is 86 times higher
 
 ![](nb_bells_one_pump.png)
 
@@ -719,9 +750,9 @@ probability.
 The next slide puts these heights, as logarithms, in a table.
 :::
 
-# Add the natural logs: same winner
+# Take logs: the product becomes a sum
 
-$$\ln\left[P(y = c) \prod_{j} P(x_j \mid y = c)\right] = \ln P(y = c) + \sum_{j} \ln P(x_j \mid y = c)$$
+$$\ln\left[P(y = c) \prod_{j} P(x_j \mid y = c)\right] \\ = \ln P(y = c) + \sum_{j} \ln P(x_j \mid y = c)$$
 
 ::: notes
 Inside the bracket on the left is the classifier as slides 26 and 28 built it:
@@ -749,7 +780,7 @@ Handout section 4.2.
 
 # 48 Hz, 5.6 bar: scores and their logs
 
-| Class | | Prior | Vibration density | Pressure density | Product, or sum of logs |
+| Class | Row | Prior | Vibration density | Pressure density | Product of the three, or sum of their logs |
 |---|---|---|---|---|---|
 | Healthy | value | 0.3875 | 0.000433 | 1.818 | 0.000305 |
 | Healthy | ln | −0.948 | −7.745 | +0.598 | −8.095 |
@@ -777,7 +808,7 @@ healthy log density is positive, +0.598, because a density is not a
 probability and a narrow bell peaks above 1.
 
 Faulty has the larger total, so faulty is the prediction. How the two totals
-become the 0.981 of slide 30 is the next slide. Handout section 4.2 lists the
+become probabilities is the next slide. Handout section 4.2 lists the
 four steps.
 :::
 
@@ -787,7 +818,7 @@ four steps.
 |---|---|---|
 | 1. Log total, previous slide | −8.095 | −4.144 |
 | 2. Undo the log: e^total = prior × densities | 0.000305 | 0.01585 |
-| 3. Divide by their sum: 0.01616 = P(x), by total probability | **0.019** | **0.981** |
+| 3. Divide each by their sum, 0.000305 + 0.01585 = 0.01616 = P(x) | **0.019** | **0.981** |
 
 ::: notes
 Three steps, one row each, and both classes side by side so they can see the
@@ -810,31 +841,29 @@ The next slide shows the same numbers computed from the gap alone, and why
 that is the form software uses. Handout section 4.2.
 :::
 
-# Why the gap is enough
+# Software uses only the gap between the two log totals
 
-- Divide by the faulty score: 1 / (1 + healthy score ÷ faulty score)
-- e^a ÷ e^b = e^(a − b), so the ratio is e^(−3.951) = 0.0192
-- P(faulty) = 1 / 1.0192 = **0.981**; P(healthy) = 1 − 0.981 = **0.019**
-- Odds: 0.01585 ÷ 0.000305 ≈ **52 to 1**
-- With many features e^total rounds to 0 in the computer; the gap does not
+- With many features, e^total rounds to 0 for both classes, and 0 ÷ 0
+  cannot be computed
+- The gap between the log totals stays an ordinary number:
+  −4.144 − (−8.095) = 3.951
+- P(faulty) = 1 / (1 + e^(−3.951)) = 1 / 1.0192 = **0.981**, as before
+- e^3.951 ≈ 52: faulty is 52 times as likely as healthy (**odds of 52 to 1**)
 
 ::: notes
 Same result as the previous slide, reached without ever computing the two
-scores. Walk the first bullet slowly: dividing the numerator and the
-denominator of 0.01585 / (0.01585 + 0.000305) by 0.01585 leaves the fraction
-unchanged and turns it into 1 / (1 + 0.000305 / 0.01585).
+scores. Start with the reason, the first bullet: with two features the scores
+are ordinary numbers and the previous slide works fine. With hundreds of
+features the totals reach −800, e^(−800) is exactly zero in floating point,
+and the fraction of the previous slide becomes 0/0.
 
-The second bullet is where the gap appears. The two scores are e to their
-totals, and a ratio of exponentials is an exponential of the difference,
-e^a / e^b = e^(a - b). So the ratio of the scores is e^(−8.095 + 4.144) =
-e^(−3.951) = 0.0192. Neither total matters on its own - only how far apart
-they are.
-
-Why software uses this form, and it is the answer to "why the gap": with two
-features the scores are ordinary numbers and the previous slide works fine.
-With hundreds of features the totals reach −800, e^(−800) is exactly zero in
-floating point, and the direct fraction becomes 0/0. The gap stays an ordinary
-number, so the probability can always be computed.
+Then where the formula in the third bullet comes from. Divide the numerator
+and the denominator of 0.01585 / (0.01585 + 0.000305) by 0.01585: the fraction
+is unchanged and becomes 1 / (1 + 0.000305 / 0.01585). The two scores are e to
+their totals, and a ratio of exponentials is the exponential of the
+difference, e^a / e^b = e^(a - b). So 0.000305 / 0.01585 = e^(−8.095 + 4.144)
+= e^(−3.951) = 0.0192. Neither total matters on its own - only how far apart
+they are, and that gap is an ordinary number however many features there are.
 
 Then the reading that makes it intuitive. The gap is the log-odds, the logarithm
 of how many times more likely faulty is than healthy: e^3.951 is
@@ -844,13 +873,15 @@ the probability 52/53 = 0.981 and 1/53 = 0.019, the way anyone would for a bet.
 Handout section 4.2, "From log scores to a probability".
 :::
 
-# A wonderful bargain, and almost never true
+# A cheap model, built on an assumption that is almost never true
 
-- Training is **a single pass**; adding features costs almost nothing
-- But vibration and pressure are both driven by the operating point
-- "New" is not independent of "York" given the topic. Symptoms co-occur
-- So the question is not whether it holds: it is **when being wrong about it
-  costs you nothing**
+- The gain: training is **one pass** over the data; extra features cost
+  almost nothing
+- The assumption rarely holds: vibration and pressure both depend on how
+  hard the pump runs
+- In a text, "New" and "York" appear together far more than independence
+  allows
+- So the useful question: **when does being wrong about it cost nothing?**
 
 ::: notes
 Both halves matter, and students tend to hear only one of them.
@@ -871,9 +902,9 @@ CLASSIFIER being wrong are different things. To choose a class, the model only n
 score, not the probabilities to be right. Handout section 4.2 closes on exactly this.
 :::
 
-# On the pumps, it scores 0.933
+# Naive Bayes on the pumps: 0.933
 
-| Model | Accuracy |
+| Model | Accuracy, 5-fold cross-validation, same folds |
 |---|---|
 | Majority baseline | 0.613 |
 | Logistic regression | 0.613 |
@@ -896,9 +927,9 @@ you whether the result will survive on the next dataset.
 Handout section 4.3.
 :::
 
-# Uncorrelated, but not independent
+# Uncorrelated within each class, but not independent
 
-| Correlation, within the class | vibration and pressure | their squared distances from the design point |
+| Correlation, within one class | between vibration and pressure | between the two standardised readings, squared (how far from the centre) |
 |---|---|---|
 | healthy pumps | −0.006 | +0.168 |
 | faulty pumps | −0.049 | **−0.420** |
@@ -946,7 +977,7 @@ assumption is cheap when it leaves the boundary the right shape. The next
 slide is the case where it does not. Handout section 4.3.
 :::
 
-# Wrong densities, right boundary
+# The densities are wrong, but the boundary they draw is about right
 
 ![](nb_boundary_vs_envelope.png)
 
@@ -962,12 +993,14 @@ boundary they imply is nearly right. That is why 0.933 sits so close to k-NN's
 0.944. Handout section 4.3.
 :::
 
-# One step away: when the signal is an interaction
+# A second dataset: the signal is an interaction
 
-- A second pair of sensors on the same fleet
+- 1,200 more simulated pumps, with two other sensors, A and B
 - Faulty when **exactly one** of the two readings is high
-- Both high is the designed high-load mode; both low is idle; one without the
-  other is a mismatch between demand and delivery
+- Both high: high-load mode. Both low: idle. One alone: demand and
+  delivery do not match
+- So A alone says nothing: what a high A means depends on B (an
+  **interaction**)
 
 ::: notes
 Change one thing about the problem and watch the method fail. Describe the
@@ -987,7 +1020,7 @@ That is what an interaction is, and it is precisely the structure the
 independence assumption is unable to represent. Handout section 4.4.
 :::
 
-# What Naive Bayes gets to see
+# Each sensor alone: the two classes look the same
 
 ![](interaction_marginals.png)
 
@@ -1020,14 +1053,14 @@ represent what is being asked of it.
 
 # 0.404: below the baseline, and below chance
 
-| Model | Accuracy |
+| Model | Accuracy, 5-fold cross-validation |
 |---|---|
-| Majority baseline | 0.523 |
+| Majority baseline: 628 faulty ÷ 1,200 | 0.523 |
 | **Gaussian Naive Bayes** | **0.404** |
 | Logistic regression | 0.393 |
 | SVM, linear kernel | 0.606 |
 | k-NN, k = 5 | 0.967 |
-| SVM, RBF kernel | 0.972 |
+| SVM, radial basis function (RBF) kernel | 0.972 |
 
 ::: notes
 Two things to draw out, and the second is the more interesting.
@@ -1039,8 +1072,8 @@ Second, and take the time: 0.404 is BELOW CHANCE. Below the majority baseline of
 0.523, and below what you would get by flipping a coin. Ask how that is even
 possible - a model with no information should surely sit at 50%.
 
-The explanation is worth having in full. The class means on each sensor differ
-by about 0.17, against a spread near 1, only by chance, because the sample is finite.
+The explanation is worth having in full. The class means differ by 0.18 on sensor
+A and 0.14 on sensor B, against a spread near 1, only by chance, because the sample is finite.
 That accident is the ONLY per-feature evidence available. Naive Bayes has
 nothing else to multiply, so it follows it - and in this sample it points the
 wrong way.
@@ -1050,17 +1083,17 @@ follows whatever accidental structure it can find in the sample. It is not even
 confident about it, which is the next slide.
 :::
 
-# Its probabilities are not probabilities
+# Its probabilities cannot be trusted
 
-- Confidence, the probability given to the predicted class: **0.567** when
-  correct, **0.555** when wrong
-- It cannot tell the difference between the two situations
-- With features that repeat each other it fails the other way: 0.999 reported,
-  with an accuracy nothing like that
-- **The ranking may be useful while the probabilities are not**
+- Interacting sensors, 300 test pumps. Confidence (the probability given
+  to the predicted class): **0.567** when right, **0.555** when wrong
+- So it cannot tell when it is wrong
+- Features that copy each other push it the other way: towards 0 or 1
+- It may still rank pumps usefully (lesson 4), but its **probabilities are
+  not calibrated**
 
 ::: notes
-Two numbers, four thousandths apart. The model is exactly as confident when it
+Two numbers, twelve thousandths apart. The model is exactly as confident when it
 is wrong as when it is right, which means `predict_proba` carries no usable
 information about reliability here.
 
@@ -1069,8 +1102,9 @@ features carry the SAME evidence about the class - near-copies of one another -
 multiplying their probabilities counts it repeatedly. Be precise here, because
 they have just seen two kinds of dependence that are not this: the pumps' ring
 and the XOR sensors. Ten correlated words in a document are treated as ten
-independent pieces of evidence, and the probability is pushed all the way to 0 or 1. Naive Bayes is
-famous for reporting 0.999 on problems it gets wrong a fifth of the time.
+independent pieces of evidence, and the probability is pushed all the way to 0
+or 1. Neither dataset today shows this; handout section 4.5 describes the
+four-line experiment that does (ten near-copies of one column).
 
 Then lesson 4's distinction (its slide 47), which this is the textbook case of:
 ranking and calibration - whether a reported 0.7 comes true 70% of the time - are
@@ -1109,17 +1143,20 @@ the two sensors as a third column and watch it recover. That is the whole story
 of feature engineering versus model choice in one cell.
 :::
 
-# The margin: a criterion that is not the error
+# The margin: choosing among lines that all fit
 
-- On separable data there are **infinitely many** separating lines, and every
-  one has **zero training error**
-- Minimising the error therefore cannot choose between them
-- The SVM picks the widest **slab**: push it out until it touches the nearest
-  point of each class
-- A boundary passing close to a point is one small perturbation from getting
-  it wrong
+- Third family. When a line can separate two classes, **infinitely many**
+  lines do, all with **zero training error**: the error cannot choose
+- The SVM picks the line with the widest **margin**: an empty strip (the
+  slab) around the line, widened until it touches a point of each class
+- The reason: a line that passes close to a point gets it wrong after a small
+  change in that point's readings
 
 ::: notes
+The margin idea goes back to Vladimir Vapnik and Alexey Chervonenkis in the
+Soviet Union in the 1960s; the version with slack that everyone runs is Corinna
+Cortes and Vapnik's, 1995.
+
 Start with the problem rather than the solution. Draw two well-separated blobs
 on the board and ask for the boundary. Somebody will draw a line. Ask whether
 another line would have been equally good, and keep asking until the room sees
@@ -1139,7 +1176,7 @@ validation score.
 Handout section 5.1.
 :::
 
-# Three points decide everything
+# 80 points in two groups: three of them fix the line (support vectors)
 
 ![](svm_margin.png)
 
@@ -1164,11 +1201,12 @@ outlier far from it matters not at all.
 
 # Not separable? Charge for the violations
 
-- Our labels are 4% flipped, so the strict problem has **no solution at all**
-- Let each point violate the margin by ξᵢ, and charge C for every unit of it
-- ξᵢ = 0 outside the slab, between 0 and 1 inside it, above 1 on the wrong side
-- That is the **hinge loss**, max(0, 1 − y·f(x)) with labels ±1: zero for a
-  point with room to spare
+- With 4% of the labels flipped, no slab separates the pumps: the strict
+  problem has **no solution**
+- So let point i enter the slab by a slack ξᵢ, and charge C per unit
+- ξᵢ = 0 outside the slab, 0 to 1 inside it, above 1 on the wrong side
+- That charge is the **hinge loss** max(0, 1 − y·f(x)), labels ±1,
+  f(x) = w·x + b
 
 ::: notes
 The point worth stressing is why the soft margin is not a patch or a
@@ -1189,7 +1227,7 @@ point with zero loss drops out of the answer entirely.
 The next slide puts it in symbols. Handout section 5.2 has the derivation.
 :::
 
-# The hinge stops at zero
+# The hinge loss stops at zero; lesson 4's log loss never does
 
 ![](hinge_vs_log_loss.png)
 
@@ -1207,15 +1245,14 @@ is where support vectors come from - and why logistic regression never has any.
 Handout section 5.2.
 :::
 
-# A wide slab, minus what the violations cost
+# The SVM objective: a wide slab (small w), plus C times the slack
 
-$$\min_{w, b, \xi} \ \tfrac{1}{2}\|w\|^2 + C\sum_i \xi_i$$
+$$\min_{w, b, \xi} \ \tfrac{1}{2}\|w\|^2 + C\sum_i \xi_i \\ \text{subject to } y_i(w^\top x_i + b) \geq 1 - \xi_i, \ \xi_i \geq 0$$
 
 ::: notes
-The constraint is not on the slide - with it the line became too wide to read -
-so state it: subject to y_i(w'x_i + b) >= 1 - xi_i, every point
-on the right side of the slab by a margin, or paying xi_i for the shortfall.
-Handout section 5.2 writes it out.
+The second line is the constraint: every point on its own side of the slab,
+y_i(w'x_i + b) at least 1, or paying xi_i for the shortfall. Handout section
+5.2 writes it out.
 
 Do not derive this. State what each piece is doing and move on - handout section
 5.2 has the derivation, including why maximising the margin is the same as
@@ -1231,11 +1268,12 @@ derivative tidy, exactly as in lesson 3's cost function.
 
 # C is the price of a training error
 
-- **Large C**: violations are expensive, so the model accepts a narrower
-  margin to classify more training points. Low bias, high variance
-- **Small C**: a wider, calmer boundary, at the cost of some errors
-- C plays the role that k played in k-NN and λ in lesson 3
-- Note the direction: **large C means less regularisation**
+- **Large C**: slack is expensive, so the slab narrows to classify more
+  training points. Low bias, high variance
+- **Small C**: slack is cheap, so the slab stays wide and some training
+  points stay wrong. Higher bias, lower variance
+- C plays the role of k in k-NN and of λ in lesson 3
+- But **large C means less regularisation**: the opposite of λ
 
 ::: notes
 Third appearance of the same idea, and say so - that repetition is the point.
@@ -1261,10 +1299,10 @@ and gamma are both large.
 
 # The best straight line is still a straight line
 
-| Model | Accuracy | Support vectors |
+| Model, on the pumps | Accuracy, 5-fold cross-validation | Support vectors, fitted on all 1,200 |
 |---|---|---|
-| SVM, linear kernel | **0.613 ± 0.000** | 947 of 1,200 (**79%**) |
-| SVM, RBF kernel | 0.947 ± 0.005 | 278 of 1,200 (23%) |
+| SVM, linear kernel: a straight line | **0.613 ± 0.000** | 947 of 1,200 (**79%**) |
+| SVM, RBF kernel: a curved boundary | 0.947 ± 0.005 | 278 of 1,200 (23%) |
 
 ::: notes
 The linear kernel scores 0.613 - the base rate, exactly as logistic regression
@@ -1284,13 +1322,14 @@ The support-vector column says the same thing in a different way, and that is
 the next slide.
 :::
 
-# A high support-vector fraction is a free warning
+# Many support vectors: a free warning
 
-- The linear model, `SVC(kernel="linear")`, needs **79%** of the training set
-- The RBF model needs **23%**
-- Almost every point sits on or inside the margin: there is no slab that
-  separates anything
-- The count comes free with `fit`, as `len(model.support_)`: look at it
+- The linear SVM, `SVC(kernel="linear")`, keeps **79%** of the pumps as
+  support vectors; the RBF SVM keeps **23%**
+- 79% means almost every pump sits on or inside the slab: no strip of empty
+  space separates the classes
+- The count comes free after `fit`, as `len(model.support_)`: a high share
+  is a warning before any cross-validation
 
 ::: notes
 Explain what 79% actually means geometrically. A support vector is a point on
@@ -1310,13 +1349,15 @@ kernel evaluation per query, so a model needing 79% of the data has thrown away
 most of the speed advantage over k-NN.
 :::
 
-# The kernel trick: they needed different coordinates
+# A new coordinate makes the classes separable
 
-- Healthy pumps in a disc, faulty ones around it: no line works **in the plane**
-- Add a third coordinate: the **distance from the design point**
+- In the plane, healthy pumps sit in a disc and faulty ones around it: no
+  line separates them
+- Add a third coordinate, computed from the two readings: each pump's
+  **distance from the design point**
 - Healthy pumps rise a little, faulty ones a lot, and a flat plane separates
-  them perfectly
-- The classes were always separable. They were measured in the wrong coordinates
+  them
+- The classes were separable all along, in other coordinates
 
 ::: notes
 Build the picture in words first and let them see it before the figure appears.
@@ -1349,44 +1390,19 @@ horizontal cut separates the colours cleanly. Nothing was added - no new
 measurement, no extra sensor. The third coordinate is computed from the two they
 already had.
 
-Then set up the objection that the next slide answers. This worked because the
+Then set up the objection that the next two slides answer. This worked because the
 lift was three-dimensional and we could guess it. The spaces that work in general
 are enormous - the useful ones are sometimes infinite-dimensional - and
 computing the coordinates of every point in such a space is impossible.
 :::
 
-# And the map is never computed
-
-- The solution depends on the data **only through inner products** between pairs
-  of points
-- So we need a function returning the inner product **in the new space**, while
-  computing only with the original one
-- The radial basis function is scikit-learn's default: one exponential per pair,
-  for an **infinite-dimensional** space
-
-::: notes
-The trick in one sentence: the SVM never needs the coordinates, only the inner products between points,
-which carry their lengths and the angles between them, and those can be obtained without ever going there.
-
-Do not prove it here - the next slide gives the one line that makes this claim
-true, and handout section 5.4 has the full three-fact argument behind that
-line. The claim to state and let land now is that a function of two ordinary
-two-dimensional vectors returns their inner product in a space of infinite
-dimension, at the cost of one exponential.
-
-And close the loop from the previous slide: we chose the lift in the picture by
-knowing the answer. The RBF kernel does something equivalent without being told,
-which is exactly why it works on problems where nobody could guess the right
-coordinates.
-:::
-
-# The boundary is a weighted vote of the pumps
+# The SVM's solution: w is a weighted sum of the training pumps
 
 $$w = \sum_{i=1}^{m} a_i\, y_i\, x_i, \qquad a_i \geq 0$$
 
 ::: notes
-This is the rewriting the previous slide's claim depends on, and it is worth
-giving before the trick, not after - it is called the **dual formulation**,
+This is the rewriting the kernel trick rests on, which is why it comes before
+the trick, not after - it is called the **dual formulation**,
 and that phrase from the handout is otherwise just a name with nothing behind
 it.
 
@@ -1411,12 +1427,40 @@ Do not derive $a_i$ here - the three-fact argument, from the constrained
 optimisation to this formula, is handout section 5.4.
 :::
 
+# So the new coordinates are never computed
+
+- Put that w into the boundary: w·x + b = Σ aᵢ yᵢ (xᵢ · x) + b,
+  so the pumps enter **only through inner products**
+- A function giving the inner product **in the new coordinates**, from the
+  original ones, is enough: a **kernel**
+- The new coordinates are never computed: the RBF kernel, scikit-learn's
+  default, costs one exponential per pair
+
+::: notes
+Kernels were joined to the margin by Bernhard Boser, Isabelle Guyon and Vapnik
+in 1992, at Bell Labs; that paper is what made SVMs a practical tool.
+
+The trick in one sentence: the SVM never needs the coordinates, only the inner products between points,
+which carry their lengths and the angles between them, and those can be obtained without ever going there.
+
+Do not prove it here - the previous slide gave the one line that makes this claim
+true, and handout section 5.4 has the full three-fact argument behind that
+line. The claim to state and let land now is that a function of two ordinary
+two-dimensional vectors returns their inner product in a space of infinite
+dimension, at the cost of one exponential.
+
+And close the loop from two slides back: we chose the lift in the picture by
+knowing the answer. The RBF kernel does something equivalent without being told,
+which is exactly why it works on problems where nobody could guess the right
+coordinates.
+:::
+
 # The kernel trick by hand: 25 = 25
 
-| Route | Computation | Result |
+| Route, for a = (1, 2) and b = (3, 1) | Computation | Result |
 |---|---|---|
-| Lift, then multiply | (1, 2.83, 4) · (9, 4.24, 1) = 9 + 12 + 4 | **25** |
-| Never lift | ((1, 2) · (3, 1))² = 5² | **25** |
+| Lift with φ(x) = (x₁², √2·x₁x₂, x₂²), then multiply | φ(a) · φ(b) = (1, 2.83, 4) · (9, 4.24, 1) = 9 + 12 + 4 | **25** |
+| Never lift: the kernel (a · b)² | (1×3 + 2×1)² = 5² | **25** |
 
 ::: notes
 Make the trick concrete before the famous formula. The lift here lists every
@@ -1435,7 +1479,7 @@ chose by hand. A flat plane there is a circle down here. The kernel found the
 lift we had to guess. Handout section 5.4.
 :::
 
-# The radial basis function, written out
+# The RBF kernel: similarity falls with distance
 
 $$K(x, x') = \exp\left(-\gamma \|x - x'\|^2\right)$$
 
@@ -1448,7 +1492,7 @@ are, the nearer the exponent is to zero and the nearer the kernel is to one; far
 apart, it falls away to nothing. That is all an RBF kernel says - how much does
 this point look like that one.
 
-Now say what γ means, because the next two slides turn on it: it sets how far a
+Now say what γ means, because slides 62 to 64 turn on it: it sets how far a
 single training point's influence reaches. Small γ, wide reach, smooth boundary.
 Large γ, each point influences only its immediate neighbourhood - and a boundary
 that can afford an island around every mislabelled pump.
@@ -1465,10 +1509,12 @@ the method rather than of the implementation.
 
 # Training: one weight per pump
 
-- Weights adjusted **two at a time**; no learning rate, same answer every run
-- **922** pumps: weight 0, forgotten
-- **268** at the ceiling C = 1, **10** on the edge: the 278 support vectors
-- The model: 278 points, their weights, and b = +1.105
+- RBF SVM on the standardised pumps, defaults γ = 0.5 and C = 1: one
+  weight aᵢ per pump
+- **922** pumps get weight 0: outside the slab, they drop out
+- **268** get the maximum, C = 1 (inside the slab or on the wrong side);
+  **10** sit on its edge. Together: 278 support vectors
+- The model kept: those 278 pumps, their weights, and b = +1.105
 
 ::: notes
 Say what "fit" does, because after lesson 3 they will expect gradient descent.
@@ -1496,12 +1542,12 @@ The model you ship is 278 points and their weights. Handout section 5.5.
 
 # The SVM on 48 Hz, 5.6 bar: +1.883
 
-| Term | Value |
+| Term, for the pump x at 48 Hz, 5.6 bar | Value |
 |---|---|
-| votes from faulty support vectors | +37.455 |
-| votes from healthy support vectors | −36.677 |
-| intercept b | +1.105 |
-| **total** | **+1.883** |
+| Faulty support vectors: sum of aᵢ · K(xᵢ, x) | +37.455 |
+| Healthy support vectors: minus the sum of aᵢ · K(xᵢ, x) | −36.677 |
+| Intercept b | +1.105 |
+| **Total: positive, so faulty** | **+1.883** |
 
 ::: notes
 Inference is a vote, in four steps. Standardise the pump with the training
@@ -1540,9 +1586,9 @@ neighbourhood's balance, not one neighbour, that makes it faulty. Handout
 section 5.5.
 :::
 
-# The highest training score, the lowest honest one
+# The highest training score, the lowest cross-validated one
 
-| Setting | Training | Cross-validated |
+| RBF SVM on the pumps | Training accuracy | Cross-validated accuracy, 5 folds |
 |---|---|---|
 | γ = 0.1, C = 1 | 0.936 | 0.929 |
 | γ = 1, C = 1 | 0.950 | **0.944** |
@@ -1570,7 +1616,7 @@ next slide shows the same three settings as pictures - so the failure is visible
 as well as measurable, which is rare.
 :::
 
-# How far one vote reaches
+# How far one support vector's vote reaches, for four values of γ
 
 ![](rbf_reach.png)
 
@@ -1585,7 +1631,7 @@ for a neighbourhood a tenth of a standard deviation wide. What will the boundary
 look like? Islands. Handout section 5.6.
 :::
 
-# Overfitting you can see
+# Overfitting you can see: the boundary at the three settings
 
 ![](svm_gamma_c.png)
 
@@ -1635,9 +1681,9 @@ side by side. Two numbers, and it makes the diagnostic real rather than a claim 
 slide.
 :::
 
-# The three compared, on identical data
+# The three families compared, on the same pumps and the same folds
 
-| Model | Accuracy |
+| Model | Accuracy, 5-fold cross-validation |
 |---|---|
 | Majority baseline | 0.613 |
 | Logistic regression (lesson 4) | 0.613 |
@@ -1670,11 +1716,11 @@ for.
 
 | Situation | Reach for |
 |---|---|
-| Few features, plenty of data, odd-shaped boundary | k-NN, or an RBF SVM |
+| Few features, plenty of data, a curved boundary | k-NN, or an RBF SVM |
 | Very many features, little data | Naive Bayes |
-| Need a calibrated probability | **Not** Naive Bayes |
-| Model must be small, or fast at prediction | SVM, not k-NN |
-| The signal is an interaction between features | k-NN or a kernel |
+| You need probabilities you can trust | **Not** Naive Bayes |
+| The model must be small, or fast at prediction | SVM, not k-NN |
+| The signal is an interaction between features | k-NN or an RBF SVM, not Naive Bayes |
 
 ::: notes
 A table to photograph. Work down it and attach today's evidence to each row, so
@@ -1697,11 +1743,11 @@ rather than a preference.
 
 # What to take away
 
-- **No line separates the pumps**: 0.613, the base rate
-- **k is the bias-variance dial**, made visible
+- **No line separates the pumps**: 0.613, the majority share
+- **k trades bias for variance**
 - **In 100 dimensions the nearest point is 70% as far as the farthest**
-- **Naive Bayes**: 0.933 where its false assumption is cheap, **0.404** where not
-- **Choosing the family beats tuning the wrong one**: 0.613 to 0.947
+- **Naive Bayes**: 0.933 on the pumps, **0.404** with interacting sensors
+- **Choosing the family beats tuning**: 0.613 to 0.947
 
 ::: notes
 Close on the number they opened the second segment with, and say it one more
@@ -1725,7 +1771,8 @@ Handout section 7 lists all of this with the section numbers.
 # Homework
 
 - **Exercise 6**, discussed at the start of **Friday 20 November**
-- A dataset, three families, and a defence of which one you chose
+- You get a dataset, fit the three families, and argue which one you would
+  choose, and why
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten

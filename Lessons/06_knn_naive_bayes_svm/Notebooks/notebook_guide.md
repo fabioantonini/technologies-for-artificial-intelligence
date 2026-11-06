@@ -117,8 +117,8 @@ and working in thousands of dimensions. The notebook shows it succeeding, then f
    with the label — essentially nothing. The redrawn figure shows why: per sensor both
    classes have the same two humps (quadrants 273/278 healthy, 359/253 faulty), and the
    one bell per class Naive Bayes fits sits in the valley, nearly identical for the two
-   classes (sensor A: centre −0.012 and +0.167, sd 1.090 and 1.112). The 0.17 between
-   centres is a sampling accident. Results: baseline 0.523, **Naive Bayes 0.404**, logistic regression 0.393, linear support vector machine (SVM)
+   classes (sensor A: centre −0.012 and +0.167, sd 1.090 and 1.112). The 0.18 between
+   centres (0.14 on sensor B) is a sampling accident. Results: baseline 0.523, **Naive Bayes 0.404**, logistic regression 0.393, linear support vector machine (SVM)
    0.606, k-NN 0.967, RBF SVM 0.972. k-NN and the RBF SVM prove the data is easily
    learnable: **the problem is the hypothesis class, not the data.**
 8. **The assumption failing, measured.** Section 3's test on these sensors gives the
