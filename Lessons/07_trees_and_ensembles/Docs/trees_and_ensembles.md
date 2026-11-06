@@ -1179,18 +1179,19 @@ trade-off is real; the equivalence is not.
 
 ## 11. Choosing among trees, forests and boosting
 
-Every method from this lesson, on the same five folds:
+Every method from this lesson, on the same five folds of the 1,200 loans; the
+third column is the standard deviation of the five fold scores:
 
-| Model | Cross-validated accuracy |
-|---|---|
-| Majority baseline | 0.613 |
-| Logistic regression | 0.748 |
-| Single tree, unconstrained | 0.852 |
-| Single tree, `max_depth = 8` | 0.882 |
-| Gradient boosting, 30 trees | 0.897 |
-| Single tree, `max_leaf_nodes = 9` | 0.901 |
-| Bagging, 100 trees | 0.904 |
-| **Random forest, 100 trees** | **0.911** |
+| Model | Cross-validated accuracy | ± over the 5 folds |
+|---|---|---|
+| Majority baseline | 0.613 | |
+| Logistic regression | 0.748 | 0.030 |
+| Single tree, unconstrained | 0.852 | 0.021 |
+| Single tree, `max_depth = 8` | 0.882 | 0.010 |
+| Gradient boosting, 30 trees | 0.897 | 0.020 |
+| Single tree, `max_leaf_nodes = 9` | 0.901 | 0.020 |
+| Bagging, 100 trees | 0.904 | 0.020 |
+| **Random forest, 100 trees** | **0.911** | 0.018 |
 
 *Noise ceiling: 0.93 (1 − the 7% deliberately flipped labels). No method
 reaches it, and none should — a model that classified the flipped labels
@@ -1198,15 +1199,14 @@ reaches it, and none should — a model that classified the flipped labels
 
 Three findings, read together, are this lesson's real content. First, on this
 dataset the ensembles — bagging, the random forest, gradient boosting — land
-within about a point and a half of each other: which ensembling *strategy* you
-pick matters less than whether you ensemble at all. Second, a single tree sits
-among them: the nine-leaf tree of section 4 reaches 0.901, above gradient
+within about a point and a half of each other, the top four rows within one
+spread of each other. Second, a single tree sits among them: the nine-leaf tree of section 4 reaches 0.901, above gradient
 boosting and a point behind bagging, and a person can read it start to finish.
 On data whose rule is a handful of axis-aligned rectangles, a small tree is
 nearly enough; what the ensembles buy here is less a higher score than a
-steadier one — section 5.2 measured how much less a forest's score moves from
-one split of the data to another, and section 4 showed where a single tree's
-verdicts wobble. Third, the unconstrained tree is the worst model on this list
+steadier one. On the same 30 random splits as section 5.2, the nine-leaf tree
+averages 0.897 with a standard deviation of 0.020, the random forest 0.908 with
+0.0137; section 4 showed where a single tree's verdicts wobble. Third, the unconstrained tree is the worst model on this list
 despite being, in a narrow sense, the most flexible one: flexibility without
 a stopping rule is not an advantage, a point this course has now made with
 several different methods.

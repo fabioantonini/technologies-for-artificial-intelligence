@@ -1208,7 +1208,7 @@ Handout section 6.
 ::: notes
 The same 30 random 70/30 splits as slide 38, now with the random forest added
 (notebook 2, section 3). Each dot is one split's test accuracy; the box holds
-the middle half of the 30, the red line is the median.
+the middle half of the 30, and the red line is the mean, as on slide 38.
 
 Read it left to right: the boxes rise and narrow together. In numbers, the
 means are 0.856, 0.902 and 0.908, and the standard deviations 0.0185, 0.0153
@@ -1227,8 +1227,9 @@ Handout section 6.
 
 # Feature importance: what the forest claims to tell you
 
-- **Feature importance**: the impurity reduction credited to each feature
-  over every tree and split, scaled to add up to 1
+- **Feature importance**: every split's gain ΔG, weighted by the share of
+  applicants it splits, is credited to the feature it asks about; summed
+  over all splits of all trees, scaled to add up to 1
 - With only the two real features here, it names exactly those two
 - What happens once we add columns of random numbers, unrelated to default?
 - In code: `forest.feature_importances_`
@@ -1292,8 +1293,10 @@ about the applicant in its row; score the model again. The accuracy lost is
 that column's importance. Repeat for every column. If the model never really
 used a column, shuffling it costs nothing.
 
-The figure is the 20-noise-column forest, trained on 70% of the applicants
-and checked on the other 30% (notebook 2, section 6). Left, the importance
+The figure says it on top: the 20-noise-column forest, trained on 70% of the
+applicants and checked on the other 30% (notebook 2, section 6). This forest
+puts 54.8% of its own importance on noise; the 54.5% of the previous slide is
+the same kind of forest trained on all 1,200 - two fits, two close numbers. Left, the importance
 the forest reports for itself: more than half of it on the twenty noise
 columns. Right, the same 22 columns by permutation: debt ratio costs 0.18 of
 accuracy when shuffled, income 0.09, and every noise column costs almost
@@ -1387,7 +1390,7 @@ which is the version this lesson teaches and scikit-learn implements.
 
 # Building the ensemble, one tree at a time, for squared error
 
-$$F_0(x) = \bar{y}, \qquad F_t(x) = F_{t-1}(x) + \alpha \cdot h_t(x)$$
+$$F_0(x) = \bar{y}\text{: start from the mean} \\ F_t(x) = F_{t-1}(x) + \alpha\, h_t(x)\text{: add a scaled tree}$$
 
 ::: notes
 $F_0$ is the flat starting guess: the best single constant for the loss
@@ -1478,8 +1481,8 @@ Handout section 8.
 - The loss is lesson 4's **log-loss**
 - Each tree fits the **pseudo-residual** $y - p$, the negative gradient:
   lesson 4's error term
-- Start: $p = 0.387$ for all, so the first tree fits +0.613 to defaulters
-  and −0.387 to the rest
+- Start: $p = 464/1{,}200 = 0.387$ for all (the share who defaulted), so the
+  first tree fits +0.613 to defaulters and −0.387 to the rest
 
 ::: notes
 State the result, not the chain rule behind it - the handout carries the
@@ -1523,17 +1526,18 @@ Handout section 9.
 
 # On the loan data
 
-- `GradientBoostingClassifier`, defaults: **100 trees**, learning rate
-  $\alpha = 0.1$
-- Reaches **0.902 ± 0.020** cross-validated accuracy
-- Already ahead of any single tree from earlier in the lesson
+- `GradientBoostingClassifier`, defaults: **100 trees** of depth 3,
+  learning rate $\alpha = 0.1$
+- Reaches **0.902 ± 0.020** cross-validated accuracy, on the same five folds
+- Ahead of the depth-8 tree (0.882), level with the nine-leaf tree (0.901)
 
 ::: notes
 Give the number and let it sit against everything shown so far this
 lesson: 0.902, from a method run at scikit-learn's defaults, no tuning at
-all. Ask the room to recall the single tuned tree's number from the depth
-table, 0.882 at depth 8, and note that boosting has already passed it without
-being told anything about depth.
+all. Ask the room to recall the single trees' numbers: 0.882 at depth 8, which
+boosting has passed without being told anything about depth, and 0.901 for
+the nine-leaf tree of slide 25, which it only matches - on this rectangle
+data a well-budgeted tree is hard to beat on the score alone.
 
 The rest of this segment is what happens when boosting is *not* left at
 sensible defaults.
@@ -1661,21 +1665,24 @@ the table is in handout section 10.
 
 # Every method, on the same five folds
 
-| Model | Cross-validated accuracy |
-|---|---|
-| Majority baseline | 0.613 |
-| Logistic regression | 0.748 |
-| Single tree, unconstrained | 0.852 |
-| Single tree, `max_depth = 8` | 0.882 |
-| Gradient boosting, 30 trees | 0.897 |
-| Single tree, `max_leaf_nodes = 9` | 0.901 |
-| Bagging, 100 trees | 0.904 |
-| **Random forest, 100 trees** | **0.911** |
-| *noise ceiling* | *≈ 0.93* |
+| Model | Cross-validated accuracy | ± over the 5 folds |
+|---|---|---|
+| Majority baseline | 0.613 | |
+| Logistic regression | 0.748 | 0.030 |
+| Single tree, unconstrained | 0.852 | 0.021 |
+| Single tree, `max_depth = 8` | 0.882 | 0.010 |
+| Gradient boosting, 30 trees | 0.897 | 0.020 |
+| Single tree, `max_leaf_nodes = 9` | 0.901 | 0.020 |
+| Bagging, 100 trees | 0.904 | 0.020 |
+| **Random forest, 100 trees** | **0.911** | 0.018 |
+| *noise ceiling* | *≈ 0.93* | |
 
 ::: notes
-Everything from this lesson, cross-validated the same way. Read down the
-column and let the pattern speak before naming it: the ensembles - bagging,
+Everything from this lesson, cross-validated the same way: 5 folds of the
+1,200 loans, the same folds for every model. The third column is the standard
+deviation of the five fold scores, the spread lesson 5 asks to see beside
+every mean: the top four rows lie within one spread of each other. Read down
+the column and let the pattern speak before naming it: the ensembles - bagging,
 the random forest, gradient boosting - land within about a point and a half of
 each other, the random forest on top. And one single tree sits among them: the
 nine-leaf tree of slide 25, at 0.901, above gradient boosting and a point
@@ -1698,10 +1705,10 @@ Handout section 11.
 
 # Three findings
 
-- **On this dataset**, the ensembles land within 1.5 points of each other:
-  **whether you ensemble** matters more than **which**
-- A **nine-leaf tree** reaches 0.901, a point from bagging: on rectangles a
-  small tree is enough, and a person can read it
+- **On this dataset** the three ensembles land within 1.5 points of each
+  other, and a **nine-leaf tree** among them (0.901): one a person can read
+- What the ensembles buy here is **steadiness**: over 30 splits, the nine-leaf
+  tree's spread is 0.020, the forest's 0.0137
 - The **unconstrained tree is the worst**, though the most flexible
 
 ::: notes
@@ -1710,9 +1717,10 @@ content, more than any single accuracy number.
 
 The second finding is the honest surprise. The ensembles were not built to
 score higher than a well-budgeted tree on data made of rectangles - here they
-barely do. What they buy is steadiness: notebook 2 measured how much less a
-forest's score moves from one split of the data to another than a single tree's,
-and slide 27 showed where a single tree's verdicts wobble.
+barely do. What they buy is steadiness: on the same 30 random splits as slide
+38, the nine-leaf tree averages 0.897 with a standard deviation of 0.020, the
+forest 0.908 with 0.0137 (notebook 2, section 3). Slide 27 showed where a
+single tree's verdicts wobble.
 
 The third finding is the one to land hardest, because it repeats a pattern
 they have now seen with several different methods: flexibility without a
@@ -1753,8 +1761,8 @@ Handout section 11.
 # 54% of the importance landed on noise
 
 - 20 noise columns, 2 real ones: not small, not a bug
-- **The menu**: 4 of 22 columns per split; in two splits of three (0.662),
-  no real feature
+- **The menu**: 4 of 22 columns per split; 4,845 of the 7,315 possible
+  menus hold no real feature: two splits in three (0.662)
 - **Small groups**: with all 22 on offer, noise still takes **28%**, from
   deep splits
 - The check: **permutation importance**, slide 44
@@ -1801,9 +1809,10 @@ Handout section 7 has the full mechanism.
 
 # What to take away
 
-- A tree splits greedily on Gini impurity, matching scikit-learn
-- Depth is the bias-variance dial: accuracy peaked at **depth 8**
+- A tree splits greedily on Gini impurity; depth is the bias-variance dial
 - Bootstrap resampling leaves **36.8%** of rows out-of-bag: free validation
+- A vote cancels only what **differs** between trees; boosting must be
+  **stopped** on held-out data
 - **54% of a random forest's importance landed on 20 noise columns**,
   today's number
 

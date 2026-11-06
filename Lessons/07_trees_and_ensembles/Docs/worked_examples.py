@@ -707,5 +707,42 @@ init = GradientBoostingClassifier(n_estimators=1, random_state=0).fit(X, y)
 same("9 F0, from scikit-learn's initial estimator",
      float(init.init_.predict_proba(X.iloc[:1])[0, 1]), 0.387, tolerance=5e-4)
 
+# ---------------------------------------- 11, the spread column and the nine-leaf tree's steadiness
+# Each fold scored by an explicit loop, not cross_val_score; the spread is the
+# population standard deviation of the five fold accuracies, as numpy computes it.
+from sklearn.linear_model import LogisticRegression as _LR          # noqa: E402
+from sklearn.pipeline import make_pipeline as _mp                     # noqa: E402
+from sklearn.preprocessing import StandardScaler as _SS               # noqa: E402
+_spread_models = {
+    "logistic regression": (_mp(_SS(), _LR(max_iter=2_000)), 0.030),
+    "unconstrained tree": (DecisionTreeClassifier(random_state=0), 0.021),
+    "depth-8 tree": (DecisionTreeClassifier(max_depth=8, random_state=0), 0.010),
+    "boosting, 30 trees": (GradientBoostingClassifier(n_estimators=30, learning_rate=0.3,
+                                                      max_depth=3, random_state=0), 0.020),
+    "nine-leaf tree": (DecisionTreeClassifier(max_leaf_nodes=9, random_state=0), 0.020),
+    "bagging, 100 trees": (BaggingClassifier(DecisionTreeClassifier(random_state=0),
+                                             n_estimators=100, random_state=0), 0.020),
+    "random forest, 100 trees": (RandomForestClassifier(n_estimators=100, random_state=0), 0.018),
+}
+for _name, (_model, _printed) in _spread_models.items():
+    _acc = []
+    for _tr, _te in folds.split(X, y):
+        _model.fit(X.iloc[_tr], y.iloc[_tr])
+        _acc.append(float((_model.predict(X.iloc[_te]) == y.iloc[_te].to_numpy()).mean()))
+    _acc = np.array(_acc)
+    same(f"11 spread over the 5 folds, {_name}", np.sqrt(((_acc - _acc.mean()) ** 2).mean()), _printed, tolerance=6e-4)
+_nine, _forest = [], []
+for _seed in range(30):
+    _a, _b, _ya, _yb = train_test_split(X, y, test_size=0.3, random_state=_seed, stratify=y)
+    _nine.append(DecisionTreeClassifier(max_leaf_nodes=9, random_state=0).fit(_a, _ya).score(_b, _yb))
+    _forest.append(RandomForestClassifier(n_estimators=100, random_state=0).fit(_a, _ya).score(_b, _yb))
+same("11 nine-leaf tree over 30 splits: mean", np.mean(_nine), 0.897, tolerance=5e-4)
+same("11 nine-leaf tree over 30 splits: standard deviation", np.std(_nine), 0.020, tolerance=5e-4)
+same("11 random forest over 30 splits: mean", np.mean(_forest), 0.908, tolerance=5e-4)
+same("11 random forest over 30 splits: standard deviation", np.std(_forest), 0.0137, tolerance=5e-5)
+same("7 menus with no real feature, C(20, 4)", comb(20, 4), 4845, tolerance=0)
+same("7 all menus of 4 from 22, C(22, 4)", comb(22, 4), 7315, tolerance=0)
+same("9 the starting probability, 464 / 1,200", 464 / 1200, 0.387, tolerance=5e-4)
+
 print(f"{checks} numbers recomputed from raw inputs and confirmed against "
       f"{HANDOUT}.")
