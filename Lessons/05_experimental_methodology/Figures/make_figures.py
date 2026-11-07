@@ -2,11 +2,12 @@
 
     python Figures/make_figures.py
 
-Data figures come from the notebooks. These three are diagrams of a *procedure*
+Data figures come from the notebooks. These six are diagrams of a *procedure*
 rather than plots of numbers: the two recipes for choosing a hyperparameter, how
-k-fold rotates the validation block, and how nested cross-validation puts a second
-loop around the first. Both are far easier to
-understand as a picture than as a paragraph, and both are the kind of thing
+k-fold rotates the validation block, how GroupKFold keeps a drive in one fold,
+where the feature selector must sit, how GridSearchCV fills its grid, and how
+nested cross-validation puts a second loop around the first. Each is far easier
+to understand as a picture than as a paragraph, and each is the kind of thing
 that otherwise gets drawn badly on a whiteboard.
 """
 
@@ -46,7 +47,7 @@ def save(fig, name):
 def two_recipes():
     """How a hyperparameter is chosen on a validation set: one fit per candidate
     when it sits inside the cost (lambda), one fit in all when it acts on the
-    output (the threshold). Sizes are slide 52's split of the 800 drives."""
+    output (the threshold). Sizes are slide 55's split of the 800 drives."""
     fig, axes = plt.subplots(1, 2, figsize=(11.6, 5.6))
     split = ("1. Set 200 test drives aside; cut 150 validation\n"
              "drives from the other 600: 450 left to train")
@@ -194,8 +195,186 @@ def nested_cv_diagram():
     save(fig, "nested_cv_diagram.png")
 
 
+def step_boxes(ax, steps, colour, y=0.0, result=None):
+    """A column of numbered boxes joined by arrows, the last one optionally a
+    result in bold; returns the y where the column ends."""
+    for index, step in enumerate(steps):
+        h = 0.62 + 0.3 * step.count("\n")
+        ax.add_patch(Rectangle((0, y - h), 10, h, facecolor="#DCE6F0",
+                               edgecolor=colour, linewidth=1.4))
+        ax.text(0.3, y - h / 2, step, ha="left", va="center", fontsize=10.2, color=INK)
+        ax.annotate("", xy=(5, y - h - 0.3), xytext=(5, y - h - 0.02),
+                    arrowprops=dict(arrowstyle="->", color=SLATE, lw=1.3))
+        y -= h + 0.32
+    if result:
+        h = 0.62 + 0.3 * result.count("\n")
+        ax.add_patch(Rectangle((0, y - h), 10, h, facecolor=RUST, alpha=.22,
+                               edgecolor=colour, linewidth=1.4))
+        ax.text(0.3, y - h / 2, result, ha="left", va="center", fontsize=10.5,
+                color=INK, fontweight="bold")
+        y -= h
+    return y
+
+
+def fold_strip(ax, y, selector_sees, colour):
+    """Round 1 of 5: the 800 drives in five folds of 160, the first one
+    validating, and a bracket over the rows the selector looks at."""
+    for block in range(5):
+        valid = block == 0
+        ax.add_patch(Rectangle((block * 2, y), 1.9, 0.55,
+                               facecolor=GOLD if valid else "#EDF2F8",
+                               edgecolor=SLATE, linewidth=1.0))
+        ax.text(block * 2 + 0.95, y + 0.27, "validation\n160" if valid else "train\n160",
+                ha="center", va="center", fontsize=8.8,
+                color=INK if valid else SLATE, fontweight="bold" if valid else "normal")
+    start = 0 if selector_sees == "all" else 2
+    ax.plot([start + 0.05, start + 0.05, 9.85, 9.85], [y + 0.75, y + 0.88, y + 0.88, y + 0.75],
+            color=colour, lw=2)
+    label = ("SelectKBest looks at all 800 drives and their labels" if selector_sees == "all"
+             else "SelectKBest looks at the 640 training drives only")
+    ax.text((start + 9.85) / 2, y + 0.98, label, ha="center", va="bottom", fontsize=10,
+            color=colour, fontweight="bold")
+    ax.text(0, y - 0.12, "round 1 of 5 shown; the validation fold moves each round",
+            ha="left", va="top", fontsize=8.8, color=SLATE)
+
+
+def groupkfold_diagram():
+    """KFold deals readings at random, so a drive sits on both sides of the
+    split; GroupKFold deals whole drives. Drawn small: 10 drives, 4 readings."""
+    import numpy as np
+    drives = np.repeat(np.arange(1, 11), 4)
+    shuffled = np.random.default_rng(4).permutation(drives)
+    panels = [("KFold: the readings are dealt at random", shuffled, RUST),
+              ("GroupKFold(5), groups=drive_id: whole drives are dealt",
+               drives, TEAL)]
+    palette = plt.get_cmap("tab10")
+    fig, axes = plt.subplots(1, 2, figsize=(12.4, 5.4))
+    for ax, (title, order, colour) in zip(axes, panels):
+        for fold in range(5):
+            valid = fold == 0
+            ax.add_patch(Rectangle((fold * 2.1, 0), 1.95, 4.3,
+                                   facecolor=GOLD if valid else "#EDF2F8",
+                                   alpha=.55 if valid else 1.0,
+                                   edgecolor=SLATE, linewidth=1.1))
+            ax.text(fold * 2.1 + 0.975, 4.45, "validation" if valid else "train",
+                    ha="center", va="bottom", fontsize=10,
+                    fontweight="bold" if valid else "normal",
+                    color=INK if valid else SLATE)
+            for slot in range(8):
+                drive = order[fold * 8 + slot]
+                x = fold * 2.1 + 0.18 + (slot % 2) * 0.85
+                y = 3.3 - (slot // 2) * 1.0
+                seen_twice = (title.startswith("KFold") and drive == order[0])
+                ax.add_patch(Rectangle((x, y), 0.75, 0.8, facecolor=palette(drive - 1),
+                                       alpha=.75, edgecolor=RUST if seen_twice else "white",
+                                       linewidth=3 if seen_twice else 1))
+                ax.text(x + 0.375, y + 0.4, str(drive), ha="center", va="center",
+                        fontsize=10, color="white", fontweight="bold")
+        if title.startswith("KFold"):
+            d = order[0]
+            inside = int((order[:8] == d).sum())
+            note = (f"Drive {d}: {inside} of its 4 readings validate, {4 - inside} trained the model.\n"
+                    "The model has already seen this drive: near-copies, same label.")
+        else:
+            note = ("Drives 1 and 2: all their readings validate, none trained.\n"
+                    "The model meets them for the first time, as it will in use.")
+        ax.text(0, -0.25, note, ha="left", va="top", fontsize=10.2, color=INK)
+        ax.set_title(title, fontsize=11.5, color=colour, fontweight="bold", loc="left")
+        ax.set_xlim(-0.1, 10.4)
+        ax.set_ylim(-0.95, 5.0)
+        ax.axis("off")
+    fig.text(0.01, 0.0, "Drawn small: 10 drives, 4 readings each, one square per reading, "
+             "numbered by drive. On the lesson's data, 800 drives and 10 readings each:\n"
+             "1-nearest neighbour scores 1.000 split at random and 0.620 split by drive.",
+             ha="left", va="top", fontsize=10.2, color=SLATE)
+    fig.tight_layout(w_pad=2.5)
+    save(fig, "groupkfold_diagram.png")
+
+
+def selection_inside_diagram():
+    """Where the feature selector sits: before the cross-validation, so it
+    sees the validation rows; or inside each round, so it does not."""
+    fig, axes = plt.subplots(1, 2, figsize=(12.4, 5.6))
+    sides = [
+        ("Outside the loop: the code almost everyone writes", "all", RUST,
+         ["1. SelectKBest keeps the 10 noise columns that\nbest match the labels of all 800 drives",
+          "2. Each round: fit on 640, score on 160;\nbut those 160 already helped pick the columns"],
+         "0.931 on pure noise"),
+        ("Inside the pipeline: the fix", "train", TEAL,
+         ["1. Each round: SelectKBest picks its own 10 columns\nfrom the 640 training drives",
+          "2. Fit on the same 640, score on the 160\nthe selector never saw"],
+         "0.658 on average over 20 fold seeds;\nthe truth is 0.500"),
+    ]
+    ends = []
+    for ax, (title, sees, colour, steps, result) in zip(axes, sides):
+        fold_strip(ax, 0.6, sees, colour)
+        ends.append(step_boxes(ax, steps, colour, y=0.1, result=result))
+        ax.set_title(title, fontsize=11.5, color=colour, fontweight="bold", loc="left")
+    for ax in axes:
+        ax.set_xlim(-0.1, 10.1)
+        ax.set_ylim(min(ends) - 0.1, 2.0)
+        ax.axis("off")
+    fig.tight_layout(w_pad=2.5)
+    save(fig, "selection_inside_diagram.png")
+
+
+def gridsearch_diagram():
+    """GridSearchCV as a grid: 25 cells, each one a 5-fold cross-validation,
+    the best mean kept, then one refit on all the data."""
+    ks, cs = [2, 5, 10, 20, 40], ["0.01", "0.1", "1", "10", "100"]
+    fig, (grid, steps) = plt.subplots(1, 2, figsize=(12.4, 5.4),
+                                      gridspec_kw={"width_ratios": [1.05, 1]})
+    for row, k in enumerate(ks):
+        y = 4 - row
+        grid.text(-0.15, y + 0.4, f"k = {k}", ha="right", va="center", fontsize=10.5,
+                  color=INK)
+        for col, c in enumerate(cs):
+            winner = k == 20 and c == "10"
+            grid.add_patch(Rectangle((col, y), 0.92, 0.82,
+                                     facecolor="#FFF4D6" if winner else "#EDF2F8",
+                                     edgecolor=RUST if winner else SLATE,
+                                     linewidth=2.6 if winner else 1.0))
+            for fold in range(5):
+                grid.add_patch(Rectangle((col + 0.08 + fold * 0.155, y + 0.48), 0.13, 0.22,
+                                         facecolor=GOLD if fold == 0 else "#B8C7D9",
+                                         edgecolor="none"))
+            grid.text(col + 0.46, y + 0.22, "best mean\n0.800" if winner else "mean AUC",
+                      ha="center", va="center", fontsize=8.2 if not winner else 8.8,
+                      color=INK if winner else SLATE,
+                      fontweight="bold" if winner else "normal")
+    for col, c in enumerate(cs):
+        grid.text(col + 0.46, 5.0, f"C = {c}", ha="center", va="bottom", fontsize=10.5,
+                  color=INK)
+    grid.text(2.3, 5.45, "k = columns kept (rows)  ×  C = penalty (columns)",
+              ha="center", va="bottom", fontsize=11, color=INK, fontweight="bold")
+    grid.text(0, -0.15, "Each cell: 5 small blocks = its own 5-fold cross-validation.",
+              ha="left", va="top", fontsize=9.8, color=SLATE)
+    grid.set_xlim(-1.1, 5.0)
+    grid.set_ylim(-0.6, 6.0)
+    grid.axis("off")
+
+    end = step_boxes(steps, [
+        "1. For each of the 25 cells: 5-fold cross-validation,\n"
+        "5 fits each, 25 × 5 = 125 fits",
+        "2. The cell with the highest mean AUC wins:\n"
+        "best_params_ = k 20, C 10; best_score_ = 0.800",
+        "3. Refit that cell's settings on all 800 drives (fit 126):\n"
+        "the model you ship, not scored again"],
+        BLUE, y=0.0,
+        result="0.800 is the best of 25 means, measured on the\n"
+               "folds that also chose it; the truth is 0.500")
+    steps.set_xlim(-0.1, 10.1)
+    steps.set_ylim(end - 0.1, 0.4)
+    steps.axis("off")
+    fig.tight_layout(w_pad=2.0)
+    save(fig, "gridsearch_diagram.png")
+
+
 if __name__ == "__main__":
     print("conceptual figures for lesson 5:")
     two_recipes()
     kfold_diagram()
+    groupkfold_diagram()
+    selection_inside_diagram()
+    gridsearch_diagram()
     nested_cv_diagram()

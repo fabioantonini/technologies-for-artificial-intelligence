@@ -811,11 +811,11 @@ for n_days, degree, train_printed, valid_printed in (
     same(f"6 {n_days} days, degree {degree}, validation {valid_printed}", valid,
          valid_printed, tolerance=0.06)
 
-# Slide 25's 25 days are the first of section 5's 300 training sets. The
+# Slide 26's 25 days are the first of section 5's 300 training sets. The
 # straight line fitted to them must give the first of the 300 predictions at
 # 30 degrees that section 5.2 prints, 300.8.
 days_25, energy_25 = sample_energy(25, np.random.default_rng(0))
-same("5.5 slide 25's sample is the first of the 300: its line gives 300.8 at 30",
+same("5.5 slide 26's sample is the first of the 300: its line gives 300.8 at 30",
      np.polyval(np.polyfit(days_25, energy_25, 1), 30.0), 300.8, tolerance=0.05)
 same("5.5 and so does the first of at_thirty's 300", at_thirty(1)[0],
      np.polyval(np.polyfit(days_25, energy_25, 1), 30.0), tolerance=1e-9)
@@ -945,14 +945,14 @@ same("7.2 the search's winner averages 0.512",
 
 # ------------------- 4 November study pass: numbers added to slides and handout
 
-# 5.1 and slide 25: the straight line's cross-validated error, back in kWh.
+# 5.1 and slide 26: the straight line's cross-validated error, back in kWh.
 same("5.1 sqrt(6,064.3) is about 78 kWh", float(np.sqrt(6064.3)), 78, tolerance=0.5)
-# 5.2 and slide 30: the expected error at 30 °C, back in kWh.
+# 5.2 and slide 31: the expected error at 30 °C, back in kWh.
 same("5.2 sqrt(2,063.9) is about 45 kWh", float(np.sqrt(2063.9)), 45, tolerance=0.5)
-# Slide 37: the gap from the printed errors.
+# Slide 38: the gap from the printed errors.
 same("5.5 615.1 - 262.4 is about 353", 615.1 - 262.4, 353, tolerance=0.5)
 
-# 7.1 and slide 42: why pure noise offers ten good-looking columns. Rebuilt from
+# 7.1 and slide 43: why pure noise offers ten good-looking columns. Rebuilt from
 # notebook 3's recipe (default_rng(0), 800 x 2,000), not from its outputs.
 fails = noise_800.values[np.asarray(fleet_y) == 1]
 healthy = noise_800.values[np.asarray(fleet_y) == 0]
@@ -973,7 +973,7 @@ same("7.1 only 6 of 2,000 columns beyond 3 standard errors",
 same("7.1 0.931 is the mean of its five folds",
      (0.928 + 0.979 + 0.975 + 0.943 + 0.832) / 5, 0.931, tolerance=5e-4)
 
-# 7.3 and slide 47: best_score_ as the mean of the winner's five round AUCs, from
+# 7.3 and slide 49: best_score_ as the mean of the winner's five round AUCs, from
 # the search rebuilt above.
 results = search_winner.cv_results_
 same("7.3 the winner is k = 20", search_winner.best_params_["select__k"], 20, tolerance=0)
@@ -1010,7 +1010,7 @@ same("7.4 what nested cross-validation leaves above the truth",
      0.670 - 0.500, 0.170, tolerance=1e-9)
 same("7.4 the optimism of the search", 0.7999 - 0.6699, 0.1300, tolerance=1e-9)
 
-# 8 and slide 52: what paying the debt costs.
+# 8 and slide 55: what paying the debt costs.
 same("8 the honest threshold costs 1,400 EUR more", 4_700 - 3_300, 1_400, tolerance=0)
 same("8 42% more than the cheating figure", 1_400 / 3_300, 0.42, tolerance=5e-3)
 

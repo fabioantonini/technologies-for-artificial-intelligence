@@ -154,8 +154,8 @@ numbers.
 
 Lesson 5 is about measuring, so most of its atoms run on the lesson's own data, the 800
 drives and the 25 days, where the slides' numbers come from; atoms 2 and 6 use ten and
-twenty rows. Atoms 12 to 14 repeat notebook 3's search and take about a minute. On
-6 November atoms 3-4 replace notebook 1 in class, and atoms 11-13 notebook 3.
+twenty rows. Atoms 12 to 14 repeat notebook 3's search and take about a minute. In
+class atoms 2-3 replace notebook 1, and atoms 11-13 notebook 3.
 
 | # | Atom | Lesson source |
 |--|--------------------------|------------------------|

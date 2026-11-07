@@ -12,21 +12,21 @@ date: "6 November 2026 · reading time about 95 minutes"
 | 0:00–1:00 | 60 | **Lesson 4, concluded**: receiver operating characteristic (ROC) curves and the area under the curve (AUC), the threshold from costs, its notebook 3; exercise 4 set | Lesson 4's deck, from its slide 43 |
 | 1:00–1:05 | 5 | The plan for today; the promise we broke | Slides 2–4 |
 | 1:05–1:15 | 10 | One split is a lottery; parameters and hyperparameters; the validation set (11–12 in a minute if short) | Slides 5–12 |
-| 1:15–1:35 | 20 | Cross-validation, stratification, grouped rows (19–20 optional); atoms 3 and 4 in place of notebook 01 | Slides 13–23 |
-| 1:35–1:45 | 10 | **Break** | Slide 24 |
-| 1:45–2:10 | 25 | The question, the lab, the decomposition; without the truth; learning curves; which fix to buy (31–32, 34–35 optional) | Slides 25–40 |
-| 2:10–2:40 | 30 | **Leakage that survives cross-validation**, the heart of the lesson; atoms 11 to 13 in place of notebook 03 | Slides 42–51 |
-| 2:40–2:50 | 10 | The debt paid; three sets, three jobs (54–55 optional); what to put in a report | Slides 52–57 |
-| 2:50–3:00 | 10 | What to take away; homework | Slides 58–59 |
-| | **180** | **Total** | **59 slides, 3 notebooks, the atoms** |
+| 1:15–1:35 | 20 | Cross-validation, stratification, grouped rows (19–20 optional); atoms 2 and 3 in place of notebook 01 | Slides 13–24 |
+| 1:35–1:45 | 10 | **Break** | Slide 25 |
+| 1:45–2:10 | 25 | The question, the lab, the decomposition; without the truth; learning curves; which fix to buy (32–33, 35–36 optional) | Slides 26–41 |
+| 2:10–2:40 | 30 | **Leakage that survives cross-validation**, the heart of the lesson; atoms 11 to 13 in place of notebook 03 | Slides 43–54 |
+| 2:40–2:50 | 10 | The debt paid; three sets, three jobs (57–58 optional); what to put in a report | Slides 55–60 |
+| 2:50–3:00 | 10 | What to take away; homework | Slides 61–62 |
+| | **180** | **Total** | **62 slides, 3 notebooks, the atoms** |
 
 *This plan is for Friday 6 November 2026, when lesson 4 runs over into the first
 hour. The live notebooks give way to atoms from `Consolidation/05_lesson_5_atoms.ipynb`,
-which students followed better in lesson 4; notebooks 01 and 03 (slides 23 and
-56) and notebook 02 (slide 41) are left for self-study, with the slides marked
-(optional) — 19 and 20, 31 and 32, 34 and 35, 54 and 55. The sections of this
+which students followed better in lesson 4; notebooks 01 and 03 (slides 24 and
+59) and notebook 02 (slide 42) are left for self-study, with the slides marked
+(optional) — 19 and 20, 32 and 33, 35 and 36, 57 and 58. The sections of this
 handout that cover them are unchanged. With a full three hours, notebooks 01 and
-03 run live for fifteen minutes each and notebook 02 for twenty after slide 40.*
+03 run live for fifteen minutes each and notebook 02 for twenty after slide 41.*
 
 ---
 
@@ -724,7 +724,13 @@ of the drive the reading came from.
 `cross_val_score(model, X, y, groups=drive_id, cv=GroupKFold(n_splits=5),
 scoring="roc_auc")` puts all rows with the same `drive_id` in one fold: each
 round trains on 640 drives (6,400 readings) and validates on 160 others (1,600
-readings), and no drive is on both sides. The label comes from the data — a
+readings), and no drive is on both sides.
+
+![](groupkfold_diagram.png)
+
+*Drawn small, ten drives with four readings each, one square per reading. Left, `KFold` deals readings at random: drive 8 has a reading in the validation fold and three in training, so the model is graded on near-copies of rows it learned. Right, `GroupKFold` deals whole drives: the drives that validate were never seen in training.*
+
+The label comes from the data — a
 serial number, a patient id — and it is *not* a feature: a model that sees it can
 recognise the drive again. Groups may differ in size: one drive with ten readings among drives
 with one each is split correctly. **A predictable mistake** is "GroupKFold needs
@@ -1430,7 +1436,13 @@ procedure that had already peeked.
 ### 7.2 The fix, and the surprise
 
 Put the selection inside the pipeline so it is refitted in every round, on training
-rows only. Over 20 different fold seeds the estimate becomes **0.658** — mean of
+rows only.
+
+![](selection_inside_diagram.png)
+
+*The bracket marks the drives `SelectKBest` looks at. Left, section 7.1's code: all 800, the validation fold included, so the drives being scored helped pick the columns. Right, the selector as the pipeline's first step: only the 640 training drives of each round.*
+
+ Over 20 different fold seeds the estimate becomes **0.658** — mean of
 20, ranging 0.576 to 0.759.
 
 Better. **And not 0.500.**
@@ -1498,6 +1510,10 @@ that chooses them, in four steps:
 3. **The highest mean AUC wins.** `best_params_` names it ($k = 20$, $C = 10$),
    `best_score_` is its mean AUC.
 4. **The winner is refitted on all the data**; `best_estimator_` is that model.
+
+![](gridsearch_diagram.png)
+
+*The four steps as a grid: rows are $k$, columns are $C$, and each cell holds its own 5-fold cross-validation. The outlined cell has the highest mean; its settings are refitted on all 800 drives and not scored again.*
 
 The order matters: `best_score_` is computed in step 3, on the folds, before the
 refit. The refitted model is the one you ship, and it is not scored: scored on

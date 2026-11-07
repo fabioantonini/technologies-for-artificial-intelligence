@@ -90,8 +90,8 @@ drives, slide 17 measured the real spread at twice the tempting one.
 """
 
 
-# --------------------------------------------------------------- slide 30
-@example(30)
+# --------------------------------------------------------------- slide 31
+@example(31)
 def decomposition_by_hand():
     truth = 10.0
     predictions = [8.0, 9.0, 7.0, 10.0, 6.0]
@@ -124,8 +124,8 @@ noise: expected error = {fmt(bias2, 0)} + {fmt(variance, 0)} + {fmt(noise, 0)} =
 """
 
 
-# --------------------------------------------------------------- slide 48
-@example(48)
+# --------------------------------------------------------------- slide 51
+@example(51)
 def best_of_many():
     scores = [0.48, 0.55, 0.51, 0.46, 0.53]
     best = max(scores)
@@ -142,8 +142,8 @@ noise, by {fmt(best - average, 3)} here. With 25 candidates instead of 5 the luc
 """
 
 
-# --------------------------------------------------------------- slide 52
-@example(52)
+# --------------------------------------------------------------- slide 55
+@example(55)
 def threshold_sweep():
     miss, alarm = 2600, 140
 
