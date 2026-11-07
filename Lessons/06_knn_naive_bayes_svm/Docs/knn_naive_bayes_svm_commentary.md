@@ -279,7 +279,7 @@ are broken. For this dataset it holds.
 
 ---
 
-## Slide 12 — Training against cross-validated accuracy, by k (optional)
+## Slide 12 — Training against cross-validated accuracy, by k
 
 | $k$ | Training | Cross-validation |
 |---:|---:|---:|
@@ -469,7 +469,7 @@ neighbour" found that way is not near in any useful sense; it is just the least 
 
 ---
 
-## Slide 21 — Nearest divided by farthest (optional)
+## Slide 21 — Nearest divided by farthest
 
 | Dimensions | $d_{\min}/d_{\max}$ |
 |---:|---:|
@@ -708,7 +708,7 @@ estimated from every row of the class. That is the bargain: it is false, and it 
 
 ---
 
-## Slide 31 — Gaussian: each factor is a bell curve (optional)
+## Slide 31 — Gaussian: each factor is a bell curve
 
 $$P(x_j \mid y = c) = \frac{1}{\sqrt{2\pi\sigma_{jc}^2}}\exp\left[-\frac{(x_j - \mu_{jc})^2}{2\sigma_{jc}^2}\right]$$
 
@@ -767,7 +767,7 @@ its total area is still 1.
 
 ---
 
-## Slide 34 — Take logs: the product becomes a sum (optional)
+## Slide 34 — Take logs: the product becomes a sum
 
 $$\ln\left[P(y = c) \prod_{j} P(x_j \mid y = c)\right] = \ln P(y = c) + \sum_{j} \ln P(x_j \mid y = c)$$
 
@@ -784,7 +784,7 @@ worked with the log-likelihood.
 
 ---
 
-## Slide 35 — 48 Hz, 5.6 bar: scores and their logs (optional)
+## Slide 35 — 48 Hz, 5.6 bar: scores and their logs
 
 | Class | | Prior | Vibration density | Pressure density | Product, or sum of logs |
 |---|---|---|---|---|---|
@@ -805,7 +805,7 @@ is the exact opposite of k-NN, for which prediction is the whole cost.
 
 ---
 
-## Slide 36 — From the two totals to probabilities (optional)
+## Slide 36 — From the two totals to probabilities
 
 | Step | Healthy | Faulty |
 |---|---|---|
@@ -823,7 +823,7 @@ the denominator that slide 28 dropped, recovered.
 
 ---
 
-## Slide 37 — Software uses only the gap between the logs (optional)
+## Slide 37 — Software uses only the gap between the logs
 
 The same result reached without computing the two scores, which is how software does
 it. Divide the numerator and the denominator of $0.01585 / (0.01585 + 0.000305)$ by
@@ -1364,7 +1364,7 @@ in who gets a vote at prediction (slide 62).
 
 ---
 
-## Slide 50 — The hinge loss stops at zero (optional)
+## Slide 50 — The hinge loss stops at zero
 
 ![](hinge_vs_log_loss.png)
 
@@ -1401,7 +1401,7 @@ zero is where support vectors come from.
 
 ---
 
-## Slide 51 — The SVM objective: small w, plus C times the slack (optional)
+## Slide 51 — The SVM objective: small w, plus C times the slack
 
 $$\min_{w, b, \xi} \ \tfrac{1}{2}\|w\|^2 + C\sum_i \xi_i$$
 
@@ -1563,7 +1563,7 @@ coordinates there is impossible. The next slides show that it is also unnecessar
 
 ---
 
-## Slide 57 — The SVM's solution: a weighted sum of pumps (optional)
+## Slide 57 — The SVM's solution: a weighted sum of pumps
 
 $$w = \sum_{i=1}^{m} a_i\, y_i\, x_i, \qquad a_i \geq 0$$
 
@@ -1631,7 +1631,7 @@ shown on slide 57.
 
 ---
 
-## Slide 59 — The kernel trick by hand: 25 = 25 (optional)
+## Slide 59 — The kernel trick by hand: 25 = 25
 
 | Route | Computation | Result |
 |---|---|---|
@@ -1730,7 +1730,7 @@ of these numbers, so a pump three spreads away is, in effect, not consulted.
 
 ---
 
-## Slide 61 — Training: one weight per pump (optional)
+## Slide 61 — Training: one weight per pump
 
 Training means finding the weights $a_i$ of slide 57. It is not gradient descent: the
 solver picks **two** weights at a time and sets them to their best values with all the
@@ -1775,7 +1775,7 @@ So the same function $K$ is used in two different ways:
 
 ---
 
-## Slide 62 — The SVM on 48 Hz, 5.6 bar: +1.883 (optional)
+## Slide 62 — The SVM on 48 Hz, 5.6 bar: +1.883
 
 | Term | Value |
 |---|---|
@@ -1813,7 +1813,7 @@ the whole neighbourhood decides.
 
 ---
 
-## Slide 64 — Training against cross-validated, three settings (optional)
+## Slide 64 — Training against cross-validated, three settings
 
 | Setting | Training | Cross-validated |
 |---|---|---|

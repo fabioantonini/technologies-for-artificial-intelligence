@@ -10,21 +10,16 @@ date: "13 November 2026 · reading time about 100 minutes"
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
 | 0:00–0:10 | 10 | Exercise 4 discussed; a problem no line solves | Slides 2–6 |
-| 0:10–0:30 | 20 | k-nearest neighbours, and choosing k (12 optional) | Slides 7–15 |
-| 0:30–0:52 | 22 | The curse of dimensionality (21 optional) | Slides 16–23 |
+| 0:10–0:30 | 20 | k-nearest neighbours, and choosing k | Slides 7–15 |
+| 0:30–0:52 | 22 | The curse of dimensionality | Slides 16–23 |
 | 0:52–1:14 | 22 | **Notebook 01** — k-NN and the curse | Slide 24 |
 | 1:14–1:26 | 12 | **Break** | Slide 25 |
-| 1:26–1:50 | 24 | Naive Bayes, and when its assumption matters (31, 34–37 optional) | Slides 26–45 |
+| 1:26–1:50 | 24 | Naive Bayes, and when its assumption matters | Slides 26–45 |
 | 1:50–2:06 | 16 | **Notebook 02** — where it fails | Slide 46 |
-| 2:06–2:34 | 28 | Margins, support vectors, the kernel trick (50–51, 57, 59, 61–62, 64 optional) | Slides 47–66 |
+| 2:06–2:34 | 28 | Margins, support vectors, the kernel trick | Slides 47–66 |
 | 2:34–2:50 | 16 | **Notebook 03** — kernels in practice | Slide 67 |
 | 2:50–3:00 | 10 | The three compared; homework | Slides 68–71 |
 | | **180** | **Total** | **71 slides, 3 notebooks** |
-
-*The slides marked (optional) — 12, 21, 31, 34 to 37, 50 and 51, 57, 59, 61 and
-62, 64 — carry the computations: formulas, worked tables, checks. In class they
-can be skipped when time is short, and are left for self-study with this
-handout, whose sections covering them are unchanged.*
 
 ---
 

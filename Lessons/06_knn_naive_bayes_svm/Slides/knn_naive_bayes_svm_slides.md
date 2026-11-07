@@ -241,7 +241,7 @@ data. Here the perfect score is guaranteed by how k = 1 works, whatever the data
 Handout section 2.2.
 :::
 
-# Training against cross-validated accuracy, by k (optional)
+# Training against cross-validated accuracy, by k
 
 | k | Training accuracy | Cross-validated accuracy, 5 folds |
 |---|---|---|
@@ -252,9 +252,6 @@ Handout section 2.2.
 | 401 | 0.828 | 0.708 |
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for
-self-study, with the handout.
-
 Read the first row, then the last, then the middle.
 
 Row one: training 1.000, honest 0.912. The difference between them is lesson 5's
@@ -468,7 +465,7 @@ curiosity. The reason 52 columns took k-NN below the baseline is drawn on this
 plot: at that width, "nearest" has already stopped meaning much.
 :::
 
-# Nearest divided by farthest (optional)
+# Nearest divided by farthest
 
 | Dimensions | nearest distance ÷ farthest distance, mean over 60 points |
 |---|---|
@@ -479,9 +476,6 @@ plot: at that width, "nearest" has already stopped meaning much.
 | 500 | 0.855 |
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for
-self-study, with the handout.
-
 The same curve as numbers, because these are the ones worth carrying out of the
 room.
 
@@ -711,14 +705,11 @@ an estimation problem that is actually solvable. Notebook 02 measures what
 the assumption costs when it fails.
 :::
 
-# Gaussian: each factor is a bell curve (optional)
+# Gaussian: each factor is a bell curve
 
 $$P(x_j \mid y = c) = \frac{1}{\sqrt{2\pi\sigma_{jc}^2}}\exp\left[-\frac{(x_j - \mu_{jc})^2}{2\sigma_{jc}^2}\right]$$
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for
-self-study, with the handout.
-
 The factorisation leaves one choice open: what shape each one-dimensional
 density has. "Gaussian" answers it. Every feature, in every class, gets its own
 bell curve with its own centre mu and its own width sigma.
@@ -787,14 +778,11 @@ probability.
 The next slide puts these heights, as logarithms, in a table.
 :::
 
-# Take logs: the product becomes a sum (optional)
+# Take logs: the product becomes a sum
 
 $$\ln\left[P(y = c) \prod_{j} P(x_j \mid y = c)\right] \\ = \ln P(y = c) + \sum_{j} \ln P(x_j \mid y = c)$$
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for
-self-study, with the handout.
-
 Inside the bracket on the left is the classifier as slides 28 and 30 built it:
 prior times one density per reading, the class with the largest product
 winning. The equation says its log is a sum, and the title says why that is
@@ -818,7 +806,7 @@ times 0.692 = 0.01585; in logs, −4.144. The next slide is exactly those number
 Handout section 4.2.
 :::
 
-# 48 Hz, 5.6 bar: scores and their logs (optional)
+# 48 Hz, 5.6 bar: scores and their logs
 
 | Class | Row | Prior | Vibration density | Pressure density | Product of the three, or sum of their logs |
 |---|---|---|---|---|---|
@@ -828,9 +816,6 @@ Handout section 4.2.
 | Faulty | ln | −0.490 | −3.286 | −0.368 | **−4.144** |
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for
-self-study, with the handout.
-
 This table is the whole of prediction (inference), and it is worth saying how
 little computation it needs. Read each class as
 two rows. The value row is the product form: the prior from slide 32, and the
@@ -855,7 +840,7 @@ become probabilities is the next slide. Handout section 4.2 lists the
 four steps.
 :::
 
-# From the two totals to probabilities (optional)
+# From the two totals to probabilities
 
 | Step | Healthy | Faulty |
 |---|---|---|
@@ -864,9 +849,6 @@ four steps.
 | 3. Divide each by their sum, 0.000305 + 0.01585 = 0.01616 = P(x) | **0.019** | **0.981** |
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for
-self-study, with the handout.
-
 Three steps, one row each, and both classes side by side so they can see the
 two probabilities come out of the same arithmetic.
 
@@ -887,7 +869,7 @@ The next slide shows the same numbers computed from the gap alone, and why
 that is the form software uses. Handout section 4.2.
 :::
 
-# Software uses only the gap between the logs (optional)
+# Software uses only the gap between the logs
 
 - With many features, e^total rounds to 0 for both classes, and 0 ÷ 0
   cannot be computed
@@ -897,9 +879,6 @@ that is the form software uses. Handout section 4.2.
 - e^3.951 ≈ 52: faulty is 52 times as likely as healthy (**odds of 52 to 1**)
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for
-self-study, with the handout.
-
 Same result as the previous slide, reached without ever computing the two
 scores. Start with the reason, the first bullet: with two features the scores
 are ordinary numbers and the previous slide works fine. With hundreds of
@@ -1276,14 +1255,11 @@ point with zero loss drops out of the answer entirely.
 The next slide puts it in symbols. Handout section 5.2 has the derivation.
 :::
 
-# The hinge loss stops at zero (optional)
+# The hinge loss stops at zero
 
 ![](hinge_vs_log_loss.png)
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for
-self-study, with the handout.
-
 What each point pays, against its margin y times f(x): large and positive when
 it is safely on its own side, negative on the wrong side.
 
@@ -1297,14 +1273,11 @@ is where support vectors come from - and why logistic regression never has any.
 Handout section 5.2.
 :::
 
-# The SVM objective: small w, plus C times the slack (optional)
+# The SVM objective: small w, plus C times the slack
 
 $$\min_{w, b, \xi} \ \tfrac{1}{2}\|w\|^2 + C\sum_i \xi_i \\ \text{subject to } y_i(w^\top x_i + b) \geq 1 - \xi_i, \ \xi_i \geq 0$$
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for
-self-study, with the handout.
-
 The second line is the constraint: every point on its own side of the slab,
 y_i(w'x_i + b) at least 1, or paying xi_i for the shortfall. Handout section
 5.2 writes it out.
@@ -1451,14 +1424,11 @@ are enormous - the useful ones are sometimes infinite-dimensional - and
 computing the coordinates of every point in such a space is impossible.
 :::
 
-# The SVM's solution: a weighted sum of pumps (optional)
+# The SVM's solution: a weighted sum of pumps
 
 $$w = \sum_{i=1}^{m} a_i\, y_i\, x_i, \qquad a_i \geq 0$$
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for
-self-study, with the handout.
-
 This is the rewriting the kernel trick rests on, which is why it comes before
 the trick, not after - it is called the **dual formulation**,
 and that phrase from the handout is otherwise just a name with nothing behind
@@ -1513,7 +1483,7 @@ which is exactly why it works on problems where nobody could guess the right
 coordinates.
 :::
 
-# The kernel trick by hand: 25 = 25 (optional)
+# The kernel trick by hand: 25 = 25
 
 | Route, for a = (1, 2) and b = (3, 1) | Computation | Result |
 |---|---|---|
@@ -1521,9 +1491,6 @@ coordinates.
 | Never lift: the kernel (a · b)² | (1×3 + 2×1)² = 5² | **25** |
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for
-self-study, with the handout.
-
 Make the trick concrete before the famous formula. The lift here lists every
 product of two coordinates: phi(x) = (x1², √2·x1·x2, x2²). Two points, a = (1, 2)
 and b = (3, 1).
@@ -1568,7 +1535,7 @@ machines are a poor fit above a hundred thousand rows, and it is a property of
 the method rather than of the implementation.
 :::
 
-# Training: one weight per pump (optional)
+# Training: one weight per pump
 
 - RBF SVM on the standardised pumps, defaults γ = 0.5 and C = 1: one
   weight aᵢ per pump
@@ -1578,9 +1545,6 @@ the method rather than of the implementation.
 - The model kept: those 278 pumps, their weights, and b = +1.105
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for
-self-study, with the handout.
-
 Say what "fit" does, because after lesson 3 they will expect gradient descent.
 It is not. The SVM solves the dual with the kernel substituted in: one weight
 per training point, found by a solver that picks two weights at a time - two,
@@ -1604,7 +1568,7 @@ Between: the 10 sitting exactly on the edge.
 The model you ship is 278 points and their weights. Handout section 5.5.
 :::
 
-# The SVM on 48 Hz, 5.6 bar: +1.883 (optional)
+# The SVM on 48 Hz, 5.6 bar: +1.883
 
 | Term, for the pump x at 48 Hz, 5.6 bar | Value |
 |---|---|
@@ -1614,9 +1578,6 @@ The model you ship is 278 points and their weights. Handout section 5.5.
 | **Total: positive, so faulty** | **+1.883** |
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for
-self-study, with the handout.
-
 Inference is a vote, in four steps. Standardise the pump with the training
 scaler. Compute its RBF similarity to each of the 278 support vectors. Add up
 weight times label times similarity - label +1 for faulty, -1 for healthy - and
@@ -1653,7 +1614,7 @@ neighbourhood's balance, not one neighbour, that makes it faulty. Handout
 section 5.5.
 :::
 
-# Training against cross-validated, three settings (optional)
+# Training against cross-validated, three settings
 
 | RBF SVM on the pumps | Training accuracy | Cross-validated accuracy, 5 folds |
 |---|---|---|
@@ -1662,9 +1623,6 @@ section 5.5.
 | γ = 50, C = 1000 | **0.995** | 0.902 |
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for
-self-study, with the handout.
-
 Read the two columns against each other, exactly as lesson 5 taught, and let the
 last row do the work.
 
