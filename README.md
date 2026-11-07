@@ -58,7 +58,7 @@ the Monday after, since it is study material rather than lecture support.
 | 2 | 9 Oct | Data: exploration and preparation |
 | 3 | 16 Oct | Regression |
 | 4 | 30 Oct, ending 6 Nov | Classification and evaluation metrics |
-| 5 | 6 Nov | Experimental methodology and model selection |
+| 5 | 6 Nov, ending 13 Nov | Experimental methodology and model selection |
 | 6 | 13 Nov | k-NN, Naive Bayes and support vector machines |
 | 7 | 20 Nov | Trees and ensembles |
 | 8 | 27 Nov | Unsupervised learning |

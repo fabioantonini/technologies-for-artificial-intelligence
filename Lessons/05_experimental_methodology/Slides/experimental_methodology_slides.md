@@ -12,6 +12,10 @@ date: "6 November 2026"
 - Today we pay the debt
 
 ::: notes
+Open the lesson before this slide with exercise 4, ten minutes: the threshold
+each student chose, and on which data. Most chose it on the test set, as lesson
+4 did - which is exactly the promise this slide names.
+
 Be explicit that this was deliberate. In lesson 4 there was no machinery
 available to do it properly, and inventing half of that machinery mid-lesson
 would have buried the actual subject.
@@ -553,7 +557,7 @@ whenever the problem is interesting.
 ![](cv_vs_single_split.png)
 
 ::: notes
-Optional on 6 November: skip in class if time is short, and say it is left for
+Optional: skip in class if time is short, and say it is left for
 self-study, with the handout.
 
 What to look at: the two dashed lines, the means, almost on top of each other;
@@ -614,7 +618,7 @@ What it does NOT fix is the subject of slides 42 to 53.
 - k = m (m the number of rows) is **leave-one-out**: for very few rows and a per-row metric; with AUC it returns nan (one row holds no pair)
 
 ::: notes
-Optional on 6 November: skip in class if time is short, and say it is left for
+Optional: skip in class if time is short, and say it is left for
 self-study, with the handout.
 
 The question always comes, so answer it before it does.
@@ -768,11 +772,11 @@ dealt whole. The second number is the honest one.
 The table is the notebook's map: each section, the calls it makes, the slides
 that introduced the idea, and the number to come back with.
 
-In class, with lesson 4 taking the first hour: run atoms 2 and 3 of
+In class: run atoms 2 and 3 of
 Consolidation/05_lesson_5_atoms.ipynb instead (who trains and who is held out, on
 ten days; the five round AUCs and their mean); atom 1, choosing C on a validation set, goes with
 slide 9 if there are three minutes, and leave the notebook to self-study with this
-table as its map. With a full three hours: run notebook 01. Fifteen minutes.
+table as its map. About ten minutes for the two atoms.
 
 Have them run the five-seed cell first and watch seed 3 return 1.000 before you
 say anything about it.
@@ -1072,7 +1076,7 @@ there; this slide carries one example, degree 1 at 30 °C.
 ![](error_by_temperature.png)
 
 ::: notes
-Optional on 6 November: skip in class if time is short, and say it is left for
+Optional: skip in class if time is short, and say it is left for
 self-study, with the handout. If skipped, go from slide 30 straight to the U of
 slide 33, and say that each of its points is the 30 °C computation averaged over
 220 temperatures.
@@ -1121,7 +1125,7 @@ instead, and slide 37 shows it gives the same diagnosis.
 | 12 | 153,537.3 | 32,174,344.9 | 484.0 | 32,328,366.2 |
 
 ::: notes
-Optional on 6 November: skip in class if time is short, and say it is left for
+Optional: skip in class if time is short, and say it is left for
 self-study, with the handout. If skipped, go from slide 30 straight to the U of
 slide 33, and say that each of its points is the 30 °C computation averaged over
 220 temperatures.
@@ -1204,7 +1208,7 @@ join the points, nothing was measured at 4, 6 to 8, 10 or 11.
 - A **test** error well below a known floor means leakage or a mistake in the evaluation, not excellence
 
 ::: notes
-Optional on 6 November: skip in class if time is short, and say it is left for
+Optional: skip in class if time is short, and say it is left for
 self-study, with the handout.
 
 The noise column never moves, because it is a property of the data rather than
@@ -1241,7 +1245,7 @@ deliberately.
 | 12 | 32,328,366.2 | 7,626.9 | 899.0 |
 
 ::: notes
-Optional on 6 November: skip in class if time is short, and say it is left for
+Optional: skip in class if time is short, and say it is left for
 self-study, with the handout.
 
 The same experiment at three sample sizes. The best degree moves from 2 to 5 as
@@ -1527,11 +1531,9 @@ honest, and the report must say so or use fresh data.
 
 
 ::: notes
-The table maps each section to its calls and its number. On 6 November this
-notebook is left for self-study: show the table, say what each section measures,
+The table maps each section to its calls and its number. This notebook is left
+for self-study: show the table, say what each section measures,
 and that its numbers are on slides 25 to 40, which were just shown.
-
-When there is a full three hours, run it live, for twenty minutes.
 
 The cell to protect is the decomposition table where the sum equals the measured
 error to twelve decimal places. Let them see the identity hold rather than
@@ -1980,7 +1982,7 @@ somebody else fails to reproduce your number.
 - Report the seed **and** the spread: AUC 0.951 ± 0.019 over 5-fold cross-validation, seed 0
 
 ::: notes
-Optional on 6 November: skip in class if time is short, and say it is left for
+Optional: skip in class if time is short, and say it is left for
 self-study, with the handout.
 
 Every one of those thirty runs is exactly reproducible by anyone with the same
@@ -2005,7 +2007,7 @@ what the exam asks them to defend.
 - What you could **not** fix: parallel computations that finish in a different order, graphics processing unit (GPU) non-determinism
 
 ::: notes
-Optional on 6 November: skip in class if time is short, and say it is left for
+Optional: skip in class if time is short, and say it is left for
 self-study, with the handout.
 
 Practical checklist. The container exists for the second item: it pins the
@@ -2031,11 +2033,10 @@ Commit the code that produced the number, not a tidied-up version of it.
 
 
 ::: notes
-The table pairs each section with its calls and its number. On 6 November: run atoms 11, 12 and 13 of
+The table pairs each section with its calls and its number. In class: run atoms 11, 12 and 13 of
 Consolidation/05_lesson_5_atoms.ipynb instead (0.931 and the fix; GridSearchCV's
 25 candidates; nested cross-validation one outer round at a time), and leave the
-rest to self-study. With a full three hours: run notebook
-03, fifteen minutes.
+rest to self-study. About fifteen minutes for the three atoms.
 
 The cell to protect is the first one - let them watch 0.931 appear on empty data
 before any explanation. Nothing else in the lesson changes behaviour as

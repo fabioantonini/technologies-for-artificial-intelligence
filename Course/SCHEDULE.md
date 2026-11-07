@@ -9,7 +9,8 @@ Total: **30 hours**.
 The calendar moved by one week in October: on 23 October the class worked through
 the consolidation notebooks (`Consolidation/`) in place of lesson 4, and lesson 4,
 taught on 30 October, ran over into the first three quarters of an hour of
-6 November. Every date from lesson 5 on is one week later than first announced.
+6 November. Lesson 5 began after it and ran over in turn, into the first part of
+13 November. Every date from lesson 5 on is one week later than first announced.
 
 | # | Date | Lesson | Materials |
 |---|---|---|---|
@@ -17,7 +18,7 @@ taught on 30 October, ran over into the first three quarters of an hour of
 | 2 | Fri 9 Oct 2026 | Data: exploration and preparation | [`02_data_exploration_and_preparation`](../Lessons/02_data_exploration_and_preparation) |
 | 3 | Fri 16 Oct 2026 | Regression | [`03_regression`](../Lessons/03_regression) |
 | 4 | Fri 30 Oct 2026, ending Fri 6 Nov | Classification and evaluation metrics | [`04_classification_and_metrics`](../Lessons/04_classification_and_metrics) |
-| 5 | Fri 6 Nov 2026 | Experimental methodology and model selection | [`05_experimental_methodology`](../Lessons/05_experimental_methodology) |
+| 5 | Fri 6 Nov 2026, ending Fri 13 Nov | Experimental methodology and model selection | [`05_experimental_methodology`](../Lessons/05_experimental_methodology) |
 | 6 | Fri 13 Nov 2026 | k-NN, Naive Bayes and support vector machines | [`06_knn_naive_bayes_svm`](../Lessons/06_knn_naive_bayes_svm) |
 | 7 | Fri 20 Nov 2026 | Trees and ensembles | [`07_trees_and_ensembles`](../Lessons/07_trees_and_ensembles) |
 | 8 | Fri 27 Nov 2026 | Unsupervised learning | [`08_unsupervised_learning`](../Lessons/08_unsupervised_learning) |

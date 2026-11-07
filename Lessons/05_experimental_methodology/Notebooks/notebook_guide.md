@@ -71,7 +71,7 @@ a spread you are supposed to report.*
 
 ---
 
-# Notebook 02 — `02_bias_variance_and_learning_curves` (self-study on 6 November)
+# Notebook 02 — `02_bias_variance_and_learning_curves` (self-study)
 
 ## What the error is made of
 

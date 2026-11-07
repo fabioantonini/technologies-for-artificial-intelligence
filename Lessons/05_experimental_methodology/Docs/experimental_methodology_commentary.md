@@ -1147,7 +1147,7 @@ set.
 
 The map of notebook 2: the 300 universes, the three parts measured (their sum agrees with
 the measured error to twelve decimal places), the three sample sizes, training against
-validation without the truth, and the learning curves. On 6 November it is left for
+validation without the truth, and the learning curves. It is left for
 self-study; its numbers are the ones on slides 25 to 40.
 
 ---
@@ -1574,7 +1574,7 @@ not a NumPy generator.
 The map of notebook 3: 0.931 with the selection before cross-validation; 0.658 with the
 selector inside the pipeline; 0.800 as the search's `best_score_`; 0.670 from nested
 cross-validation; the threshold, 4,700 EUR against 10,540; and 30 seeds from 0.913 to
-1.000. On 6 November atoms 11, 12 and 13 run in its place.
+1.000. In class atoms 11, 12 and 13 run in its place.
 
 ---
 

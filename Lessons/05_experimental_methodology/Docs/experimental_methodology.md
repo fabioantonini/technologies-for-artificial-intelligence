@@ -9,24 +9,25 @@ date: "6 November 2026 · reading time about 95 minutes"
 
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
-| 0:00–1:00 | 60 | **Lesson 4, concluded**: receiver operating characteristic (ROC) curves and the area under the curve (AUC), the threshold from costs, its notebook 3; exercise 4 set | Lesson 4's deck, from its slide 43 |
-| 1:00–1:05 | 5 | The plan for today; the promise we broke | Slides 2–3 |
-| 1:05–1:15 | 10 | One split is a lottery; parameters and hyperparameters; the validation set (10–11 in a minute if short) | Slides 4–11 |
-| 1:15–1:35 | 20 | Cross-validation, stratification, grouped rows (18–19 optional); atoms 2 and 3 in place of notebook 01 | Slides 12–23 |
-| 1:35–1:45 | 10 | **Break** | Slide 24 |
-| 1:45–2:10 | 25 | The question, the lab, the decomposition; without the truth; learning curves; which fix to buy (31–32, 34–35 optional) | Slides 25–40 |
-| 2:10–2:40 | 30 | **Leakage that survives cross-validation**, the heart of the lesson; atoms 11 to 13 in place of notebook 03 | Slides 42–53 |
-| 2:40–2:50 | 10 | The debt paid; three sets, three jobs (56–57 optional); what to put in a report | Slides 54–59 |
-| 2:50–3:00 | 10 | What to take away; homework | Slides 60–61 |
+| 0:00–0:10 | 10 | Exercise 4 discussed: the threshold each student chose, and on which data it was chosen | Exercise 4, no slide |
+| 0:10–0:15 | 5 | The promise we broke; the plan for today | Slides 2–3 |
+| 0:15–0:35 | 20 | One split is a lottery; parameters and hyperparameters; the validation set and its two recipes; choosing on one split (atom 1 with slide 9 if there are three minutes) | Slides 4–11 |
+| 0:35–1:05 | 30 | Cross-validation, what it estimates, the spread, stratification, grouped rows (18–19 optional); atoms 2 and 3 in place of notebook 01 | Slides 12–23 |
+| 1:05–1:15 | 10 | **Break** | Slide 24 |
+| 1:15–1:55 | 40 | The question, the lab, the decomposition, the trade-off; without the truth; learning curves; which fix to buy (31–32, 34–35 optional); notebook 02 left for self-study | Slides 25–41 |
+| 1:55–2:30 | 35 | **Leakage that survives cross-validation**, the heart of the lesson | Slides 42–53 |
+| 2:30–2:40 | 10 | The debt paid; three sets, three jobs (56–57 optional) | Slides 54–57 |
+| 2:40–2:55 | 15 | Atoms 11 to 13 in place of notebook 03 | Slide 58 |
+| 2:55–3:00 | 5 | What to put in a report; what to take away; homework, exercise 5 set | Slides 59–61 |
 | | **180** | **Total** | **61 slides, 3 notebooks, the atoms** |
 
-*This plan is for Friday 6 November 2026, when lesson 4 runs over into the first
-hour. The live notebooks give way to atoms from `Consolidation/05_lesson_5_atoms.ipynb`,
-which students followed better in lesson 4; notebooks 01 and 03 (slides 23 and
-58) and notebook 02 (slide 41) are left for self-study, with the slides marked
-(optional) — 18 and 19, 31 and 32, 34 and 35, 56 and 57. The sections of this
-handout that cover them are unchanged. With a full three hours, notebooks 01 and
-03 run live for fifteen minutes each and notebook 02 for twenty after slide 40.*
+*The notebooks give way to short atoms from `Consolidation/05_lesson_5_atoms.ipynb`,
+which students followed better than live notebooks in lesson 4: each atom asks for a
+prediction, then runs. Atoms 2 and 3 replace notebook 01 (slide 23), atoms 11 to 13
+replace notebook 03 (slide 58), and notebook 02 (slide 41) is left for self-study.
+All three notebooks, the other atoms and the slides marked (optional) — 18 and 19,
+31 and 32, 34 and 35, 56 and 57 — are for self-study; the sections of this handout
+that cover them are complete.*
 
 ---
 
@@ -106,7 +107,7 @@ $306 \times 0.25 = 76.5$, so 76 failures in lesson 4's split; at 800 it holds 7.
 
 ![](split_lottery.png)
 
-*Two hundred legitimate splits of the same 800 drives, the same logistic regression (C = 1) refitted on each, and each test set holding 200 drives of which 7 fail. Each bar is a bin about 0.004 of AUC wide, (1.000 − 0.885) ÷ 28 bins, and its height is how many splits landed in it. Every one of these is a correctly performed experiment; the dashed lines are the worst and the best. The right-hand tail is the dangerous end — a flattering score is the one nobody goes back to question.*
+*Two hundred legitimate splits of the same 800 drives, the same logistic regression (C = 1) refitted on each, and each test set holding 200 drives of which 7 fail. Each bar is a bin about 0.004 of area under the curve (AUC) wide, (1.000 − 0.885) ÷ 28 bins, and its height is how many splits landed in it. Every one of these is a correctly performed experiment; the dashed lines are the worst and the best. The right-hand tail is the dangerous end — a flattering score is the one nobody goes back to question.*
 
 Split it 75/25, fit a logistic regression, and score it with the area under
 the receiver operating
