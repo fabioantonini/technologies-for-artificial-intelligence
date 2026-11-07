@@ -9,7 +9,7 @@ date: "13 November 2026 · reading time about 100 minutes"
 
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
-| 0:00–0:10 | 10 | Exercises 4 and 5 discussed; a problem no line solves | Slides 2–6 |
+| 0:00–0:10 | 10 | Exercise 4 discussed; a problem no line solves | Slides 2–6 |
 | 0:10–0:30 | 20 | k-nearest neighbours, and choosing k (12 optional) | Slides 7–15 |
 | 0:30–0:52 | 22 | The curse of dimensionality (21 optional) | Slides 16–23 |
 | 0:52–1:14 | 22 | **Notebook 01** — k-NN and the curse | Slide 24 |

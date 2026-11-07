@@ -58,9 +58,9 @@ result can be believed: cross-validation, baselines, leakage, the comparison bet
 training and validation scores, bias and variance. Changing model does not retire
 them. Lesson 6 is where **model selection** begins in earnest: knowing how to train a
 model is not enough; you have to decide which *family* of models suits the structure
-of the problem. The opening discussion of Exercise 5 is a reminder that a high number
-does not make a good model: that exercise hid more than one problem on purpose, and
-the task was to diagnose why the first result was too good.
+of the problem. The opening discussion of Exercise 4 is about a decision the data cannot make
+alone: the classifier's threshold, and the argument that defends it. Exercise 5, set
+when lesson 5 finished on 13 November, is discussed a week later, on 20 November.
 
 ---
 

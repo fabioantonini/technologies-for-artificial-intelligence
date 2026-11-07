@@ -9,24 +9,17 @@ date: "13 November 2026"
 
 - Exercise 4: which threshold did you choose for the classifier, and how
   did you defend it?
-- Exercise 5: the score that looked too good. Which problems did you find
-  behind it, and what score was left once you had fixed them?
+- Exercise 5, set at the end of lesson 5, is discussed next Friday,
+  20 November
 
 ::: notes
-Nothing is collected. Two exercises this time, because lesson 4 ran over into
-6 November and both were set that day; keep each to about five minutes.
+Nothing is collected. Only exercise 4 today: it was set on 6 November.
+Exercise 5 was set earlier today, when lesson 5 finished, so it gets its own
+week and is discussed on 20 November together with exercise 6.
 
-Exercise 4 first, briefly: ask two people to defend their threshold out loud -
-that is the rehearsal for the exam - and name the recurring mistake if it
-appeared, choosing the threshold by sweeping it on the test set.
-
-Then exercise 5. What matters is how each student found the problems, not
-the final score, so ask the room what they found and listen for what they
-missed.
-
-The exercise hid more than one problem on purpose. Ask out loud how many people found the
-second one, and how many stopped after the first - stopping after the first is the common failure, because once a score drops from excellent to plausible
-the pressure to keep looking disappears.
+Ask two people to defend their threshold out loud - that is the rehearsal for
+the exam - and name the recurring mistake if it appeared: choosing the
+threshold by sweeping it on the test set.
 
 Then the sentence that links last week to today: everything from now on is evaluated with the tools built in lesson 5:
 cross-validation, baselines, training scores read against validation scores.
