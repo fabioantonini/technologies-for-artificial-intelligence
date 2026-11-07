@@ -150,13 +150,32 @@ is after three weeks of optimisation. There is no cost function, no gradient, no
 parameters. Nothing is estimated.
 
 Ask the room what could possibly go wrong with a method that makes no
-assumptions. Slides 15 to 21 answer it: a method with no assumptions
+assumptions. Slides 16 to 23 answer it: a method with no assumptions
 has no way to ignore a useless column, and that turns out to be expensive.
 
 The sentence hides two decisions - what "closest" means, and how many
 neighbours k to use - and both change the result. Take them in that order.
 
 Handout section 2.1.
+:::
+
+# k-NN, drawn: one new pump and its five nearest
+
+![](knn_one_vote.png)
+
+::: notes
+The four steps of the previous slide, done once, on real data: the 900
+training pumps of notebook 1 (the other 300 are held out), standardised by a
+scaler fitted on those 900, and a new pump at 46 Hz and 5.8 bar - the gold star.
+
+Left: every training pump, and the box that the right panel enlarges. Right:
+the five closest, circled in their class colour; the dotted circle reaches the
+fifth. Four are faulty and one is healthy, so the vote says faulty.
+
+Point at the healthy one. A single dissenting neighbour does not change the
+verdict, and that is how a vote over several neighbours outvotes the 4% of
+flipped labels. The first step, standardising, we come back to in two slides.
+Notebook 1, section 2.
 :::
 
 # "Closest" means the smallest Euclidean distance
@@ -229,7 +248,7 @@ data. Here the perfect score is guaranteed by how k = 1 works, whatever the data
 Handout section 2.2.
 :::
 
-# Measured on the pumps: training against cross-validated accuracy
+# Training against cross-validated accuracy, by k (optional)
 
 | k | Training accuracy | Cross-validated accuracy, 5 folds |
 |---|---|---|
@@ -240,6 +259,9 @@ Handout section 2.2.
 | 401 | 0.828 | 0.708 |
 
 ::: notes
+Optional: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 Read the first row, then the last, then the middle.
 
 Row one: training 1.000, honest 0.912. The difference between them is lesson 5's
@@ -340,7 +362,7 @@ Set the experiment up carefully before showing the result, because the whole
 force of it depends on them believing that nothing was taken away.
 
 The model is k-NN with k = 15, not the best k = 5: on the two real columns
-it scores 0.938 against 0.944 (slide 11), and a wider vote is the fairer test
+it scores 0.938 against 0.944 (slide 12), and a wider vote is the fairer test
 of whether noise columns hurt.
 
 Say it twice if necessary: the signal is still there. Both original columns are
@@ -351,9 +373,25 @@ relationship to each other.
 Ask for a prediction before you advance. Most of the room will say performance
 degrades gently, or not at all, because the useful information is intact. That
 instinct is exactly right for a linear model and exactly wrong here, and the
-next slide is why.
+result, after the drawing on the next slide, is why.
 
 Handout section 3.1.
+:::
+
+# The experiment, drawn
+
+![](noise_experiment.png)
+
+::: notes
+The previous slide's experiment as a picture, before its result. Left: the
+table k-NN receives when d = 10 - the first 14 of the 1,200 pumps, every
+column standardised, the colour giving the value. The two columns left of the
+black line are the real readings, the same in every run; everything to the
+right is random numbers.
+
+Right: the five steps, repeated for every d from 0 to 100. Only step 2
+changes between runs. Ask for the prediction now, before the next slide shows
+the result. Notebook 1, section 4.
 :::
 
 # The two real readings are still there, and accuracy still falls
@@ -437,7 +475,7 @@ curiosity. The reason 52 columns took k-NN below the baseline is drawn on this
 plot: at that width, "nearest" has already stopped meaning much.
 :::
 
-# Nearest divided by farthest
+# Nearest divided by farthest (optional)
 
 | Dimensions | nearest distance ÷ farthest distance, mean over 60 points |
 |---|---|
@@ -448,6 +486,9 @@ plot: at that width, "nearest" has already stopped meaning much.
 | 500 | 0.855 |
 
 ::: notes
+Optional: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 The same curve as numbers, because these are the ones worth carrying out of the
 room.
 
@@ -525,10 +566,10 @@ each fold only - lesson 5's rule again.
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
 | the straight line, 4-6 | `LogisticRegression` scored by `cross_val_score` over `StratifiedKFold` folds → 0.613 |
-| k-NN, scaled first, 7-9 | `make_pipeline(StandardScaler(), KNeighborsClassifier(k))` |
-| choosing k, 10-13 | `cross_val_score` for each k → 0.944 at k = 5 |
-| columns of noise, 15-16 | the pipeline with k = 15 on `load_with_noise(d)` → 0.602 at 52 columns |
-| distances stop varying, 17-20 | NumPy only: nearest ÷ farthest → 0.701 in 100 dimensions |
+| k-NN, scaled first, 7-10 | `make_pipeline(StandardScaler(), KNeighborsClassifier(k))` |
+| choosing k, 11-14 | `cross_val_score` for each k → 0.944 at k = 5 |
+| columns of noise, 16-18 | the pipeline with k = 15 on `load_with_noise(d)` → 0.602 at 52 columns |
+| distances stop varying, 19-22 | NumPy only: nearest ÷ farthest → 0.701 in 100 dimensions |
 
 ::: notes
 k-NN on the pumps, choosing k, and the curse of dimensionality measured. Run
@@ -624,7 +665,7 @@ recoverable. The denominator is the sum of the numerators over the classes, so
 dividing each score by the sum of the scores gives the probability back
 exactly. That is what predict_proba does, in logarithms. Dropping it does not make the probabilities less reliable. Where Naive Bayes's
 probabilities do go wrong is inside the numerator, because of the assumption,
-and slide 43 shows it.
+and slide 45 shows it.
 
 Then point at the first factor: this is where all the difficulty now sits, and
 the next slide is the assumption that makes it estimable. Handout section 4.1
@@ -646,7 +687,7 @@ One assumption, stated in one line, and everything follows from it.
 Emphasise the words "given the class". This is not a claim that the features are
 independent - it is a claim that whatever dependence they have is entirely
 explained by which class they belong to. Those are different claims and the
-distinction matters on slide 38, when we measure it.
+distinction matters on slide 40, when we measure it.
 
 What it buys: one n-dimensional estimation problem becomes n one-dimensional
 ones. A one-dimensional density needs very little data. Training becomes a
@@ -677,11 +718,14 @@ an estimation problem that is actually solvable. Notebook 02 measures what
 the assumption costs when it fails.
 :::
 
-# Gaussian: each factor is a bell curve
+# Gaussian: each factor is a bell curve (optional)
 
 $$P(x_j \mid y = c) = \frac{1}{\sqrt{2\pi\sigma_{jc}^2}}\exp\left[-\frac{(x_j - \mu_{jc})^2}{2\sigma_{jc}^2}\right]$$
 
 ::: notes
+Optional: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 The factorisation leaves one choice open: what shape each one-dimensional
 density has. "Gaussian" answers it. Every feature, in every class, gets its own
 bell curve with its own centre mu and its own width sigma.
@@ -750,17 +794,20 @@ probability.
 The next slide puts these heights, as logarithms, in a table.
 :::
 
-# Take logs: the product becomes a sum
+# Take logs: the product becomes a sum (optional)
 
 $$\ln\left[P(y = c) \prod_{j} P(x_j \mid y = c)\right] \\ = \ln P(y = c) + \sum_{j} \ln P(x_j \mid y = c)$$
 
 ::: notes
-Inside the bracket on the left is the classifier as slides 26 and 28 built it:
+Optional: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
+Inside the bracket on the left is the classifier as slides 28 and 30 built it:
 prior times one density per reading, the class with the largest product
 winning. The equation says its log is a sum, and the title says why that is
 allowed: ln is increasing, so the class with the largest product is also the
 class with the largest log. The logs
-are natural logs - base e - which matters on slide 34, when we undo them with e. Say why nobody computes the left-hand side directly. With hundreds of features the
+are natural logs - base e - which matters on slide 36, when we undo them with e. Say why nobody computes the left-hand side directly. With hundreds of features the
 product is hundreds of small numbers multiplied together, and it becomes too small to store, exactly zero in floating point (underflow) - 0.5 to the power 300 is already 5 times 10 to
 the minus 91, and real likelihoods are far smaller than 0.5. Every class then
 scores zero and nothing can be compared.
@@ -778,7 +825,7 @@ times 0.692 = 0.01585; in logs, −4.144. The next slide is exactly those number
 Handout section 4.2.
 :::
 
-# 48 Hz, 5.6 bar: scores and their logs
+# 48 Hz, 5.6 bar: scores and their logs (optional)
 
 | Class | Row | Prior | Vibration density | Pressure density | Product of the three, or sum of their logs |
 |---|---|---|---|---|---|
@@ -788,10 +835,13 @@ Handout section 4.2.
 | Faulty | ln | −0.490 | −3.286 | −0.368 | **−4.144** |
 
 ::: notes
+Optional: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 This table is the whole of prediction (inference), and it is worth saying how
 little computation it needs. Read each class as
-two rows. The value row is the product form: the prior from slide 30, and the
-height of that class's bell at each reading - the dots on slide 31 - each
+two rows. The value row is the product form: the prior from slide 32, and the
+height of that class's bell at each reading - the dots on slide 33 - each
 density conditional on the class. Multiply across and you get the score. The ln
 row is the same numbers logged, and the sum across is the log score. The last
 column is the point of the previous slide: e^(−8.095) is 0.000305, so the sum of
@@ -812,7 +862,7 @@ become probabilities is the next slide. Handout section 4.2 lists the
 four steps.
 :::
 
-# From the two totals to probabilities
+# From the two totals to probabilities (optional)
 
 | Step | Healthy | Faulty |
 |---|---|---|
@@ -821,19 +871,22 @@ four steps.
 | 3. Divide each by their sum, 0.000305 + 0.01585 = 0.01616 = P(x) | **0.019** | **0.981** |
 
 ::: notes
+Optional: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 Three steps, one row each, and both classes side by side so they can see the
 two probabilities come out of the same arithmetic.
 
 Row 1 is the table they just read. Row 2 undoes the logarithm: e to the total
 gives back the Bayes numerator, prior times the two densities - the product
 from two slides ago, 0.3875 times 0.000433 times 1.818 = 0.000305 for healthy,
-and 0.01585 for faulty. These are the unnormalised scores of slide 26.
+and 0.01585 for faulty. These are the unnormalised scores of slide 28.
 
-Row 3 is slide 26's normalisation, now with numbers. Why the sum of the two
+Row 3 is slide 28's normalisation, now with numbers. Why the sum of the two
 scores is P(x): by the law of total probability a pump's readings arise either
 from a healthy pump or from a faulty one, so P(x) = P(healthy) P(x | healthy) +
 P(faulty) P(x | faulty) - the two scores added. It is the denominator of slide
-25's Bayes' rule, the one we dropped to choose the class. Dividing each score by it gives probabilities that add to
+27's Bayes' rule, the one we dropped to choose the class. Dividing each score by it gives probabilities that add to
 one: 0.000305 / 0.01616 = 0.019 for healthy, 0.01585 / 0.01616 = 0.981 for
 faulty. Ask them to check the two add to one before moving on.
 
@@ -841,7 +894,7 @@ The next slide shows the same numbers computed from the gap alone, and why
 that is the form software uses. Handout section 4.2.
 :::
 
-# Software uses only the gap between the two log totals
+# Software uses only the gap between the logs (optional)
 
 - With many features, e^total rounds to 0 for both classes, and 0 ÷ 0
   cannot be computed
@@ -851,6 +904,9 @@ that is the form software uses. Handout section 4.2.
 - e^3.951 ≈ 52: faulty is 52 times as likely as healthy (**odds of 52 to 1**)
 
 ::: notes
+Optional: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 Same result as the previous slide, reached without ever computing the two
 scores. Start with the reason, the first bullet: with two features the scores
 are ordinary numbers and the previous slide works fine. With hundreds of
@@ -1120,11 +1176,11 @@ in its handout section 7.2, where the threshold depends on the probability being
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| on the pumps, 37 | `GaussianNB` beside `KNeighborsClassifier` and `LogisticRegression` → 0.933 |
-| what training computed, 29-35 | `.theta_`, `.var_`, `.class_prior_`, `predict_proba` → 0.981 at 48 Hz |
-| checking the assumption, 38-39 | `X[y == c].corr()`, within each class → −0.420 |
-| the interacting sensors, 40-42 | the same models, plus `SVC` → 0.404 |
-| confidence, right and wrong, 43 | `train_test_split`, then `predict_proba` → 0.567 against 0.555 |
+| on the pumps, 39 | `GaussianNB` beside `KNeighborsClassifier` and `LogisticRegression` → 0.933 |
+| what training computed, 31-37 | `.theta_`, `.var_`, `.class_prior_`, `predict_proba` → 0.981 at 48 Hz |
+| checking the assumption, 40-41 | `X[y == c].corr()`, within each class → −0.420 |
+| the interacting sensors, 42-44 | the same models, plus `SVC` → 0.404 |
+| confidence, right and wrong, 45 | `train_test_split`, then `predict_proba` → 0.567 against 0.555 |
 
 ::: notes
 Where breaking the assumption is cheap, and one step away where it is fatal. Run
@@ -1227,11 +1283,14 @@ point with zero loss drops out of the answer entirely.
 The next slide puts it in symbols. Handout section 5.2 has the derivation.
 :::
 
-# The hinge loss stops at zero; lesson 4's log loss never does
+# The hinge loss stops at zero (optional)
 
 ![](hinge_vs_log_loss.png)
 
 ::: notes
+Optional: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 What each point pays, against its margin y times f(x): large and positive when
 it is safely on its own side, negative on the wrong side.
 
@@ -1245,11 +1304,14 @@ is where support vectors come from - and why logistic regression never has any.
 Handout section 5.2.
 :::
 
-# The SVM objective: a wide slab (small w), plus C times the slack
+# The SVM objective: small w, plus C times the slack (optional)
 
 $$\min_{w, b, \xi} \ \tfrac{1}{2}\|w\|^2 + C\sum_i \xi_i \\ \text{subject to } y_i(w^\top x_i + b) \geq 1 - \xi_i, \ \xi_i \geq 0$$
 
 ::: notes
+Optional: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 The second line is the constraint: every point on its own side of the slab,
 y_i(w'x_i + b) at least 1, or paying xi_i for the shortfall. Handout section
 5.2 writes it out.
@@ -1293,7 +1355,7 @@ Be precise about what a large C does to the boundary. With a linear kernel the
 boundary and the two edges of the slab stay three parallel straight lines: a
 larger C can only make the slab narrower, or shift and rotate it, to classify
 more training points. It never bends it. With the RBF kernel the boundary can
-also bend around individual points, and slide 64 shows how far that goes when C
+also bend around individual points, and slide 66 shows how far that goes when C
 and gamma are both large.
 :::
 
@@ -1396,11 +1458,14 @@ are enormous - the useful ones are sometimes infinite-dimensional - and
 computing the coordinates of every point in such a space is impossible.
 :::
 
-# The SVM's solution: w is a weighted sum of the training pumps
+# The SVM's solution: a weighted sum of pumps (optional)
 
 $$w = \sum_{i=1}^{m} a_i\, y_i\, x_i, \qquad a_i \geq 0$$
 
 ::: notes
+Optional: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 This is the rewriting the kernel trick rests on, which is why it comes before
 the trick, not after - it is called the **dual formulation**,
 and that phrase from the handout is otherwise just a name with nothing behind
@@ -1412,7 +1477,7 @@ points themselves, one weight $a_i$ per pump. The picture: the boundary is a
 tent held up by the points pressing against it, and $a_i$ is how hard pump $i$
 presses. A pump comfortably on its own side of the slab presses on nothing, so
 its weight is exactly zero. Only the pumps on or inside the slab - the support
-vectors of slide 46 and handout section 5.1 - get a positive weight, which is where that 79%
+vectors of slide 48 and handout section 5.1 - get a positive weight, which is where that 79%
 against 23% came from.
 
 Now the payoff, and this is the sentence that makes the next slide make sense.
@@ -1455,7 +1520,7 @@ which is exactly why it works on problems where nobody could guess the right
 coordinates.
 :::
 
-# The kernel trick by hand: 25 = 25
+# The kernel trick by hand: 25 = 25 (optional)
 
 | Route, for a = (1, 2) and b = (3, 1) | Computation | Result |
 |---|---|---|
@@ -1463,6 +1528,9 @@ coordinates.
 | Never lift: the kernel (a · b)² | (1×3 + 2×1)² = 5² | **25** |
 
 ::: notes
+Optional: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 Make the trick concrete before the famous formula. The lift here lists every
 product of two coordinates: phi(x) = (x1², √2·x1·x2, x2²). Two points, a = (1, 2)
 and b = (3, 1).
@@ -1492,7 +1560,7 @@ are, the nearer the exponent is to zero and the nearer the kernel is to one; far
 apart, it falls away to nothing. That is all an RBF kernel says - how much does
 this point look like that one.
 
-Now say what γ means, because slides 62 to 64 turn on it: it sets how far a
+Now say what γ means, because slides 64 to 66 turn on it: it sets how far a
 single training point's influence reaches. Small γ, wide reach, smooth boundary.
 Large γ, each point influences only its immediate neighbourhood - and a boundary
 that can afford an island around every mislabelled pump.
@@ -1507,7 +1575,7 @@ machines are a poor fit above a hundred thousand rows, and it is a property of
 the method rather than of the implementation.
 :::
 
-# Training: one weight per pump
+# Training: one weight per pump (optional)
 
 - RBF SVM on the standardised pumps, defaults γ = 0.5 and C = 1: one
   weight aᵢ per pump
@@ -1517,6 +1585,9 @@ the method rather than of the implementation.
 - The model kept: those 278 pumps, their weights, and b = +1.105
 
 ::: notes
+Optional: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 Say what "fit" does, because after lesson 3 they will expect gradient descent.
 It is not. The SVM solves the dual with the kernel substituted in: one weight
 per training point, found by a solver that picks two weights at a time - two,
@@ -1540,7 +1611,7 @@ Between: the 10 sitting exactly on the edge.
 The model you ship is 278 points and their weights. Handout section 5.5.
 :::
 
-# The SVM on 48 Hz, 5.6 bar: +1.883
+# The SVM on 48 Hz, 5.6 bar: +1.883 (optional)
 
 | Term, for the pump x at 48 Hz, 5.6 bar | Value |
 |---|---|
@@ -1550,6 +1621,9 @@ The model you ship is 278 points and their weights. Handout section 5.5.
 | **Total: positive, so faulty** | **+1.883** |
 
 ::: notes
+Optional: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 Inference is a vote, in four steps. Standardise the pump with the training
 scaler. Compute its RBF similarity to each of the 278 support vectors. Add up
 weight times label times similarity - label +1 for faulty, -1 for healthy - and
@@ -1586,7 +1660,7 @@ neighbourhood's balance, not one neighbour, that makes it faulty. Handout
 section 5.5.
 :::
 
-# The highest training score, the lowest cross-validated one
+# Training against cross-validated, three settings (optional)
 
 | RBF SVM on the pumps | Training accuracy | Cross-validated accuracy, 5 folds |
 |---|---|---|
@@ -1595,6 +1669,9 @@ section 5.5.
 | γ = 50, C = 1000 | **0.995** | 0.902 |
 
 ::: notes
+Optional: skip in class if time is short, and say it is left for
+self-study, with the handout.
+
 Read the two columns against each other, exactly as lesson 5 taught, and let the
 last row do the work.
 
@@ -1661,11 +1738,11 @@ plot it.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the widest slab, 45-48 | `SVC(kernel="linear")`, `.n_support_`, `decision_function` → 3 of 80 points |
-| a straight line still fails, 51-52 | `cross_val_score`, linear against RBF kernel → 947 against 278 support vectors |
-| the kernel trick, 53-58 | NumPy only: (a · b)² against the lifted product → 25 = 25 |
-| training and one prediction, 59-61 | `.support_`, `.dual_coef_`, `.intercept_` → +1.883 |
-| gamma and C, 62-64 | `SVC(gamma=..., C=...)` in the pipeline → 0.944 at γ = 1 |
+| the widest slab, 47-50 | `SVC(kernel="linear")`, `.n_support_`, `decision_function` → 3 of 80 points |
+| a straight line still fails, 53-54 | `cross_val_score`, linear against RBF kernel → 947 against 278 support vectors |
+| the kernel trick, 55-60 | NumPy only: (a · b)² against the lifted product → 25 = 25 |
+| training and one prediction, 61-63 | `.support_`, `.dual_coef_`, `.intercept_` → +1.883 |
+| gamma and C, 64-66 | `SVC(gamma=..., C=...)` in the pipeline → 0.944 at γ = 1 |
 
 ::: notes
 Margins, support vectors, and what γ does to the boundary. Run notebook 03.

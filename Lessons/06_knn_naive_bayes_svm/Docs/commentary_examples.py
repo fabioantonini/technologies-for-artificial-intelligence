@@ -54,8 +54,8 @@ chosen by cross-validation and not by taste.
 """
 
 
-# --------------------------------------------------------------- slide 9
-@example(9)
+# --------------------------------------------------------------- slide 11
+@example(10)
 def scale_first():
     query = np.array([42.0, 5.6])
     a = np.array([45.0, 5.6])
@@ -86,8 +86,8 @@ neighbour.
 """
 
 
-# --------------------------------------------------------------- slide 18
-@example(18)
+# --------------------------------------------------------------- slide 22
+@example(20)
 def edge_length():
     rows = []
     for d in (1, 2, 10, 100):
@@ -111,8 +111,8 @@ neighbour" found that way is not near in any useful sense; it is just the least 
 """
 
 
-# --------------------------------------------------------------- slide 26
-@example(26)
+# --------------------------------------------------------------- slide 30
+@example(28)
 def bayes_rule():
     prior = {"faulty": 735 / 1200, "healthy": 465 / 1200}
     like = {"faulty": 0.02, "healthy": 0.05}
@@ -139,8 +139,8 @@ because its likelihood is two and a half times larger.
 """
 
 
-# --------------------------------------------------------------- slide 28
-@example(28)
+# --------------------------------------------------------------- slide 32
+@example(30)
 def parameter_count():
     rows = []
     for n in (2, 10, 30):
@@ -164,8 +164,8 @@ estimated from every row of the class. That is the bargain: it is false, and it 
 """
 
 
-# --------------------------------------------------------------- slide 41
-@example(41)
+# --------------------------------------------------------------- slide 45
+@example(43)
 def xor_blind():
     # 100 pumps per cell of (vibration high?, pressure high?); faulty iff exactly one is high
     cells = {(0, 0): "healthy", (0, 1): "faulty", (1, 0): "faulty", (1, 1): "healthy"}
@@ -199,8 +199,8 @@ combination, and the combination is exactly what the assumption throws away.
 """
 
 
-# --------------------------------------------------------------- slide 45
-@example(45)
+# --------------------------------------------------------------- slide 49
+@example(47)
 def margin_distance():
     w, b = np.array([3.0, 4.0]), -10.0
     x = np.array([2.0, 3.0])
@@ -223,8 +223,8 @@ $w$ **is** a wider margin, which is why the SVM minimises $\\lVert w \\rVert$.
 """
 
 
-# --------------------------------------------------------------- slide 48
-@example(48)
+# --------------------------------------------------------------- slide 52
+@example(50)
 def hinge():
     rows = []
     for m in (2.0, 1.0, 0.5, 0.0, -1.0):
@@ -251,8 +251,8 @@ zero is where support vectors come from.
 """
 
 
-# --------------------------------------------------------------- slide 50
-@example(50)
+# --------------------------------------------------------------- slide 54
+@example(52)
 def c_tradeoff():
     wide = {"w": 1.0, "xi": 1.5}             # wide slab, two violations costing 1.5 in total
     narrow = {"w": 3.0, "xi": 0.0}           # narrow slab, no violations
@@ -281,8 +281,8 @@ regularisation — the direction that catches people out.
 """
 
 
-# --------------------------------------------------------------- slide 58
-@example(58)
+# --------------------------------------------------------------- slide 62
+@example(60)
 def rbf_values():
     gamma = 0.5
     half = math.sqrt(math.log(2) / gamma)

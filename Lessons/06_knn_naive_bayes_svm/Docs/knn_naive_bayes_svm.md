@@ -10,16 +10,21 @@ date: "13 November 2026 · reading time about 100 minutes"
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
 | 0:00–0:10 | 10 | Exercises 4 and 5 discussed; a problem no line solves | Slides 2–6 |
-| 0:10–0:30 | 20 | k-nearest neighbours, and choosing k | Slides 7–14 |
-| 0:30–0:52 | 22 | The curse of dimensionality | Slides 15–21 |
-| 0:52–1:14 | 22 | **Notebook 01** — k-NN and the curse | Slide 22 |
-| 1:14–1:26 | 12 | **Break** | Slide 23 |
-| 1:26–1:50 | 24 | Naive Bayes, and when its assumption matters | Slides 24–43 |
-| 1:50–2:06 | 16 | **Notebook 02** — where it fails | Slide 44 |
-| 2:06–2:34 | 28 | Margins, support vectors, the kernel trick | Slides 45–64 |
-| 2:34–2:50 | 16 | **Notebook 03** — kernels in practice | Slide 65 |
-| 2:50–3:00 | 10 | The three compared; homework | Slides 66–69 |
-| | **180** | **Total** | **69 slides, 3 notebooks** |
+| 0:10–0:30 | 20 | k-nearest neighbours, and choosing k (12 optional) | Slides 7–15 |
+| 0:30–0:52 | 22 | The curse of dimensionality (21 optional) | Slides 16–23 |
+| 0:52–1:14 | 22 | **Notebook 01** — k-NN and the curse | Slide 24 |
+| 1:14–1:26 | 12 | **Break** | Slide 25 |
+| 1:26–1:50 | 24 | Naive Bayes, and when its assumption matters (31, 34–37 optional) | Slides 26–45 |
+| 1:50–2:06 | 16 | **Notebook 02** — where it fails | Slide 46 |
+| 2:06–2:34 | 28 | Margins, support vectors, the kernel trick (50–51, 57, 59, 61–62, 64 optional) | Slides 47–66 |
+| 2:34–2:50 | 16 | **Notebook 03** — kernels in practice | Slide 67 |
+| 2:50–3:00 | 10 | The three compared; homework | Slides 68–71 |
+| | **180** | **Total** | **71 slides, 3 notebooks** |
+
+*The slides marked (optional) — 12, 21, 31, 34 to 37, 50 and 51, 57, 59, 61 and
+62, 64 — carry the computations: formulas, worked tables, checks. In class they
+can be skipped when time is short, and are left for self-study with this
+handout, whose sections covering them are unchanged.*
 
 ---
 
@@ -88,6 +93,13 @@ is called a **lazy learner**: all the work waits until a prediction is asked for
 *A note of history.* The method was described by Evelyn Fix and Joseph Hodges
 in a 1951 report for the US Air Force; Thomas Cover and Peter Hart analysed its
 error in 1967.
+
+![](knn_one_vote.png)
+
+*One prediction, drawn (notebook 1, section 2): the 900 training pumps,
+standardised, and a new pump at 46 Hz and 5.8 bar, the star. Look at the right
+panel: the five closest pumps are circled in their class colour, four faulty and
+one healthy, so the vote says faulty.*
 
 Two decisions hide in that sentence, and both matter.
 
@@ -173,6 +185,13 @@ the price.
 Add columns of **pure noise** — drawn from a normal distribution, unrelated to
 anything. The two real readings are untouched, so the problem is exactly as
 solvable as before. Only the number of columns changes.
+
+![](noise_experiment.png)
+
+*The experiment, drawn (notebook 1, section 4). Left: the table k-NN receives
+with ten noise columns, the first 14 pumps, colour for the standardised value;
+only the two columns left of the black line carry information. Right: the steps
+repeated for every number of noise columns.*
 
 *A note of history.* The phrase "curse of dimensionality" is Richard Bellman's,
 from his 1957 book on dynamic programming, where every added variable made his

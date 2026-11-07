@@ -30,7 +30,9 @@ ones in a central blob and the faulty ones surrounding it.
    **0.613 ± 0.000**. Not slightly beaten — it learned *nothing*, and predicts "faulty"
    for every pump.
 3. **k-NN written out in eight lines**, agreeing with scikit-learn on **100% of the
-   test points**, accuracy 0.937.
+   test points**, accuracy 0.937. Then **one prediction, drawn**: a new pump at 46 Hz
+   and 5.8 bar, its five nearest training pumps, and their vote, four faulty to one
+   healthy.
 4. **Choosing $k$**, the bias-variance dial made visible:
 
    | $k$ | training | cross-validated |
@@ -45,7 +47,8 @@ ones in a central blob and the faulty ones surrounding it.
    score can measure nothing at all.
 5. **The three boundaries.** Ragged with islands at $k = 1$, a clean disc at $k = 15$,
    and swollen past the true envelope at $k = 401$.
-6. **Now break it.** Add columns of pure noise, leaving both real readings untouched:
+6. **Now break it.** Add columns of pure noise, leaving both real readings untouched;
+   the experiment is drawn first, as the table k-NN receives with ten noise columns:
 
    | noise columns | accuracy | above baseline |
    |---|---|---|
