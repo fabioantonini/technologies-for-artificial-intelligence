@@ -10,23 +10,23 @@ date: "6 November 2026 · reading time about 95 minutes"
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
 | 0:00–1:00 | 60 | **Lesson 4, concluded**: receiver operating characteristic (ROC) curves and the area under the curve (AUC), the threshold from costs, its notebook 3; exercise 4 set | Lesson 4's deck, from its slide 43 |
-| 1:00–1:05 | 5 | The plan for today; the promise we broke | Slides 2–4 |
-| 1:05–1:15 | 10 | One split is a lottery; parameters and hyperparameters; the validation set (11–12 in a minute if short) | Slides 5–12 |
-| 1:15–1:35 | 20 | Cross-validation, stratification, grouped rows (19–20 optional); atoms 2 and 3 in place of notebook 01 | Slides 13–24 |
-| 1:35–1:45 | 10 | **Break** | Slide 25 |
-| 1:45–2:10 | 25 | The question, the lab, the decomposition; without the truth; learning curves; which fix to buy (32–33, 35–36 optional) | Slides 26–41 |
-| 2:10–2:40 | 30 | **Leakage that survives cross-validation**, the heart of the lesson; atoms 11 to 13 in place of notebook 03 | Slides 43–54 |
-| 2:40–2:50 | 10 | The debt paid; three sets, three jobs (57–58 optional); what to put in a report | Slides 55–60 |
-| 2:50–3:00 | 10 | What to take away; homework | Slides 61–62 |
-| | **180** | **Total** | **62 slides, 3 notebooks, the atoms** |
+| 1:00–1:05 | 5 | The plan for today; the promise we broke | Slides 2–3 |
+| 1:05–1:15 | 10 | One split is a lottery; parameters and hyperparameters; the validation set (10–11 in a minute if short) | Slides 4–11 |
+| 1:15–1:35 | 20 | Cross-validation, stratification, grouped rows (18–19 optional); atoms 2 and 3 in place of notebook 01 | Slides 12–23 |
+| 1:35–1:45 | 10 | **Break** | Slide 24 |
+| 1:45–2:10 | 25 | The question, the lab, the decomposition; without the truth; learning curves; which fix to buy (31–32, 34–35 optional) | Slides 25–40 |
+| 2:10–2:40 | 30 | **Leakage that survives cross-validation**, the heart of the lesson; atoms 11 to 13 in place of notebook 03 | Slides 42–53 |
+| 2:40–2:50 | 10 | The debt paid; three sets, three jobs (56–57 optional); what to put in a report | Slides 54–59 |
+| 2:50–3:00 | 10 | What to take away; homework | Slides 60–61 |
+| | **180** | **Total** | **61 slides, 3 notebooks, the atoms** |
 
 *This plan is for Friday 6 November 2026, when lesson 4 runs over into the first
 hour. The live notebooks give way to atoms from `Consolidation/05_lesson_5_atoms.ipynb`,
-which students followed better in lesson 4; notebooks 01 and 03 (slides 24 and
-59) and notebook 02 (slide 42) are left for self-study, with the slides marked
-(optional) — 19 and 20, 32 and 33, 35 and 36, 57 and 58. The sections of this
+which students followed better in lesson 4; notebooks 01 and 03 (slides 23 and
+58) and notebook 02 (slide 41) are left for self-study, with the slides marked
+(optional) — 18 and 19, 31 and 32, 34 and 35, 56 and 57. The sections of this
 handout that cover them are unchanged. With a full three hours, notebooks 01 and
-03 run live for fifteen minutes each and notebook 02 for twenty after slide 41.*
+03 run live for fifteen minutes each and notebook 02 for twenty after slide 40.*
 
 ---
 

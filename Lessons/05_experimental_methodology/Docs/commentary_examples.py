@@ -25,8 +25,8 @@ def auc_by_pairs(failing, healthy):
     return right, len(failing) * len(healthy)
 
 
-# --------------------------------------------------------------- slide 8
-@example(8)
+# --------------------------------------------------------------- slide 7
+@example(7)
 def auc_from_pairs():
     failing = [0.90, 0.70]
     healthy = [0.80, 0.60, 0.40, 0.30, 0.20]
@@ -55,12 +55,12 @@ AUC = pairs ranked right ÷ pairs = {right} ÷ {pairs} = {fmt(right / pairs, 2)}
 failing drive score {fmt(slipped[1], 2)} instead of {fmt(failing[1], 2)}: it drops below one more
 healthy drive, {right - right_after} pair turns wrong, and the AUC becomes {right_after} ÷ {pairs} =
 {fmt(right_after / pairs, 2)}. With so few pairs, one drive moving a little moves the AUC by a tenth:
-slide 8's 1,351 pairs are many more, and still only seven drives carry them.
+slide 7's 1,351 pairs are many more, and still only seven drives carry them.
 """
 
 
-# --------------------------------------------------------------- slide 16
-@example(16)
+# --------------------------------------------------------------- slide 15
+@example(15)
 def naive_interval():
     scores = [0.90, 0.94, 0.86, 0.92, 0.88]
     k = len(scores)
@@ -86,12 +86,12 @@ The mean is $({' + '.join(fmt(a, 2) for a in scores)}) \\div 5 = {fmt(mean, 2)}$
 spread $s = {fmt(s, 4)}$. The tempting standard error is $s \\div \\sqrt{{5}} = {fmt(s, 4)} \\div {fmt(math.sqrt(k), 3)} =
 {fmt(se, 4)}$, and the tempting interval $\\pm 1.96 \\times {fmt(se, 4)} = \\pm {fmt(half, 3)}$. Report
 "{fmt(mean, 2)} ± {fmt(s, 3)}, the spread over 5 folds", not "{fmt(mean, 2)} ± {fmt(half, 3)}": on the
-drives, slide 17 measured the real spread at twice the tempting one.
+drives, slide 16 measured the real spread at twice the tempting one.
 """
 
 
-# --------------------------------------------------------------- slide 31
-@example(31)
+# --------------------------------------------------------------- slide 30
+@example(30)
 def decomposition_by_hand():
     truth = 10.0
     predictions = [8.0, 9.0, 7.0, 10.0, 6.0]
@@ -124,8 +124,8 @@ noise: expected error = {fmt(bias2, 0)} + {fmt(variance, 0)} + {fmt(noise, 0)} =
 """
 
 
-# --------------------------------------------------------------- slide 51
-@example(51)
+# --------------------------------------------------------------- slide 50
+@example(50)
 def best_of_many():
     scores = [0.48, 0.55, 0.51, 0.46, 0.53]
     best = max(scores)
@@ -142,8 +142,8 @@ noise, by {fmt(best - average, 3)} here. With 25 candidates instead of 5 the luc
 """
 
 
-# --------------------------------------------------------------- slide 55
-@example(55)
+# --------------------------------------------------------------- slide 54
+@example(54)
 def threshold_sweep():
     miss, alarm = 2600, 140
 

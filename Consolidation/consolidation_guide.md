@@ -171,7 +171,7 @@ class atoms 2-3 replace notebook 1, and atoms 11-13 notebook 3.
 | 10 | Training against validation error with `cross_validate(..., return_train_score=True)` | *Without the truth: two errors you can still measure* |
 | 11 | 0.931 on pure noise with the selector outside, 0.649 inside; the F-test made visible | *Now: what cross-validation does not protect you from*; *0.931*; *Fix it, and look what happens* |
 | 12 | `GridSearchCV`: 25 candidates, the winner's five round AUCs, `best_score_` before the refit | *GridSearchCV: try all, keep the best*; *The best of 25 scores is inflated: 0.800 for a worthless model* |
-| 13 | Nested cross-validation, one outer round at a time | *Nested cross-validation: slide 10's recipe, five times*; *Nested cross-validation: it measures what choosing costs* |
+| 13 | Nested cross-validation, one outer round at a time | *Nested cross-validation: slide 9's recipe, five times*; *Nested cross-validation: it measures what choosing costs* |
 | 14 | A fresh test set is centred on the truth | *Why it does not return to 0.5* |
 | 15 | The threshold: a sweep of 200 candidates on the validation drives | *The debt, paid: the honest threshold costs 1,400 EUR more* |
 | 16 | Seeds: the same seed, the same number, and still a spread | *A fixed seed buys repeatability, not stability*; *What to fix, and what to write down* (optional) |

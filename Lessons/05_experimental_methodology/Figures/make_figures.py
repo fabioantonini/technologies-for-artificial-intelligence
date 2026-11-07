@@ -47,7 +47,7 @@ def save(fig, name):
 def two_recipes():
     """How a hyperparameter is chosen on a validation set: one fit per candidate
     when it sits inside the cost (lambda), one fit in all when it acts on the
-    output (the threshold). Sizes are slide 55's split of the 800 drives."""
+    output (the threshold). Sizes are slide 54's split of the 800 drives."""
     fig, axes = plt.subplots(1, 2, figsize=(11.6, 5.6))
     split = ("1. Set 200 test drives aside; cut 150 validation\n"
              "drives from the other 600: 450 left to train")

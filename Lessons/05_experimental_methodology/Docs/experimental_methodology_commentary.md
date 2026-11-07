@@ -23,7 +23,7 @@ header-includes:
 
 <!-- examples-note:begin -->
 
-> **Worked examples** sit under five slides (8, 16, 31, 51, 55):
+> **Worked examples** sit under five slides (7, 15, 30, 50, 54):
 > a handful of invented values each, small enough to work through by hand. Their
 > numbers are not the lesson's data; every one is computed by `commentary_examples.py`,
 > beside this file, which also writes them here.
@@ -50,23 +50,12 @@ should not have seen (leakage).
 
 # Part I — A score is a measurement
 
-## Slide 2 — Before we start: lesson 4, concluded
-
-This Friday opens with the end of lesson 4: receiver operating characteristic (ROC)
-curves, the area under the curve (AUC), the threshold chosen from the costs, and its
-notebook 3. Lesson 5 then has about two hours instead of three. Nothing is cut from the
-material: the slides marked (optional) and the three notebooks are left for
-self-study, and in class short atoms take the notebooks' place. Exercise 4 is
-discussed on Friday 13 November, exercise 5 on Friday 20 November.
-
----
-
-## Slide 3 — We broke a promise on purpose
+## Slide 2 — We broke a promise on purpose
 
 Lesson 1 gave a rule: never let the test set influence any choice. Lesson 4 broke it
 at its end, by trying many thresholds on the test drives and keeping the cheapest. It
 was deliberate: the machinery to do it properly did not exist yet. Today builds that
-machinery and, on slide 55, pays the debt.
+machinery and, on slide 54, pays the debt.
 
 ### Question — so why did lesson 4 do it at all, if it was forbidden?
 
@@ -79,24 +68,26 @@ hyperparameters, features or threshold, must be made without the test set.
 
 ---
 
-## Slide 4 — Today: how to tell whether it works
+## Slide 3 — Today: how to tell whether it works
 
 The agenda in six steps: how far two honest splits can disagree; cross-validation and
 what it estimates; bias, variance and the error no model can remove; learning curves;
 leakage that survives cross-validation; and lesson 4's threshold done properly.
+The slides marked (optional) are left for self-study, with the handout; nothing on them
+is missing from the handout.
 
 ### Question — the word "bias" seems to mean two things today. Does it?
 
-Yes, and it is worth separating them now. On slide 5 and in the leakage slides,
+Yes, and it is worth separating them now. On slide 4 and in the leakage slides,
 **bias** is the bias of an *estimate*: a measured score that is systematically too high
-or too low. On slides 26 to 41 it is the bias of a *model*: a model too simple to follow
+or too low. On slides 25 to 40 it is the bias of a *model*: a model too simple to follow
 the truth, wrong in the same way on every training set. A natural slip is to merge them,
 "cross-validation removes bias". It removes neither: it makes an estimate more precise,
 which is a third thing.
 
 ---
 
-## Slide 5 — A test score is a measurement
+## Slide 4 — A test score is a measurement
 
 You would not report a poll of forty people to three decimals: with forty answers and a
 proportion near one half, the standard error is $\sqrt{0.25 / 40} = 0.079$, so the
@@ -122,10 +113,10 @@ this fleet, a standard deviation of 0.024 from split to split.
 
 ---
 
-## Slide 6 — The fleet, cut down
+## Slide 5 — The fleet, cut down
 
 The data are lesson 4's drives, cut to **800**, of which **29** fail (3.6%). The model is
-lesson 4's, unchanged: scaling, then logistic regression, scored by the AUC on a
+lesson 4's, unchanged: scaling, then logistic regression, scored by the area under the receiver operating characteristic (ROC) curve, the AUC, on a
 stratified 75/25 split. The "In code" line reads in the order the code runs:
 `train_test_split`, then the pipeline fitted on the training part, then `roc_auc_score`
 on the test part.
@@ -141,7 +132,7 @@ code; only the sample size changed.
 
 ---
 
-## Slide 7 — 200 honest splits, one dataset
+## Slide 6 — 200 honest splits, one dataset
 
 ![](split_lottery.png)
 
@@ -168,7 +159,7 @@ drive ranked above every healthy one, for a model whose average is 0.955.
 
 ---
 
-## Slide 8 — Why do the 200 scores spread so widely?
+## Slide 7 — Why do the 200 scores spread so widely?
 
 Because each test set holds only **7 failures**: 25% of 29 is 7.25. The AUC is a
 fraction of pairs: each pair is one failing and one healthy drive, 7 × 193 = 1,351
@@ -182,7 +173,7 @@ Every pair weighs 1 ÷ 1,351. If one failing drive slips below twenty more healt
 ones, twenty pairs turn from right to wrong: the AUC loses 20 ÷ 1,351 = 0.015, for
 example from 1,351 ÷ 1,351 = 1.000 to 1,331 ÷ 1,351 = 0.985. The twenty is an
 illustration, about a tenth of the 193 healthy drives, not a measured value. It is over
-half the 0.024 standard deviation of slide 7.
+half the 0.024 standard deviation of slide 6.
 
 ### Question — "each test set holds 7% failures", right?
 
@@ -213,13 +204,13 @@ AUC = pairs ranked right ÷ pairs = 9 ÷ 10 = 0.90. Now let the second
 failing drive score 0.50 instead of 0.70: it drops below one more
 healthy drive, 1 pair turns wrong, and the AUC becomes 8 ÷ 10 =
 0.80. With so few pairs, one drive moving a little moves the AUC by a tenth:
-slide 8's 1,351 pairs are many more, and still only seven drives carry them.
+slide 7's 1,351 pairs are many more, and still only seven drives carry them.
 
 <!-- example:end -->
 
 ---
 
-## Slide 9 — Parameters and hyperparameters
+## Slide 8 — Parameters and hyperparameters
 
 **Parameters** are what the fit estimates: the coefficients $w$ and the intercept $b$.
 **Hyperparameters** are what it does not: the penalty $\lambda$ of lesson 3, the number of
@@ -240,16 +231,16 @@ timing but that neither is estimated the way a coefficient is.
 Smaller C means a stronger penalty, the opposite direction to $\lambda$. scikit-learn
 multiplies the data term by C instead of multiplying the penalty by $\lambda$; up to a
 factor of $m$ the two are the same thing, which is why the slide says "plays the role
-of". The practical consequence is on slide 11: C = 0.01 is the most heavily penalised of
+of". The practical consequence is on slide 10: C = 0.01 is the most heavily penalised of
 the three models, not the least.
 
 ---
 
-## Slide 10 — Choosing a hyperparameter on a validation set: two recipes
+## Slide 9 — Choosing a hyperparameter on a validation set: two recipes
 
 ![](two_recipes.png)
 
-*Both recipes on slide 55's split of the 800 drives: 200 to test, 150 to validate, 450 to
+*Both recipes on slide 54's split of the 800 drives: 200 to test, 150 to validate, 450 to
 train. Step 3 on the left is the one to read twice.*
 
 This is where the third set enters. Training error cannot choose, and the test set must
@@ -272,7 +263,7 @@ its score would stop being a measurement: lesson 4's broken promise. So the data
 three ways. For a hyperparameter inside the cost: one fit per candidate on the training
 part, one score each on the validation part, keep the best, refit on training plus
 validation, test once. For the threshold: one fit, probabilities on the validation part,
-sweep, test once. Cross-validation, on slide 13, is the same idea with the validation
+sweep, test once. Cross-validation, on slide 12, is the same idea with the validation
 part rotated.
 
 ### Question — in step 3, which model wins?
@@ -290,9 +281,9 @@ the threshold only changes how probabilities already computed become decisions.
 
 ---
 
-## Slide 11 — On each of slide 7's 200 splits, three models compete
+## Slide 10 — On each of slide 6's 200 splits, three models compete
 
-The same 200 splits as slide 7. On each, three logistic regressions differing only in C
+The same 200 splits as slide 6. On each, three logistic regressions differing only in C
 are fitted on the training part and scored on the test part, and the one with the
 highest AUC is declared the winner. C = 0.01 wins outright 89 times, C = 1 42 times,
 C = 100 38 times; $89 + 42 + 38 = 169$, and the other 31 splits are ties.
@@ -316,7 +307,7 @@ with a number to support it: noise wearing the clothes of a result.
 
 ---
 
-## Slide 12 — The same three models: who wins, and how they score
+## Slide 11 — The same three models: who wins, and how they score
 
 ![](single_split_selection.png)
 
@@ -349,7 +340,7 @@ winner, and the winner is decided by which drives landed in the test set.
 
 # Part II — Cross-validation, and what it estimates
 
-## Slide 13 — k-fold cross-validation: the validation set, rotated
+## Slide 12 — k-fold cross-validation: the validation set, rotated
 
 ![](kfold_diagram.png)
 
@@ -367,10 +358,10 @@ it legitimate rather than testing on training data with extra steps.
 On neither the validation set nor the test set: on all the data that is not the test
 set. It *replaces* the fixed validation set, whose role the folds take in turn. It has two
 uses. To **measure** a procedure, with nothing being chosen, it runs on all 800 drives and
-needs no test set. To **choose**, it runs inside slide 10's recipe: the test set is set
+needs no test set. To **choose**, it runs inside slide 9's recipe: the test set is set
 aside first, and for each candidate the cross-validation on the rest gives a mean; three
 values of C cost $3 \times 5 = 15$ fits, the best value is refitted on all non-test data
-(fit 16), and the test set is scored once. That loop is `GridSearchCV`, slide 49.
+(fit 16), and the test set is scored once. That loop is `GridSearchCV`, slide 48.
 
 ### Question — one model per fold, or one per round?
 
@@ -387,7 +378,7 @@ words: training fits, validation chooses, test reports once.
 
 ---
 
-## Slide 14 — What it actually estimates
+## Slide 13 — What it actually estimates
 
 The number: at seed 0 the five round AUCs are 0.929, 0.958, 0.984, 0.939 and 0.947, and
 their mean is $4.757 \div 5 = 0.9514$. Four statements follow. It scores a
@@ -423,7 +414,7 @@ bring to the wedding is a sixth, baked with all of them.
 ### Question — and if the score is not good enough, I change the recipe and cross-validate again?
 
 That is a choice made on the score, and it costs. Try several recipes on the same folds,
-keep the best, and its score is inflated by the luck of the winner (slide 51 measures
+keep the best, and its score is inflated by the luck of the winner (slide 50 measures
 how much). If more than one recipe will be tried, set the test set aside before the
 first. Cross-validation alone is honest for one recipe decided in advance and measured
 once.
@@ -436,14 +427,14 @@ gap shrinks as $k$ grows.
 
 ---
 
-## Slide 15 — Five rounds, five different models; you ship a sixth, fitted on all 800
+## Slide 14 — Five rounds, five different models; you ship a sixth, fitted on all 800
 
 ![](five_round_models.png)
 
 *One row per feature. Blue dots: the five round models; red diamond: the model fitted on
 all 800.*
 
-The evidence for slide 14's first statement. The five rounds give five sets of
+The evidence for slide 13's first statement. The five rounds give five sets of
 coefficients: `power_on_hours` runs from 0.010 to 0.353, and `seek_error_rate` changes
 sign, from −0.178 to +0.057. At a threshold of 0.5 the five models disagree on 8 of the
 800 drives. So 0.9514 is the mean of five scores of five different models, and the model
@@ -462,7 +453,7 @@ of the same recipe on all 800 drives. The five round models only measured the re
 
 ---
 
-## Slide 16 — Report the spread, but not as a confidence interval
+## Slide 15 — Report the spread, but not as a confidence interval
 
 The question this slide and the next answer: on **another fleet of 800**, how far would
 0.9514 move? A 95% confidence interval answers it: the estimate plus or minus 1.96
@@ -508,13 +499,13 @@ The mean is $(0.90 + 0.94 + 0.86 + 0.92 + 0.88) \div 5 = 0.90$. The squares add 
 spread $s = 0.0283$. The tempting standard error is $s \div \sqrt{5} = 0.0283 \div 2.236 =
 0.0126$, and the tempting interval $\pm 1.96 \times 0.0126 = \pm 0.025$. Report
 "0.90 ± 0.028, the spread over 5 folds", not "0.90 ± 0.025": on the
-drives, slide 17 measured the real spread at twice the tempting one.
+drives, slide 16 measured the real spread at twice the tempting one.
 
 <!-- example:end -->
 
 ---
 
-## Slide 17 — 300 new fleets: twice the naive spread; compare the widths
+## Slide 16 — 300 new fleets: twice the naive spread; compare the widths
 
 ![](naive_interval_too_narrow.png)
 
@@ -530,7 +521,7 @@ naive interval promised $\pm 0.016$: half as wide.
 
 From the fleet's generator, not from re-splitting our 800 drives. That is the point: the
 experiment measures how much the cross-validated score moves with a new fleet, which is
-the question of slide 16.
+the question of slide 15.
 
 ### Question — the two bars are centred in different places. Which is right?
 
@@ -540,7 +531,7 @@ with $\pm 0.016$, and are not with $\pm 0.032$.
 
 ---
 
-## Slide 18 — Stratify when a class is rare
+## Slide 17 — Stratify when a class is rare
 
 The 29 failures are among all 800 drives, so a fold of 160 should hold
 $29 \div 5 = 5.8$ of them: 5 or 6, since drives are whole. `StratifiedKFold` deals them
@@ -552,7 +543,7 @@ healthy ones.
 
 The same *proportion*, as close as whole drives allow. And stratification applies to every
 split of the data, not only to the folds: `train_test_split(..., stratify=y)` is why
-every test set of slide 7 held exactly 7 failures.
+every test set of slide 6 held exactly 7 failures.
 
 ### Question — does stratification make the scores less spread?
 
@@ -561,7 +552,7 @@ that no score rests on one drive. It costs nothing: one word in the call.
 
 ---
 
-## Slide 19 — Change only the seed, 40 times: how far does the score move? (optional)
+## Slide 18 — Change only the seed, 40 times: how far does the score move? (optional)
 
 ![](cv_vs_single_split.png)
 
@@ -582,12 +573,12 @@ every drive is still predicted once, and all 29 failures count.
 ### Question — so cross-validation is accurate to ± 0.003?
 
 No. 0.0032 is how far it moves when only the fold cut changes on the *same* 800 drives.
-On new data it moves by 0.0165, slide 17. Cross-validation is less arbitrary, not that
+On new data it moves by 0.0165, slide 16. Cross-validation is less arbitrary, not that
 precise.
 
 ---
 
-## Slide 20 — How many folds? (optional)
+## Slide 19 — How many folds? (optional)
 
 Five or ten, in practice. A larger $k$ makes each model train on more data, 80% at
 $k = 5$ and 90% at $k = 10$, so the estimate is less pessimistic; it also costs more fits,
@@ -620,7 +611,7 @@ seeds the spread of the estimate falls from 0.0033 to 0.0009 with ten repetition
 
 ---
 
-## Slide 21 — When the rows are not independent
+## Slide 20 — When the rows are not independent
 
 Suppose the table held ten readings per drive instead of one. A random 5-fold split puts
 about 8 of a drive's 10 readings in training and 2 in validation, and those 2 are
@@ -645,7 +636,7 @@ one reading on the training side is already enough.
 
 ---
 
-## Slide 22 — Split by the thing you must generalise to
+## Slide 21 — Split by the thing you must generalise to
 
 The cure: **GroupKFold**, which keeps all of a drive's rows in one fold. It needs to know
 which rows belong together, and that is what `drive_id` is: a column with one value per
@@ -686,7 +677,7 @@ out.
 
 ---
 
-## Slide 23 — GroupKFold, drawn: each drive in one fold
+## Slide 22 — GroupKFold, drawn: each drive in one fold
 
 ![](groupkfold_diagram.png)
 
@@ -701,11 +692,11 @@ near-copies of rows it trained on, with the same label. `GroupKFold` deals whole
 so every validating drive is one the model has never seen, which is the situation it
 will meet in use. On the lesson's data, 800 drives with ten readings each, a 1-nearest
 neighbour model scores 1.000 with readings dealt at random and 0.620 with drives dealt
-whole (slide 21). The second number is the one to report.
+whole (slide 20). The second number is the one to report.
 
 ---
 
-## Slide 24 — Notebook 1, live
+## Slide 23 — Notebook 1, live
 
 The table maps notebook 1's sections to the slides that introduced them and to the
 number to come back with: seed 3 gives 1.000; 200 splits run from 0.885 to 1.000; three
@@ -716,7 +707,7 @@ place, and the notebook is self-study.
 
 ---
 
-## Slide 25 — Break
+## Slide 24 — Break
 
 Ten minutes. The second half opens with a practical question.
 
@@ -724,7 +715,7 @@ Ten minutes. The second half opens with a practical question.
 
 # Part III — What the error is made of
 
-## Slide 26 — Error too high: more data, or another model?
+## Slide 25 — Error too high: more data, or another model?
 
 The second hour opens with a decision. Daily energy use against the outdoor
 temperature, as in lesson 3; a straight line fitted on 25 days has a 5-fold
@@ -732,7 +723,7 @@ cross-validated mean squared error (MSE) of 6,064.3 kWh², a typical miss of
 √6,064.3 ≈ 78 kWh a day. Too high. Two cures are on offer, more days or
 another model, and each cures a different kind of error: buy the wrong one and the month
 changes nothing. To choose, find where the error comes from, first in a lab where the
-truth is known, then on real data. Slide 41 gives the answer.
+truth is known, then on real data. Slide 40 gives the answer.
 
 ### Question — is 6,064.3 measured on a validation set?
 
@@ -749,14 +740,14 @@ temperature.
 
 ### Question — why go through a lab at all, if cross-validation does the diagnosis?
 
-Cross-validation gives two numbers; the decomposition of slide 29 says what they mean.
+Cross-validation gives two numbers; the decomposition of slide 28 says what they mean.
 The formula is the *why*, cross-validation the *how*. A doctor reads symptoms in the
 clinic, but learnt what they mean in physiology, where the mechanism is known; the lab is
 our physiology.
 
 ---
 
-## Slide 27 — A lab where we know the truth
+## Slide 26 — A lab where we know the truth
 
 The truth is written down: $f(t) = 240 + 0.55\,(t - 18)^2 + 12 \sin(t/4)$ kWh, with $t$
 the day's mean outdoor temperature, plus noise of standard deviation 22 kWh. The 18 is the
@@ -767,7 +758,7 @@ fitted to each.
 ### Question — so for degree 3 there are 300 models?
 
 Yes: 300 training sets, one model each. Each set is drawn **afresh** from the curve, with
-new temperatures and new noise. They are not splits of slide 26's 25 days, which are only
+new temperatures and new noise. They are not splits of slide 25's 25 days, which are only
 the first of the 300. Splits of one sample would share most of their data, give models
 too alike, and make the variance come out too small.
 
@@ -779,7 +770,7 @@ measured at 220 test temperatures evenly spaced from −4 to 37 °C.
 
 ---
 
-## Slide 28 — Three hundred parallel universes: one model each
+## Slide 27 — Three hundred parallel universes: one model each
 
 ![](many_universes.png)
 
@@ -811,9 +802,9 @@ The enormous variance of degree 12 contaminates its average too.
 
 ---
 
-## Slide 29 — The bias–variance decomposition: expected error = bias² + variance + noise
+## Slide 28 — The bias–variance decomposition: expected error = bias² + variance + noise
 
-The left side is slide 26's question made precise: the squared error of a model on a new
+The left side is slide 25's question made precise: the squared error of a model on a new
 day, averaged. The right side splits it into three parts, two that belong to the model and
 one to the data. It is the **bias–variance decomposition** of the expected squared error,
 and it is an identity, not an approximation: the two sides are equal exactly. The handout
@@ -821,14 +812,14 @@ derives it in five lines.
 
 ### Question — what is the name of this formula, and does it hold for any metric?
 
-The bias–variance decomposition; its consequence, the U of slide 34, is the bias–variance
+The bias–variance decomposition; its consequence, the U of slide 33, is the bias–variance
 trade-off. It holds for squared error. For accuracy or the AUC there is no split this
 clean. History: Geman, Bienenstock and Doursat brought it into machine learning in 1992,
 in "Neural networks and the bias/variance dilemma".
 
 ---
 
-## Slide 30 — What each term means
+## Slide 29 — What each term means
 
 At a new day with $x = 30$ °C: $y$ is its energy, the truth plus fresh noise; $\hat{f}(x)$ is
 **one** model's prediction; the expectation $\mathbb{E}$ averages over two random things,
@@ -871,7 +862,7 @@ not know how large it is.
 
 ---
 
-## Slide 31 — The straight line (degree 1) at 30 °C, in three numbers
+## Slide 30 — The straight line (degree 1) at 30 °C, in three numbers
 
 The whole decomposition at one temperature. The truth $f(30) = 330.5$ kWh. The 300 lines'
 predictions at 30 °C run from 215.6 to 364.7, and their average is $\text{sum} \div 300 =
@@ -891,7 +882,7 @@ average cancel out. The truth does not enter the variance at all.
 ### Question — is 30 °C typical for the straight line?
 
 No, it is a lucky spot: there the line passes close to the curve. Averaged over all
-temperatures its bias² is 5,250.8, not 724. Slide 32 shows why.
+temperatures its bias² is 5,250.8, not 724. Slide 31 shows why.
 
 <!-- example:begin -->
 
@@ -921,7 +912,7 @@ noise: expected error = 4 + 2 + 1 = 7.
 
 ---
 
-## Slide 32 — Degree 1 at 220 temperatures, −4 to 37 °C, then averaged (optional)
+## Slide 31 — Degree 1 at 220 temperatures, −4 to 37 °C, then averaged (optional)
 
 The 30 °C computation repeated at every temperature of a grid of 220, evenly spaced from
 −4 to 37 °C, for the straight line. The red curve is bias² at each temperature: zero near
@@ -929,7 +920,7 @@ The 30 °C computation repeated at every temperature of a grid of 220, evenly sp
 middle. Its average, the dashed line, is 5,250.8. The blue curve is the variance, lowest
 in the middle where the days are dense; its average is 723.8. The dotted line is the
 noise, 484 everywhere. The three averages, 5,250.8 + 723.8 + 484.0 = 6,458.6, make
-the first row of slide 33's table.
+the first row of slide 32's table.
 
 ### Question — why a grid of 220?
 
@@ -939,7 +930,7 @@ data's −5 to 38 °C, so the models are not judged where no day can fall.
 
 ---
 
-## Slide 33 — Every degree, on 25 days (optional)
+## Slide 32 — Every degree, on 25 days (optional)
 
 The same averages for every degree. The minimum is degree 2, 614.3; degree 3 is close
 behind, 654.4. The noise column never moves, because it belongs to the data. Degree 1 is
@@ -961,13 +952,13 @@ is unusable, and its exact digits mean nothing.
 
 ---
 
-## Slide 34 — The bias–variance trade-off: the total error is a U
+## Slide 33 — The bias–variance trade-off: the total error is a U
 
 ![](bias_variance_tradeoff.png)
 
 *Logarithmic vertical axis; the dotted line is the noise floor, 484.*
 
-Slide 33's table as a figure: too rigid on the left, too flexible on the right, best at
+Slide 32's table as a figure: too rigid on the left, too flexible on the right, best at
 degree 2. The vertical axis is logarithmic, each tick a factor of 10, because on a linear
 axis degree 12 would flatten everything else onto the baseline.
 
@@ -985,7 +976,7 @@ them only join the points.
 
 ---
 
-## Slide 35 — The floor you cannot go below (optional)
+## Slide 34 — The floor you cannot go below (optional)
 
 The noise, 484, is a floor under the expected error on **new** data: no model, algorithm
 or quantity of data goes below it. So a **test** error well below a known floor means
@@ -1001,7 +992,7 @@ instrument's precision or from repeated measurements.
 
 ---
 
-## Slide 36 — The best model depends on how much data you have (optional)
+## Slide 35 — The best model depends on how much data you have (optional)
 
 The same experiment at 25, 60 and 150 days. The best degree moves from 2 to 5 as the data
 grow. The straight line barely improves, from 6,458.6 to 5,861.5 with six times the data,
@@ -1012,12 +1003,12 @@ was variance.
 
 With more days there is enough data to pin down its extra coefficients, so its variance
 falls. More data shrinks variance, not bias: that one sentence explains the whole table,
-and it is the answer slide 26 is waiting for. "Which model is best" is a question about
+and it is the answer slide 25 is waiting for. "Which model is best" is a question about
 models *and* the quantity of data you have.
 
 ---
 
-## Slide 37 — Without the truth: two errors you can still measure
+## Slide 36 — Without the truth: two errors you can still measure
 
 Back to real life: one training set, $f$ and $\sigma$ unknown. Cross-validation inside the
 training data, test set untouched, still gives two errors. The **training error**, on the
@@ -1047,9 +1038,9 @@ errors their meaning, and what says which cure each one needs.
 
 ---
 
-## Slide 38 — One sample of 25 days, 5-fold cross-validation
+## Slide 37 — One sample of 25 days, 5-fold cross-validation
 
-Slide 26's 25 days, three degrees, both errors as means over five rounds:
+Slide 25's 25 days, three degrees, both errors as means over five rounds:
 
 - **Degree 1**: 5,155.7 training, 6,064.3 validation. Both high and *close*: the line is
   as wrong on days it has seen as on days it has not. Bias.
@@ -1068,12 +1059,12 @@ always made on the validation error. With 150 days degree 5's gap falls from 352
 
 ---
 
-## Slide 39 — Learning curves: would more data help?
+## Slide 38 — Learning curves: would more data help?
 
-Slide 38 answered "bias or variance?" at one size; slide 26 asked about buying data, and
+Slide 37 answered "bias or variance?" at one size; slide 25 asked about buying data, and
 that needs the errors at several sizes. A learning curve repeats the two errors at growing
 training sizes: `learning_curve(model, X, y, cv=folds, scoring="roc_auc")`. The example
-switches to slide 6's 800 drives, so the score is the AUC, and the direction flips:
+switches to slide 5's 800 drives, so the score is the AUC, and the direction flips:
 higher is better, so a poor model shows as **low** curves. Two models are broken on
 purpose: one with a single feature, one with 6 features plus 150 noise columns and almost
 no penalty.
@@ -1089,7 +1080,7 @@ Almost none: C = 1000, a very weak penalty, since C works as $1/\lambda$.
 
 ---
 
-## Slide 40 — Learning curves: left the curves meet low, right a gap that stops closing
+## Slide 39 — Learning curves: left the curves meet low, right a gap that stops closing
 
 ![](learning_curves.png)
 
@@ -1122,13 +1113,13 @@ afterwards on all the development data.
 
 ---
 
-## Slide 41 — Which fix to buy
+## Slide 40 — Which fix to buy
 
 Three diagnoses, three cures. Curves meeting at a **poor** score: bias, and more data will
 not help; change the model, add better features, or regularise less. A wide gap with the
 validation curve **still rising** by more than its spread: more data is likely to help. A
 wide gap with the validation curve **flat**: a stronger penalty (smaller C) or fewer
-features. Slide 26's answer: the line's error is bias, so change the model; degree 2 on
+features. Slide 25's answer: the line's error is bias, so change the model; degree 2 on
 the same 25 days brings the validation MSE from 6,064.3 to 450.4. And the test set is
 scored once, after the fix.
 
@@ -1152,20 +1143,20 @@ set.
 
 ---
 
-## Slide 42 — Notebook 2, self-study (optional)
+## Slide 41 — Notebook 2, self-study (optional)
 
 The map of notebook 2: the 300 universes, the three parts measured (their sum agrees with
 the measured error to twelve decimal places), the three sample sizes, training against
 validation without the truth, and the learning curves. On 6 November it is left for
-self-study; its numbers are the ones on slides 26 to 41.
+self-study; its numbers are the ones on slides 25 to 40.
 
 ---
 
 # Part IV — Leakage that survives cross-validation
 
-## Slide 43 — Now: what cross-validation does not protect you from
+## Slide 42 — Now: what cross-validation does not protect you from
 
-The setting of the last hour. The labels are slide 6's 800 drives, 29 failures; the
+The setting of the last hour. The labels are slide 5's 800 drives, 29 failures; the
 features are replaced by **2,000 columns of random noise**, independent of the label. There
 is nothing to find: any model's honest AUC is 0.500. The procedure: keep the 10 columns
 with the highest F-test, `SelectKBest(f_classif, k=10)`, then cross-validate a logistic
@@ -1197,7 +1188,7 @@ averaged. Cross-validation *is* training and scoring five times.
 
 ---
 
-## Slide 44 — The code almost everyone writes
+## Slide 43 — The code almost everyone writes
 
 Six lines that read as a sensible sentence: "two thousand features is too many, so let me
 keep the ten most predictive, then cross-validate a model on those". Every line is
@@ -1214,7 +1205,7 @@ and the model; it cannot assess a step it does not repeat.
 
 ---
 
-## Slide 45 — 0.931
+## Slide 44 — 0.931
 
 Cross-validated AUC **0.931**, the mean of five folds, $(0.928 + 0.979 + 0.975 + 0.943 +
 0.832) \div 5 = 0.931$, on data with no signal. The bug: the selector saw every row,
@@ -1231,7 +1222,7 @@ serious errors in applied machine learning, published work included.
 
 ---
 
-## Slide 46 — Fix it, and look what happens
+## Slide 45 — Fix it, and look what happens
 
 The fix is one `Pipeline`: the selector becomes its first step, so in every round it is
 refitted on that round's 640 training drives only. Over 20 fold seeds the AUC becomes
@@ -1245,14 +1236,14 @@ not the bad luck of one cut.
 
 ---
 
-## Slide 47 — The fix, drawn: the selector sees only training rows
+## Slide 46 — The fix, drawn: the selector sees only training rows
 
 ![](selection_inside_diagram.png)
 
 *The bracket shows which drives `SelectKBest` looks at. Left, all 800, the validation
 fold included: 0.931. Right, only the 640 training drives of each round: 0.658.*
 
-Slides 44 to 46 in one picture. Same data, same 10 columns kept, same model; the only
+Slides 43 to 45 in one picture. Same data, same 10 columns kept, same model; the only
 difference is where the selector sits. Outside the loop, it runs once on all 800 drives
 and their labels, so in every round the 160 drives being scored have already helped pick
 the columns. Inside the pipeline, `cross_val_score` refits it in every round on the
@@ -1261,7 +1252,7 @@ training drives only, and the 160 drives scored have no say in the choice. What 
 
 ---
 
-## Slide 48 — Why it does not return to 0.5
+## Slide 47 — Why it does not return to 0.5
 
 With 2,000 columns and 800 rows, some columns match the label **by accident**, and that
 accident belongs to the **sample**: it is present in every subset of it, so in every
@@ -1291,14 +1282,14 @@ cannot protect you from having searched a large space of possibilities on a smal
 
 ---
 
-## Slide 49 — GridSearchCV: try all, keep the best
+## Slide 48 — GridSearchCV: try all, keep the best
 
 The honest pipeline still has two settings to choose: $k$, the number of columns the
 selector keeps (2, 5, 10, 20, 40), and C (0.01, 0.1, 1, 10, 100). Five values of $k$ times
 five of C make **25 pairs**; each is scored by 5-fold cross-validation, $25 \times 5 =$
 **125 fits**. The highest mean AUC wins: `best_params_` (k = 20, C = 10), and
 `best_score_` is that mean. Then the winner is refitted on all 800, fit 126, and not
-scored again. It is slide 10's left recipe, written once for you.
+scored again. It is slide 9's left recipe, written once for you.
 
 ### Question — what exactly is best_score_?
 
@@ -1315,7 +1306,7 @@ their mean. Twenty-five rows like this; four of them:
 `best_params_` names the row with the highest mean; `best_score_` is that mean, 0.800. Its
 five AUCs come from five models trained during the search; the model refitted on all 800
 comes afterwards, and nobody scores it: scored on the drives it trained on, it would give a
-training score. The top three are nearly tied, the winner wins by a hair, as on slide 12.
+training score. The top three are nearly tied, the winner wins by a hair, as on slide 11.
 
 ### Question — 25 values of C times 5 columns, 125 fits?
 
@@ -1324,12 +1315,12 @@ pairs, each costs five fits, and the refit is fit 126.
 
 ### Question — is k in the grid the number of folds?
 
-The natural reading, since $k$ has meant the folds since slide 13. Here it is the
+The natural reading, since $k$ has meant the folds since slide 12. Here it is the
 selector's parameter, the number of columns kept; the folds are fixed at 5.
 
 ---
 
-## Slide 50 — GridSearchCV, drawn: 25 cells, 5 folds each
+## Slide 49 — GridSearchCV, drawn: 25 cells, 5 folds each
 
 ![](gridsearch_diagram.png)
 
@@ -1345,7 +1336,7 @@ the same folds that chose the winner, and on this data the truth is 0.500.
 
 ---
 
-## Slide 51 — The best of 25 scores is inflated: 0.800 for a worthless model
+## Slide 50 — The best of 25 scores is inflated: 0.800 for a worthless model
 
 The search on the signal-free table: best of the 25 candidates 0.800, average 0.726,
 worst 0.684, the truth 0.500. The luck of the winner is best minus average,
@@ -1354,11 +1345,11 @@ $0.800 - 0.726 = 0.074$.
 ### Question — so taking the best of the 25 gives an inflated result?
 
 Yes, and twice over. The *average* candidate, 0.726, is already far above 0.5: that is
-slide 48's accident of the sample, present even with the selection inside the pipeline.
+slide 47's accident of the sample, present even with the selection inside the pipeline.
 The *best* adds its own luck on top: the maximum of 25 noisy numbers is pushed upward even
 when they all measure the same thing. So 0.800 is not the performance of the chosen
 configuration; it is the performance of whichever configuration got luckiest. Choosing on
-the data you then report is the same problem as the selection of slide 44.
+the data you then report is the same problem as the selection of slide 43.
 
 <!-- example:begin -->
 
@@ -1376,10 +1367,10 @@ noise, by 0.044 here. With 25 candidates instead of 5 the luckiest is luckier st
 
 ---
 
-## Slide 52 — Nested cross-validation: slide 10's recipe, five times
+## Slide 51 — Nested cross-validation: slide 9's recipe, five times
 
 In `GridSearchCV` the same folds both choose and score, so `best_score_` is the luckiest of
-25. Nested cross-validation separates the two jobs, and the bridge is slide 10: set a test
+25. Nested cross-validation separates the two jobs, and the bridge is slide 9: set a test
 set aside, choose on the rest, refit, score the test once. Here the test set is 160 drives;
 the choosing is the whole search, run on the other 640 with its own five inner folds; the
 winner is refitted on the 640 and scored once on the 160. Then the 160 rotate, five times,
@@ -1410,7 +1401,7 @@ luck stays inside the 640 and does not travel to the 160.
 
 ---
 
-## Slide 53 — Nested cross-validation: it measures what choosing costs
+## Slide 52 — Nested cross-validation: it measures what choosing costs
 
 ![](nested_cv_diagram.png)
 
@@ -1437,7 +1428,7 @@ run from 0.487 to 0.852.
 
 ---
 
-## Slide 54 — Each piece of discipline costs score: 0.931, 0.800, 0.670, 0.500
+## Slide 53 — Each piece of discipline costs score: 0.931, 0.800, 0.670, 0.500
 
 ![](leakage_ladder.png)
 
@@ -1462,7 +1453,7 @@ at the scoring rows.
 
 ### Question — then why 0.670 and not 0.500?
 
-The 0.17 that remains is slide 48's accident of the sample. The columns that match the
+The 0.17 that remains is slide 47's accident of the sample. The columns that match the
 label by chance match it in all 800 drives, the 160 outer test drives included: nested
 cross-validation separated choosing from scoring, but inside the same sample. The exam
 never seen still comes from the same question bank. Only an exam from another school, new
@@ -1473,9 +1464,9 @@ accident, while fewer candidates and more rows shrink it.
 
 # Part V — The debt, and what to report
 
-## Slide 55 — The debt, paid: the honest threshold costs 1,400 EUR more
+## Slide 54 — The debt, paid: the honest threshold costs 1,400 EUR more
 
-Lesson 4's threshold, done properly, on slide 6's 800 drives: fit on 450, choose the
+Lesson 4's threshold, done properly, on slide 5's 800 drives: fit on 450, choose the
 threshold on 150, report once on 200 with 7 failures. One model, fitted once on the 450,
 serves all three rows; they differ only in the threshold, and every bill is counted on the
 same 200 test drives, at 2,600 EUR per missed failure and 140 EUR per false alarm.
@@ -1532,7 +1523,7 @@ because it was picked by looking at the bill being reported.
 
 ---
 
-## Slide 56 — Three sets, three jobs
+## Slide 55 — Three sets, three jobs
 
 The principle of the whole lesson. **Train** fits the parameters. **Validation**, a
 held-out set or the cross-validation folds, makes every choice: model, hyperparameters,
@@ -1547,12 +1538,12 @@ stated weakness costs a little credibility, an unstated one all of it.
 
 ---
 
-## Slide 57 — A fixed seed buys repeatability, not stability (optional)
+## Slide 56 — A fixed seed buys repeatability, not stability (optional)
 
 Thirty seeds of the train/test split, same model: from 0.913 to 1.000. Every one of the
 thirty runs is perfectly reproducible, and they disagree by nearly nine points.
 "AUC 1.000 (random_state=3)" is reproducible and misleading. Report the seed **and** the
-spread: "AUC 0.951 ± 0.019 over 5-fold cross-validation, seed 0", slide 14's five round
+spread: "AUC 0.951 ± 0.019 over 5-fold cross-validation, seed 0", slide 13's five round
 AUCs.
 
 ### Question — if seed 3 always gives 1.000, isn't that a reproducible result?
@@ -1562,7 +1553,7 @@ split, repeated exactly. Reproducibility is necessary and nowhere near sufficien
 
 ---
 
-## Slide 58 — What to fix, and what to write down (optional)
+## Slide 57 — What to fix, and what to write down (optional)
 
 Fix every `random_state` (the split, the folds) and seed your own NumPy draws with
 `np.random.default_rng(seed)`, so that a rerun gives the same number. Record the library
@@ -1578,7 +1569,7 @@ not a NumPy generator.
 
 ---
 
-## Slide 59 — Notebook 3, live
+## Slide 58 — Notebook 3, live
 
 The map of notebook 3: 0.931 with the selection before cross-validation; 0.658 with the
 selector inside the pipeline; 0.800 as the search's `best_score_`; 0.670 from nested
@@ -1587,7 +1578,7 @@ cross-validation; the threshold, 4,700 EUR against 10,540; and 30 seeds from 0.9
 
 ---
 
-## Slide 60 — What to put in a report
+## Slide 59 — What to put in a report
 
 Four items, one for each failure of the lesson. The metric, its **spread** and how it was
 estimated, since a number without a spread hides the lottery. How many **positives** the
@@ -1600,12 +1591,12 @@ selection hides the optimism.
 From the standard deviation of the fold scores: `scores = cross_val_score(...)`, then
 `scores.mean()` and `scores.std()`. In the report: "AUC 0.951 ± 0.019 (standard deviation
 over 5 folds), stratified 5-fold, seed 0". Not $s / \sqrt{5}$, and not a confidence
-interval: slide 17 showed the real spread is twice that. A single test set gives one
+interval: slide 16 showed the real spread is twice that. A single test set gives one
 number with no spread of its own, which is why the report also states the positives.
 
 ---
 
-## Slide 61 — What to take away
+## Slide 60 — What to take away
 
 A score is a measurement: 0.885 to 1.000, the number the lesson opened with. Choosing on
 one split chooses noise. A high training error points to bias, a gap to variance. Choose
@@ -1623,7 +1614,7 @@ positives are in the test set, and which choices were made while looking at whic
 
 ---
 
-## Slide 62 — Homework
+## Slide 61 — Homework
 
 Exercise 5, discussed at the start of Friday 20 November: a
 notebook that reports a result too good to be true. Find out why, isolate each problem,
