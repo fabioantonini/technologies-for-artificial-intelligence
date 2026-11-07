@@ -183,8 +183,8 @@ weighted vote, with $p$ in place of the straight line.
 """
 
 
-# --------------------------------------------------------------- slide 36
-@example(36)
+# --------------------------------------------------------------- slide 38
+@example(38)
 def twenty_drive_confusion():
     tp, fn, fp, tn = 3, 1, 2, 14
     m = tp + fn + fp + tn
@@ -218,8 +218,8 @@ the same {fmt(f1, 3)}.
 """
 
 
-# --------------------------------------------------------------- slide 45
-@example(45)
+# --------------------------------------------------------------- slide 47
+@example(47)
 def auc_by_pairs():
     failing = [0.9, 0.6, 0.3]
     healthy = [0.7, 0.3, 0.2, 0.1]
@@ -259,8 +259,8 @@ pair, to the healthy drive at 0.7; the drive at 0.3 loses one and ties one.
 """
 
 
-# --------------------------------------------------------------- slide 50
-@example(50)
+# --------------------------------------------------------------- slide 52
+@example(52)
 def average_precision_by_steps():
     ranking = "FHFHHFH"            # riskiest first: F failed, H healthy
     positives = ranking.count("F")
@@ -297,8 +297,8 @@ and so an AP of {fmt(baseline, 3)}: that, not 0.5, is the line this ranking has 
 """
 
 
-# --------------------------------------------------------------- slide 53
-@example(53)
+# --------------------------------------------------------------- slide 55
+@example(55)
 def threshold_from_costs():
     c_fp, c_fn = 50, 200
     t_star = c_fp / (c_fp + c_fn)
@@ -316,7 +316,7 @@ def threshold_from_costs():
 ### Worked example — invented costs: a false alarm €{c_fp}, a missed failure €{c_fn}
 
 Suppose $C_{{FP}} = {c_fp}$ and $C_{{FN}} = {c_fn}$, in euros: round numbers made up for the
-example, not the lesson's 140 and 2,600. The formula of slide 53 gives
+example, not the lesson's 140 and 2,600. The formula of slide 55 gives
 $t^* = C_{{FP}} \\div (C_{{FP}} + C_{{FN}}) = {c_fp} \\div ({c_fp} + {c_fn}) = {fmt(t_star, 2)}$.
 Check it on two drives, comparing the two expected costs directly:
 
@@ -330,8 +330,8 @@ and $t^* = {c_fp} \\div ({c_fp} + {c_fp}) = 0.5$, the default.
 """
 
 
-# --------------------------------------------------------------- slide 55
-@example(55)
+# --------------------------------------------------------------- slide 57
+@example(57)
 def class_weights_as_threshold():
     k = 4
     shift = math.log(k)
@@ -360,8 +360,8 @@ approximate.
 """
 
 
-# --------------------------------------------------------------- slide 58
-@example(58)
+# --------------------------------------------------------------- slide 60
+@example(60)
 def softmax_three_scores():
     scores = [2.0, 1.0, 0.1]
     exps = [math.exp(z) for z in scores]

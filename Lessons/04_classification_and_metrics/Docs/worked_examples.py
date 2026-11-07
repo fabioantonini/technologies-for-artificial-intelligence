@@ -424,38 +424,38 @@ same("slide 16: 1 + exp(6.09)", 1 + math.exp(6.09), 442, tolerance=0.5)
 same("slide 16: 1 / 442", 1 / 442, 0.0023, tolerance=5e-5)
 # Slide 9: log 99.
 same("slide 9: log(0.99 / 0.01)", math.log(0.99 / 0.01), 4.60, tolerance=5e-3)
-# Slide 31: accuracy from the counts in the confusion matrix (TP 43, FP 13,
+# Slide 33: accuracy from the counts in the confusion matrix (TP 43, FP 13,
 # FN 33, so 76 failures and 1,924 healthy drives in the test set).
 tp_, fp_, fn_ = 43, 13, 33
 tn_ = 2000 - tp_ - fp_ - fn_
-same("slide 31: healthy test drives", tn_ + fp_, 1924, tolerance=0)
-same("slide 31: TN", tn_, 1911, tolerance=0)
-same("slide 31: always healthy", (tn_ + fp_) / 2000, 0.9620, tolerance=5e-5)
-same("slide 31: the model's right answers", tp_ + tn_, 1954, tolerance=0)
-same("slide 31: the model's accuracy", (tp_ + tn_) / 2000, 0.9770, tolerance=5e-5)
-# Slide 38: per-class F1 from the counts, then macro and weighted averages.
+same("slide 33: healthy test drives", tn_ + fp_, 1924, tolerance=0)
+same("slide 33: TN", tn_, 1911, tolerance=0)
+same("slide 33: always healthy", (tn_ + fp_) / 2000, 0.9620, tolerance=5e-5)
+same("slide 33: the model's right answers", tp_ + tn_, 1954, tolerance=0)
+same("slide 33: the model's accuracy", (tp_ + tn_) / 2000, 0.9770, tolerance=5e-5)
+# Slide 40: per-class F1 from the counts, then macro and weighted averages.
 f1_failed = 2 * tp_ / (2 * tp_ + fp_ + fn_)
 f1_healthy = 2 * tn_ / (2 * tn_ + fn_ + fp_)
-same("slide 38: F1 of the failed class", f1_failed, 0.652, tolerance=5e-4)
-same("slide 38: F1 of the healthy class", f1_healthy, 0.988, tolerance=5e-4)
-same("slide 38: macro F1", (f1_failed + f1_healthy) / 2, 0.820, tolerance=5e-4)
-same("slide 38: weighted F1", (1924 * f1_healthy + 76 * f1_failed) / 2000, 0.975,
+same("slide 40: F1 of the failed class", f1_failed, 0.652, tolerance=5e-4)
+same("slide 40: F1 of the healthy class", f1_healthy, 0.988, tolerance=5e-4)
+same("slide 40: macro F1", (f1_failed + f1_healthy) / 2, 0.820, tolerance=5e-4)
+same("slide 40: weighted F1", (1924 * f1_healthy + 76 * f1_failed) / 2000, 0.975,
      tolerance=5e-4)
-same("slide 38: macro F1 from the printed per-class values",
+same("slide 40: macro F1 from the printed per-class values",
      (0.988 + 0.652) / 2, 0.820, tolerance=5e-4)
-same("slide 38: weighted F1 from the printed per-class values",
+same("slide 40: weighted F1 from the printed per-class values",
      (1924 * 0.988 + 76 * 0.652) / 2000, 0.975, tolerance=5e-4)
-# Slide 60: three classes, from the printed per-class values and supports.
-same("slide 60: macro F1", (0.947 + 0.545 + 0.629) / 3, 0.707, tolerance=5e-4)
-same("slide 60: weighted F1", (1665 * 0.947 + 259 * 0.545 + 76 * 0.629) / 2000,
+# Slide 62: three classes, from the printed per-class values and supports.
+same("slide 62: macro F1", (0.947 + 0.545 + 0.629) / 3, 0.707, tolerance=5e-4)
+same("slide 62: weighted F1", (1665 * 0.947 + 259 * 0.545 + 76 * 0.629) / 2000,
      0.883, tolerance=5e-4)
-same("slide 60: supports add up", 1665 + 259 + 76, 2000, tolerance=0)
-# Slide 56: cost = FN x 2,600 + FP x 140, for the three rows.
+same("slide 62: supports add up", 1665 + 259 + 76, 2000, tolerance=0)
+# Slide 58: cost = FN x 2,600 + FP x 140, for the three rows.
 for fn__, fp__, cost in ((33, 13, 87620), (11, 121, 45540), (8, 205, 49500)):
-    same(f"slide 56: cost at FN {fn__}, FP {fp__}", fn__ * 2600 + fp__ * 140, cost,
+    same(f"slide 58: cost at FN {fn__}, FP {fp__}", fn__ * 2600 + fp__ * 140, cost,
          tolerance=0)
-# Slide 50: the average precision of a random ranking is the share of failures.
-same("slide 50: 76 / 2,000", 76 / 2000, 0.038, tolerance=5e-4)
+# Slide 52: the average precision of a random ranking is the share of failures.
+same("slide 52: 76 / 2,000", 76 / 2000, 0.038, tolerance=5e-4)
 
 # The notes' calculations (24 Oct pass).
 same("notes 7: 3,606 / 8,000", 3606 / 8000, 0.45, tolerance=5e-3)
@@ -563,7 +563,7 @@ c_fp, c_fn, c_tp, c_tn = 140, 2600, 0, 0
 same("7.2 four-cost threshold with C_TP = C_TN = 0",
      (c_fp - c_tn) / ((c_fp - c_tn) + (c_fn - c_tp)), 0.051, tolerance=5e-4)
 
-# Study pass of 25 Oct, slides 43-47: the pairs behind the AUC. The counts 7,409,
+# Study pass of 25 Oct, slides 45-49: the pairs behind the AUC. The counts 7,409,
 # 1,408, 26 and 108 are printed by notebook 3; the arithmetic on them is here.
 pairs = 76 * 1924
 same("8.2 (failing, healthy) pairs, 76 x 1,924", pairs, 146224, tolerance=0)
@@ -577,7 +577,7 @@ same("8.1 TPR at 0.5, 43 / 76", 43 / 76, 0.57, tolerance=5e-3)
 same("8.1 FPR at 0.5, 13 / 1,924", 13 / 1924, 0.007, tolerance=5e-4)
 same("8.2 flagged at 0.5, 43 + 13", 43 + 13, 56, tolerance=0)
 
-# Study pass of 25 Oct, slides 48-61. Counts printed by notebook 3; arithmetic here.
+# Study pass of 25 Oct, slides 50-63. Counts printed by notebook 3; arithmetic here.
 healthy_big = 57575
 for failures, fleet in ((2274, 59849), (582, 58157), (231, 57806)):
     same(f"8.3 fleet with {failures} failures", healthy_big + failures, fleet, tolerance=0)
@@ -620,8 +620,8 @@ same("10.2 weighted recall is the accuracy", (1611 + 129 + 39) / 2000, 0.889, to
 same("10.2 weighted recall from the per-class recalls",
      (1665 * 0.968 + 259 * 0.498 + 76 * 0.513) / 2000, 0.889, tolerance=1.5e-3)
 same("10.2 the gap between the averages", 0.883 - 0.707, 0.18, tolerance=5e-3)
-same("slide 55: 6,000 / 11,540", 6000 / 11540, 0.52, tolerance=5e-3)
-same("slide 55: 6,000 / 460", 6000 / 460, 13.0, tolerance=0.05)
+same("slide 57: 6,000 / 11,540", 6000 / 11540, 0.52, tolerance=5e-3)
+same("slide 57: 6,000 / 460", 6000 / 460, 13.0, tolerance=0.05)
 
 
 # Handout pass of 29 Oct, second round, each from the raw counts or scores.

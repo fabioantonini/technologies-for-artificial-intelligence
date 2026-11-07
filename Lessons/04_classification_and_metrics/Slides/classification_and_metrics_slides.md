@@ -19,7 +19,7 @@ the natural thing to do because the test error is the number they were told to
 care about. It is exactly the mistake lesson 1 named: once the test set has
 helped choose anything, its score is no longer an honest estimate of how the
 model does on new data, because the choice was fitted to it. Today's lesson ends up in
-the same place from a different direction, on slide 54, when we choose a decision
+the same place from a different direction, on slide 56, when we choose a decision
 threshold by looking at the test set.
 Lesson 5 gives them the machinery to do both honestly.
 :::
@@ -113,7 +113,7 @@ Ask, without answering: if a model has to guess for each drive, and it wants to
 be right as often as possible, what should it say?
 
 Somebody will say "healthy, every time". Agree, and move on. Do not explain the
-consequence yet - it lands far harder on slide 31, after the break, when they see
+consequence yet - it lands far harder on slide 33, after the break, when they see
 96.2% printed as a model's accuracy score.
 :::
 
@@ -412,7 +412,7 @@ First bullet: the vocabulary. The coefficients are the numbers w1 to w6 of
 slide 12's equation, one per feature; machine learning calls them weights, and
 scikit-learn stores them in coef_. The constant b is the intercept, in
 intercept_; neural networks call it the bias (lesson 9). Warn now about one
-collision: the "class weights" of slides 55 to 57 are something else - how much
+collision: the "class weights" of slides 57 and 58 are something else - how much
 each training example counts in the cost - and not these w.
 
 Second bullet, its first half: why "standardised" comes first. A coefficient
@@ -955,15 +955,7 @@ Someone will ask which algorithm scikit-learn uses. Not our gradient descent:
 the default is solver="lbfgs", limited-memory BFGS, a quasi-Newton method. It
 estimates the curvature of the cost from the last few gradients and uses it to
 choose both the direction and the length of each step, so there is no learning
-rate to set; on notebook 1's data it stops after 15 iterations. And it does not
-minimise the log loss alone: the default adds an L2 penalty, as in lesson 3's
-ridge, with C = 1 (C is the inverse of the penalty strength: the smaller C,
-the stronger the penalty). That penalty is
-why notebook 1's from-scratch coefficients and scikit-learn's differ in the
-second decimal; notebook 1 refits with penalty=None and the two agree. The
-default is wanted, not a bug: with classes a line separates perfectly, the
-unpenalised weights grow without limit (handout section 4.3), and lesson 5
-chooses C by cross-validation.
+rate to set; on notebook 1's data it stops after 15 iterations.
 :::
 
 # The decision boundary of a two-counter model
@@ -987,7 +979,7 @@ Second observation, and this is the bridge to the rest of the lesson: most of
 the gold points - the drives that actually failed - are on the blue side of the
 line. At a threshold of 0.5 this two-feature model calls nearly the whole fleet
 healthy, including most of the drives that failed. It uses two counters only,
-so that it can be drawn; the six-counter model of slide 31 does better at the
+so that it can be drawn; the six-counter model of slide 33 does better at the
 same 0.5, and still misses 33 of the 76 test failures.
 
 Ask: is that a bad model? Take answers. Then say: this plot cannot tell. It
@@ -1002,6 +994,88 @@ plus b is positive, here the red side, to the right. The line is almost
 vertical because sectors weigh far more than temperature, which only tilts it.
 :::
 
+# Logistic regression is penalised too
+
+- By default `LogisticRegression()` adds lesson 3's L2 penalty, Ridge's; C = 1 ÷ λ
+- Needed: if a line separates the classes, log loss falls for ever as the weights grow
+- 6,000 drives: sectors 1.664, against 1.690 with `penalty=None`
+- `penalty="l1"`: Lasso's zeros; C chosen by cross-validation (lesson 5)
+
+::: notes
+Lesson 3 met regularisation on house prices, so students file it under
+regression. It is not: the penalty is added to whatever cost is being
+minimised, and scikit-learn adds it to the log loss without being asked.
+
+The first bullet, read slowly: the default is an L2 penalty, the sum of the
+squared coefficients, exactly lesson 3's Ridge. The strength is written C, and
+C is the inverse of lesson 3's lambda: C = 1 ÷ λ. A small C means a strong
+penalty; the default is C = 1.
+
+Why a classifier needs it. Take two classes a line separates perfectly. Every
+drive is already on the right side, and log loss still falls if the weights
+are doubled, because every probability moves closer to 0 or 1. Doubled again,
+it falls again. The cost has no minimum at any finite weight: the solver runs
+until it gives up. The penalty charges for large weights and stops that.
+Convexity (slide 27) promised that any minimum is global; it did not promise
+that a minimum exists.
+
+The number: on our 6,000 training drives the penalty barely shows. The
+coefficient of reallocated sectors is 1.664 with the default and 1.690 with
+penalty=None; the from-scratch descent gives 1.685 (notebook 1, section 6).
+With 6,000 drives the data speak loudly and a fixed penalty is a whisper; on
+eight drives the same default cuts a coefficient by almost a third
+(Consolidation atom 00·11).
+
+The last bullet: penalty="l1" is Lasso, with its exact zeros, and needs a
+solver that supports it, "saga" or "liblinear". C is a setting like lesson 3's
+lambda, so it is chosen by cross-validation, which lesson 5 builds.
+
+A predictable slip: "regularisation is a regression technique". The reasoning
+is sound as far as it goes - that is where lesson 3 introduced it - but the
+penalty belongs to the cost, not to the kind of target. Handout section 4.3.
+:::
+
+# Which line? The one the cost chooses
+
+- Gradient descent or scikit-learn's solver: the **same line**, the minimum of the cost
+- Every drive pulls on it in proportion to its error, the far ones too
+- Many lines separate the classes: the cost decides which is "best"
+- Lesson 6's support vector machine (SVM): the widest empty strip, set by the drives nearest the border
+
+::: notes
+The question this slide answers: is the line of slide 28 the best one, or just
+one that gradient descent happened to stop at?
+
+First bullet: the line does not depend on the algorithm. Log loss plus the
+penalty is convex, so gradient descent, scikit-learn's L-BFGS solver, or any
+other method reach the same minimum: notebook 1's from-scratch coefficients and
+scikit-learn's agree once the penalty is the same (slide 29). The line depends
+on the cost, not on how the cost is minimised.
+
+Second bullet, the picture to give: the gradient is a weighted vote (slide 25).
+Every drive pulls on the line in proportion to its error, p minus y. A drive
+far from the border and correctly classified still has a small error, so it
+still pulls a little; all 6,000 drives have a say.
+
+Third bullet: "best" only means something once a criterion is named. When the
+classes are separable, infinitely many lines have zero training error; log loss
+with the penalty picks one of them.
+
+Fourth bullet, the bridge: lesson 6 meets a model that picks differently. The
+support vector machine looks for the line with the widest empty strip around
+it, and that line is fixed by the few points nearest the border; move any
+other point and it does not change. Two sensible criteria, two different
+lines.
+
+A predictable slip, and a reasonable one: "gradient descent finds a separating
+line, but not necessarily the best". It is true of the perceptron - Frank
+Rosenblatt's 1958 rule, which stops at the first line that separates the
+training points - and it is natural to suppose an iterative method stops at
+any line that works. Here the iterations end at the minimum of a convex cost,
+so the line is the best by that cost. The right question is which cost. Handout
+section 4.3.
+:::
+
 # Notebook 1, live
 
 | section, and its slides | you call (→ the number to come back with) |
@@ -1011,6 +1085,7 @@ vertical because sectors weigh far more than temperature, which only tilts it.
 | gradient descent, 25 | `train_test_split`, `StandardScaler`, fifteen lines of NumPy → log loss 0.6931 to 0.0692 |
 | the decision boundary, 28 | `make_pipeline(StandardScaler(), LogisticRegression())` on two features |
 | the truth, recovered, 15-16 | `LogisticRegression`, `.coef_`, `.intercept_` → seek_error_rate 0.02, intercept −6.09 |
+| the penalty, 29 | `LogisticRegression(penalty=None)` → reallocated sectors 1.690 against 1.664 |
 
 ::: notes
 Fifteen lines of NumPy, then one line of scikit-learn, and the same answer. Run
@@ -1087,7 +1162,7 @@ Accuracy is not wrong. It is answering a question nobody asked.
 
 The condition on the second bullet matters: accuracy counts every error the
 same, so even on a balanced fleet it is the wrong summary when a miss costs
-more than a false alarm - as here, slide 34.
+more than a false alarm - as here, slide 36.
 
 A predictable slip, the over-correction: "so accuracy is useless". It is a
 number with a baseline. Read it against 1 minus pi, here 96.20%, and remember
@@ -1119,8 +1194,8 @@ alarms.
 A predictable slip: "33 misses, so the model needs improving". Perhaps, but
 that is not the first lever. The probabilities stay the same and 0.5 is a
 habit: a lower threshold catches more failures with the same model, at the
-price of more false alarms (slides 40 to 42, and the threshold derived from
-the costs, slide 53). The threshold trades one error for the other; only a
+price of more false alarms (slides 42 to 44, and the threshold derived from
+the costs, slide 55). The threshold trades one error for the other; only a
 better model reduces both.
 :::
 
@@ -1138,7 +1213,7 @@ we choose a threshold.
 
 The essential point: these two errors are NOT the same size, and no
 single-number metric knows that. Accuracy treats them as identical. F1, the
-metric of slide 37, treats them as identical. Only a cost, supplied from outside the data, distinguishes
+metric of slide 39, treats them as identical. Only a cost, supplied from outside the data, distinguishes
 them.
 
 The fourth bullet answers the question someone will ask: does replacing a
@@ -1191,7 +1266,7 @@ about actual objects has not been understood.
 Specificity is recall for the negative class: of the healthy drives, how many
 did we leave alone. One minus it is the false positive rate, FP divided by
 (TN + FP), which comes back as the horizontal axis of the receiver operating
-characteristic (ROC) curve, slide 44. Mention it now so the term
+characteristic (ROC) curve, slide 46. Mention it now so the term
 is not new later.
 
 If someone asks which of the three to report: the answer is that it depends on
@@ -1236,7 +1311,7 @@ above 1 counts recall more than precision. That suits this problem, where a miss
 (2,600 divided by 140 = 18.6), and F2 is a common choice. A predictable slip: "a
 miss costs 19 times more, so pick a beta to match". Beta is a preference, not
 the costs: nothing turns 18.6 into a beta. To act on the costs, derive the
-threshold from them, slide 53. Handout section 6.3.
+threshold from them, slide 55. Handout section 6.3.
 
 A predictable slip: "F2 multiplies recall by 2". In the weighted harmonic
 mean it is recall's reciprocal that gets the weight beta squared = 4, against 1
@@ -1264,7 +1339,7 @@ afterwards - left to themselves they quote whichever is biggest.
 
 The weighted average weights each class by how common it is, so on this problem
 it is essentially the healthy class talking, and it reads close to accuracy -
-inheriting exactly the blindness slides 31 to 34 were about.
+inheriting exactly the blindness slides 33 to 36 were about.
 
 The macro average gives the two classes equal weight, so the rare class actually
 registers. 0.820 against 0.975 for the same model.
@@ -1280,7 +1355,7 @@ column - precision, recall and F1. The weights of the weighted average are the
 support, the number of true drives in each class.
 
 Someone will ask why an arithmetic mean is fine here, one slide after F1
-rejected it. Slide 37 combined two different quantities of one class; here it
+rejected it. Slide 39 combined two different quantities of one class; here it
 is the same metric on two classes, and the point is to give the rare class an
 equal voice.
 :::
@@ -1289,11 +1364,11 @@ equal voice.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the number that should worry you, 31 | `accuracy_score` → 96.20% for "always healthy" |
-| the confusion matrix, 33 | counts by hand, then `confusion_matrix`, `ConfusionMatrixDisplay` → TP 43 |
-| precision and recall, 35-38 | `precision_score`, `recall_score`, `f1_score`, `classification_report` |
-| the threshold sweep, 40-41 | `predict_proba`, then the metrics at each threshold |
-| the precision-recall curve, 42 | `precision_recall_curve`, `average_precision_score` → 0.717 against 0.038 |
+| the number that should worry you, 33 | `accuracy_score` → 96.20% for "always healthy" |
+| the confusion matrix, 35 | counts by hand, then `confusion_matrix`, `ConfusionMatrixDisplay` → TP 43 |
+| precision and recall, 37-40 | `precision_score`, `recall_score`, `f1_score`, `classification_report` |
+| the threshold sweep, 42-43 | `predict_proba`, then the metrics at each threshold |
+| the precision-recall curve, 44 | `precision_recall_curve`, `average_precision_score` → 0.717 against 0.038 |
 
 ::: notes
 The confusion matrix by hand, then from scikit-learn, then the threshold sweep.
@@ -1319,7 +1394,7 @@ where we draw the line between "leave it" and "replace it".
 
 That 0.5 is predict()'s default and nothing more. It is the right choice only
 when the two errors cost the same and the probabilities are calibrated: among
-drives given 0.3, about 30% really fail (slide 47 names the property). Slide 53
+drives given 0.3, about 30% really fail (slide 49 names the property). Slide 55
 derives the threshold from the costs, and it is 0.5 exactly when they are
 equal. Here a miss costs about nineteen times a false alarm (2,600 divided by 140 =
 18.6), and in most real
@@ -1358,7 +1433,7 @@ false alarms and the teal bar loses 53 - 43 = 10 caught failures. Accuracy
 gains 12 right answers and loses 10, two more in all, 0.976 to 0.977.
 
 Precision and recall at each threshold are in the handout's table in section
-7.1, computed with the formulas of slide 36.
+7.1, computed with the formulas of slide 38.
 :::
 
 # The precision-recall curve
@@ -1409,12 +1484,12 @@ probability the model gave them, highest first. Then a threshold is nothing but
 a place to cut that list - everything above the cut is flagged - and lowering
 the threshold moves the cut down. So a threshold-free evaluation does not throw
 the threshold away: it looks at every cut of the same list at once. The
-precision-recall curve of slide 42 was already a first step, every threshold on
+precision-recall curve of slide 44 was already a first step, every threshold on
 one curve.
 
 Two conditions to keep in mind, both coming back later: only the order counts,
-not the values of p, so a ranking measure cannot see calibration (slide 47); and
-the day the model is used, one cut still has to be chosen (slides 51-53).
+not the values of p, so a ranking measure cannot see calibration (slide 49); and
+the day the model is used, one cut still has to be chosen (slides 53-55).
 :::
 
 # The ROC curve
@@ -1453,7 +1528,7 @@ precision-recall curve's ideal is the top-right corner, and precision divides by
 the alarms raised. The ROC's ideal is the top-left corner, and FPR divides by
 the 1,924 healthy drives, so its random baseline is the diagonal whatever the
 class balance, against 0.038 for precision-recall. That denominator is why ROC
-can hide imbalance (slides 48-49).
+can hide imbalance (slides 50-51).
 :::
 
 # What the area means
@@ -1544,7 +1619,7 @@ decision it makes is different.
 
 The consequence: AUC says nothing about whether "0.7" means anything. If you
 need the probabilities to be believable - because you are computing expected
-costs, as slides 52-53 do - AUC is not the check you want.
+costs, as slides 54-55 do - AUC is not the check you want.
 
 Good place to mention that calibration - whether a predicted 0.7 really comes
 true 70% of the time - is a topic of its own, without going into it.
@@ -1572,10 +1647,10 @@ failures at random until they are 0.4% instead of 3.8% - the direction reality
 moves in fraud, disease, hardware failure.
 
 Someone will notice that at 3.8% the AUC reads 0.968, not the 0.949 of slide
-45. Different drives: 0.949 rests on the 76 failures of our 2,000-drive test
+47. Different drives: 0.949 rests on the 76 failures of our 2,000-drive test
 set, 0.968 on a fleet thirty times larger. Both are estimates of the same
 ranking ability. The same goes for average precision: 0.706 on the large
-fleet, against slide 42's 0.717 on the test set.
+fleet, against slide 44's 0.717 on the test set.
 
 Left panel: the three ROC curves sit on top of each other. AUC 0.968, 0.965, 0.974. It
 reports an excellent model throughout, and at the rarest setting a marginally
@@ -1604,7 +1679,7 @@ The next slide reads them.
 ::: notes
 The explanation is entirely in the denominators, and it is worth writing on the
 board. First say which two numbers the slide compares, and why: the two curves
-of slide 48 share one axis, recall, and differ in one axis each - the false
+of slide 50 share one axis, recall, and differ in one axis each - the false
 positive rate on the ROC, precision on the precision-recall curve. Recall does
 not move, so the disagreement must come from FPR against precision. The three
 bullets go in that order.
@@ -1634,7 +1709,7 @@ So ROC measures the false alarms against a population nobody experiences. The
 technician does not see the 57,000 drives left alone; they see the alarm queue.
 
 This is the lesson's second big predictable mistake, after trusting accuracy
-on slide 31, and again defend the
+on slide 33, and again defend the
 instinct: AUC is threshold-free, comparable across models, unmoved by the class
 balance. Those are real virtues. It simply answers a question about
 ranking when the question was about the alarm queue.
@@ -1655,7 +1730,7 @@ The two measures answer two different questions, which is why neither replaces
 the other. AUC: does the model put the failures above the healthy drives? The
 precision-recall curve: of the alarms it raises, how many are real? On a
 balanced problem the answers travel together; on an imbalanced one the second
-can collapse while the first stands still, as slide 48 showed.
+can collapse while the first stands still, as slide 50 showed.
 
 Average precision, the idea first, as the bullet now says: every time the
 ranking reaches a failing drive, ask how clean the alarm queue is at that
@@ -1666,7 +1741,7 @@ by 1 ÷ 76 each time; take the precision at that point; add the precisions, each
 weighted by its recall step. The steps are all 1 ÷ 76, so the weighted sum is
 the plain average. Handout section 7.1 draws it for seven drives as three
 rectangles. Why a random ranking scores
-0.038: its precision is the positive rate π at every recall (slide 42 counted
+0.038: its precision is the positive rate π at every recall (slide 44 counted
 it), so the weighted average of a constant is that constant, π = 76 ÷ 2,000.
 So AP is read against π, not against 0.5 - which is also why it travels across
 problems with different class balance badly, and must always be quoted with
@@ -1684,7 +1759,7 @@ and this lesson is about the thinking.
 
 ::: notes
 Finally, the honest way to pick a threshold. It needs one ingredient no metric
-can supply: what the errors cost. We wrote those down on slide 34 - €140 for a
+can supply: what the errors cost. We wrote those down on slide 36 - €140 for a
 needless replacement, €2,600 for a drive that dies in service.
 
 The curve is the total cost on the test set as the threshold moves: FP × 140 +
@@ -1695,7 +1770,7 @@ from 0.5, each miss at €2,600 becomes a false alarm at €140, a good trade un
 false alarms pile up near 0; to the right the cost climbs towards doing nothing,
 76 × 2,600 = €197,600. Each little step is one drive crossing the threshold.
 
-One condition to say now, because slide 54 comes back to it: 0.078 was found by
+One condition to say now, because slide 56 comes back to it: 0.078 was found by
 looking at the test set. Properly it is chosen on a validation set (lesson 5).
 
 Choosing the threshold on purpose HALVED the cost of the same model: 45,540
@@ -1752,7 +1827,7 @@ the class balance. Only on the RATIO of the two costs.
 
 State the condition, because the derivation used it: p must be an honest
 probability - among drives given 0.05, about 5% really fail. That property is
-called calibration (slide 47). Divide every probability by ten, as slide 47
+called calibration (slide 49). Divide every probability by ten, as slide 49
 did, and the formula would still say 0.051 while flagging far too few drives.
 
 If the errors cost the same, t-star is 0.5 and the default was right all along.
@@ -1773,7 +1848,7 @@ them costs about 2.76 × 2,600 = €7,176 against (45 − 2.76) × 140 = €5,91
 flagging, and the rule is right. The gap is 45 drives with one failure where the
 model expected almost three: sampling noise on 76 failures, plus calibration that
 is good but not perfect. At t* itself the cost is €49,100, 8% above the minimum -
-the flat bottom of slide 51.
+the flat bottom of slide 53.
 :::
 
 # The caveat you must state
@@ -1824,7 +1899,7 @@ three were expected.
 - **In effect it only lowers the threshold**: at 0.5 the weighted model decides like the plain one at 0.038
 
 ::: notes
-This slide is optional: skip it if time is short, because slide 56 carries the
+This slide is optional: skip it if time is short, because slide 58 carries the
 message on its own. If you do show it, three steps, in order.
 
 What the weights are - and first, what they are not: these class weights are not
@@ -1873,7 +1948,7 @@ cost optimum here only because 25 happens to be close to 18.6.
 ![](class_weight_costs.png)
 
 ::: notes
-If slide 55 was skipped, one sentence is enough to start: class weights make
+If slide 57 was skipped, one sentence is enough to start: class weights make
 each failure count more in training, and in effect they only lower the
 threshold. The figure shows how much that is worth.
 
@@ -1885,7 +1960,7 @@ and raises 121 false alarms: 45,540. Balanced weights miss 8 and raise 205:
 8 times 2,600 plus 205 times 140 is 49,500.
 
 Compare the weighted model with the right bar. The 0.078 was found by looking
-at the test set (slide 54), so the fair comparison is the bar at t* = 0.051,
+at the test set (slide 56), so the fair comparison is the bar at t* = 0.051,
 fixed from the costs: 10 missed and 165 false alarms, 49,100. Balanced weights,
 49,500, and the threshold from the costs, 49,100, cost practically the same.
 
@@ -1915,12 +1990,12 @@ argument for fitting the imputer on the training rows only.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the ROC curve by hand, 44 | `roc_curve`, `roc_auc_score` → 0.9493 |
-| what AUC means, 45-46 | 200,000 random (failing, healthy) pairs → 0.9488 |
-| the rare-positive trap, 48-49 | `average_precision_score` beside `roc_auc_score` → AP 0.706 to 0.361, AUC unmoved |
-| the threshold from costs, 51-54 | `confusion_matrix` at each threshold → 45,540 EUR at 0.078, against 87,620 at 0.50 |
-| class weights, 55-56 | `LogisticRegression` with balanced class weights → AUC 0.950 |
-| three classes, 58-60 | `classification_report` → macro F1 0.707, weighted 0.883 |
+| the ROC curve by hand, 46 | `roc_curve`, `roc_auc_score` → 0.9493 |
+| what AUC means, 47-48 | 200,000 random (failing, healthy) pairs → 0.9488 |
+| the rare-positive trap, 50-51 | `average_precision_score` beside `roc_auc_score` → AP 0.706 to 0.361, AUC unmoved |
+| the threshold from costs, 53-56 | `confusion_matrix` at each threshold → 45,540 EUR at 0.078, against 87,620 at 0.50 |
+| class weights, 57-58 | `LogisticRegression` with balanced class weights → AUC 0.950 |
+| three classes, 60-62 | `classification_report` → macro F1 0.707, weighted 0.883 |
 
 ::: notes
 The ROC curve by hand, the 200,000-pair experiment, the cost curve, then the
@@ -1940,7 +2015,7 @@ otherwise memorise into something they watched happen.
 - In code: `decision_function` (scores), `predict_proba` (softmax)
 
 ::: notes
-Slides 58 to 60 are optional: exercise 4 is a two-class problem and needs none
+Slides 60 to 62 are optional: exercise 4 is a two-class problem and needs none
 of them, and lesson 9 introduces the softmax again for the handwritten digits.
 Show them if there is time after notebook 3.
 

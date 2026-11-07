@@ -12,19 +12,21 @@ date: "30 October 2026 · reading time about 80 minutes"
 | 0:00–0:12 | Exercise 3 discussed; from numbers to decisions | Slides 2–6 |
 | 0:12–0:30 | Logistic regression: sigmoid, odds, coefficients | Slides 7–16 |
 | 0:30–0:53 | Why the cost had to change, in steps | Slides 17–27 |
-| 0:53–1:13 | The decision boundary, and **Notebook 1** live | Slides 28–29 |
-| 1:13–1:23 | **Break** | Slide 30 |
-| 1:23–1:37 | The accuracy trap and the confusion matrix | Slides 31–34 |
-| 1:37–1:51 | Precision, recall, F1, and what to report | Slides 35–38 |
-| 1:51–2:16 | **Notebook 2**, live, and the threshold sweep | Slides 39–42 |
-| 2:16–2:30 | Receiver operating characteristic (ROC) curves, the area under them, and where they mislead | Slides 43–50 |
-| 2:30–2:40 | Cost-optimal thresholds and class weights | Slides 51–56 |
-| 2:40–2:55 | **Notebook 3**, live, with the optional multiclass slides 58–60 | Slide 57 |
-| 2:55–3:00 | What to take away; homework | Slides 61–62 |
+| 0:53–1:13 | The decision boundary, the penalty, which line; **Notebook 1** live | Slides 28–31 |
+| 1:13–1:23 | **Break** | Slide 32 |
+| 1:23–1:37 | The accuracy trap and the confusion matrix | Slides 33–36 |
+| 1:37–1:51 | Precision, recall, F1, and what to report | Slides 37–40 |
+| 1:51–2:16 | **Notebook 2**, live, and the threshold sweep | Slides 41–44 |
+| 2:16–2:30 | Receiver operating characteristic (ROC) curves, the area under them, and where they mislead | Slides 45–52 |
+| 2:30–2:40 | Cost-optimal thresholds and class weights | Slides 53–58 |
+| 2:40–2:55 | **Notebook 3**, live, with the optional multiclass slides 60–62 | Slide 59 |
+| 2:55–3:00 | What to take away; homework | Slides 63–64 |
 | | **Total** | **180 minutes** |
 
-*Taught over two Fridays in 2026: slides 1 to 42 on 30 October, slides 43 to 62 at
-the start of 6 November, before lesson 5.*
+*Taught over two Fridays in 2026: up to the precision-recall curve (now slide 44) on
+30 October, the rest at the start of 6 November, before lesson 5. Slides 29 and 30,
+the penalty and which line the cost chooses, were added on 7 November, after the
+lesson.*
 
 ---
 
@@ -882,7 +884,25 @@ against 1.664 for reallocated sectors): refitted with `penalty=None`,
 scikit-learn gives 1.690, and the gap closes. The default is wanted, not a bug:
 when a line separates the classes perfectly the unpenalised weights grow without
 limit, as the convexity argument above allows, and lesson 5 shows how to choose
-$C$ by cross-validation.
+$C$ by cross-validation. Regularisation is therefore not a regression technique:
+the penalty belongs to the cost, whatever the target, and `penalty="l1"` (with
+`solver="saga"` or `liblinear`) brings lesson 3's Lasso and its exact zeros to
+classification too.
+
+**Which line, then.** Because $J$ plus the penalty is convex, the line does not
+depend on the method that minimises it: gradient descent, L-BFGS or any other
+solver end at the same coefficients, as notebook 1's 1.685 against the
+unpenalised 1.690 shows up to the precision of 4,000 descent steps. What the line
+does depend on is the cost. Log loss lets every drive pull on the boundary in
+proportion to its error, $p - y$, the far and correctly classified ones too,
+weakly. When a line separates the classes, infinitely many lines have zero
+training error, and "the best" means nothing until a criterion is named: log loss
+with a penalty is one criterion. Lesson 6's support vector machine (SVM) is
+another: the line with the widest empty strip around it, fixed by the few points
+nearest the border alone. The reasonable slip to anticipate is "gradient descent
+finds a separating line, not necessarily the best one": true of Rosenblatt's
+perceptron (1958), which stops at the first line that separates the training
+points, but not of a method that runs to the minimum of a convex cost.
 
 ---
 
@@ -1643,7 +1663,7 @@ cross-validation fold**, never before the split, for exactly the reasons lesson
 
 ## 10. More than two classes (optional)
 
-*This section goes with the optional slides 58 to 60. Exercise 4 is a two-class
+*This section goes with the optional slides 60 to 62. Exercise 4 is a two-class
 problem and does not need it; lesson 9 introduces the softmax again.*
 
 Real fleets are not healthy-or-dead. A drive can be **degraded**: readable, but

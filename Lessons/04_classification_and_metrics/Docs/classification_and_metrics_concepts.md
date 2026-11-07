@@ -62,6 +62,14 @@ logistic regression. → § 4.3
 direction: $u^\top H u \geq 0$ for every $u$. For this cost each term of that sum is
 $p(1-p)$ times a square. → § 4.3
 
+**The penalty, and C.** `LogisticRegression` adds lesson 3's L2 penalty to the log loss
+by default; its strength is $C = 1/\lambda$, so a smaller $C$ penalises harder. Without
+it, classes a line separates perfectly have no finite best weights. → § 4.3
+
+**Which line the cost chooses.** The boundary is the minimum of the cost, whatever
+solver reaches it; "best" means best by that cost. The support vector machine of
+Lesson 6 picks by another rule, the widest empty strip. → § 4.3
+
 
 ## Reading a classifier
 

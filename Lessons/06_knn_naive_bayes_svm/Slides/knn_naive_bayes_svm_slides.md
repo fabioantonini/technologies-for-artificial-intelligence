@@ -1155,7 +1155,7 @@ independent pieces of evidence, and the probability is pushed all the way to 0
 or 1. Neither dataset today shows this; handout section 4.5 describes the
 four-line experiment that does (ten near-copies of one column).
 
-Then lesson 4's distinction (its slide 47), which this is the textbook case of:
+Then lesson 4's distinction (its slide 49), which this is the textbook case of:
 ranking and calibration - whether a reported 0.7 comes true 70% of the time - are
 different properties. A model can order examples usefully and
 still report numbers that mean nothing.
