@@ -834,5 +834,49 @@ _rf300 = RandomForestClassifier(n_estimators=300, random_state=0).fit(X, y)
 same("7 a 300-tree forest: debt 0.61", _rf300.feature_importances_[1], 0.608, tolerance=5e-4)
 same("7 a 300-tree forest: income 0.39", _rf300.feature_importances_[0], 0.392, tolerance=5e-4)
 
+# ---------------------------------------- batch 6: boosting drawn, training error, importance mass
+from sklearn.tree import DecisionTreeRegressor as _DTR                 # noqa: E402
+_r7 = np.random.default_rng(7)
+_xt = np.sort(_r7.uniform(0, 10, 200))
+_ft = np.where(_xt < 3, 1.0, np.where(_xt < 7, 3.5, 1.5)) + 0.6 * np.sin(_xt)
+_yt = _ft + _r7.normal(0, 0.25, size=200)
+_start = _yt.sum() / 200
+same("8 the start, the mean of all y", _start, 2.287, tolerance=5e-4)
+_tr1 = _DTR(max_depth=2, random_state=0).fit(_xt.reshape(-1, 1), _yt - _start)
+# leaf values by hand: the mean residual inside each of the tree's x-intervals
+_cuts = sorted(_tr1.tree_.threshold[i] for i in range(_tr1.tree_.node_count) if _tr1.tree_.children_left[i] >= 0)
+for _got, _printed in zip(_cuts, (2.48, 2.89, 7.05)):
+    same("8 tree 1 splits x at", _got, _printed, tolerance=5e-3)
+_edges = [-np.inf] + list(_cuts) + [np.inf]
+for (_lo, _hi), _printed in zip(zip(_edges, _edges[1:]), (-0.914, -1.243, 0.967, -0.504)):
+    _in = (_xt > _lo) & (_xt <= _hi)
+    same("8 a leaf of tree 1 = the mean residual in its interval", (_yt - _start)[_in].mean(), _printed, tolerance=5e-4)
+same("8 at x = 5 the prediction moves to 2.578", _start + 0.3 * _tr1.predict([[5.0]])[0], 2.578, tolerance=5e-4)
+same("8 mean |residual| at the start", np.abs(_yt - _start).mean(), 0.838, tolerance=5e-4)
+same("8 mean |residual| after tree 1", np.abs(_yt - _start - 0.3 * _tr1.predict(_xt.reshape(-1, 1))).mean(), 0.601, tolerance=5e-4)
+for _lv, _printed in ((-0.914, 2.01), (0.967, 2.58), (-0.504, 2.14)):
+    same("8 the gold curve: start + 0.3 x a leaf", 2.287 + 0.3 * _lv, _printed, tolerance=5e-3)
+_F = np.full(200, _start)
+_tr_err = {}
+for _t in range(1, 61):
+    _F = _F + 0.3 * _DTR(max_depth=2, random_state=0).fit(_xt.reshape(-1, 1), _yt - _F).predict(_xt.reshape(-1, 1))
+    if _t in (1, 5, 20, 60):
+        _tr_err[_t] = ((_F - _yt) ** 2).mean()
+for _t, _printed in ((1, 0.476), (5, 0.119), (20, 0.046), (60, 0.025)):
+    same(f"8 MSE on the training points after {_t} trees", _tr_err[_t], _printed, tolerance=5e-4)
+same("8 the noise variance, 0.25 squared", 0.25 ** 2, 0.0625, tolerance=1e-12)
+# The importance mass on the 70% forest of section 7.1.
+_Xn, _yn = load_with_noise(20)
+_a20, _b20, _ya20, _yb20 = train_test_split(_Xn, _yn, test_size=0.3, random_state=0, stratify=_yn)
+_f20 = RandomForestClassifier(n_estimators=300, random_state=0).fit(_a20, _ya20)
+_imp = pd.Series(_f20.feature_importances_, index=_Xn.columns)
+same("7 that forest: debt ratio 0.319", _imp["debt_ratio"], 0.319, tolerance=5e-4)
+same("7 that forest: income 0.133", _imp["income_k"], 0.133, tolerance=5e-4)
+same("7 that forest: an average random column 0.027", _imp.filter(like="noise").mean(), 0.027, tolerance=5e-4)
+_sh = _b20.copy()
+_sh["debt_ratio"] = np.random.default_rng(3).permutation(_sh["debt_ratio"].to_numpy())
+same("7.1 accuracy before the shuffle, 0.806", _f20.score(_b20, _yb20), 0.806, tolerance=5e-4)
+same("7.1 after one shuffle of debt ratio, 0.600", _f20.score(_sh, _yb20), 0.600, tolerance=5e-4)
+
 print(f"{checks} numbers recomputed from raw inputs and confirmed against "
       f"{HANDOUT}.")
