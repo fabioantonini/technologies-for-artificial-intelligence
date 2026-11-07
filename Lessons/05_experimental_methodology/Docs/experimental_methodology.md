@@ -1838,7 +1838,7 @@ questions open — and section 7.3 suggests how large the correction tends to be
 
 ### Homework
 
-`Exercises/05_experimental_methodology.md`, discussed at the start of Lesson 6, **Friday 13 November 2026**.
+`Exercises/05_experimental_methodology.md`, set on Friday 13 November 2026 and discussed on **Friday 20 November 2026**.
 
 ### Notation used in this lesson
 

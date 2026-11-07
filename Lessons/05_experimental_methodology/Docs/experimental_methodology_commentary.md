@@ -56,8 +56,8 @@ This Friday opens with the end of lesson 4: receiver operating characteristic (R
 curves, the area under the curve (AUC), the threshold chosen from the costs, and its
 notebook 3. Lesson 5 then has about two hours instead of three. Nothing is cut from the
 material: the slides marked (optional) and the three notebooks are left for
-self-study, and in class short atoms take the notebooks' place. Exercises 4 and 5 are
-both discussed at the start of lesson 6.
+self-study, and in class short atoms take the notebooks' place. Exercise 4 is
+discussed on Friday 13 November, exercise 5 on Friday 20 November.
 
 ---
 
@@ -1625,7 +1625,7 @@ positives are in the test set, and which choices were made while looking at whic
 
 ## Slide 62 — Homework
 
-Exercise 5, discussed at the start of Friday 13 November together with exercise 4: a
+Exercise 5, discussed at the start of Friday 20 November: a
 notebook that reports a result too good to be true. Find out why, isolate each problem,
 produce the honest number, and explain what it means to the people who will use it.
 

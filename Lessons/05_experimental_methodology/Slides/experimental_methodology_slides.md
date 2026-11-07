@@ -8,7 +8,7 @@ date: "6 November 2026"
 # Before we start: lesson 4, concluded
 
 - First, lesson 4's last slides: receiver operating characteristic (ROC) curves, the area under the curve (AUC), the threshold from costs, notebook 3
-- Exercise 4 is set at their end; exercises 4 and 5 are both discussed on 13 November
+- Exercise 4 is set at their end and discussed on 13 November; exercise 5 on 20 November
 - Then lesson 5, with a few parts left for self-study, marked (optional)
 
 ::: notes
@@ -24,9 +24,9 @@ from Consolidation/05_lesson_5_atoms.ipynb run in their place (slides 24 and
 59); the handout covers everything.
 Say so at the start, so nobody thinks they missed something.
 
-Exercises 4 and 5 are both discussed at the start of lesson 6, Friday 13
-November. Students have already loaded exercise 4's data and fitted a logistic
-regression, so the two together are a fair week's work.
+Exercise 4 is discussed at the start of Friday 13 November. Lesson 5 runs over
+to that Friday too, so exercise 5 is set when it ends and discussed on Friday 20
+November: each exercise gets its own week.
 :::
 
 # We broke a promise on purpose
@@ -2130,12 +2130,13 @@ one they are most likely to be asked at the exam about whichever exercise is dra
 
 # Homework
 
-- **Exercise 5**, discussed at the start of **Friday 13 November**
+- **Exercise 5**, discussed at the start of **Friday 20 November**
 - A result that is too good. Find out why, then produce the honest number
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten
-minutes of next Friday, 13 November.
+minutes of Friday 20 November. Lesson 5 ran over two Fridays, so exercise 5 is
+set on 13 November and gets its full week, like every other exercise.
 
 The shape of it: they are given a notebook that reports an excellent score, and
 the score is wrong. They have to find the reason, fix it, report the honest

@@ -28,7 +28,7 @@ taught on 30 October, ran over into the first three quarters of an hour of
 
 | Milestone | Date |
 |---|---|
-| Weekly exercises | Set at the end of each lesson, discussed at the start of the next. Exercises 4 and 5 are both set on 6 November and both discussed on 13 November. Nothing is collected: one of the ten is drawn at the exam and you talk through your own notebook. Exercise 10 has no lesson after it, so it is worked for the exam alone. |
+| Weekly exercises | Set at the end of each lesson, discussed at the start of the next. Exercise 4 is set on 6 November and discussed on 13 November; lesson 5 runs over to 13 November, so exercise 5 is set that day and discussed on 20 November. Nothing is collected: one of the ten is drawn at the exam and you talk through your own notebook. Exercise 10 has no lesson after it, so it is worked for the exam alone. |
 | Exam: one of the ten exercises drawn and discussed | **Three sittings between January and February 2027.** The dates are set by the degree programme and are not yet published; this table is updated when they are. |
 
 ## Material release policy
