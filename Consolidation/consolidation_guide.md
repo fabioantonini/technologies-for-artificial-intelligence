@@ -59,6 +59,7 @@ than any number of predictions that came out right.
 | `03_lesson_3_atoms.ipynb` | cost, the normal equation, gradient descent, Ridge and Lasso, what a coefficient means | 15 |
 | `04_lesson_4_atoms.ipynb` | odds and log-odds, log loss, one gradient step, the confusion matrix in order, the two averages, AUC and average precision, a threshold from costs, class weights, softmax, the whole chain on one fitted model | 12 |
 | `05_lesson_5_atoms.ipynb` | cross-validation round by round, the five round models, the spread and the report line, stratified, repeated and grouped folds, training against validation error, `GridSearchCV`, nested cross-validation one round at a time, a fresh test set, the threshold sweep, seeds | 13 |
+| `07_lesson_7_atoms.ipynb` | Gini by hand, the gain by counting, thresholds and midpoints, a tree on ten loans and one path, depth against a budget of leaves, the noise ceiling, five folds by hand, sampling with and without replacement, bagging and out-of-bag by hand, one column per split, importance and permutation by hand, boosting by hand | 14 |
 
 They run in the course container like every other notebook, each in a few seconds,
 with no network. Start with `00`: the others assume it.
@@ -175,6 +176,30 @@ class atoms 2-3 replace notebook 1, and atoms 11-13 notebook 3.
 | 14 | A fresh test set is centred on the truth | *Why it does not return to 0.5* |
 | 15 | The threshold: a sweep of 200 candidates on the validation drives | *The debt, paid: the honest threshold costs 1,400 EUR more* |
 | 16 | Seeds: the same seed, the same number, and still a spread | *A fixed seed buys repeatability, not stability*; *What to fix, and what to write down* (optional) |
+
+### 07 — lesson 7
+
+Lesson 7's atoms run on the lesson's own 1,200 loans, where the slides' numbers come
+from; atoms 3, 4 and 9 use eight, ten and twelve loans, and atom 14 the lesson's toy
+step-and-sine data. The notebook runs in about a minute. In class atoms 1-4 can replace
+part of notebook 1, atoms 8-11 part of notebook 2, and atoms 13-14 part of notebook 3.
+
+| # | Atom | Lesson source |
+|--|--------------------------|------------------------|
+| 1 | Gini impurity by hand: 0.474, 0.381, 0.115, against `tree_.impurity` | *Gini impurity*; *For two classes, one number* |
+| 2 | The root gain by counting, 0.1438, and the plain-average slip | *The gain a split buys*; *Worked example: the root split* |
+| 3 | Seven midpoints on eight loans; any threshold in the gap, the same split | *Scanning for the best split*; *Every threshold, scored* |
+| 4 | A depth-2 tree on ten loans: `export_text`, `apply`, `decision_path` | *The algorithm, drawn*; *The loop, in seven lines*; *Reading a tree* |
+| 5 | `max_depth=8` against `max_leaf_nodes=9` against no limit: 71, 9 and 156 leaves | *Depth is the bias-variance dial*; *Reading a tree, and the knob that keeps it small* |
+| 6 | The noise ceiling, 0.929, and the flipped labels each depth learns | *The curve bends downward*; *The same rule, three depths* |
+| 7 | Five folds by hand: 1,059 of 1,200, `std` against `std(ddof=1)` | *Measured, at seven depths*; *Cross-validation, step by step* |
+| 8 | Without and with replacement: 753 different loans, 447 never drawn, 447 repeats | *A tree that doesn't stay still*; *How much data one bootstrap sample sees* |
+| 9 | `BaggingClassifier` with five trees: each tree's sample, the vote, `predict_proba` | *Bagging: many trees, one vote*; *Bagging, drawn* |
+| 10 | Out-of-bag by hand: 1,085 of 1,200, equal to `oob_score_` | *Out-of-bag: each loan judged by the trees that never saw it* |
+| 11 | One column per split: roots 100 against 51 and 49, a tree alone against the vote | *Random forests: trees less alike*; *Bagged trees against forest trees* |
+| 12 | Feature importance by hand on the depth-2 tree: 0.681 and 0.319 | *Feature importance on one tree*; *What a forest's importance says* |
+| 13 | Permutation by hand: shuffling debt costs 0.206, a random column 0.003 | *Permutation importance: the procedure*; *claimed against measured* |
+| 14 | Boosting by hand, two trees: 2.287, 2.578, 2.781, equal to `GradientBoostingRegressor` | *Boosting, drawn: the first two steps*; *Building the ensemble, one tree at a time* |
 
 ## Two hours in class
 
