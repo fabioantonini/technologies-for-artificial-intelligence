@@ -2050,7 +2050,8 @@ convex, so any minimum gradient descent finds is the global one.
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the start of Friday
-13 November, together with exercise 5. (Lesson 4 ran over two Fridays: this
+13 November, on its own: exercise 5 is discussed a week later, on 20 November.
+(Lesson 4 ran over two Fridays: this
 slide is reached on 6 November, after which lesson 5 begins the same day.)
 
 Emphasise which part matters at the exam, where one of the ten exercises is
