@@ -298,7 +298,7 @@ same man, a different quantity, and a student who knows the coefficient may
 think they are one thing.
 :::
 
-# For two classes, one number (optional)
+# For two classes, one number
 
 - $G = 2p(1-p)$, where $p$ is the share defaulted and $1-p$ the share repaid
 - **0** when the group is pure ($p = 0$ or $p = 1$)
@@ -306,9 +306,6 @@ think they are one thing.
 - On the full 1,200 applicants, $p = 0.387$ gives $G = 0.474$
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for self-study
-in handout section 2.2.
-
 Two classes is the case that matters for this dataset, and the formula
 collapses: with shares p and 1 - p,
 1 - (p² + (1 - p)²) = 1 - p² - (1 - 2p + p²) = 2p - 2p² = 2p(1 - p). Write that
@@ -359,14 +356,11 @@ shows in a few minutes.
 Handout section 2.2.
 :::
 
-# The reduction in impurity (optional)
+# The reduction in impurity
 
 $$\Delta G = G_P - \left(\frac{m_L}{m_P}\, G_L + \frac{m_R}{m_P}\, G_R\right)$$
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for self-study
-in handout section 2.2.
-
 Say what the symbols are before reading the formula: P, L and R are the
 parent group and its two children, as on the previous slide. Each G is the
 Gini impurity of one group, and each m is the number of examples in it; the
@@ -387,7 +381,7 @@ parent had, so a gain is never larger than G of the parent, and with two classes
 never above 0.5.
 :::
 
-# Scanning for the best split (optional)
+# Scanning for the best split
 
 - Sort a feature's values: every **midpoint** between neighbours is a
   candidate threshold
@@ -398,9 +392,6 @@ never above 0.5.
 - **Greedy**: $\Delta G$ is judged one split at a time, never jointly
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for self-study
-in handout section 2.2.
-
 This is the exhaustive-search part of the algorithm, and it is worth being
 concrete about the cost: every feature, every possible threshold, at every
 node, all the way down. It is brute force, and on a dataset this size it is
@@ -458,7 +449,7 @@ common.
 Notebook 1, section 2, "Every threshold, scored". Handout section 2.2.
 :::
 
-# Worked example: the root split (optional)
+# Worked example: the root split
 
 - Parent: 464 of 1,200 defaulted, G = **0.474**; the search finds
   `debt_ratio <= 0.82`, the **debt ceiling**
@@ -468,9 +459,6 @@ Notebook 1, section 2, "Every threshold, scored". Handout section 2.2.
   **0.144**
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for self-study
-in handout section 2.2.
-
 Walk the numbers once: parent impurity 0.474, and the winning split is the
 debt ceiling, found by brute-force search with no hint about how the data
 was generated. Each step starts from a count: 249 of the 971 on the left
@@ -501,14 +489,11 @@ average, 0.474 - 0.330, not 1 - 0.330.
 Handout section 2.2.
 :::
 
-# The root split, on the Gini curve (optional)
+# The root split, on the Gini curve
 
 ![](gini_root_split.png)
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for self-study
-in handout section 2.2.
-
 The previous slide's arithmetic, drawn. The curve is 2p(1-p): zero for a pure
 group, 0.5 for a fifty-fifty one. The black dot is all 1,200 applicants at
 p = 0.387, impurity 0.474. The split sends 971 left, at p = 0.256, and 229
@@ -586,7 +571,7 @@ neighbours is the opposite: nothing to train, and every prediction compares the
 new point with all the training points.
 :::
 
-# Checked against scikit-learn (optional)
+# Checked against scikit-learn
 
 - The from-scratch implementation and scikit-learn's
   `DecisionTreeClassifier` make **the same prediction for all 1,200
@@ -596,9 +581,6 @@ new point with all the training points.
   algorithm, compiled, not a different one
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for self-study
-in handout section 2.
-
 This is the check notebook 1 runs live, and it matters for trust rather
 than for novelty: once the from-scratch version is shown to agree with
 scikit-learn exactly, every later result in the lesson - obtained with
@@ -697,7 +679,7 @@ works on this year's; fifty questions, each written about one past customer,
 do not.
 :::
 
-# Measured, at seven depths (optional)
+# Measured, at seven depths
 
 | `max_depth` | Training accuracy | Cross-validated, 5 folds (mean ± standard deviation) |
 |---|---|---|
@@ -710,9 +692,6 @@ do not.
 | unconstrained | **1.000** | 0.852 ± 0.021 |
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for self-study
-in handout section 3.
-
 Read the two columns against each other, never in isolation, exactly as
 lesson 5 taught. Training accuracy climbs monotonically towards 1.000.
 Cross-validated accuracy rises, peaks at depth 8, and then falls back - even
@@ -1016,7 +995,7 @@ slivers do not, because a sliver one tree draws, most of the others do not.
 Handout section 5.
 :::
 
-# How much data one bootstrap sample sees (optional)
+# How much data one bootstrap sample sees
 
 - A draw picks a given row with probability $1/m$, so it misses it with
   $1 - 1/m$; all $m$ independent draws miss it with $(1 - 1/m)^m$, about
@@ -1027,9 +1006,6 @@ Handout section 5.
   $1{,}200 \times (1 - 0.3677) = 759$ different rows, and $441$ repeated draws
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for self-study
-in handout section 5.1.
-
 Give the one line of reasoning, not the limit. At m = 1,200 the probability
 of being missed is 0.3677; as m grows it tends to 1/e, 0.368, the standard
 exponential limit worked out in handout section 5.1.
@@ -1055,14 +1031,11 @@ loans per sample, as on the previous slide.
 Handout section 5.1.
 :::
 
-# One bootstrap sample, counted against the theory (optional)
+# One bootstrap sample, counted against the theory
 
 ![](bootstrap_counts.png)
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for self-study
-in handout section 5.1.
-
 Each pair of bars is one value of k, the number of times a loan is drawn into
 the sample. A bar's height is the share of the 1,200 loans drawn exactly k
 times: blue in one real sample, gold the theory for large m. The k = 0 bars are
@@ -1137,7 +1110,7 @@ Not to be read to the fourth decimal: over twelve seeds the gap between the two
 averages 0.0040 (handout section 5.1).
 :::
 
-# Cross-validation, step by step: five groups of 240 (optional)
+# Cross-validation, step by step: five groups of 240
 
 | Round: the group left out | Right of its 240 | Accuracy = right ÷ 240 | Deviation from the mean of the five = accuracy − 0.9025 | Deviation² |
 |---|---|---|---|---|
@@ -1150,9 +1123,6 @@ averages 0.0040 (handout section 5.1).
 | **Standard deviation** = √(0.002174 ÷ 5) | | **0.021** | | |
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for self-study
-in handout section 5.1.
-
 This table is cross-validation alone; out-of-bag plays no part in it. A
 predictable slip is to read the deviation column as "out-of-bag minus
 cross-validation", because the previous slide compared the two. It is each
@@ -1393,7 +1363,7 @@ split may use.
 Handout section 6.
 :::
 
-# Feature importance on one tree (optional)
+# Feature importance on one tree
 
 | Split of slide 8's tree | Applicants | Gain ΔG | Weight = applicants ÷ 1,200 | Credit = ΔG × weight |
 |---|---|---|---|---|
@@ -1404,9 +1374,6 @@ Handout section 6.
 | **Income** | | | | 0.0676 ÷ 0.2119 = **0.319** |
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for self-study in
-handout section 7.
-
 The idea in one sentence: each question of the tree makes its groups purer by
 its gain ΔG (slide 13); weight it by the share of applicants it splits, credit
 it to the column it asks about, add up per column, and divide by the total so
@@ -1424,8 +1391,7 @@ and scales again.
   much importance should they get?
 
 ::: notes
-Say it in words, without the computation, which is on the previous, optional
-slide: each question of a tree makes its groups purer; that improvement is
+Say it in words, without the computation, which is on the previous slide: each question of a tree makes its groups purer; that improvement is
 credited to the column the question asks about; added up over all questions
 of all trees and scaled to 1, it is the column's importance. A 300-tree forest
 on the 1,200 loans gives debt 0.608 and income 0.392: with only the two real
@@ -1649,7 +1615,7 @@ Do not derive anything further here - the next slide states what $h_t$ is
 actually fit to. Handout section 8.
 :::
 
-# What each tree is fit to (optional)
+# What each tree is fit to
 
 - For squared error, the next tree $h_t$ is trained on the **residual**
   $y - F_{t-1}(x)$: what the trees so far have not explained
@@ -1659,9 +1625,6 @@ actually fit to. Handout section 8.
   same thing as the residual
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for self-study
-in handout section 8.
-
 In code, the whole from-scratch loop of notebook 3, section 1, is
 DecisionTreeRegressor(max_depth=2) fit to y - prediction:
 fit a depth-2 regression tree to the residuals, add 0.3 times its predictions
@@ -1732,7 +1695,7 @@ residual noise is left.
 Handout section 8.
 :::
 
-# Classification: the same idea, a different gradient (optional)
+# Classification: the same idea, a different gradient
 
 - Now $y$ is 0 or 1. The running score $F$ becomes a probability through
   lesson 4's logistic function, $p = \sigma(F)$
@@ -1742,9 +1705,6 @@ Handout section 8.
   first tree fits +0.613 to defaulters and −0.387 to the rest
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for self-study
-in handout section 9.
-
 State the result, not the chain rule behind it - the handout carries the
 full derivative. What matters for this course is the connection: boosting
 for classification fits a sequence of small trees to $y - p$, one
@@ -1806,7 +1766,7 @@ sensible defaults.
 Handout section 9.
 :::
 
-# Boosting never stops fitting on its own (optional)
+# Boosting never stops fitting on its own
 
 | `n_estimators` ($\alpha = 0.3$, depth 3) | Training accuracy | Cross-validated accuracy |
 |---|---|---|
@@ -1819,9 +1779,6 @@ Handout section 9.
 | 800 | 1.000 | 0.890 ± 0.019 |
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for self-study
-in handout section 10.
-
 Unlike bagging, boosting keeps reducing its training loss for as long as it
 runs, because every new tree is built specifically to reduce what remains  - 
 including the 7% of labels that are noise by construction. There is nothing
@@ -1869,7 +1826,7 @@ scikit-learn that is the `n_iter_no_change` argument of
 Handout section 10.
 :::
 
-# Fixing 120 trees, varying only the learning rate (optional)
+# Fixing 120 trees, varying only the learning rate
 
 | Learning rate $\alpha$ | Training accuracy | Cross-validated accuracy |
 |---|---|---|
@@ -1880,9 +1837,6 @@ Handout section 10.
 | 1.00 | 1.000 | 0.878 ± 0.020 |
 
 ::: notes
-Optional: skip in class if time is short, and say it is left for self-study
-in handout section 10.
-
 Learning rate and tree count are not independent - both control how much
 total correction the ensemble applies, so they trade off against each
 other. At $\alpha = 0.02$, 120 trees haven't finished fitting the signal:
