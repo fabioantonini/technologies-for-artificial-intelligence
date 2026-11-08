@@ -138,7 +138,8 @@ The ranking is not the same at the two products. Explain why, in a
 paragraph of six to ten sentences per product.
 
 Support each explanation with a **measurement**, not an assertion.
-Suggestions, though you may find better ones:
+Choose at least one measurement per product; you are not expected to run
+every suggestion below. Suggestions, though you may find better ones:
 
 - for a claim that a boundary needs several features to agree at once:
   fit a tree (or the ensemble) on one feature at a time, then on all of

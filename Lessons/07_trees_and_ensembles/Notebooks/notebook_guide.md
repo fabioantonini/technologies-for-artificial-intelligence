@@ -58,7 +58,7 @@ islands) — not one class surrounding another as in lesson 6.
    debt ceiling and misses both stressed islands; at depth 8 both islands appear as
    clean rectangles.
 5. **The model a loan officer could apply by hand** — the printed if/else tree, nine
-   leaves, readable top to bottom. This is what k-NN and the support vector machine (SVM) cannot offer.
+   leaves, readable top to bottom. This is what k-nearest neighbours (k-NN) and the support vector machine (SVM) cannot offer.
 6. **And the instability that ends the notebook.** Two resamples give root splits of
    **0.820 and 0.819** — the ceiling is overwhelming evidence — but the trees have 31
    and 33 leaves and **agree on only 0.883 of predictions**. Stable at the top,
@@ -95,11 +95,11 @@ trees, it becomes the mechanism.
    drawn in $m$ draws tends to $1/e$: **theory 0.3679**, $(1 - 1/m)^m$ at
    $m = 1200$ **0.3677**, simulated **0.3658**. Those left-out rows give a free
    validation score. The bootstrap counted: 0.366 of the loans drawn never, 0.382 once,
-   0.168 twice, against the theory $e^{-1}/k!$ (`bootstrap_counts.png`). Ten trees and
+   0.168 twice, against the theory $e^{-1}/r!$ for a loan drawn $r$ times (`bootstrap_counts.png`). Ten trees and
    eight loans show who votes on what (`oob_grid.png`); at full size, 300 bagged trees
-   score **OOB 0.9083 against cross-validated 0.9025 ± 0.0208**.
+   score **out-of-bag (OOB) 0.9083 against cross-validated 0.9025 ± 0.0208**.
 3. **With the honesty the course requires.** Over twelve seeds the typical gap between
-   OOB and CV is **0.0040** and the worst **0.0075**: the closeness is the property, the
+   OOB and cross-validation (CV) is **0.0040** and the worst **0.0075**: the closeness is the property, the
    exact digits are luck.
 4. **Variance reduction, measured over 30 splits:**
 
@@ -138,8 +138,8 @@ trees, it becomes the mechanism.
 **The two-minute version.** *One tree is unstable, so fit a hundred to bootstrap
 resamples and average them. The from-scratch version matches scikit-learn. Each
 bootstrap leaves out about 37% of the rows — 1/e, verified three ways — and those rows
-give a free validation score which lands within about 0.003 of cross-validation across
-seeds. Over 30 splits the variance falls: a single tree swings by ±0.018, a forest by
+give a free validation score which lands within 0.0040 of cross-validation on average
+across twelve seeds, 0.0075 at worst. Over 30 splits the variance falls: a single tree swings by ±0.018, a forest by
 ±0.014, and its mean accuracy is five points higher. The last section is a warning:
 add twenty noise columns and more than half of the forest's own feature importance
 lands on them — partly because with four candidates out of 22 per split the real

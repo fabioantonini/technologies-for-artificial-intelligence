@@ -57,8 +57,10 @@ rows are still training rows, and the other trees see them. → § 5.1
 
 **Out-of-bag score.** Each row scored only by the trees whose bootstrap sample
 missed it — a different third of the ensemble for each row. It works like
-cross-validation without an explicit split, estimates the same quantity, and agrees
-within its own noise. → § 5.1
+cross-validation without an explicit split: it estimates the same thing, accuracy
+on unseen rows, with a different arrangement (about 110 of 300 trees, trained on
+all 1,200 rows, against 300 trees trained on 960). Here the two agree within
+their own noise; that is reassuring, not guaranteed. → § 5.1
 
 **The variance floor.** Averaging cancels each tree's private luck but not what the
 trees share, because they all grow from the same data: variance falls towards the
@@ -129,7 +131,7 @@ budgeted tree gets close to the ensembles, and what the ensembles add is
 steadiness. → § 4, § 11
 
 **Flexibility is not an advantage on its own.** The unconstrained tree is the worst
-model on the leaderboard despite being the most flexible: flexibility without a
+tree on the leaderboard despite being the most flexible: flexibility without a
 stopping rule is a larger space to get lost in. → § 11
 
 **When a single tree is still the right answer.** When the decision has to be

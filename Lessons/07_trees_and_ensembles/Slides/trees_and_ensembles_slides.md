@@ -46,10 +46,9 @@ picked which family and why, and listen for the common gap: a cross-validated
 score quoted without any check of whether the model's assumption, such as
 within-class independence, actually held on that data.
 
-Link forward explicitly: today introduces a family with its own convenient
-assumption - that the columns you feed a random forest are all worth
-listening to - and by the end of the lesson you will have measured exactly
-how badly that assumption can fail.
+The same obligation holds today. Random forests come with a score and with a
+ranking of the columns, and by the end of the lesson you will have measured
+how far that ranking can mislead when most of the columns carry nothing.
 :::
 
 # 1,200 loan applicants, two figures each
@@ -286,13 +285,19 @@ Give them a moment to notice the formula asks nothing about *which* class is
 common, only about how mixed the group is - that symmetry matters later,
 when a split is chosen purely by how much it reduces this number.
 
+A predictable slip: "Gini never exceeds 0.5". Reasonable, since every group
+in this lesson has two classes. But 0.5 is the two-class maximum: with C
+equally frequent classes, G = 1 - C × (1/C)² = 1 - 1/C, so three classes
+reach 0.667.
+
 Handout section 2.2 has the full definition.
 
 A line of colour, if there is a minute: the name is Italian. Corrado Gini
 (1884-1965) was a statistician, the first president of the Istituto Centrale di
 Statistica in 1926, the body that became ISTAT. 1 - Σ p_c² is his index of
 heterogeneity, "mutabilità", from 1912; Leo Breiman and his co-authors made it
-the splitting criterion of their CART trees in 1984, and scikit-learn kept it.
+the splitting criterion of their Classification and Regression Trees (CART)
+in 1984, and scikit-learn kept it.
 It is not the Gini coefficient of income inequality, his better-known index:
 same man, a different quantity, and a student who knows the coefficient may
 think they are one thing.
@@ -445,6 +450,11 @@ scores 0.405 against 0.330, because it leaves the large left group more mixed:
 1,071 at 32% against 971 at 26%. And a group pure in "repaid" counts exactly
 as much as one pure in "default": the formula does not ask which class is
 common.
+
+A second slip: "the tree has recovered the lender's threshold, 0.82". The tree
+does not know the rule that generated the data (slide 5). It takes the midpoint
+of two neighbouring debt values in the data, 0.8198 and 0.8205, and that
+midpoint happens to round to the same 0.82.
 
 Notebook 1, section 2, "Every threshold, scored". Handout section 2.2.
 :::
@@ -681,7 +691,7 @@ do not.
 
 # Measured, at seven depths
 
-| `max_depth` | Training accuracy | Cross-validated, 5 folds (mean ± standard deviation) |
+| `max_depth` | Training accuracy, all 1,200 loans | Cross-validated, 5 folds of the 1,200 loans (mean ± standard deviation) |
 |---|---|---|
 | 2 | 0.840 | 0.836 ± 0.024 |
 | 4 | 0.843 | 0.827 ± 0.025 |
@@ -725,8 +735,8 @@ top, cross-validated rising and then turning over. The peak is where the
 tree is deep enough to isolate both stressed islands and shallow enough to
 leave the flipped labels as errors rather than as leaves of their own.
 
-Say plainly what past the peak is buying: every extra split is spent
-fitting some of the 7% of labels this dataset deliberately flips, and a
+Say plainly what past the peak is buying: more and more of each extra split
+is spent fitting the 7% of labels this dataset deliberately flips, and a
 flipped label has no pattern to learn. A tree that classifies it "correctly"
 on training data has memorised it, not generalised.
 
@@ -738,12 +748,17 @@ lesson 3's test error turned back up as the polynomial degree grew, and
 lesson 6's k-nearest neighbours did the same as k shrank towards 1. Handout
 section 3.
 
-Why the blue curve may cross the gold line and the rust one may not. The
-ceiling is the best a model can expect on new applicants, whose flipped labels
-it cannot know. On its own training data it can do better, by memorising them:
+Why the blue curve may cross the gold line and the rust one does not. The
+ceiling is what a model can expect, on average, on new applicants, whose
+flipped labels it cannot know. On its own training data it can do far better,
+by memorising them:
 the crossing, just before depth 8, is where memorising starts, and at 1.000 all
 85 flipped labels are learned. A predictable slip: "a score above the noise
-ceiling means a bug". True for new data, false for training data. Two reading
+ceiling means a bug". False for training data. On new data, 0.93 is an
+average, not a wall: even the rule that generated the data scores above 0.93
+on about half of all possible sets of 1,200 new applicants (probability
+0.484), because the number of flipped labels varies. A little above can be
+luck; far above, or above on every split, is a bug. Two reading
 details: the shaded band is ± one standard deviation across the five folds, and
 the plot has eleven depths where the table had seven; "20" on the axis stands
 for the unconstrained tree, whose real depth is 24.
@@ -780,8 +795,8 @@ had never seen. Handout section 3.
 
 - `max_depth` **caps every path**: each node above the cap is split if it
   can be, worth it or not
-- `max_leaf_nodes` is a **budget of leaves**, spent on the largest
-  $\Delta G$ first
+- `max_leaf_nodes` is a **budget of leaves**, spent first where
+  $\Delta G$ × share of applicants is largest
 - `max_leaf_nodes = 9`: **0.908** training, **0.901** cross-validated, above
   depth 8's 0.882; thresholds 28 and 0.82
 - In code: `export_text(tree)` prints the tree as if/else rules
@@ -861,9 +876,16 @@ island B. Right: the 140 applicants they give opposite verdicts to, in gold.
 
 Let the room notice where the gold points sit before saying it: three in four
 of them in or right next to the two islands (105 of 140; 75 inside them),
-where each split was decided by a few dozen applicants; the rest lie along the
-edges of the two strips (11 below the income floor, 11 above the debt
-ceiling). That is a tree's variance, made visible.
+where each split was decided by a few dozen applicants; of the other 35, 19
+lie in the two strips (11 below the income floor, 11 above the debt ceiling, 3
+of them in the corner where both apply) and 16 elsewhere. That is
+a tree's variance, made visible.
+
+A predictable slip: "the trees disagree on 11.7%, so each is wrong on 11.7%".
+Reasonable, since both a disagreement and an error are a verdict that differs.
+But a disagreement compares the two trees with each other, not with the
+labels: on each of the 140, exactly one of the two is right. Disagreement
+measures instability; accuracy needs the labels.
 
 Notebook 1, section 4. Handout section 4.
 :::
@@ -913,10 +935,11 @@ come back with that framing fresh.
   sample's bad luck is outvoted
 - Each sample: $m$ rows drawn **with replacement** from the $m$ training
   rows, some twice, some never: a **bootstrap sample**
-- Fully grown trees and a majority vote: **bagging**
+- A tree on each sample, then a majority vote: **bagging**
 
 ::: notes
-State the logic before the name. Slides 26 and 27, before the break, measured
+State the logic before the name. Here the trees are fully grown, but bagging
+itself works with any tree, or any model: notebook 2 also bags trees of depth 2. Slides 26 and 27, before the break, measured
 that two trees fit to overlapping samples give opposite verdicts on 140 of the
 1,200 applicants. If those disagreements come from the luck of each sample,
 many trees combined by a vote should cancel them.
@@ -1036,11 +1059,11 @@ Handout section 5.1.
 ![](bootstrap_counts.png)
 
 ::: notes
-Each pair of bars is one value of k, the number of times a loan is drawn into
-the sample. A bar's height is the share of the 1,200 loans drawn exactly k
-times: blue in one real sample, gold the theory for large m. The k = 0 bars are
+Each pair of bars is one value of r, the number of times a loan is drawn into
+the sample. A bar's height is the share of the 1,200 loans drawn exactly r
+times: blue in one real sample, gold the theory for large m. The r = 0 bars are
 the loans never drawn, the out-of-bag ones: 0.366 in this sample, 0.368 in
-theory. A bar times 1,200 is a count: 0.168 at k = 2 is about 202 loans drawn
+theory. A bar times 1,200 is a count: 0.168 at r = 2 is about 202 loans drawn
 exactly twice.
 
 Why "once" is as common as "never", if asked. Think of 1,200 balls thrown at
@@ -1053,7 +1076,7 @@ to the 1,199th; but the draw that picks it can be any of the 1,200, so there are
 to the 1,199th = 0.3680. The two formulas differ only in the exponent, one
 factor 0.9992. The reason: each loan is drawn once on average. With 2,400
 draws, "once" would be twice as likely as "never". The general
-formula, e^-1 / k!, is in handout section 5.1; the slide needs only these two.
+formula, e^-1 / r!, is in handout section 5.1; the slide needs only these two.
 
 The point to make: about one loan in four appears two or more times. Every
 tree sees a different mix of repeats and absences, and that is where their
@@ -1081,7 +1104,10 @@ average, and an exact tie goes to the first class.
 Do this for all 1,200 loans and count how often the verdict is right: that share
 is the out-of-bag accuracy. Every loan is judged only by trees for which it is
 unseen data, so it works like a validation set - with nothing set aside and
-nothing trained again. With 10 trees about 0.368 x 10 = 3.7 vote per loan.
+nothing trained again. With 10 trees about 0.368 x 10 = 3.7 vote per loan, and
+a loan can sit in all ten samples and get no vote at all: probability
+0.632^10 = 0.0102, about 12 of the 1,200. That is why the real computation, on
+the next slide, uses 300 trees.
 
 Handout section 5.1.
 :::
@@ -1235,6 +1261,11 @@ from about 50 trees on the curve is flat. That flat part is the floor of the
 previous slide: what every tree shares because every tree grew from the same
 1,200 loans. Ask the room what adding trees past fifty buys - almost nothing -
 and what the only remaining lever is: trees that are less alike.
+
+A predictable slip: "where the curve goes flat, the ensemble stops making
+errors". The vertical axis counts verdicts that change between two training
+sets, not wrong verdicts: the floor is a floor of instability, and the
+ensemble is still wrong on about one applicant in ten.
 
 Handout section 5.2, where the same floor is also derived as a formula.
 :::
@@ -1661,7 +1692,7 @@ The dashed grey line is the start, the mean 2.287. Say the numbers as you
 point: one tree barely moves it - the gold curve is the start plus 0.3 times
 tree 1: 2.287 - 0.274 = 2.01 on the left, 2.287 + 0.290 = 2.58 in the middle,
 2.287 - 0.151 = 2.14 on the right, as on the previous drawing. Five trees sketch the coarse shape. Twenty trace the step function
-closely - the ensemble's best point, on the next slide. By sixty, the
+closely - the best of the four curves shown, as the next slide measures. By sixty, the
 ensemble is tracking individual noisy observations as well as the
 underlying shape.
 
@@ -1683,8 +1714,12 @@ is the error on the points the model is trained on; the right column, the error
 against the black line, the true function - possible only because these data
 are synthetic. The training error keeps falling; the error against the truth
 falls until 20 trees and then rises. The noise added to the points has variance
-0.25 squared = 0.0625: from 20 trees on the training error is below it, which a
-model can only achieve by learning the noise itself. In real data the truth is
+0.25 squared = 0.0625: from 20 trees on the training error is below it, a
+sign that the model has started to learn the noise - a sign, not a proof, since
+200 noise values have a sample variance of their own. The proof is the right
+column, which turns up. Counted tree by tree, the lowest error against the true
+function is at 19 trees, 0.0116 against 0.0119 at 20: "about 20" is the
+honest reading. In real data the truth is
 unknown, and slides 57 to 59 put cross-validation in its place.
 
 Name what this is: the same overfitting story as the unconstrained single
@@ -1749,7 +1784,7 @@ Handout section 9.
 - `GradientBoostingClassifier`, defaults: **100 trees** of depth 3,
   learning rate $\alpha = 0.1$
 - **0.902 ± 0.020** cross-validated accuracy: all 1,200 loans, the same five
-  groups of 240 as slides 36 and 62
+  groups of 240 as slide 36
 - Ahead of the depth-8 tree (0.882), level with the nine-leaf tree (0.901)
 
 ::: notes
@@ -1768,7 +1803,7 @@ Handout section 9.
 
 # Boosting never stops fitting on its own
 
-| `n_estimators` ($\alpha = 0.3$, depth 3) | Training accuracy | Cross-validated accuracy |
+| `n_estimators` ($\alpha = 0.3$, depth 3) | Training accuracy, all 1,200 loans | Cross-validated, 5 folds of the 1,200 loans |
 |---|---|---|
 | 5 | 0.840 | 0.846 ± 0.025 |
 | 10 | 0.888 | 0.870 ± 0.024 |
@@ -1795,6 +1830,11 @@ the size of that drop with the unconstrained single tree of the depth table,
 which lost three points past its own peak - boosting's overfitting is real
 but gentler.
 
+A predictable slip: "30 trees beat the default 100 of the previous slide".
+Reasonable, since 30 is the peak here. But this table uses a learning rate of
+0.3 and the default uses 0.1: two different configurations, not one knob
+turned.
+
 Handout section 10.
 :::
 
@@ -1807,7 +1847,8 @@ Two curves again, the same shape of story as the depth curve earlier this
 lesson but reached by adding trees instead of depth, and the same story as the
 step and the sine wave, with cross-validation in place of the true function.
 The gold dashed line is the noise ceiling: 7% of the labels are flipped, so no
-honest model scores above about 0.93 - a training accuracy of 1.000 means the
+honest model can expect much above about 0.93 on new applicants - a training
+accuracy of 1.000 means the
 flipped labels have been learned by heart. Training reaches 1.000
 by around 200 trees and sits there. Cross-validated accuracy climbs
 quickly, peaks near 30 trees, and drifts down over the following 770.
@@ -1828,7 +1869,7 @@ Handout section 10.
 
 # Fixing 120 trees, varying only the learning rate
 
-| Learning rate $\alpha$ | Training accuracy | Cross-validated accuracy |
+| Learning rate $\alpha$ | Training accuracy, all 1,200 loans | Cross-validated, 5 folds of the 1,200 loans |
 |---|---|---|
 | 0.02 | 0.888 | 0.872 ± 0.025 |
 | 0.05 | 0.914 | 0.897 ± 0.022 |
@@ -1845,8 +1886,8 @@ memorised the training set completely and given back more than two points
 of cross-validated accuracy for it, 0.902 down to 0.878.
 
 The best setting sits in between - large enough to make real progress
-within the tree budget, small enough that any one correction is easy to
-outvote if it turns out to be wrong. Ask the room which direction they'd
+within the tree budget, small enough that any one correction is easy for
+later trees to undo if it turns out to be wrong. Ask the room which direction they'd
 guess is "more regularised" before revealing that it's the *small* $\alpha$
 side, the same kind of inverted-direction trap lesson 6's $C$ was.
 
@@ -1856,7 +1897,7 @@ reasonable - the notes above just said both knobs set the total correction.
 But they are not interchangeable: each tree is fit to what the ensemble
 before it still gets wrong, so many small steps follow a different path from
 a few large ones. A large step overshoots on the noisy labels and the next
-trees spend themselves undoing it; a small step lets later trees outvote an
+trees spend themselves undoing it; a small step lets later trees correct an
 early mistake. The trade-off is real, the equivalence is not.
 
 Handout section 10.
@@ -1890,14 +1931,14 @@ the table is in handout section 10.
 
 # Every method, on the same five folds
 
-| Model | Cross-validated accuracy | ± over the 5 folds |
+| Model, on the 1,200 loans | Cross-validated accuracy | ± over the 5 folds |
 |---|---|---|
 | Majority baseline | 0.613 | |
 | Logistic regression | 0.748 | 0.030 |
 | Single tree, unconstrained | 0.852 | 0.021 |
-| Single tree, `max_depth = 8` | 0.882 | 0.010 |
-| Gradient boosting, 30 trees | 0.897 | 0.020 |
-| Single tree, `max_leaf_nodes = 9` | 0.901 | 0.020 |
+| Single tree, `max_depth = 8` (chosen on these folds) | 0.882 | 0.010 |
+| Gradient boosting, 30 trees (chosen on these folds) | 0.897 | 0.020 |
+| Single tree, nine leaves | 0.901 | 0.020 |
 | Bagging, 100 trees | 0.904 | 0.020 |
 | **Random forest, 100 trees** | **0.911** | 0.018 |
 | *noise ceiling* | *≈ 0.93* | |
@@ -1919,10 +1960,11 @@ nine-leaf tree of slide 25, at 0.901, above gradient boosting and a point
 behind bagging. On this dataset that is no accident - the rule is made of
 axis-aligned rectangles, the shape a few well-placed thresholds draw.
 
-The ceiling itself: 1 minus the 7% of labels deliberately flipped. No
-method reaches it, and none should - a model that classified the flipped
-labels "correctly" would be modelling the noise, not the rule that generated
-the data (slide 5).
+The ceiling itself: 1 minus the 7% of labels deliberately flipped, what the
+rule that generated the data (slide 5) scores on average. No method reaches it
+here, and none should be expected to: a flipped label is a coin toss no model
+can foresee. On five folds a score could land a little above it by luck; far
+above it would point to a bug.
 
 One honest caveat, in lesson 5's terms. The depth of 8 and the 30 boosted
 trees were picked because they scored best on these same five folds, so
@@ -1940,7 +1982,7 @@ Handout section 11.
   other, and a **nine-leaf tree** among them (0.901): one a person can read
 - What the ensembles buy here is **steadiness**: over 30 splits, the nine-leaf
   tree's spread is 0.020, the forest's 0.0137
-- The **unconstrained tree is the worst**, though the most flexible
+- The **unconstrained tree is the worst tree**, though the most flexible
 
 ::: notes
 Read the three findings as a set - together they are this lesson's real
@@ -1997,8 +2039,8 @@ Handout section 11.
 
 - 20 random columns, 2 real ones: over half the importance lands on the
   random ones
-- **The menu**: each split may use 4 of the 22 columns; 4,845 of the 7,315
-  possible sets of 4 hold no real column: two splits in three (0.662)
+- **The menu**: each split may use 4 of the 22 columns;
+  C(20,4) / C(22,4) = 4,845 / 7,315 = 0.662: two splits in three see no real one
 - **Small groups**: with all 22 on offer, noise still takes **28%**: on a
   few applicants deep in a tree, a random column fits a little by chance
 - The check: **permutation importance**
@@ -2028,6 +2070,13 @@ falls from 54.5% to 28%, not to zero. Deep in a tree a node holds a handful of
 applicants, and among twenty columns of random numbers one will almost always
 separate a handful of applicants a little better than income or debt can,
 purely by chance. Every such split credits noise.
+
+A predictable slip: "so 54% of the predictions are decided by noise".
+Reasonable, since a share of importance reads like a share of responsibility.
+But the 54% adds up credit for splits, the impurity gain each bought on the
+training rows; it is not a share of predictions or of accuracy. Permutation
+importance measures that second thing (slide 48), and there the noise columns
+are worth almost nothing.
 
 Most will predict the noise share falls to zero with the full menu, and the
 reasoning is sound as far as it goes - a real feature is now always there to

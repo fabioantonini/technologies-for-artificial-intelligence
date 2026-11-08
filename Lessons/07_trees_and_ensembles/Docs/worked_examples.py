@@ -878,5 +878,40 @@ _sh["debt_ratio"] = np.random.default_rng(3).permutation(_sh["debt_ratio"].to_nu
 same("7.1 accuracy before the shuffle, 0.806", _f20.score(_b20, _yb20), 0.806, tolerance=5e-4)
 same("7.1 after one shuffle of debt ratio, 0.600", _f20.score(_sh, _yb20), 0.600, tolerance=5e-4)
 
+# Review 2 (8 November): the numbers its corrections added.
+# Section 4: the 140 opposite verdicts fall into four groups that do not overlap.
+_inc4, _dr4 = X.loc[_dis, "income_k"].to_numpy(), X.loc[_dis, "debt_ratio"].to_numpy()
+_floor, _ceil = _inc4 < TRUE_INCOME_FLOOR, _dr4 > TRUE_DEBT_CEIL
+same("4 no near-island applicant is in a strip", int((_near & (_floor | _ceil)).sum()), 0, tolerance=0)
+same("4 19 in the two strips", int((_floor | _ceil).sum()), 19, tolerance=0)
+same("4 3 of them in the corner", int((_floor & _ceil).sum()), 3, tolerance=0)
+same("4 16 elsewhere", int((~_near & ~_floor & ~_ceil).sum()), 16, tolerance=0)
+same("4 105 + 19 + 16 = 140", 105 + 19 + 16, 140, tolerance=0)
+# Section 3: how often the rule that generated the data beats 0.93 on 1,200 new
+# applicants - fewer than 84 flips, summed from the binomial terms by hand.
+_p_le_83 = sum(comb(1200, _j) * 0.07 ** _j * 0.93 ** (1200 - _j) for _j in range(84))
+same("3 the rule scores above 0.93 with probability 0.484", _p_le_83, 0.484, tolerance=5e-4)
+same("3 84 flips expected", 0.07 * 1200, 84, tolerance=1e-9)
+_sim = (np.random.default_rng(5).random((20_000, 1200)) < 0.07).sum(axis=1)
+same("3 the same probability by simulation", (_sim <= 83).mean(), 0.484, tolerance=0.01)
+# Section 5.1: a loan in all ten bootstrap samples has no out-of-bag vote.
+same("5.1 no out-of-bag voter with 10 trees, 0.632^10", 0.632 ** 10, 0.0102, tolerance=5e-5)
+same("5.1 exactly, (1 - (1 - 1/1200)^1200)^10", (1 - (1 - 1 / 1200) ** 1200) ** 10, 0.0102, tolerance=5e-5)
+same("5.1 about 12 of the 1,200 loans", 1200 * 0.632 ** 10, 12, tolerance=0.5)
+# Section 2.2: Gini's maximum with C equally frequent classes, by the formula and by brute force.
+same("2.2 three classes reach 1 - 1/3", 1 - 3 * (1 / 3) ** 2, 0.667, tolerance=5e-4)
+same("2.2 the same, from gini() on a balanced three-class group", gini(np.repeat([0, 1, 2], 10)), 0.667, tolerance=5e-4)
+# Section 8: the lowest error against the true function, tree by tree.
+_F = np.full(200, _start); _true_err = []
+for _t in range(1, 61):
+    _F = _F + 0.3 * _DTR(max_depth=2, random_state=0).fit(_xt.reshape(-1, 1), _yt - _F).predict(_xt.reshape(-1, 1))
+    _true_err.append(((_F - _ft) ** 2).mean())
+same("8 the lowest error is at 19 trees", int(np.argmin(_true_err)) + 1, 19, tolerance=0)
+same("8 its value, 0.0116", min(_true_err), 0.0116, tolerance=5e-5)
+same("8 at 20 trees, 0.0119", _true_err[19], 0.0119, tolerance=5e-5)
+# Section 7 / slide 65: the menu's two counts.
+same("7 C(20,4)", comb(20, 4), 4845, tolerance=0)
+same("7 C(22,4)", comb(22, 4), 7315, tolerance=0)
+
 print(f"{checks} numbers recomputed from raw inputs and confirmed against "
       f"{HANDOUT}.")

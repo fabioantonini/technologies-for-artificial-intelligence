@@ -5,7 +5,7 @@ ratio — where an underwriting checklist with a couple of "stressed"
 combinations gave the ensembles a clear, consistent edge over any single
 tree. This module gives you **two different products from the same lender**,
 built the same way (a rule, applied, then 7% of labels flipped to stand in
-for outcomes the two on-file features cannot explain — a job loss, a client
+for outcomes the on-file features cannot explain — a job loss, a client
 who pays late for reasons that have nothing to do with revenue). The two
 products are underwritten by completely different logic, and that
 difference is the entire exercise.

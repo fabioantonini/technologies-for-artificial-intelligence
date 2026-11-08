@@ -73,8 +73,9 @@ def load_loans(n_samples: int = 1_200, random_state: int = RANDOM_STATE):
     Returns (X, y) with X a DataFrame of ``income_k`` (thousands of euros a
     year, 20 to 100) and ``debt_ratio`` (0 to 1). About 39% of applicants
     default; the healthy region is most of the plane and the risky region is
-    four disconnected patches — a floor, a ceiling, and two stressed islands
-    in between — so no single straight line separates the classes.
+    three separate regions — one L-shaped band where the income floor meets the
+    debt ceiling, and two stressed islands in between — so no single straight
+    line separates the classes.
     """
     rng = np.random.default_rng(random_state)
     income = rng.uniform(20.0, 100.0, n_samples)

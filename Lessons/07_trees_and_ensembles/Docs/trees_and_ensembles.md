@@ -237,7 +237,10 @@ $G = 1 - (0.939^2 + 0.061^2) = 1 - 0.885 = 0.115$: nearly pure. For two
 classes this simplifies to $2p(1-p)$: expand $(1-p)^2$ as $1 - 2p + p^2$, and
 the two $p^2$ terms and the two $1$s cancel, leaving
 $G = 1 - p^2 - (1 - 2p + p^2) = 2p - 2p^2$. It is $0$ when the group is pure
-($p \in \{0, 1\}$) and maximal, $0.5$, at $p = 0.5$.
+($p \in \{0, 1\}$) and maximal, $0.5$, at $p = 0.5$. **A predictable mistake:**
+"Gini never exceeds 0.5." Reasonable, since every group in this lesson has two
+classes. But 0.5 is the two-class maximum; with $C$ equally frequent classes
+$G = 1 - C \times (1/C)^2 = 1 - 1/C$, so three classes reach 0.667.
 
 **What that number is, exactly.** $G$ is not a probability of
 misclassification. It is the probability that two examples drawn at random
@@ -255,7 +258,8 @@ A pure group cannot disagree with itself, which is why $G = 0$ there.
 statistician and the first president, in 1926, of the Istituto Centrale di
 Statistica, the body that became ISTAT. $1 - \sum_c p_c^2$ is his index of
 heterogeneity ("mutabilità", 1912); Breiman, Friedman, Olshen and Stone made it
-the splitting criterion of their CART trees in 1984, and scikit-learn kept it.
+the splitting criterion of their Classification and Regression Trees
+(CART) in 1984, and scikit-learn kept it.
 It is not the Gini coefficient of income inequality, his better-known index —
 the same man, a different quantity.
 
@@ -307,7 +311,9 @@ pure in "default": $2p(1-p)$ does not ask which class is common.
 **Worked example.** On the full 1,200 applicants, $p = 0.387$ defaulted, so
 $G(\text{parent}) = 2 \times 0.387 \times 0.613 = 0.474$. The best root split
 found by exhaustive search is `debt_ratio <= 0.82` — recognisably the debt
-ceiling the data was built with — and the from-scratch implementation below
+ceiling the data was built with, though the tree does not know that rule: it
+takes the midpoint of two neighbouring debt values in the data, 0.8198 and
+0.8205, which rounds to the same 0.82 — and the from-scratch implementation below
 confirms this is exactly the split scikit-learn's `DecisionTreeClassifier`
 also finds. More than that: at every depth tested the two make the same
 prediction for every one of the 1,200 applicants. The check runs on the
@@ -414,8 +420,8 @@ confidence interval.
 
 *Training accuracy climbs monotonically towards 1.000. Cross-validated
 accuracy rises, peaks at depth 8, and then falls back — even though the
-model keeps getting more flexible. Past the peak, every extra split is
-spent fitting some of the 7% of labels this dataset deliberately flips,
+model keeps getting more flexible. Past the peak, more and more of each extra
+split is spent fitting the 7% of labels this dataset deliberately flips,
 and a flipped label has no pattern to learn; a tree that classifies it
 "correctly" on the training set has memorised it, not generalised. The shaded
 band is ± one standard deviation across the five folds; "20" on the axis stands
@@ -430,12 +436,17 @@ prediction made from one person's label, lesson 6's $k = 1$. *The line at
 because 85 were flipped. A training accuracy above that line means the tree
 agrees with the labels better than the truth does, so it must be reproducing
 flipped labels: depth 8 is just past it at 0.951, and the unconstrained tree
-has learned all 85. The ceiling (the gold line) is the best a model can expect
-on *new* applicants, whose flipped labels it cannot know; on its own training
-data it can do better by memorising, which is why the training curve crosses
-the line and the cross-validated one never does. **A predictable mistake** is
-to read a training score above the ceiling as a bug: impossible on new data,
-expected on training data.
+has learned all 85. The ceiling (the gold line) is what a model can expect, on
+average, on *new* applicants, whose flipped labels it cannot know; on its own
+training data it can do far better by memorising, which is why the training
+curve crosses the line and the cross-validated one does not. **A predictable
+mistake** is to read a training score above the ceiling as a bug. On training
+data it is expected. On new data 0.93 is an average, not a wall: the number of
+flipped labels in a test set varies, so even the rule that generated the data
+scores above 0.93 on about half of all possible sets of 1,200 new applicants
+(it needs 83 flips or fewer, where 84 are expected: probability 0.484). A score
+a little above the ceiling on new data can be luck; one far above it, or above
+it on every split, is a bug.
 
 Read the two columns against each other, never in isolation. The peak sits
 at depth 8 — deep enough to isolate both stressed islands, shallow enough to
@@ -521,12 +532,19 @@ which sample the bank happened to train on.
 *The two trees' boundaries and, right, the 140 applicants they disagree on.
 Look at where the gold points sit: three in four in or right next to the two
 islands (105 of 140 within 4 thousand euros of income and 0.05 of debt ratio of
-them, 75 inside), where each split was decided by a few dozen applicants; the rest
-along the edges of the two strips, 11 below the income floor and 11 above the
-debt ceiling.* The root split is stable because the signal behind it is
+them, 75 inside), where each split was decided by a few dozen applicants; of the other 35,
+19 lie in the two strips (11 below the income floor, 11 above the debt
+ceiling, 3 of them in the corner where both apply) and 16 elsewhere.* The root split is stable because the signal behind it is
 unambiguous and every applicant of the sample is behind it; the splits below
 it, each supported by far fewer points, are not, and they are most of the
 tree: 31 leaves mean 30 questions, one at the root and 29 below it.
+
+**A predictable mistake:** "two trees disagree on 11.7% of the applicants, so
+each tree is wrong on 11.7%". Reasonable, since a disagreement and an error both
+mean a verdict that differs from something. But a disagreement compares the two
+trees with each other, not with the labels: on each of the 140 applicants
+exactly one of the two is right, and elsewhere both can be right or both wrong.
+Disagreement measures instability; accuracy needs the labels.
 
 A single tree's instability looks like a flaw. It is the raw material
 sections 5–8 turn into a strength.
@@ -543,7 +561,8 @@ and combined by a vote, should have mistakes that partly cancel. That is
 
 > Draw a bootstrap sample: $m$ rows chosen **with replacement** from the $m$
 > training rows, so some appear more than once and some not at all. Fit a
-> fully grown tree to it. Repeat `n_estimators` times. To predict, ask every
+> tree to it — in this lesson a fully grown one, though bagging itself works
+> with any tree, or any model. Repeat `n_estimators` times. To predict, ask every
 > tree and take the majority vote.
 
 *A note of history:* bagging is Leo Breiman's, published in 1996 as "Bagging
@@ -663,20 +682,20 @@ But out-of-bag is decided tree by tree: a row is missing from *this* tree's
 sample, and the other trees, about 63% of them, do see it. It is a training row
 like any other. That is exactly what makes out-of-bag validation free, below.
 
-**How often is a row drawn exactly $k$ times?** The same counting answers it.
-A row is drawn exactly $k$ times when $k$ of the $m$ draws pick it and the
-other $m - k$ miss it. There are $\binom{m}{k}$ ways to choose which $k$ draws
-pick it; each of those $k$ picks it with probability $1/m$, and each of the
-other $m - k$ misses it with probability $1 - 1/m$:
+**How often is a row drawn exactly $r$ times?** The same counting answers it.
+A row is drawn exactly $r$ times when $r$ of the $m$ draws pick it and the
+other $m - r$ miss it. There are $\binom{m}{r}$ ways to choose which $r$ draws
+pick it; each of those $r$ picks it with probability $1/m$, and each of the
+other $m - r$ misses it with probability $1 - 1/m$:
 
-$$P(k) = \binom{m}{k}\left(\frac{1}{m}\right)^k\left(1 - \frac{1}{m}\right)^{m-k}$$
+$$P(r) = \binom{m}{r}\left(\frac{1}{m}\right)^r\left(1 - \frac{1}{m}\right)^{m-r}$$
 
 For large $m$ two things happen. First,
-$\binom{m}{k}/m^k = \frac{m(m-1)\cdots(m-k+1)}{k!\,m^k}$ tends to $1/k!$,
-because each of the $k$ factors $m, m-1, \ldots$ divided by $m$ tends to 1.
-Second, $(1 - 1/m)^{m-k}$ tends to $e^{-1}$, as above. So
+$\binom{m}{r}/m^r = \frac{m(m-1)\cdots(m-r+1)}{r!\,m^r}$ tends to $1/r!$,
+because each of the $r$ factors $m, m-1, \ldots$ divided by $m$ tends to 1.
+Second, $(1 - 1/m)^{m-r}$ tends to $e^{-1}$, as above. So
 
-$$P(k) \xrightarrow{m \to \infty} \frac{e^{-1}}{k!}$$
+$$P(r) \xrightarrow{m \to \infty} \frac{e^{-1}}{r!}$$
 
 Why "once" is as common as "never" has a picture: throw 1,200 balls at random
 into 1,200 boxes, one ball per box on average, and there are about as many
@@ -690,9 +709,9 @@ differ only in the exponent, one factor $1 - 1/1{,}200 = 0.9992$, so
 $P(1)/P(0) = 1{,}200/1{,}199$. The reason is that each row is drawn once on
 average; with 2,400 draws, "once" would be twice as likely as "never".
 
-In words: $k = 0$ leaves nothing to choose, so $P(0) = e^{-1}$, the out-of-bag
-share. $k = 1$ has $m$ choices, each worth $1/m$, so $P(1) = 1 \times e^{-1}$
-too — a row is drawn once exactly as often as never. $k = 2$ has
+In words: $r = 0$ leaves nothing to choose, so $P(0) = e^{-1}$, the out-of-bag
+share. $r = 1$ has $m$ choices, each worth $1/m$, so $P(1) = 1 \times e^{-1}$
+too — a row is drawn once exactly as often as never. $r = 2$ has
 $m(m-1)/2$ pairs, each worth $1/m^2$, which is about $\tfrac{1}{2}$ (at
 $m = 1{,}200$, $\binom{1200}{2}/1200^2 = 0.4996$), so $P(2) \approx e^{-1}/2$.
 This is the **Poisson distribution with mean 1**, the limit of $m$ draws each
@@ -703,7 +722,7 @@ sur la probabilité des jugements en matière criminelle et en matière civile* 
 a study of how often juries convict, where it appears as the limit of many
 trials each with a small chance.
 
-| $k$ | Exact at $m = 1{,}200$: $\binom{m}{k}(1/m)^k(1-1/m)^{m-k}$ | Limit: $e^{-1}/k!$ | One sample (notebook 2): loans drawn $k$ times $\div$ 1,200 |
+| $r$ | Exact at $m = 1{,}200$: $\binom{m}{r}(1/m)^r(1-1/m)^{m-r}$ | Limit: $e^{-1}/r!$ | One sample (notebook 2): loans drawn $r$ times $\div$ 1,200 |
 |---|---|---|---|
 | 0 | 0.3677 | $0.3679 \div 1 = 0.3679$ | 0.366 |
 | 1 | 0.3680 | $0.3679 \div 1 = 0.3679$ | 0.382 |
@@ -718,9 +737,9 @@ one row in four.
 
 ![](bootstrap_counts.png)
 
-*Each pair of bars is one value of $k$, the number of times a loan is drawn
+*Each pair of bars is one value of $r$, the number of times a loan is drawn
 into the sample; a bar's height is the share of the 1,200 loans drawn exactly
-$k$ times — blue in one real sample, gold the theory for large $m$. The $k = 0$
+$r$ times — blue in one real sample, gold the theory for large $m$. The $r = 0$
 bars are the out-of-bag loans. About one loan in four is drawn two or more
 times, and that mix of repeats and absences is what makes each tree different
 from its neighbour.*
@@ -738,7 +757,9 @@ on it. Gold: the tree never saw the loan, and its vote is shown, D for
 defaulted, R for repaid. The out-of-bag verdict is the majority of the gold
 votes (an exact tie goes to "repaid", the first class, as in scikit-learn); the
 OOB score is the share of loans, out of all 1,200, where it matches the true
-label.*
+label. With only ten trees a loan can sit in every sample and have no gold vote
+at all: the chance is $0.632^{10} = 0.0102$, about 12 of the 1,200 loans. That
+is why the real computation, next, uses 300 trees.*
 
 At full size, notebook 2 fits 300 bagged trees on all 1,200 loans, with no
 split. Each loan is judged by the trees that never saw it — 110.5 of the 300 on
@@ -855,7 +876,11 @@ from about 50 trees on.
 applicants on which two models, trained on two different sets, give different
 verdicts, for an ensemble of the first 1 to 99 trees. It falls fast and stops
 above zero: what is left is shared by every tree, because every tree grew from
-the same 1,200 loans.*
+the same 1,200 loans.* **A predictable mistake:** "where the curve goes flat,
+the ensemble stops making errors". Reasonable, since a falling curve that
+levels off looks like a model converging. But the vertical axis counts changed
+verdicts between two training sets, not wrong verdicts: the floor is a floor
+of instability, and the ensemble is still wrong on about one applicant in ten.
 
 ![](variance_floor.png)
 
@@ -1029,7 +1054,12 @@ curse of dimensionality, though the mechanism is different — and, more
 strikingly, an increasing share of the forest's own importance scores lands
 on columns that are `np.random.normal` noise by construction, wired to
 nothing. **With 20 pure-noise columns against 2 real features, 54% of the
-forest's importance mass sits on noise.**
+forest's importance mass sits on noise.** **A predictable mistake:** "so 54% of
+the forest's predictions are decided by noise". Reasonable, since a share of
+importance reads like a share of responsibility. But the 54% adds up credit for
+splits, the impurity gain each split bought on the training rows; it is not a
+share of predictions or of accuracy. Section 7.1 measures that second thing,
+and there the noise columns are worth almost nothing.
 
 Two things hand credit to noise, and they are worth taking in order.
 
@@ -1215,8 +1245,9 @@ the start, the mean 2.287. One tree barely moves it — the gold curve is the
 start plus 0.3 times tree 1: $2.287 - 0.274 = 2.01$ on the left,
 $2.287 + 0.290 = 2.58$ in the middle, $2.287 - 0.151 = 2.14$ on the right
 (mean squared error, MSE, against the true function: 0.395). Five trees sketch the coarse shape (MSE 0.068). Twenty trace the
-step function closely, oscillation included (MSE 0.012) — the ensemble's
-best point. By sixty trees the ensemble is tracking individual noisy
+step function closely, oscillation included (MSE 0.012) — the best of the
+four shown; counted tree by tree, the lowest is at 19 trees, 0.0116 against
+0.0119 at 20. By sixty trees the ensemble is tracking individual noisy
 observations as well as the underlying shape, and the error against the
 (noise-free) truth has risen back to 0.018: the same overfitting story as
 section 3's unconstrained tree, reached by a different route — not one tree
@@ -1235,8 +1266,10 @@ the truth:
 
 The training error keeps falling; the error against the truth turns up after 20
 trees. The noise added to the points has variance $0.25^2 = 0.0625$, and from 20
-trees on the training error is below it — which a model can only achieve by
-learning the noise itself. With real data the truth is unknown, and section 10
+trees on the training error is below it — a sign that the model has started
+to learn the noise itself, though not a proof, since the 200 noise values have
+a sample variance of their own. The proof is the last column: the error against
+the true function, which the model never sees, turns up after 20 trees. With real data the truth is unknown, and section 10
 puts cross-validation in its place.
 
 ---
@@ -1289,7 +1322,10 @@ this lesson depends on it.
 
 A default `GradientBoostingClassifier` — 100 trees, learning rate 0.1 —
 reaches **0.902 ± 0.020** cross-validated accuracy on the loan data,
-already ahead of any single tree.
+already ahead of any single tree. **A predictable mistake**, once section 10
+is read: "30 trees beat the default 100". Reasonable, since 30 is the peak there
+and 100 is the default here. But section 10 uses a learning rate of 0.3 and the
+default uses 0.1: two different configurations, not one knob turned.
 
 ---
 
@@ -1318,8 +1354,8 @@ show in the table.
 *Training accuracy reaches 1.000 by 200 trees and stays there — the same
 ceiling section 3's unconstrained tree reached in one step, here approached
 gradually. The gold dashed line is the noise ceiling: with 7% of the labels
-flipped, no honest model scores above about 0.93, so a training accuracy of
-1.000 means the flipped labels have been learned by heart. Cross-validated accuracy climbs quickly, peaks around 30 trees,
+flipped, no honest model can expect much above about 0.93 on new applicants,
+so a training accuracy of 1.000 means the flipped labels have been learned by heart. Cross-validated accuracy climbs quickly, peaks around 30 trees,
 and drifts down by roughly a point over the following 770 trees.*
 
 The overfitting is real but **gentler** than a single unconstrained tree's:
@@ -1351,7 +1387,8 @@ training accuracy is still under 0.89. A learning rate of 1.0 has memorised
 the training set completely (1.000) and given back more than two points of
 cross-validated accuracy for it, 0.902 down to 0.878. The best setting sits in between: large
 enough to make real progress within the tree budget, small enough to leave
-each individual correction easy to outvote if it turns out to be wrong.
+each individual correction easy for later trees to undo if it turns out to
+be wrong.
 
 **A predictable mistake, and why it is reasonable.** "Only $\alpha$ times the
 number of trees matters, so half the learning rate with twice the trees gives
@@ -1360,7 +1397,7 @@ total correction, so the shortcut is natural. But they are not
 interchangeable: each tree is fit to what the ensemble before it still gets
 wrong, so many small steps follow a different path from a few large ones. A
 large step overshoots on the noisy labels and the next trees spend themselves
-undoing it; a small one lets later trees outvote an early mistake. The
+undoing it; a small one lets later trees correct an early mistake. The
 trade-off is real; the equivalence is not.
 
 ---
@@ -1381,9 +1418,11 @@ third column is the standard deviation of the five fold scores:
 | Bagging, 100 trees | 0.904 | 0.020 |
 | **Random forest, 100 trees** | **0.911** | 0.018 |
 
-*Noise ceiling: 0.93 (1 − the 7% deliberately flipped labels). No method
-reaches it, and none should — a model that classified the flipped labels
-"correctly" would be modelling the noise, not the rule that generated the data.*
+*Noise ceiling: 0.93 (1 − the 7% deliberately flipped labels), what the rule
+that generated the data scores on average. No method reaches it here, and none
+should be expected to: a flipped label is a coin toss no model can foresee. On a
+finite test set a score can land a little above it by luck; far above it would
+point to a bug.*
 
 Three findings, read together, are this lesson's real content. First, on this
 dataset the ensembles — bagging, the random forest, gradient boosting — land
@@ -1397,7 +1436,7 @@ On data whose rule is a handful of axis-aligned rectangles, a small tree is
 nearly enough; what the ensembles buy here is less a higher score than a
 steadier one. On the same 30 random splits as section 5.2, the nine-leaf tree
 averages 0.897 with a standard deviation of 0.020, the random forest 0.908 with
-0.0137; section 4 showed where a single tree's verdicts change. Third, the unconstrained tree is the worst model on this list
+0.0137; section 4 showed where a single tree's verdicts change. Third, the unconstrained tree is the worst tree on this list
 despite being, in a narrow sense, the most flexible one: flexibility without
 a stopping rule is not an advantage, a point this course has now made with
 several different methods.
