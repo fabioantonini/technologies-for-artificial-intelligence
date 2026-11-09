@@ -22,8 +22,8 @@ name for an algorithm. → § 2.1
 feature — which is why every feature must be on a comparable scale before it is
 used. → § 2.1
 
-**k as the bias-variance dial.** Small $k$ follows every point including the
-mislabelled ones; large $k$ smooths until it stops following real structure. At
+**k as the bias-variance dial.** Small $k$ follows every point including those
+with flipped labels; large $k$ smooths until it stops following real structure. At
 $k=1$ the training accuracy is exactly 1 on any dataset. → § 2.2
 
 **Prediction cost.** No training time, paid back at every prediction: a naive
@@ -149,8 +149,8 @@ falling with distance; an infinite-dimensional space for one exponential. → §
 learning rate; a prediction is the support vectors' similarity-weighted vote. → § 5.5
 
 **$\gamma$.** How far a single training point's influence reaches. Large $\gamma$
-lets the boundary dissolve into islands around individual points, including the
-mislabelled ones. → § 5.6
+lets the boundary dissolve into islands around individual points, including those
+with flipped labels. → § 5.6
 
 
 ## Choosing

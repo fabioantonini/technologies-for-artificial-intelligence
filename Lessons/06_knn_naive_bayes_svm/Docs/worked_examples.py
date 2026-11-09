@@ -546,4 +546,38 @@ same("5.5 their net vote", vote[~near].sum(), -0.363, tolerance=5e-4)
 top5 = np.argsort(-sim)[:5]
 same("5.5 the five nearest disagree", float(len(set(np.sign(vote[top5])))), 2.0, tolerance=0)
 
+# ------------------------------------------- Section 1.1 and 2.1, the setup
+
+# Every stratified fold holds the same share of faulty pumps, so a model that
+# calls every pump faulty scores the same on each.
+from sklearn.model_selection import StratifiedKFold
+
+for _, held_out in StratifiedKFold(5, shuffle=True, random_state=0).split(X, y):
+    same("1.1 faulty pumps per fold", int(y.iloc[held_out].sum()), 147, tolerance=0)
+    same("1.1 pumps per fold", len(held_out), 240, tolerance=0)
+same("1.1 calling all faulty, per fold", 147 / 240, 0.6125, tolerance=1e-9)
+
+# The two readings' ranges, from the raw rows.
+same("2.1 vibration range, Hz", X["vibration_hz"].max() - X["vibration_hz"].min(),
+     18, tolerance=0.1)
+same("2.1 pressure range, bar", X["pressure_bar"].max() - X["pressure_bar"].min(),
+     2.3, tolerance=0.01)
+
+# ------------------------------------------- Section 3.1, Checks: a random vote
+
+# A vote of 15 pumps drawn at random, by the binomial formula and, as a second
+# route, by drawing the votes.
+from math import comb
+
+p_faulty = (y == 1).sum() / len(y)
+says_faulty = sum(comb(15, j) * p_faulty ** j * (1 - p_faulty) ** (15 - j)
+                  for j in range(8, 16))
+same("3.1 P(a random vote of 15 says faulty)", says_faulty, 0.815, tolerance=5e-4)
+random_accuracy = p_faulty * says_faulty + (1 - p_faulty) * (1 - says_faulty)
+same("3.1 accuracy of a random vote", random_accuracy, 0.571, tolerance=5e-4)
+draws = np.random.default_rng(11).random((200_000, 15)) < p_faulty
+vote = draws.sum(axis=1) >= 8
+truth = np.random.default_rng(12).random(200_000) < p_faulty
+same("3.1 ...and by drawing the votes", (vote == truth).mean(), 0.571, tolerance=5e-3)
+
 print(f"lesson 6: {checks} hand-worked numbers recomputed, all agree")

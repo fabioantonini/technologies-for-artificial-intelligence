@@ -45,8 +45,11 @@ them are the content of the lesson.
 ### 1.1 The dataset, and the point it makes immediately
 
 1,200 industrial pumps, two readings each: vibration in Hz and pressure in bar.
-A pump has a design operating envelope, and it is **faulty when its readings
-fall outside that envelope — whether too low or too high**.
+A pump is **faulty when its two readings, taken together, are too far from the
+design point, 42 Hz and 5.6 bar — whether too low or too high**. Each reading is
+measured against its own scale, 3.5 Hz for vibration and 0.45 bar for pressure,
+and the pump is faulty when the combined distance is more than 1: the boundary,
+the design envelope, is an ellipse, not two separate ranges.
 
 That one physical fact decides everything that follows. The healthy pumps form a
 disc around the design point; the faulty ones form the annulus around them.
@@ -62,16 +65,18 @@ it is the number to compare every score below against.
 
 Before building anything, it is worth measuring what a straight boundary costs:
 
-| Model | Cross-validated accuracy |
+| Model | Cross-validated accuracy, mean ± standard deviation over 5 folds |
 |---|---|
 | Always predict the majority class | 0.613 |
 | Logistic regression (lesson 4) | **0.613 ± 0.000** |
 
 **Logistic regression has not been narrowly beaten. It has learned nothing at
-all**, and it predicts "faulty" for every pump because with a straight boundary
-that is genuinely its best available answer. The zero standard deviation across
-folds is the giveaway: a model that gives everything the same answer is
-perfectly consistent.
+all**, and it predicts "faulty" for every one of the 1,200 pumps because with a
+straight boundary that is genuinely its best available answer; its probability of
+"faulty" runs only from 0.579 to 0.641. The zero standard deviation across folds
+is the giveaway. The folds are stratified, so each holds 147 faulty pumps of 240,
+and calling every pump faulty scores 147 / 240 = 0.6125 on all five: a model that
+gives everything the same answer is perfectly consistent.
 
 ---
 
@@ -79,11 +84,15 @@ perfectly consistent.
 
 ### 2.1 The whole algorithm
 
-> To classify a new point, find the $k$ training points closest to it, and take
+> To classify a new point, find the $k$ stored points closest to it, and take
 > the majority vote.
 
 There is no training step. "Fitting" means storing the data, which is why k-NN
 is called a **lazy learner**: all the work waits until a prediction is asked for.
+With a scaler in the pipeline, fitting also computes each column's mean and
+standard deviation — the only numbers estimated. The stored pumps are still
+called the *training* pumps, and the accuracy on them the *training accuracy*,
+because those are the names used everywhere.
 
 *A note of history.* The method was described by Evelyn Fix and Joseph Hodges
 in a 1951 report for the US Air Force; Thomas Cover and Peter Hart analysed its
@@ -91,10 +100,12 @@ error in 1967.
 
 ![](knn_one_vote.png)
 
-*One prediction, drawn (notebook 1, section 2): the 900 training pumps,
+*One prediction, drawn (notebook 1, section 2): the 900 stored pumps,
 standardised, and a new pump at 46 Hz and 5.8 bar, the star. Look at the right
 panel: the five closest pumps are circled in their class colour, four faulty and
-one healthy, so the vote says faulty.*
+one healthy, so the vote says faulty. The healthy one is a flipped label: at
+46.6 Hz and 5.83 bar it is faulty by the rule that generated the data, as the
+notebook prints.*
 
 Two decisions hide in that sentence, and both matter.
 
@@ -103,9 +114,9 @@ Two decisions hide in that sentence, and both matter.
 $$d(x, x') = \sqrt{\sum_{j=1}^{n} (x_j - x'_j)^2}$$
 
 Because every feature contributes to that sum through its own units, the
-features must be on comparable scales. Vibration ranges over tens of Hz and
-pressure over a couple of bar, so without scaling vibration would decide every
-neighbour by itself. Lesson 2's scaling argument arrives here with immediate
+features must be on comparable scales. Vibration runs from 33 to 51 Hz, a range
+of 18 Hz, and pressure from 4.5 to 6.8 bar, a range of 2.3 bar, so without scaling
+vibration would decide every neighbour by itself. Lesson 2's scaling argument arrives here with immediate
 consequences rather than as hygiene.
 
 **What $k$ is.** Section 2.2.
@@ -115,25 +126,30 @@ consequences rather than as hygiene.
 Lesson 5 decomposed error into bias and variance. In k-NN you can watch the
 trade-off directly by turning one integer.
 
-**Small $k$** — the boundary follows every point, including mislabelled ones.
-Low bias, high variance. At $k = 1$ the training accuracy is **exactly 1.000**,
-always, on any dataset: every point is its own nearest neighbour. That is the
+**Small $k$** — the boundary follows every point, including those with flipped labels.
+Low bias, high variance. At $k = 1$ the training accuracy is **exactly 1.000**
+on any dataset where no two training points have identical readings and
+different labels: every point is its own nearest neighbour, at distance zero. That is the
 purest illustration of lesson 5's point that a training score measures nothing.
 
-**Large $k$** — the vote is taken over a wide neighbourhood, so the boundary
-smooths and eventually stops following real structure. High bias, low variance.
+**Large $k$** — the vote reaches pumps across the edge of the envelope, and near
+the edge the larger class wins: the boundary smooths and eventually stops
+following real structure. High bias, low variance.
 
-Measured on the pumps:
+Measured on the pumps, with the same five stratified folds of 240 for both
+columns. The cross-validated score fits the scaler and k-NN on 960 pumps and
+scores the 240 held out; the training score is measured in the same rounds, on
+the 960 pumps the model stores, and averaged over the five folds:
 
-| $k$ | Training | Cross-validated |
+| $k$ | Training (each fold's 960) | Cross-validated |
 |---|---|---|
 | 1 | **1.000** | 0.912 |
-| 3 | 0.957 | 0.941 |
-| 5 | 0.953 | **0.944** |
-| 15 | 0.948 | 0.938 |
-| 51 | 0.940 | 0.933 |
-| 201 | 0.899 | 0.881 |
-| 401 | 0.828 | 0.708 |
+| 3 | 0.956 | 0.941 |
+| 5 | 0.954 | **0.944** |
+| 15 | 0.944 | 0.938 |
+| 51 | 0.941 | 0.933 |
+| 201 | 0.882 | 0.881 |
+| 401 | 0.713 | 0.708 |
 
 ![](knn_choosing_k.png)
 
@@ -147,15 +163,17 @@ the flipped labels and narrow enough to still follow the boundary.
 ![](knn_boundaries.png)
 
 *The same data at three values of k. At k = 1 the boundary is ragged, with
-islands around individual mislabelled points. At k = 15 it is a clean disc,
-close to the envelope that generated the data. At k = 401 it has **inflated**
+islands around individual pumps with flipped labels. At k = 15 it is a clean
+ellipse, close to the envelope that generated the data, 42 ± 3.5 Hz by
+5.6 ± 0.45 bar. At k = 401 it has **inflated**
 past the true envelope and swallows faulty pumps — it has not collapsed to one
 class, it has stopped following the boundary and started averaging over it.*
 
 ### 2.3 What it costs
 
-No training time at all, and you pay at every prediction instead. A naive
-implementation compares the query against **every** training point:
+No training time at all — storing the pumps costs nothing — and you pay at
+every prediction instead. A naive implementation compares the query against
+**every** stored point:
 
 $$O(mn) \text{ per prediction, for } m \text{ training rows and } n \text{ features}$$
 
@@ -177,8 +195,8 @@ lesson 2's.
 k-NN just solved a problem that defeated logistic regression completely. Here is
 the price.
 
-Add columns of **pure noise** — drawn from a normal distribution, unrelated to
-anything. The two real readings are untouched, so the problem is exactly as
+Add columns of **pure noise** — drawn from a normal distribution with mean 0
+and standard deviation 1, unrelated to anything. The two real readings are untouched, so the problem is exactly as
 solvable as before. Only the number of columns changes.
 
 ![](noise_experiment.png)
@@ -205,13 +223,34 @@ computations explode.
 sufficient. But by fifty noise columns, k-NN is below the majority baseline: a
 model that ignored the data entirely would now do better.
 
+**Checks: why below the baseline, and not just down to it.** With 50 noise
+columns the 15 "nearest" pumps are close to 15 pumps taken at random (Section
+3.2). Take that literally. A random pump is faulty with probability
+$p = 735/1{,}200 = 0.6125$, so the vote of 15 random pumps says "faulty" when at
+least 8 of them are faulty:
+
+$$P(\text{vote says faulty}) = \sum_{j=8}^{15} \binom{15}{j}\, p^{j} (1 - p)^{15 - j} = 0.815$$
+
+The vote ignores the pump being classified, so it is right when it says
+"faulty" to a faulty pump or "healthy" to a healthy one:
+
+$$\text{accuracy} = 0.6125 \times 0.815 + 0.3875 \times (1 - 0.815)
+  = 0.499 + 0.072 = 0.571$$
+
+against 0.578 measured at 102 columns. The vote still says "healthy" 18.5% of the
+time, for no reason, and those answers are right only as often as healthy pumps
+occur; always saying "faulty" never makes that mistake, which is why a random
+vote lands below the 0.613 baseline.
+
 ### 3.2 Why: distances stop varying
 
 The mechanism is geometry, not statistics, and it has nothing to do with k-NN
 specifically.
 
-**The picture first.** Scatter points uniformly in a cube, pick one, and measure
-the distance to its nearest neighbour and to its farthest. In two dimensions
+**The picture first.** This is a separate experiment, with no pumps and no
+labels. Scatter points uniformly in a cube with $n$ columns, each uniform on
+$[0, 1]$ (a square for $n = 2$, an ordinary cube for $n = 3$), pick one, and
+measure the distance to its nearest neighbour and to its farthest. In two dimensions
 those are very different numbers, and that difference is exactly what makes
 "nearest" a meaningful word.
 
@@ -271,7 +310,7 @@ farthest among them included. Squeeze the distribution against its own centre
 and those two are squeezed together with it, so the ratio of the smaller to the
 larger is pushed towards 1:
 
-| Dimensions | nearest ÷ farthest |
+| Dimensions $n$ | nearest ÷ farthest, mean over 60 new points against 1,000 |
 |---|---|
 | 2 | 0.016 |
 | 10 | 0.263 |
@@ -281,15 +320,18 @@ larger is pushed towards 1:
 
 ![](distance_concentration.png)
 
-*As dimensions grow, the nearest point stops being near. The ratio climbs
-towards 1, where every point is the same distance from every other.*
+*As the number of random columns grows, the nearest point stops being near.
+Each point is the mean over 60 new points, each measured against the same 1,000.
+The ratio climbs towards 1, where every point is the same distance from every
+other.*
 
 **In two dimensions the nearest point is about 2% as far away as the farthest.**
 "Nearest" is a strong claim.
 
 **In one hundred dimensions it is 70% as far away as the farthest.** The nearest
-point is barely nearer than a random one, and a vote among "the five nearest" is
-close to a vote among five taken at random.
+point is barely nearer than a random one. Back to the pumps: a vote among the 15
+nearest is close to a vote among 15 taken at random, which is the Checks
+paragraph of Section 3.1.
 
 ### 3.3 What the curse is, and is not
 
@@ -305,7 +347,28 @@ because they might help is good practice with a linear model, where an
 irrelevant feature costs you a coefficient near zero and very little else. With
 k-NN it costs you a dimension in the distance, and dimensions are what the
 method is made of. The same habit, transferred one lesson later, does real
-damage.
+damage. (The linear model's "coefficient near zero" has a condition too: many
+more examples than columns, as here, 1,200 against 102. With few examples even a
+linear model overfits noise columns, which is why lesson 3 regularised.)
+
+**The fix, and the trap in it.** Choose the columns before any distance is
+computed, as a step inside the pipeline, so that each fold chooses on its own
+training part only (lesson 5). The obvious tool fails here. Measured on 52
+columns (2 real, 50 noise), k-NN with $k = 15$, the same five folds (notebook 1,
+section 5):
+
+| Columns kept | Cross-validated accuracy |
+|---|---|
+| all 52, no selection | 0.602 |
+| `SelectKBest(f_classif, k=2)`: two noise columns | 0.562 |
+| `SelectKBest(mutual_info_classif, k=2)`: vibration and pressure | **0.938** |
+
+`f_classif` scores a column by how far apart the class means are, and on the
+ring the healthy and faulty pumps have almost the same mean vibration and
+pressure (Section 4.2 measures them), so it ranks two noise columns first and
+does worse than no selection. `mutual_info_classif` detects any dependence
+between a column and the label, not only a shift of the mean, keeps the two real
+readings and gets back the score without noise.
 
 ---
 
@@ -1171,8 +1234,8 @@ Read them together, as lesson 5 taught.*
 
 The last row has the **highest training score and the lowest honest one** — the
 signature of overfitting, and here it is visible as well as measurable: the
-boundary has broken into bubbles around individual points, including the
-mislabelled ones.
+boundary has broken into bubbles around individual points, including those
+with flipped labels.
 
 Choosing between these three on the training score would select the worst model
 with complete confidence.

@@ -31,21 +31,21 @@ ones in a central blob and the faulty ones surrounding it.
    for every pump.
 3. **k-NN written out in eight lines**, agreeing with scikit-learn on **100% of the
    test points**, accuracy 0.937. Then **one prediction, drawn**: a new pump at 46 Hz
-   and 5.8 bar, its five nearest training pumps, and their vote, four faulty to one
-   healthy.
+   and 5.8 bar, its five nearest stored pumps, and their vote, four faulty to one
+   healthy - the healthy one a flipped label, by the rule that generated the data.
 4. **Choosing $k$**, the bias-variance dial made visible:
 
-   | $k$ | training | cross-validated |
+   | $k$ | training (each fold's 960 stored pumps) | cross-validated |
    |---|---|---|
    | 1 | **1.000** | 0.912 |
-   | 5 | 0.953 | **0.944** |
-   | 51 | 0.940 | 0.933 |
-   | 401 | 0.828 | 0.708 |
+   | 5 | 0.954 | **0.944** |
+   | 51 | 0.941 | 0.933 |
+   | 401 | 0.713 | 0.708 |
 
    At $k = 1$ the training accuracy is exactly 1.000 **by construction** — every point
    is its own nearest neighbour — which is the clearest demonstration that a training
    score can measure nothing at all.
-5. **The three boundaries.** Ragged with islands at $k = 1$, a clean disc at $k = 15$,
+5. **The three boundaries.** Ragged with islands at $k = 1$, a clean ellipse at $k = 15$,
    and swollen past the true envelope at $k = 401$.
 6. **Now break it.** Add columns of pure noise, leaving both real readings untouched;
    the experiment is drawn first, as the table k-NN receives with ten noise columns:
@@ -196,7 +196,7 @@ space**.
    | $\gamma$ = 50, C = 1000 | **0.995** | 0.902 |
 
    The best training score is the worst honest one — the signature lesson 5 taught them
-   to read, now drawn as bubbles around individual mislabelled points.
+   to read, now drawn as bubbles around individual pumps with flipped labels.
 7. **The three methods, side by side**, with the noise ceiling at about 0.96 because 4%
    of labels are flipped: baseline 0.613, logistic regression 0.613, linear SVM 0.613,
    **Naive Bayes 0.933, k-NN 0.944, RBF SVM 0.947.** Three reach the ceiling by three

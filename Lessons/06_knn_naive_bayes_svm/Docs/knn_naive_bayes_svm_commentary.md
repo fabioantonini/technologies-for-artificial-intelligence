@@ -284,15 +284,15 @@ are broken. For this dataset it holds.
 | $k$ | Training | Cross-validation |
 |---:|---:|---:|
 | 1 | 1.000 | 0.912 |
-| 5 | 0.953 | **0.944** |
-| 15 | 0.948 | 0.938 |
-| 51 | 0.940 | 0.933 |
-| 401 | 0.828 | 0.708 |
+| 5 | 0.954 | **0.944** |
+| 15 | 0.944 | 0.938 |
+| 51 | 0.941 | 0.933 |
+| 401 | 0.713 | 0.708 |
 
 At $k = 1$, 1.000 against 0.912 is high variance: the model memorises the 4% of labels
 that were deliberately flipped. At $k = 5$ the neighbourhood is large enough to outvote
 many noisy points and still small enough to follow the real shape: 0.944. At
-$k = 401$, training 0.828 and validation 0.708: this is not overfitting, because **the
+$k = 401$, training 0.713 and validation 0.708: this is not overfitting, because **the
 training score is low too**. It is the other side of the trade-off, underfitting, or
 high bias.
 
@@ -328,12 +328,12 @@ both low and close together are typical of high bias.
 ![](knn_boundaries.png)
 
 *The same data at three values of k. At k = 1 the boundary is ragged, with
-islands around individual mislabelled points. At k = 15 it is a clean disc,
+islands around individual pumps with flipped labels. At k = 15 it is a clean disc,
 close to the envelope that generated the data. At k = 401 it has **inflated**
 past the true envelope and swallows faulty pumps — it has not collapsed to one
 class, it has stopped following the boundary and started averaging over it.*
 
-The same idea, drawn. At $k = 1$ the boundary is jagged: every mislabelled point can
+The same idea, drawn. At $k = 1$ the boundary is jagged: every pump with a flipped label can
 create a small island around itself, which is variance made visible. At $k = 15$ the
 central region is smooth and follows the true operating envelope well. At $k = 401$
 the neighbourhood is no longer local: the healthy region spreads too far and swallows
@@ -1446,7 +1446,7 @@ then $\xi_i = 1.5$, misclassified.
 
 Yes, exactly. That is what "soft" means: the model is not required to classify every
 training point correctly, or even to keep every correct one outside the slab. Picture a
-single mislabelled faulty pump sitting deep among the healthy ones. To keep it outside
+single pump whose label was flipped to faulty, sitting deep among the healthy ones. To keep it outside
 the slab, the boundary would have to squeeze past it, leaving a very narrow slab for
 everyone else. The soft margin can instead accept a violation for that one point, pay
 $C\,\xi_i$ for it, and keep a wide, robust slab for the rest. Whether that trade is worth
@@ -1855,7 +1855,7 @@ Read them together, as lesson 5 taught.*
 Left, $\gamma = 0.1$: a smooth boundary, slightly too smooth, and the two scores agree.
 Middle, $\gamma = 1$: close to the true envelope, and the best honest score. Right,
 $\gamma = 50$ with $C = 1000$: the boundary has broken into bubbles, small islands drawn
-around individual points, mislabelled ones included. That is what a training score of
+around individual points, those with flipped labels included. That is what a training score of
 0.995 looks like from outside: a private territory around each flipped label. A new pump
 landing between two bubbles is where the 0.902 comes from. Since lesson 5 overfitting has
 been a curve on a plot; here it is a shape in the input space, visibly wrong. When you can
