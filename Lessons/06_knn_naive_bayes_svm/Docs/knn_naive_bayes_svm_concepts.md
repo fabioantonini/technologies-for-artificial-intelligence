@@ -57,7 +57,7 @@ the distance, and dimensions are what the method is made of. → § 3.3
 likelihood times a prior, dropping the denominator because it is the same for every
 class. → § 4.1
 
-**The evidence $P(x)$.** How likely these readings are whatever the class: the sum of
+**The evidence $p(x)$.** The density of these readings whatever the class: the sum of
 the numerators. Dropped to choose the class, recovered exactly by normalising the
 scores, so dropping it costs no calibration. → § 4.1
 

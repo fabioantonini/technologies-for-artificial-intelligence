@@ -580,4 +580,120 @@ vote = draws.sum(axis=1) >= 8
 truth = np.random.default_rng(12).random(200_000) < p_faulty
 same("3.1 ...and by drawing the votes", (vote == truth).mean(), 0.571, tolerance=5e-3)
 
+# ------------------------------- Section 4.2, the 48 Hz pump by three ratios
+
+# From the table's rounded heights, as the handout does it; and the cell worked
+# in full from the rounded parameters, with scipy's density as the second route.
+same("4.2 vibration ratio", 0.0374 / 0.000433, 86.4, tolerance=0.05)
+same("4.2 pressure ratio, healthy over faulty", 1.818 / 0.692, 2.63, tolerance=5e-3)
+same("4.2 prior ratio", 0.6125 / 0.3875, 1.58, tolerance=5e-3)
+odds_48 = (0.6125 / 0.3875) * (0.0374 / 0.000433) / (1.818 / 0.692)
+same("4.2 the odds, 52 to 1", odds_48, 52, tolerance=0.5)
+same("4.2 ...as a probability", 52 / 53, 0.981, tolerance=5e-4)
+charge = -0.5 * np.log(2 * np.pi * 4.636 ** 2)
+penalty = (48 - 42.015) ** 2 / (2 * 4.636 ** 2)
+same("4.2 worked cell, the width charge", charge, -2.453, tolerance=5e-4)
+same("4.2 worked cell, the distance penalty", penalty, 0.833, tolerance=5e-4)
+same("4.2 worked cell, total", charge - penalty, -3.286, tolerance=5e-4)
+same("4.2 ...by scipy", norm.logpdf(48, 42.015, 4.636), -3.286, tolerance=5e-4)
+same("4.2 standard deviations out", (48 - 42.015) / 4.636, 1.29, tolerance=5e-3)
+same("4.2 Checks, healthy charge", -0.5 * np.log(2 * np.pi * 1.695 ** 2), -1.447, tolerance=5e-4)
+same("4.2 Checks, healthy penalty", (48 - 41.986) ** 2 / (2 * 1.695 ** 2), 6.294, tolerance=5e-4)
+same("4.2 Checks, healthy cell from rounded values",
+     norm.logpdf(48, 41.986, 1.695), -7.741, tolerance=5e-4)
+same("4.2 Checks, the truth: scales from the design point", 6 / 3.5, 1.71, tolerance=5e-3)
+same("4.2 Checks, P(label faulty) for a faulty pump", 1 - LABEL_NOISE, 0.96, tolerance=1e-9)
+
+# ------------------------- Section 4.3, the rule, the squares, the ellipse
+
+from pump_data import _standardised_radius
+
+half_45 = 0.45 * np.sqrt(1 - (3 / 3.5) ** 2)
+same("4.3 healthy at 42 Hz, lowest pressure", 5.6 - 0.45, 5.15, tolerance=5e-3)
+same("4.3 healthy at 45 Hz, half-range", half_45, 0.23, tolerance=5e-3)
+same("4.3 healthy at 45 Hz, lowest pressure", 5.6 - half_45, 5.37, tolerance=5e-3)
+same("4.3 healthy at 45 Hz, highest pressure", 5.6 + half_45, 5.83, tolerance=5e-3)
+# ...and the same range found by search on the rule itself
+grid_p = np.linspace(4.5, 6.7, 220_001)
+inside = _standardised_radius(45.0, grid_p) <= 1
+same("4.3 ...by searching the rule", grid_p[inside].min(), 5.37, tolerance=5e-3)
+
+z_all = (X - X.mean()) / X.std()
+same("4.3 standardising mean, Hz", X["vibration_hz"].mean(), 42.004, tolerance=5e-4)
+same("4.3 standardising sd, Hz", X["vibration_hz"].std(), 3.78, tolerance=5e-3)
+same("4.3 standardising sd, bar", X["pressure_bar"].std(), 0.471, tolerance=5e-4)
+one = X[y == 1].iloc[0]
+same("4.3 the example pump, Hz", one.iloc[0], 35.561, tolerance=5e-4)
+z1 = (one.iloc[0] - X["vibration_hz"].mean()) / X["vibration_hz"].std()
+z2 = (one.iloc[1] - X["pressure_bar"].mean()) / X["pressure_bar"].std()
+same("4.3 z1", z1, -1.70, tolerance=5e-3)
+same("4.3 z1 squared", z1 ** 2, 2.90, tolerance=5e-3)
+same("4.3 z2", z2, -0.81, tolerance=5e-3)
+same("4.3 z2 squared", z2 ** 2, 0.66, tolerance=5e-3)
+sq = z_all ** 2
+fv, fp = sq.loc[y == 1, "vibration_hz"].to_numpy(), sq.loc[y == 1, "pressure_bar"].to_numpy()
+q1, q3 = np.quantile(fv, [0.25, 0.75])
+same("4.3 lower quarter cut", q1, 0.32, tolerance=5e-3)
+same("4.3 upper quarter cut", q3, 2.34, tolerance=5e-3)
+same("4.3 pressure square, vibration near the centre", fp[fv < q1].mean(), 2.38, tolerance=5e-3)
+same("4.3 pressure square, vibration far out", fp[fv > q3].mean(), 0.64, tolerance=5e-3)
+by_rule = (_standardised_radius(X["vibration_hz"], X["pressure_bar"]) > 1).astype(int).to_numpy()
+labels = y.to_numpy()
+for c, flipped, kept, r_clean in ((0, 28, 437, -0.036), (1, 21, 714, -0.460)):
+    mine = labels == c
+    clean = mine & (by_rule == c)
+    same(f"4.3 flipped among class {c}", int((mine & ~clean).sum()), flipped, tolerance=0)
+    same(f"4.3 kept in class {c}", int(clean.sum()), kept, tolerance=0)
+    same(f"4.3 correlation of squares without flips, class {c}",
+         np.corrcoef(sq.to_numpy()[clean, 0], sq.to_numpy()[clean, 1])[0, 1], r_clean, tolerance=5e-4)
+
+a_vib = 1 / (2 * 1.695 ** 2) - 1 / (2 * 4.636 ** 2)
+a_pres = 1 / (2 * 0.219 ** 2) - 1 / (2 * 0.576 ** 2)
+b_const = np.log(0.6125 / 0.3875) + np.log(1.695 * 0.219 / (4.636 * 0.576))
+same("4.3 1/(2 x 1.695^2)", 1 / (2 * 1.695 ** 2), 0.1740, tolerance=5e-5)
+same("4.3 1/(2 x 4.636^2)", 1 / (2 * 4.636 ** 2), 0.0233, tolerance=5e-5)
+same("4.3 a_vib from the table", a_vib, 0.1508, tolerance=5e-5)
+same("4.3 1/(2 x 0.219^2)", 1 / (2 * 0.219 ** 2), 10.425, tolerance=5e-4)
+same("4.3 1/(2 x 0.576^2)", 1 / (2 * 0.576 ** 2), 1.507, tolerance=5e-4)
+same("4.3 a_pres from the table", a_pres, 8.918, tolerance=5e-4)
+same("4.3 ln prior ratio", np.log(0.6125 / 0.3875), 0.458, tolerance=5e-4)
+same("4.3 ln width ratio", np.log(1.695 * 0.219 / (4.636 * 0.576)), -1.973, tolerance=5e-4)
+same("4.3 b from the table", b_const, -1.515, tolerance=5e-4)
+same("4.3 semi-axis, Hz", np.sqrt(-b_const / a_vib), 3.17, tolerance=5e-3)
+same("4.3 semi-axis, bar", np.sqrt(-b_const / a_pres), 0.41, tolerance=5e-3)
+
+# ------------------------- Section 4.4 and 4.5, the interacting sensors
+
+from sklearn.model_selection import cross_val_predict, train_test_split
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
+Xi_, yi_ = load_interacting()
+a_hi, b_hi = (Xi_["sensor_a"] > 0).to_numpy(), (Xi_["sensor_b"] > 0).to_numpy()
+wrong_quadrant = (a_hi != b_hi) != (yi_.to_numpy() == 1)
+same("4.4 pumps in the wrong quadrant", int(wrong_quadrant.sum()), 37, tolerance=0)
+pred_i = cross_val_predict(make_pipeline(StandardScaler(), GaussianNB()), Xi_, yi_,
+                           cv=StratifiedKFold(5, shuffle=True, random_state=0))
+for ah, bh, n_q, n_f, n_pf, n_right in ((True, True, 282, 9, 239, 42),
+                                        (True, False, 369, 359, 369, 359),
+                                        (False, True, 264, 253, 2, 9),
+                                        (False, False, 285, 7, 213, 75)):
+    q = (a_hi == ah) & (b_hi == bh)
+    same(f"4.4 quadrant {ah},{bh} pumps", int(q.sum()), n_q, tolerance=0)
+    same(f"4.4 quadrant {ah},{bh} faulty", int(yi_.to_numpy()[q].sum()), n_f, tolerance=0)
+    same(f"4.4 quadrant {ah},{bh} predicted faulty", int(pred_i[q].sum()), n_pf, tolerance=0)
+    same(f"4.4 quadrant {ah},{bh} right", int((pred_i[q] == yi_.to_numpy()[q]).sum()), n_right, tolerance=0)
+same("4.4 right in all", 42 + 359 + 9 + 75, 485, tolerance=0)
+same("4.4 ...as accuracy", 485 / 1200, 0.404, tolerance=5e-4)
+
+Xtr_, Xte_, ytr_, yte_ = train_test_split(Xi_, yi_, test_size=0.25, random_state=0, stratify=yi_)
+proba_i = make_pipeline(StandardScaler(), GaussianNB()).fit(Xtr_, ytr_).predict_proba(Xte_)[:, 1]
+right_i = (proba_i >= 0.5).astype(int) == yte_.to_numpy()
+conf_i = np.maximum(proba_i, 1 - proba_i)
+same("4.5 right on the 300", int(right_i.sum()), 133, tolerance=0)
+same("4.5 accuracy on the 300", right_i.mean(), 0.443, tolerance=5e-4)
+same("4.5 mean confidence", conf_i.mean(), 0.560, tolerance=5e-4)
+same("4.5 confidence when right", conf_i[right_i].mean(), 0.567, tolerance=5e-4)
+same("4.5 confidence when wrong", conf_i[~right_i].mean(), 0.555, tolerance=5e-4)
+
 print(f"lesson 6: {checks} hand-worked numbers recomputed, all agree")

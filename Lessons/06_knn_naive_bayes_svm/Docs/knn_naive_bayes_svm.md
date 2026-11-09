@@ -378,30 +378,35 @@ readings and gets back the score without noise.
 
 We want $P(y = c \mid x)$. Bayes' rule turns it into quantities we can estimate:
 
-$$P(y = c \mid x) = \frac{P(x \mid y = c)\,P(y = c)}{P(x)}$$
+$$P(y = c \mid x) = \frac{p(x \mid y = c)\,P(y = c)}{p(x)}$$
 
-$P(y = c)$ is the prior — a count. $P(x)$ is identical across classes, so it
-cannot change which class wins and can be dropped.
+$P(y = c)$ is the prior — a count. $p(x)$ is identical across classes, so it
+cannot change which class wins and can be dropped. The two lowercase letters are
+deliberate: the readings are continuous, so the probability of one exact value is
+zero, and $p(x \mid y = c)$ and $p(x)$ are **densities**. The rule holds unchanged,
+and the left-hand side is still a probability — the density units cancel between
+top and bottom. A density, unlike a probability, can exceed 1 (Section 4.2 meets
+one).
 
 *A note of history.* The rule is Thomas Bayes's, an English minister; his essay
 was published in 1763, after his death, by his friend Richard Price.
 
-**Dropped for choosing, not lost.** $P(x)$ is the probability of seeing this
-combination of readings whatever the class — by the law of total probability,
-the sum of the numerators, $\sum_c P(x \mid y = c)\,P(y = c)$. That is why
+**Dropped for choosing, not lost.** $p(x)$ is the density of this combination
+of readings whatever the class — by the law of total probability,
+the sum of the numerators, $\sum_c p(x \mid y = c)\,P(y = c)$. That is why
 dropping it costs nothing even when a probability is wanted: divide each
 class's score by the sum of the scores and the denominator is back, exactly.
-The tempting conclusion is that a model which drops $P(x)$ can no longer report
+The tempting conclusion is that a model which drops $p(x)$ can no longer report
 a calibrated probability. It is reasonable, because a term has been thrown
 away, and wrong, because that term is recoverable from what is kept. The pumps
 are 465 healthy and 735 faulty out of 1,200, priors 0.3875 and 0.6125. Take
 illustrative likelihoods of 0.12 and 0.03 for one pump's readings: the scores
-are 0.0465 and 0.0184, their sum, 0.0649, is $P(x)$, and the probabilities are
+are 0.0465 and 0.0184, their sum, 0.0649, is $p(x)$, and the probabilities are
 0.717 and 0.283. scikit-learn's `predict_proba` does exactly this, in logarithms. Where Naive
 Bayes does lose calibration is in the numerator, Section 4.5.
 
 Everything hard is in
-$P(x \mid y = c)$: **the probability of this exact combination of readings among
+$p(x \mid y = c)$: **the probability of this exact combination of readings among
 examples of that class.**
 
 With two features that is a two-dimensional density and we could estimate it.
@@ -417,7 +422,7 @@ different direction.
 its vibration tells you nothing more about its pressure. Writing $x_1$ for the
 vibration and $x_2$ for the pressure:
 
-$$P(x_2 \mid x_1, y = c) = P(x_2 \mid y = c)$$
+$$p(x_2 \mid x_1, y = c) = p(x_2 \mid y = c)$$
 
 written $x_1 \perp x_2 \mid y = c$. Counts make the difference from plain
 independence visible. Take, as an illustration, 1,000 pumps, 600 faulty and 400
@@ -449,14 +454,14 @@ other, and the assumption fails completely.
 
 If the assumption holds, the joint density factorises:
 
-$$P(x \mid y = c) = \prod_{j=1}^{n} P(x_j \mid y = c)$$
+$$p(x \mid y = c) = \prod_{j=1}^{n} p(x_j \mid y = c)$$
 
 and each factor is a one-dimensional density estimated from the rows of that
 class. The classifier is then
 
-$$\hat{y} = \arg\max_c \; P(y = c) \prod_{j=1}^{n} P(x_j \mid y = c)$$
+$$\hat{y} = \arg\max_c \; P(y = c) \prod_{j=1}^{n} p(x_j \mid y = c)$$
 
-In practice that product is never computed: hundreds of small probabilities
+In practice that product is never computed: hundreds of small densities
 multiplied together underflow to zero in floating point, exactly as lesson 4's
 log-likelihood did. The repair is available because the logarithm is
 **increasing** — whichever class makes the product largest makes its logarithm
@@ -464,7 +469,7 @@ largest too, so swapping one for the other cannot change which class wins — an
 because the logarithm of a product is a sum of logarithms (natural logarithms
 throughout, so that $e$ undoes them):
 
-$$\hat{y} = \arg\max_c \left[ \log P(y = c) + \sum_{j=1}^{n} \log P(x_j \mid y = c) \right]$$
+$$\hat{y} = \arg\max_c \left[ \ln P(y = c) + \sum_{j=1}^{n} \ln p(x_j \mid y = c) \right]$$
 
 The two expressions pick the same class. The second adds $n + 1$ numbers of
 ordinary size instead of multiplying $n + 1$ tiny ones.
@@ -474,7 +479,7 @@ choice open — what shape each one-dimensional density has. The Gaussian
 version, the one used throughout this lesson, gives every feature in every class
 its own bell curve:
 
-$$P(x_j \mid y = c) = \frac{1}{\sqrt{2\pi\sigma_{jc}^2}}
+$$p(x_j \mid y = c) = \frac{1}{\sqrt{2\pi\sigma_{jc}^2}}
   \exp\left[-\frac{(x_j - \mu_{jc})^2}{2\sigma_{jc}^2}\right]$$
 
 where $\mu_{jc}$ and $\sigma_{jc}^2$ are the mean and the variance of feature $j$
@@ -484,7 +489,7 @@ feature per class. For $n$ features and $K$ classes that is $K(2n + 1)$ numbers,
 found in one pass, with no gradient descent and nothing to converge. On the
 pumps it is ten:
 
-| Class | Prior | Vibration: mean | sd | Pressure: mean | sd |
+| Class | Prior | Vibration: mean | standard deviation | Pressure: mean | standard deviation |
 |---|---|---|---|---|---|
 | Healthy | 0.3875 | 41.986 Hz | **1.695** | 5.617 bar | **0.219** |
 | Faulty | 0.6125 | 42.015 Hz | **4.636** | 5.616 bar | **0.576** |
@@ -499,9 +504,9 @@ widths, and Section 4.3 measures what that buys.
 **Inference for one pump, step by step.** Given a new pump's readings
 $x = (x_1, x_2)$, the model does four things and nothing else:
 
-1. For each class, start from the log prior, $\log P(y = c)$.
+1. For each class, start from the ln prior, $\ln P(y = c)$.
 2. For each reading, add the log of *that class's* bell at the reading,
-   $\log P(x_j \mid y = c) = -\tfrac{1}{2}\log(2\pi\sigma_{jc}^2) - (x_j - \mu_{jc})^2 / (2\sigma_{jc}^2)$.
+   $\ln p(x_j \mid y = c) = -\tfrac{1}{2}\ln(2\pi\sigma_{jc}^2) - (x_j - \mu_{jc})^2 / (2\sigma_{jc}^2)$.
    The second term is a penalty growing with the squared distance from the
    class's centre, measured in the class's own standard deviations; the first
    is a charge for a wide bell, which spreads its density thinly.
@@ -526,19 +531,46 @@ higher. At 42 Hz the narrow bell is on top. On the right, 5.6 bar is central for
 both classes and barely discriminates; the narrow healthy bell peaks near 1.82,
 above 1.*
 
+The verdict can already be read from the heights, by multiplying three ratios,
+faulty over healthy. Vibration: $0.0374 / 0.000433 = 86.4$. Pressure: the healthy
+bell is the higher, $1.818 / 0.692 = 2.63$, so divide by 2.63. Class shares:
+$0.6125 / 0.3875 = 1.58$. Together
+
+$$\frac{P(\text{faulty})\,p(x \mid \text{faulty})}{P(\text{healthy})\,p(x \mid \text{healthy})}
+  = 1.58 \times 86.4 \div 2.63 = 52$$
+
+odds of 52 to 1 for faulty, so $P(\text{faulty} \mid x) = 52/53 = 0.981$. The
+ratio of the two products is the product of the three ratios, which is why the
+order does not matter. Software does the same thing in logarithms.
+
 The same heights, as logarithms and with the priors added:
 
-| Class | log prior | log $P$(vibration) | log $P$(pressure) | Total |
+| Class | ln prior | ln $p$(vibration) | ln $p$(pressure) | Total |
 |---|---|---|---|---|
 | Healthy | −0.948 | −7.745 | +0.598 | −8.095 |
 | Faulty | −0.490 | −3.286 | −0.368 | **−4.144** |
 
 Faulty has the larger total, so faulty is the prediction.
 
+One cell worked in full, from the ten-number table and step 2 of the recipe —
+the faulty bell on vibration, $\mu = 42.015$, $\sigma = 4.636$, at 48 Hz:
+
+$$\ln p(48 \mid \text{faulty}) = -\tfrac{1}{2}\ln(2\pi \times 4.636^2)
+  - \frac{(48 - 42.015)^2}{2 \times 4.636^2} = -2.453 - 0.833 = -3.286$$
+
+The first term is the charge for a wide bell, the second the penalty for being
+$5.985 / 4.636 = 1.29$ standard deviations from the centre.
+
+**Checks.** The same recipe on the healthy vibration cell, from the rounded
+table values $\mu = 41.986$ and $\sigma = 1.695$, gives $-1.447 - 6.294 = -7.741$,
+not the table's $-7.745$: the table is computed from the unrounded parameters,
+and this term, 3.5 standard deviations out, is the one most sensitive to the
+fourth decimal. The other three cells reproduce from the rounded values.
+
 **From log scores to a probability.** Each total is the logarithm of a Bayes
 numerator, so exponentiating gives the scores back: $e^{-4.144} \approx 0.01585$
 for faulty and $e^{-8.095} \approx 0.000305$ for healthy. Normalising as in
-Section 4.1 divides one by their sum, which is $P(x)$:
+Section 4.1 divides one by their sum, which is $p(x)$:
 
 $$P(\text{faulty} \mid x) = \frac{e^{T_\text{faulty}}}{e^{T_\text{faulty}} + e^{T_\text{healthy}}}
   = \frac{0.01585}{0.01616} \approx 0.981$$
@@ -546,6 +578,13 @@ $$P(\text{faulty} \mid x) = \frac{e^{T_\text{faulty}}}{e^{T_\text{faulty}} + e^{
 and for the other class, from the same denominator,
 $P(\text{healthy} \mid x) = 0.000305 / 0.01616 \approx 0.019$ — the two adding to
 one, as probabilities of the only two classes must.
+
+**Checks: the model's 0.981 against the truth.** For this pump the truth is
+known. It sits $(48 - 42) / 3.5 = 1.71$ scales from the design point, more than 1,
+so it is faulty by the rule that generated the data; and labels are flipped at
+random with probability 0.04, so the probability of seeing the label "faulty" is
+$1 - 0.04 = 0.96$. The model says 0.981: a little more sure than the data allow,
+a first and small instance of Section 4.5.
 
 Divide the top and the bottom by $e^{T_\text{faulty}}$ — which leaves the
 fraction unchanged — and the ratio of the two scores becomes a single
@@ -570,7 +609,7 @@ form is the one to compute**: with hundreds of features the totals can reach
 0/0, while $\Delta$ stays an ordinary number.
 
 The vibration term decided it. One
-entry looks wrong and is not: log $P$(pressure) is *positive*, because a density
+entry looks wrong and is not: ln $p$(pressure) is *positive*, because a density
 is not a probability and can exceed 1 — a bell with a standard deviation of
 0.219 bar peaks at $1/(0.219\sqrt{2\pi}) \approx 1.82$. The same model puts a
 pump exactly at the design point, 42 Hz and 5.6 bar, at **0.820** healthy.
@@ -586,8 +625,10 @@ becomes $n$ one-dimensional ones, each fitted by the averages above. It needs
 very little data per feature, and adding a feature adds only two numbers per
 class.
 
-**Why it is almost never true.** Vibration and pressure are both driven by the
-operating point. "New" is not independent of "York" given the topic. Symptoms
+**Why it is almost never true.** On a real pump, vibration and pressure are both
+driven by the operating point. (The lesson's synthetic pumps have no such driver
+— radius and angle are drawn independently — and their dependence within a class
+comes from the shape, Section 4.3.) "New" is not independent of "York" given the topic. Symptoms
 co-occur.
 
 The interesting question is therefore not whether the assumption holds, but
@@ -611,14 +652,19 @@ wrong decisions, even where independence is badly violated. This section finds
 both halves on the pumps: the assumption is false, and the ranking survives it.
 Section 4.4 is the case where it does not.
 
-| Model | Accuracy |
-|---|---|
-| Majority baseline | 0.613 |
-| Logistic regression | 0.613 |
-| **Gaussian Naive Bayes** | **0.933** |
-| k-NN, $k = 5$ | 0.944 |
+| Model | Accuracy | Standard deviation over the 5 folds |
+|---|---|---|
+| Majority baseline | 0.613 | 0.000 |
+| Logistic regression | 0.613 | 0.000 |
+| **Gaussian Naive Bayes** | **0.933** | 0.010 |
+| k-NN, $k = 5$ | 0.944 | 0.006 |
 
-A point behind k-NN, and an enormous distance ahead of the linear model. So test
+A point behind k-NN, and an enormous distance ahead of the linear model. The
+point is 0.011, about 13 pumps of 1,200, and about one fold standard deviation:
+the two are comparable rather than ranked — the more so because $k = 5$ was
+chosen as the best $k$ on these same folds, which makes its 0.944 slightly
+optimistic (lesson 5's nested cross-validation), while Naive Bayes had nothing to
+tune. So test
 the assumption directly — remembering that it concerns independence *given the
 class*, which is not the same as independence overall:
 
@@ -674,14 +720,40 @@ disc around the design point and faulty ones the ring around it. On a ring, a
 pump whose vibration is far from the design point must have a pressure close to
 it, or it would fall outside the ring. That is a strong dependence, but a
 symmetric one — far-out vibration goes with central pressure on both sides —
-so the straight-line summary averages it to zero. Square each reading's
-standardised distance from the design point, turning "far out" into "large",
-and it appears:
+so the straight-line summary averages it to zero.
+
+Concretely, by the rule that generated the data and leaving the flipped labels
+aside: a healthy pump at 42 Hz can have any pressure from 5.15 to 6.05 bar,
+$5.6 \pm 0.45$; a healthy pump at 45 Hz, already $3/3.5$ of the way to the edge on
+vibration, only from 5.37 to 5.83 bar, $5.6 \pm 0.45\sqrt{1 - (3/3.5)^2} = 5.6 \pm 0.23$.
+Knowing the vibration changes the range the pressure can take: that is
+dependence, with no straight line in it.
+
+Square each reading's standardised distance from the design point, turning
+"far out" into "large", and it appears. Three steps: standardise each reading
+with the mean and standard deviation of all 1,200 pumps (42.004 and 3.78 Hz,
+5.616 and 0.471 bar); square it, which keeps the distance and forgets the side;
+take the ordinary correlation of the two squared columns within one class. One
+faulty pump, at 35.561 Hz and 5.233 bar:
+$z_1 = (35.561 - 42.004)/3.78 = -1.70$, $z_1^2 = 2.90$;
+$z_2 = (5.233 - 5.616)/0.471 = -0.81$, $z_2^2 = 0.66$. Over the classes:
 
 | Correlation of the squared distances | |
 |---|---|
 | within healthy pumps | +0.168 |
 | within faulty pumps | **−0.420** |
+
+Read the −0.420 by quarters. Faulty pumps whose vibration is near the centre,
+$z_1^2$ below 0.32, have a mean $z_2^2$ of **2.38** — pressure far out, to escape
+the hole; those whose vibration is far out, $z_1^2$ above 2.34, have **0.64**. One
+large, the other small: a negative correlation.
+
+**Checks: the healthy +0.168 is the flipped labels.** In a disc a large $z_1^2$
+forces a small $z_2^2$, so the disc's own sign is negative. The +0.168 comes from
+the 28 pumps labelled healthy whose labels were flipped — truly faulty, far out
+in both readings. Leave them out and the 437 healthy pumps left give −0.036; the
+faulty −0.420 becomes −0.460 without its 21 flipped pumps (notebook 2 prints
+both). The faulty number carries the argument.
 
 **Why the square, and not the cube.** The transformation has to treat "far out
 to the left" and "far out to the right" alike, because the dependence is about
@@ -732,7 +804,7 @@ inference recipe with a common centre $\mu_j$. The squared distances survive
 with the difference of the two widths as their weight, and everything else is a
 constant:
 
-$$\log\frac{P(\text{faulty})\,P(x \mid \text{faulty})}{P(\text{healthy})\,P(x \mid \text{healthy})}
+$$\ln\frac{P(\text{faulty})\,p(x \mid \text{faulty})}{P(\text{healthy})\,p(x \mid \text{healthy})}
   = \sum_j a_j (x_j - \mu_j)^2 + b,
   \qquad a_j = \frac{1}{2\sigma_{j,\text{healthy}}^2} - \frac{1}{2\sigma_{j,\text{faulty}}^2}$$
 
@@ -741,9 +813,19 @@ because the healthy bell is the narrower, so the faulty score gains on the
 healthy one as a pump moves away from the centre, in any direction. The
 boundary is where the two are equal, $\sum_j a_j (x_j - \mu_j)^2 = -b$: an
 **axis-aligned ellipse** — and the true envelope is exactly that shape.
-Walking out from the centre until the fitted model's prediction flips puts its
-ellipse at about **3.17 Hz by 0.41 bar**, against a true envelope of **3.5 by
-0.45**: the same proportions, about a tenth too small.
+With the ten numbers of Section 4.2 and one centre shared by both classes:
+
+$$a_\text{vib} = \frac{1}{2 \times 1.695^2} - \frac{1}{2 \times 4.636^2} = 0.1740 - 0.0233 = 0.1508,
+  \qquad a_\text{pres} = \frac{1}{2 \times 0.219^2} - \frac{1}{2 \times 0.576^2} = 10.425 - 1.507 = 8.918$$
+
+$$b = \ln\frac{0.6125}{0.3875} + \ln\frac{1.695 \times 0.219}{4.636 \times 0.576} = 0.458 - 1.973 = -1.515$$
+
+so the ellipse's semi-axes, where $a_j d_j^2 = -b$, are
+$\sqrt{1.515 / 0.1508} = 3.17$ Hz and $\sqrt{1.515 / 8.918} = 0.41$ bar,
+against a true envelope of **3.5 by 0.45**: the same proportions, about a tenth too
+small. Walking out from the two fitted centres until the prediction flips gives
+3.15 to 3.19 Hz and 0.41 bar (notebook 2), the small spread coming from the
+centres differing by 0.03 Hz.
 
 ![](nb_boundary_vs_envelope.png)
 
@@ -780,7 +862,10 @@ sensors high or both low, faulty ones one high and the other low:
 | **A high** | 273 healthy, 9 faulty | 10 healthy, 359 faulty |
 | **A low** | 11 healthy, 253 faulty | 278 healthy, 7 faulty |
 
-The few pumps in the wrong quadrant are the label noise. Now look at sensor A
+The few pumps in the wrong quadrant, 9 + 10 + 11 + 7 = 37, are reading noise, not
+flipped labels: no label is flipped in this dataset. The label follows each
+sensor's hidden state, high or low, and noise with a standard deviation of 0.45
+around +1 or −1 sometimes carries a reading across 0. Now look at sensor A
 alone, which is what the middle panel does. Among healthy pumps it is high for
 273 + 10 and low for 11 + 278 — about half each. Among faulty pumps it is high
 for 9 + 359 and low for 253 + 7 — about half again, if less evenly. So both
@@ -792,7 +877,7 @@ The dashed curves are what Naive Bayes makes of that. It fits **one** bell per
 sensor per class, and a single bell cannot follow two humps, so each sits in the
 valley between them:
 
-| Bell fitted on sensor A | Centre | sd |
+| Bell fitted on sensor A | Centre | Standard deviation |
 |---|---|---|
 | Healthy | −0.012 | 1.090 |
 | Faulty | +0.167 | 1.112 |
@@ -819,15 +904,35 @@ Being below chance looks impossible, and the explanation is the 0.18 just
 found. The class means differ by 0.18 on sensor A and 0.14 on sensor B, against a spread
 near 1, purely as an artefact of a finite sample. That accident is the *only*
 per-feature evidence available, Naive Bayes has nothing else to multiply, and in
-this sample it points the wrong way.
+this sample it points the wrong way. Quadrant by quadrant, with the
+cross-validated predictions (notebook 2):
+
+| Quadrant | Pumps | Faulty | Predicted faulty | Right |
+|---|---|---|---|---|
+| A high, B high | 282 | 9 | 239 | 42 |
+| A high, B low | 369 | 359 | 369 | 359 |
+| A low, B high | 264 | 253 | 2 | 9 |
+| A low, B low | 285 | 7 | 213 | 75 |
+
+The boundary is close to a line. It gets one faulty corner entirely right, misses
+the opposite faulty corner entirely, and calls most of the healthy pumps in both
+healthy corners faulty: $42 + 359 + 9 + 75 = 485$ right, and $485/1{,}200 = 0.404$.
 
 **A model with no signal does not sit politely at 50%.** It follows whatever
 spurious structure it can find.
 
 ### 4.5 Its probabilities are not probabilities
 
-Measured on the interacting data: mean confidence when correct **0.567**, mean
-confidence when wrong **0.555**. It cannot tell the difference.
+Measured on the interacting sensors, with Naive Bayes fitted on 900 pumps and
+tested on the other 300 (a stratified split, notebook 2). For each test pump the
+model gives $P(\text{faulty})$ and predicts the larger class; its **confidence**
+is the probability it gives the class it predicts, $\max(P, 1 - P)$, from 0.5 (a
+coin) to 1 (certain). Mean confidence when correct **0.567**, when wrong
+**0.555**: it cannot tell the difference, so its confidence gives no way to sort
+the answers to trust from those to check. And it is not calibrated: it is right
+on 133 of the 300, **0.443**, while its mean confidence is **0.560** — it says
+"56% sure" and is right 44% of the time. A calibrated model that says 56% is
+right about 56% of the time.
 
 The more common complaint runs the other way, and it is not measured on either
 dataset here — it needs features that carry the same evidence about the class,
@@ -837,8 +942,10 @@ repeatedly, and Naive Bayes becomes wildly overconfident. Ten near-copies
 of one informative column is enough: accuracy around 0.75, and two thirds of the
 predictions asserted above 0.999. Try it — it takes four lines.
 
-Either way, lesson 5's distinction applies: **the ranking may be useful while
-the probabilities are not.** Naive Bayes is the classic example of that gap, and
+Either way, lesson 4's distinction applies (its Section 8: the area under the
+receiver operating characteristic curve (AUC) measures ranking and is blind to
+calibration): **the ranking may be useful while the
+probabilities are not.** Naive Bayes is the classic example of that gap, and
 the reason it should not be used where a calibrated probability is needed — such
 as the cost calculation of lesson 4, Section 7.2.
 

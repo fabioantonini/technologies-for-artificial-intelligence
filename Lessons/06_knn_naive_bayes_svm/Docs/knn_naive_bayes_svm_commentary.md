@@ -769,12 +769,13 @@ its total area is still 1.
 
 ## Slide 34 — Take logs: the product becomes a sum
 
-$$\ln\left[P(y = c) \prod_{j} P(x_j \mid y = c)\right] = \ln P(y = c) + \sum_{j} \ln P(x_j \mid y = c)$$
+$$\ln\left[P(y = c) \prod_{j} p(x_j \mid y = c)\right] = \ln P(y = c) + \sum_{j} \ln p(x_j \mid y = c)$$
 
 Why take logarithms at all? With hundreds of features the product is hundreds of small
-numbers multiplied together, and a computer rounds it to exactly zero (this is called
-**underflow**). Already $0.5^{300}$ is about $5 \times 10^{-91}$, and real likelihoods
-are far smaller than 0.5. Every class then scores zero and nothing can be compared.
+densities multiplied together, and a computer rounds it to exactly zero (this is called
+**underflow**): a double cannot hold anything below about $10^{-308}$, so two hundred
+factors of 0.01, $10^{-400}$, are stored as 0, while the sum of their logarithms, −921,
+is an ordinary number. Every class then scores zero and nothing can be compared.
 
 Two facts repair this. The logarithm is an increasing function, so the class with the
 largest product is also the class with the largest logarithm, and the decision does not

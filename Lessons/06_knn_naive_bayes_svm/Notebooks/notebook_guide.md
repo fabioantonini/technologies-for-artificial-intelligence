@@ -87,7 +87,7 @@ and working in thousands of dimensions. The notebook shows it succeeding, then f
 **The concepts, in order.**
 
 1. **Bayes' rule, and where the difficulty is.** The prior and the denominator are
-   easy; the joint likelihood $P(x \mid y = c)$ is the problem.
+   easy; the joint density $p(x \mid y = c)$ is the problem.
 2. **The naive assumption** — given the class, the features are independent — which
    replaces one $n$-dimensional estimate with $n$ one-dimensional ones.
 3. **On the pumps it does very well:** **0.933 ± 0.010**, one point behind k-NN and a
