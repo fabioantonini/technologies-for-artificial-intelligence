@@ -224,7 +224,7 @@ $w$ **is** a wider margin, which is why the SVM minimises $\\lVert w \\rVert$.
 
 
 # --------------------------------------------------------------- slide 52
-@example(50)
+@example(52)
 def hinge():
     rows = []
     for m in (2.0, 1.0, 0.5, 0.0, -1.0):
@@ -252,7 +252,7 @@ zero is where support vectors come from.
 
 
 # --------------------------------------------------------------- slide 54
-@example(52)
+@example(54)
 def c_tradeoff():
     wide = {"w": 1.0, "xi": 1.5}             # wide slab, two violations costing 1.5 in total
     narrow = {"w": 3.0, "xi": 0.0}           # narrow slab, no violations
@@ -282,7 +282,7 @@ regularisation — the direction that catches people out.
 
 
 # --------------------------------------------------------------- slide 62
-@example(60)
+@example(63)
 def rbf_values():
     gamma = 0.5
     half = math.sqrt(math.log(2) / gamma)

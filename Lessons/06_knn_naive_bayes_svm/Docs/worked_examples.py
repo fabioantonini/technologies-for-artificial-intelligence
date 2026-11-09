@@ -414,12 +414,19 @@ from sklearn.preprocessing import StandardScaler                       # noqa: E
 from sklearn.svm import SVC                                            # noqa: E402
 
 svm_folds = StratifiedKFold(n_splits=5, shuffle=True, random_state=0)
-for gamma, C, printed_train, printed_cv in ((0.1, 1, 0.936, 0.929),
-                                            (1, 1, 0.950, 0.944),
-                                            (50, 1000, 0.995, 0.902)):
+from sklearn.model_selection import cross_validate                     # noqa: E402
+
+for gamma, C, printed_train, printed_cv in ((0.1, 1, 0.934, 0.929),
+                                            (1, 1, 0.948, 0.944),
+                                            (50, 1000, 0.996, 0.902),
+                                            (50, 1, 0.960, 0.940),
+                                            (1, 1000, 0.953, 0.948)):
     svm = make_pipeline(StandardScaler(), SVC(kernel="rbf", gamma=gamma, C=C))
-    same(f"5.6 training score at gamma={gamma}, C={C}",
-         svm.fit(X, y).score(X, y), printed_train, tolerance=1e-3)
+    # training measured inside each fold, by hand rather than by cross_validate
+    inside = np.mean([svm.fit(X.iloc[tr], y.iloc[tr]).score(X.iloc[tr], y.iloc[tr])
+                      for tr, _ in svm_folds.split(X, y)])
+    same(f"5.6 training score in the folds at gamma={gamma}, C={C}",
+         inside, printed_train, tolerance=1e-3)
     same(f"5.6 cross-validated score at gamma={gamma}, C={C}",
          cross_val_score(svm, X, y, cv=svm_folds).mean(), printed_cv, tolerance=1e-3)
 
@@ -503,8 +510,8 @@ for margin, printed in ((2, 0.127), (3, 0.049)):
 # 5.4: the kernel checked by hand - both routes.
 a_pt, b_pt = np.array([1.0, 2.0]), np.array([3.0, 1.0])
 lift = lambda v: np.array([v[0] ** 2, np.sqrt(2) * v[0] * v[1], v[1] ** 2])
-same("5.4 phi(a) . phi(b)", lift(a_pt) @ lift(b_pt), 25.0, tolerance=1e-9)
-same("5.4 (a . b)^2", (a_pt @ b_pt) ** 2, 25.0, tolerance=1e-9)
+same("5.4 phi(u) . phi(v)", lift(a_pt) @ lift(b_pt), 25.0, tolerance=1e-9)
+same("5.4 (u . v)^2", (a_pt @ b_pt) ** 2, 25.0, tolerance=1e-9)
 same("5.4 the lifted products 9 + 12 + 4",
      lift(a_pt)[0] * lift(b_pt)[0] + lift(a_pt)[1] * lift(b_pt)[1]
      + lift(a_pt)[2] * lift(b_pt)[2], 9 + 12 + 4, tolerance=1e-9)
@@ -695,5 +702,45 @@ same("4.5 accuracy on the 300", right_i.mean(), 0.443, tolerance=5e-4)
 same("4.5 mean confidence", conf_i.mean(), 0.560, tolerance=5e-4)
 same("4.5 confidence when right", conf_i[right_i].mean(), 0.567, tolerance=5e-4)
 same("4.5 confidence when wrong", conf_i[~right_i].mean(), 0.555, tolerance=5e-4)
+
+# ------------------------- Section 5.1-5.6, the additions from the study
+
+# 5.1: the threshold example in one dimension.
+same("5.1 margin of the threshold at 3.5", 3.5 - 3, 0.5, tolerance=1e-9)
+same("5.1 margin of the threshold at 5", min(5 - 3, 7 - 5), 2, tolerance=1e-9)
+
+# 5.2: the slack figure, rebuilt from the same made-up points.
+rng_toy = np.random.default_rng(3)
+toy_l = rng_toy.normal([-1.6, 0.0], [0.6, 1.1], size=(40, 2))
+toy_r = rng_toy.normal([+1.6, 0.0], [0.6, 1.1], size=(40, 2))
+soft_x = np.vstack([toy_l, toy_r, [[-0.35, 1.9], [0.45, -1.6], [0.9, -2.6], [-1.0, 2.6]]])
+soft_y = np.r_[np.zeros(40), np.ones(40), [0, 1, 0, 1]].astype(int)
+f_soft = SVC(kernel="linear", C=1).fit(soft_x, soft_y).decision_function(soft_x)
+yf = (2 * soft_y - 1) * f_soft
+xi = np.maximum(0, 1 - yf)
+for point, printed_yf, printed_xi in (((-0.65, -1.31), 1.22, 0.0), ((0.45, -1.60), 0.45, 0.55),
+                                      ((0.90, -2.60), -0.86, 1.86)):
+    i = int(np.argmin(np.hypot(soft_x[:, 0] - point[0], soft_x[:, 1] - point[1])))
+    same(f"5.2 y*f(x) of the circled point {point}", yf[i], printed_yf, tolerance=5e-3)
+    same(f"5.2 slack of the circled point {point}", xi[i], printed_xi, tolerance=5e-3)
+same("5.2 log loss at y*f(x) = 0 is ln 2", np.log1p(np.exp(0.0)), 0.693, tolerance=5e-4)
+
+# 5.4: the RBF similarity at one, two and three standard deviations, and the
+# half-similarity ellipse on the raw axes.
+for dist, printed in ((1, 0.61), (2, 0.14), (3, 0.011)):
+    same(f"5.4 RBF similarity at {dist} sd, gamma 0.5", np.exp(-0.5 * dist ** 2), printed,
+         tolerance=5e-3 if printed > 0.1 else 5e-4)
+reach_half = np.sqrt(np.log(2) / 0.5)
+same("5.4 half-similarity distance", reach_half, 1.18, tolerance=5e-3)
+same("5.5 the ellipse across, Hz", reach_half * X["vibration_hz"].std(), 4.45, tolerance=5e-3)
+same("5.5 the ellipse up and down, bar", reach_half * X["pressure_bar"].std(), 0.55, tolerance=5e-3)
+same("5.4 the cross term 2 sqrt2 x 3 sqrt2", 2 * np.sqrt(2) * 3 * np.sqrt(2), 12, tolerance=1e-9)
+
+# 6: the ceiling, exactly: the labels the generator flipped.
+from pump_data import _standardised_radius as radius_rule   # noqa: E402
+flipped_all = int((y.to_numpy() != (radius_rule(X["vibration_hz"], X["pressure_bar"]) > 1)).sum())
+same("6 labels flipped", flipped_all, 49, tolerance=0)
+same("6 the exact ceiling", 1 - flipped_all / 1200, 0.959, tolerance=5e-4)
+same("6 the gap between families", 0.947 - 0.613, 0.334, tolerance=1e-9)
 
 print(f"lesson 6: {checks} hand-worked numbers recomputed, all agree")

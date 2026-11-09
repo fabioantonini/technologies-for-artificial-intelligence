@@ -1364,10 +1364,10 @@ the two sensors as a third column and watch it recover. That is the whole story
 of feature engineering versus model choice in one cell.
 :::
 
-# The margin: choosing among lines that all fit
+# SVM: among the lines that fit, take the widest margin
 
-- Third family. When a line can separate two classes, **infinitely many**
-  lines do, all with **zero training error**: the error cannot choose
+- When a line can separate two classes, **infinitely many** lines do, all
+  with **zero training error**: the error cannot choose
 - The SVM picks the line with the widest **margin**: an empty strip (the
   slab) around the line, widened until it touches a point of each class
 - The reason: a line that passes close to a point gets it wrong after a small
@@ -1383,9 +1383,20 @@ on the board and ask for the boundary. Somebody will draw a line. Ask whether
 another line would have been equally good, and keep asking until the room sees
 that there are infinitely many, all with identical training error.
 
-So the error cannot decide. Something else has to. Logistic regression breaks the
-tie with log loss - a perfectly respectable answer, and one answer among several.
-The SVM breaks it differently: take the boundary with the most room around it.
+So the error cannot decide: the count of errors is flat across all these lines,
+with no slope to follow. Something else has to. Each loss picks one line by its
+own criterion: logistic regression breaks the tie with log loss - a perfectly
+respectable answer, and one answer among several. The SVM breaks it differently:
+take the boundary with the most room around it. Same kind of algorithm, a
+different objective. Only an algorithm that stops at the first line with zero
+errors, like the perceptron, lands on whichever line it happens to meet first.
+
+A board example in one dimension, where the "line" is a threshold. Healthy pumps
+at 1, 2 and 3; faulty ones at 7, 8 and 9. Every threshold between 3 and 7 has
+zero errors. A threshold at 3.5 is 0.5 from the nearest healthy pump; one at 5 is
+2 from both sides. A new healthy pump arrives at 4, one step from the others:
+3.5 calls it faulty, 5 calls it healthy. The SVM picks 5 - the middle of the
+empty gap, the threshold the data must move furthest to cross.
 
 The intuition, and this is the sentence to say slowly: maximising the distance to
 the closest points chooses the boundary that tolerates the most movement in the
@@ -1397,13 +1408,15 @@ validation score.
 Handout section 5.1.
 :::
 
-# 80 points in two groups: three of them fix the line (support vectors)
+# 80 made-up points: three of them fix the line (support vectors)
 
 ![](svm_margin.png)
 
 ::: notes
-The solid line is the boundary, the dashed lines are the edges of the slab, and
-the circled points are the support vectors touching it.
+Made-up points, not pumps: two groups of 40 drawn around (−1.6, 0) and
+(+1.6, 0), and a linear SVM with a very large C, so close to the strict version
+of the next slide. The solid line is the boundary, the dashed lines are the edges
+of the slab, and the circled points are the support vectors touching it.
 
 The number to say out loud: of eighty points, THREE determine the answer. Move
 any of the other seventy-seven - anywhere, as far as you like, as long as they
@@ -1414,17 +1427,54 @@ anything so far. Every linear model in lessons 3 and 4 used every row: each one
 contributed to the gradient in proportion to its error. Here most of the data is
 irrelevant once the fit is done.
 
-Two consequences worth naming. The model is small - you store the support
-vectors, not the dataset, which is the contrast with k-NN. And it is sensitive
+Training does not find the support vectors first: it solves for the line, and
+the support vectors are the points that end up on the edge of the slab.
+
+Two consequences worth naming. The model is small - for a linear SVM, w and b
+are enough, three numbers here; a kernel SVM, later, has to keep its support
+vectors, still not the whole dataset, which is the contrast with k-NN. And it is sensitive
 in a specific way: an outlier near the boundary matters enormously, while an
 outlier far from it matters not at all.
+:::
+
+# The strict problem: the widest slab with no point inside
+
+- Labels −1 (healthy), +1 (faulty): y·f(x) > 0 means "classified right";
+  in code y stays 0/1
+- Boundary w·x + b = 0, scaled so the closest points have |w·x + b| = 1:
+  the slab is 2/‖w‖ wide
+- Widest slab = shortest w: minimise ½‖w‖², every point outside,
+  yᵢ(w·xᵢ + b) ≥ 1
+- No term for errors: the constraints forbid them
+
+::: notes
+This is the problem the previous slide solved, written down, so that the next
+slide has something to relax.
+
+The labels first. Lessons 3 and 4 used 0 and 1; here healthy is −1 and faulty
++1, a relabelling with no content. It buys one product for "right side": f(x) =
+w·x + b is positive on the faulty side, so y·f(x) > 0 says the sign of the
+prediction and the label agree, and y·f(x) ≥ 1 says the point is outside the
+slab. scikit-learn does the relabelling itself: y stays 0/1 in code.
+
+Then the scale. Multiplying w and b by ten does not move the boundary, so fix the
+scale by a choice: the closest points have |w·x + b| = 1. Then the slab reaches
+1/‖w‖ on each side, 2/‖w‖ in all, and maximising its width is minimising ‖w‖ -
+written ½‖w‖² for a tidy derivative, as in lesson 3.
+
+The parallel to make: in lesson 3, ridge regression minimised the mean squared
+error plus a penalty on the coefficients. Here the objective is the penalty
+alone, ½‖w‖², and the data enter only as constraints - every point outside the
+slab, no errors allowed. The next slide adds the data term. Handout section 5.2
+derives each step.
 :::
 
 # Not separable? Charge for the violations
 
 - With 4% of the labels flipped, no slab separates the pumps: the strict
   problem has **no solution**
-- So let point i enter the slab by a slack ξᵢ, and charge C per unit
+- Give each point i an allowance ξᵢ ≥ 0, its slack: how far it may fall
+  short of its edge of the slab. Each unit of slack costs C
 - ξᵢ = 0 outside the slab, 0 to 1 inside it, above 1 on the wrong side
 - That charge is the **hinge loss** max(0, 1 − y·f(x)), labels ±1,
   f(x) = w·x + b
@@ -1439,13 +1489,38 @@ the strict (hard-margin) version is only a teaching device.
 Our own labels are flipped at 4%, deliberately, so this is not a hypothetical
 for this dataset: the hard-margin problem on these pumps has no answer.
 
+How the slack enters: the constraint yᵢ(w·xᵢ + b) ≥ 1 becomes ≥ 1 − ξᵢ, and the
+objective gains C Σ ξᵢ. At the best fit each ξᵢ is as small as allowed, which is
+the hinge of the last bullet. Three cases with numbers: a point with y·f(x) = 2,
+outside on its own side, has ξ = 0 and pays nothing; one with 0.4, inside the slab
+but on the right side, has ξ = 0.6 and pays 0.6 C; one with −0.5, on the wrong
+side, has ξ = 1.5 and pays 1.5 C. The trade: a wider slab lowers ½‖w‖² but lets
+more points inside, raising C Σ ξᵢ; C is the exchange rate.
+
 Then read the three cases of the slack aloud, because they come back twice: in
 the weights the training produces, and in who gets a vote at prediction. Put it
 next to lesson 4's log loss: that one shrinks for a well-classified point but
 never reaches zero, so every row keeps pulling. The hinge reaches zero, and a
 point with zero loss drops out of the answer entirely.
 
-The next slide puts it in symbols. Handout section 5.2 has the derivation.
+The next slide draws the three cases. Handout section 5.2 has the derivation.
+:::
+
+# Three kinds of point: outside the slab, inside it, on the wrong side
+
+![](svm_slack.png)
+
+::: notes
+The previous slide's three cases, drawn. The 80 made-up points of slide 48 with
+four more placed against their class, and a soft-margin linear SVM with C = 1.
+
+Three points are circled (notebook 3 prints them). A teal point outside the slab
+on its own side: y·f(x) = 1.22, slack 0, it pays nothing. A rust point inside
+the slab but still on the right side: y·f(x) = 0.45, slack 0.55. A teal point
+across the boundary: y·f(x) = −0.86, slack 1.86, more than 1 because it is on the
+wrong side. With C = 1 the slab is wider than on slide 48: errors are cheap
+enough that the model accepts a few points inside rather than squeezing the
+slab. Handout section 5.2.
 :::
 
 # The hinge loss stops at zero
@@ -1453,15 +1528,19 @@ The next slide puts it in symbols. Handout section 5.2 has the derivation.
 ![](hinge_vs_log_loss.png)
 
 ::: notes
-What each point pays, against its margin y times f(x): large and positive when
-it is safely on its own side, negative on the wrong side.
+What each point pays, against y times f(x): large and positive when it is
+safely on its own side, negative on the wrong side, 1 at the edge of the slab.
+The axis is not "the margin": the margin is the slab's width; y·f(x) belongs to
+one point.
 
 Walk the three zones left to right. Wrong side: both losses are large. Inside the
 slab: the hinge still charges, falling in a straight line. Right of 1, outside
 the slab: the hinge is exactly zero, and the log loss from lesson 4 is still
-charging - 0.127 at a margin of 2, 0.049 at 3.
+charging - 0.127 at y·f(x) = 2, 0.049 at 3. The dashed curve is lesson 4's log
+loss rewritten for labels ±1, ln(1 + e^(−y·f(x))): 0.693 at 0.
 
-The sentence to land: a point with zero loss stops pulling on the answer. That
+The sentence to land: a point with zero loss stops pulling on the answer - zero
+loss means zero gradient, so a point beyond 1 does not move w or b at all. That
 is where support vectors come from - and why logistic regression never has any.
 Handout section 5.2.
 :::
@@ -1479,9 +1558,18 @@ Do not derive this. State what each piece is doing and move on - handout section
 5.2 has the derivation, including why maximising the margin is the same as
 minimising the norm of w.
 
+Read it against the strict problem of slide 49: the same ½‖w‖², plus
+C Σ ξᵢ, with the constraint relaxed from ≥ 1 to ≥ 1 − ξᵢ.
+
 The first term wants a wide slab. The second term wants few violations. C sets
 the exchange rate between them, and that is the entire content of the
 expression. Read it out in those words rather than reading the symbols.
+
+Then the parallel with lesson 3. Each ξᵢ ends up equal to point i's hinge loss,
+so divide the whole objective by C: the sum of the hinge losses plus
+(1/(2C))‖w‖². That is lesson 3's shape, a loss on the data plus λ times a
+penalty, with ½‖w‖² playing ridge's penalty, the hinge playing the mean squared
+error, and λ = 1/(2C).
 
 If someone asks about the half in front of the norm: it is there to make the
 derivative tidy, exactly as in lesson 3's cost function.
@@ -1489,12 +1577,12 @@ derivative tidy, exactly as in lesson 3's cost function.
 
 # C is the price of a training error
 
-- **Large C**: slack is expensive, so the slab narrows to classify more
+- **Large C**: slack is expensive, the slab narrows to classify more
   training points. Low bias, high variance
-- **Small C**: slack is cheap, so the slab stays wide and some training
-  points stay wrong. Higher bias, lower variance
-- C plays the role of k in k-NN and of λ in lesson 3
-- But **large C means less regularisation**: the opposite of λ
+- **Small C**: slack is cheap, the slab stays wide, some training points
+  stay wrong. Higher bias, lower variance
+- C plays the role of k in k-NN and of λ in lesson 3, but **large C means
+  less regularisation**: divided by C, the penalty weighs 1/(2C)
 
 ::: notes
 Third appearance of the same idea, and say so - that repetition is the point.
@@ -1514,20 +1602,29 @@ Be precise about what a large C does to the boundary. With a linear kernel the
 boundary and the two edges of the slab stay three parallel straight lines: a
 larger C can only make the slab narrower, or shift and rotate it, to classify
 more training points. It never bends it. With the RBF kernel the boundary can
-also bend around individual points, and slide 66 shows how far that goes when C
-and gamma are both large.
+also bend around individual points, and we will see on the pumps how far that
+goes when C and γ are both large.
+
+The two ends, worth one sentence each. C towards infinity: no slack is
+affordable, and the strict problem comes back - infeasible on the pumps. C
+towards 0: only ½‖w‖² is left, its minimum is w = 0, and the model ignores the
+readings. And k runs like λ - a larger k is smoother - while C runs the other
+way.
 :::
 
 # The best straight line is still a straight line
 
-| Model, on the pumps | Accuracy, 5-fold cross-validation | Support vectors, fitted on all 1,200 |
+| Model, on the pumps (standardised, default C = 1) | Accuracy, 5-fold cross-validation | Support vectors, fitted on all 1,200 |
 |---|---|---|
 | SVM, linear kernel: a straight line | **0.613 ± 0.000** | 947 of 1,200 (**79%**) |
 | SVM, RBF kernel: a curved boundary | 0.947 ± 0.005 | 278 of 1,200 (23%) |
 
 ::: notes
 The linear kernel scores 0.613 - the base rate, exactly as logistic regression
-did on slide 6, with the same zero variance across folds.
+did on slide 6, with the same zero variance across folds: a straight line
+through a disc inside a ring cannot do better than calling every pump faulty.
+Both models standardise first and keep scikit-learn's defaults, C = 1 and, for
+the RBF kernel, γ = 0.5.
 
 Make the point explicitly, because it is the one students most often get
 backwards: the margin criterion is a better way of CHOOSING among straight
@@ -1540,7 +1637,24 @@ Then the RBF row, which is the same algorithm with one argument changed, at
 ceiling.
 
 The support-vector column says the same thing in a different way, and that is
-the next slide.
+the next slide. With slack, a support vector is any pump on the edge of the
+slab, inside it or on the wrong side.
+:::
+
+# On the pumps: a straight line leaves almost every pump in its slab
+
+![](svm_support_vectors_pumps.png)
+
+::: notes
+The previous table's last column, drawn on the standardised pumps. Circled: the
+support vectors - on the edge of the slab, inside it, or on the wrong side.
+
+Left, the linear SVM: 947 of 1,200 circled. Its boundary lies off the picture,
+because it calls every pump faulty; the dashed line is the far edge of its slab,
+and almost every pump is inside. Right, the RBF SVM: 278 circled, in a thin
+band around the ellipse it draws; the pumps deep in the disc and far out in the
+ring are left uncircled, and the model forgets them. The next slide turns the
+count into a diagnostic.
 :::
 
 # Many support vectors: a free warning
@@ -1572,12 +1686,12 @@ most of the speed advantage over k-NN.
 
 # A new coordinate makes the classes separable
 
-- In the plane, healthy pumps sit in a disc and faulty ones around it: no
-  line separates them
-- Add a third coordinate, computed from the two readings: each pump's
-  **distance from the design point**
-- Healthy pumps rise a little, faulty ones a lot, and a flat plane separates
-  them
+- In the plane, healthy pumps sit in a disc, faulty ones around it: no line
+  separates them
+- Add a third coordinate: each pump's **distance from the design point**,
+  standardised
+- Healthy pumps rise a little, faulty ones a lot: a flat plane separates
+  them, flipped labels apart
 - The classes were separable all along, in other coordinates
 
 ::: notes
@@ -1585,7 +1699,8 @@ Build the picture in words first and let them see it before the figure appears.
 Take the scatter plot from the start of the lesson, lift each point off the page
 by its distance from the centre, and look from the side.
 
-Then the sentence that reframes the whole lesson: the classes were never
+Standardised, as on slide 10: in raw units the hertz would swamp the bar. Then
+the sentence that reframes the whole lesson: the classes were never
 inseparable. Separability is not a property of the data - it is a property of
 the data AND the coordinates you happen to have measured it in.
 
@@ -1607,7 +1722,9 @@ on the right lifted by their distance from the design point. The gold plane does
 what no line could.
 
 Have them look at the right panel and confirm for themselves that a flat
-horizontal cut separates the colours cleanly. Nothing was added - no new
+horizontal cut separates the colours, apart from the flipped labels - the teal
+dots high up among the rust. A flat cut up there is a circle down here: linear
+in the new coordinates is curved in the old ones. Nothing was added - no new
 measurement, no extra sensor. The third coordinate is computed from the two they
 already had.
 
@@ -1619,13 +1736,22 @@ computing the coordinates of every point in such a space is impossible.
 
 # The SVM's solution: a weighted sum of pumps
 
-$$w = \sum_{i=1}^{m} a_i\, y_i\, x_i, \qquad a_i \geq 0$$
+- Slide 53's objective: ½‖w‖² + C Σ max(0, 1 − yᵢ(w·xᵢ + b))
+- Its slope in w: w − C Σ yᵢ xᵢ, over the pumps inside the slab or on the
+  wrong side
+- Zero slope: w = Σ aᵢ yᵢ xᵢ; aᵢ = C inside, 0 outside, 0 to C on the edge
+- Only the support vectors have aᵢ > 0: the pegs of the tent
 
 ::: notes
 This is the rewriting the kernel trick rests on, which is why it comes before
-the trick, not after - it is called the **dual formulation**,
-and that phrase from the handout is otherwise just a name with nothing behind
-it.
+the trick, not after. Derive it in the one step on the slide: set the slope of
+the objective to zero. The first term contributes w. Each hinge term contributes
+−C yᵢ xᵢ while pump i is inside the slab or on the wrong side, nothing once it is
+outside, where the hinge is flat, and something in between exactly on the edge,
+where the hinge has a corner. Zero slope gives w as a sum of pumps.
+
+The same result, reached through multipliers and the problem in the weights
+alone, is called the **dual formulation**: handout section 5.4.
 
 Say it in one sentence first: instead of solving for $w$ directly, the
 optimisation turns out to hand back $w$ as a weighted sum of the training
@@ -1644,18 +1770,19 @@ its own. That is the whole reason a kernel is enough - a function that returns
 that one number, the inner product in the lifted space, is all either
 computation ever asks for.
 
-Do not derive $a_i$ here - the three-fact argument, from the constrained
+The counts match notebook 3 on the pumps with the RBF kernel: 268 pumps at the
+ceiling C, 10 in between, 922 at zero. The longer route, from the constrained
 optimisation to this formula, is handout section 5.4.
 :::
 
 # So the new coordinates are never computed
 
-- Put that w into the boundary: w·x + b = Σ aᵢ yᵢ (xᵢ · x) + b,
-  so the pumps enter **only through inner products**
-- A function giving the inner product **in the new coordinates**, from the
-  original ones, is enough: a **kernel**
-- The new coordinates are never computed: the RBF kernel, scikit-learn's
-  default, costs one exponential per pair
+- φ(x): a pump's new coordinates. Slide 60 there: w = Σ aᵢ yᵢ φ(xᵢ)
+- Boundary Σ aᵢ yᵢ φ(xᵢ)·φ(x) + b; training needs only φ(xᵢ)·φ(xⱼ): the
+  pumps enter **only through inner products**
+- A **kernel** K(x, x′) gives φ(x)·φ(x′) from the original readings: φ is
+  never computed
+- RBF, scikit-learn's default: one exponential per pair
 
 ::: notes
 Kernels were joined to the margin by Bernhard Boser, Isabelle Guyon and Vapnik
@@ -1663,6 +1790,13 @@ in 1992, at Bell Labs; that paper is what made SVMs a practical tool.
 
 The trick in one sentence: the SVM never needs the coordinates, only the inner products between points,
 which carry their lengths and the angles between them, and those can be obtained without ever going there.
+
+Walk the bullets. φ(x) is the lift - slide 58's (z₁, z₂, radius) is one choice of
+it. Run the previous slide in those coordinates and w is a sum of lifted pumps.
+Put that w into the boundary and every φ(xᵢ) meets φ(x) only in an inner
+product; training is the same, because f at each training pump and ‖w‖² are
+both sums of φ(xᵢ)·φ(xⱼ). So a function that returns that inner product
+straight from the original two readings is all either computation needs.
 
 Do not prove it here - the previous slide gave the one line that makes this claim
 true, and handout section 5.4 has the full three-fact argument behind that
@@ -1678,21 +1812,25 @@ coordinates.
 
 # The kernel trick by hand: 25 = 25
 
-| Route, for a = (1, 2) and b = (3, 1) | Computation | Result |
+| Route, for u = (1, 2) and v = (3, 1) | Computation | Result |
 |---|---|---|
-| Lift with φ(x) = (x₁², √2·x₁x₂, x₂²), then multiply | φ(a) · φ(b) = (1, 2.83, 4) · (9, 4.24, 1) = 9 + 12 + 4 | **25** |
-| Never lift: the kernel (a · b)² | (1×3 + 2×1)² = 5² | **25** |
+| Lift with φ(x) = (x₁², √2·x₁x₂, x₂²), then multiply | φ(u) · φ(v) = (1, 2.83, 4) · (9, 4.24, 1) = 9 + 12 + 4 | **25** |
+| Never lift: the kernel (u · v)² | (1×3 + 2×1)² = 5² | **25** |
 
 ::: notes
 Make the trick concrete before the famous formula. The lift here lists every
-product of two coordinates: phi(x) = (x1², √2·x1·x2, x2²). Two points, a = (1, 2)
-and b = (3, 1).
+product of two coordinates: phi(x) = (x1², √2·x1·x2, x2²). Two points, u = (1, 2)
+and v = (3, 1) - not a and b, which are already the weights and the intercept.
 
 First row: lift both into three dimensions and take the ordinary inner product -
 9 + 12 + 4 = 25. Second row: never lift, take the inner product in the plane, 5,
-and square it - 25. Same number. The second route never left two dimensions, so
-the function (a · b)² IS the inner product in the lifted space. That is all a
-kernel is.
+and square it - 25. Same number. The middle term is exactly 2√2 × 3√2 = 12.
+
+Why it is always the same, in three lines on the board: (u·v)² = (u₁v₁ + u₂v₂)²
+= u₁²v₁² + 2u₁v₁u₂v₂ + u₂²v₂² = (u₁²)(v₁²) + (√2u₁u₂)(√2v₁v₂) + (u₂²)(v₂²) =
+φ(u)·φ(v). The √2 in φ is there to produce the 2 of the cross term. The second
+route never left two dimensions, so the function (u · v)² IS the inner product in
+the lifted space. That is all a kernel is.
 
 Then connect it to the figure they just saw: the lifted space contains x1² and
 x2², and their sum is the squared distance from the centre - the coordinate we
@@ -1702,7 +1840,12 @@ lift we had to guess. Handout section 5.4.
 
 # The RBF kernel: similarity falls with distance
 
-$$K(x, x') = \exp\left(-\gamma \|x - x'\|^2\right)$$
+- Radial basis function (RBF) kernel: K(x, x′) = exp(−γ‖x − x′‖²)
+- A similarity: 1 for identical pumps, towards 0 far apart. With γ = 0.5:
+  0.61 at one standard deviation, 0.14 at two
+- Why it: expand the exponential and it holds (x·x′)², (x·x′)³, … every
+  degree at once - infinitely many new coordinates, no lift to guess
+- Cost: one exponential per pair of pumps
 
 ::: notes
 One line, and it is the whole of what scikit-learn does when you leave `kernel`
@@ -1713,14 +1856,21 @@ are, the nearer the exponent is to zero and the nearer the kernel is to one; far
 apart, it falls away to nothing. That is all an RBF kernel says - how much does
 this point look like that one.
 
-Now say what γ means, because slides 64 to 66 turn on it: it sets how far a
-single training point's influence reaches. Small γ, wide reach, smooth boundary.
+Why this kernel: slide 62's kernel is the degree-2 term of its expansion, and the
+exponential holds every degree at once, so its φ has infinitely many entries and
+can draw the circle the pumps need, or any smooth shape, without being told
+which. The link back to k-NN: with this kernel the boundary is a vote of the
+support vectors weighted by similarity - near ones count, far ones barely.
+
+Now say what γ means, because the last part of the lesson turns on it: it sets
+how far a single training point's influence reaches. Small γ, wide reach, smooth boundary.
 Large γ, each point influences only its immediate neighbourhood - and a boundary
 that can afford an island around every pump with a flipped label.
 
 A number to anchor it: the similarity halves at a distance of sqrt(ln 2 / γ).
 For scikit-learn's default on the standardised pumps, γ = 0.5, that is about 1.2
-standard deviations.
+standard deviations: exp(−0.5) = 0.61 at one standard deviation, exp(−2) = 0.14
+at two, 0.011 at three.
 
 Worth naming the cost, since this is an engineering course: one exponential per
 pair of points, so the kernel matrix is m × m. That is why support vector
@@ -1730,14 +1880,18 @@ the method rather than of the implementation.
 
 # Training: one weight per pump
 
-- RBF SVM on the standardised pumps, defaults γ = 0.5 and C = 1: one
-  weight aᵢ per pump
+- fit minimises slide 53's objective in the weights aᵢ, two at a time: no
+  learning rate, one answer (RBF, γ = 0.5, C = 1)
 - **922** pumps get weight 0: outside the slab, they drop out
-- **268** get the maximum, C = 1 (inside the slab or on the wrong side);
-  **10** sit on its edge. Together: 278 support vectors
+- **268** get C = 1 (inside the slab or wrong side), **10** sit on its
+  edge: 278 support vectors
 - The model kept: those 278 pumps, their weights, and b = +1.105
 
 ::: notes
+The solver is SMO, sequential minimal optimisation, published by John Platt at
+Microsoft Research in 1998; it runs inside libsvm, which is what scikit-learn's
+SVC calls.
+
 Say what "fit" does, because after lesson 3 they will expect gradient descent.
 It is not. The SVM solves the dual with the kernel substituted in: one weight
 per training point, found by a solver that picks two weights at a time - two,
@@ -1761,7 +1915,7 @@ Between: the 10 sitting exactly on the edge.
 The model you ship is 278 points and their weights. Handout section 5.5.
 :::
 
-# The SVM on 48 Hz, 5.6 bar: +1.883
+# The SVM's score at 48 Hz, 5.6 bar: Σ aᵢ yᵢ K(xᵢ, x) + b = +1.883
 
 | Term, for the pump x at 48 Hz, 5.6 bar | Value |
 |---|---|
@@ -1771,11 +1925,23 @@ The model you ship is 278 points and their weights. Handout section 5.5.
 | **Total: positive, so faulty** | **+1.883** |
 
 ::: notes
-Inference is a vote, in four steps. Standardise the pump with the training
-scaler. Compute its RBF similarity to each of the 278 support vectors. Add up
+The title is the formula: the score sums, over the 278 support vectors, weight
+times label times similarity, plus b; its sign is the class. Inference is a
+vote, in four steps. Standardise the pump with the training scaler: (1.587,
+−0.035). Compute its RBF similarity to each of the 278 support vectors. Add up
 weight times label times similarity - label +1 for faulty, -1 for healthy - and
 add b. Read the sign. Nothing else goes in: the total is exactly what
 decision_function returns.
+
+Make it concrete with the two nearest support vectors (notebook 3): a faulty
+pump at 46.59 Hz and 5.58 bar, similarity 0.932, votes +0.932; a healthy one at
+46.78 Hz and 5.73 bar, similarity 0.916, votes −0.916. With C = 1, 268 of the 278
+weights are exactly 1, so most votes are just label times similarity.
+
+b on its own is what a pump far from every support vector would get: +1.105,
+faulty - sensible here, where far from the design point means faulty. And
++1.883 is above 1: by slide 52's reading the pump sits beyond the faulty edge of
+the slab, faulty with room to spare.
 
 The same pump Naive Bayes called faulty at 0.981, reached by a completely
 different route.
@@ -1799,6 +1965,11 @@ shaded by its similarity to the pump, the gold star at 48 Hz and 5.6 bar; the
 dashed ellipse is where similarity falls to one half, about 1.2 standard
 deviations; the black line is the SVM's boundary.
 
+Why an ellipse: in standardised units the half-similarity line is a circle of
+radius √(ln 2 / γ) = 1.18 standard deviations; on these raw axes it stretches by
+each reading's standard deviation, 1.177 × 3.78 = 4.45 Hz across and
+1.177 × 0.471 = 0.55 bar up and down.
+
 Point out where the weight is: the 56 support vectors inside the dashed ellipse
 carry most of it, the ones across the disc have faded out. Then point at the
 star's immediate neighbours - teal and rust together, boundary pumps and flipped
@@ -1809,18 +1980,21 @@ section 5.5.
 
 # Training against cross-validated, three settings
 
-| RBF SVM on the pumps | Training accuracy | Cross-validated accuracy, 5 folds |
+| RBF SVM on the pumps | Training accuracy (each fold's 960 pumps) | Cross-validated accuracy, 5 folds |
 |---|---|---|
-| γ = 0.1, C = 1 | 0.936 | 0.929 |
-| γ = 1, C = 1 | 0.950 | **0.944** |
-| γ = 50, C = 1000 | **0.995** | 0.902 |
+| γ = 0.1, C = 1 | 0.934 | 0.929 |
+| γ = 1, C = 1 | 0.948 | **0.944** |
+| γ = 50, C = 1000 | **0.996** | 0.902 |
 
 ::: notes
 Read the two columns against each other, exactly as lesson 5 taught, and let the
 last row do the work.
 
-The bottom row has the best training score on the slide - 0.995, nearly perfect  - 
-and the worst honest one. That is the signature of overfitting, and here it is
+Both columns come from the same five folds: the training score is measured on
+the 960 pumps each fold fits on, as for k on slide 12.
+
+The bottom row has the best training score on the slide - 0.996, nearly perfect -
+and the worst cross-validated one. That is the signature of overfitting, and here it is
 not inferred from theory but measured on the same data by two different
 procedures.
 
@@ -1832,8 +2006,16 @@ engineering, evidence of a better system. Fitting the data well is what we spent
 lessons 3 and 4 doing. What breaks the analogy is that a flexible model can fit
 data it has already been shown without learning anything transferable.
 
+The bottom row moves two knobs at once, and each alone barely hurts (notebook
+3): γ = 50 with C = 1 scores 0.960 training and 0.940 cross-validated; γ = 1 with
+C = 1000, 0.953 and 0.948. Together they overfit: a narrow reach and expensive
+errors make an island around every flipped pump. And "best in the middle" holds
+among these three only - the default γ = 0.5, C = 1 scores 0.947. Finding the
+best means a grid over both, cross-validated: lesson 5's GridSearchCV, and nested
+cross-validation to report it honestly.
+
 The reason this table is on the slide rather than in the handout is that the
-next slide shows the same three settings as pictures - so the failure is visible
+next slides show the same three settings as pictures - so the failure is visible
 as well as measurable, which is rare.
 :::
 
@@ -1845,7 +2027,10 @@ as well as measurable, which is rare.
 Gamma as a distance rather than a symbol. Each curve is the RBF similarity
 against the distance between two pumps; where it crosses the dotted line is the
 distance at which a support vector's vote has halved: 2.63 standard deviations
-at gamma 0.1, 1.18 at the default 0.5, 0.83 at 1, and 0.12 at 50.
+at γ 0.1, 1.18 at the default 0.5, 0.83 at 1, and 0.12 at 50. The reach goes as
+1/√γ: multiply γ by 100 and the reach shrinks tenfold. The link to k-NN: a small
+γ behaves like a large k, many pumps voting and a smooth boundary; a large γ like
+k = 1, only the nearest speaking.
 
 Ask them to predict the next slide from this one: at gamma 50 a point speaks only
 for a neighbourhood a tenth of a standard deviation wide. What will the boundary
@@ -1863,9 +2048,12 @@ together.
 Left, γ = 0.1: a smooth boundary, slightly too smooth, and the two scores agree.
 Middle, γ = 1: close to the true envelope, and the best honest score.
 
-Spend time on the right panel. The boundary has broken into bubbles - small islands
-around individual points, including those with flipped labels. That is what a 0.995
-training score looks like from the outside: the model has drawn a private
+All 1,200 pumps are drawn, so every island has its pump. Spend time on the right
+panel. The boundary has broken into bubbles - small islands around individual
+points, both ways: teal islands in the faulty ring around healthy-labelled pumps
+far out, and rust holes in the healthy disc around faulty-labelled pumps near the
+centre - mostly the flipped labels. That is what a 0.996 training score looks
+like from the outside: the model has drawn a private
 territory around each flipped label so that it can get it right.
 
 Ask them what happens to a new pump landing in the gap between two bubbles: it
@@ -1882,11 +2070,11 @@ plot it.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the widest slab, 47-50 | `SVC(kernel="linear")`, `.n_support_`, `decision_function` → 3 of 80 points |
-| a straight line still fails, 53-54 | `cross_val_score`, linear against RBF kernel → 947 against 278 support vectors |
-| the kernel trick, 55-60 | NumPy only: (a · b)² against the lifted product → 25 = 25 |
-| training and one prediction, 61-63 | `.support_`, `.dual_coef_`, `.intercept_` → +1.883 |
-| gamma and C, 64-66 | `SVC(gamma=..., C=...)` in the pipeline → 0.944 at γ = 1 |
+| the widest slab, 47-52 | `SVC(kernel="linear")`, `.n_support_`, `decision_function` → 3 of 80 points |
+| a straight line still fails, 55-57 | `cross_val_score`, linear against RBF kernel → 947 against 278 support vectors |
+| the kernel trick, 58-63 | NumPy only: (u · v)² against the lifted product → 25 = 25 |
+| training and one prediction, 64-66 | `.support_`, `.dual_coef_`, `.intercept_` → +1.883 |
+| γ and C, 67-69 | `SVC(gamma=..., C=...)`, `cross_validate` → 0.944 at γ = 1 |
 
 ::: notes
 Margins, support vectors, and what γ does to the boundary. Run notebook 03.

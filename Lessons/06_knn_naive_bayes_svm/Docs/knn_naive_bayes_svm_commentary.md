@@ -21,7 +21,7 @@ header-includes:
 
 <!-- examples-note:begin -->
 
-> **Worked examples** sit under ten slides (7, 10, 20, 28, 30, 43, 47, 50, 52, 60):
+> **Worked examples** sit under ten slides (7, 10, 20, 28, 30, 43, 47, 52, 54, 63):
 > a handful of invented values each, small enough to work through by hand. Their
 > numbers are not the lesson's data; every one is computed by `commentary_examples.py`,
 > beside this file, which also writes them here.
@@ -1298,7 +1298,7 @@ of 2 and 0.049 at 3: it keeps falling, so even a point that is safely correct ke
 pulling on the boundary, and every point influences the answer. The SVM's hinge loss,
 $\max(0,\ 1 - y_i f(x_i))$, is exactly zero once $y_i f(x_i) \geq 1$: past that point,
 pushing it further away is worth nothing. And the term $\tfrac{1}{2}\lVert w \rVert^2$ in
-the SVM's objective (slide 51) is what explicitly asks for the widest slab.
+the SVM's objective (slide 53) is what explicitly asks for the widest slab.
 
 So "gradient descent stops before reaching the widest margin" is not the right picture.
 Run it as long as you like: logistic regression will converge to the line that minimises
@@ -1348,7 +1348,7 @@ all.
 
 ---
 
-## Slide 49 — Not separable? Charge for the violations
+## Slide 50 — Not separable? Charge for the violations
 
 With 4% of the labels flipped, some faulty pumps sit among the healthy ones, and no slab
 can have all points outside it. The strict problem has no solution at all, not merely a
@@ -1360,12 +1360,12 @@ of violation is charged at a price $C$.
 - $0 < \xi_i < 1$: inside the slab, but still on the correct side of the boundary.
 - $\xi_i > 1$: on the wrong side of the boundary, so misclassified.
 
-These three cases come back twice: in the weights that training produces (slide 61) and
-in who gets a vote at prediction (slide 62).
+These three cases come back twice: in the weights that training produces (slide 64) and
+in who gets a vote at prediction (slide 65).
 
 ---
 
-## Slide 50 — The hinge loss stops at zero
+## Slide 52 — The hinge loss stops at zero
 
 ![](hinge_vs_log_loss.png)
 
@@ -1402,7 +1402,7 @@ zero is where support vectors come from.
 
 ---
 
-## Slide 51 — The SVM objective: small w, plus C times the slack
+## Slide 53 — The SVM objective: small w, plus C times the slack
 
 $$\min_{w, b, \xi} \ \tfrac{1}{2}\|w\|^2 + C\sum_i \xi_i$$
 
@@ -1441,7 +1441,7 @@ then $\xi_i = 1.5$, misclassified.
 
 ### Question — so some points are accepted inside the margin, or even on the wrong side?
 
-> *Slide 51: what does "find a margin as wide as possible, but pay for the points that
+> *Slide 53: what does "find a margin as wide as possible, but pay for the points that
 > violate it" mean? So we accept that some points are inside the margin, or even on the
 > opposite side?*
 
@@ -1455,7 +1455,7 @@ it is decided by $C$, which is the next slide.
 
 ---
 
-## Slide 52 — C is the price of a training error
+## Slide 54 — C is the price of a training error
 
 Large $C$ makes violations expensive, so the model works hard to classify every training
 point, at the cost of a narrower margin: low bias, high variance. Small $C$ accepts some
@@ -1469,7 +1469,7 @@ same inverted convention as the SVM's.
 
 ### Question — in what sense is the margin "deformed"? Is it not always straight?
 
-> *On slide 52 you say "I prefer to narrow and deform the margin in order to classify the
+> *On slide 54 you say "I prefer to narrow and deform the margin in order to classify the
 > training points correctly"... in what sense deform the margin? Is it not always
 > linear?*
 
@@ -1482,7 +1482,7 @@ points. Narrower, shifted or rotated: never curved.
 
 The image of a boundary that bends becomes accurate only with a kernel. With the radial basis function kernel the boundary is still a flat plane,
 but in the lifted space; drawn back in the original plane it can curve, and a large $C$,
-especially with a large $\gamma$, lets it wrap around individual training points. Slide 66
+especially with a large $\gamma$, lets it wrap around individual training points. Slide 69
 shows exactly that.
 
 <!-- example:begin -->
@@ -1509,7 +1509,7 @@ regularisation — the direction that catches people out.
 
 ---
 
-## Slide 53 — The best straight line is still a straight line
+## Slide 55 — The best straight line is still a straight line
 
 | Model | Accuracy | Support vectors |
 |---|---|---|
@@ -1524,7 +1524,7 @@ changed, `kernel="rbf"`, reaches 0.947, the best number of the lesson.
 
 ---
 
-## Slide 54 — Many support vectors: a free warning
+## Slide 57 — Many support vectors: a free warning
 
 A support vector is a point on the margin or inside it. If 79% of the training set is in
 that position, there is no empty space between the classes at all: the model has been
@@ -1537,7 +1537,7 @@ query.
 
 ---
 
-## Slide 55 — A new coordinate makes the classes separable
+## Slide 58 — A new coordinate makes the classes separable
 
 Take the scatter plot of slide 5 and add a third coordinate: each pump's distance from
 the design point. Lift every point to that height. Healthy pumps rise a little, faulty
@@ -1549,7 +1549,7 @@ coordinate is the hard part. That is the difficulty the kernel trick removes.
 
 ---
 
-## Slide 56 — The same pumps, lifted
+## Slide 59 — The same pumps, lifted
 
 ![](kernel_lift.png)
 
@@ -1564,12 +1564,12 @@ coordinates there is impossible. The next slides show that it is also unnecessar
 
 ---
 
-## Slide 57 — The SVM's solution: a weighted sum of pumps
+## Slide 60 — The SVM's solution: a weighted sum of pumps
 
 $$w = \sum_{i=1}^{m} a_i\, y_i\, x_i, \qquad a_i \geq 0$$
 
-This slide is the bridge between "lift the data" (slide 56) and "the new coordinates
-are never computed" (slide 58). It is the result of what the handout calls the **dual
+This slide is the bridge between "lift the data" (slide 59) and "the new coordinates
+are never computed" (slide 61). It is the result of what the handout calls the **dual
 formulation**, and its message fits in one sentence: **the best $w$ is not a new vector
 the optimisation invents, but a weighted sum of the training points themselves**, one
 weight $a_i$ per pump. (Most texts write $\alpha_i$ for these weights; this course keeps
@@ -1578,7 +1578,7 @@ $\alpha$ for the learning rate, so they are $a_i$ here.)
 The picture: the boundary is a tent held in place by the points pressing against it, and
 $a_i$ is how hard pump $i$ presses. A pump comfortably on its own side of the slab presses
 on nothing, so its weight is exactly zero. Only the pumps on or inside the slab, the
-support vectors, get a positive weight; that is where the 79% and 23% of slide 54 come
+support vectors, get a positive weight; that is where the 79% and 23% of slide 57 come
 from.
 
 Now the consequence that matters. Put this $w$ into the boundary:
@@ -1591,13 +1591,13 @@ number is enough. That function is a kernel.
 
 ### Question — what is the dual formulation, intuitively?
 
-> *The step from slide 56 to 57 is not very clear to me. It talks about the dual
+> *The step from slide 59 to 60 is not very clear to me. It talks about the dual
 > formulation of the SVM but does not explain what it is. Clarify it intuitively.*
 
 
 
 **Primal** and **dual** are two ways of stating the same optimisation. The **primal**
-problem is the one on slide 51: find $w$ and $b$ directly, $n + 1$ unknowns, one per
+problem is the one on slide 53: find $w$ and $b$ directly, $n + 1$ unknowns, one per
 feature plus the intercept. The **dual** asks a different question with the same answer:
 find one weight $a_i$ per *training point*, $m$ unknowns, saying how much each point
 matters to the boundary.
@@ -1617,22 +1617,22 @@ Why bother with a second form of the same problem? For the three reasons above:
 3. the data appears only in inner products, so a kernel can replace them, and that is
    what makes the kernel trick possible at all.
 
-Without the dual, slide 58's claim would be an unexplained assertion.
+Without the dual, slide 61's claim would be an unexplained assertion.
 
 ---
 
-## Slide 58 — So the new coordinates are never computed
+## Slide 61 — So the new coordinates are never computed
 
 The claim: the SVM's solution depends on the data **only through inner products between
 pairs of points**. So instead of computing the new coordinates, we need only a function
 that returns the inner product *in the new space* while computing only with the original
 coordinates. The radial basis function does this for an infinite-dimensional space at the
 cost of one exponential per pair. Why the solution depends only on inner products was
-shown on slide 57.
+shown on slide 60.
 
 ---
 
-## Slide 59 — The kernel trick by hand: 25 = 25
+## Slide 62 — The kernel trick by hand: 25 = 25
 
 | Route | Computation | Result |
 |---|---|---|
@@ -1640,14 +1640,14 @@ shown on slide 57.
 | Never lift | ((1, 2) · (3, 1))² = 5² | **25** |
 
 The lift here is $\phi(x) = (x_1^2,\ \sqrt{2}\,x_1 x_2,\ x_2^2)$, and the two points are
-$a = (1, 2)$ and $b = (3, 1)$. First route: lift both, $\phi(a) = (1,\ 2\sqrt{2},\ 4)$ and
-$\phi(b) = (9,\ 3\sqrt{2},\ 1)$, and take their inner product: $9 + 12 + 4 = 25$. Second
-route: never leave the plane, $a \cdot b = 3 + 2 = 5$, then square it: 25. The function
-$K(a, b) = (a \cdot b)^2$ *is* the inner product in the three-dimensional space, computed
+$u = (1, 2)$ and $v = (3, 1)$. First route: lift both, $\phi(u) = (1,\ 2\sqrt{2},\ 4)$ and
+$\phi(v) = (9,\ 3\sqrt{2},\ 1)$, and take their inner product: $9 + 12 + 4 = 25$. Second
+route: never leave the plane, $u \cdot v = 3 + 2 = 5$, then square it: 25. The function
+$K(u, v) = (u \cdot v)^2$ *is* the inner product in the three-dimensional space, computed
 without going there.
 
 And the lifted space contains $x_1^2$ and $x_2^2$, whose sum is the squared distance from
-the centre, the coordinate slide 55 chose by hand. A flat plane in that space is a circle
+the centre, the coordinate slide 58 chose by hand. A flat plane in that space is a circle
 or an ellipse in the original one. The kernel contains the lift we had to guess.
 
 ### Question — how do I find $K(x_i, x_j)$ without knowing $\phi(x_i) \cdot \phi(x_j)$?
@@ -1674,13 +1674,13 @@ In practice you use the standard kernels (linear, polynomial, radial basis funct
 which are known to satisfy it.
 
 A caution on the picture: the radial basis function does not literally discover "the
-distance from the design point" that slide 55 invented. That lift was a teaching device.
+distance from the design point" that slide 58 invented. That lift was a teaching device.
 The radial basis function works in a much richer space, which *contains* boundaries of
 that shape among many others.
 
 ---
 
-## Slide 60 — The RBF kernel: similarity falls with distance
+## Slide 63 — The RBF kernel: similarity falls with distance
 
 $$K(x, x') = \exp\left(-\gamma \|x - x'\|^2\right)$$
 
@@ -1731,16 +1731,16 @@ of these numbers, so a pump three spreads away is, in effect, not consulted.
 
 ---
 
-## Slide 61 — Training: one weight per pump
+## Slide 64 — Training: one weight per pump
 
-Training means finding the weights $a_i$ of slide 57. It is not gradient descent: the
+Training means finding the weights $a_i$ of slide 60. It is not gradient descent: the
 solver picks **two** weights at a time and sets them to their best values with all the
 others fixed, then repeats until nothing improves. Two at a time, because the weights
 must satisfy $\sum_i a_i y_i = 0$, so moving one alone would break that equality. The
 problem is convex, so there is one answer, found the same way every run, with no learning
 rate.
 
-On the pumps, the weights fall into the three groups of slide 49:
+On the pumps, the weights fall into the three groups of slide 50:
 
 - **922 pumps get weight 0**: safely on their own side, forgotten by the model;
 - **268 get the ceiling, $a_i = C = 1$**: inside the slab or on the wrong side;
@@ -1751,7 +1751,7 @@ points, their weights, and the intercept $b = +1.105$.
 
 ### Question — who are $x_i$ and $x$, during training and during prediction?
 
-> *Slide 61: $x_i$ and $y_i$ are the training data, $x$ is the point we want to classify,
+> *Slide 64: $x_i$ and $y_i$ are the training data, $x$ is the point we want to classify,
 > correct?*
 >
 > *It is not clear to me who $x_i$ and $x$ are during training.*
@@ -1776,7 +1776,7 @@ So the same function $K$ is used in two different ways:
 
 ---
 
-## Slide 62 — The SVM on 48 Hz, 5.6 bar: +1.883
+## Slide 65 — The SVM on 48 Hz, 5.6 bar: +1.883
 
 | Term | Value |
 |---|---|
@@ -1800,7 +1800,7 @@ similarity in place of a hard $k$, only the support vectors voting, and learned 
 
 ---
 
-## Slide 63 — One pump's vote, drawn
+## Slide 66 — One pump's vote, drawn
 
 ![](svm_vote_one_pump.png)
 
@@ -1814,13 +1814,13 @@ the whole neighbourhood decides.
 
 ---
 
-## Slide 64 — Training against cross-validated, three settings
+## Slide 67 — Training against cross-validated, three settings
 
 | Setting | Training | Cross-validated |
 |---|---|---|
-| γ = 0.1, C = 1 | 0.936 | 0.929 |
-| γ = 1, C = 1 | 0.950 | **0.944** |
-| γ = 50, C = 1000 | **0.995** | 0.902 |
+| γ = 0.1, C = 1 | 0.934 | 0.929 |
+| γ = 1, C = 1 | 0.948 | **0.944** |
+| γ = 50, C = 1000 | **0.996** | 0.902 |
 
 The bottom row has the best training score on the slide and the worst honest one: the
 signature of overfitting, measured on the same data by two procedures. Choosing on the
@@ -1832,7 +1832,7 @@ anything that transfers.
 
 ---
 
-## Slide 65 — How far one support vector's vote reaches, for four values of γ
+## Slide 68 — How far one support vector's vote reaches, for four values of γ
 
 ![](rbf_reach.png)
 
@@ -1846,7 +1846,7 @@ slide, predict what the boundary will look like.
 
 ---
 
-## Slide 66 — Overfitting you can see: the boundary at the three settings
+## Slide 69 — Overfitting you can see: the boundary at the three settings
 
 ![](svm_gamma_c.png)
 
@@ -1857,7 +1857,7 @@ Left, $\gamma = 0.1$: a smooth boundary, slightly too smooth, and the two scores
 Middle, $\gamma = 1$: close to the true envelope, and the best honest score. Right,
 $\gamma = 50$ with $C = 1000$: the boundary has broken into bubbles, small islands drawn
 around individual points, those with flipped labels included. That is what a training score of
-0.995 looks like from outside: a private territory around each flipped label. A new pump
+0.996 looks like from outside: a private territory around each flipped label. A new pump
 landing between two bubbles is where the 0.902 comes from. Since lesson 5 overfitting has
 been a curve on a plot; here it is a shape in the input space, visibly wrong. When you can
 plot the boundary, plot it.
@@ -1866,19 +1866,19 @@ plot the boundary, plot it.
 
 # Part VI — Closing
 
-## Slide 67 — Notebook 3, live
+## Slide 70 — Notebook 3, live
 
 The slide's table maps each section of the notebook to its slides and to the
 scikit-learn calls it uses. The notebook fits the linear and RBF SVMs, counts their support vectors, takes one pump
 through the vote, and sweeps $\gamma$ and $C$ with the boundary drawn each time. The step
 worth doing yourself is turning $\gamma$ up and watching the bubbles form: it is the most
 direct experience of overfitting in the course. Print the support-vector fraction for the
-two kernels side by side, so that the diagnostic of slide 54 becomes two numbers you
+two kernels side by side, so that the diagnostic of slide 57 becomes two numbers you
 produced.
 
 ---
 
-## Slide 68 — The three families compared, on the same pumps and the same folds
+## Slide 71 — The three families compared, on the same pumps and the same folds
 
 | Model | Accuracy |
 |---|---|
@@ -1900,7 +1900,7 @@ know which family you need is to look at the data first.
 
 ---
 
-## Slide 69 — How to choose, in practice
+## Slide 72 — How to choose, in practice
 
 | Situation | Reach for |
 |---|---|
@@ -1921,7 +1921,7 @@ anyone would accept.
 
 ---
 
-## Slide 70 — What to take away
+## Slide 73 — What to take away
 
 - **No line separates the pumps**: every linear model sits at 0.613, the base rate.
 - **$k$ is the bias-variance dial**, visible in the boundaries of slide 14.
@@ -1940,7 +1940,7 @@ model and expensive for anything built on a distance.
 
 ---
 
-## Slide 71 — Homework
+## Slide 74 — Homework
 
 Exercise 6 gives you a dataset and asks you to compare the three families and defend the
 one you choose. It is discussed at the start of the lesson on Friday 20 November. What
@@ -1955,4 +1955,5 @@ out, and keep the scaler inside the pipeline.
 0.471: slide 40, the overall standard deviation of pressure across all 1,200 pumps, which notebook 2 standardises by but does not print; 0.784 and 1.309 times it give the printed 0.37 and 0.62 bar
 0.51: slide 45, an illustrative barely-sure prediction, to explain what confidence means
 99: slide 46, "a real 99%", reading the illustrative score 0.99 as a percentage
+0.99: slide 45, an illustrative very sure prediction and score, beside 0.51 and 0.80
 -->

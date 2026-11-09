@@ -177,8 +177,8 @@ space**.
    makes it famous: the dual depends on the data only through inner products, so a
    kernel computes those in the transformed space **without ever constructing the
    coordinates**. Checked by hand: for $\phi(x) = (x_1^2, \sqrt{2}x_1x_2, x_2^2)$,
-   $a = (1, 2)$, $b = (3, 1)$, lifting gives $9 + 12 + 4 = 25$ and never lifting gives
-   $(a \cdot b)^2 = 5^2 = 25$.
+   $u = (1, 2)$, $v = (3, 1)$, lifting gives $9 + 12 + 4 = 25$ and never lifting gives
+   $(u \cdot v)^2 = 5^2 = 25$.
 5. **Training and inference, step by step.** Training solves for one weight per pump,
    two at a time, no learning rate: **922** at weight 0, **268** at the ceiling $C = 1$,
    **10** on the edge — 278 support vectors — and $b = +1.105$. Inference on the 48 Hz,
@@ -189,11 +189,14 @@ space**.
 6. **Gamma, C, and what they do to the boundary.** Similarity halves at 2.63, 1.18,
    0.83 and 0.12 standard deviations for $\gamma$ = 0.1, 0.5, 1 and 50:
 
-   | setting | training | cross-validated |
+   | setting | training (each fold's 960) | cross-validated |
    |---|---|---|
-   | $\gamma$ = 0.1, C = 1 | 0.936 | 0.929 |
-   | $\gamma$ = 1, C = 1 | 0.950 | **0.944** |
-   | $\gamma$ = 50, C = 1000 | **0.995** | 0.902 |
+   | $\gamma$ = 0.1, C = 1 | 0.934 | 0.929 |
+   | $\gamma$ = 1, C = 1 | 0.948 | **0.944** |
+   | $\gamma$ = 50, C = 1000 | **0.996** | 0.902 |
+
+   Each knob alone barely hurts — $\gamma$ = 50 with C = 1 scores 0.940, $\gamma$ = 1
+   with C = 1000 0.948 — together they overfit.
 
    The best training score is the worst honest one — the signature lesson 5 taught them
    to read, now drawn as bubbles around individual pumps with flipped labels.
