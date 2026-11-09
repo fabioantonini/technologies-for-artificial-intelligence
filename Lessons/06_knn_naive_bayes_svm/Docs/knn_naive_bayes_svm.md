@@ -1453,19 +1453,23 @@ with complete confidence.
 
 Everything in this lesson on the same 1,200 pumps, cross-validated:
 
-| Model | Accuracy |
-|---|---|
-| Majority baseline | 0.613 |
-| Logistic regression (lesson 4) | 0.613 |
-| SVM, linear kernel | 0.613 |
-| Gaussian Naive Bayes | 0.933 |
-| k-NN, $k = 5$ | 0.944 |
-| SVM, RBF kernel | **0.947** |
-| *noise ceiling* | *≈ 0.96* |
+| Model | Accuracy | Standard deviation over the 5 folds |
+|---|---|---|
+| Majority baseline | 0.613 | 0.000 |
+| Logistic regression (lesson 4) | 0.613 | 0.000 |
+| SVM, linear kernel | 0.613 | 0.000 |
+| Gaussian Naive Bayes | 0.933 | 0.010 |
+| k-NN, $k = 5$ | 0.944 | 0.006 |
+| SVM, RBF kernel | **0.947** | 0.005 |
+| *noise ceiling* | *≈ 0.96* | |
 
 Three methods reach the ceiling by three unrelated routes — remembering the
 neighbourhood, assuming independence, bending the space — and two do not, both
-of them linear.
+of them linear. The three are comparable rather than ranked: they differ by
+about one fold standard deviation, $k = 5$ was chosen on these same folds, and
+the RBF SVM used scikit-learn's defaults untuned. The ceiling can be made exact:
+the generator flipped 49 of the 1,200 labels, so a model that knew the rule would
+score $1 - 49/1{,}200 = 0.959$.
 
 **The gap between best and worst is 0.334**, larger than any difference this
 course has shown between a good model and a tuned one. That is the lesson of the
@@ -1479,8 +1483,9 @@ lesson 2 insisted.
 |---|---|
 | Few features, plenty of data, odd-shaped boundary | k-NN, or an RBF SVM |
 | Very many features, little data | Naive Bayes |
-| Need a calibrated probability | Not Naive Bayes |
-| Need the model to be small, or fast at prediction | SVM, not k-NN |
+| A line separates the classes | Logistic regression or a linear SVM |
+| Need a calibrated probability | Logistic regression (lesson 4); not Naive Bayes, and an SVM gives only a score |
+| Need the model to be small, or fast at prediction | Naive Bayes; an SVM with few support vectors; not k-NN |
 | Signal is an interaction between features | k-NN or a kernel; not Naive Bayes |
 | Need to explain the decision to the person affected | Neither — lesson 3's Resources |
 
@@ -1494,8 +1499,8 @@ lesson 2 insisted.
 - **$k$ is the bias-variance dial**: training accuracy is exactly 1.000 at
   $k = 1$ and means nothing.
 - **The curse of dimensionality is about distance, not difficulty.** Fifty noise
-  columns took k-NN below the baseline. In 100 dimensions the nearest point is
-  **70%** as far away as the farthest.
+  columns took k-NN below the baseline. With 100 random columns the nearest point
+  is **70%** as far away as the farthest.
 - **Naive Bayes assumes independence given the class.** On the pumps it is false
   — uncorrelated (−0.006) but not independent (−0.420 on the squares) — and costs
   almost nothing, because the boundary it implies is the right ellipse: 0.933.

@@ -2092,23 +2092,29 @@ slide.
 
 # The three families compared, on the same pumps and the same folds
 
-| Model | Accuracy, 5-fold cross-validation |
-|---|---|
-| Majority baseline | 0.613 |
-| Logistic regression (lesson 4) | 0.613 |
-| SVM, linear kernel | 0.613 |
-| Gaussian Naive Bayes | 0.933 |
-| k-NN, k = 5 | 0.944 |
-| SVM, RBF kernel | **0.947** |
-| *noise ceiling* | *≈ 0.96* |
+| Model | Accuracy, 5-fold cross-validation | Standard deviation over the 5 folds |
+|---|---|---|
+| Majority baseline | 0.613 | 0.000 |
+| Logistic regression (lesson 4) | 0.613 | 0.000 |
+| SVM, linear kernel | 0.613 | 0.000 |
+| Gaussian Naive Bayes | 0.933 | 0.010 |
+| k-NN, k = 5 | 0.944 | 0.006 |
+| SVM, RBF kernel | **0.947** | 0.005 |
+| *noise ceiling* | *≈ 0.96* | |
 
 ::: notes
 Everything in the lesson on the same 1,200 pumps, cross-validated the same way.
 
+The ceiling, made exact: the generator flipped 49 labels, so a model that knew
+the true rule would score 1 − 49/1,200 = 0.959 (notebook 3 prints the count).
+
 Read the top three rows together: all exactly 0.613, and all three are linear.
 Then the bottom three, all near the ceiling, reached by three completely
 unrelated routes - remembering the neighbourhood, assuming independence, bending
-the space. There is no single idea shared between them.
+the space. There is no single idea shared between them. Read the bottom three
+as comparable, not ranked: the gaps between them are about one fold standard
+deviation, k = 5 was chosen on these same folds, and the RBF SVM got there with
+scikit-learn's defaults, γ = 0.5 and C = 1, untuned.
 
 Then the number that is the lesson: the gap between best and worst is **0.334**.
 That is larger than anything tuning has bought in this course - lesson 5's whole
@@ -2127,13 +2133,19 @@ for.
 |---|---|
 | Few features, plenty of data, a curved boundary | k-NN, or an RBF SVM |
 | Very many features, little data | Naive Bayes |
-| You need probabilities you can trust | **Not** Naive Bayes |
-| The model must be small, or fast at prediction | SVM, not k-NN |
+| A line separates the classes | Logistic regression or a linear SVM |
+| You need probabilities you can trust | Logistic regression (lesson 4); **not** Naive Bayes, and an SVM gives only a score |
+| The model must be small, or fast at prediction | Naive Bayes; an SVM with few support vectors; not k-NN |
 | The signal is an interaction between features | k-NN or an RBF SVM, not Naive Bayes |
 
 ::: notes
 A table to photograph. Work down it and attach today's evidence to each row, so
-it is remembered as a set of conclusions rather than as advice.
+it is remembered as a set of conclusions rather than as advice. The line row:
+the three linear models tie at 0.613 only because the pumps are not separable
+by a line. The probabilities row: Naive Bayes was not calibrated (slide 45) and
+the SVM's +1.883 was a score, not a probability (slide 65). The small-and-fast
+row: Naive Bayes is ten numbers (slide 32); an SVM is small only with few support
+vectors - the linear one kept 79% of the pumps (slide 57).
 
 Row two deserves a sentence on its own, because it is the one that sounds wrong
 after the last hour. Text classification is the canonical case: tens of thousands
@@ -2152,17 +2164,23 @@ rather than a preference.
 
 # What to take away
 
-- **No line separates the pumps**: 0.613, the majority share
-- **k trades bias for variance**
-- **In 100 dimensions the nearest point is 70% as far as the farthest**
-- **Naive Bayes**: 0.933 on the pumps, **0.404** with interacting sensors
+- **No line separates the pumps**: 0.613
+- **k-NN**: k sets bias against variance; in 100 random columns the
+  nearest is 70% as far as the farthest
+- **Naive Bayes**: 0.933, but **0.404** on interactions
+- **SVM**: support vectors decide; kernels bend the line
 - **Choosing the family beats tuning**: 0.613 to 0.947
 
 ::: notes
-Close on the number they opened the second segment with, and say it one more
-time: seventy per cent. In a hundred dimensions the nearest point in the entire
-dataset is seven tenths of the way to the farthest, and every method built on
-distance is operating on a quantity that has stopped varying.
+Close on the lesson's number and say it one more time: 0.613 to 0.947. The same
+pumps, the same folds; a straight line stuck exactly at the base rate, a kernel
+reaching the noise ceiling. Choosing the family moved the score by a third;
+tuning never moves it that far.
+
+Then the second number, from the middle of the lesson: seventy per cent. With a
+hundred random columns the nearest point in the entire dataset is seven tenths
+of the way to the farthest, and every method built on distance is operating on a
+quantity that has stopped varying.
 
 If they remember one habit from today, make it the diagnostic pair: before
 reaching for a model, look at the shape of the data; after fitting one, check
