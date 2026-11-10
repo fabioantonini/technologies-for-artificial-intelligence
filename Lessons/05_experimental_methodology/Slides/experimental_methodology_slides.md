@@ -761,11 +761,12 @@ dealt whole. The second number is the honest one.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| two honest experiments, 4-5 | `train_test_split(..., random_state=seed)`, `make_pipeline(StandardScaler(), LogisticRegression())`, `roc_auc_score` → seed 3 gives 1.000 |
+| two honest experiments, 4-5 | `train_test_split`, a scaled `LogisticRegression`, `roc_auc_score` → seed 3 gives 1.000 |
 | how wide, 6-7 | the same, 200 times → 0.885 to 1.000 |
 | choosing on one split, 8-11 | three values of C, a winner per split → 89, 42, 38 outright wins, 31 ties |
 | k-fold by hand, 12-16 | `StratifiedKFold`, then `cross_val_score` → mean 0.9514; 300 new fleets → 0.0165 against 0.0084 |
 | stratify, 17-18 | `KFold` against `StratifiedKFold` → 1 failure, AUC 1.000; 0.0881 against 0.0149 |
+| **in class: atoms 2-3** | `Consolidation/05_lesson_5_atoms.ipynb` |
 
 
 ::: notes
@@ -2024,12 +2025,13 @@ Commit the code that produced the number, not a tidied-up version of it.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the catastrophe, 42-44 | `SelectKBest(f_classif, k=10)` on every row, then `cross_val_score` → 0.931 |
+| the catastrophe, 42-44 | `SelectKBest` on every row, then `cross_val_score` → 0.931 |
 | selection inside the round, 45-47 | `Pipeline` with the selector as its first step → 0.658 |
 | the search, 48-50 | `GridSearchCV`, `best_score_` → 0.800 |
-| nested, 51-53 | `cross_val_score(GridSearchCV(honest, grid, cv=inner), noise, y, cv=outer)` → 0.670 |
+| nested, 51-53 | `GridSearchCV` inside `cross_val_score` → 0.670 |
 | the threshold, honestly, 54-55 | `train_test_split` twice → 4,700 EUR against 10,540 |
 | seeds, 56-57 | 30 values of `random_state` → 0.913 to 1.000 |
+| **in class: atoms 11-13** | `Consolidation/05_lesson_5_atoms.ipynb` |
 
 
 ::: notes
