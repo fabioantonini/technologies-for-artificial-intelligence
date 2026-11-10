@@ -59,6 +59,7 @@ than any number of predictions that came out right.
 | `03_lesson_3_atoms.ipynb` | cost, the normal equation, gradient descent, Ridge and Lasso, what a coefficient means | 15 |
 | `04_lesson_4_atoms.ipynb` | odds and log-odds, log loss, one gradient step, the confusion matrix in order, the two averages, AUC and average precision, a threshold from costs, class weights, softmax, the whole chain on one fitted model | 12 |
 | `05_lesson_5_atoms.ipynb` | cross-validation round by round, the five round models, the spread and the report line, stratified, repeated and grouped folds, training against validation error, `GridSearchCV`, nested cross-validation one round at a time, a fresh test set, the threshold sweep, seeds | 13 |
+| `06_lesson_6_atoms.ipynb` | one pump's five nearest and the vote, scaling first, training accuracy inside the folds, distances that stop varying, choosing columns, Naive Bayes's ten numbers and three ratios, the two log totals, uncorrelated but not independent, the interaction and its product, confidence, the margin in one dimension, slack and the weights, the kernel trick and the RBF similarity, one pump's vote by hand, γ and C | 15 |
 | `07_lesson_7_atoms.ipynb` | Gini by hand, the gain by counting, thresholds and midpoints, a tree on ten loans and one path, depth against a budget of leaves, the noise ceiling, five folds by hand, sampling with and without replacement, bagging and out-of-bag by hand, one column per split, importance and permutation by hand, boosting by hand | 14 |
 
 They run in the course container like every other notebook, each in a few seconds,
@@ -176,6 +177,32 @@ class atoms 2-3 replace notebook 1, and atoms 11-13 notebook 3.
 | 14 | A fresh test set is centred on the truth | *Why it does not return to 0.5* |
 | 15 | The threshold: a sweep of 200 candidates on the validation drives | *The debt, paid: the honest threshold costs 1,400 EUR more* |
 | 16 | Seeds: the same seed, the same number, and still a spread | *A fixed seed buys repeatability, not stability*; *What to fix, and what to write down* (optional) |
+
+### 06 — lesson 6
+
+Lesson 6's atoms run on the lesson's own 1,200 pumps, where the slides' numbers come
+from; atoms 4, 11 and 12 use random points, six pumps on a line and seven, and atoms 9
+and 10 the interacting sensors. The notebook runs in a few seconds. In class atoms 1-5
+can replace notebook 1, atoms 6-10 notebook 2, and atoms 11-15 notebook 3: the
+"Notebook N, live" slides name both.
+
+| # | Atom | Lesson source |
+|--|--------------------------|------------------------|
+| 1 | One pump's five nearest with `kneighbors`: four faulty, one flipped label | *k-nearest neighbours: the whole algorithm*; *k-NN, drawn* |
+| 2 | Unscaled, none of the five nearest is the same: vibration picks them | *Scale first, or vibration decides everything* |
+| 3 | `cross_validate` with training scores: 1.000 at k = 1, 0.713 against 0.708 at k = 401 | *k sets the balance*; *Training against cross-validated accuracy, by k* |
+| 4 | 1,000 random points: nearest ÷ farthest 0.016 with 2 columns, 0.698 with 100 | *Why: distances stop varying*; *With n random columns* |
+| 5 | `SelectKBest`: `f_classif` keeps two noise columns (0.562), `mutual_info_classif` the readings (0.938) | *What the curse is, and is not* |
+| 6 | `GaussianNB`'s ten numbers; the 48 Hz pump as 86.4 × 1.58 ÷ 2.63 = 52 to 1, 0.981 | *Training computes ten numbers*; *A pump at 48 Hz, 5.6 bar* |
+| 7 | Two log totals, −8.095 and −4.144, and the gap 3.951; 0.01²⁰⁰ is 0.0 | *Logs turn the product into a sum*; *Software uses only the gap* |
+| 8 | Readings −0.049, squares −0.420: uncorrelated, not independent | *Uncorrelated within each class, but not independent* |
+| 9 | Interacting sensors: 0.404, and 0.972 with the product A × B | *A second dataset*; *0.404: below the baseline* |
+| 10 | Confidence 0.567 right, 0.555 wrong; 44% right at 56% confidence | *Its probabilities cannot be trusted* |
+| 11 | Six pumps on a line: the threshold at 5, support vectors 3 and 7 | *SVM: among the lines that fit, take the widest margin* |
+| 12 | Slack 0, 0.4 and 2.2; weights 0, 0.38 and C; w rebuilt from `dual_coef_` | *Not separable?*; *Three kinds of point*; *The SVM's solution* |
+| 13 | 25 = 25 by hand; `rbf_kernel` 0.607, 0.135, 0.011 | *The kernel trick by hand*; *The RBF kernel* |
+| 14 | The 48 Hz vote by hand: +37.455 − 36.677 + 1.105 = +1.883, `decision_function` | *Training: one weight per pump*; *The SVM's score at 48 Hz* |
+| 15 | γ and C: 0.996 against 0.902, and 548 support vectors | *Training against cross-validated, three settings* |
 
 ### 07 — lesson 7
 

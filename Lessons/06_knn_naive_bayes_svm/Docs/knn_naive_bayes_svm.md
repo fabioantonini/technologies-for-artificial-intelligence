@@ -12,12 +12,12 @@ date: "13 November 2026 · reading time about 100 minutes"
 | 0:00–0:10 | 10 | Exercise 4 discussed; a problem no line solves | Slides 2–6 |
 | 0:10–0:30 | 20 | k-nearest neighbours, and choosing k | Slides 7–15 |
 | 0:30–0:52 | 22 | The curse of dimensionality | Slides 16–23 |
-| 0:52–1:14 | 22 | **Notebook 01** — k-NN and the curse | Slide 24 |
+| 0:52–1:14 | 22 | **Notebook 01** — k-NN and the curse, or atoms 1–5 | Slide 24 |
 | 1:14–1:26 | 12 | **Break** | Slide 25 |
 | 1:26–1:50 | 24 | Naive Bayes, and when its assumption matters | Slides 26–45 |
-| 1:50–2:06 | 16 | **Notebook 02** — where it fails | Slide 46 |
+| 1:50–2:06 | 16 | **Notebook 02** — where it fails, or atoms 6–10 | Slide 46 |
 | 2:06–2:34 | 28 | Margins, support vectors, the kernel trick | Slides 47–69 |
-| 2:34–2:50 | 16 | **Notebook 03** — kernels in practice | Slide 70 |
+| 2:34–2:50 | 16 | **Notebook 03** — kernels in practice, or atoms 11–15 | Slide 70 |
 | 2:50–3:00 | 10 | The three compared; homework | Slides 71–74 |
 | | **180** | **Total** | **71 slides, 3 notebooks** |
 

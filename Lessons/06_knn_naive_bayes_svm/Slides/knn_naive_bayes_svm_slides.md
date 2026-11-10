@@ -643,16 +643,19 @@ linear model overfits noise columns, which is why lesson 3 regularised.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| the straight line, 4-6 | `LogisticRegression`, `cross_val_score`, `StratifiedKFold` → 0.613; `cross_val_predict` → all faulty |
-| k-NN, scaled first, 7-10 | `make_pipeline(StandardScaler(), KNeighborsClassifier(k))` |
+| the straight line, 4-6 | `LogisticRegression`, `StratifiedKFold`, `cross_val_score` → 0.613, `cross_val_predict` |
+| k-NN, scaled, 7-10 | `make_pipeline(StandardScaler(), KNeighborsClassifier(k))` |
 | choosing k, 11-14 | `cross_validate` with training scores → 0.944 at k = 5 |
 | columns of noise, 16-18 | k = 15 on `load_with_noise(50)` → 0.602 |
-| distances stop varying, 19-22 | NumPy: nearest ÷ farthest → 0.701 at n = 100 |
+| distances, 19-22 | NumPy: nearest ÷ farthest → 0.701 at n = 100 |
 | choosing the columns, 23 | `SelectKBest`: `f_classif` 0.562, `mutual_info_classif` 0.938 |
+| **or atoms 1-5** | `Consolidation/06_lesson_6_atoms.ipynb` |
 
 ::: notes
 k-NN on the pumps, choosing k, and the curse of dimensionality measured. Run
-notebook 01. Twenty-two minutes.
+notebook 01. Twenty-two minutes. With a room that follows better on small
+examples, run atoms 1-5 of the lesson 6 atoms notebook instead, in the same time:
+each is predict-then-run, on the slide's own numbers.
 
 Have them run the unscaled version first, before the pipeline appears, so they
 watch the score drop and can attribute it to the units rather than to the
@@ -1346,10 +1349,12 @@ in its handout section 7.2, where the threshold depends on the probability being
 | checking the assumption, 40-41 | `X[y == c].corr()`, within each class → −0.420 |
 | the interacting sensors, 42-44 | the same models, plus `SVC` → 0.404 |
 | confidence, right and wrong, 45 | `train_test_split`, then `predict_proba` → 0.567 against 0.555 |
+| **or atoms 6-10** | `Consolidation/06_lesson_6_atoms.ipynb` |
 
 ::: notes
 Where breaking the assumption is cheap, and one step away where it is fatal. Run
-notebook 02. Sixteen minutes.
+notebook 02. Sixteen minutes. Or atoms 6-10 of the lesson 6 atoms notebook, in
+the same time.
 
 If time runs short, keep the cell that prints 0.404 next to the 0.523 baseline. Let
 them see a below-chance score appear from correct code on solvable data before
@@ -2075,10 +2080,12 @@ plot it.
 | the kernel trick, 58-63 | NumPy only: (u · v)² against the lifted product → 25 = 25 |
 | training and one prediction, 64-66 | `.support_`, `.dual_coef_`, `.intercept_` → +1.883 |
 | γ and C, 67-69 | `SVC(gamma=..., C=...)`, `cross_validate` → 0.944 at γ = 1 |
+| **or atoms 11-15** | `Consolidation/06_lesson_6_atoms.ipynb` |
 
 ::: notes
 Margins, support vectors, and what γ does to the boundary. Run notebook 03.
-Sixteen minutes.
+Sixteen minutes. Or atoms 11-15 of the lesson 6 atoms notebook, in the same
+time.
 
 If time runs short, keep the γ sweep with the boundary drawn at each setting, and
 skip the C sweep instead, setting it as reading (the table is in handout section
