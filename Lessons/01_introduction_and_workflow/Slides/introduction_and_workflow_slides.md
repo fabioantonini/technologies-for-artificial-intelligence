@@ -7,7 +7,7 @@ date: "2 October 2026"
 
 # Welcome
 
-- 10 lessons, 3 hours each, every Friday until 4 December
+- 10 lessons, 3 hours each, every Friday until 18 December
 - A first course in **machine learning**, for people who can already program
 - Foundations, not products
 - Course team on Microsoft Teams: code **`v0t2gvu`**

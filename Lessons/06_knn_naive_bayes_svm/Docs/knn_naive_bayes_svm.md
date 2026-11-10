@@ -2,14 +2,14 @@
 title: "k-NN, Naive Bayes and Support Vector Machines"
 subtitle: "Lesson 6 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "13 November 2026 · reading time about 100 minutes"
+date: "20 November 2026 · reading time about 100 minutes"
 ---
 
 ## Lesson plan
 
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
-| 0:00–0:10 | 10 | Exercise 4 discussed; a problem no line solves | Slides 2–6 |
+| 0:00–0:10 | 10 | Exercise 5 discussed; a problem no line solves | Slides 2–6 |
 | 0:10–0:30 | 20 | k-nearest neighbours, and choosing k | Slides 7–15 |
 | 0:30–0:52 | 22 | The curse of dimensionality | Slides 16–23 |
 | 0:52–1:14 | 22 | **Notebook 01** — k-NN and the curse, or atoms 1–5 | Slide 24 |
@@ -1518,7 +1518,7 @@ lesson 2 insisted.
 
 ### Homework
 
-`Exercises/06_knn_naive_bayes_svm.md`, discussed at the start of Lesson 7, **Friday 20 November 2026**.
+`Exercises/06_knn_naive_bayes_svm.md`, discussed at the start of Lesson 7, **Friday 27 November 2026**.
 
 ### Notation used in this lesson
 

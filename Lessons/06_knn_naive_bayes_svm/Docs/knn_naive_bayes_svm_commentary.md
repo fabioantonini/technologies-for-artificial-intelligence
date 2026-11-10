@@ -58,9 +58,10 @@ result can be believed: cross-validation, baselines, leakage, the comparison bet
 training and validation scores, bias and variance. Changing model does not retire
 them. Lesson 6 is where **model selection** begins in earnest: knowing how to train a
 model is not enough; you have to decide which *family* of models suits the structure
-of the problem. The opening discussion of Exercise 4 is about a decision the data cannot make
-alone: the classifier's threshold, and the argument that defends it. Exercise 5, set
-when lesson 5 finished on 13 November, is discussed a week later, on 20 November.
+of the problem. The opening discussion of Exercise 5 is about a result that looked too good: a
+colleague's notebook whose score was wrong in more than one way, and the honest number
+that replaces it. Exercise 5 was set when lesson 5 finished, on 13 November; exercise 4
+had been discussed at the start of that same day.
 
 ---
 
@@ -1943,7 +1944,7 @@ model and expensive for anything built on a distance.
 ## Slide 74 — Homework
 
 Exercise 6 gives you a dataset and asks you to compare the three families and defend the
-one you choose. It is discussed at the start of the lesson on Friday 20 November. What
+one you choose. It is discussed at the start of the lesson on Friday 27 November. What
 matters in the exam is the reasoning in your notebook, not the accuracy: a well-argued
 choice that scores slightly lower beats a lucky winner with no justification. The argument
 must refer to the data, in the way the squared distances and the fitted ellipse explained

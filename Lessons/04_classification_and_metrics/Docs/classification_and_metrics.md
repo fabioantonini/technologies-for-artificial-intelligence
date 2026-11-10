@@ -1773,7 +1773,7 @@ missing a healthy drive, macro is the honest one.**
 
 ### Homework
 
-`Exercises/04_classification_and_metrics.md`, discussed at the start of Lesson 6, **Friday 13 November 2026**.
+`Exercises/04_classification_and_metrics.md`, discussed on **Friday 13 November 2026**.
 
 ### Notation used in this lesson
 

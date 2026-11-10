@@ -10,7 +10,7 @@
 Course material for **Technologies for Artificial Intelligence**, first-year MSc in
 Computer Science, Università degli Studi dell'Aquila — autumn 2026.
 
-Ten lessons of three hours, every Friday from 2 October to 11 December 2026.
+Ten lessons of three hours, every Friday from 2 October to 18 December 2026.
 
 > A first course in machine learning for people who can already program: the methods,
 > the mathematics underneath them, and the experimental discipline to tell a result
@@ -59,11 +59,11 @@ the Monday after, since it is study material rather than lecture support.
 | 3 | 16 Oct | Regression |
 | 4 | 30 Oct, ending 6 Nov | Classification and evaluation metrics |
 | 5 | 6 Nov, ending 13 Nov | Experimental methodology and model selection |
-| 6 | 13 Nov | k-NN, Naive Bayes and support vector machines |
-| 7 | 20 Nov | Trees and ensembles |
-| 8 | 27 Nov | Unsupervised learning |
-| 9 | 4 Dec | Neural networks |
-| 10 | 11 Dec | Convolutional networks and course synthesis |
+| 6 | 20 Nov | k-NN, Naive Bayes and support vector machines |
+| 7 | 27 Nov | Trees and ensembles |
+| 8 | 4 Dec | Unsupervised learning |
+| 9 | 11 Dec | Neural networks |
+| 10 | 18 Dec | Convolutional networks and course synthesis |
 
 Large language models, transformers, RAG and agents are **not** covered — they belong
 to a separate course in the programme. [`Course/BRIDGE.md`](Course/BRIDGE.md) is a
