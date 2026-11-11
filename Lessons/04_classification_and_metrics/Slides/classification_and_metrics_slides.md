@@ -1081,16 +1081,20 @@ section 4.3.
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
 | a line on a 0/1 label, 7 | `LinearRegression` → 3,606 negative probabilities |
-| odds, and why not squared error, 8-27 | NumPy only: the sigmoid, the two losses, their gradients |
+| odds, and why not squared error, 8-27 | NumPy only: sigmoid, losses, gradients |
 | gradient descent, 25 | `train_test_split`, `StandardScaler`, fifteen lines of NumPy → log loss 0.6931 to 0.0692 |
 | the decision boundary, 28 | `make_pipeline(StandardScaler(), LogisticRegression())` on two features |
 | the truth, recovered, 15-16 | `LogisticRegression`, `.coef_`, `.intercept_` → seek_error_rate 0.02, intercept −6.09 |
-| the penalty, 29 | `LogisticRegression(penalty=None)` → reallocated sectors 1.690 against 1.664 |
+| the penalty, 29 | `penalty=None` → sectors 1.690 against 1.664 |
+| **or in class: atoms 1-4, 00·11** | `Consolidation/`, notebooks 04 and 00 |
 
 ::: notes
 Fifteen lines of NumPy, then one line of scikit-learn, and the same answer. Run
 notebook 01: seventeen minutes, after three on the decision boundary of the
-previous slide, which section 5 of the notebook draws live. The parts worth stopping on:
+previous slide, which section 5 of the notebook draws live. With a room that follows
+better on small examples, run atoms 1-4 of the lesson 4 atoms notebook instead (odds,
+log loss, one gradient step), and atom 11 of the API notebook for the default penalty.
+The parts worth stopping on:
 
 The linear-fit failure - let them see 3,606 negative probabilities printed
 rather than being told.
@@ -1369,10 +1373,13 @@ equal voice.
 | precision and recall, 37-40 | `precision_score`, `recall_score`, `f1_score`, `classification_report` |
 | the threshold sweep, 42-43 | `predict_proba`, then the metrics at each threshold |
 | the precision-recall curve, 44 | `precision_recall_curve`, `average_precision_score` → 0.717 against 0.038 |
+| **or in class: atoms 5-6, 00·3** | `Consolidation/`, notebooks 04 and 00 |
 
 ::: notes
 The confusion matrix by hand, then from scikit-learn, then the threshold sweep.
-Run notebook 02. Twenty minutes.
+Run notebook 02. Twenty minutes. Or run atoms 5 and 6 (the confusion matrix in
+ravel()'s order, the two averages by hand) and atom 3 of the API notebook (predict
+against predict_proba).
 
 Have them build the four counts by hand before calling confusion_matrix. It is
 four comparisons and it takes two minutes, and it is what makes the jargon stop
@@ -1991,17 +1998,23 @@ argument for fitting the imputer on the training rows only.
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
 | the ROC curve by hand, 46 | `roc_curve`, `roc_auc_score` → 0.9493 |
-| what AUC means, 47-48 | 200,000 random (failing, healthy) pairs → 0.9488 |
+| what AUC means, 47-48 | 200,000 random pairs → 0.9488 |
 | the rare-positive trap, 50-51 | `average_precision_score` beside `roc_auc_score` → AP 0.706 to 0.361, AUC unmoved |
 | the threshold from costs, 53-56 | `confusion_matrix` at each threshold → 45,540 EUR at 0.078, against 87,620 at 0.50 |
 | class weights, 57-58 | `LogisticRegression` with balanced class weights → AUC 0.950 |
 | three classes, 60-62 | `classification_report` → macro F1 0.707, weighted 0.883 |
+| **or in class: atoms 7-10 and 12** | `Consolidation/`, notebook 04 |
 
 ::: notes
 The ROC curve by hand, the 200,000-pair experiment, the cost curve, then the
 multiclass matrix. Run notebook 03. Fifteen minutes, and the three multiclass
-slides that follow (58 to 60) are shown when the notebook reaches its last section, so
+slides that follow (60 to 62) are shown when the notebook reaches its last section, so
 they run alongside it rather than after it.
+
+Or run atoms 7 to 10 (the AUC of seven drives, a threshold from invented costs, class
+weights) and then atom 12, the whole chain on twelve drives: fit, the odds multiplier,
+0.5 against t*, the confusion matrix and roc_auc_score with its right and wrong inputs.
+Atom 8, average precision, if time is left.
 
 If time is short, keep the pairs experiment: it turns a definition they would
 otherwise memorise into something they watched happen.

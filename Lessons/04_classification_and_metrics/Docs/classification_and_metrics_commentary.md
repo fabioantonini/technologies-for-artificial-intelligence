@@ -1147,6 +1147,10 @@ different lines; lesson 6 draws them.
 Notebook 1 runs the first half of the lesson in code: the line on a 0/1 label, the
 sigmoid, the two losses and their gradients, gradient descent in fifteen lines of
 NumPy, the decision boundary, and the coefficients recovered against the truth. The
+table's last row names the shorter route used in class: atoms 1 to 4 of the lesson 4
+atoms notebook (odds, one coefficient, log loss on four drives, one gradient step) and
+atom 11 of the notebook on the scikit-learn application programming interface (API),
+for the default penalty of slide 29. The
 questions below came up while working through it.
 
 ### Question — "Read the first two sigmoid lines together": which lines?
@@ -1443,7 +1447,10 @@ so.
 
 Notebook 2 builds the confusion matrix by hand before calling `confusion_matrix`, then
 the metrics, the threshold sweep and the precision-recall curve. Building the four
-counts by hand takes two minutes and is what makes the jargon stop being jargon.
+counts by hand takes two minutes and is what makes the jargon stop being jargon. In
+class, atoms 5 and 6 (the confusion matrix in the order `ravel()` returns it, the two
+averages by hand) and atom 3 of the API notebook (`predict` against `predict_proba`)
+can take its place, as the table's last row says.
 
 ### Question — does the opening say the always-healthy model wins?
 
@@ -2138,7 +2145,11 @@ lesson 2 made the same argument for fitting the imputer on the training rows onl
 
 Notebook 3 draws the ROC curve, checks the AUC with 200,000 random pairs, runs the
 thinning experiment, the cost curve and the class weights, and ends with the
-three-class model, alongside slides 60 to 62.
+three-class model, alongside slides 60 to 62. In class, atoms 7 to 10 cover the AUC
+by counting pairs, a threshold from costs and the class weights on a handful of drives,
+and atom 12 runs the whole chain on twelve drives with one counter: the fit, the odds
+multiplier, 0.5 against $t^*$, the confusion matrix, precision, recall and
+`roc_auc_score`, with the inputs it should and should not be given.
 
 ### Question — is the AUC bounded between 0.5 and 1?
 
