@@ -85,7 +85,7 @@ each weight's share is that times the input it carried. → § 4.3
 every weight its blame in one backward sweep. → § 4.4
 
 **Learning rate.** The step size. Too small and training is still going when it stops;
-too large and it never settles. → § 4.5
+too large and it never settles. → § 6.1
 
 
 ## Networks in practice
@@ -107,16 +107,16 @@ is right when that sure. → § 5.3
 linear model gets most of the way. Fit the linear model first. → § 5.5
 
 **Memorising.** A network with far more weights than examples can store its training
-answers; the validation loss shows it before the accuracy does. → § 6.1
+answers; the validation loss shows it before the accuracy does. → § 6.2
 
 **Early stopping.** Stop when the validation loss has not improved for a while, and keep
-the best weights seen. → § 6.2
+the best weights seen. → § 6.3
 
 **Dropout.** Switch off a random fraction of hidden units on every training mini-batch,
-so no unit relies on another. → § 6.2
+so no unit relies on another. → § 6.3
 
 **Vanishing gradient.** The blame shrinks at every layer it passes back through; with
-sigmoids, whose slope is at most a quarter, a deep stack never learns. → § 6.3
+sigmoids, whose slope is at most a quarter, a deep stack never learns. → § 6.4
 
 **Shuffled pixels.** A dense network ignores which pixel is next to which, so a
-consistent shuffle changes nothing it can see. → § 6.4
+consistent shuffle changes nothing it can see. → § 6.5

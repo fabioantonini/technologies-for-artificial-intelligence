@@ -43,7 +43,7 @@ def drift_clouds():
     ax.axvline(0, color=SLATE, lw=.8)
     ax.set_xlabel("channel A drift (mV)", fontsize=12)
     ax.set_ylabel("channel B drift (mV)", fontsize=12)
-    ax.set_title("Two channels drift: 800 units, four clouds", fontsize=14)
+    ax.set_title("Two channels drift: 800 sensors, four clouds", fontsize=14)
     ax.legend(loc="center left", bbox_to_anchor=(1.03, 0.5), fontsize=12, frameon=False,
               markerscale=2.2)
     ax.set_xlim(-2.1, 2.1)
@@ -262,7 +262,7 @@ def forward_pass_map():
                      (H0, r"$Z^{[1]}$ and $A^{[1]}$: $m \times 4$"),
                      (O0, r"$Z^{[2]}$ and $\hat{y}$: $m \times 1$")):
         ax.text(x, -1.1, label, ha="center", fontsize=18, color=SLATE)
-    ax.text(H0, -1.6, "shapes: one row per example, m = 2,250 training units",
+    ax.text(H0, -1.6, "shapes: one row per example, m = 2,250 training sensors",
             ha="center", fontsize=15.5, color=SLATE, style="italic")
 
     ax.set_xlim(-0.6, 13.6)

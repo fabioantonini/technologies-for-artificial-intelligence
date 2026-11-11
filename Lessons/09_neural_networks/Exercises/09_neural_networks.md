@@ -170,7 +170,7 @@ afterwards. The rest of the exercise is much less instructive if you do.
 6. State plainly, line by line: **is the network distinguishably better than
    logistic regression, distinguishably worse, or not distinguishable at all?**
    Justify the word you chose using the spread you measured, not the means
-   alone. Handout section 6.2 is the pattern: three ways of training there
+   alone. Handout section 6.3 is the pattern: three ways of training there
    landed at most 0.55 points apart against a run-to-run standard deviation of
    up to 0.35 points, and the honest conclusion was "enough to say the remedies
    did not hurt, not enough to rank them".
@@ -347,7 +347,7 @@ Marks are **not** lost for:
   genuinely overlap, that is the correct answer and it earns full marks in
   question 6 — naming a winner anyway, on a difference smaller than the spread
   you measured, loses them. This is lesson 5's discipline and lesson 9's
-  section 6.2 applied to your own numbers, and it is the habit the exam asks
+  section 6.3 applied to your own numbers, and it is the habit the exam asks
   you to demonstrate;
 - a network that comes out **below** logistic regression, if you report it as
   measured and explain it rather than retuning until it wins;

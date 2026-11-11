@@ -14,10 +14,10 @@ date: "11 December 2026 · reading time about 70 minutes"
 | 0:30–0:50 | 20 | A hidden layer: several lines and a vote | Slides 14–26 |
 | 0:50–1:15 | 25 | **Notebook 01** — from one line to a hidden layer | Slide 27 |
 | 1:15–1:27 | 12 | **Break** | Slide 28 |
-| 1:27–1:47 | 20 | How a network learns: the loop, one step by hand, the blame flowing back, the learning rate | Slides 29–37 |
-| 1:47–2:02 | 15 | A network in Keras on the digits; softmax; 39 points against 2.8 | Slides 38–46 |
-| 2:02–2:20 | 18 | **Notebook 02** — a network in Keras | Slide 47 |
-| 2:20–2:35 | 15 | Training in practice: memorising, two remedies, the vanishing gradient, shuffled pixels | Slides 48–56 |
+| 1:27–1:42 | 15 | How a network learns: the loop, mini-batches, one step by hand, the blame flowing back | Slides 29–35 |
+| 1:42–1:57 | 15 | A network in Keras on the digits; softmax; 39 points against 2.8 | Slides 36–44 |
+| 1:57–2:15 | 18 | **Notebook 02** — a network in Keras | Slide 45 |
+| 2:15–2:35 | 20 | Training in practice: the learning rate, memorising, two remedies, the vanishing gradient, shuffled pixels | Slides 46–56 |
 | 2:35–2:55 | 20 | **Notebook 03** — training in practice | Slide 57 |
 | 2:55–3:00 | 5 | What to take away; homework | Slides 58–60 |
 | | **180** | **Total** | **60 slides, 3 notebooks** |
@@ -118,10 +118,14 @@ by its own production spread, with the rule that made the labels. Look at the
 right panel: a sensor passes inside a circle, and the few wrong-coloured points
 along the circle are the rig's 3% of mistaken verdicts.*
 
-The circle is not a teaching choice. Both tolerances are exactly 1.25 times the
-production spread of their axis (0.50 dB against 0.40, 3.75 degrees against
-3.00), so after standardising, a sensor passes when it lies within 1.25 of the
-centre: a circle of radius 1.25.
+The rule that made the labels divides each offset by its tolerance and adds
+the squares: a sensor passes when
+$(\text{gain}/0.50)^2 + (\text{phase}/3.75)^2 < 1$. The circle is not a
+teaching choice. Both tolerances are exactly 1.25 times the production spread
+of their axis (0.50 dB against 0.40, 3.75 degrees against 3.00), so after
+standardising, a sensor passes when it lies within 1.25 of the centre: a circle
+of radius 1.25. (The scaler uses the training sensors' own mean and spread,
+which are close to 0 and to 0.40 and 3.00, so the circle is very nearly exact.)
 
 ### 2.3 What one line is worth
 
@@ -301,9 +305,11 @@ Two more words name how the data is fed in. A **mini-batch** is a small random g
 of training examples, 32 in notebook 02; each round of the loop uses one
 mini-batch, which is much cheaper than using all the data and still points
 roughly the right way on average. An **epoch** is one pass through all the
-mini-batches, so through every training example once. With 1,077 training
-digits in mini-batches of 32 there are 34 mini-batches per epoch, and 60 epochs
-make 2,040 rounds of the loop.
+mini-batches, so through every training example once. Notebook 02 keeps 1,077
+of the 1,797 digits for training (section 5.1 gives the full split); in
+mini-batches of 32 that is $1{,}077 / 32 = 33.7$, so 34 mini-batches per
+epoch, the last one smaller, and 60 epochs make $60 \times 34 = 2{,}040$ rounds
+of the loop.
 
 ### 4.2 The loss
 
@@ -373,32 +379,6 @@ Two facts make it practical. One backward sweep costs about as much arithmetic
 as one forward pass, so a gradient for every weight costs roughly one more
 prediction. And the libraries do it for you: `MLPClassifier` and Keras both run
 backpropagation inside `fit`.
-
-### 4.5 The learning rate
-
-![](learning_rate_regimes.png)
-
-*The same network, two hidden layers of 64 trained with plain stochastic
-gradient descent (SGD) on the digits for 60 epochs, at three learning rates.
-Look at the right panel: at $\alpha = 0.001$ accuracy is still climbing when
-training stops, at 0.5 it settles high, at 2.0 it never leaves 0.1.*
-
-| learning rate $\alpha$ | final training loss | validation accuracy |
-|---|---|---|
-| 0.001 | 2.0456 | 0.4806 |
-| 0.5 | 0.0007 | **0.9722** |
-| 2.0 | 2.3195 | 0.1000 |
-
-Too large, and every step overshoots, so the loss never comes down: 0.1000 is
-what guessing scores on ten classes. Too small, and the network is still
-learning when the epochs run out.
-
-**The predictable mistake.** A rate too small gives low accuracy on both the
-training and the validation data, which is exactly what a network *too small*
-looks like, and the natural response is to make the network bigger. That
-reasoning is sound in general: low training accuracy is the usual sign of a
-model too simple. Here it is the wrong fix. **Try learning rates a factor of
-ten apart before changing the network.**
 
 ---
 
@@ -515,7 +495,39 @@ model first: the size of the gap tells you whether a network was needed.**
 
 ## 6. Training in practice
 
-### 6.1 A network that memorises
+Notebook 03 takes the digits of section 5 and shows the things that most often
+go wrong when a network is trained: a learning rate set badly, a network that
+memorises, a deep stack of sigmoids that never learns, and a blindness no
+training can fix.
+
+### 6.1 The learning rate
+
+![](learning_rate_regimes.png)
+
+*The same network, two hidden layers of 64 trained with plain stochastic
+gradient descent (SGD) on the 1,077 training digits for 60 epochs, at three
+learning rates, one run each, scored on the 360 validation digits.
+Look at the right panel: at $\alpha = 0.001$ accuracy is still climbing when
+training stops, at 0.5 it settles high, at 2.0 it never leaves 0.1.*
+
+| learning rate $\alpha$ | final training loss | validation accuracy |
+|---|---|---|
+| 0.001 | 2.0456 | 0.4806 |
+| 0.5 | 0.0007 | **0.9722** |
+| 2.0 | 2.3195 | 0.1000 |
+
+Too large, and every step overshoots, so the loss never comes down: 0.1000 is
+what guessing scores on ten classes. Too small, and the network is still
+learning when the epochs run out.
+
+**The predictable mistake.** A rate too small gives low accuracy on both the
+training and the validation data, which is exactly what a network *too small*
+looks like, and the natural response is to make the network bigger. That
+reasoning is sound in general: low training accuracy is the usual sign of a
+model too simple. Here it is the wrong fix. **Try learning rates a factor of
+ten apart before changing the network.**
+
+### 6.2 A network that memorises
 
 Notebook 03 trains two hidden layers of 512 units on only 300 training digits:
 301,066 weights and biases, a thousand per example.
@@ -531,7 +543,7 @@ The validation accuracy, 0.9472 after 200 epochs, hides the damage; the
 validation *loss*, 1.4 times its lowest value by the end, shows it: the network
 is growing more confident about the validation images it gets wrong.
 
-### 6.2 Two remedies
+### 6.3 Two remedies
 
 **Early stopping** watches the validation loss and stops when it has not
 improved for a set number of epochs (25 here), keeping the weights from the best
@@ -550,7 +562,7 @@ differ by 0.0055, under two standard deviations of the runs: enough to say the
 remedies did not hurt, not enough to rank them. What early stopping certainly
 bought is time, 39 epochs instead of 200.
 
-### 6.3 Activations, and six layers that never learn
+### 6.4 Activations, and six layers that never learn
 
 ![](activation_functions.png)
 
@@ -574,7 +586,7 @@ The sigmoid network ends at **0.1000**; the same network with ReLU ends at
 **0.9611**. This is why deep networks use the ReLU, and lesson 10 meets the
 problem again in deeper networks.
 
-### 6.4 Shuffle the pixels: nothing notices
+### 6.5 Shuffle the pixels: nothing notices
 
 Take one fixed reordering of the 64 pixels and apply it to every image.
 

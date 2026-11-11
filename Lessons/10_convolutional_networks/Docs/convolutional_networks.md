@@ -643,7 +643,7 @@ Real convolutional networks are deeper, and depth reintroduces exactly lesson
 normalisation**, which renormalises each layer's activations so the signal
 neither dies nor explodes, and **residual connections**, which add a layer's
 input to its output so that the gradient has a path that skips the layer
-entirely. Both are answers to lesson 9's vanishing gradient (its section 6.3),
+entirely. Both are answers to lesson 9's vanishing gradient (its section 6.4),
 applied at depth.
 
 They are not covered here because 24×24 images with one defect do not need

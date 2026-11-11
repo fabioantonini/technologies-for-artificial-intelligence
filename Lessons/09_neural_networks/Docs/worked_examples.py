@@ -163,6 +163,7 @@ X_d, y_d, X_v, y_v, X_t, y_t = load_digit_images()
 check("4.1, 5.1 training digits", len(X_d), 1077, 0)
 check("5.1 validation digits", len(X_v), 360, 0)
 check("5.1 test digits", len(X_t), 360, 0)
+check("4.1 1,077 / 32, before rounding up", len(X_d) / 32, 33.7, 0.05)
 check("4.1 mini-batches of 32 per epoch", int(np.ceil(len(X_d) / 32)), 34, 0)
 check("4.1 rounds of the loop in 60 epochs", 60 * int(np.ceil(len(X_d) / 32)), 2040, 0)
 
@@ -174,14 +175,14 @@ check("5.2 output layer, 32 x 10 + 10", 32 * 10 + 10, 330, 0)
 check("5.2, 5.5 one hidden layer of 32, total", 64 * 32 + 32 + 32 * 10 + 10, 2410, 0)
 check("5.5 softmax alone, 64 x 10 + 10", 64 * 10 + 10, 650, 0)
 check("5.5 one hidden layer of 64", 64 * 64 + 64 + 64 * 10 + 10, 4810, 0)
-check("6.1 two layers of 512", 64 * 512 + 512 + 512 * 512 + 512 + 512 * 10 + 10, 301066, 0)
+check("6.2 two layers of 512", 64 * 512 + 512 + 512 * 512 + 512 + 512 * 10 + 10, 301066, 0)
 check("5.5 parameters, 2,410 against 650 (almost four times)", 2410 / 650, 3.71, 0.01)
 
 zz = np.linspace(-8, 8, 160001)
 slope = sigmoid(zz) * (1 - sigmoid(zz))
-check("6.3 the sigmoid's largest slope", float(slope.max()), 0.25, 1e-9)
-check("6.3 six layers: 0.25 ** 6 = 1/4096", 0.25 ** 6, 1 / 4096, 1e-15)
-check("6.2 best minus worst remedy, under two sds", float(0.9481 - 0.9426 < 2 * 0.0035), 1.0, 0)
+check("6.4 the sigmoid's largest slope", float(slope.max()), 0.25, 1e-9)
+check("6.4 six layers: 0.25 ** 6 = 1/4096", 0.25 ** 6, 1 / 4096, 1e-15)
+check("6.3 best minus worst remedy, under two sds", float(0.9481 - 0.9426 < 2 * 0.0035), 1.0, 0)
 
 # 5.5 the digits gap, refitted in Keras when it is available (the course's full image).
 try:

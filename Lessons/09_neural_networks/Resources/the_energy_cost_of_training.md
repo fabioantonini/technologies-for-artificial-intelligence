@@ -32,7 +32,7 @@ handout noted that one backward sweep costs about as much arithmetic as one
 forward pass, so a gradient for every weight costs roughly one more prediction.
 Arithmetic, and the memory traffic that feeds it, are the two things a chip
 turns into heat, so Section 4.4 is a claim about watts dressed as a claim about
-complexity. Section 6.2 says the same thing outright about early stopping: the
+complexity. Section 6.3 says the same thing outright about early stopping: the
 remedies could not be ranked on accuracy, but "what early stopping certainly
 bought is time, 39 epochs instead of 200" — and time on a chip is energy. And
 the drift table of Section 3.4 is a lesson in reliability as much as in
@@ -46,7 +46,7 @@ is a run that never draws power. **Reliability is an energy strategy.**
 
 Section 3.4 of the handout trained twenty networks at each of three widths on
 the drift problem: sixty networks, for one table of three rows. It then trained
-five at each of six widths on the acceptance test, and Sections 5.5 and 6.2 ran
+five at each of six widths on the acceptance test, and Sections 5.5 and 6.3 ran
 three per row for two more tables of three rows. That is over a hundred trained
 networks behind four small tables — the normal ratio. **The
 published number is the surviving fraction of what was run**, so any energy
@@ -114,7 +114,7 @@ and casting the multiply-accumulate array into silicon amortises it further,
 which is what a tensor processing unit (TPU) does. **Fewer bits means less
 movement**, which is most of why training in 16-bit formats became standard.
 
-Put the network of the handout's Section 6.1 on this price list. Two hidden
+Put the network of the handout's Section 6.2 on this price list. Two hidden
 layers of 512 units on 8×8 digits is **301,066 weights and biases**. A forward
 pass costs about two floating-point operations per parameter per example.
 Section 4.4 says a backward sweep costs about as much as a forward pass; counted
