@@ -571,6 +571,13 @@ part of the error matters more, $\rho$ grows and the first reason takes over.
 are correlated". The training sets overlap, but each score is measured on its own
 disjoint fold — here $\rho = 0.023$.
 
+**Another predictable mistake:** comparing $s = 0.0187$ with 0.0165, nearly
+equal, and concluding that the formula works. They are spreads of different
+things: 0.0187 is how far one round's score moves from another round's on one
+fleet; 0.0165 is how far the *mean* of the five rounds moves from one fleet to
+the next. The fair comparison is between two spreads of the mean, 0.0084 against
+0.0165, the first two rows of the table.
+
 **Checks.** The $s = 0.0187$ above is the standard deviation of the five round
 scores divided by 5, NumPy's default (`std()`, `ddof=0`). Dividing by 4 instead
 (`std(ddof=1)`, the usual sample standard deviation) gives 0.0209, and
@@ -635,6 +642,10 @@ rests on a single row. With AUC it cannot work at all: a fold of one row holds n
 failing–healthy pair, so its AUC is undefined, and `cross_val_score` with
 `LeaveOneOut` returns `nan` for every round (for the same reason it cannot be
 stratified). On 800 drives scored by AUC, five or ten folds, or repeated folds.
+Nor does it work when rows come in groups, as in section 4.6: leaving out one of
+a drive's ten readings leaves the other nine, near-copies with the same label, in
+training, and the score is inflated. The extreme for grouped rows leaves out one
+whole group at a time, `LeaveOneGroupOut`.
 
 **$k$ is not a hyperparameter** — another predictable mistake. It is a setting of
 the *measurement*, not of the model: the model you ship is refitted on all the
@@ -692,13 +703,19 @@ column's standard deviation (an assumption of the simulation), 8,000 rows,
 | Model | Rows split at random | Each drive's readings kept together | One row per drive |
 |---|---|---|---|
 | logistic regression, C = 1 | 0.960 | 0.950 | 0.951 |
-| 1-nearest neighbour (lesson 6) | **1.000** | **0.620** | 0.622 |
-| random forest (lesson 7) | 0.999 | 0.896 | 0.890 |
+| logistic regression on degree-3 features, C = 10,000 | **0.999** | **0.724** | 0.775 |
 
-The nearest neighbour looks perfect and is worth 0.62 on unseen drives; the
-logistic regression, with six coefficients, cannot memorise 800 drives and barely
-notices. Keeping each drive's readings together gives back the honest
-one-row-per-drive score.
+The second model is the first made flexible with lesson 3's tools: degree-3
+polynomial features turn the 6 columns into 84 (squares, cubes and products of
+the scaled columns), and C = 10,000 leaves almost no penalty, so the boundary is
+free to bend around each drive. Split at random it looks perfect; on unseen
+drives it is worth 0.72, far below the plain model. The plain logistic
+regression, with six coefficients, cannot memorise 800 drives and barely
+notices. Keeping each drive's readings together removes the lookup: each model
+lands near its one-row-per-drive score, not near its 0.999. The flexibility
+bought memory, not knowledge — lesson 3's overfitting, hidden by the split.
+**A predictable mistake:** "0.999 shows the flexible model is the better one";
+split at random, it is graded on drives it has already seen.
 
 The same structure appears whenever rows share a source: several images of the
 same patient, several sentences from the same document, repeated measurements of

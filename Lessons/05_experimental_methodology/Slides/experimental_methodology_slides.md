@@ -512,6 +512,13 @@ The two bars have different centres - 0.9514 is our fleet's cross-validation,
 0.961 the mean over the 300 new fleets - and that is not the point: compare
 their widths.
 
+A predictable slip: comparing slide 15's s = 0.0187 with this 0.0165, nearly
+equal, and concluding that the formula works. They measure different things:
+0.0187 is how far one round's score moves from another round's, on one fleet;
+0.0165 is how far the mean of the five rounds moves from one fleet to the next.
+The fair comparison is between two spreads of the mean: 0.0084 (s ÷ √5, what
+one fleet predicts) against 0.0165 (what 300 fleets show).
+
 Why it matters: an interval too narrow makes noise look like a difference. Two
 models at 0.951 and 0.935 look separated at ± 0.016, not at ± 0.032.
 
@@ -645,6 +652,11 @@ one row holds no failing-healthy pair, so its AUC is undefined - cross_val_score
 with LeaveOneOut returns nan for every round. On these 800 drives: five or ten
 folds, or repeated folds.
 
+Nor does it work when rows come in groups, say ten readings per drive: leaving
+out one reading leaves the other nine, near-copies with the same label, in
+training, and the score is inflated. The extreme for grouped rows leaves out one whole group at a time:
+LeaveOneGroupOut.
+
 Is k a hyperparameter? No - another predictable slip. It is a setting of the
 measurement, not of the model: the model you ship is refitted on all the data
 whatever k was. Fix it beforehand, and never choose it by the score it gives.
@@ -668,7 +680,8 @@ fold cut and nothing else.
 
 - Suppose ten readings per drive (lesson 4's table has one)
 - A random 5-fold split puts about 8 of a drive's 10 readings in training, 2 in validation
-- Those 2 are near-copies of the 8, same label: the model recognises the drive (1-nearest neighbour: 1.000 split at random, 0.620 by drive)
+- Those 2 are near-copies of the 8, same label: the model recognises the drive
+- Logistic regression on degree-3 features, C = 10,000 (almost no penalty): AUC 0.999 split at random, 0.724 by drive
 
 ::: notes
 Everything so far assumed rows are independent draws. That assumption is
@@ -686,15 +699,20 @@ duplicate: a drive's ten readings have nearly the same values and the same label
 so the model can look the answer up instead of learning the pattern. It is a form
 of leakage: the test row is not independent of the training rows.
 
-The third bullet carries the evidence; the nearest neighbour is named ahead of
-lesson 6 - say only that it copies the label of the closest training row.
+The fourth bullet carries the evidence, and it bites flexible models. Simulated
+in the handout, section 4.6 - the 800 drives with ten noisy readings each, 8,000
+rows. The flexible model is lesson 4's logistic regression on lesson 3's
+polynomial features: degree 3 turns the 6 columns into 84 (squares, cubes and
+products), and C = 10,000 leaves almost no penalty, so the boundary is free to
+bend around each drive. It scores 0.999 with rows split at random and 0.724 with
+each drive's readings kept together; with one row per drive it scores 0.775. The
+lesson's own logistic regression, six coefficients and C = 1, cannot memorise
+800 drives: 0.960 against 0.950.
 
-It bites flexible models. Simulated in the handout, section 4.6 - the 800 drives
-with ten noisy readings each, 8,000 rows: a 1-nearest-neighbour classifier
-(lesson 6) scores 1.000 with rows split at random and 0.620 with each drive's
-readings kept together, the same as with one row per drive. A random forest
-(lesson 7): 0.999 against 0.896. Logistic regression, six coefficients, cannot
-memorise 800 drives: 0.960 against 0.950.
+A predictable slip: "0.999 shows the flexible model is the better one". Split at
+random, it is graded on drives it has already seen; on new drives it is far
+below the plain model's 0.950. The flexibility bought memory, not knowledge -
+lesson 3's overfitting, hidden here by the split.
 
 Other instances worth naming out loud: several images of the same patient,
 several sentences from the same document, repeated measurements of the same
@@ -752,9 +770,9 @@ Right, GroupKFold deals whole drives: drives 1 and 2 validate, and none of their
 readings trained the model. That is the situation the model will meet in use, a
 drive it has never seen.
 
-The footnote carries slide 20's numbers: 1-nearest neighbour, the model that
-memorises best, scores 1.000 with readings dealt at random and 0.620 with drives
-dealt whole. The second number is the honest one.
+The footnote carries slide 20's numbers: the flexible logistic regression
+(degree-3 features, C = 10,000) scores 0.999 with readings dealt at random and
+0.724 with drives dealt whole. The second number is the honest one.
 :::
 
 # Notebook 1, live

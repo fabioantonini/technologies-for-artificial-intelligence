@@ -285,7 +285,7 @@ def groupkfold_diagram():
         ax.axis("off")
     fig.text(0.01, 0.0, "Drawn small: 10 drives, 4 readings each, one square per reading, "
              "numbered by drive. On the lesson's data, 800 drives and 10 readings each:\n"
-             "1-nearest neighbour scores 1.000 split at random and 0.620 split by drive.",
+             "a logistic regression on degree-3 features, C = 10,000, scores 0.999 split at random and 0.724 split by drive.",
              ha="left", va="top", fontsize=10.2, color=SLATE)
     fig.tight_layout(w_pad=2.5)
     save(fig, "groupkfold_diagram.png")

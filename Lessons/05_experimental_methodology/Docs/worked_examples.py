@@ -629,9 +629,7 @@ same("4.5 leave-one-out with AUC is nan in every round", float(np.isnan(loo).all
      tolerance=0)
 
 # ------------------------- Section 4.6: ten readings per drive
-from sklearn.ensemble import RandomForestClassifier                    # noqa: E402
 from sklearn.model_selection import GroupKFold                         # noqa: E402
-from sklearn.neighbors import KNeighborsClassifier                     # noqa: E402
 
 readings = 10
 noise_rng = np.random.default_rng(0)
@@ -646,10 +644,10 @@ for label, model, printed in (
         ("logistic regression", make_pipeline(StandardScaler(),
                                               LogisticRegression(max_iter=2_000)),
          (0.960, 0.950, 0.951)),
-        ("1-nearest neighbour", make_pipeline(StandardScaler(), KNeighborsClassifier(1)),
-         (1.000, 0.620, 0.622)),
-        ("random forest", RandomForestClassifier(300, random_state=0, n_jobs=-1),
-         (0.999, 0.896, 0.890))):
+        ("logistic regression on degree-3 features, C = 10,000",
+         make_pipeline(StandardScaler(), PolynomialFeatures(3),
+                       LogisticRegression(C=10_000, max_iter=10_000)),
+         (0.999, 0.724, 0.775))):
     shuffled = cross_val_score(model, X_read, y_read, scoring="roc_auc",
                                cv=StratifiedKFold(5, shuffle=True, random_state=0)).mean()
     grouped = cross_val_score(model, X_read, y_read, scoring="roc_auc",
@@ -660,6 +658,8 @@ for label, model, printed in (
     same(f"4.6 {label}, each drive kept together", float(grouped), printed[1],
          tolerance=5e-4)
     same(f"4.6 {label}, one row per drive", float(single_row), printed[2], tolerance=5e-4)
+same("4.6 degree-3 features turn the 6 columns into 84",
+     PolynomialFeatures(3).fit(fleet_X).n_output_features_, 84, tolerance=0)
 
 # GroupKFold with groups of different sizes: one drive of ten readings among 799
 # drives of one, never split.

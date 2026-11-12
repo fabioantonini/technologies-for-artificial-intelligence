@@ -529,6 +529,14 @@ Both: 0.9514 is our fleet's cross-validation, 0.961 the mean over the 300 new fl
 The slide compares widths. Why it matters: two models at 0.951 and 0.935 look separated
 with $\pm 0.016$, and are not with $\pm 0.032$.
 
+### Question — slide 15's s was 0.0187, this is 0.0165: nearly the same, so the formula works?
+
+They are spreads of different things. 0.0187 is how far one round's score moves from
+another round's, on one fleet. 0.0165 is how far the *mean* of the five rounds moves from
+one fleet to the next. The fair comparison is between two spreads of the mean: 0.0084,
+which is $0.0187 \div \sqrt{5}$ and what one fleet predicts, against 0.0165, what 300
+fleets show. The second is about twice the first.
+
 ---
 
 ## Slide 17 — Stratify when a class is rare
@@ -599,7 +607,10 @@ nearly unbiased, and there is only one way to cut, so no seed: with 30 patients,
 fifth of them per fold costs a lot, losing one costs almost nothing. The price is $m$ fits
 and a high-variance estimate, since the $m$ models are nearly the same and each score
 rests on one row. With the AUC it cannot work at all: a fold of one row holds no
-failing-healthy pair, so `cross_val_score` returns `nan` for every round.
+failing-healthy pair, so `cross_val_score` returns `nan` for every round. Nor does it work
+when rows come in groups, say ten readings per drive: leaving out one reading leaves the
+other nine, near-copies with the same label, in training, and the score is inflated. For
+grouped rows the extreme leaves out one whole group at a time, `LeaveOneGroupOut`.
 
 ### Question — is k a hyperparameter?
 
@@ -616,22 +627,24 @@ seeds the spread of the estimate falls from 0.0033 to 0.0009 with ten repetition
 Suppose the table held ten readings per drive instead of one. A random 5-fold split puts
 about 8 of a drive's 10 readings in training and 2 in validation, and those 2 are
 near-copies of the 8, with the same label. The model can recognise the drive instead of
-learning anything about failure. A 1-nearest neighbour, which copies the label of the
-closest training row, scores 1.000 with rows split at random and 0.620 with each drive's
-readings kept together.
+learning anything about failure. A logistic regression made flexible, with degree-3
+polynomial features and C = 10,000 (almost no penalty), scores 0.999 with rows split at
+random and 0.724 with each drive's readings kept together.
 
 ### Question — how can the model recognise a drive it was never told the name of?
 
-A drive's readings have nearly the same values and the same label. A flexible model finds
-the training reading closest to a validation reading, which is the same drive's, and
-copies its label: a lookup, not a pattern. It is a form of leakage, since the validation
+A drive's readings have nearly the same values and the same label. A flexible model can
+bend its boundary around each drive it trains on; a validation reading falls right beside
+its siblings in training, on the side with their label. That is a lookup, not a pattern. It is a form of leakage, since the validation
 row is not independent of the training rows.
 
 ### Question — does every model fall for it?
 
-Flexible ones do. In the handout's simulation the nearest neighbour drops from 1.000 to
-0.620 and a random forest from 0.999 to 0.896, while logistic regression, with six
-coefficients, cannot memorise 800 drives: 0.960 against 0.950. "8 of 10" is an average;
+Flexible ones do. In the handout's simulation the logistic regression on degree-3
+features (84 columns, C = 10,000) drops from 0.999 to 0.724, while the plain logistic
+regression, with six coefficients and C = 1, cannot memorise 800 drives: 0.960 against
+0.950. It is lesson 3's overfitting, hidden by the split: the 0.999 does not make the
+flexible model the better one. "8 of 10" is an average;
 one reading on the training side is already enough.
 
 ---
@@ -690,9 +703,9 @@ four readings each, one square per reading, numbered by drive. `KFold` deals rea
 at a time, so a drive ends up on both sides of the split, and the model is graded on
 near-copies of rows it trained on, with the same label. `GroupKFold` deals whole drives,
 so every validating drive is one the model has never seen, which is the situation it
-will meet in use. On the lesson's data, 800 drives with ten readings each, a 1-nearest
-neighbour model scores 1.000 with readings dealt at random and 0.620 with drives dealt
-whole (slide 20). The second number is the one to report.
+will meet in use. On the lesson's data, 800 drives with ten readings each, the flexible
+logistic regression (degree-3 features, C = 10,000) scores 0.999 with readings dealt at
+random and 0.724 with drives dealt whole (slide 20). The second number is the one to report.
 
 ---
 
