@@ -168,7 +168,7 @@ class atoms 2-3 replace notebook 1, and atoms 11-13 notebook 3.
 | 5 | The spread: $s$ by hand, `std()` against `std(ddof=1)`, and the report line | *Report the spread, but not as a confidence interval*; *What to put in a report* |
 | 6 | `KFold` against `StratifiedKFold`, on twenty rows and on the 800 drives at seed 3 | *Stratify when a class is rare* |
 | 7 | `RepeatedStratifiedKFold`: the seed moves the score less | *Change only the seed, 40 times*; *How many folds?* (optional) |
-| 8 | Ten readings per drive: `drive_id`, `GroupKFold`, 1.000 against 0.620 | *When the rows are not independent*; *Split by the thing you must generalise to* |
+| 8 | Ten readings per drive: `drive_id`, `GroupKFold`, a flexible logistic regression, 0.999 against 0.724 | *When the rows are not independent*; *Split by the thing you must generalise to* |
 | 9 | Bias, variance and noise at 30 °C, by hand: 723.9 + 856.1 + 484 | *The bias–variance decomposition*; *The straight line (degree 1) at 30 °C, in three numbers* |
 | 10 | Training against validation error with `cross_validate(..., return_train_score=True)` | *Without the truth: two errors you can still measure* |
 | 11 | 0.931 on pure noise with the selector outside, 0.649 inside; the F-test made visible | *Now: what cross-validation does not protect you from*; *0.931*; *Fix it, and look what happens* |
