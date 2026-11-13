@@ -452,6 +452,13 @@ A predictable slip: "the model you ship is one of the five, or their average".
 The diamond sits among the dots, which invites it; but it is a new fit of the
 same recipe on all 800 drives, and the five round models only measured the
 recipe.
+
+And the five scores do not change that sixth fit at all: the recipe was fixed
+before, so it is refitted on all 800 whatever they said. If the scores change
+nothing, they are the measurement. If they change anything - the value of C,
+the columns, the model, the threshold - they have made a choice, and the
+measurement has to come from data that took no part in it: a test set set aside
+first.
 :::
 
 # Report the spread, but not as a confidence interval
@@ -696,8 +703,10 @@ recognise that drive, and the test row is nearly a duplicate of a training row.
 The score is excellent and the model is worthless on a drive it has never seen,
 which is the only situation anyone cares about. Why the test row is a near
 duplicate: a drive's ten readings have nearly the same values and the same label,
-so the model can look the answer up instead of learning the pattern. It is a form
-of leakage: the test row is not independent of the training rows.
+so a flexible model can bend its boundary around each drive it trains on, and a
+validation reading falls beside its siblings, on their side: it recognises the
+drive instead of learning the pattern. It is a form of leakage: the test row is
+not independent of the training rows.
 
 The fourth bullet carries the evidence, and it bites flexible models. Simulated
 in the handout, section 4.6 - the 800 drives with ten noisy readings each, 8,000
@@ -1717,7 +1726,15 @@ cross-validation reshuffles the same 800 rows, where the accident lives.
 A test set held out before any of this and used once: in new rows the chosen
 columns' correlation is a fresh coin toss, on average zero; the test set has
 chance matches of its own, but in other columns, which the model does not use.
-Atom 14 shows it. Fewer candidates: the best of many lottery tickets is luckier
+Atom 14 shows it: 40 fresh sets average 0.509, but one says 0.401 and
+another 0.680. Two kinds of error, and each cure removes one. The search's
+inflation is systematic: the score is pushed up, and cross-validation cannot
+remove it, because the accident is in every fold. The test set's error is
+random: the score wobbles, because a few hundred drives hold only a handful of
+failures.
+A test set set aside first is unbiased, not precise - so a report says how many
+failures it held.
+Fewer candidates: the best of many lottery tickets is luckier
 than the best of a few. More rows: what matters is the count in the rarer class -
 a noise column's mean over 29 failures wobbles by 1 ÷ √29 = 0.19, over 290 by
 1 ÷ √290 = 0.06 - so chance matches shrink and the selector finds nothing

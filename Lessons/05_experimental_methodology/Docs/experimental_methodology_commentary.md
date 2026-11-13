@@ -451,6 +451,13 @@ can be compared; the intercept is not drawn.
 Neither. The diamond sits among the dots, which invites the reading, but it is a new fit
 of the same recipe on all 800 drives. The five round models only measured the recipe.
 
+### Question — how do the five scores change the model I ship?
+
+Here, not at all: the recipe was fixed before, so it is refitted on all 800 whatever
+they said, and the scores are the report. They would change it only through a choice,
+such as keeping the value of C with the best mean; and once they have chosen, they are no
+longer the measurement, which has to come from a test set set aside first.
+
 ---
 
 ## Slide 15 — Report the spread, but not as a confidence interval
@@ -1292,6 +1299,15 @@ the accident lives.
 No: 0.658 is not a leak between folds, it is the sample's own chance correlations. The
 statement to remember: cross-validation protects you from leaking between folds; it
 cannot protect you from having searched a large space of possibilities on a small sample.
+
+### Question — a test set gives one measurement: what can it tell me?
+
+That the number is honest, not that it is exact. There are two kinds of error. The
+search's inflation is systematic: it pushes the score up, and no cross-validation removes
+it, because the accident is in every fold. A test set's error is random: with a handful
+of failures the score wobbles. Scored on 40 fresh sets, the honest pipeline averages
+0.509, right on the truth, yet one set says 0.401 and another 0.680. That is why a
+report says how many failures its test set held.
 
 ---
 

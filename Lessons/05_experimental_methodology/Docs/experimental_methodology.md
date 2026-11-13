@@ -469,7 +469,10 @@ model.fit(X, y)
 four fifths of the ingredients, judge a recipe; the cake brought to the wedding
 is a sixth, baked with all of them. **A predictable mistake** is "the model you
 ship is one of the five, or their average": the red diamond sits among the dots,
-which invites it, but it is a new fit, and the five only measured the recipe.
+which invites it, but it is a new fit, and the five only measured the recipe. The
+five scores do not change that sixth fit at all: the recipe was fixed before, so
+it is refitted on all 800 whatever they said. If the scores change nothing, they
+are the measurement; if they change anything, they have made a choice.
 
 **And a second one, about deciding on the score.** "If the cross-validated score
 is not acceptable, change the recipe and cross-validate again." Each round of
@@ -693,8 +696,9 @@ The score is excellent. The model is worthless on a drive it has never seen —
 which is the only situation anyone cares about.
 
 Why the test row is a near-duplicate: a drive's ten readings have nearly the same
-values and the same label, so the model can look the answer up instead of
-learning the pattern. It is a form of leakage — the test row is not independent of
+values and the same label, so a flexible model can bend its boundary around each
+drive it trains on, and a validation reading falls beside its siblings, on their
+side: it recognises the drive instead of learning the pattern. It is a form of leakage — the test row is not independent of
 the training rows — and it bites flexible models. Simulated on the fleet: each of
 the 800 drives given ten readings, its own values plus noise of 5% of each
 column's standard deviation (an assumption of the simulation), 8,000 rows,
@@ -1500,6 +1504,13 @@ they matched the labels of the 800 training drives; in new rows their
 correlation with the label is a fresh coin toss, positive or negative, zero on
 average. So a fresh test set is centred on the truth, though one of them can
 still land high by luck.
+
+**Two kinds of error, and each cure removes one.** The search's inflation is
+*systematic*: it pushes the score up, and no cross-validation removes it, because
+the accident is in every fold of the same sample. A fresh test set's error is
+*random*: the score wobbles, because a few hundred drives hold only a handful of
+failures. A test set set aside before any choice trades the first for the second
+— unbiased, not precise — which is why a report says how many failures it held.
 
 **Checks, for whoever wants the detail.** Simulated: the honest pipeline
 ($k = 10$) and the search's winner of section 7.3, both fitted on notebook 3's
