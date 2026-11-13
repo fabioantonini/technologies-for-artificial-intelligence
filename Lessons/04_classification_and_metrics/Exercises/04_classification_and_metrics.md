@@ -18,8 +18,9 @@ and defend one decision that the data cannot make for you.
 course container. Written answers go in markdown cells beside the evidence for
 them.
 
-Nothing is handed in: lesson 6 opens by discussing this exercise, and at the
-exam one of the ten is drawn for you to talk through your own notebook.
+Nothing is handed in: it is discussed at the start of the lesson on Friday 13
+November, and at the exam one of the ten is drawn for you to talk through your
+own notebook.
 
 ---
 
