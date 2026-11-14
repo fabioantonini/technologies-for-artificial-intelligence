@@ -37,10 +37,12 @@ wavelengths and is indistinguishable everywhere else.
 Three consequences, and they are what make this station worth studying.
 
 1. **Within a class, the channels vary only because of detector noise**, and
-   each photodiode has its own noise. So given the class, the 80 readings are
-   independent. The assumption Naive Bayes makes is not approximately true here,
-   it is exactly true — which is rare, and is why this station exists. Do not
-   take that on trust: measure it.
+   each photodiode has its own noise. So given the true grade, the 80 readings
+   are independent: the assumption Naive Bayes makes is exactly true of the
+   material — which is rare, and is why this station exists. Given the lab's
+   labels, which are wrong 3% of the time, it holds only approximately, because
+   a mislabelled sack carries the other grade's readings. Do not take either on
+   trust: measure it.
 2. **No single channel is worth much.** The difference the contaminant makes on
    the best channel is under one detector noise unit. The evidence has to be
    accumulated across many channels or it is not there at all.
@@ -74,7 +76,7 @@ Both loaders are offline, seeded, and give the same numbers anywhere.
 
 The ``TRUE_*`` constants below record how the labels were generated: which
 channels the contaminant actually touches, which one is dead, and where the
-energy window sits. **Do not read them until Part 5.** Reading them afterwards,
+energy window sits. **Do not read them until Part 4.** Reading them afterwards,
 to mark yourself, is the reason they are written down.
 """
 
@@ -98,7 +100,7 @@ WAVELENGTHS_NM = 1100.0 + 7.5 * np.arange(N_CHANNELS)
 #: own gain multiplies it — see ``CHANNEL_GAIN``.
 BASE_NOISE = 0.010
 
-# --- published truth: do not read before Part 5 ----------------------------
+# --- published truth: do not read before Part 4 ----------------------------
 
 #: The wavelength band the recycled grade absorbs in, as channel indices.
 TRUE_BAND = tuple(range(18, 42))
@@ -115,7 +117,9 @@ TRUE_DEAD_CHANNEL = 26
 
 #: Total separation between the two classes, as a Mahalanobis distance summed
 #: over all channels. Everything a perfect classifier could know is in here:
-#: the best achievable accuracy against the true state is Phi(d / 2).
+#: the best achievable accuracy against the true state is Phi(d / 2) with
+#: equal priors; with the priors used here, 0.58 and 0.42, it is about 0.946.
+#: Against the lab's labels, 3% of them wrong, it is about 0.919.
 TRUE_SEPARATION = 3.20
 
 #: Fraction of incoming sacks that are the wrong grade.
@@ -200,7 +204,7 @@ def load_spectra(n_samples: int = 200, random_state: int = RANDOM_STATE):
 # Station B — the extruder energy monitor
 # ---------------------------------------------------------------------------
 
-# --- published truth: do not read before Part 5 ----------------------------
+# --- published truth: do not read before Part 4 ----------------------------
 
 #: The specific energy window, in kWh/kg. Below it the pellets do not melt;
 #: above it the polymer degrades. Both are off specification.

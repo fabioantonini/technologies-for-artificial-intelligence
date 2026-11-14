@@ -19,7 +19,7 @@ date: "20 November 2026 · reading time about 100 minutes"
 | 2:06–2:34 | 28 | Margins, support vectors, the kernel trick | Slides 47–69 |
 | 2:34–2:50 | 16 | **Notebook 03** — kernels in practice, or atoms 11–15 | Slide 70 |
 | 2:50–3:00 | 10 | The three compared; homework | Slides 71–74 |
-| | **180** | **Total** | **71 slides, 3 notebooks** |
+| | **180** | **Total** | **74 slides, 3 notebooks** |
 
 ---
 
@@ -32,8 +32,9 @@ None of that told you **which model to reach for**, and this lesson is the first
 that offers a choice. Three families, each attacking classification from a
 completely different direction:
 
-- **k-nearest neighbours** makes no assumptions and does no fitting. It
-  remembers the data and votes.
+- **k-nearest neighbours** assumes no boundary shape and fits nothing. It
+  remembers the data and votes; its one assumption is that points near each
+  other, in the chosen distance, share a label.
 - **Naive Bayes** makes one very strong assumption and, in exchange, trains in a
   single pass and works in thousands of dimensions.
 - **Support vector machines** pick a boundary by a criterion nothing else in
@@ -52,16 +53,21 @@ and the pump is faulty when the combined distance is more than 1: the boundary,
 the design envelope, is an ellipse, not two separate ranges.
 
 That one physical fact decides everything that follows. The healthy pumps form a
-disc around the design point; the faulty ones form the annulus around them.
+disc around the design point — a disc in units of 3.5 Hz and 0.45 bar, an
+ellipse on the Hz and bar axes — and the faulty ones the annulus around it.
 
 ![](pump_scatter.png)
 
 *1,200 pumps. The healthy ones are surrounded, because a pump can fail by
 running too slow as well as too fast. No straight line separates these classes.*
 
-4% of the labels are deliberately flipped, so no model can exceed roughly 0.96.
-That ceiling is lesson 5's noise floor arriving in a classification problem, and
-it is the number to compare every score below against.
+4% of the labels are deliberately flipped — errors in the reference labels; the
+readings are untouched — so on new pumps no model can expect to exceed roughly
+0.96. On this particular sample the rule itself scores 1,151 of 1,200, 0.959,
+since 49 labels were flipped; a finite validation set can land a little either
+side. That ceiling is lesson 5's noise floor arriving in a classification
+problem, and it is the number to compare every score below against: a score well
+above it calls for a search for leakage before anything else.
 
 Before building anything, it is worth measuring what a straight boundary costs:
 
@@ -72,7 +78,7 @@ Before building anything, it is worth measuring what a straight boundary costs:
 
 **Logistic regression has not been narrowly beaten. It has learned nothing at
 all**, and it predicts "faulty" for every one of the 1,200 pumps because with a
-straight boundary that is genuinely its best available answer; its probability of
+straight boundary that is genuinely its best available answer on these pumps; its probability of
 "faulty" runs only from 0.579 to 0.641. The zero standard deviation across folds
 is the giveaway. The folds are stratified, so each holds 147 faulty pumps of 240,
 and calling every pump faulty scores 147 / 240 = 0.6125 on all five: a model that
@@ -226,10 +232,10 @@ model that ignored the data entirely would now do better.
 **Checks: why below the baseline, and not just down to it.** With 50 noise
 columns the 15 "nearest" pumps are close to 15 pumps taken at random (Section
 3.2). Take that literally. A random pump is faulty with probability
-$p = 735/1{,}200 = 0.6125$, so the vote of 15 random pumps says "faulty" when at
+$q = 735/1{,}200 = 0.6125$, so the vote of 15 random pumps says "faulty" when at
 least 8 of them are faulty:
 
-$$P(\text{vote says faulty}) = \sum_{j=8}^{15} \binom{15}{j}\, p^{j} (1 - p)^{15 - j} = 0.815$$
+$$P(\text{vote says faulty}) = \sum_{j=8}^{15} \binom{15}{j}\, q^{j} (1 - q)^{15 - j} = 0.815$$
 
 The vote ignores the pump being classified, so it is right when it says
 "faulty" to a faulty pump or "healthy" to a healthy one:
@@ -260,9 +266,9 @@ independently those terms are independent draws from the same distribution:
 
 $$d(x, x')^2 = \sum_{j=1}^{n} (x_j - x'_j)^2$$
 
-Call the mean of one term $\mu$ and its variance $v$. Both are fixed by how a
+Call the mean of one term $e$ and its variance $v$. Both are fixed by how a
 single coordinate is distributed — for coordinates uniform on $[0, 1]$ they are
-$\mu = 1/6$ and $v = 7/180$ — and, crucially, **neither depends on $n$**.
+$e = 1/6$ and $v = 7/180$ — and, crucially, **neither depends on $n$**.
 
 **Where the two numbers come from.** Both belong to a single pair of
 coordinates, so one dimension is enough, and the only thing to know is how the
@@ -271,8 +277,8 @@ The mean needs nothing but variances: $D$ has mean zero, so
 $\mathbb{E}[D^2] = \operatorname{Var}(D)$, and for independent points the
 variances add. A uniform coordinate on $[0, 1]$ has variance
 $\mathbb{E}[x^2] - \mathbb{E}[x]^2 = 1/3 - 1/4 = 1/12$, so
-$\mu = 1/12 + 1/12 = 1/6$. The variance needs the fourth power,
-$v = \mathbb{E}[D^4] - \mu^2$, and for that the shape of $D$. A small gap can
+$e = 1/12 + 1/12 = 1/6$. The variance needs the fourth power,
+$v = \mathbb{E}[D^4] - e^2$, and for that the shape of $D$. A small gap can
 arise from many positions of the pair, a gap near 1 only from one point at each
 end, so $D$ has the triangular density $1 - |t|$ on $[-1, 1]$. It is symmetric,
 so integrate over $[0, 1]$ and double:
@@ -287,7 +293,7 @@ $2\int_0^1 t^2 (1 - t)\,dt = 2(1/3 - 1/4) = 1/6$.
 Adding $n$ such terms adds their means, and because they are independent it
 adds their variances too:
 
-$$\mathbb{E}\left[d^2\right] = n\mu,
+$$\mathbb{E}\left[d^2\right] = ne,
   \qquad \operatorname{Var}\left(d^2\right) = nv,
   \qquad \text{so} \quad \operatorname{sd}\left(d^2\right) = \sqrt{nv}$$
 
@@ -297,10 +303,10 @@ large spread *measured against the distances themselves*, and dividing one by
 the other shows what becomes of it:
 
 $$\frac{\operatorname{sd}(d^2)}{\mathbb{E}\left[d^2\right]}
-  = \frac{\sqrt{nv}}{n\mu}
-  = \frac{1}{\sqrt{n}} \cdot \frac{\sqrt{v}}{\mu}$$
+  = \frac{\sqrt{nv}}{ne}
+  = \frac{1}{\sqrt{n}} \cdot \frac{\sqrt{v}}{e}$$
 
-For the uniform cube $\sqrt{v}/\mu = 1.18$, so the relative spread is
+For the uniform cube $\sqrt{v}/e = 1.18$, so the relative spread is
 $1.18/\sqrt{n}$: **0.84 in two dimensions, 0.12 in one hundred.** Going back
 from $d^2$ to $d$ does not change the rate — at $n = 100$ the relative spread of
 the distance itself is 0.059, half that of its square.
@@ -340,7 +346,8 @@ It is **not** that high-dimensional problems are inherently unlearnable. Lesson
 
 It is that **methods built on distance lose their footing**, because the
 quantity they depend on stops varying. That includes k-NN, k-means (lesson 8),
-and RBF kernels, which measure similarity through the same Euclidean distance.
+and radial basis function (RBF) kernels, which measure similarity through the
+same Euclidean distance.
 
 **The predictable mistake, and why the instinct is sound.** Adding features
 because they might help is good practice with a linear model, where an
@@ -485,7 +492,7 @@ $$p(x_j \mid y = c) = \frac{1}{\sqrt{2\pi\sigma_{jc}^2}}
 where $\mu_{jc}$ and $\sigma_{jc}^2$ are the mean and the variance of feature $j$
 among the training rows of class $c$. Training is therefore three kinds of
 average and nothing else: the class priors, then a mean and a variance per
-feature per class. For $n$ features and $K$ classes that is $K(2n + 1)$ numbers,
+feature per class. For $n$ features and $r$ classes that is $r(2n + 1)$ numbers,
 found in one pass, with no gradient descent and nothing to converge. On the
 pumps it is ten:
 
@@ -1126,8 +1133,10 @@ kernel the boundary can also bend around individual points (Section 5.6). Small 
 It is the same dial as $k$ in Section 2 and $\lambda$ in lesson 3, in a third
 costume — and note the direction, which catches people out: **large $C$ means
 less regularisation**, because the penalty weighs $\lambda = 1/(2C)$. The two ends
-make it concrete: as $C$ grows without limit no slack is affordable and the strict
-problem returns, infeasible on the pumps; as $C$ falls towards 0 only
+make it concrete: as $C$ grows, every violation costs more — on data a line can
+separate, the strict problem returns; on the pumps some violations are unavoidable
+whatever $C$ is, so the soft problem stays solvable and only charges them more; as
+$C$ falls towards 0 only
 $\tfrac{1}{2}\lVert w \rVert^2$ is left, its minimum is $w = 0$, and the model
 ignores the readings. ($k$ runs the other way from $C$: a larger $k$ is smoother.)
 
@@ -1168,7 +1177,8 @@ lot, and a flat horizontal plane separates them, apart from the flipped labels.
 A flat cut up there is a circle down here: linear in the new coordinates is
 curved in the old ones.
 
-The classes were always separable. They needed different coordinates.
+The rule behind the classes was always separable — the flipped labels aside. It
+needed different coordinates.
 
 ![](kernel_lift.png)
 
@@ -1228,7 +1238,17 @@ $$\max_{a} \ \sum_{i} a_i
   - \tfrac{1}{2}\sum_{i}\sum_{j} a_i a_j y_i y_j \langle x_i, x_j \rangle
   \quad \text{subject to} \quad 0 \leq a_i \leq C, \ \ \sum_i a_i y_i = 0$$
 
-The ceiling $a_i \leq C$ is what the soft margin adds: no single point can press
+That Lagrangian was written for the strict problem. For the soft margin it also
+carries the slacks: $+\,C\sum_i \xi_i$ in the objective, $1 - \xi_i$ in place of
+$1$ inside the bracket, and a second multiplier $r_i \geq 0$ for each constraint
+$\xi_i \geq 0$, entering as $-\sum_i r_i \xi_i$. The derivatives in $w$ and $b$ are
+unchanged; the derivative in each $\xi_i$ adds one condition,
+
+$$\frac{\partial \mathcal{L}}{\partial \xi_i} = C - a_i - r_i = 0
+  \quad \Longrightarrow \quad a_i = C - r_i \leq C,$$
+
+and the slacks cancel out of the dual, leaving the same expression with the
+ceiling $0 \leq a_i \leq C$. The ceiling $a_i \leq C$ is what the soft margin adds: no single point can press
 harder than the price of a violation, which is the sense in which $C$ really is
 the price of a point.
 
@@ -1307,10 +1327,10 @@ $$K(x, x') = e^{-\gamma \lVert x \rVert^2}\, e^{-\gamma \lVert x' \rVert^2}\,
 and the joint factor is an exponential, whose power series never terminates:
 
 $$e^{2\gamma \langle x, x' \rangle}
-  = \sum_{k=0}^{\infty} \frac{(2\gamma)^k}{k!} \langle x, x' \rangle^k$$
+  = \sum_{\ell=0}^{\infty} \frac{(2\gamma)^\ell}{\ell!} \langle x, x' \rangle^\ell$$
 
 Each term is a kernel of the kind just checked by hand — $\langle x, x' \rangle^2$
-was the case $k = 2$ — so the sum carries products of the coordinates of *every*
+was the case $\ell = 2$ — so the sum carries products of the coordinates of *every*
 degree, and $\phi(x)$ has infinitely many entries. One exponential per pair buys
 all of them.
 
@@ -1482,9 +1502,9 @@ lesson 2 insisted.
 | Situation | Reach for |
 |---|---|
 | Few features, plenty of data, odd-shaped boundary | k-NN, or an RBF SVM |
-| Very many features, little data | Naive Bayes |
+| Very many features, little data | Naive Bayes, in the version that fits the data: `MultinomialNB` for word counts, `GaussianNB` for continuous readings |
 | A line separates the classes | Logistic regression or a linear SVM |
-| Need a calibrated probability | Logistic regression (lesson 4); not Naive Bayes, and an SVM gives only a score |
+| Need a calibrated probability | Check calibration on held-out data; logistic regression (lesson 4) is the usual start; not Naive Bayes; an SVM gives only a score |
 | Need the model to be small, or fast at prediction | Naive Bayes; an SVM with few support vectors; not k-NN |
 | Signal is an interaction between features | k-NN or a kernel; not Naive Bayes |
 | Need to explain the decision to the person affected | Neither — lesson 3's Resources |

@@ -133,9 +133,12 @@ Now open `batch_data.py` and read the `TRUE_*` constants.
    nothing. Did anything in your analysis reveal it? If not, what would have?
 9. At station B: what rule generates the label? Having seen it, explain in two
    or three sentences why the two linear models scored where they did.
-10. Both stations have a ceiling below 1.0, set by the measurement process
-    rather than the model. What is it at each station, and how close did your
-    best model get?
+10. Two things set a ceiling below 1.0, both in the measurement process rather
+    than the model: errors in the reference labels, and readings that overlap
+    between the classes, so that some sacks or batches look alike whatever their
+    true state. Which of the two can you compute at each station from the
+    `TRUE_*` constants, what does it give, and how close did your best model
+    get?
 
 **What is being marked:** question 9. Being able to look at a generating rule
 and say *why* a family of models could or could not represent it is the whole

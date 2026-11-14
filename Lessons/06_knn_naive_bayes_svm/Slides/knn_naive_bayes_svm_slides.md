@@ -43,7 +43,7 @@ None of that told them WHICH KIND OF MODEL TO USE. This is the first lesson that
 offers a choice, and learning how to choose is what the lesson is about.
 
 Stress that these are not three ways of doing the same thing. They attack
-classification from three unrelated directions: k-NN makes no assumptions and does no fitting at all; Naive Bayes makes an
+classification from three unrelated directions: k-NN assumes no boundary shape and fits nothing - its one assumption is that pumps near each other, in the chosen distance, share a label; Naive Bayes makes an
 assumption that is usually false and works well anyway; the SVM changes the
 criterion for choosing a boundary, and then changes the coordinates the data is
 described in. The differences
@@ -54,13 +54,12 @@ Handout section 1 sets this out in a paragraph each.
 
 # 1,200 pumps, two readings each
 
-- 1,200 simulated pumps, two sensor readings each: vibration in hertz (Hz),
-  pressure in bar
-- A pump is faulty when its two readings, taken together, are too far from
-  the **design point, 42 Hz and 5.6 bar**: too low as readily as too high
+- 1,200 simulated pumps: vibration in hertz (Hz), pressure in bar
+- Faulty when, in steps of 3.5 Hz and 0.45 bar, the two readings together
+  are more than one step from the **design point, 42 Hz and 5.6 bar**
 - 735 of the 1,200 are faulty: **61.3%**
-- 4% of the labels are flipped on purpose, as sensor errors: no model can
-  score above about **0.96** (the noise ceiling)
+- 4% of the labels flipped on purpose: on new pumps, about **0.96** at
+  best (the noise ceiling)
 
 ::: notes
 Describe the physical fact first, before showing the picture, and let them
@@ -79,7 +78,10 @@ around it 3.5 Hz wide on each side and 0.45 bar high. Then ask the room what tha
 does to the shape of the two classes. Somebody will get it: healthy in the
 middle, faulty all around.
 
-The 4% flipped labels play the part of lesson 5's irreducible noise: a model
+The 4% are errors in the reference labels - the readings are untouched - and
+"no model above 0.96" is about new pumps: on this sample the rule itself scores
+1,151 of 1,200, 0.959. The 4% flipped labels play the part of lesson 5's
+irreducible noise: a model
 that learned the true rule perfectly would still get those pumps wrong. So no
 model here can exceed roughly **0.96**, and that is the number every
 score today should be compared against - not against 1.000, and not against
@@ -96,7 +98,7 @@ Handout section 1.1.
 Give them a moment before saying anything. Then ask for a straight line that
 separates these two classes, and let them try.
 
-The healthy pumps form a disc around the design point; the faulty ones form a ring around them. There is no line. Not a badly chosen line - no line at all,
+The healthy pumps form a disc around the design point - a disc in standardised units, an ellipse on these Hz and bar axes; the faulty ones form a ring around them. There is no line. Not a badly chosen line - no line at all,
 because the class you want to isolate is completely surrounded.
 
 Then say what is unusual about this picture. The usual textbook picture of
@@ -127,7 +129,7 @@ Read the two rows and let the equality sit there.
 The thing to say clearly, because it is easy to under-read: logistic regression
 has not been narrowly beaten by the baseline. It has learned NOTHING AT ALL. It
 predicts "faulty" for every pump, because with a straight boundary that is
-genuinely the best answer available to it.
+genuinely the best answer available to it on these pumps - a property of this data, not a law about linear models.
 
 Then point at the standard deviation, which is the clearest sign: **± 0.000**.
 Why exactly zero: the folds are stratified, so each holds 240 pumps of which 147
@@ -240,7 +242,9 @@ the model's answers change. That should feel unacceptable, and it is.
 Practical instruction: k-NN goes in a Pipeline with StandardScaler, always, and the scaler is fitted on the training part of each fold only, as lesson 5
 required. Which also says what fit() does for this pipeline: the scaler computes
 each column's mean and standard deviation - the only numbers estimated - and
-k-NN stores the standardised pumps.
+k-NN stores the standardised pumps. Those standard deviations are the data's,
+3.78 Hz and 0.471 bar on all pumps - not the envelope's 3.5 Hz and 0.45 bar,
+which belong to the rule that generated the labels.
 :::
 
 # k sets the balance between bias and variance
@@ -491,7 +495,8 @@ dimensions, not of this dataset.
 Say first that this is a different experiment: no pumps, no labels, no model,
 only distances between random points. It measures why the pumps' accuracy fell.
 The cube has no real and no noise columns - every coordinate is random - so
-what it shows holds for any data.
+what it shows holds whenever columns behave like independent random numbers,
+which is exactly what the noise columns of the pump experiment are.
 
 Give the picture in words before showing it - the figure is on the next slide,
 and it lands better once they have pictured it themselves.
@@ -643,7 +648,7 @@ linear model overfits noise columns, which is why lesson 3 regularised.
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
 | the straight line, 4-6 | `LogisticRegression`, `StratifiedKFold`, `cross_val_score` → 0.613, `cross_val_predict` |
-| k-NN, scaled, 7-10 | `make_pipeline(StandardScaler(), KNeighborsClassifier(k))` |
+| k-NN, 7-10 | by hand = `KNeighborsClassifier`; then `make_pipeline`, `StandardScaler` |
 | choosing k, 11-14 | `cross_validate` with training scores → 0.944 at k = 5 |
 | columns of noise, 16-18 | k = 15 on `load_with_noise(50)` → 0.602 |
 | distances, 19-22 | NumPy: nearest ÷ farthest → 0.701 at n = 100 |
@@ -746,7 +751,7 @@ section 4.1 works the same rule through with the pumps' counts, 465 and 735, if
 anyone wants it in numbers rather than symbols.
 :::
 
-# Drop the denominator: pick the class with the largest numerator (arg max)
+# Drop the denominator: arg max picks the class with the largest numerator
 
 $$\hat{y} = \mathrm{arg\,max}_c \; p(x \mid y = c)\,P(y = c)$$
 
@@ -1293,6 +1298,11 @@ every faulty one missed; and it calls 239 of the 282 pumps with both high, and
 213 of the 285 with both low, faulty, when nearly all are healthy. 42 + 359 + 9 +
 75 = 485 right of 1,200: 0.404.
 
+Someone will say: invert every prediction and it scores 0.596. True on this
+test, and it is a choice made after seeing the validation results - a
+selection step that would itself need honest evaluation - and the inverted
+model still cannot represent the interaction.
+
 The sentence to land: a model with no signal does not sit politely at 50%. It
 follows whatever accidental structure it can find in the sample. It is not even
 confident about it, which is the next slide.
@@ -1345,7 +1355,7 @@ in its handout section 7.2, where the threshold depends on the probability being
 |---|---|
 | on the pumps, 39 | `GaussianNB` beside `KNeighborsClassifier` and `LogisticRegression` → 0.933 |
 | what training computed, 31-37 | `.theta_`, `.var_`, `.class_prior_`, `predict_proba` → 0.981 at 48 Hz |
-| checking the assumption, 40-41 | `X[y == c].corr()`, within each class → −0.420 |
+| checking the assumption, 40-41 | squared standardised readings, `.corr()` within each class → −0.420 |
 | the interacting sensors, 42-44 | the same models, plus `SVC` → 0.404 |
 | confidence, right and wrong, 45 | `train_test_split`, then `predict_proba` → 0.567 against 0.555 |
 | **or atoms 6-10** | `Consolidation/06_lesson_6_atoms.ipynb` |
@@ -1609,8 +1619,11 @@ more training points. It never bends it. With the RBF kernel the boundary can
 also bend around individual points, and we will see on the pumps how far that
 goes when C and γ are both large.
 
-The two ends, worth one sentence each. C towards infinity: no slack is
-affordable, and the strict problem comes back - infeasible on the pumps. C
+The two ends, worth one sentence each. C very large: on data a line can
+separate, the strict problem comes back; on the pumps some violations are
+unavoidable whatever C is, and a huge C only makes each one very expensive - the
+problem never becomes infeasible. And training accuracy need not rise
+steadily with C: the hinge also charges correct points inside the slab. C
 towards 0: only ½‖w‖² is left, its minimum is w = 0, and the model ignores the
 readings. And k runs like λ - a larger k is smoother - while C runs the other
 way.
@@ -1681,7 +1694,7 @@ the edge matter.
 
 Give them the diagnostic to keep, since it costs nothing: after fitting an SVM,
 look at `len(model.support_)` over the number of training rows. High means the
-model is struggling to find room, which usually means the kernel cannot draw the shape the classes need. It is a warning available BEFORE you cross-validate anything.
+model is struggling to find room. The cause can be a kernel that cannot draw the shape the classes need - as here - but also classes that overlap, noisy labels or the choice of C; the validation score and the boundary decide which. It is a warning available BEFORE you cross-validate anything, not a verdict, and fewer support vectors does not by itself mean a better model.
 
 Worth adding that it also predicts prediction cost - every support vector is one
 kernel evaluation per query, so a model needing 79% of the data has thrown away
@@ -1696,7 +1709,7 @@ most of the speed advantage over k-NN.
   standardised
 - Healthy pumps rise a little, faulty ones a lot: a flat plane separates
   them, flipped labels apart
-- The classes were separable all along, in other coordinates
+- The rule was separable all along, in other coordinates
 
 ::: notes
 Build the picture in words first and let them see it before the figure appears.
@@ -1866,6 +1879,12 @@ can draw the circle the pumps need, or any smooth shape, without being told
 which. The link back to k-NN: with this kernel the boundary is a vote of the
 support vectors weighted by similarity - near ones count, far ones barely.
 
+Two things to say before someone assumes them. A similarity of 0.61 is not a
+61% chance that two pumps share a class: it is geometry, and two pumps with
+identical readings have similarity 1 whatever their labels. And γ = 0.5 is not a
+fixed default: scikit-learn's gamma="scale" computes 1 / (number of columns ×
+their variance), which is 0.5 here because the two columns are standardised.
+
 Now say what γ means, because the last part of the lesson turns on it: it sets
 how far a single training point's influence reaches. Small γ, wide reach, smooth boundary.
 Large γ, each point influences only its immediate neighbourhood - and a boundary
@@ -1916,7 +1935,9 @@ Weight at the ceiling C: the 268 inside the slab or on the wrong side - with
 C = 1 that weight is exactly 1, so each of them simply votes with its label.
 Between: the 10 sitting exactly on the edge.
 
-The model you ship is 278 points and their weights. Handout section 5.5.
+The model you ship is 278 points and their weights. All 1,200 pumps took part
+in training; the 922 at weight zero can be dropped only after it, because they
+add nothing to the prediction formula. Handout section 5.5.
 :::
 
 # The SVM's score at 48 Hz, 5.6 bar: Σ aᵢ yᵢ K(xᵢ, x) + b = +1.883
@@ -2140,7 +2161,7 @@ for.
 | Few features, plenty of data, a curved boundary | k-NN, or an RBF SVM |
 | Very many features, little data | Naive Bayes |
 | A line separates the classes | Logistic regression or a linear SVM |
-| You need probabilities you can trust | Logistic regression (lesson 4); **not** Naive Bayes, and an SVM gives only a score |
+| You need probabilities you can trust | Check calibration on held-out data; logistic regression is the usual start; **not** Naive Bayes; an SVM gives only a score |
 | The model must be small, or fast at prediction | Naive Bayes; an SVM with few support vectors; not k-NN |
 | The signal is an interaction between features | k-NN or an RBF SVM, not Naive Bayes |
 
@@ -2154,7 +2175,9 @@ row: Naive Bayes is ten numbers (slide 32); an SVM is small only with few suppor
 vectors - the linear one kept 79% of the pumps (slide 57).
 
 Row two deserves a sentence on its own, because it is the one that sounds wrong
-after the last hour. Text classification is the canonical case: tens of thousands
+after the last hour. It names the family: for word counts the version is
+MultinomialNB, which models counts; the GaussianNB of today is for continuous
+readings. Text classification is the canonical case: tens of thousands
 of word-count features, an assumption that is transparently false, and a method
 that works anyway - because being roughly right in ten thousand dimensions beats
 being unable to estimate anything at all. Also mention Naive Bayes as a baseline:
@@ -2204,8 +2227,8 @@ Handout section 7 lists all of this with the section numbers.
 # Homework
 
 - **Exercise 6**, discussed at the start of **Friday 27 November**
-- You get a dataset, fit the three families, and argue which one you would
-  choose, and why
+- Two stations: fit five models from the three families and the linear
+  baseline, and argue which one you would choose, and why
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten

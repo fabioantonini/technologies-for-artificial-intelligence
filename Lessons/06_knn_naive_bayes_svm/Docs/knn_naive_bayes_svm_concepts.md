@@ -24,7 +24,8 @@ used. → § 2.1
 
 **k as the bias-variance dial.** Small $k$ follows every point including those
 with flipped labels; large $k$ smooths until it stops following real structure. At
-$k=1$ the training accuracy is exactly 1 on any dataset. → § 2.2
+$k=1$ the training accuracy is exactly 1 on any dataset where no two training
+points have identical readings and different labels. → § 2.2
 
 **Prediction cost.** No training time, paid back at every prediction: a naive
 implementation compares the query against every training row. → § 2.3

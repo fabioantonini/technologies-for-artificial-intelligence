@@ -191,7 +191,7 @@ can replace notebook 1, atoms 6-10 notebook 2, and atoms 11-15 notebook 3: the
 | 1 | One pump's five nearest with `kneighbors`: four faulty, one flipped label | *k-nearest neighbours: the whole algorithm*; *k-NN, drawn* |
 | 2 | Unscaled, none of the five nearest is the same: vibration picks them | *Scale first, or vibration decides everything* |
 | 3 | `cross_validate` with training scores: 1.000 at k = 1, 0.713 against 0.708 at k = 401 | *k sets the balance*; *Training against cross-validated accuracy, by k* |
-| 4 | 1,000 random points: nearest ÷ farthest 0.016 with 2 columns, 0.698 with 100 | *Why: distances stop varying*; *With n random columns* |
+| 4 | 1,000 random points: nearest ÷ farthest 0.016 with 2 columns, 0.701 with 100 | *Why: distances stop varying*; *With n random columns* |
 | 5 | `SelectKBest`: `f_classif` keeps two noise columns (0.562), `mutual_info_classif` the readings (0.938) | *What the curse is, and is not* |
 | 6 | `GaussianNB`'s ten numbers; the 48 Hz pump as 86.4 × 1.58 ÷ 2.63 = 52 to 1, 0.981 | *Training computes ten numbers*; *A pump at 48 Hz, 5.6 bar* |
 | 7 | Two log totals, −8.095 and −4.144, and the gap 3.951; 0.01²⁰⁰ is 0.0 | *Logs turn the product into a sum*; *Software uses only the gap* |
