@@ -894,10 +894,11 @@ Notebook 1, section 4. Handout section 4.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| 1. look at it first, 4-6 | `make_pipeline(StandardScaler(), LogisticRegression())` in `cross_val_score(..., cv=StratifiedKFold(5))` → 0.613 against 0.748 |
+| 1. look at it first, 4-6 | `make_pipeline(StandardScaler(), LogisticRegression())`, `cross_val_score`, `StratifiedKFold` → 0.613 against 0.748 |
 | 2. a tree, split by split, 7-20 | your own `gini` and `best_split`, then `DecisionTreeClassifier(max_depth=d)` → 100.0% identical predictions; gain 0.1438 |
 | 3. the depth dial, 21-24 | `DecisionTreeClassifier(max_depth=d)` in `cross_val_score` → peak 0.882 at depth 8 |
-| 4. what a tree costs, 25-27 | `DecisionTreeClassifier(max_leaf_nodes=9)`, `export_text` → 0.908 training, 0.901 cross-validated; two trees, 140 opposite verdicts |
+| 4. what a tree costs, 25-27 | `DecisionTreeClassifier(max_leaf_nodes=9)`, `export_text` → 0.908 training, 0.901 cross-validated; two trees differ on 140 |
+| **or atoms 1-7** | `Consolidation/07_lesson_7_atoms.ipynb` |
 
 ::: notes
 The table is the notebook's map: each section, the calls it makes, the slides
@@ -905,7 +906,8 @@ that introduced the idea, and the number to come back with. Decision trees
 from scratch, checked against scikit-learn; depth swept, the boundaries
 drawn, and the instability measured.
 
-Run Notebooks/01_decision_trees_from_scratch.ipynb. Twenty minutes.
+Run Notebooks/01_decision_trees_from_scratch.ipynb. Twenty minutes. Or atoms
+1-7 of the lesson 7 atoms notebook, in the same time.
 
 Have them watch the from-scratch implementation confirm the debt-ceiling
 root split before scikit-learn's version ever runs - the point is that the
@@ -1530,12 +1532,13 @@ Handout section 7.1.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| 1. bagging from scratch, 30-31 | `train_test_split`, your bagging against `BaggingClassifier`, `accuracy_score` → 0.872 both; 1 of 29 flipped right |
+| 1. bagging from scratch, 30-31 | `train_test_split`, your bagging and `BaggingClassifier`, `accuracy_score` → 0.872 both; 1 of 29 flipped right |
 | 2. why averaging works, 32-39 | `oob_score=True`: `.oob_score_` against `cross_val_score` → 0.9083, 0.9025 |
 | 3. variance, measured, 40, 43 | tree, bagging, `RandomForestClassifier`, 30 splits → 0.856, 0.902, 0.908 |
-| 4. what a forest adds, 41-42 | `.estimators_`, `tree_.feature[0]` → roots 100, 51 and 49 |
+| 4. what a forest adds, 41-42 | `tree_.feature[0]` → roots 100, 51, 49 |
 | 5. feature importance, 44-46 | `.feature_importances_`, 0 to 20 noise columns → 54.5% on noise |
 | 6. checking the importances, 47-48 | `permutation_importance`, test split → real 0.09 and 0.18, noise ≈ 0 |
+| **or atoms 8-13** | `Consolidation/07_lesson_7_atoms.ipynb` |
 
 ::: notes
 The table is the notebook's map: bagging from scratch and against
@@ -1543,7 +1546,8 @@ scikit-learn, the out-of-bag score checked against cross-validation, the
 variance measured over 30 splits, the noise-column experiment, and the
 permutation check of the previous slide.
 
-Run Notebooks/02_bagging_and_random_forests.ipynb. Thirteen minutes.
+Run Notebooks/02_bagging_and_random_forests.ipynb. Thirteen minutes. Or
+atoms 8-13 of the lesson 7 atoms notebook, in the same time.
 
 The cell to protect is the noise-column sweep. Let them add the columns
 themselves and watch the importance share climb - reading the number off a
@@ -1910,15 +1914,17 @@ Handout section 10.
 | 1. boosting from scratch, 50-55 | `DecisionTreeRegressor(max_depth=2)` on the residuals, 60 times → MSE 0.0119 at 20 trees |
 | 2. classification, 56-57 | `GradientBoostingClassifier()` in `cross_val_score` → F0 = −0.461; 0.902 |
 | 3. more trees, 58-59 | the same, `learning_rate=0.3`, `n_estimators` from 5 to 800 → peak 0.897 at 30 |
-| 4. learning rate, 60 | the same with `n_estimators=120` and `learning_rate` from 0.02 to 1.0 → best 0.902 at 0.1 |
-| 5. leaderboard, 62 | every model in one `cross_val_score` loop → random forest 0.911 |
+| 4. learning rate, 60 | `n_estimators=120`, `learning_rate` from 0.02 to 1.0 → best 0.902 at 0.1 |
+| 5. leaderboard, 62 | every model in one `cross_val_score` loop → forest 0.911 |
+| **or atom 14** | `Consolidation/07_lesson_7_atoms.ipynb` |
 
 ::: notes
 The table is the notebook's map: boosting from scratch on the residuals,
 then scikit-learn's classifier, the tree-count and learning-rate sweeps, and
 the leaderboard of the next slide.
 
-Run Notebooks/03_gradient_boosting.ipynb. Eighteen minutes.
+Run Notebooks/03_gradient_boosting.ipynb. Eighteen minutes. Or atom 14
+of the lesson 7 atoms notebook, in the same time.
 
 The cell to protect is the residual sweep at 1, 5, 20 and 60 trees - seeing
 the ensemble's fit against the true function rise and then fall again, in

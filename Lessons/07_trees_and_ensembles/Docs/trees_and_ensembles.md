@@ -12,12 +12,12 @@ date: "27 November 2026 · reading time about 85 minutes"
 | 0:00–0:10 | 10 | Exercise 6 discussed; the choice this lesson offers | Slides 2–5 |
 | 0:10–0:32 | 22 | Decision trees: splitting on Gini impurity | Slides 6–20 |
 | 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 21–27 |
-| 0:52–1:12 | 20 | **Notebook 01** — decision trees from scratch | Slide 28 |
+| 0:52–1:12 | 20 | **Notebook 01**, or atoms 1–7 — decision trees from scratch | Slide 28 |
 | 1:12–1:24 | 12 | **Break** | Slide 29 |
 | 1:24–1:49 | 25 | Bagging and random forests | Slides 30–48 |
-| 1:49–2:02 | 13 | **Notebook 02** — bagging and random forests; atoms in place of part of it | Slide 49 |
+| 1:49–2:02 | 13 | **Notebook 02**, or atoms 8–13 — bagging and random forests | Slide 49 |
 | 2:02–2:24 | 22 | Gradient boosting | Slides 50–60 |
-| 2:24–2:42 | 18 | **Notebook 03** — gradient boosting | Slide 61 |
+| 2:24–2:42 | 18 | **Notebook 03**, or atom 14 — gradient boosting | Slide 61 |
 | 2:42–3:00 | 18 | The full leaderboard; homework | Slides 62–67 |
 | | **180** | **Total** | **67 slides, 3 notebooks** |
 
