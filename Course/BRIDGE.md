@@ -56,17 +56,69 @@ anything twice.
 Lesson 4 derived cross-entropy from maximum likelihood and made a point of
 saying it is **not a design choice** — it is what maximum likelihood gives you
 once you assume a Bernoulli outcome. That lesson's section 10 generalised it to more
-than two classes as **categorical cross-entropy**.
+than two classes as **categorical cross-entropy**: the negative log of the
+probability the model gave to what actually happened. Section 10 and its slides
+60 to 62 were optional in class; read them before the next course, because
+everything in this section starts there.
 
 Next-token prediction is that, with the classes being the vocabulary. The loss a
 language model is trained on is the loss you derived in week four, over a larger
 set of outcomes. Nothing else about it is new.
 
-### 1.2 The softmax is lesson 9's softmax
+**The number they report: perplexity.** Language models are compared by their
+*perplexity*, and it is lesson 4's log loss with one more step. With $J$ the
+average log loss in natural logarithms, as lesson 4 and scikit-learn's
+`log_loss` compute it:
+
+$$\text{perplexity} = e^{J}$$
+
+The rule that makes it readable: a model that spreads its probability evenly
+over $K$ outcomes gives each one $1/K$, so every example costs
+$-\ln(1/K) = \ln K$, and the perplexity is $e^{\ln K} = K$. **Perplexity is the
+number of equally likely outcomes the model is as unsure as.** Equivalently,
+$e^{-J}$ is the probability the model gave to what happened, averaged
+geometrically over the examples.
+
+Lesson 4's drives, on the 6,000 training drives of notebook 1, of which 230 fail.
+A constant prediction $p$ on a set where a share $q$ fails costs
+$q \times (-\ln p) + (1 - q) \times (-\ln(1 - p))$ per drive:
+
+| Model | Average log loss $J$ | Perplexity $e^J$ | What it means |
+|---|---|---|---|
+| $w = 0$, $b = 0$: every drive gets $p = 0.5$ | $-\ln 0.5 = \ln 2 = 0.6931$ | $e^{0.6931} = 2.00$ | a coin flip: two equally likely outcomes |
+| every drive gets the base rate, $p = q = 230 \div 6{,}000 = 0.03833$ | $0.03833 \times 3.2614 + 0.96167 \times 0.03909 = 0.1250 + 0.0376 = 0.1626$ | $e^{0.1626} = 1.18$ | knows only how rare failures are |
+| gradient descent, 4,000 iterations (notebook 1) | $0.0692$ | $e^{0.0692} = 1.07$ | gives what happened $e^{-0.0692} = 0.933$ on (geometric) average |
+
+The first row is the "free test" of lesson 4's section 3.4: any model that starts
+from zero weights must start at a perplexity of exactly 2. The last row shows the
+trap lesson 4 was built around, in a new unit. A perplexity of 1.07 sounds close
+to certainty, but a model that knows nothing except the base rate already scores
+1.18: like 96.20% accuracy, the number means something only against what knowing
+nothing scores (section 2.4 below).
+
+For a language model the outcomes are the tokens of its vocabulary. With an
+illustrative vocabulary of 50,000 tokens, a model that guesses uniformly has
+$J = \ln 50{,}000 = 10.82$ and a perplexity of 50,000. A model with $J = 2$ has a
+perplexity of $e^2 = 7.39$: at each step it is as unsure as if it were choosing
+among about seven equally likely tokens out of 50,000.
+
+One condition, and it is lesson 5's: two perplexities can be compared only on the
+same text, split into tokens the same way. A model with a different vocabulary
+predicts a different number of tokens, each with a different difficulty, so its
+perplexity is measured on a different test set, and the comparison is no
+comparison at all.
+
+### 1.2 The softmax is the one from lessons 4 and 9
 
 $$\mathrm{softmax}(z)_k = \frac{e^{z_k}}{\sum_{j=1}^{K} e^{z_j}}$$
 
-Lesson 9 section 5.3 wrote that down and trained ten-class networks with it.
+Lesson 4 section 10.1 introduced it on drives with three classes (healthy,
+degraded, failed) and showed that with two classes it is the sigmoid: subtract
+$z_0$ from both scores and the probability of class 1 becomes
+$\sigma(z_1 - z_0)$. The binary logistic regression of that lesson simply fixes
+$z_0 = 0$, so its single score $z$ is already the difference, the log-odds.
+Lesson 9 section 5.3 wrote the softmax down again and trained ten-class networks
+with it.
 Paired with cross-entropy its gradient is again $\hat{y} - y$, the blame section 4.3
 derived for one sigmoid unit; the advanced version of the lesson, in `Advanced/`,
 derives the ten-class case in full.
