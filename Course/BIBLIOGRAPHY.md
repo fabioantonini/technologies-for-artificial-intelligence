@@ -24,6 +24,18 @@ Dutton.
 > with the equations kept in. It goes with lessons 1, 3, 6, 8 and 9, for the *why*
 > behind the methods rather than the code.
 
+Burkov, A. (2020). *The hundred-page machine learning book in italiano* (M. Dieterich
+& A. Basile, Trans.). Andriy Burkov. (Original work published 2019)
+
+> The whole field in under two hundred pages, in Italian: definitions first, then
+> each method in a few pages with its formula. It is the shortest second reading on
+> this list, useful for a quick review before an exercise. Chapter 3 (fundamental
+> algorithms) goes with lessons 3, 4, 6 and 7; chapter 4 (gradient descent) with
+> lesson 3; chapter 5 (basic practice: features, missing values, the three sets,
+> metrics, cross-validation) with lessons 2, 4 and 5; chapter 6 (neural networks
+> and deep learning) with lessons 9 and 10; the ensemble section of chapter 7 with
+> lesson 7; chapter 9 (unsupervised learning) with lesson 8.
+
 Chollet, F., & Watson, M. (2025). *Deep learning with Python* (3rd ed.). Manning
 Publications.
 
