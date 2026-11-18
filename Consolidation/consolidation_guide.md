@@ -53,7 +53,7 @@ than any number of predictions that came out right.
 
 | File | What it covers | Atoms |
 |-------------------|----------------------|--|
-| `00_the_scikit_learn_api.ipynb` | `fit`, `transform`, `fit_transform`, `predict`, `predict_proba` and the threshold, `score`, the shape of `X`, `random_state`, `Pipeline`, `decision_function`, the thresholds behind a curve, the defaults `get_params()` shows | 11 |
+| `00_the_scikit_learn_api.ipynb` | `fit`, `transform`, `fit_transform`, `predict`, `predict_proba` and the threshold, `score`, the shape of `X`, `random_state`, `Pipeline`, `decision_function`, the thresholds behind a curve, the defaults `get_params()` shows, `kneighbors`, the fitted attributes of `GaussianNB` and `SVC`, `cross_validate` with training scores | 15 |
 | `01_lesson_1_atoms.ipynb` | splitting and `stratify`, the baseline, the confusion matrix, precision and recall | 4 |
 | `02_lesson_2_atoms.ipynb` | looking, missing values, outliers, scaling, encoding, `ColumnTransformer`, the area under the curve, two leaks | 15 |
 | `03_lesson_3_atoms.ipynb` | cost, the normal equation, gradient descent, Ridge and Lasso, what a coefficient means | 15 |
@@ -85,6 +85,10 @@ numbers.
 | 9 | `decision_function`: the score before the sigmoid | L4 *Log-odds of p = P(y = 1 \| x): a line*; *Three classes: softmax (optional)* |
 | 10 | `roc_curve` and `precision_recall_curve` return the thresholds too | L4 *The precision-recall curve*; *The ROC curve* |
 | 11 | `get_params()`: the defaults you did not choose | L4 *And it is convex, which squared error is not*; L4 notebook 1, section 6 |
+| 12 | k-NN: `fit` stores, `kneighbors` finds, `predict` votes | L6 *k-nearest neighbours: the whole algorithm*; *What k-NN costs* |
+| 13 | Naive Bayes: `theta_`, `var_`, `class_prior_`, and the log scores | L6 *Training computes ten numbers*; *From the two totals to probabilities* |
+| 14 | SVM: the support vectors are attributes | L6 *The SVM's solution: a weighted sum of pumps*; *Training: one weight per pump* |
+| 15 | `cross_validate`: the training score beside the validation score | L6 *Training against cross-validated accuracy, by k* |
 
 ### 01 — lesson 1
 
