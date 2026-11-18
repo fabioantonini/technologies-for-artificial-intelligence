@@ -267,7 +267,7 @@ same("4.3 'its spread falls by two fifths'", zf[ext, 1].std(ddof=1) / zf[~ext, 1
 # The implied boundary, by the algebra the handout gives rather than by the
 # notebook's walk: with shared centres the log-ratio is sum_j a_j d_j^2 + K,
 # so the ellipse's semi-axis along reading j is sqrt(-K / a_j).
-from pump_data import ENVELOPE_RADIUS, PRESSURE_SD, VIBRATION_SD
+from pump_data import ENVELOPE_RADIUS, PRESSURE_TOLERANCE, VIBRATION_TOLERANCE
 
 (p_h, _, sd_h), (p_f, _, sd_f) = table[0], table[1]
 a = 1 / (2 * sd_h ** 2) - 1 / (2 * sd_f ** 2)
@@ -277,15 +277,15 @@ same("4.3 'every a_j is positive'", float((a > 0).all()), 1.0, tolerance=0)
 same("4.3 b is negative, so the ellipse exists", float(K < 0), 1.0, tolerance=0)
 same("4.3 the model's ellipse along vibration", semi[0], 3.17, tolerance=0.02)
 same("4.3 the model's ellipse along pressure", semi[1], 0.41, tolerance=5e-3)
-same("4.3 the true envelope along vibration", VIBRATION_SD * ENVELOPE_RADIUS, 3.5,
+same("4.3 the true envelope along vibration", VIBRATION_TOLERANCE * ENVELOPE_RADIUS, 3.5,
      tolerance=1e-9)
-same("4.3 the true envelope along pressure", PRESSURE_SD * ENVELOPE_RADIUS, 0.45,
+same("4.3 the true envelope along pressure", PRESSURE_TOLERANCE * ENVELOPE_RADIUS, 0.45,
      tolerance=1e-9)
 same("4.3 'the same proportions'", semi[0] / semi[1],
-     VIBRATION_SD / PRESSURE_SD, tolerance=0.2)
+     VIBRATION_TOLERANCE / PRESSURE_TOLERANCE, tolerance=0.2)
 for j in (0, 1):
     same(f"4.3 'about a tenth too small', axis {j}",
-         semi[j] / (VIBRATION_SD, PRESSURE_SD)[j], 0.9, tolerance=0.02)
+         semi[j] / (VIBRATION_TOLERANCE, PRESSURE_TOLERANCE)[j], 0.9, tolerance=0.02)
 same("4.3 the noise ceiling", 1 - LABEL_NOISE, 0.96, tolerance=1e-9)
 
 # ------------------------------------------- Section 4.4, the interaction
@@ -742,5 +742,40 @@ flipped_all = int((y.to_numpy() != (radius_rule(X["vibration_hz"], X["pressure_b
 same("6 labels flipped", flipped_all, 49, tolerance=0)
 same("6 the exact ceiling", 1 - flipped_all / 1200, 0.959, tolerance=5e-4)
 same("6 the gap between families", 0.947 - 0.613, 0.334, tolerance=1e-9)
+
+# 1.1: the intercept learns the base rate - formula against the fitted model.
+from sklearn.linear_model import LogisticRegression                    # noqa: E402
+fitted_lr = make_pipeline(StandardScaler(), LogisticRegression(max_iter=2_000)).fit(X, y)[-1]
+same("1.1 intercept, ln(735/465)", np.log(735 / 465), 0.458, tolerance=5e-4)
+same("1.1 intercept, fitted", fitted_lr.intercept_[0], 0.458, tolerance=5e-3)
+same("1.1 vibration coefficient", fitted_lr.coef_[0, 0], 0.008, tolerance=5e-4)
+same("1.1 pressure coefficient", fitted_lr.coef_[0, 1], -0.003, tolerance=5e-4)
+
+# 3.1: k = 5 against k = 15 with noise columns (the handout's table).
+from pump_data import load_with_noise                                  # noqa: E402
+from sklearn.neighbors import KNeighborsClassifier                     # noqa: E402
+lesson_folds = StratifiedKFold(n_splits=5, shuffle=True, random_state=0)
+for n_noise, printed5, printed15 in ((0, 0.944, 0.938), (25, 0.613, 0.662), (100, 0.554, 0.578)):
+    Xn, yn = load_with_noise(n_noise)
+    for k, printed in ((5, printed5), (15, printed15)):
+        score = cross_val_score(make_pipeline(StandardScaler(), KNeighborsClassifier(k)),
+                                Xn, yn, cv=lesson_folds).mean()
+        same(f"3.1 k = {k}, {n_noise} noise columns", score, printed, tolerance=5e-4)
+
+# 3.2: near on every coordinate at once - formula, then a simulation.
+p_one = 2 * 0.1 - 0.1 ** 2
+same("3.2 within 0.1 on one coordinate", p_one, 0.19, tolerance=1e-12)
+same("3.2 within 0.1 on two", p_one ** 2, 0.036, tolerance=5e-4)
+same("3.2 expected among 1,000, two coordinates", 1000 * p_one ** 2, 36, tolerance=0.5)
+same("3.2 within 0.1 on ten", p_one ** 10, 6.1e-8, tolerance=5e-10)
+sim = np.random.default_rng(7)
+a_pts, b_pts = sim.random((400_000, 2)), sim.random((400_000, 2))
+near = np.abs(a_pts - b_pts) < 0.1
+same("3.2 simulated, one coordinate", near[:, 0].mean(), 0.19, tolerance=3e-3)
+same("3.2 simulated, both coordinates", near.all(axis=1).mean(), 0.036, tolerance=2e-3)
+
+# 4.2: odds to probability, and the log gap.
+same("4.2 52 / (52 + 1)", 52 / 53, 0.981, tolerance=5e-4)
+same("4.2 ln 52", np.log(52), 3.951, tolerance=5e-4)
 
 print(f"lesson 6: {checks} hand-worked numbers recomputed, all agree")

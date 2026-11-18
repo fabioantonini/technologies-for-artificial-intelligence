@@ -129,21 +129,44 @@ a sampling knob is the divisor inside the exponent.
 
 Fetching relevant documents before answering is k-nearest neighbours over
 learned representations. The vocabulary changes — *embedding*, *vector store*,
-*top-k* — and the algorithm does not.
+*top-k* — and the algorithm does not. Four things carry over exactly.
 
-Which means **lesson 6's warnings apply without translation.** Distance needs a
-metric, and choosing between Euclidean and cosine is a modelling decision rather
-than a default. Scaling is not optional for a method made of nothing but
-distance. And the measurement that should worry you:
+**The index is the fit, the query is the predict.** Lesson 6's `fit` computed no
+distance: it stored the pumps, at most organised in a tree so that later
+searches could skip whole regions. Building a vector store's index is that step;
+answering a query is `predict`, where all the work is. The same asymmetry, the
+same cost profile: cheap to build, paid for at every question.
+
+**Retrieval is the search without the vote.** k-NN finds the $k$ nearest and lets
+their labels vote; retrieval returns the $k$ nearest themselves. And the metric
+is a modelling decision rather than a default, as lesson 6 said of scaling -
+with one simplification worth knowing: for vectors normalised to length 1,
+$\lVert u - v \rVert^2 = 2 - 2\cos(u, v)$, so Euclidean distance and cosine
+similarity put the neighbours in exactly the same order.
+
+**The curse applies, with its condition.** The measurement to remember:
 
 > In one hundred dimensions the nearest point is **70% as far away as the
 > farthest**.
 
-Embeddings have 768, 1536 or 3072 dimensions. Lesson 6 measured what that does
-to "nearest" at a hundred. `Lessons/06_knn_naive_bayes_svm/Resources/` already
-carries the engineering answer — locality-sensitive hashing, product
-quantisation, navigable small-world graphs — which is the vector-database
-industry, written before you needed it.
+That number is for columns that behave like independent random numbers - which
+is what lesson 6's noise columns were, and what an embedding is not. Embeddings
+have 768, 1536 or 3072 columns, but those columns move together: the vectors
+occupy a region of far lower effective dimension, and lesson 6's handout
+(section 3.2) shows a hundred columns driven by two hidden variables behaving
+exactly like two. That is why nearest-neighbour search over embeddings works at
+all. The 70% is what happens to the dimensions that are noise - so the quality
+of the representation matters more than its size.
+
+**Approximate means measured.** At millions of vectors the exact search is too
+slow, and vector stores use approximate nearest-neighbour indexes: navigable
+small-world graphs (HNSW), inverted files over clusters (IVF), product
+quantisation, in libraries such as FAISS.
+`Lessons/06_knn_naive_bayes_svm/Resources/` carries the engineering from first
+principles. They trade exactness for speed, and the loss is measured, not
+assumed: on a sample of queries, the share of the true $k$ nearest that the
+approximate search returns, its *recall@k*. That is lesson 5's habit applied to
+a data structure.
 
 ### 1.4 Sampling an answer several times and voting is lesson 7's bagging
 
@@ -243,7 +266,7 @@ often skipped when the system is impressive.
 
 | From | Number | What it warns you about there |
 |---|---|---|
-| Lesson 6 | nearest is **70%** as far as farthest at 100 dimensions | retrieval quality in 1536-dimensional embedding spaces |
+| Lesson 6 | nearest is **70%** as far as farthest at 100 dimensions | retrieval over embeddings: what their dimensions do to "nearest" when they carry noise rather than signal |
 | Lesson 7 | **54%** of a forest's importance landed on pure noise while accuracy degraded gracefully | reading attention weights as explanations |
 | Lesson 9 | six sigmoid layers never left chance, **0.1000**, where the same network with ReLU reached 0.9611 | why residual connections and normalisation exist at all |
 | Lesson 4 | a false alarm costs €140, a miss €2,600 | every guardrail, filter and router is a threshold on a cost |

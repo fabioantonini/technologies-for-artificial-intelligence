@@ -86,28 +86,95 @@ neighbour.
 """
 
 
-# --------------------------------------------------------------- slide 22
+# --------------------------------------------------------------- slide 20
 @example(20)
 def edge_length():
     rows = []
-    for d in (1, 2, 10, 100):
-        edge = 0.01 ** (1 / d)
-        rows.append(f"| {d} | $0.01^{{1/{d}}}$ | **{fmt(edge, 3)}** |")
+    checks = {1: "0.010 = 0.01", 2: "0.100 × 0.100 = 0.01"}
+    for n in (1, 2, 10, 100):
+        edge = 0.01 ** (1 / n)
+        assert abs(edge ** n - 0.01) < 1e-12
+        if n not in checks:
+            checks[n] = f"{fmt(edge, 3)} multiplied by itself {n} times = 0.01"
+        eq = "s = 0.01" if n == 1 else f"$s^{{{n}}} = 0.01$"
+        rows.append(f"| {n} | {eq} | $s = 0.01^{{1/{n}}}$ = **{fmt(edge, 3)}** | {checks[n]} |")
     assert 0.01 ** (1 / 10) > 0.6
     table = "\n".join(rows)
     return f"""
 ### Worked example — how big a neighbourhood holds 1% of the data
 
-Points spread evenly in a cube of side 1. A smaller cube that contains 1% of them
-must have volume 0.01, so its side is $0.01^{{1/d}}$:
+The question: how far must a neighbourhood reach before it holds 1% of the points?
+With 1,000 points that is 10 of them, so it is the same as asking how far you must go
+to find the 10 nearest.
 
-| dimensions $d$ | side of the 1% cube | as a fraction of each axis |
-|---|---|---|
+1. **Fraction of points = volume.** The points are spread evenly in a cube of side 1,
+   whose volume is 1, so a region of volume 0.01 holds, on average, 1% of them.
+2. **The volume of a small cube of side $s$** is $s$ multiplied by itself once per
+   dimension: $s$ on a line, $s^2$ in a square, $s^3$ in a cube, $s^n$ in $n$
+   dimensions.
+3. **Set the volume to 0.01** and solve: $s^n = 0.01$, so $s = 0.01^{{1/n}}$, the
+   $n$-th root of 0.01. The cube has side 1, so $s$ is also the fraction of each axis
+   the neighbourhood covers.
+
+| $n$ | equation | side $s$ | check |
+|---|---|---|---|
 {table}
 
-In two dimensions the 1% neighbourhood spans a tenth of each axis — local. In ten it
-spans {fmt(0.01 ** 0.1 * 100, 0)}% of every axis, and in a hundred nearly all of it. A "nearest
-neighbour" found that way is not near in any useful sense; it is just the least far.
+What it means: in two dimensions the 1% neighbourhood is a square a tenth of each axis
+wide, so the 10 nearest really are similar to the point on both readings. In ten it
+must span {fmt(0.01 ** 0.1 * 100, 0)}% of every axis: the 10 "nearest" can differ from the point by
+nearly two thirds of the range on each coordinate. In a hundred they span nearly all of
+it. A nearest neighbour found that way is not near in any useful sense; it is just the
+least far.
+
+It is the same fact as slide 19's 0.19 seen from the other side: there the
+neighbourhood was fixed (within 0.1 on every coordinate) and almost no points fell in
+it; here the number of points is fixed and the neighbourhood has to swell to find them.
+"""
+
+
+# --------------------------------------------------------------- slide 29
+@example(29)
+def ice_cream():
+    summer = (0.8, 0.6)
+    winter = (0.1, 0.05)
+    both_s, both_w = summer[0] * summer[1], winter[0] * winter[1]
+    ice = (summer[0] + winter[0]) / 2
+    drown = (summer[1] + winter[1]) / 2
+    product = ice * drown
+    joint = (both_s + both_w) / 2
+    assert abs(both_s - 0.48) < 1e-12 and abs(product - joint) > 0.05
+    return f"""
+### Worked example — independent within each season, dependent over the year
+
+The season is the class $y$; high ice-cream sales are $x_1$, many drownings $x_2$.
+Invented numbers, half the year summer and half winter, and **within each season the two
+are independent**, so the chance of both is the product:
+
+| season | $P$(many ice creams) | $P$(many drownings) | $P$(both) = product |
+|---|---|---|---|
+| summer | {summer[0]} | {summer[1]} | {summer[0]} × {summer[1]} = {fmt(both_s, 2)} |
+| winter | {winter[0]} | {winter[1]} | {winter[0]} × {winter[1]} = {fmt(both_w, 3)} |
+
+Over the whole year, average the two seasons (each weighs one half):
+
+- $P$(many ice creams) = ({summer[0]} + {winter[0]}) / 2 = {fmt(ice, 2)}
+- $P$(many drownings) = ({summer[1]} + {winter[1]}) / 2 = {fmt(drown, 3)}
+- if they were independent over the year, $P$(both) would be {fmt(ice, 2)} × {fmt(drown, 3)} = {fmt(product, 3)}
+- it is in fact ({fmt(both_s, 2)} + {fmt(both_w, 3)}) / 2 = {fmt(joint, 3)}
+
+{fmt(joint, 3)} is well above {fmt(product, 3)}: over the year the two go together, because both
+rise in summer. Two questions make the difference. Without knowing the season, do many
+ice creams tell you something about drownings? Yes: they suggest summer, and summer
+brings drownings. Knowing it is summer, do many ice creams tell you anything more? No:
+what they carried, "it is summer", you already have.
+
+That is exactly the dependence Naive Bayes allows: through the class, and no other kind.
+It is the one the model uses to classify, since both readings point at the season. The
+pumps break the rule in the other way: within the faulty class, vibration and pressure
+are still tied by the shape of the ring (slide 40). And a caution on the picture: even
+within a summer the hottest days raise both, so in real life the independence holds
+only roughly; the right "class" would be the day's temperature.
 """
 
 
@@ -161,6 +228,62 @@ one probability per reading:
 With 30 readings the joint table has over a billion cells per class, almost all of
 them never seen in any training set. The naive model needs 30 numbers, each
 estimated from every row of the class. That is the bargain: it is false, and it is learnable.
+"""
+
+
+# --------------------------------------------------------------- slide 41
+@example(41)
+def ellipse_from_bells():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "Notebooks"))
+    from pump_data import load_pumps
+    from sklearn.naive_bayes import GaussianNB
+    X, y = load_pumps()
+    gnb = GaussianNB().fit(X, y)
+    sd = np.sqrt(gnb.var_)
+    a = 1 / (2 * sd[0] ** 2) - 1 / (2 * sd[1] ** 2)
+    prior = gnb.class_prior_
+    a0 = math.log(prior[1] / prior[0]) + math.log(sd[0, 0] / sd[1, 0]) + math.log(sd[0, 1] / sd[1, 1])
+    semi = np.sqrt(-a0 / a)
+    gap48 = a0 + a[0] * (48 - 42) ** 2
+    assert abs(semi[0] - 3.17) < 5e-3 and abs(semi[1] - 0.41) < 5e-3 and (a > 0).all() and a0 < 0
+    return f"""
+### Worked example — where the ellipse comes from
+
+**Step 1, the log of one bell.** For a bell with centre $\\mu$ and standard deviation
+$\\sigma$, $\\ln p(x) = -\\ln(\\sigma\\sqrt{{2\\pi}}) - (x - \\mu)^2 / (2\\sigma^2)$: a constant,
+minus the squared distance from the centre divided by $2\\sigma^2$. The narrower the bell,
+the faster it falls.
+
+**Step 2, the gap between the classes.** Faulty total minus healthy total. Both classes
+share a centre (42 Hz, 5.6 bar), so for each reading $j$ what is left is
+$a_j (x_j - \\mu_j)^2$ with
+$$a_j = \\frac{{1}}{{2\\sigma_{{j,\\text{{healthy}}}}^2}} - \\frac{{1}}{{2\\sigma_{{j,\\text{{faulty}}}}^2}},$$
+and everything else (log shares, log widths) is a constant $a_0$.
+
+**Step 3, the numbers** (the fitted model's ten numbers, slide 32):
+
+| term | formula | value |
+|---|---|---|
+| $a_\\text{{vib}}$ | 1/(2 × {fmt(sd[0, 0], 4)}²) − 1/(2 × {fmt(sd[1, 0], 4)}²) | **{fmt(a[0], 4)}** |
+| $a_\\text{{pres}}$ | 1/(2 × {fmt(sd[0, 1], 4)}²) − 1/(2 × {fmt(sd[1, 1], 4)}²) | **{fmt(a[1], 3)}** |
+| $a_0$ | ln({fmt(prior[1], 4)}/{fmt(prior[0], 4)}) + ln({fmt(sd[0, 0], 4)}/{fmt(sd[1, 0], 4)}) + ln({fmt(sd[0, 1], 4)}/{fmt(sd[1, 1], 4)}) | **{fmt(a0, 3)}** |
+
+Both $a_j$ are positive because the healthy bell is the narrower, and $a_0$ is negative,
+so the gap reads
+
+$$\\text{{gap}} = {fmt(a0, 3)} + {fmt(a[0], 3)}\\,(\\text{{Hz}} - 42)^2 + {fmt(a[1], 2)}\\,(\\text{{bar}} - 5.6)^2.$$
+
+At the centre the gap is {fmt(a0, 3)}: healthy. Moving out it grows, faster in pressure.
+At 48 Hz and 5.6 bar: {fmt(a0, 3)} + {fmt(a[0], 3)} × 6² = {fmt(gap48, 2)}, close to slide 37's 3.951
+(the fitted centres are not exactly 42 and 5.6).
+
+**Step 4, the boundary** is where the gap is zero:
+{fmt(a[0], 3)}(Hz − 42)² + {fmt(a[1], 2)}(bar − 5.6)² = {fmt(-a0, 3)}, an ellipse centred on the design
+point. Its semi-axes, setting the other reading at its centre:
+√({fmt(-a0, 3)} / {fmt(a[0], 4)}) = **{fmt(semi[0], 2)} Hz** and √({fmt(-a0, 3)} / {fmt(a[1], 3)}) = **{fmt(semi[1], 2)} bar**,
+against the true envelope's 3.5 Hz and 0.45 bar: the same shape, about a tenth smaller.
+The bells are wrong, but a narrow bell and a wide one with the same centre can only
+produce an ellipse round that centre, which is the right shape.
 """
 
 
@@ -223,8 +346,8 @@ $w$ **is** a wider margin, which is why the SVM minimises $\\lVert w \\rVert$.
 """
 
 
-# --------------------------------------------------------------- slide 52
-@example(52)
+# --------------------------------------------------------------- slide 53
+@example(53)
 def hinge():
     rows = []
     for m in (2.0, 1.0, 0.5, 0.0, -1.0):
@@ -238,10 +361,11 @@ def hinge():
     return f"""
 ### Worked example — five pumps, two losses
 
-The margin of a pump is $y \\cdot f(x)$: positive when it is classified correctly,
-larger the further it sits on its own side.
+How far a pump sits on its own side is $y \\cdot f(x)$: positive when it is classified
+correctly, larger the further out it is, 1 at the edge of the slab. (Not "the margin":
+the margin is the slab's width.)
 
-| margin $y f(x)$ | where it sits | hinge $\\max(0, 1 - y f)$ | log loss $\\log(1 + e^{{-y f}})$ |
+| $y f(x)$ | where it sits | hinge $\\max(0, 1 - y f)$ | log loss $\\log(1 + e^{{-y f}})$ |
 |---|---|---|---|
 {table}
 

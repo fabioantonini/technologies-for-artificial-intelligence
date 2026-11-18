@@ -84,6 +84,15 @@ is the giveaway. The folds are stratified, so each holds 147 faulty pumps of 240
 and calling every pump faulty scores 147 / 240 = 0.6125 on all five: a model that
 gives everything the same answer is perfectly consistent.
 
+**Why "faulty", and not "healthy".** The faulty pumps surround the healthy ones,
+so any tilt of the line gains on one side what it loses on the other, and the two
+fitted coefficients stay near zero, 0.008 and −0.003 on the standardised readings
+(notebook 1). What is left is the intercept $b$, and with nothing else to use it
+learns the base rate: the log loss is smallest when $\sigma(b) = 735/1{,}200$, so
+$b = \ln(735/465) = 0.458$, which is the value fitted. Every probability then sits
+near 0.61, above one half, and every pump is called faulty. With 39% faulty pumps
+the same model would call every pump healthy.
+
 ---
 
 ## 2. k-nearest neighbours
@@ -248,6 +257,19 @@ time, for no reason, and those answers are right only as often as healthy pumps
 occur; always saying "faulty" never makes that mistake, which is why a random
 vote lands below the 0.613 baseline.
 
+**Checks: is it the choice of $k$?** The experiment uses $k = 15$, not the best
+$k = 5$ of Section 2.2: on the two real columns they score 0.938 and 0.944, and a
+vote over 15 is less thrown by one bad neighbour, so a fall is the noise columns'
+doing. Run with $k = 5$ (notebook 1), the fall is faster, not slower:
+
+| Noise columns | 0 | 5 | 25 | 50 | 100 |
+|---|---|---|---|---|---|
+| $k = 5$ | 0.944 | 0.832 | **0.613** | 0.557 | 0.554 |
+| $k = 15$ | 0.938 | 0.854 | 0.662 | 0.602 | 0.578 |
+
+With the best $k$ the baseline is reached already at 25 noise columns. Choosing
+15 makes the curse look smaller, not larger.
+
 ### 3.2 Why: distances stop varying
 
 The mechanism is geometry, not statistics, and it has nothing to do with k-NN
@@ -259,6 +281,22 @@ $[0, 1]$ (a square for $n = 2$, an ordinary cube for $n = 3$), pick one, and
 measure the distance to its nearest neighbour and to its farthest. In two dimensions
 those are very different numbers, and that difference is exactly what makes
 "nearest" a meaningful word.
+
+**Near on every coordinate at once.** To be near in $n$ dimensions a point must be
+near in all $n$ coordinates together, and that gets rare fast. In the unit cube a
+random point lands within 0.1 of a given one on a single coordinate with
+probability $2 \times 0.1 - 0.1^2 = 0.19$ (a band 0.2 wide, a little less at the
+edges, averaged over where the given point sits). The coordinates are
+independent, so the chances multiply:
+
+| Coordinates $n$ | Within 0.1 on all of them: $0.19^n$ | Expected among 1,000 points |
+|---|---|---|
+| 2 | $0.19^2 = 0.036$ | $1{,}000 \times 0.036 = 36$ |
+| 10 | $0.19^{10} = 6.1 \times 10^{-8}$ | $1{,}000 \times 6.1 \times 10^{-8} \approx 0$ |
+
+In two dimensions about 36 of 1,000 points are near in this sense; in ten,
+none. Every pair is near in some coordinates and far in others, and the sums
+below make that precise.
 
 Now add dimensions, and follow a single distance while it happens. Squared
 distance is a sum with one term per dimension, and for points scattered
@@ -339,6 +377,30 @@ point is barely nearer than a random one. Back to the pumps: a vote among the 15
 nearest is close to a vote among 15 taken at random, which is the Checks
 paragraph of Section 3.1.
 
+**Checks: when the columns are correlated.** Everything above assumed
+independent columns, and the condition matters. Concentration comes from many
+independent terms averaging out; columns driven by a few hidden quantities move
+together, so a point near in those quantities is near in every column at once.
+In the extreme case two columns are temperature in Celsius and in Fahrenheit:
+two columns, one dimension. Notebook 1 repeats the measurement above, 1,000
+points and 60 new ones, on 100 columns built as fixed mixtures of two hidden
+variables:
+
+| 100 columns, built as | nearest ÷ farthest |
+|---|---|
+| independent, as in the table above | 0.698 |
+| mixtures of 2 hidden variables | **0.016**, as in two dimensions |
+| the same, plus independent noise of 0.1 on each column | 0.130 |
+| the same, plus independent noise of 0.3 | 0.337 |
+
+A hundred columns that move together behave like two; the independent noise
+added to each column brings the concentration back in proportion. Real data sit
+somewhere between, and their **effective dimension** - how many independent
+directions the data really use - is what governs distance, not the column
+count. Lesson 8's principal component analysis measures it. It is also why
+nearest-neighbour search over learned representations with hundreds of columns
+can work at all.
+
 ### 3.3 What the curse is, and is not
 
 It is **not** that high-dimensional problems are inherently unlearnable. Lesson
@@ -376,6 +438,28 @@ pressure (Section 4.2 measures them), so it ranks two noise columns first and
 does worse than no selection. `mutual_info_classif` detects any dependence
 between a column and the label, not only a shift of the mean, keeps the two real
 readings and gets back the score without noise.
+
+**Checks: the real columns are not narrowly missed, they rank near last.**
+`f_classif` computes, for each column, the gap between the class means divided by
+the spread within the classes. On all 1,200 pumps (notebook 1):
+
+| Column | $F$ | Rank of 52 |
+|---|---|---|
+| noise_039 | 5.56 | 1 |
+| noise_024 | 4.53 | 2 |
+| median of the 50 noise columns | 0.44 | |
+| vibration | 0.017 | 44 |
+| pressure | 0.002 | 50 |
+
+The class means of the real readings agree almost to the thousandth (41.986
+against 42.015 Hz, 5.617 against 5.616 bar); the signal is in the spreads, 1.696
+against 4.639 Hz and 0.219 against 0.577 bar, which the test does not look at. The
+noise columns' means differ a little by chance, and the best of 50 chance
+differences always looks like something - lesson 5's warning about taking the
+best of many tries. Mutual information, which sees any dependence, scores
+vibration 0.224 and pressure 0.218 against 0.023 for the best noise column. The
+rule to keep: **a selection test sees only the kind of signal it is built for.**
+Look first at where the signal is - here the spread, not the means.
 
 ---
 
@@ -538,17 +622,24 @@ higher. At 42 Hz the narrow bell is on top. On the right, 5.6 bar is central for
 both classes and barely discriminates; the narrow healthy bell peaks near 1.82,
 above 1.*
 
-The verdict can already be read from the heights, by multiplying three ratios,
-faulty over healthy. Vibration: $0.0374 / 0.000433 = 86.4$. Pressure: the healthy
+The verdict can already be read from the heights. The classifier scores each
+class and picks the larger; with two classes, the larger score wins exactly when
+the ratio faulty score ÷ healthy score is above 1. And a ratio of two products is
+the product of the ratios of their factors, so the ratio splits into one factor
+per piece of the score - the shares, and one per reading - each pushing towards
+faulty when above 1 and towards healthy when below. So: three ratios, faulty over
+healthy. Vibration: $0.0374 / 0.000433 = 86.4$. Pressure: the healthy
 bell is the higher, $1.818 / 0.692 = 2.63$, so divide by 2.63. Class shares:
 $0.6125 / 0.3875 = 1.58$. Together
 
 $$\frac{P(\text{faulty})\,p(x \mid \text{faulty})}{P(\text{healthy})\,p(x \mid \text{healthy})}
   = 1.58 \times 86.4 \div 2.63 = 52$$
 
-odds of 52 to 1 for faulty, so $P(\text{faulty} \mid x) = 52/53 = 0.981$. The
-ratio of the two products is the product of the three ratios, which is why the
-order does not matter. Software does the same thing in logarithms.
+odds of 52 to 1 for faulty. The probability is the faulty score divided by the
+sum of the two, which is $p(x)$, the denominator dropped above; dividing both by
+the healthy score gives $P(\text{faulty} \mid x) = 52/(52 + 1) = 0.981$. Software
+does the same thing in logarithms, where the ratio becomes a difference: the gap
+between the two log totals below is $\ln 52 = 3.951$.
 
 The same heights, as logarithms and with the priors added:
 
@@ -812,22 +903,23 @@ with the difference of the two widths as their weight, and everything else is a
 constant:
 
 $$\ln\frac{P(\text{faulty})\,p(x \mid \text{faulty})}{P(\text{healthy})\,p(x \mid \text{healthy})}
-  = \sum_j a_j (x_j - \mu_j)^2 + b,
+  = \sum_j a_j (x_j - \mu_j)^2 + a_0,
   \qquad a_j = \frac{1}{2\sigma_{j,\text{healthy}}^2} - \frac{1}{2\sigma_{j,\text{faulty}}^2}$$
 
-with $b$ collecting the log priors and the log widths. Every $a_j$ is positive,
+with $a_0$ collecting the log priors and the log widths (not $b$, which is an
+intercept in this course). Every $a_j$ is positive,
 because the healthy bell is the narrower, so the faulty score gains on the
 healthy one as a pump moves away from the centre, in any direction. The
-boundary is where the two are equal, $\sum_j a_j (x_j - \mu_j)^2 = -b$: an
+boundary is where the two are equal, $\sum_j a_j (x_j - \mu_j)^2 = -a_0$: an
 **axis-aligned ellipse** — and the true envelope is exactly that shape.
 With the ten numbers of Section 4.2 and one centre shared by both classes:
 
 $$a_\text{vib} = \frac{1}{2 \times 1.695^2} - \frac{1}{2 \times 4.636^2} = 0.1740 - 0.0233 = 0.1508,
   \qquad a_\text{pres} = \frac{1}{2 \times 0.219^2} - \frac{1}{2 \times 0.576^2} = 10.425 - 1.507 = 8.918$$
 
-$$b = \ln\frac{0.6125}{0.3875} + \ln\frac{1.695 \times 0.219}{4.636 \times 0.576} = 0.458 - 1.973 = -1.515$$
+$$a_0 = \ln\frac{0.6125}{0.3875} + \ln\frac{1.695 \times 0.219}{4.636 \times 0.576} = 0.458 - 1.973 = -1.515$$
 
-so the ellipse's semi-axes, where $a_j d_j^2 = -b$, are
+so the ellipse's semi-axes, where $a_j d_j^2 = -a_0$, are
 $\sqrt{1.515 / 0.1508} = 3.17$ Hz and $\sqrt{1.515 / 8.918} = 0.41$ bar,
 against a true envelope of **3.5 by 0.45**: the same proportions, about a tenth too
 small. Walking out from the two fitted centres until the prediction flips gives
@@ -1072,6 +1164,13 @@ $$\min_{w, b} \ \tfrac{1}{2}\lVert w \rVert^2
 
 A convex objective with linear constraints, which is the easiest kind of
 constrained problem there is: one minimum, and no local ones to get stuck in.
+It is solved by a quadratic-programming solver, not by gradient descent: there is
+no loss to descend, only an objective and constraints, and the solver returns
+$w$ and $b$ with no learning rate to choose and the same answer every run
+(Section 5.5 describes the one scikit-learn uses). Prediction needs the line
+alone: a new point is classified by the sign of $w^\top x + b$, and whether it
+falls inside the slab does not matter. **The slab chooses the line; the line
+classifies.**
 Notice what is missing: there is no term for errors. The data enter only through
 the constraints, which forbid errors outright; the objective is a penalty on $w$
 alone, the shape of lesson 3's ridge penalty.
@@ -1103,7 +1202,10 @@ which is
 $$\xi_i = \max\left(0,\ 1 - y_i\left(w^\top x_i + b\right)\right)$$
 
 the **hinge loss**: zero for any point classified with room to spare, then rising
-in a straight line as the point strays. That zero is the difference from lesson
+in a straight line as the point strays. Put it in place of each $\xi_i$ and the
+constraints disappear: the soft margin is the one-line problem
+$\min_{w,b}\ \tfrac{1}{2}\lVert w \rVert^2 + C\sum_i \max(0,\ 1 - y_i(w^\top x_i + b))$,
+the form the slides use. That zero is the difference from lesson
 4's log loss, which shrinks for a well-classified point but never reaches zero,
 so every row keeps pulling on the answer. Under the hinge, points that are safely
 right stop mattering altogether — the fact Section 5.4 turns into the method's
@@ -1139,6 +1241,20 @@ whatever $C$ is, so the soft problem stays solvable and only charges them more; 
 $C$ falls towards 0 only
 $\tfrac{1}{2}\lVert w \rVert^2$ is left, its minimum is $w = 0$, and the model
 ignores the readings. ($k$ runs the other way from $C$: a larger $k$ is smoother.)
+
+| | Small $C$ | Large $C$ |
+|---|---|---|
+| A unit of slack costs | little | a lot |
+| The slab, $2/\lVert w \rVert$ | wide | narrow |
+| Training points left wrong | more | fewer |
+| Penalty weight $\lambda = 1/(2C)$ | large | small |
+| Bias and variance | higher bias | higher variance |
+| The risk | underfitting | overfitting |
+
+The last two rows are tendencies, not guarantees; the right $C$ is chosen by
+cross-validation. And the slab cannot narrow on its own, leaving the line where
+it was: both come from the same $w$ and $b$, so a different $C$ gives a
+different line. At prediction only that line counts.
 
 ### 5.3 On the pumps, the margin alone does not help
 
@@ -1209,10 +1325,17 @@ and set its slope in $w$ to zero. The first term contributes $w$. Each hinge ter
 contributes $-C y_i x_i$ while point $i$ is inside the slab or on the wrong side,
 nothing once it is outside, where the hinge is flat, and something between the
 two exactly on the edge, where the hinge has a corner. Zero slope gives
-$w = \sum_i a_i y_i x_i$ with $a_i = C$ inside, $0$ outside and between $0$ and $C$
-on the edge — Fact 1 and, already, Fact 2's table below. The longer route, through
+$w = \sum_i a_i y_i x_i$ with $a_i = C$ when $y_i f(x_i) < 1$ (inside the slab, or
+on the wrong side however far), $0$ when $y_i f(x_i) > 1$, and between $0$ and $C$
+when $y_i f(x_i) = 1$, exactly on the point's own edge — Fact 1 and, already, Fact 2's table below. The longer route, through
 multipliers, also delivers the problem in the weights alone that the solver of
-Section 5.5 works on.
+Section 5.5 works on. Two cautions on the short route. On the edge the hinge has
+a corner and no ordinary slope; the corner allows any weight from 0 to $C$, and
+the optimisation as a whole fixes which (the multipliers below make this exact).
+And the weight does not grow with the violation: it is 0, then jumps to $C$;
+what grows is the hinge loss. (In degenerate cases a point on the edge can also
+keep $a_i = 0$; by definition the support vectors are the points with
+$a_i > 0$.)
 
 *Where it comes from, the long way.* A constrained minimisation is attacked by attaching a
 multiplier to each constraint, one price per training point, charged when that
@@ -1356,8 +1479,9 @@ zero, repeatedly
 picks a pair of weights that can still improve the objective — a pair, because
 $\sum_i a_i y_i = 0$ means one cannot move alone — sets that pair to its best
 values with all the others held fixed, and stops when no pair can improve. There
-is no learning rate and no epoch, and because the problem is convex the answer is
-the same on every run. The price is the kernel values between pairs of training
+is no learning rate and no epoch, and because the problem is convex the minimum,
+and with it every prediction, is the same on every run. (In degenerate cases
+two sets of weights can reach the same minimum; the predictions do not change.) The price is the kernel values between pairs of training
 points, which is why the method slows sharply as the dataset grows past tens of
 thousands of rows.
 
@@ -1489,7 +1613,8 @@ of them linear. The three are comparable rather than ranked: they differ by
 about one fold standard deviation, $k = 5$ was chosen on these same folds, and
 the RBF SVM used scikit-learn's defaults untuned. The ceiling can be made exact:
 the generator flipped 49 of the 1,200 labels, so a model that knew the rule would
-score $1 - 49/1{,}200 = 0.959$.
+score $1 - 49/1{,}200 = 0.959$ - a reference, not a wall: on a finite sample a
+model can land slightly above it by chance.
 
 **The gap between best and worst is 0.334**, larger than any difference this
 course has shown between a good model and a tuned one. That is the lesson of the

@@ -23,7 +23,7 @@ header-includes:
 
 <!-- examples-note:begin -->
 
-> **Worked examples** sit under ten slides (7, 10, 20, 28, 30, 43, 47, 52, 54, 63):
+> **Worked examples** sit under twelve slides (7, 10, 20, 28, 29, 30, 41, 43, 47, 53, 54, 63):
 > a handful of invented values each, small enough to work through by hand. Their
 > numbers are not the lesson's data; every one is computed by `commentary_examples.py`,
 > beside this file, which also writes them here.
@@ -187,6 +187,26 @@ the base rate for every pump. It does not tell pumps apart at all. Room for impr
 there is, plenty of it, but not within straight lines: the rest of the lesson changes
 family. The diagnostic to keep: **a score that does not move across folds often means a
 model that is not using its input.**
+
+### Question — why is the standard deviation exactly zero?
+
+Because the model gives every pump the same answer and the folds are stratified: each
+of the five holds 240 pumps, 147 of them faulty, so "always faulty" scores
+147 ÷ 240 = 0.6125 on every fold. Five equal numbers have no spread. A model that
+uses its input makes different mistakes on different folds, and its score moves a
+little (k-NN: ± 0.006); a model that ignores its input cannot move. That is why a
+suspiciously stable cross-validation score is a warning sign.
+
+### Question — why is every probability above 0.5, and not below?
+
+Because the faulty pumps are the majority. They surround the healthy ones, so any tilt
+of the line gains on one side what it loses on the other, and the two coefficients stay
+near zero (0.008 and −0.003 on the standardised readings). What is left is the
+intercept, and with nothing else to use it learns the base rate: $\sigma(b) = 735/1{,}200$,
+so $b = \ln(735/465) = 0.458$, the value fitted. Every probability sits near 0.61, so
+every pump is called faulty. With 39% faulty pumps the same model would call every
+pump healthy: a model that cannot use its input falls back on the larger class, which
+is exactly the baseline in the row above.
 
 ---
 
@@ -388,6 +408,19 @@ on all 1,200 against models fitted on 960 would compare different neighbourhoods
 columns would be mostly an artefact. Each stored pump is among its own $k$ nearest, which
 is why the training score is optimistic for every $k$, not only for $k = 1$.
 
+### Question — when k-NN is scored, does the pump being classified vote too, or only its neighbours?
+
+It depends on the column, and that is the difference between the two. The rule is the
+same in both: the $k$ nearest **stored** pumps vote. What differs is which pumps are
+scored. In the training column they are the 960 stored pumps, so each finds itself at
+distance zero and votes with its own label: at $k = 1$ it decides alone, hence the
+1.000, and at every $k$ it is one vote of $k$, which is why the training score is
+optimistic throughout. In the cross-validated column the 240 held-out pumps are not
+stored, so they never vote for themselves; their labels are used only afterwards, to
+check the prediction. And $k = 1$ works perfectly well there: the nearest other pump
+decides, which gives 0.912. Grading an answer with the answer key in the room is what
+the training column does.
+
 ---
 
 ## Slide 13 — Accuracy against k, between the baseline and the noise ceiling
@@ -436,6 +469,13 @@ region inflates, and faulty pumps near the edge are called healthy. The model ha
 collapsed to one class (it still scores 0.708); it has stopped following the boundary
 and started averaging across it.
 
+### Question — on which data were the three panels obtained?
+
+Each panel is a pipeline, scaler and k-NN, fitted on all 1,200 pumps, with no
+cross-validation; the coloured background is its prediction at every point of a
+260 × 260 grid over the plane. All 1,200 pumps are drawn on top, so every island at
+$k = 1$ shows the pump it was drawn around.
+
 ---
 
 ## Slide 15 — What k-NN costs
@@ -476,6 +516,15 @@ reading — the "same weight to every column" of slide 10.
 On the two real columns $k = 15$ scores 0.938 against 0.944, almost the same, and a vote
 over 15 pumps is less thrown by one bad neighbour than a vote over 5. So if accuracy
 falls as noise columns are added, the noise columns did it, not a small $k$.
+
+### Question — why $k = 15$, and not the best $k = 5$?
+
+On the two real columns they score almost the same, 0.938 against 0.944, and a vote
+over 15 pumps is less thrown by one bad neighbour, so a fall in accuracy is the noise
+columns' doing, not a small $k$'s. And the choice does not flatter the experiment: run
+with $k = 5$ (notebook 1), the fall is faster, reaching the baseline, 0.613, already at
+25 noise columns, where $k = 15$ still has 0.662. Choosing 15 makes the curse look
+smaller, not larger.
 
 ---
 
@@ -528,6 +577,16 @@ at 102 columns. The vote still says "healthy" 18.5% of the time for no reason, a
 answers are right only as often as healthy pumps occur; always saying "faulty" never
 makes that mistake (handout section 3.1, Checks).
 
+### Question — where does the 0.815 of the handout's check come from?
+
+From a binomial count. With enough noise, the 15 "neighbours" are 15 pumps drawn at
+random, each faulty with probability 0.6125. The vote says faulty when at least 8 of
+the 15 are faulty, and summing the binomial probabilities of 8, 9, ..., 15 faulty pumps
+gives 0.815. A quicker feel for it: among 15 random pumps about 9.2 are faulty on
+average, give or take 1.9, and losing the majority means falling to 7 or fewer, about
+one standard deviation below: it happens about one time in five. In class the
+qualitative reason is enough; the number belongs to the handout.
+
 ---
 
 ## Slide 19 — Why: distances stop varying
@@ -567,6 +626,15 @@ variances add, which makes the arithmetic one line. The square root at the end d
 change the conclusion: at $n = 100$ the relative spread of the distance itself is 0.059,
 half that of its square.
 
+### Question — how would you say it in class?
+
+To be near in two dimensions a point needs two small differences; in a hundred it needs
+a hundred at once. In the sum, small terms are offset by large ones, so every distance
+drifts towards the same value. A number to make it concrete: in the unit cube, a random
+point lands within 0.1 of a given one on a single coordinate about one time in five,
+$2 \times 0.1 - 0.1^2 = 0.19$. On both of two coordinates: $0.19^2 \approx 0.036$, about 36 of
+1,000 points. On all of ten: $0.19^{10} \approx 6$ in a hundred million, none of 1,000.
+
 ---
 
 ## Slide 20 — With n random columns, the nearest point stops being near
@@ -586,23 +654,40 @@ measured on random points.
 
 <!-- example:begin -->
 
-\Needspace{21\baselineskip}
+\Needspace{38\baselineskip}
 
 ### Worked example — how big a neighbourhood holds 1% of the data
 
-Points spread evenly in a cube of side 1. A smaller cube that contains 1% of them
-must have volume 0.01, so its side is $0.01^{1/d}$:
+The question: how far must a neighbourhood reach before it holds 1% of the points?
+With 1,000 points that is 10 of them, so it is the same as asking how far you must go
+to find the 10 nearest.
 
-| dimensions $d$ | side of the 1% cube | as a fraction of each axis |
-|---|---|---|
-| 1 | $0.01^{1/1}$ | **0.010** |
-| 2 | $0.01^{1/2}$ | **0.100** |
-| 10 | $0.01^{1/10}$ | **0.631** |
-| 100 | $0.01^{1/100}$ | **0.955** |
+1. **Fraction of points = volume.** The points are spread evenly in a cube of side 1,
+   whose volume is 1, so a region of volume 0.01 holds, on average, 1% of them.
+2. **The volume of a small cube of side $s$** is $s$ multiplied by itself once per
+   dimension: $s$ on a line, $s^2$ in a square, $s^3$ in a cube, $s^n$ in $n$
+   dimensions.
+3. **Set the volume to 0.01** and solve: $s^n = 0.01$, so $s = 0.01^{1/n}$, the
+   $n$-th root of 0.01. The cube has side 1, so $s$ is also the fraction of each axis
+   the neighbourhood covers.
 
-In two dimensions the 1% neighbourhood spans a tenth of each axis — local. In ten it
-spans 63% of every axis, and in a hundred nearly all of it. A "nearest
-neighbour" found that way is not near in any useful sense; it is just the least far.
+| $n$ | equation | side $s$ | check |
+|---|---|---|---|
+| 1 | s = 0.01 | $s = 0.01^{1/1}$ = **0.010** | 0.010 = 0.01 |
+| 2 | $s^{2} = 0.01$ | $s = 0.01^{1/2}$ = **0.100** | 0.100 × 0.100 = 0.01 |
+| 10 | $s^{10} = 0.01$ | $s = 0.01^{1/10}$ = **0.631** | 0.631 multiplied by itself 10 times = 0.01 |
+| 100 | $s^{100} = 0.01$ | $s = 0.01^{1/100}$ = **0.955** | 0.955 multiplied by itself 100 times = 0.01 |
+
+What it means: in two dimensions the 1% neighbourhood is a square a tenth of each axis
+wide, so the 10 nearest really are similar to the point on both readings. In ten it
+must span 63% of every axis: the 10 "nearest" can differ from the point by
+nearly two thirds of the range on each coordinate. In a hundred they span nearly all of
+it. A nearest neighbour found that way is not near in any useful sense; it is just the
+least far.
+
+It is the same fact as slide 19's 0.19 seen from the other side: there the
+neighbourhood was fixed (within 0.1 on every coordinate) and almost no points fell in
+it; here the number of points is fixed and the neighbourhood has to swell to find them.
 
 <!-- example:end -->
 
@@ -664,6 +749,28 @@ means are, and on the ring healthy and faulty pumps have almost the same mean vi
 and pressure (slide 32 shows them), so it finds nothing in the real columns and ranks
 two noise columns first by chance. `mutual_info_classif` detects any dependence between a
 column and the label, not only a shift of the mean.
+
+### Question — real datasets have many columns: are they all doomed?
+
+Not when the columns are correlated. Concentration comes from many **independent** terms
+averaging out. Columns driven by a few hidden quantities move together, so a point near
+in those quantities is near in every column at once; temperature in Celsius and in
+Fahrenheit are two columns and one dimension. Notebook 1 measures it on 100 columns
+built from two hidden variables: nearest ÷ farthest is 0.016, as in two dimensions,
+against 0.698 for 100 independent ones (handout section 3.2). What governs distance is
+the **effective dimension**, which lesson 8's principal component analysis measures.
+
+### Question — why did `f_classif` not keep at least one real column?
+
+Because it measures one thing only: how far apart the class means are, against the
+spread within the classes. On the ring the means coincide almost to the thousandth
+(41.986 against 42.015 Hz); the classes differ in spread, 1.696 against 4.639 Hz, which
+the test does not look at. So the real columns are not narrowly missed: vibration ranks
+44th of 52 and pressure 50th. The noise columns' means differ a little by chance, and
+the best of 50 chance differences always looks like something. Mutual information,
+which sees any dependence on the label, scores the two real readings about ten times
+higher than the best noise column. The rule: a selection test sees only the kind of
+signal it is built for, so look first at where the signal is.
 
 ---
 
@@ -848,6 +955,43 @@ looking at a defective part, and there the other is large too. Split the plot by
 and the relation disappears. **Once you know the class, knowing $x_1$ no longer helps you
 predict $x_2$.**
 
+<!-- example:begin -->
+
+\Needspace{36\baselineskip}
+
+### Worked example — independent within each season, dependent over the year
+
+The season is the class $y$; high ice-cream sales are $x_1$, many drownings $x_2$.
+Invented numbers, half the year summer and half winter, and **within each season the two
+are independent**, so the chance of both is the product:
+
+| season | $P$(many ice creams) | $P$(many drownings) | $P$(both) = product |
+|---|---|---|---|
+| summer | 0.8 | 0.6 | 0.8 × 0.6 = 0.48 |
+| winter | 0.1 | 0.05 | 0.1 × 0.05 = 0.005 |
+
+Over the whole year, average the two seasons (each weighs one half):
+
+- $P$(many ice creams) = (0.8 + 0.1) / 2 = 0.45
+- $P$(many drownings) = (0.6 + 0.05) / 2 = 0.325
+- if they were independent over the year, $P$(both) would be 0.45 × 0.325 = 0.146
+- it is in fact (0.48 + 0.005) / 2 = 0.242
+
+0.242 is well above 0.146: over the year the two go together, because both
+rise in summer. Two questions make the difference. Without knowing the season, do many
+ice creams tell you something about drownings? Yes: they suggest summer, and summer
+brings drownings. Knowing it is summer, do many ice creams tell you anything more? No:
+what they carried, "it is summer", you already have.
+
+That is exactly the dependence Naive Bayes allows: through the class, and no other kind.
+It is the one the model uses to classify, since both readings point at the season. The
+pumps break the rule in the other way: within the faulty class, vibration and pressure
+are still tied by the shape of the ring (slide 40). And a caution on the picture: even
+within a summer the hottest days raise both, so in real life the independence holds
+only roughly; the right "class" would be the day's temperature.
+
+<!-- example:end -->
+
 ---
 
 ## Slide 30 — The assumption, written: a product of n densities
@@ -952,12 +1096,20 @@ still 1.
 
 ### Question — can the verdict be read here already, without the logarithm slides?
 
-Yes, by multiplying three ratios, faulty over healthy. Vibration: the faulty bell is
+Yes. The classifier scores each class and picks the larger (slide 28); with two
+classes that is the same as asking whether the ratio faulty score ÷ healthy score is
+above 1. And the ratio of two products is the product of the ratios of their factors,
+so it splits into one factor per piece of the score - the shares, and one per reading -
+each pushing towards faulty when above 1 and towards healthy when below. So, three
+ratios, faulty over healthy. Vibration: the faulty bell is
 $0.0374 / 0.000433 = 86.4$ times the healthy one. Pressure: the healthy bell is the
 higher, $1.818 / 0.692 = 2.63$ times, so divide by 2.63. Class shares:
 $0.6125 / 0.3875 = 1.58$. Together
 $$1.58 \times 86.4 \div 2.63 = 52:$$
-odds of 52 to 1 for faulty, so $P(\text{faulty}) = 52/53 = 0.981$. The ratio of the two
+odds of 52 to 1 for faulty: for every unit of healthy score, faulty has 52. The
+probability is the faulty score divided by the sum of the two; dividing both by the
+healthy score turns that into $52/(52 + 1)$, so $P(\text{faulty}) = 52/53 = 0.981$,
+and $P(\text{healthy}) = 1/53 = 0.019$. The ratio of the two
 products is the product of the three ratios, which is why the order does not matter.
 Each score being compared is the numerator of Bayes' rule: the prior times the product
 of slide 30. Slides 34 to 37 reach the same 0.981 the way software does, in logarithms.
@@ -1045,6 +1197,18 @@ rule, and labels are flipped at random 4% of the time, so the probability of see
 label "faulty" is 0.96. The model says 0.981: a little more sure than the data allow, a
 first and small instance of slide 45.
 
+### Question — why is $e^{\text{total}}$ the prior times the densities, and how does it relate to $p(x)$?
+
+The total is the logarithm of the score: $\ln(\text{share}) + \ln p(\text{vibration}) +
+\ln p(\text{pressure}) = \ln(\text{share} \times \text{both bells})$, because the log of a
+product is the sum of the logs. Exponentiating undoes the logarithm, $e^{\ln a} = a$, so
+$e^{\text{total}}$ is the score of slide 28 again: $e^{-4.144} \approx 0.01585$ for faulty
+and $e^{-8.095} \approx 0.000305$ for healthy. And $p(x)$, the denominator slide 28 dropped,
+is the sum of the two: $p(x) = 0.000305 + 0.01585 = 0.01616$, the density of these
+readings whatever the class. Exponentiate first, then add: totals are logarithms and
+cannot be added as they are. The probability is $0.01585 / 0.01616 = 0.981$; software
+reaches it from the gap alone, so that no tiny $e^{\text{total}}$ is ever formed.
+
 ---
 
 ## Slide 37 — Software uses only the gap between the logs
@@ -1099,6 +1263,17 @@ the flipped labels aside, a healthy pump at 42 Hz can have any pressure from 5.1
 6.05 bar, while a healthy pump at 45 Hz, already $3/3.5$ of the way to the edge on
 vibration, only from 5.37 to 5.83 bar. Knowing the vibration changes the range the
 pressure can take: that is dependence (handout section 4.3).
+
+### Question — so a high cross-validated accuracy means the model separates the classes well, even if its probabilities are not calibrated?
+
+Yes, with a condition: "high" against the baseline. Lesson 4's 96.20% came from a model
+that found none of the 76 failures. Accuracy also judges only the decision at 0.5; how
+well the model **ranks** pumps at any threshold is the area under the receiver operating
+characteristic (ROC) curve, the AUC, of lesson 4. Calibration is a third question, and
+cross-validation can answer it too, if the right thing is measured on the held-out
+predictions: `cross_val_predict(..., method="predict_proba")`, then
+`calibration_curve`, or a score that rewards correct probabilities such as the Brier
+score or the log loss. `CalibratedClassifierCV` corrects a badly calibrated model.
 
 ---
 
@@ -1203,6 +1378,19 @@ the assumption; look for evidence that it is badly broken, and ask whether the b
 damages what you need from the model. On the pumps it is broken and costs almost
 nothing; on the interacting sensors of slide 42 it ruins the model.
 
+### Question — so the healthy pumps, flipped labels aside, are negatively correlated too?
+
+No: −0.036 is indistinguishable from zero. With 437 pumps, a correlation that is truly
+zero wobbles by about ±0.05 by chance (its standard error is about $1/\sqrt{437}$). A
+small negative value would be plausible - inside a disc a pump near the edge in one
+reading cannot be near the edge in the other - but it is weak, because most healthy
+pumps sit well inside, and this data cannot show it. Among the faulty pumps the ring
+forces it from both sides: a pump central in one reading must be far out in the other
+to be outside the disc, and one already far out in one cannot be far out in both
+without leaving the ring. Hence −0.420. The correlation is Pearson's, the default of
+`.corr()`: it sums the products of the two deviations from their means, so pumps with
+one square large and the other small pull it negative.
+
 ---
 
 ## Slide 41 — The densities are wrong, but the boundary they draw is about right
@@ -1230,6 +1418,50 @@ The semi-axes, where $a_j d_j^2 = -b$, are $\sqrt{1.515/0.1508} = 3.17$ Hz and
 $\sqrt{1.515/8.918} = 0.41$ bar, against a true envelope of 3.5 by 0.45: the same
 proportions, about a tenth smaller. Densities are not "calibrated" or not — they are
 wrong in shape; calibration is about the probabilities, and it comes on slide 45.
+
+<!-- example:begin -->
+
+\Needspace{43\baselineskip}
+
+### Worked example — where the ellipse comes from
+
+**Step 1, the log of one bell.** For a bell with centre $\mu$ and standard deviation
+$\sigma$, $\ln p(x) = -\ln(\sigma\sqrt{2\pi}) - (x - \mu)^2 / (2\sigma^2)$: a constant,
+minus the squared distance from the centre divided by $2\sigma^2$. The narrower the bell,
+the faster it falls.
+
+**Step 2, the gap between the classes.** Faulty total minus healthy total. Both classes
+share a centre (42 Hz, 5.6 bar), so for each reading $j$ what is left is
+$a_j (x_j - \mu_j)^2$ with
+$$a_j = \frac{1}{2\sigma_{j,\text{healthy}}^2} - \frac{1}{2\sigma_{j,\text{faulty}}^2},$$
+and everything else (log shares, log widths) is a constant $a_0$.
+
+**Step 3, the numbers** (the fitted model's ten numbers, slide 32):
+
+| term | formula | value |
+|---|---|---|
+| $a_\text{vib}$ | 1/(2 × 1.6945²) − 1/(2 × 4.6362²) | **0.1509** |
+| $a_\text{pres}$ | 1/(2 × 0.2187²) − 1/(2 × 0.5763²) | **8.947** |
+| $a_0$ | ln(0.6125/0.3875) + ln(1.6945/4.6362) + ln(0.2187/0.5763) | **-1.518** |
+
+Both $a_j$ are positive because the healthy bell is the narrower, and $a_0$ is negative,
+so the gap reads
+
+$$\text{gap} = -1.518 + 0.151\,(\text{Hz} - 42)^2 + 8.95\,(\text{bar} - 5.6)^2.$$
+
+At the centre the gap is -1.518: healthy. Moving out it grows, faster in pressure.
+At 48 Hz and 5.6 bar: -1.518 + 0.151 × 6² = 3.91, close to slide 37's 3.951
+(the fitted centres are not exactly 42 and 5.6).
+
+**Step 4, the boundary** is where the gap is zero:
+0.151(Hz − 42)² + 8.95(bar − 5.6)² = 1.518, an ellipse centred on the design
+point. Its semi-axes, setting the other reading at its centre:
+√(1.518 / 0.1509) = **3.17 Hz** and √(1.518 / 8.947) = **0.41 bar**,
+against the true envelope's 3.5 Hz and 0.45 bar: the same shape, about a tenth smaller.
+The bells are wrong, but a narrow bell and a wide one with the same centre can only
+produce an ellipse round that centre, which is the right shape.
+
+<!-- example:end -->
 
 ---
 
@@ -1412,6 +1644,13 @@ over all thresholds? Accuracy here needs, for each pump, the right *class* on to
 gap between the two log scores on the right side of zero, or $P$ on the right side of
 0.5. Neither looks at calibration, and a model can be good at one and bad at the other.
 
+### Question — how is the confidence computed?
+
+For each of the 300 test pumps the model gives $P$(faulty) and predicts the larger
+class; the confidence is the probability of the class predicted, $\max(P, 1 - P)$,
+between 0.5 and 1. Then two averages: over the pumps it got right, 0.567, and over those
+it got wrong, 0.555.
+
 ---
 
 ## Slide 46 — Notebook 2, live
@@ -1563,56 +1802,111 @@ section 5.2, derives each step.
   $1/\lVert w \rVert$ on each side, $2/\lVert w \rVert$ in all: a wide slab is a short $w$.
 - **The problem.** Minimise $\tfrac{1}{2}\lVert w \rVert^2$ with every point outside the
   slab, $y_i(w^\top x_i + b) \geq 1$.
+- **Training and prediction.** A solver for convex problems finds $w$ and $b$; a new
+  pump is classified by the sign of $w^\top x + b$.
 
 ### Question — what is the cost function here? With linear regression the cost was the mean squared error (MSE), and ridge added a penalty.
 
 The parallel holds, with the roles swapped. In the strict problem the objective is
 **only** $\tfrac{1}{2}\lVert w \rVert^2$, the shape of ridge's penalty, and the data enter
-only as constraints, which forbid errors outright. The soft margin (next slides) adds the
-data term. And why require $y_i f(x_i) \geq 1$ rather than just $> 0$? Positive alone
+only as constraints, which forbid errors outright. The soft margin (two slides on) adds
+the data term. And why require $y_i f(x_i) \geq 1$ rather than just $> 0$? Positive alone
 says the label is right but leaves the scale of $w$ and $b$ free; the 1 fixes it, so that
 the slab's edges are $f(x) = \pm 1$ and its width is $2/\lVert w \rVert$.
 
+### Question — the hard margin has no hinge loss: how is it trained, then?
+
+Not by gradient descent: there is no loss to descend, only an objective and
+constraints. The problem is a quadratic objective with one linear constraint per point,
+and it is convex, so it has a single minimum. A quadratic-programming solver finds $w$
+and $b$ directly: no learning rate, no iterations to tune, the same answer every run.
+The solver scikit-learn uses works on one weight per point, two at a time; slide 64
+shows it on the pumps.
+
+### Question — if I narrowed the slab, would the predictions change? The line has not moved.
+
+At prediction only the line counts: a new pump is classified by the side it falls on,
+the sign of $w^\top x + b$, and whether it is inside the slab does not matter. But the
+slab cannot be narrowed on its own, leaving the line where it was. The slab and the line
+come from the same $w$ and $b$, and the slab is what training uses to **choose** the
+line; a different slab is a different optimisation, and a different line. The short
+version: the slab chooses the line; the line classifies.
+
 ---
 
-## Slide 50 — Not separable? Charge for the violations
+## Slide 50 — Not separable? Allow each point some slack
 
 With 4% of the labels flipped, some faulty pumps sit among the healthy ones, and no slab
 can have all points outside it. The strict problem has no solution at all, not merely a
 bad one. So the SVM that is actually used everywhere is the **soft-margin** version: each
 point $i$ gets an allowance $\xi_i \geq 0$ (read "xi"), its **slack**: how far it may fall
 short of its edge of the slab, in the units where the edge is at 1. The constraint
-becomes $y_i(w^\top x_i + b) \geq 1 - \xi_i$, and every unit of slack is charged at a
-price $C$.
+becomes $y_i(w^\top x_i + b) \geq 1 - \xi_i$.
 
 - $\xi_i = 0$: the point is outside the slab, on its own side, or exactly on its edge.
 - $0 < \xi_i < 1$: inside the slab, but still on the correct side of the boundary.
 - $\xi_i > 1$: on the wrong side of the boundary, so misclassified.
 
-At the best fit each $\xi_i$ is as small as its constraint allows, which is the hinge
-loss of the last bullet on the slide: $\xi_i = \max(0, 1 - y_i f(x_i))$. Three cases with
-numbers: a point with $y\,f(x) = 2$ has slack 0 and pays nothing; one with 0.4, inside
-the slab but on the right side, has slack 0.6 and pays $0.6\,C$; one with −0.5, on the
-wrong side, has slack 1.5 and pays $1.5\,C$. The trade: a wider slab lowers
-$\tfrac{1}{2}\lVert w \rVert^2$ but lets more points inside, raising $C \sum_i \xi_i$; $C$
-is the exchange rate.
+A point needs only as much slack as its shortfall, which is the hinge loss of the last
+bullet on the slide: $\xi_i = \max(0, 1 - y_i f(x_i))$. Three cases with numbers: a point
+with $y\,f(x) = 2$ needs no slack; one with 0.4, inside the slab but on the right side,
+needs $1 - 0.4 = 0.6$; one with −0.5, on the wrong side, needs $1 + 0.5 = 1.5$. The slide
+introduces no price yet: the next one charges for the slack.
 
 ### Question — can a correctly classified point have non-zero slack?
 
-Yes: when $0 < y_i f(x_i) < 1$ it is on its right side but inside the slab, and pays. The
-SVM charges not only wrong answers but right answers that sit too close to the boundary.
+Yes: when $0 < y_i f(x_i) < 1$ it is on its right side but inside the slab, and needs
+slack. The SVM charges not only wrong answers but right answers that sit too close to the
+boundary.
 
 ---
 
-## Slide 51 — Three kinds of point: outside the slab, inside it, on the wrong side
+## Slide 51 — The SVM objective: a short w, plus C times the slack
+
+$$\min_{w, b} \ \tfrac{1}{2}\|w\|^2 + C\sum_i \max\bigl(0,\ 1 - y_i(w^\top x_i + b)\bigr)$$
+
+The previous slide's slack, now paid for, with each $\xi_i$ written as what it ends up
+being, the hinge. Read it against the strict problem two slides back: the same
+$\tfrac{1}{2}\lVert w \rVert^2$, plus $C$ times the total slack. The first term wants a wide
+slab; the second wants few and small violations; $C$ is the price of one unit of slack,
+so it sets the exchange rate. With the previous slide's cases: the point at 0.4 pays
+$0.6\,C$, the one at −0.5 pays $1.5\,C$, the one at 2 pays nothing.
+
+The same problem is often written with the slack and constraints, as in the handout:
+minimise $\tfrac{1}{2}\lVert w \rVert^2 + C\sum_i \xi_i$ subject to
+$y_i(w^\top x_i + b) \geq 1 - \xi_i$ and $\xi_i \geq 0$. At the best fit each $\xi_i$ is
+as small as its constraint allows, which is the hinge, so the two are the same problem.
+
+### Question — is this lesson 3's "loss plus penalty"?
+
+Yes. Dividing the whole objective by $C$, which does not change its minimum, gives
+$$\sum_i \max\bigl(0,\ 1 - y_i(w^\top x_i + b)\bigr) + \frac{1}{2C}\lVert w \rVert^2:$$
+a loss on the data plus $\lambda$ times a penalty on the coefficients, with the hinge in
+the place of the mean squared error, $\lVert w \rVert^2$ in the place of ridge's penalty,
+and $\lambda = 1/(2C)$. That one line explains slide 54's warning about the direction of
+$C$.
+
+### Question — so some points are accepted inside the margin, or even on the wrong side?
+
+Yes, exactly. That is what "soft" means: the model is not required to classify every
+training point correctly, or even to keep every correct one outside the slab. Picture a
+single pump whose label was flipped to faulty, sitting deep among the healthy ones. To
+keep it outside the slab, the boundary would have to squeeze past it, leaving a very
+narrow slab for everyone else. The soft margin can instead accept a violation for that
+one point, pay $C\,\xi_i$ for it, and keep a wide, robust slab for the rest.
+
+---
+
+## Slide 52 — Three kinds of point: outside the slab, inside it, on the wrong side
 
 ![](svm_slack.png)
 
 *The 80 made-up points with four more placed against their class, and a soft-margin
 linear SVM with C = 1. Each circled point carries its slack.*
 
-The previous slide's three cases, drawn. The figure adds four points to the eighty of
-slide 48, placed against their class, and fits a soft-margin linear SVM with $C = 1$.
+The three cases of the slack (slide 50), drawn. The figure adds four points to the
+eighty of slide 48, placed against their class, and fits a soft-margin linear SVM with
+$C = 1$, the price of the previous slide.
 Three points are circled (notebook 3 prints them): a teal point outside the slab on its
 own side, $y\,f(x) = 1.22$, slack 0, it pays nothing; a rust point inside the slab but
 still on the right side, $y\,f(x) = 0.45$, slack $1 - 0.45 = 0.55$; a teal point across
@@ -1622,7 +1916,7 @@ that the model accepts a few points inside rather than squeezing the slab.
 
 ---
 
-## Slide 52 — The hinge loss stops at zero
+## Slide 53 — The hinge loss stops at zero
 
 ![](hinge_vs_log_loss.png)
 
@@ -1642,14 +1936,15 @@ regression has no support vectors.
 
 <!-- example:begin -->
 
-\Needspace{22\baselineskip}
+\Needspace{23\baselineskip}
 
 ### Worked example — five pumps, two losses
 
-The margin of a pump is $y \cdot f(x)$: positive when it is classified correctly,
-larger the further it sits on its own side.
+How far a pump sits on its own side is $y \cdot f(x)$: positive when it is classified
+correctly, larger the further out it is, 1 at the edge of the slab. (Not "the margin":
+the margin is the slab's width.)
 
-| margin $y f(x)$ | where it sits | hinge $\max(0, 1 - y f)$ | log loss $\log(1 + e^{-y f})$ |
+| $y f(x)$ | where it sits | hinge $\max(0, 1 - y f)$ | log loss $\log(1 + e^{-y f})$ |
 |---|---|---|---|
 | 2.0 | outside the slab, right side | **0.00** | 0.127 |
 | 1.0 | on the edge | **0.00** | 0.313 |
@@ -1665,37 +1960,16 @@ zero is where support vectors come from.
 
 ---
 
-## Slide 53 — The SVM objective: small w, plus C times the slack
+## Slide 54 — C is the price of a training error: a large C means less regularisation
 
-$$\min_{w, b, \xi} \ \tfrac{1}{2}\|w\|^2 + C\sum_i \xi_i$$
-
-subject to $y_i(w^\top x_i + b) \geq 1 - \xi_i$ and $\xi_i \geq 0$ for every training
-point. Read it against the strict problem of slide 49: the same
-$\tfrac{1}{2}\lVert w \rVert^2$, plus $C \sum_i \xi_i$, with the constraint relaxed from
-$\geq 1$ to $\geq 1 - \xi_i$. The first term wants a wide slab; the second wants few and
-small violations; $C$ sets the exchange rate.
-
-### Question — is this lesson 3's "loss plus penalty"?
-
-Yes, once the slack is written as the hinge. Each $\xi_i$ ends equal to point $i$'s hinge
-loss, so dividing the whole objective by $C$, which does not change its minimum, gives
-$$\sum_i \max\bigl(0,\ 1 - y_i(w^\top x_i + b)\bigr) + \frac{1}{2C}\lVert w \rVert^2:$$
-a loss on the data plus $\lambda$ times a penalty on the coefficients, with the hinge in
-the place of the mean squared error, $\lVert w \rVert^2$ in the place of ridge's penalty,
-and $\lambda = 1/(2C)$. That one line explains the next slide's warning.
-
-### Question — so some points are accepted inside the margin, or even on the wrong side?
-
-Yes, exactly. That is what "soft" means: the model is not required to classify every
-training point correctly, or even to keep every correct one outside the slab. Picture a
-single pump whose label was flipped to faulty, sitting deep among the healthy ones. To
-keep it outside the slab, the boundary would have to squeeze past it, leaving a very
-narrow slab for everyone else. The soft margin can instead accept a violation for that
-one point, pay $C\,\xi_i$ for it, and keep a wide, robust slab for the rest.
-
----
-
-## Slide 54 — C is the price of a training error
+| | Small C | Large C |
+|---|---|---|
+| A unit of slack costs | little | a lot |
+| The slab (2/‖w‖) | wide | narrow |
+| Training points left wrong | more | fewer |
+| Penalty weight λ = 1/(2C) | large | small |
+| Bias and variance | higher bias | higher variance |
+| The risk | underfitting | overfitting |
 
 Large $C$ makes violations expensive, so the slab narrows to classify more training
 points: low bias, high variance. Small $C$ accepts some errors in exchange for a wider,
@@ -1706,6 +1980,15 @@ Mind the direction. A large $\lambda$ means *more* regularisation; a large $C$ m
 *less*, and the previous slide says why: divided by $C$, the penalty weighs
 $\lambda = 1/(2C)$. ($k$ runs the other way from $C$: a larger $k$ is smoother.)
 scikit-learn's `C` in `LogisticRegression` follows the same inverted convention.
+
+The bias and variance rows are tendencies, not guarantees: the right $C$ is chosen
+by cross-validation.
+
+### Question — if a larger C narrows the slab, does the line stay where it was?
+
+No. The slab and the line come from the same $w$ and $b$, so the slab cannot narrow on
+its own: a different $C$ is a different optimisation and, in general, a different line.
+At prediction only that line counts.
 
 ### Question — what happens at the two ends?
 
@@ -1883,6 +2166,15 @@ No. All 1,200 pumps took part in the optimisation; the 922 at weight zero can be
 only *after* it, because they add nothing to the prediction formula. Had one of them sat
 closer to the boundary, it would have pushed, and the answer would differ.
 
+### Question — what exactly does "inside" mean for the weights?
+
+Read the conditions on $y_i f(x_i)$, not on a picture of the slab. $a_i = C$ whenever
+$y_i f(x_i) < 1$: inside the slab, **or** on the wrong side however far beyond the
+opposite edge. $a_i = 0$ when $y_i f(x_i) > 1$. Exactly on its own edge,
+$y_i f(x_i) = 1$, the hinge has a corner and no ordinary slope; the corner allows any
+weight from 0 to $C$, and the optimisation as a whole fixes which. The weight does not
+grow with the violation: it is 0, then $C$. What grows is the hinge loss.
+
 ---
 
 ## Slide 61 — So the new coordinates are never computed
@@ -1899,6 +2191,15 @@ and $\phi$ is never computed. The radial basis function kernel, scikit-learn's d
 does this for an infinite-dimensional space at the cost of one exponential per pair.
 (Kernels were joined to the margin by Bernhard Boser, Isabelle Guyon and Vladimir Vapnik
 at Bell Labs in 1992.)
+
+### Question — why does the slide call the formula a boundary?
+
+It is the **decision function** $f(x)$, and it does three jobs: the sign of $f(x)$
+classifies a new pump, the set where $f(x) = 0$ is the boundary, and $y_i f(x_i)$ says
+how far a training pump sits on its own side. The slide writes it as $f(x)$ and the
+boundary as $f(x) = 0$ to keep the score and the line apart. And the kernel returns
+the inner product **in the new coordinates**, $\phi(x) \cdot \phi(x')$, not the
+ordinary $x \cdot x'$: computed from the original readings, but a different number.
 
 ---
 
@@ -2023,6 +2324,15 @@ During training there is no new pump yet: the solver uses only $K(x_i, x_j)$, wh
 are training points — the $m \times m$ kernel matrix. The same function, two different
 second arguments.
 
+### Question — is the answer really unique?
+
+The minimum is, because the problem is convex, and so are the predictions: the same on
+every run. In degenerate cases two different sets of weights can reach the same
+minimum, so "one set of $a_i$" is not promised; the predictions do not change. And the
+stored model is more than the 278 pumps, their weights and $b$: it includes the scaler
+fitted on the training pumps, since every new pump must be standardised with it before
+any kernel is computed.
+
 ---
 
 ## Slide 65 — The SVM's score at 48 Hz, 5.6 bar: Σ aᵢ yᵢ K(xᵢ, x) + b = +1.883
@@ -2052,6 +2362,13 @@ intercept on its own, +1.105, is what a pump far from every support vector would
 faulty, sensible here, where far from the design point means faulty. And +1.883 is above
 1: by slide 52's reading the pump sits beyond the faulty edge of the slab, faulty with
 room to spare. It is a score, not a probability.
+
+### Question — the faulty and healthy sums almost cancel: is the prediction uncertain?
+
+Not necessarily. The weights balance, $\sum_i a_i y_i = 0$, but only before the
+similarities are applied; at a new pump the similarities tip the balance, and here the
+total is +1.883, beyond the faulty edge. That edge is in the lifted space: +1.883 is not
+a distance in hertz or bar, and it is a score, not a probability.
 
 ---
 
@@ -2190,6 +2507,13 @@ SVM got there with scikit-learn's defaults, $\gamma = 0.5$ and $C = 1$, untuned.
 200 splits showed how far a score moves when only the split changes. What the table
 does establish is the gap of 0.334 between the families.
 
+### Question — can a model beat the 0.959?
+
+On a finite sample, slightly, by chance: 0.959 is what the true rule scores on these
+labels, a reference rather than a wall. What no model can do is learn the flipped
+labels, since they follow no rule; a model that scores far above it on validation data
+should be checked for leakage.
+
 ---
 
 ## Slide 72 — How to choose, in practice
@@ -2284,4 +2608,7 @@ your best model came.
 0.471: slide 40, the overall standard deviation of pressure across all 1,200 pumps, which notebook 2 standardises by but does not print; 0.784 and 1.309 times it give the printed 0.37 and 0.62 bar
 0.51: slide 45, an illustrative barely-sure prediction, to explain what confidence means
 0.99: slide 45, an illustrative very sure prediction and score, beside 0.51 and 0.80
+9.2: slide 18, the mean number of faulty pumps among 15 drawn at random, 15 × 0.6125 = 9.19
+76: slide 38, lesson 4's number: the failures its 96.20% model found none of (lesson 4's handout)
+96.20: slide 38, lesson 4's number of the course table in CLAUDE.md, an accuracy from finding no failures
 -->

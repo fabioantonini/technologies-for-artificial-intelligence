@@ -33,13 +33,14 @@ RANDOM_STATE = 42
 #: either direction — is a fault.
 TARGET_VIBRATION = 42.0     # Hz
 TARGET_PRESSURE = 5.6       # bar
-ENVELOPE_RADIUS = 1.0       # in standardised units, see below
+ENVELOPE_RADIUS = 1.0       # in tolerance steps, see below
 
-#: The scales the two readings live on. Faults are defined on the standardised
-#: distance, so the envelope is a circle there and an ellipse in raw units —
-#: which is realistic, and a reminder that scaling is not cosmetic here.
-VIBRATION_SD = 3.5
-PRESSURE_SD = 0.45
+#: The tolerances: how far each reading may stray from the design point. Faults
+#: are defined on the distance measured in these steps, so the envelope is a
+#: circle there and an ellipse in raw units - which is realistic, and a reminder
+#: that scaling is not cosmetic here. They are not the data's standard deviations.
+VIBRATION_TOLERANCE = 3.5
+PRESSURE_TOLERANCE = 0.45
 
 #: Fraction of readings whose label is flipped: sensors are not perfect, and a
 #: boundary with no noise at all teaches the wrong lesson about accuracy.
@@ -47,9 +48,13 @@ LABEL_NOISE = 0.04
 
 
 def _standardised_radius(vibration, pressure):
-    """Distance from the design point, in standard deviations."""
-    dv = (vibration - TARGET_VIBRATION) / VIBRATION_SD
-    dp = (pressure - TARGET_PRESSURE) / PRESSURE_SD
+    """Distance from the design point, in tolerance steps (3.5 Hz, 0.45 bar).
+
+    Not the data's standard deviations (3.78 Hz and 0.471 bar over all 1,200
+    pumps): the rule calls a pump faulty when this radius is above 1.
+    """
+    dv = (vibration - TARGET_VIBRATION) / VIBRATION_TOLERANCE
+    dp = (pressure - TARGET_PRESSURE) / PRESSURE_TOLERANCE
     return np.sqrt(dv ** 2 + dp ** 2)
 
 
@@ -68,8 +73,8 @@ def load_pumps(n_samples: int = 1_200, random_state: int = RANDOM_STATE):
     radius = rng.uniform(0.0, 2.6, n_samples)
     angle = rng.uniform(0, 2 * np.pi, n_samples)
 
-    vibration = TARGET_VIBRATION + VIBRATION_SD * radius * np.cos(angle)
-    pressure = TARGET_PRESSURE + PRESSURE_SD * radius * np.sin(angle)
+    vibration = TARGET_VIBRATION + VIBRATION_TOLERANCE * radius * np.cos(angle)
+    pressure = TARGET_PRESSURE + PRESSURE_TOLERANCE * radius * np.sin(angle)
 
     faulty = (radius > ENVELOPE_RADIUS).astype(int)
     flip = rng.random(n_samples) < LABEL_NOISE
