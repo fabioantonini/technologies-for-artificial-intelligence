@@ -28,7 +28,8 @@ ones in a central blob and the faulty ones surrounding it.
    pump can fail by running too slow *or* too fast.
 2. **What that costs a linear model.** Majority baseline **0.613**; logistic regression
    **0.613 ± 0.000**. Not slightly beaten — it learned *nothing*, and predicts "faulty"
-   for every pump.
+   for every pump. Its two coefficients stay near zero and the intercept learns the
+   base rate, **0.458 = ln(735/465)**, so every probability sits above one half.
 3. **k-NN written out in eight lines**, agreeing with scikit-learn on **100% of the
    test points**, accuracy 0.937. Then **one prediction, drawn**: a new pump at 46 Hz
    and 5.8 bar, its five nearest stored pumps, and their vote, four faulty to one
@@ -46,7 +47,8 @@ ones in a central blob and the faulty ones surrounding it.
    is its own nearest neighbour — which is the clearest demonstration that a training
    score can measure nothing at all.
 5. **The three boundaries.** Ragged with islands at $k = 1$, a clean ellipse at $k = 15$,
-   and swollen past the true envelope at $k = 401$.
+   and swollen past the true envelope at $k = 401$; all 1,200 pumps drawn, so each
+   island shows the pump it was drawn around.
 6. **Now break it.** Add columns of pure noise, leaving both real readings untouched;
    the experiment is drawn first, as the table k-NN receives with ten noise columns:
 
@@ -57,10 +59,18 @@ ones in a central blob and the faulty ones surrounding it.
    | 50 | 0.602 | **−0.011** |
    | 100 | 0.578 | −0.035 |
 
-   **The signal never left**, and ten useless columns cost eighteen points.
+   **The signal never left**, and ten useless columns cost eighteen points. Run with
+   the best $k = 5$ the fall is faster - the baseline already at 25 noise columns - so
+   $k = 15$ does not exaggerate the effect.
 7. **Why: geometry, not k-NN.** The ratio of nearest to farthest distance —
    **0.016** in 2 dimensions, 0.263 at 10, **0.701 at 100**, 0.855 at 500. Once every
-   point is about as far as every other, "nearest" stops being a statement.
+   point is about as far as every other, "nearest" stops being a statement. With
+   **correlated** columns it does not happen: 100 columns built from two hidden
+   variables give **0.016**, like two dimensions, against 0.698 for 100 independent
+   ones.
+   **Choosing the columns, inside the pipeline.** `f_classif` keeps two noise columns
+   (0.562): the real readings rank 44th and 50th of 52, because their class means
+   agree and only the spreads differ. `mutual_info_classif` keeps them (0.938).
 8. **What it costs to use.** No training at all, and $O(mn)$ per prediction — plus the
    dataset itself has to travel with the model.
 

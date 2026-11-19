@@ -51,6 +51,16 @@ stops varying. → § 3.3
 costs a coefficient near zero. With k-nearest neighbours it costs a dimension in
 the distance, and dimensions are what the method is made of. → § 3.3
 
+**Effective dimension.** How many independent directions the data really use. Columns
+driven by a few hidden quantities move together and behave like far fewer columns, so
+distances keep their meaning; the curse bites in proportion to what is independent
+noise. → § 3.2
+
+**A selection test sees only its own kind of signal.** `f_classif` compares class
+means, so it is blind to classes that share a centre and differ in spread; mutual
+information sees any dependence on the label. Choose the test after looking at where
+the signal is, and run it inside the pipeline. → § 3.3
+
 
 ## Naive Bayes
 
@@ -123,8 +133,17 @@ $b$ without moving the boundary. → § 5.2
 so the closest points satisfy $\lvert w^\top x + b \rvert = 1$. It is what makes the
 constraints read $\geq 1$ and the margin equal $2 / \lVert w \rVert$. → § 5.2
 
+**Slack.** Each point's allowance $\xi_i \geq 0$: how far it may fall short of its
+edge of the slab. Zero outside the slab on its own side, between 0 and 1 inside it,
+above 1 on the wrong side; the smallest slack that works is the hinge loss. → § 5.2
+
 **Soft margin, and the hinge loss.** Violations allowed and charged: nothing for a
 point outside the slab on its own side, then a straight-line rise. → § 5.2
+
+**Decision function.** $f(x) = w^\top x + b$, or its kernel form: a score, not a
+probability. Its sign classifies a new point, the set where it is zero is the boundary,
+and $y_i f(x_i)$ says how far a training point sits on its own side. The slab chooses
+the line; the line alone classifies. → § 5.2
 
 **$C$, the price of an error.** Large $C$ makes violations expensive, so the model accepts a narrower margin to
 classify more training points; small $C$ buys a wider, calmer boundary. Note the direction: **large $C$
