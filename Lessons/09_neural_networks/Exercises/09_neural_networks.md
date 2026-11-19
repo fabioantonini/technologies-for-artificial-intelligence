@@ -21,9 +21,10 @@ this exercise asks.
 You get **two batches from the same factory**, Meridian Instruments, one from
 each of its two final-test stations. Both batches have 3,000 units, both have
 eight measured columns, both have a pass rate near 0.50, and on both the test
-station records 3% of its verdicts as the opposite of the truth — so both have
-a ceiling of 0.97, and every accuracy below is read against 0.97 rather than
-against 1.000.
+station records 3% of its verdicts as the opposite of the truth — so on both
+the best expected accuracy is 0.97, and every accuracy below is read against
+0.97 rather than against 1.000. It is an expected value, not a hard limit: a
+finite sample can land a little above or below it.
 
 Everything that could explain a difference has been held fixed except one
 thing: **the shape of the rule that decides the verdict**. On one line a
@@ -82,8 +83,8 @@ both lines honestly and at length — what each product is, what is measured,
 and how each station's verdict is arrived at — and it is not padding. Half of
 Part 1 is answerable from that docstring alone.
 
-**Do not read past the loader functions until Part 4.** The `TRUE_*` constants
-below them give the rules away.
+**Read only the module docstring until Part 4.** The `TRUE_*` constants just
+after it give the rules away.
 
 Both loaders take `n_units`, `rig_error_rate` and `random_state`. Leave the
 first two at their defaults throughout, and vary only `random_state` where a
@@ -165,15 +166,18 @@ afterwards. The rest of the exercise is much less instructive if you do.
    is real. Repeat step 4 at **two further generator seeds per line** — pass a
    different `random_state` to the loader, keeping everything else fixed — and
    report each model's accuracy as a mean and standard deviation across the
-   three batches.
+   three batches. The standard deviation across folds in step 4 does not make
+   this step redundant: folds answer how much the score moves between parts of
+   one batch, new seeds how much it moves between batches, and only the second
+   tells you whether the comparison survives a new sample.
 
 6. State plainly, line by line: **is the network distinguishably better than
    logistic regression, distinguishably worse, or not distinguishable at all?**
    Justify the word you chose using the spread you measured, not the means
    alone. Handout section 6.3 is the pattern: three ways of training there
    landed at most 0.55 points apart against a run-to-run standard deviation of
-   up to 0.35 points, and the honest conclusion was "enough to say the remedies
-   did not hurt, not enough to rank them".
+   up to 0.35 points, and the honest conclusion was "no clear difference
+   between the three methods; they cannot be ranked".
 
 One warning, now that your Part 1 prediction is written down and not before.
 If your **lens assembly** logistic regression comes out at essentially the
@@ -204,8 +208,10 @@ these.
 - *For a claim that a line's verdict does or does not show up in individual
   columns.* Compute, for each of the sixteen columns, the area under the
   receiver operating characteristic curve (AUC) of that single column used
-  alone as a score for the verdict. An AUC of 0.5 means the column on its own
-  carries nothing. Report the eight values per line, and say which line has
+  alone as a score for the verdict. An AUC near 0.5 means the column, used as
+  it is, does not rank the units; it does not prove the column carries no
+  information, which a transformation (its distance from nominal, say) could
+  still reveal. Report the eight values per line, and say which line has
   columns that are individually informative — then say why that is the
   opposite of what a first guess would suggest.
 
@@ -277,8 +283,8 @@ loader bodies.
 
 8. The lens rule is a condition on $|a - b|$ for two of the columns. Handout
    section 3.1 shows that the two-channel drift data's rule is a condition on
-   $|a + b|$ — the exclusive-or (XOR) function, the smallest problem that
-   needs a hidden layer — and section 3.2 solves it by hand with **two** ReLU
+   $|a + b|$ — a stand-in for the exclusive-or (XOR) pattern, the smallest
+   problem that needs a hidden layer — and section 3.2 solves it by hand with **two** ReLU
    units and no training at all. Write down, by hand, weights $W^{[1]}$,
    $b^{[1]}$, $W^{[2]}$, $b^{[2]}$ for a two-unit hidden layer that implements
    the lens rule on the two relevant standardised columns, in the style of
@@ -369,5 +375,7 @@ stuck on Part 3, section 3.4's width table is the template for the plot, and
 section 5.5's digits table is the template for the case where the honest
 answer is "the hidden layer bought 2.8 points and doubling its width bought
 nothing". If you are stuck on Part 4 question 8, section 3.2 is the worked
-example, four columns of arithmetic wide; the only thing you need to change is
-a sign.
+example, four columns of arithmetic wide. Use it as the pattern, not as a
+template: change the combination to a difference, the threshold to the
+standardised tolerance, and make the output accept points **inside** the band
+rather than outside it.

@@ -27,7 +27,7 @@ clouds.
 **The concepts, in order.**
 
 1. **Look first.** Standardised, the accept region is a circle of radius 1.25. The test
-   rig records 3% of verdicts wrongly, so 0.97 is the ceiling.
+   rig records 3% of verdicts wrongly, so 0.97 is the best expected accuracy.
 2. **One line.** Logistic regression scores **0.5507** on the test sensors, against
    **0.5480** for always saying "accepted". The fit did not fail: a line cannot
    enclose a region.
@@ -80,8 +80,8 @@ library lesson 10 uses, and to measure what a hidden layer is worth on real data
 **The two-minute version.** *Keras lists the layers, compile picks the loss and the
 optimiser, fit runs the training loop in mini-batches. Softmax turns ten scores into
 ten probabilities, which say how sure the network is, not how right. On the digits a
-hidden layer adds 2.8 points over softmax alone, against 39 on the sensors: pixels push
-the answer more or less independently, the sensor's two offsets only matter together.
+hidden layer adds 2.8 points over softmax alone, against 39 on the sensors: a weighted
+sum of pixels already does most of the work, the sensor's two offsets only matter together.
 Fit the linear model first; the gap tells you whether you needed a network.*
 
 ---
@@ -113,6 +113,6 @@ and the property of dense networks lesson 10 starts from.
 **The two-minute version.** *Try learning rates a factor of ten apart before blaming
 the network. A network with far more weights than examples memorises, and the
 validation loss says so before the accuracy does; early stopping and dropout help a
-little and early stopping saves time. Deep sigmoid stacks never learn because the blame
-shrinks at every layer; ReLU fixes it. And a dense network cannot tell a digit from its
+little and early stopping saves time. Here a deep sigmoid stack never learned, because
+the blame shrinks at every layer; ReLU fixed it. And a dense network cannot tell a digit from its
 pixels shuffled, which is where lesson 10 begins.*

@@ -11,8 +11,9 @@ so that "add a hidden layer" does not become a reflex.
    no single straight boundary can describe. Notebooks 01 and 03.
 2. ``make_channel_drift`` — a two-channel sensor whose drift is correctable
    when the two channels drift the *same* way and not when they drift
-   oppositely. That is the exclusive-or (XOR) function with noise, and it is
-   the smallest problem that needs a hidden layer. Notebook 01.
+   oppositely. "Not correctable" is the exclusive-or (XOR) of the two signs
+   ("correctable" is its complement), with the points scattered around four
+   centres, and it is the smallest problem that needs a hidden layer. Notebook 01.
 3. ``load_digit_images`` — the 8x8 handwritten digits bundled with
    scikit-learn, used for the multiclass (softmax) work in notebooks 02 and
    03. Real data, ten classes, and no download: scikit-learn ships a copy.
@@ -57,8 +58,8 @@ TRUE_PHASE_TOL_DEG = 3.75       # 1.25 sigma — the same multiple, by design
 TRUE_ACCEPT_RADIUS_SIGMA = 1.25
 
 # The rig that records pass/fail is itself imperfect: this fraction of
-# verdicts is recorded as the opposite of the truth. It is the reason no
-# model in this lesson can pass 97% — see the Bayes ceiling below.
+# verdicts is recorded as the opposite of the truth. It is the reason 0.97 is
+# the best expected accuracy on this test — see the Bayes ceiling below.
 TRUE_RIG_ERROR_RATE = 0.03
 
 # The best accuracy any classifier can reach on the *recorded* labels.
@@ -114,8 +115,9 @@ def make_acceptance_test(seed=9001, n_units=TRUE_N_UNITS):
 # same way the drift is *common mode* and one global correction removes it;
 # when they drift in opposite directions it is *differential* and no single
 # correction can. So the unit is correctable exactly when the two drifts share
-# a sign — which is exclusive-or (XOR) on the signs, the textbook example of a
-# function no straight line separates.
+# a sign; "not correctable" is the exclusive-or (XOR) of the signs, the textbook
+# example of a function no straight line separates, and "correctable" is its
+# complement, equally inseparable.
 
 TRUE_N_DRIFT_UNITS = 800
 TRUE_DRIFT_MAGNITUDE = 1.0      # centre of each of the four clouds, in mV
@@ -131,7 +133,7 @@ TRUE_DRIFT_QUADRANTS = [
 
 
 def make_channel_drift(seed=9002, n_units=TRUE_N_DRIFT_UNITS):
-    """800 two-channel units in four clouds: XOR with Gaussian noise.
+    """800 two-channel sensors in four clouds: an XOR pattern with Gaussian spread.
 
     Returns a DataFrame with ``drift_a_mv``, ``drift_b_mv`` and
     ``correctable``. The labels carry no noise here — the point of this

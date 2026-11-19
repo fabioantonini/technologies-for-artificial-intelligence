@@ -12,8 +12,9 @@ before an exercise that there is no word here you could not define.
 
 ## One neuron
 
-**What a network adds.** Earlier classifiers fixed the shape of the boundary before
-training; a network learns the shape itself. → § 1
+**What a network adds.** Earlier models drew their boundary from a family chosen in
+advance, on the original features; a network also learns new features, its hidden
+units. → § 1
 
 **Unit, or neuron.** A weighted sum of the inputs plus a bias, passed through an
 activation. Lesson 4's logistic regression is one unit. → § 2.1
@@ -24,8 +25,9 @@ the sigmoid. → § 2.1
 **A neuron is a line.** The points a unit is undecided about, where its weighted sum is
 zero, form a straight line; one unit only says which side of it a point is on. → § 2.1
 
-**The ceiling.** When the recorded labels themselves contain mistakes, no model can
-score above one minus the mistake rate. → § 1.1
+**The ceiling.** When the recorded labels themselves contain mistakes at random, the
+best expected accuracy is one minus the mistake rate; a finite test set can land a
+little above or below it. → § 1.1
 
 **Why one line fails on a disc.** Whatever a line gains on one side of a centred region
 it gives back on the other, so the best fit barely tilts. → § 2.3
@@ -40,7 +42,8 @@ labels. → § 3.2
 itself otherwise. → § 3.2
 
 **Exclusive-or (XOR).** True when exactly one of two conditions holds; the smallest
-problem no single line can separate. → § 3.1
+problem no single line can separate. Its complement (sometimes called XNOR), true when
+both or neither hold, is just as inseparable. → § 3.1
 
 **Moving the data.** A hidden layer computes new coordinates in which a single line
 separates the classes. → § 3.2
@@ -55,7 +58,8 @@ then activations. → § 3.3
 `MLPClassifier` trains one with the hidden sizes you choose. → § 3.4
 
 **Each hidden unit is a line.** Its weights are one column of the first weight matrix;
-the output unit votes over which side of each line a point lies on. → § 3.4
+the unit outputs zero on one side of its line and a growing value on the other, and the
+output unit takes a weighted sum of those values. → § 3.4
 
 **Width and findability.** A layer just wide enough to solve a problem is often not found
 by training from a random start; a wider one is found far more often. → § 3.4
@@ -98,13 +102,14 @@ and an optimiser, then `fit`. → § 5.2
 **Adam.** A refined gradient descent that adapts the step for each weight. → § 5.2
 
 **Softmax.** Turns one score per class into probabilities that add up to one; with two
-classes it is the sigmoid. → § 5.3
+classes it is the sigmoid of the difference of the two scores. → § 5.3
 
 **Confidence is not correctness.** Softmax says how sure a network is, not how often it
 is right when that sure. → § 5.3
 
-**When a hidden layer pays.** When inputs act together; when they act independently a
-linear model gets most of the way. Fit the linear model first. → § 5.5
+**When a hidden layer pays.** When inputs act together; when a weighted sum of the
+inputs is already a strong approximation, a linear model gets most of the way. Fit the
+linear model first. → § 5.5
 
 **Memorising.** A network with far more weights than examples can store its training
 answers; the validation loss shows it before the accuracy does. → § 6.2
@@ -112,11 +117,13 @@ answers; the validation loss shows it before the accuracy does. → § 6.2
 **Early stopping.** Stop when the validation loss has not improved for a while, and keep
 the best weights seen. → § 6.3
 
-**Dropout.** Switch off a random fraction of hidden units on every training mini-batch,
-so no unit relies on another. → § 6.3
+**Dropout.** During training, zero a random fraction of the hidden activations, afresh
+for each example, and scale up the rest, so no unit relies on another; off for
+predictions. → § 6.3
 
 **Vanishing gradient.** The blame shrinks at every layer it passes back through; with
-sigmoids, whose slope is at most a quarter, a deep stack never learns. → § 6.4
+sigmoids, whose slope is at most a quarter, a deep stack trained with plain gradient
+descent may not learn at all. → § 6.4
 
-**Shuffled pixels.** A dense network ignores which pixel is next to which, so a
-consistent shuffle changes nothing it can see. → § 6.5
+**Shuffled pixels.** A dense network has no built-in notion of which pixel is next to
+which, so a consistent shuffle changes nothing it can see. → § 6.5

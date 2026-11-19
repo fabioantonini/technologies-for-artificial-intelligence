@@ -321,7 +321,7 @@ The ones so far:
 | 6 | **0.613 to 0.947** — a linear model stuck exactly at the baseline where a kernel reaches the noise ceiling |
 | 7 | **54%** of a random forest's importance landed on 20 columns of pure noise |
 | 8 | **37 of 40** disguised accounts caught by reconstruction error, invisible on any 2-D picture of all eight columns |
-| 9 | **39 against 2.8** — what one hidden layer is worth on the sensor acceptance test and on the handwritten digits: a great deal when inputs act together, little when they act alone |
+| 9 | **39 against 2.8** — what one hidden layer is worth on the sensor acceptance test and on the handwritten digits: a great deal when inputs act together, little when a weighted sum of them already does the work |
 | 10 | **0.857 to 0.462** — a dense network's accuracy when the defect it learned in the top band of the die is moved to the bottom half; a convolutional one goes 0.980 to 0.985 |
 
 ### Expand every acronym on first use

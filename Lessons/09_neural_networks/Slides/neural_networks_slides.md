@@ -55,25 +55,26 @@ best score the data allows, which the next slides set at 0.97, not against 1.
 
 # What a network adds
 
-- Every classifier so far drew a boundary of a **fixed shape**
-- A line for logistic regression, boxes for a tree, a kernel's curve for a
-  support vector machine
-- Training only chose **where** that shape went
-- A neural network learns **the shape itself**
-- It repeats one part, the unit, in layers; the inner layers are called
-  **hidden layers**
+- Every model so far drew its boundary from a **family chosen in advance**
+- A line, axis-parallel boxes, a kernel's curves: all on the original
+  features
+- A neural network also learns **new features**: its hidden units
+- The inner layers of units are the **hidden layers**
 
 ::: notes
 This is the one-sentence thesis of the lesson, and it is worth saying slowly,
 because students often arrive believing that what makes a network special is
-its size. It is not. It is that the family of boundaries is not fixed before
-training starts. The layers in between are called hidden because no data
+its size. It is not. The line is logistic regression's, the boxes a tree's,
+the curves a support vector machine's kernel. What is new is that the network
+learns its own features from the
+data: new coordinates in which a simple boundary is enough. The layers in between are called hidden because no data
 file supplies their values: the network computes them.
 
 Put the question to the room: lesson 6's kernel machines also drew curved
 boundaries, so what is actually different here? The answer is who chose the
-family of curves. With a kernel you chose it in advance, and if you chose
-badly no amount of data repairs it. With a hidden layer the data chooses.
+new coordinates. With a kernel you chose them in advance, and if you chose
+badly no amount of data repairs it. With a hidden layer the data chooses them,
+within the architecture you set.
 
 Handout section 1.
 :::
@@ -83,8 +84,8 @@ Handout section 1.
 - **Acceptance test**: 3,000 sensors, pass or fail
 - **Channel drift**: 800 sensors, correctable or not
 - **Digits**: 1,797 handwritten images, 8 × 8 pixels
-- The rig recording each sensor's verdict gets **3%** wrong: the best
-  expected score is 1 − 0.03 = **0.97**
+- The acceptance-test rig gets **3%** of its verdicts wrong: the best
+  expected score there is 1 − 0.03 = **0.97**
 - To remember: a hidden layer adds **39 points** of accuracy on the
   sensors, **2.8** on the digits
 
@@ -100,7 +101,8 @@ The 3% rig error is the number to keep visible all afternoon. A model that
 reproduced the true rule perfectly would still disagree with 3% of the
 recorded verdicts. Ask the room: if the instrument recording the answers is
 wrong 3% of the time, what is the best accuracy any classifier can be scored
-at? The answer is 0.97, and every sensor score today is read against it. It
+at? The answer is 0.97, and every acceptance-test score today is read against
+it; the drift labels and the digits carry no such errors. It
 is an expected value: on a particular set of 750 test sensors the rig's
 mistakes need not be exactly 3%, so a lucky model can land a little above or
 below it.
@@ -191,6 +193,10 @@ of exactly one half, because it lies on the line. Notebook 01 computes these
 same points in five lines of NumPy, so the room will see these digits printed
 again in twenty minutes.
 
+A predictable slip: at exactly 0.5 the classifier has no answer. 0.5 means the
+unit has no preference; software still returns a class by a fixed rule for
+ties, here class 0, since the rule asks for ŷ > 0.5.
+
 Handout section 2.1, worked example.
 :::
 
@@ -199,9 +205,9 @@ Handout section 2.1, worked example.
 - Two offsets per sensor: gain g (dB), phase p (degrees)
 - It passes when (g/0.50)² + (p/3.75)² < 1
 - `train_test_split`: 2,250 of the 3,000 to train, 750 to test
-- `StandardScaler` (fitted on the 2,250): (x − μ)/σ on each axis
-- Tolerances are 1.25 spreads: the pass region is a **circle of radius
-  1.25**
+- `StandardScaler` (fitted on the 2,250): (x − mean) / standard deviation
+- Tolerances are 1.25 spreads: the pass region is very nearly a **circle of
+  radius 1.25**
 
 ::: notes
 The first real problem. Each sensor is measured on two calibration axes, and
@@ -220,7 +226,9 @@ phase. So once each axis is standardised, call the two results u and v, the
 rule reads u² + v² < 1.25²: a circle of radius 1.25 around the centre. The
 scaler uses the training sensors' own mean and spread, which are close to 0
 and to 0.40 and 3.00, so the circle drawn on the standardised data is very
-nearly exact. Ask the room: can a
+nearly exact: with the fitted scaler the true boundary is an ellipse with
+semi-axes 1.28 and 1.23, centred within 0.02 of the origin. (The slide writes
+the standard deviation in words because σ is already the sigmoid.) Ask the room: can a
 single straight line separate the inside of a circle from the outside?
 Handout section 2.2.
 :::
@@ -234,9 +242,10 @@ Left: the raw measurements, decibels against degrees. Right: the same points
 after each axis is divided by its own production spread, with the rule that
 made the labels drawn as a circle.
 
-Point at the few wrong-coloured points scattered along the circle. Those are
-the rig's 3% of mistaken verdicts: sensors the rig recorded the wrong way
-round. No model can get those right, which is where the ceiling of 0.97 comes
+Point at the wrong-coloured points: red inside the circle, teal outside it.
+Those are the rig's mistaken verdicts: it flips about 3% of them wherever a
+sensor lies, so they are scattered over the whole plane, not lined up along
+the boundary. A point close to the circle is not, for that reason, a mistake. No model can get those right, which is where the ceiling of 0.97 comes
 from.
 
 Ask before the next slide: what do you expect logistic regression, one line,
@@ -307,10 +316,15 @@ colours. There is no good answer, and that is the next slide. Handout section
 - If the signs differ, not correctable: an exclusive-or (XOR)
 - Logistic regression, all 800 sensors: **0.5000**
 - a + b is near ±2 if correctable, near 0 if not
-- So **two thresholds**: a + b > 1 or a + b < −1
+- So **two thresholds** are needed, near a + b = 1 and a + b = −1
 - Two hidden units can draw two boundaries
 
 ::: notes
+For the computer scientists in the room: correctable, our class 1, is the
+complement of the exclusive-or, sometimes called XNOR. Either way no single
+line separates the classes, and "|a + b| is large" is a good stand-in for
+"same sign".
+
 The exclusive-or is the traditional example, usually presented as an abstract
 logic puzzle. Insist that this version is a physical situation: a drift that is
 the same on both channels is removable by one correction, one that is opposite
@@ -332,7 +346,7 @@ and the result contributed to more than a decade in which neural networks
 fell out of favour. The answer, a hidden layer, is the next slide.
 :::
 
-# Two hidden units, drawn
+# Two rectified linear units (ReLU), drawn
 
 ![](two_unit_network.png)
 
@@ -364,6 +378,14 @@ the plus-one plus-one corner: a plus b is 2, so the first hidden unit gives 2
 minus 1, which is 1, and the second gives 0. The output's weighted sum is 10
 minus 1, which is 9, and the sigmoid of 9 is 0.9999. Let them check the other
 three centres themselves against the table in the handout.
+
+Where exactly does it decide? The output says correctable when
+10h₁ + 10h₂ − 1 > 0, that is when h₁ + h₂ > 0.1, which means |a + b| > 1.1.
+
+A predictable slip: four centres right, so all 800 sensors must be right. The
+centres explain the design; 0.9938 measures it on the scattered points. The 5
+misses are correctable sensors near the origin, such as a = 0.32, b = 0.47,
+where a + b is only 0.79.
 
 The ReLU is used here as a tool: the maximum of zero and its input, nothing
 more. Its properties come back after the break.
@@ -431,6 +453,10 @@ One warning about letters: in this figure a is an activation and b a bias,
 not the drifts a and b of the last few slides; the inputs are now called x₁
 and x₂.
 
+A predictable slip: reading the 2 × 4 of W with superscript 1 as two examples
+and four features. Its two rows are the two inputs and its four columns the
+four hidden units; the examples are the rows of X.
+
 Ask the room: how many numbers does the first weight matrix hold? Two inputs
 times four units, eight, plus four biases. Handout section 3.3.
 :::
@@ -491,8 +517,8 @@ the four clouds and stopped there, at 0.7425, the score printed above the
 panel. The fourth cloud is simply on the wrong side.
 
 The right panel, four units, encloses both correctable clouds and scores
-1.0000. Nothing about the problem changed between the panels; only the
-number of hidden units changed, and with it the number of lines training could
+1.0000. Nothing about the problem changed between the panels: same 800
+sensors, same random_state; only the number of hidden units changed, and with it the number of lines training could
 place.
 
 Ask the room: if a model this small can fail like this on a problem this
@@ -502,28 +528,27 @@ several starting points and reading the spread. Handout section 3.4.
 
 # Back to the acceptance test: how many hidden units?
 
-| `MLPClassifier`, hidden units | test accuracy (750 sensors), mean of 5 runs | worst of 5 | best of 5 |
-|---|---|---|---|
-| 1 | 0.6048 | 0.5480 | 0.6493 |
-| 2 | 0.7392 | 0.7240 | 0.7693 |
-| 3 | 0.8120 | 0.7227 | 0.9160 |
-| 4 | 0.8821 | 0.7227 | 0.9507 |
-| 8 | **0.9445** | 0.9387 | 0.9493 |
-| 16 | 0.9549 | 0.9520 | 0.9600 |
+![](width_accuracy.png)
 
 ::: notes
 Say plainly that the data changes back: we leave the drift problem and return
-to the acceptance test, the circle no line could enclose. Each row is
-MLPClassifier with one hidden layer of that size, trained on the 2,250
+to the acceptance test, the circle no line could enclose. Each column of the
+figure is MLPClassifier with one hidden layer of that size, trained on the 2,250
 training sensors five times, from random_state 0 to 4, and scored on the 750
-test sensors.
+test sensors: the dot is the mean of the five, the grey bar runs from the
+worst run to the best.
 
-Read the worst and best columns, not only the mean. At three and four units
+Read the bars, not only the dots. At three and four units
 the worst run is still 0.7227 while the best is above 0.9: the same story as
 the drift problem, a few lines can enclose the circle but training does not
 always find them. At eight units the five runs agree, and the mean, 0.9445, is
 within three points of the ceiling of 0.97. From one line, 0.5507, that is 39
 points: the first half of the lesson's number.
+
+Say one condition plainly: these are test-set scores, used here to show how
+capacity changes the boundary, not to pick a width. To choose a width honestly,
+compare on validation data or by cross-validation, as lesson 5 did, and touch
+the test set once.
 
 Handout section 3.4.
 :::
@@ -555,11 +580,13 @@ from its column of the first weight matrix. In scikit-learn that matrix is
 coefs_[0], and notebook 01 draws these lines straight from it. The network's
 boundary is the black curve.
 
-Each line on its own cuts the plane in two, as one unit always does. Point at
-how the output unit's weighted vote, over which side of each line a point lies
-on, encloses a region that no single line could.
+Each line on its own cuts the plane in two, as one unit always does: the unit
+outputs zero on one side and a value that grows with the distance on the
+other. Point at how the output unit's weighted sum of those eight values
+encloses a region that no single line could.
 
-This is the picture of a hidden layer to take home: several lines and a vote.
+This is the picture of a hidden layer to take home: several lines, combined by
+the output unit.
 Handout section 3.4.
 :::
 
@@ -637,10 +664,14 @@ loop looks only at it, so one round is cheap, and the direction it suggests is
 roughly right on average.
 
 Do the arithmetic on the board: 1,077 divided by 32 is 33 and a bit, so 34
-mini-batches, the last one smaller. The 1,077 images are the training part of
+mini-batches: 33 full ones hold 33 × 32 = 1,056 images, and the remaining 21
+make the 34th. The 1,077 images are the training part of
 the digits; the others are kept aside to validate and to test, and we meet
 them with the digits themselves. Sixty epochs of 34 rounds each is 2,040
 rounds.
+
+A predictable slip: an epoch is one weight update, so 60 epochs are 60 steps.
+An epoch is a pass over all 1,077 images, 34 updates; 60 epochs are 2,040.
 
 Ask the room: if each round used all 1,077 images instead, what would change?
 Each round would be about 34 times more expensive, and there would be only 60
@@ -710,6 +741,12 @@ Half of that, because the learning rate is 0.5, is 0.4404. Every weight goes
 down by 0.4404. The new weighted sum is 0.5596 plus 1.5596
 minus 1.4404, which is 0.679, and the sigmoid of that is 0.663.
 
+A predictable slip: every weight of a sigmoid unit always gets the same blame.
+Each weight's blame is ŷ − y times its own input; here they are equal only
+because both inputs, and the bias's, are 1. Note also that the new prediction,
+0.663, is still above 0.5: one step lowered the loss without changing the
+class, and that is normal.
+
 One step roughly halved the loss. Ask: what would two thousand such steps,
 over many examples, do? That is what training is. Handout section 4.3, worked
 example.
@@ -729,6 +766,10 @@ Each hidden unit receives its share of the output's error, in proportion to
 the weight connecting it to the output. It scales that share by the slope of
 its own activation, and passes it further back the same way. One backward
 sweep gives every weight its blame.
+
+A predictable slip: backpropagation sends the inputs, or the labels,
+backwards. What travels back is the derivative of the loss, the blame; the
+values from the forward pass are only used to compute it.
 
 Ask the room: a hidden unit connected to the output with a weight of zero, how
 much blame does it receive? None. Handout section 4.4.
@@ -788,8 +829,8 @@ do you expect that to do here? Keep the guesses for slide 42. Handout section
   `layers.Dense`
 - **Dense**: every unit sees every input; 32 ReLU units, then 10 outputs,
   one per digit
-- `compile` sets the loss and `Adam`, a gradient descent with a step per
-  weight; `fit` trains
+- `compile` sets the loss and `Adam` (adaptive moment estimation); `fit`
+  trains
 - 64 × 32 + 32 = 2,080 parameters, plus 32 × 10 + 10 = 330
 
 ::: notes
@@ -823,12 +864,16 @@ total, so they add up to 1. The prediction is the digit with the largest
 probability. They have met it once already: lesson 4's slide 60 used the same
 softmax for three classes of drive.
 
-With two classes, softmax reduces to the sigmoid: it is the same construction
-at a different size. And the loss for ten classes is still cross-entropy,
+With two classes, softmax gives class 1 the probability σ(z₁ − z₀): the
+sigmoid of the difference of the two scores, the same construction at a
+different size. And the loss for ten classes is still cross-entropy,
 minus the logarithm of the probability given to the true class.
 
 Ask the room: if all ten scores are equal, what probability does each digit
 get? One tenth. Handout section 5.3.
+
+A predictable slip: softmax is a sigmoid applied to each of the ten scores. It
+is not: all ten share one denominator, which is why they add up to 1.
 
 A historical note: the name softmax is John Bridle's, from 1990: it is a soft,
 differentiable version of picking the maximum.
@@ -866,8 +911,12 @@ the first epoch the network scores 0.2667 on the validation images; after 60
 it scores 0.9639, getting 13 of the 360 wrong, and 0.9926 on the images it
 trained on.
 
-The training curve ends above the validation curve, as it always will: the
-network has seen those images. Ask the room: what would it mean if that gap
+The training curve ends above the validation curve, as it usually does: the
+network has seen those images.
+
+A predictable slip: because fit receives the validation images, they help train
+the weights. They do not: Keras only scores them after each epoch; every
+gradient step uses the training images alone. Ask the room: what would it mean if that gap
 kept growing? That is notebook 03. Handout section 5.4.
 :::
 
@@ -933,7 +982,7 @@ Ask the room why, before the next slide gives the answer. Handout section 5.5.
 # When to reach for a hidden layer
 
 - Sensors: the two offsets act **together**
-- Digits: each pixel acts **on its own**; softmax alone scores 0.9324
+- Digits: a weighted sum of the pixels already scores 0.9324
 - The predictable mistake: a hidden layer **by reflex**
 - Digits: 2,410 parameters instead of 650, for 2.8 points
 - **Fit the linear model first**, then compare a network with it
@@ -941,14 +990,16 @@ Ask the room why, before the next slide gives the answer. Handout section 5.5.
 ::: notes
 The reason is the shape of each problem. On the sensors the answer depends on
 the two offsets together: a sensor passes when the pair is near the centre,
-and no weighted sum of the two can say "near the centre". On the digits each
-pixel pushes the answer more or less on its own: ink here suggests a 0, ink
-there a 1, and a weighted sum of pixels already gets most of the way.
+and no weighted sum of the two can say "near the centre". On the digits a
+weighted sum of the pixels already gets most of the way: ink here suggests a
+0, ink there a 1. That does not mean the pixels are independent of one
+another; it means a linear score is already a strong approximation here, so a
+hidden layer has little left to add.
 
 Name the mistake and why it is reasonable. Having seen a hidden layer take the
 sensors from 0.55 to 0.94, it is natural to add one every time. The instinct
-is sound when inputs act in combination; on data where they act independently
-it buys little and costs parameters.
+is sound when inputs act in combination; on data where a weighted sum already
+works it buys little and costs parameters.
 
 Ask the room: on a new dataset, what single experiment would tell you which
 kind it is? Fit the linear model and a small network, and read the gap.
@@ -1073,8 +1124,8 @@ training? The loss. That is the first remedy. Handout section 6.2.
 
 - **Early stopping**: stop when the validation loss has not improved for 25
   epochs, then put back the weights of the best epoch
-- **Dropout**: during training, switch off a random 40% of the hidden units
-  on each mini-batch; for predictions every unit is on
+- **Dropout**: during training, zero a random 40% of the hidden
+  activations, afresh for each example; for predictions it is off
 - In code: `EarlyStopping(patience=25, restore_best_weights=True)`
 - In code: `layers.Dropout(0.4)`
 
@@ -1086,9 +1137,11 @@ improved for a set number of epochs, 25 here, training stops and the weights
 from the best epoch are put back. It needs a validation set, which is lesson
 5's discipline again.
 
-Dropout is stranger. On every training mini-batch, a random 40% of the hidden
-units are switched off, so the network cannot depend on any one unit and has
-to spread what it learns. At prediction time every unit is on.
+Dropout is stranger. During training, for every example separately, a random
+40% of the hidden activations are set to zero and the rest are scaled up by
+1/0.6, so their total stays the same on average. The network cannot depend on
+any one unit and has to spread what it learns. At prediction time dropout is
+off and every unit is used.
 
 Ask the room to predict, before the next slide: which of the two will help
 more on this network? Handout section 6.3.
@@ -1112,8 +1165,8 @@ against.
 
 Read the spread before the means, as lesson 5 taught. The best and worst rows
 differ by 0.9481 − 0.9426 = 0.0055, under two standard deviations of the runs,
-2 × 0.0035 = 0.0070. That is enough to
-say the remedies did not hurt, and not enough to rank them.
+2 × 0.0035 = 0.0070. With three runs we see no clear difference between the
+three methods, and we cannot rank them.
 
 What early stopping certainly bought is time: 39 epochs instead of 200. On a
 real problem that is often the reason it is used. Ask the room: if someone
@@ -1137,7 +1190,7 @@ activation's slope at every layer. Ask: what happens to a number multiplied by
 at most one quarter, six times over? Handout section 6.4.
 :::
 
-# Six sigmoid layers never learn
+# Six sigmoid layers, plain SGD: stuck at chance for 80 epochs
 
 ![](deep_training_curves.png)
 
@@ -1152,6 +1205,10 @@ normally.
 
 Ask the room: the code for the two networks differs by one word. Where is the
 problem? Not in the data, not in the size: in the slope. Handout section 6.4.
+
+Say the condition: this is one experiment, plain SGD at 0.1 for 80 epochs.
+Better starting weights or another optimiser can rescue a sigmoid network; the
+ReLU removes the cause.
 :::
 
 # The vanishing gradient
@@ -1166,15 +1223,21 @@ problem? Not in the data, not in the size: in the slope. Handout section 6.4.
 - This is the **vanishing gradient**
 
 ::: notes
-The blame that reaches the first layer of a six-layer sigmoid network is at
-most one four-thousandth of what left the output: too small to move anything.
+Along a path through six sigmoid layers, the slopes alone multiply the blame
+by at most one four-thousandth: in this network, too little reaches the first
+layers to move anything.
 The first layers keep their random starting weights, so the layers after
 them receive inputs that carry nothing learned, and the network never leaves
 chance.
 
 The slopes are not the only factor: the blame is also multiplied by the
-weights it crosses on the way back, and small starting weights shrink it
-further.
+weights it crosses on the way back: small starting weights shrink it further,
+large ones could enlarge it. So 1/4096 describes the mechanism, not a bound on
+the whole gradient.
+
+A predictable slip: the ReLU's slope is 1, so a ReLU network can never have a
+vanishing gradient. It removes one cause, the repeated small slope; an inactive
+ReLU has slope 0, and the weights still matter.
 
 This is why deep networks use the ReLU. The scores are validation accuracy on
 the 360 validation digits after 80 epochs. The ReLU's 0.9611 equals the
@@ -1210,14 +1273,20 @@ section 6.5.
 
 - Hidden layer of 32, 3 runs: **0.9602** (slide 42), **0.9630** shuffled
 - 0.0028 apart, inside the standard deviations 0.0052 and 0.0035
-- A dense layer never uses which pixel is next to which
+- A dense layer has no built-in notion of which pixel is next to which
 - **Permute the pixels consistently and nothing here notices.**
 
 ::: notes
 The shuffled score is not lower; the 0.0028 difference is inside the standard
-deviations of 0.0052 and 0.0035. A dense layer treats the 64 pixels as 64
-unrelated numbers: shuffle them the same way every time, and nothing it can
-see has changed.
+deviations of 0.0052 and 0.0035. A dense layer has no built-in notion of
+neighbouring pixels: each position has its own weights, so with the pixels
+shuffled the same way every time, the network simply learns the same weights
+in the shuffled order. It can still learn spatial patterns from examples;
+nothing in its structure assumes them.
+
+A predictable slip: train on the original images, shuffle only the test
+images, and the score stays the same. It collapses: the permutation must be
+the same for every image, in training and evaluation alike.
 
 For a photograph, where neighbouring pixels are the whole point, that is a
 strange blindness. Say the last bullet slowly and leave it on the screen:
@@ -1275,17 +1344,18 @@ Handout summary.
 
 # 39 points against 2.8
 
-- One hidden layer on the acceptance test: **+39.4 points** (8 units, mean of
-  5 runs, 750 test sensors)
-- One hidden layer on the digits: **+2.8 points** (32 units, mean of 3 runs,
-  360 validation images; 4.7 on another split)
-- On the sensors the offsets act **together**; on the digits each pixel acts
-  mostly **on its own**
+- Acceptance test, one hidden layer: **+39.4 points** (8 units, mean of 5
+  runs)
+- Digits, one hidden layer: **+2.8 points** (32 units, mean of 3 runs; 4.7
+  on another split)
+- Sensors: the offsets act **together**; digits: a weighted sum of pixels
+  already does most of the work
 - What a network is worth depends on the **shape of the problem**
 
 ::: notes
 This is the number to carry out of the room: 39 points against 2.8. Ask them
-to write it down.
+to write it down. The 39.4 is on the 750 test sensors, the 2.8 on the 360
+validation images.
 
 It joins the numbers the earlier lessons left behind, and like them it is a
 warning rather than an advertisement. A network is not better than a linear

@@ -49,8 +49,8 @@ passes when the clearance is small in magnitude — in *either* direction.
 
 Notice what this does to each part on its own. A barrel bored 8 µm wide is
 perfectly fine if it meets a cell ground 8 µm oversize, and scrap if it meets a
-nominal one. **Neither measurement means anything by itself**; only the pair
-does. The station also records six further numbers — ambient temperature,
+nominal one. **Neither measurement decides the verdict by itself**; only the
+pair does. The station also records six further numbers — ambient temperature,
 press force, cell mass, coating thickness, barrel length and bench humidity —
 because the line's quality system requires it. None of the six has any bearing
 on whether the fit is good, and they are generated here independently of
@@ -85,16 +85,17 @@ Before you fit anything, read the two descriptions above again and ask the
 question exercise 9 is built around: on which line does the verdict depend on
 the measurements **in combination**, so that no weighted sum of the columns
 could express it — and on which line is the verdict a weighted sum by
-construction? The handout's section 12 has the table; the answer is in these
-two paragraphs, not in the name of any model.
+construction? Handout section 5.5 makes the same comparison on lesson 9's own
+data; the answer here is in these two paragraphs, not in the name of any model.
 
 The ``TRUE_*`` constants below record exactly how each batch was built,
 including the 3 % of verdicts each station records as the opposite of the
-truth. That last one puts a **ceiling of 0.97 on both lines**, so read every
-accuracy in this exercise against 0.97 rather than against 1.000 — the same
+truth. That last one makes **0.97 the best expected accuracy on both lines**,
+so read every accuracy in this exercise against 0.97 rather than against 1.000 — the same
 convention lesson 9's own acceptance data uses.
 
-**Do not read past the loader functions until Part 4.**
+**Read only this docstring until Part 4: the constants just below give the
+rules away.**
 """
 
 import numpy as np
@@ -137,7 +138,7 @@ TRUE_OD_SIGMA_UM = 6.0
 #: is close to the 0.6745 that would split a normal population exactly in two.
 TRUE_CLEARANCE_TOL_UM = 5.7
 
-#: The two columns that decide the verdict. Neither is informative alone.
+#: The two columns that decide the verdict. Neither decides it alone.
 TRUE_FIT_FEATURES = ("barrel_bore_um", "cell_od_um")
 
 #: The six columns the quality system records and the rule ignores entirely.
