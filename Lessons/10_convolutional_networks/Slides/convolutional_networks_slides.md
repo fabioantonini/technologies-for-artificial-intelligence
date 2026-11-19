@@ -611,11 +611,11 @@ nearly zero. Nobody told it to. Handout sections 3.3 and 12.
 - Output sizes measured, then compared with the formula
 - Four kernels by hand, and the zero-sum one that works
 - Equivariance checked at four offsets, then pooling
-- **Or atoms 1-7**, in `Consolidation/`
+- **Or atoms 1-7**, in `Notebooks/atoms.ipynb`
 
 ::: notes
 Run `Notebooks/01_what_a_convolution_is.ipynb`. Twenty minutes. Or atoms
-1-7 of the lesson 10 atoms notebook, in the same time: one weighted sum by
+1-7 of the lesson 10 atoms notebook, Notebooks/atoms.ipynb, in the same time: one weighted sum by
 hand, the flip, output sizes, the zero sum, the sign, a threshold chosen on
 2,000 dies, and equivariance away from the border.
 
@@ -1069,11 +1069,11 @@ optimiser, or a correct assumption. Handout section 8.
 - Augmentation with the epoch budget equalised
 - The learning curve from 100 images to 8,000
 - The permutation test: hold your prediction
-- **Or atoms 8-13**, in `Consolidation/`
+- **Or atoms 8-13**, in `Notebooks/atoms.ipynb`
 
 ::: notes
 Run `Notebooks/02_convnets_on_wafers.ipynb`. Twenty-two minutes. Or atoms
-8-13 of the lesson 10 atoms notebook, in the same time: pooling across a
+8-13 of the lesson 10 atoms notebook, Notebooks/atoms.ipynb, in the same time: pooling across a
 window edge, the 8×8 receptive field, the parameter counts, the realised
 ceiling, the permutation as a relabelling, and augmentation per image. The
 atoms train nothing, so they run in seconds; the notebook's numbers are
@@ -1306,11 +1306,11 @@ does not. Handout section 10.3.
 - The transfer window, measured at five dataset sizes
 - Negative transfer, from a source chosen badly on purpose
 - Every family the course has met, on one problem
-- **Or atoms 14-15**, in `Consolidation/`
+- **Or atoms 14-15**, in `Notebooks/atoms.ipynb`
 
 ::: notes
 Run `Notebooks/03_transfer_and_synthesis.ipynb`. Eighteen minutes. Or atoms
-14-15 of the lesson 10 atoms notebook: what transfer copies, what is new and
+14-15 of the lesson 10 atoms notebook, Notebooks/atoms.ipynb: what transfer copies, what is new and
 what is frozen, and the four hand-made numbers per die.
 
 Two cells to protect. The five-size transfer sweep, because the window only

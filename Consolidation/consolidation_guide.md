@@ -1,5 +1,5 @@
 ---
-title: "Consolidation: lessons 1 to 7 and 10, one call at a time"
+title: "Consolidation: lessons 1 to 7, one call at a time"
 subtitle: "Technologies for Artificial Intelligence — self-study, and two hours in class"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
 date: "Not examinable"
@@ -61,7 +61,6 @@ than any number of predictions that came out right.
 | `05_lesson_5_atoms.ipynb` | cross-validation round by round, the five round models, the spread and the report line, stratified, repeated and grouped folds, training against validation error, `GridSearchCV`, nested cross-validation one round at a time, a fresh test set, the threshold sweep, seeds | 13 |
 | `06_lesson_6_atoms.ipynb` | one pump's five nearest and the vote, scaling first, training accuracy inside the folds, distances that stop varying, choosing columns, Naive Bayes's ten numbers and three ratios, the two log totals, uncorrelated but not independent, the interaction and its product, confidence, the margin in one dimension, slack and the weights, the kernel trick and the RBF similarity, one pump's vote by hand, γ and C | 15 |
 | `07_lesson_7_atoms.ipynb` | Gini by hand, the gain by counting, thresholds and midpoints, a tree on ten loans and one path, depth against a budget of leaves, the noise ceiling, five folds by hand, sampling with and without replacement, bagging and out-of-bag by hand, one column per split, importance and permutation by hand, boosting by hand | 14 |
-| `10_lesson_10_atoms.ipynb` | one weighted sum by hand and in Keras, cross-correlation and the flip, output sizes, the zero sum, the sign, a threshold from many dies, equivariance and the border, pooling across a window edge, the 8×8 receptive field, parameter counts, the realised ceiling, the permutation as a relabelling, augmentation per image, what transfer copies and freezes, four hand-made numbers | 15 |
 
 They run in the course container like every other notebook, each in a few seconds,
 with no network. Start with `00`: the others assume it.
@@ -233,32 +232,6 @@ part of notebook 1, atoms 8-11 part of notebook 2, and atoms 13-14 part of noteb
 | 13 | Permutation by hand: shuffling debt costs 0.206, a random column 0.003 | *Permutation importance: the procedure*; *claimed against measured* |
 | 14 | Boosting by hand, two trees: 2.287, 2.578, 2.781, equal to `GradientBoostingRegressor` | *Boosting, drawn: the first two steps*; *Building the ensemble, one tree at a time* |
 
-### 10 — lesson 10
-
-Lesson 10's atoms run on a 5×5 image, a 4×4 map and six dies where a pencil can follow
-them, and on the lesson's own 4,000 wafer dies where the slides' numbers come from. They
-build Keras layers and set their weights by hand, but train nothing, so the notebook runs
-in seconds. In class atoms 1-7 can replace notebook 1, atoms 8-13 notebook 2, and atoms
-14-15 part of notebook 3: the "Notebook N, live" slides name both.
-
-| # | Atom | Lesson source |
-|--|--------------------------|------------------------|
-| 1 | One window by hand, 2; `correlate2d` and Keras `Conv2D` give the same 3×3 map | *The convolution, in words*; *One weighted sum, at every position* |
-| 2 | Keras is `correlate2d`; `convolve2d` is its negative on an edge kernel, equal on `K` | *Strictly, this is cross-correlation* |
-| 3 | Six layers' `output_shape` against ⌊(H + 2p − f)/s⌋ + 1: 22, 24, 20, 24, 12, 11 | *How big is the output?*; *Two cases cover almost everything* |
-| 4 | Constant and ramp 0, a gentle curve 0.060, one dark pixel 2.720 | *A constant patch gives exactly zero* |
-| 5 | 3.129 at (8, 3) against 1.118; flipped, a corner with padding, 2.428 against 1.061 without | *Nine numbers, no training: 3.129 against 1.118* |
-| 6 | A threshold chosen on 2,000 dies, 1.88, scores 0.9765 on the other 2,000, their ceiling | *Nine numbers, no training*; lesson 5's held-out set |
-| 7 | Shift then convolve: 0.000 in columns 5-18, 1.725 at the border | *Shift the input, and the response shifts with it* |
-| 8 | `MaxPooling2D`: identical inside a window, moved across its edge; global 3.0 always | *Pooling: from where to whether*; *Three things pooling does* |
-| 9 | 64 input pixels, rows and columns 9-16: the 8×8 receptive field | *Three things pooling does* |
-| 10 | `get_weights()` shapes: 80, 1,168 (3×3×8×16), 289, 1,537; 147,712 | *80 parameters against 147,712*; *The count students get wrong: 1,168* |
-| 11 | 102 wrong of 4,000 (0.0255, 2.5 sd), 40 of 2,000 (0.0200); q(1 − e) + (1 − q)e | *The grading station is wrong 2% of the time*; *Head to head* |
-| 12 | Dense outputs identical after the same shuffle; the contrast map is not | *What is the convolution actually using?* |
-| 13 | 30 arrays from 6 photographs; 24 offsets per image against 4 per copy | *Augmentation buys 8 points and leaves it 44 short* |
-| 14 | `set_weights` copies `c1`, `c2`; the head is new; frozen, 289 of 1,537 trainable | *Start from someone else's weights*; *When transfer makes things worse* |
-| 15 | The four hand-made numbers: 3.129, −2.428, 0.560, 3.129 against 1.118, −1.061, 0.408, 1.118 | *Ten lessons on one problem* |
-
 ## Two hours in class
 
 A selection of thirteen atoms, run together from the projector. For each one: read the
@@ -328,12 +301,3 @@ is where to find it.
   score is the winner's mean over the folds, computed before the refit, and the refitted
   model is never scored. Atom 05·9 shows `best_score_` equal to the highest of the 25
   means, 0.7999, on data with no signal at all.
-- **"A kernel that sums to zero finds the scratch."** The zero sum is the property the
-  algebra proves, so it is natural to credit it with everything. It removes the
-  background; the sign of the centre weight decides what is reported. Atom 10·5 flips
-  every sign of a kernel that still sums to zero: with zero padding its strongest
-  response lands in a corner of the die, not on the scratch.
-- **"After a max pooling, a one-pixel shift changes nothing."** The maximum survives
-  every pooling step in lesson 10's figure, and the step to "always" is short. Atom 10·8
-  moves one response by one pixel twice: inside its 2×2 window the pooled output is
-  identical, across the window's edge it moves.
