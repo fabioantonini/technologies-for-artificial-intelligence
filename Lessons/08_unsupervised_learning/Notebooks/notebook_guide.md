@@ -125,3 +125,34 @@ its columns calls ordinary can still break how the columns move together, and th
 kept components then rebuild it badly: that catches 37 of 40. Squashed into a 2-D
 picture, the same accounts sit near the middle, so looking for points at the edge
 finds the wrong ones.
+
+---
+
+# The atoms — `atoms.ipynb`
+
+## Lesson 8, one call at a time
+
+**What it is for.** Each step of the lesson on its own, as a question to answer
+before running the cell: a few points where a pencil can follow it, or the lesson's
+own data where the slides' numbers come from. In class, atoms 1-7 can replace
+notebook 1, atoms 8-12 notebook 2, and atoms 13-16 notebook 3, in the same time.
+The whole notebook runs in a few seconds.
+
+| # | Atom | Lesson source |
+|--|--------------------------|------------------------|
+| 1 | Why standardise: spend makes 99.9963% of a raw squared distance, 49.3% after `StandardScaler` | *One centre per group* |
+| 2 | Six customers by hand: WCSS 220, 56.25, 16.6875, 2.6667, equal to `KMeans` from the same start | *Two moves, repeated*; *Six customers, by hand* |
+| 3 | The mean is the best centre: 1.3333 against 1.3633, 1.6033 and 2.0 | *Why it always stops* |
+| 4 | Two starts, 374.1 against 1,390.4; one start against `n_init=10` | *Same data, two starts*; *The remedy* |
+| 5 | The best WCSS only falls: 4000 = m x n at k = 1, down to 210.37 at k = 8 | *How many groups?* |
+| 6 | Silhouette of B by hand, 0.859; the slip with centres gives 0.912 | *The silhouette of one point*; *as a formula* |
+| 7 | ARI counts pairs: 0.9850 after renaming; agreement on 99.43% of 1,999,000 pairs | *Checking against the truth* |
+| 8 | k-means' border is one straight line: ARI −0.046, 180 bots with 780 humans | *Why k-means must fail here* |
+| 9 | Ward's merge heights: 0.671 = the A-B distance, then a jump to 7.193; −0.062 on the sessions | *A tree of merges*; *Eight points, five merges, one cut* |
+| 10 | Core, border, noise by counting: 4, 4, 4, equal to `core_sample_indices_` | *DBSCAN*; *Core, border and noise, drawn* |
+| 11 | The point counts itself; 65 not core, 52 of them border, 13 noise | *Choosing eps*; *The 13 noise sessions* |
+| 12 | Silhouette on the same 1,487 sessions: 0.402 against −0.106; 99.2% of the ring negative | *The silhouette prefers the wrong answer* |
+| 13 | The widest shadow three ways: 1.859 measured, as an eigenvalue, as a 0.9297 share | *The direction with the widest shadow*; *Why the peak is 1 + r* |
+| 14 | The scree, 93.5% in three; the first component mixes four columns | *How many components* |
+| 15 | Reconstruction by hand equals `inverse_transform`; 37 of 40 | *Rebuild each account from its shadow*; *37 of 40* |
+| 16 | Precision and recall at 1%, 2%, 5%; the edge of the 2-D picture catches 0 | *37 of 40*; *Why not just plot it and look?* |

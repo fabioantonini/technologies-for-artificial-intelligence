@@ -456,10 +456,12 @@ Handout section 2.6.
 | two starts, 14-15 | NumPy, then `KMeans` → 374.1 against 1,390.4 |
 | how many groups, 16-19 | `KMeans`, `silhouette_score` → 0.690 at k = 4 |
 | against the truth, 20-21 | `adjusted_rand_score` → 0.985 |
+| **or atoms 1-7** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 k-means by hand, on Aurora's customers. Run
-Notebooks/01_kmeans_by_hand.ipynb. 25 minutes.
+Notebooks/01_kmeans_by_hand.ipynb. 25 minutes. Or atoms 1-7 of the lesson 8
+atoms notebook, Notebooks/atoms.ipynb, in the same time.
 
 Before section 3.1 runs, have them predict where the two centres will end up
 from the start on A and B, and check after each round against the figure.
@@ -790,10 +792,12 @@ Handout section 3.8.
 | `eps`, 31-32 | `NearestNeighbors` → 65 sessions beyond 0.30 |
 | DBSCAN, 33-34 | `DBSCAN` → ARI 0.941, 13 noise |
 | silhouette, 35 | `silhouette_score`, `silhouette_samples` → 0.401 against −0.106 |
+| **or atoms 8-12** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 Merge trees and DBSCAN, on Aurora's sessions. Run
-Notebooks/02_merge_trees_and_dbscan.ipynb. 20 minutes.
+Notebooks/02_merge_trees_and_dbscan.ipynb. 20 minutes. Or atoms 8-12 of the
+lesson 8 atoms notebook, in the same time.
 
 Before section 3, have them predict, from the scatter alone, what k-means with
 k = 2 will do. Before section 5.2, have them predict whether DBSCAN will put
@@ -1105,10 +1109,12 @@ Handout section 5.4.
 | fraud, 44-47 | `PCA(n_components=1)`, `inverse_transform` → errors 0.01 and 3.75 |
 | 37 of 40, 48-49 | `PCA(n_components=3)` → 37 of 40; 32 to 38 over 8 batches |
 | 2-D pictures, 50-51 | `PCA(n_components=2)`, `TSNE` → 1.30 against 2.20 |
+| **or atoms 13-16** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 PCA and anomalies, on Aurora's account table. Run
-Notebooks/03_pca_and_anomalies.ipynb. 20 minutes.
+Notebooks/03_pca_and_anomalies.ipynb. 20 minutes. Or atoms 13-16 of the
+lesson 8 atoms notebook, in the same time.
 
 Before section 3 prints, have them guess the angle with the widest shadow from
 the scatter alone. Before section 7, have them predict where the red points
