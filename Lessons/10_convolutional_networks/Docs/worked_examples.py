@@ -145,7 +145,7 @@ for n, f, p, s, expected in ((24, 3, 0, 1, 22), (24, 3, 1, 1, 24),
                              (24, 3, 1, 2, 12)):
     formula = (n + 2 * p - f) // s + 1
     measured = convolve(np.zeros((n, n)), np.zeros((f, f)), p, s).shape[0]
-    check(f"n={n} f={f} p={p} s={s}: formula", float(formula), expected, 0)
+    check(f"H={n} f={f} p={p} s={s}: formula", float(formula), expected, 0)
     check(f"  the same, measured", float(measured), expected, 0)
 
 # Section 3.2 now derives the formula by counting window starts rather than
@@ -154,7 +154,7 @@ for n, f, p, s, expected in ((24, 3, 0, 1, 22), (24, 3, 1, 1, 24),
 for n, f, p, s in ((24, 3, 0, 1), (24, 5, 2, 1), (24, 3, 1, 2),
                    (17, 4, 1, 3), (31, 7, 2, 5)):
     starts = [r for r in range(0, n + 2 * p, s) if r + f - 1 <= n + 2 * p - 1]
-    check(f"n={n} f={f} p={p} s={s}: the last legal start is n+2p-f",
+    check(f"H={n} f={f} p={p} s={s}: the last legal start is H+2p-f",
           float(starts[-1] <= n + 2 * p - f), 1.0, 0)
     check("  and counting the starts gives the formula",
           float(len(starts)), float((n + 2 * p - f) // s + 1), 0)
@@ -232,6 +232,21 @@ check("strongest response on a defective die",
       float(convolve(defective, contrast, padding=1).max()), 3.129, 5e-4)
 check("strongest response on a clean die",
       float(convolve(clean, contrast, padding=1).max()), 1.118, 5e-4)
+
+# The sign matters as much as the sum: the same kernel negated (+8 centre)
+# still sums to zero but looks for bright spots. Without padding it finds the
+# scratch's brighter rim; with zero padding its peak is a corner. Recomputed
+# with scipy as a second route.
+bright = -contrast
+check("signs flipped, no padding: strongest response, defective die",
+      float(correlate2d(defective, bright, mode="valid").max()), 2.428, 5e-4)
+check("signs flipped, no padding: strongest response, clean die",
+      float(correlate2d(clean, bright, mode="valid").max()), 1.061, 5e-4)
+for die in (defective, clean):
+    padded = correlate2d(np.pad(die, 1), bright, mode="valid")
+    r, c = np.unravel_index(padded.argmax(), padded.shape)
+    check("signs flipped, zero padding: the peak is in a corner",
+          float(r in (0, 23) and c in (0, 23)), 1.0, 0)
 
 
 # =====================================================================

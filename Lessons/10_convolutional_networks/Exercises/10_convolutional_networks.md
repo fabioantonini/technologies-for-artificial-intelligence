@@ -45,12 +45,16 @@ photograph.**
 
 Both return `(X, y, truth)`. `X` is the photographs, `y` is the **recorded**
 grade — the only labels a model may ever see — and `truth` is the noise-free
-grade, which exists for Part 4 and for nothing else. **Never fit on `truth`,
-never select on it, and never score against it before Part 4.**
+grade. Before Part 4, use `truth` only for the one count Part 1, question 1
+asks for. **Never fit on `truth`, never select on it, and never score against
+it before Part 4.**
 
-The two batches are matched on purpose: same size, same image, same base rate,
-same 3% grading error, the same blemish drawn by the same code. The only thing
-that differs is what the station is asking.
+The two batches are matched on purpose: the same image size and number of
+images, the same background generator, roughly the same base rate, the same
+designed 3% grading error, the same blemish drawn by the same code. They are
+not the same photographs: each loader draws its own batch, and at station 2
+every window carries a blemish. What differs by design is what the station is
+asking.
 
 ---
 
@@ -59,7 +63,9 @@ that differs is what the station is asking.
 1. Load both batches. Report, for each: the number of images, the reject rate,
    the majority-class baseline, and — using `truth` **only for this one
    count** — the fraction of grades the bench recorded wrongly, and therefore
-   the ceiling on that batch. (4 marks)
+   the ceiling on that batch. The designed rate is 3% at both stations; the
+   realised fraction is not the same in the two batches, and is what you
+   report. (4 marks)
 
 2. Look at the data without fitting any model. At minimum, display a handful
    of accepted and rejected windows from **each** station side by side. Say in
@@ -171,7 +177,9 @@ Now, and not before, read past the `PART 4 STARTS HERE` banner in the module.
    build a station-2 classifier that has **no parameters and needs no
    training**: locate the brightest local-contrast response in each photograph,
    look up that position in the mask, and grade accordingly. The contrast
-   kernel of handout section 3.3 is the tool. Report its accuracy against the
+   kernel of handout section 3.3 is the tool — with its signs flipped, +8 at the
+   centre and −1 around it, because a blemish is *brighter* than its
+   surroundings and the wafer scratch was darker. Report its accuracy against the
    recorded grade and against `truth`, and compare both with your best trained
    model.
 
@@ -187,14 +195,18 @@ Now, and not before, read past the `PART 4 STARTS HERE` banner in the module.
 9. Check the ceiling identity of handout section 5.1 on your best model at each
    station. If a model agrees with the true grade on a fraction $q$ and the
    bench records the wrong grade with probability $e = 0.03$, its accuracy
-   against the recorded grade should be $q(1-e) + (1-q)e$. Report predicted
+   against the recorded grade should be $q(1-e) + (1-q)e$. The realised
+   fraction of your test batch is the sharper estimate of $e$; say which you
+   used. Report predicted
    and observed, per station. Then answer in one sentence: at the station where
    your best model scores lowest, how much of the shortfall belongs to the
    model and how much to the bench? (7 marks)
 
 **What is being marked:** question 8, which is the whole lesson in one
-construction — a rule you can write down beat everything you trained, because
-it encodes the right assumption exactly rather than approximately.
+construction — a rule you can write down, which encodes the station's
+position rule exactly rather than approximately. In the reference solution it
+beat every trained model; whether it beats yours is for you to measure, and
+its errors in locating the blemish count against it.
 
 ---
 

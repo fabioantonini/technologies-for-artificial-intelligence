@@ -43,8 +43,10 @@ TRUE_IMAGE_SIZE = 24                 #: images are 24 x 24, single channel
 TRUE_N_IMAGES = 4000                 #: dies in the main batch
 TRUE_DEFECT_RATE = 0.5               #: half of them carry a defect
 
-#: The grader mislabels this fraction of dies, so 0.98 is the best accuracy
-#: anything in this lesson can reach against the recorded labels.
+#: The grader mislabels each die with this probability, so 0.98 is the
+#: expected accuracy of a model that predicts the true grade perfectly. A
+#: finite batch realises its own error fraction (4,000 dies drew 2.55 %), so
+#: every score is read against the ceiling realised on the set it is scored on.
 TRUE_GRADER_ERROR_RATE = 0.02
 TRUE_BAYES_ACCURACY = 1.0 - TRUE_GRADER_ERROR_RATE
 

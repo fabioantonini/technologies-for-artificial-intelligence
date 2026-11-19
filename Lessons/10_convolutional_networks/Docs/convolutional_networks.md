@@ -12,13 +12,13 @@ date: "18 December 2026 · reading time about 100 minutes"
 | 0:00–0:10 | 10 | Exercise 9 discussed; the promise lesson 9 left open | Slides 2–7 |
 | 0:10–0:28 | 18 | Meridian's wafers; why a dense layer is the wrong shape | Slides 8–16 |
 | 0:28–0:45 | 17 | The convolution: definition, output size, kernels by hand | Slides 17–26 |
-| 0:45–1:05 | 20 | **Notebook 01** — convolution from scratch | Slide 27 |
+| 0:45–1:05 | 20 | **Notebook 01**, or atoms 1–7 — convolution from scratch | Slide 27 |
 | 1:05–1:17 | 12 | **Break** | Slide 28 |
 | 1:17–1:35 | 18 | Equivariance, pooling, and the architecture | Slides 29–37 |
 | 1:35–1:50 | 15 | A defect where none has been seen; augmentation | Slides 38–45 |
-| 1:50–2:12 | 22 | **Notebook 02** — convolutional networks on wafers | Slide 46 |
+| 1:50–2:12 | 22 | **Notebook 02**, or atoms 8–13 — convolutional networks on wafers | Slide 46 |
 | 2:12–2:25 | 13 | Transfer learning, and when it makes things worse | Slides 47–54 |
-| 2:25–2:43 | 18 | **Notebook 03** — transfer and synthesis | Slide 55 |
+| 2:25–2:43 | 18 | **Notebook 03**, or atoms 14–15 — transfer and synthesis | Slide 55 |
 | 2:43–2:57 | 14 | Ten lessons on one problem; where the field goes | Slides 56–63 |
 | 2:57–3:00 | 3 | Homework, and the close | Slides 64–65 |
 | | **180** | **Total** | **65 slides, 3 notebooks** |
@@ -108,7 +108,7 @@ Second, and this is the whole idea: the saving comes from using *the same*
 nine weights at every position. That is **weight sharing**, and what it buys
 is not memory but **evidence**. One example of a scratch anywhere on any die
 teaches the detector about scratches everywhere. The dense layer has to be
-taught position by position, and section 9 measures what that costs in data.
+taught position by position, and section 8 measures what that costs in data.
 
 ---
 
@@ -127,30 +127,39 @@ first. Every deep learning library computes the expression above and calls it
 convolution, and because the kernel is learned rather than given, the flip
 changes nothing that matters. This course follows the library.
 
+The flip does matter for a kernel **written down by hand**. A 180-degree
+rotation leaves the local average and the centre-surround kernel of
+section 3.3 unchanged, because they are symmetric, but it reverses the sign of
+the two edge detectors: a kernel that reported "bright on the left" reports
+"bright on the right".
+
 Notebook 01 implements it in eleven lines and checks it against `scipy`, which
 is an independent implementation by other people: the largest disagreement is
 $8.9 \times 10^{-16}$, which is floating-point rounding and not an error.
 
 ### 3.2 How big is the output?
 
-With an $n \times n$ input, an $f \times f$ kernel, padding $p$ and stride $s$:
+With an $H \times H$ input, an $f \times f$ kernel, padding $p$ and stride $s$:
 
-$$\text{output size} = \left\lfloor \frac{n + 2p - f}{s} \right\rfloor + 1$$
+$$\text{output size} = \left\lfloor \frac{H + 2p - f}{s} \right\rfloor + 1$$
+
+$H$ is the image's side in pixels, not the number of features: the course
+keeps $n$ for that, and here $n = H^2 = 576$.
 
 **It is worth counting rather than memorising**, because every part of the
 expression is one step of the count. Padding adds $p$ pixels at each end, so a
-row is $n + 2p$ pixels long. A window placed at position $r$ covers pixels $r$
-through $r + f - 1$, so it fits only while $r + f - 1 \leq n + 2p - 1$: the
-**last legal start is $n + 2p - f$**. Starting at $0$ and stepping by $s$, the
+row is $H + 2p$ pixels long. A window placed at position $r$ covers pixels $r$
+through $r + f - 1$, so it fits only while $r + f - 1 \leq H + 2p - 1$: the
+**last legal start is $H + 2p - f$**. Starting at $0$ and stepping by $s$, the
 starts are $0, s, 2s, \dots$, and the number of them that do not pass that last
-one is $\lfloor (n + 2p - f)/s \rfloor$ — plus one, because the count includes
+one is $\lfloor (H + 2p - f)/s \rfloor$ — plus one, because the count includes
 the start at zero.
 
 So the $+1$ is the window at position zero, and the floor is doing real work:
 when the stride does not divide the available positions evenly, the last
 incomplete window is simply not taken.
 
-**Worked, on this lesson's images.** With $n = 24$:
+**Worked, on this lesson's images.** With $H = 24$:
 
 | $f$ | $p$ | $s$ | formula | measured |
 |---|---|---|---|---|
@@ -180,7 +189,7 @@ last one isolates the scratch.*
 
 The last kernel is
 
-$$K = \begin{pmatrix} -1 & -1 & -1 \\ -1 & 8 & -1 \\ -1 & -1 & -1 \end{pmatrix}$$
+$$K = \begin{pmatrix} 1 & 1 & 1 \\ 1 & -8 & 1 \\ 1 & 1 & 1 \end{pmatrix}$$
 
 and its weights sum to zero. That is not decoration. If a patch is **constant**
 with value $v$, the response is
@@ -188,13 +197,38 @@ with value $v$, the response is
 $$\sum_{i,j} v \cdot K[i,j] = v \sum_{i,j} K[i,j] = v \cdot 0 = 0$$
 
 whatever $v$ is. A zero-sum kernel is therefore **blind to absolute
-brightness** and responds only to local contrast — which is exactly what
-section 1.1 said this problem requires, since the film thickness varies across
-every die.
+brightness**: it cancels a constant offset exactly. A background that varies
+slowly, like the film thickness of section 1.1, is not constant but is nearly
+so over nine pixels, so it is **suppressed** rather than cancelled, and what
+remains is mostly local contrast — which is what this problem requires.
+
+The zero sum is not the whole story: the **sign** decides which contrast the
+kernel reports. With $-8$ at the centre and $+1$ around it, the response is
+large and positive where the centre is *darker* than its neighbours, which is
+a scratch. Flip every sign — $+8$ at the centre, $-1$ around it — and the
+kernel still sums to zero, but it now reports *bright* spots, the particles
+of sections 9 and 10.
 
 Measured in notebook 01: the strongest response on a defective die is
 **3.129**, against **1.118** on a clean one. Nine numbers, no training, and the
 hardest part of the problem is handled.
+
+Flip every sign and the kernel looks for bright spots instead. Away from the
+border it still tells these two dies apart, 2.428 against 1.061, because the
+pixels beside a dark scratch are brighter than their neighbourhood: it is
+reporting the scratch's rim, not the scratch, and less strongly than the 3.129
+the right sign gives. With zero padding it does worse. The border of a die
+against the padding's zeros looks like a bright spot, and on both dies the
+flipped kernel's strongest response lands in a corner — the trap exercise 10
+names.
+
+**The predictable mistake** is to think the zero sum is what finds the
+scratch, since the sum is the property the algebra above proves. It is what
+removes the background; the sign of the centre weight is what picks dark over
+bright. And two dies are a demonstration, not a validated detector: a
+threshold between 1.118 and 3.129 is only trustworthy after the responses of
+many clean and defective dies have been measured, which is what section 12
+does with four numbers computed from this kernel.
 
 Notebook 02 comes back to this. Of the eight 3×3 kernels the first layer
 *learned*, seven sum to less than 0.6 in absolute value, against a scale of
@@ -257,8 +291,10 @@ every stage — which is the point of taking a maximum.*
 
 Pooling does three things, and they are worth separating:
 
-1. **It converts equivariance into invariance.** Move the defect a pixel and
-   after pooling the output is often literally identical.
+1. **It turns equivariance into approximate invariance.** Move the defect a
+   pixel and after pooling the output is often literally identical — often,
+   not always: a 2×2 window has fixed edges, and a shift can carry the
+   strongest response across one of them into the neighbouring window.
 2. **It enlarges the receptive field.** After a 2×2 pooling each cell summarises
    two pixels in each direction, so a 3×3 kernel in the next layer spans 6×6 of
    the map before pooling — and, with this lesson's first 3×3 layer beneath it,
@@ -271,7 +307,14 @@ Pooling does three things, and they are worth separating:
 **Global** max pooling, used in this lesson's architecture, takes the maximum
 over the whole map: one number per kernel, saying whether that kernel ever
 fired strongly anywhere on the die. That single design choice is what makes
-the network's answer independent of position, and section 7 is what it buys.
+the network's answer nearly independent of position — nearly, because the
+zero padding at the border and the strided pooling before it still treat
+some positions slightly differently — and section 6 is what it buys.
+
+The predictable mistake here is to take "often identical" for "always
+identical" after one 2×2 pooling. Students see the maximum survive four
+sizes in the figure and generalise; the figure shows one map, pooled, not a
+map shifted by one pixel across a window edge.
 
 ---
 
@@ -310,7 +353,8 @@ parameters. The architecture is the same idea at a different scale.)
 
 ### 5.1 Head to head
 
-Trained on 3,000 images, tested on 2,000, ceiling 0.9800:
+Trained on 3,000 images, tested on 2,000, ceiling 0.9800; mean and standard
+deviation over two network initialisations (notebook 02):
 
 | network | accuracy | sd over seeds | parameters |
 |---|---|---|---|
@@ -329,6 +373,10 @@ Now the number that matters more than the accuracy:
 | the recorded grade | 0.9800 |
 | **the true grade** | **1.0000** |
 | recorded vs true | 0.9800 |
+
+Two initialisations are a first consistency check, not a measure of training
+variability: a standard deviation of 0.0000 says the two runs agreed, not that
+a third would.
 
 **The convolutional network is right about every single die.** Its 0.98 is not
 a modelling shortfall at all — it is the grading station's error rate, in full,
@@ -352,7 +400,11 @@ Everything so far is an argument. This is the measurement.
 
 Defects are confined to a **band of rows**: the top of the die for training,
 the bottom for one of the two test sets. Nothing else changes — same
-generator, same defect, same contrast, same number of images. The model is
+generator, same defect, same contrast, same number of images. The bands
+constrain the defect's **centre** (rows 5–11 against 13–19); a scratch
+reaches about three pixels either side of its centre, so a few scratch pixels
+of the two bands can share rows. The test images are new draws from the
+generator, not the training images moved. The model is
 then asked about a position where it has never seen a defect.
 
 | network | defect in the trained band | defect moved to the other half | cost |
@@ -428,10 +480,15 @@ itself, because both are easy to get wrong in a way that flatters the
 conclusion you were hoping for.
 
 **Both arms got the same number of epochs.** An augmented set is five times
-larger, so giving both the same wall-clock budget would have quietly handed the
-augmented one five times fewer passes over each image. An earlier version of
-this experiment did exactly that and reported a gain of 1.6 points; equalising
-the epochs turned it into 8.1.
+larger, so giving both the same number of gradient steps would have quietly
+handed the augmented one five times fewer passes over each image. Equal
+epochs has its own price, and it should be said: the augmented arm takes five
+times as many gradient steps and five times the compute, so part of its gain
+may be extra optimisation rather than extra positions.
+
+**The 15,000 augmented images are not 15,000 photographs.** Each is a shifted
+copy of one of 3,000 originals, so the copies are correlated with their
+sources: useful, but worth less than as many new dies.
 
 **The shifts are drawn per image, not per batch.** One offset applied to a
 whole copy adds four more fixed positions — four more special cases, not
@@ -513,9 +570,12 @@ nothing more.
 **On "is there a defect?", the convolution does not notice either.** That looks
 wrong until you ask what the task actually requires. To grade a die you must
 answer "is there a patch of unusual local contrast *somewhere*", and a
-scattered permutation still leaves those pixels somewhere, still extreme. The
-convolution is winning this task on **weight sharing alone**. It never needed
-the arrangement.
+scattered permutation still leaves those pixels somewhere, still extreme. On
+this dataset, then, the original arrangement made no measurable difference to
+detection. That is **consistent with** weight sharing and position-independent
+pixel contrasts being enough; it does not by itself isolate their
+contribution, because a convolution on permuted images still reads small
+windows and can still react to an isolated extreme pixel.
 
 **On "which defect is it?", it notices** — 4.5 points. Telling a scratch from
 a particle is a question about *shape*, a line against a blob, and shape is
@@ -526,9 +586,14 @@ what the permutation destroys.
 | **weight sharing** | a pattern means the same thing wherever it appears | both |
 | **locality** | nearby pixels belong together | only the typing task |
 
-The usual one-line justification is true but blurred. On this data most of the
-advantage came from the first assumption, and only naming the type required
-the second. When you reach for a convolution, it is worth knowing which of the
+The usual one-line justification is true but blurred. On this data the
+arrangement was needed only for naming the type; for detection, what survived
+the permutation was enough.
+
+The predictable mistake in copying this experiment is to shuffle only the
+test images of a model trained on photographs. That measures a distribution
+shift, not the value of locality. The test here applies one fixed
+permutation to training and test images alike, and retrains. When you reach for a convolution, it is worth knowing which of the
 two you are actually buying — because if it is only weight sharing, other
 architectures supply that too.
 
@@ -564,9 +629,15 @@ pass/fail on scratches alone teaches *one* detector. Naming the type forces the
 early layers to describe local structure in general, dark lines and bright
 blobs both, and those are the features worth carrying.
 
-The pre-training task reaches 0.9993. That number is not a result; it is a
-receipt showing the source task was learned, which is the precondition for its
-features being worth anything.
+The pre-training task reaches 0.9993 on its own 6,000 training images
+(notebook 03). That number is not a result, and not a test score either; it is
+a receipt showing the source examples were fitted, which is the precondition
+for its features being worth anything. Whether they transfer is measured
+separately, on the new defect, in section 10.2.
+
+Only the two convolutional layers are carried over. The dense head is new,
+initialised from scratch and trained on the new task: what transfers is the
+feature extractor, not the old classifier.
 
 ### 10.2 A window, not a slope
 
@@ -582,6 +653,9 @@ features being worth anything.
 
 *Look at the gap between the blue line and the red one, not at either line alone. It is zero at 25 images, widest at 200, and has closed and reversed by 400 — the shape of a window, not of a slope. The dashed line is the frozen base, which never competes until the very end.*
 
+Each cell is the mean of two initialisations, at five training sizes, so the
+shape is a measurement on this source and this target, not a law.
+
 The received wisdom is that transfer helps most when data is scarcest. **These
 numbers do not say that**, and the shape they do describe is more useful:
 
@@ -593,8 +667,10 @@ numbers do not say that**, and the shape they do describe is more useful:
   enough of the new defect to learn its own features, and the borrowed ones are
   a constraint rather than a head start.
 
-Transfer occupies a **window**: too little data and it has nothing to attach
-to, too much and it has nothing to add.
+In this experiment transfer occupies a **window**: too little data and it has
+nothing to attach to, too much and it has nothing to add. Where the window
+sits depends on the source task, the training procedure and the target data;
+the lesson to carry is that it has edges, and that they have to be measured.
 
 ### 10.3 When transfer makes things worse
 
@@ -626,8 +702,10 @@ So the rule is neither "always pre-train" nor "freeze the base":
   features generalise.
 - **Freezing is a bet that the borrowed features are already right.** It is
   cheap, and safe only when source and target are close. When in doubt, warm
-  start and leave everything trainable: that recovers from a bad source, and a
-  frozen base cannot.
+  start and leave everything trainable. A frozen base cannot move away from a
+  bad source; a trainable one at least can, although this experiment did not
+  test whether an unfrozen model started from the scratch-only source
+  actually does.
 
 ---
 
@@ -671,6 +749,11 @@ written down by hand in notebook 01 before anything was trained.
 
 *Ceiling 0.9800. The blue line is the convolutional network on raw pixels.*
 
+Every number in this table, like those of sections 5 to 10, comes from the
+same evaluation set used again and again: these are exploratory comparisons.
+A final performance claim would choose the model on training and validation
+data and touch an untouched test set once, as lesson 5 required.
+
 This table was written expecting to show that classical methods cannot handle
 images. **It shows no such thing**, and the honest reading is more interesting
 than the one it was meant to produce.
@@ -689,9 +772,10 @@ dimensionality, exactly. And **lesson 9's dense network, at 0.7430, sits behind
 plain logistic regression.** Flexibility without a matching assumption is not
 an advantage; it is a larger space to search for the same answer.
 
-**Four hand-written numbers put every classical family at the ceiling.** The
-convolutional network, given only raw pixels, found an equivalent feature by
-itself.
+**Four hand-written numbers bring every classical family to within 0.0005 of
+the ceiling**: three reach 0.9800 exactly and the forest 0.9795, one die in
+2,000 short. The convolutional network, given only raw pixels, found an
+equivalent feature by itself.
 
 That is the summary of the ten weeks, and it is about representations rather
 than models:
@@ -702,7 +786,7 @@ than models:
 > privilege. Neither is a default.
 
 Which is why lesson 9 found a hidden layer worth 39 points on one problem and
-0.09 on another; why this lesson's convolution is worth 24 points over a dense
+2.8 on another; why this lesson's convolution is worth 24 points over a dense
 network here; and why a random forest given nothing but raw pixels came within
 two thousandths of it.
 
@@ -755,11 +839,11 @@ build one of these systems from being able to say whether it is any good.
 - Permuting the pixels costs the convolution **nothing** on detection and 4.5
   points on typing: weight sharing and locality are two assumptions, and only
   the second concerns arrangement.
-- Transfer occupies a **window** — nothing at 25 images, +17 points at 200,
-  negative by 400 — and freezing a base is a bet that the borrowed features
+- In this experiment transfer occupies a **window** — nothing at 25 images,
+  +17 points at 200, negative by 400 — and freezing a base is a bet that the borrowed features
   are already right.
-- On raw pixels a random forest matched the convolutional network and a dense
-  network lost to logistic regression. **The representation is doing most of
+- On raw pixels a random forest came within 0.002 of the convolutional network
+  and a dense network lost to logistic regression. **The representation is doing most of
   the work; the only question is who builds it.**
 
 ### Homework
@@ -775,7 +859,7 @@ you will have had least practice defending; write the reasoning down as you go.
 |---|---|
 | $I$, $K$ | the input image and a kernel |
 | $I * K$ | the convolution (strictly, cross-correlation) of the two |
-| $n$, $f$ | input size and kernel size, per spatial dimension |
+| $H$, $f$ | input size and kernel size, per spatial dimension ($n = H^2$ stays the number of features) |
 | $p$, $s$ | padding and stride |
 | $q$, $e$ | a model's agreement with the truth; the station's error rate |
 | $\hat{y}$, $y$ | prediction, target |

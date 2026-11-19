@@ -17,11 +17,14 @@ so that almost nothing differs between them:
 images in the batch                   3,000           3,000
 image size                       24 x 24 px      24 x 24 px
 reject rate                          ~0.50           ~0.50
-grades recorded wrongly                 3 %             3 %
+grades recorded wrongly,
+by design                               3 %             3 %
 ===========================  ==============  ==============
 
-Same size, same images-per-batch, same picture, same base rate, same label
-noise, the same blemish drawn by the same code. The one thing that is *not*
+Same image size, same images-per-batch, same background generator, roughly
+the same base rate, the same designed label noise, the same blemish drawn by
+the same code. The photographs themselves are different draws, and at
+station 2 every window carries a blemish. The one thing that is *not*
 the same is **what the station is asking about the blemish**, and that is the
 whole exercise.
 
@@ -111,10 +114,13 @@ and a plot of the average blemished image from each batch will show it to you
 in about a minute.
 
 The ``TRUE_*`` constants below record exactly how each batch was built,
-including the 3 % of grades each station records as the opposite of the truth.
-That puts a **ceiling of 0.97 on both stations**. Note that this is *not* the
-0.98 of the lesson-10 handout: the wafer grader ran at 2 %, these two benches
-run at 3 %, and every accuracy in this exercise is to be read against 0.97.
+including the 3 % of grades each station is designed to record as the
+opposite of the truth. That puts a **designed ceiling of 0.97 on both
+stations**. Note that this is *not* the 0.98 of the lesson-10 handout: the
+wafer grader ran at 2 %, these two benches run at 3 %. A finite batch does not
+draw exactly 3 %, so the ceiling each batch actually has is its own realised
+fraction, which Part 1 asks you to measure — and every accuracy in this
+exercise is read against the ceiling of the set it was measured on.
 
 **Do not read past the loader functions until Part 4.**
 """
@@ -129,9 +135,9 @@ TRUE_IMAGE_SIZE = 24                 #: patches are 24 x 24, single channel
 TRUE_N_IMAGES = 3000                 #: windows in each batch
 TRUE_BLEMISH_RATE = 0.5              #: station 1 only: half the windows are blemished
 
-#: Fraction of grades each station records as the opposite of the truth.
-#: Identical on both stations, so it cannot explain any difference between
-#: them. NOTE this is 3 %, not the wafer grader's 2 % from the handout.
+#: Probability that a station records a grade as the opposite of the truth.
+#: The same design on both stations, so it cannot explain any difference
+#: between them; each batch realises its own fraction around it. NOTE this is 3 %, not the wafer grader's 2 % from the handout.
 TRUE_GRADER_ERROR_RATE = 0.03
 
 #: The best accuracy any classifier can reach against the *recorded* grades,

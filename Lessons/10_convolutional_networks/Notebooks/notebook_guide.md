@@ -40,14 +40,16 @@ notebook shows is **2.5 standard deviations high — a draw, not a bug**).
    **Eighty against a hundred and forty-seven thousand** — and the convolutional layer
    produces *more* numbers, not fewer. The saving is weight sharing, not size.
 3. **The operation in eleven lines**, matched against scipy to **8.9 × 10⁻¹⁶**.
-4. **The output-size formula**, $\lfloor (n + 2p - f)/s \rfloor + 1$, checked against
+4. **The output-size formula**, $\lfloor (H + 2p - f)/s \rfloor + 1$, with $H$ the image's side, checked against
    the measured shapes in six configurations — all `True`.
 5. **Kernels chosen by hand.** A 3×3 array of nine numbers expressing "darker than its
-   surroundings": strongest response **3.129** on a defective die against **1.118** on
-   a clean one.
+   surroundings" (−8 at the centre, +1 around it): strongest response **3.129** on a
+   defective die against **1.118** on a clean one. Flip the signs and the sum is still
+   zero, but the kernel looks for bright spots: the scratch's rim, 2.428 against 1.061
+   away from the border, and with zero padding a corner of the image.
 6. **The property the whole idea rests on.** A kernel whose weights **sum to zero**
-   returns exactly zero on any constant patch, so it ignores smooth background
-   variation. And **equivariance**, verified: convolve-then-shift equals
+   returns exactly zero on any constant patch, so it suppresses a smooth background
+   (nearly constant over nine pixels) without cancelling it exactly. And **equivariance**, verified: convolve-then-shift equals
    shift-then-convolve to **0.00e+00** for every shift tried.
 7. **Pooling: from "where" to "whether".** The strongest response survives every
    pooling step — **3.129, 3.129, 3.129, 3.129** — and what is discarded is the
@@ -59,7 +61,7 @@ anywhere on the die. A dense layer of 256 units needs 147,712 parameters and lea
 each position separately; eight 3×3 kernels need 80 and share them across every
 position. We implement convolution in eleven lines and match scipy to fifteen decimal
 places. Two properties make it work: a kernel summing to zero ignores flat brightness
-entirely, and convolution is equivariant to translation — shifting then convolving is
+exactly and smooth brightness nearly, and convolution is equivariant to translation — shifting then convolving is
 exactly the same operation as convolving then shifting, to zero. Pooling then throws
 away where the response was and keeps whether it happened.*
 
@@ -170,7 +172,7 @@ photographs. The previous notebook needed hundreds. This one asks what can be bo
    | dense network (L9) | 0.7430 | — (213,761 parameters) |
    | convolutional network (L10) | **0.9800** | — (1,537 parameters) |
 
-   **Four well-chosen numbers put every classical method on the ceiling**, and the
+   **Four well-chosen numbers put every classical method on the ceiling or one die short of it**, and the
    convolutional network gets there from the raw pixels with 1,537 parameters. That
    contrast is the closing argument of the course: representation is not a detail that
    precedes the model, it *is* most of the model.
@@ -182,6 +184,6 @@ at 100, and negative at 400, where the borrowed weights start to constrain rathe
 help. A badly chosen source, trained only on dark scratches, stays at chance on a faint
 defect. Then the synthesis: run every family from the whole course on the raw pixels
 and on four hand-made features. On raw pixels k-NN is at chance and logistic regression
-at 0.89; on four good numbers every classical method sits exactly on the ceiling. The
+at 0.89; on four good numbers every classical method sits on the ceiling, the forest one die short. The
 convolutional network gets to the same place from the raw pixels with 1,537 parameters
 — which is what the whole course has been about.*

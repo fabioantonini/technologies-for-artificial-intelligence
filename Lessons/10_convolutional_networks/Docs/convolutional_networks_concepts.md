@@ -27,7 +27,8 @@ everywhere. → § 2
 
 **Convolution.** At each position, the weighted sum of the pixels the kernel covers.
 Strictly this is cross-correlation; since the kernel is learned, the distinction
-changes nothing that matters. → § 3.1
+changes nothing that matters — except for a kernel written by hand that is not
+symmetric, such as an edge detector. → § 3.1
 
 **Feature map.** The array of responses a single kernel produces over the whole
 image. → § 3.1
@@ -36,7 +37,7 @@ image. → § 3.1
 kernel jumps. A three-by-three kernel with one pixel of padding leaves the size
 unchanged; a stride of two halves it. → § 3.2
 
-**Counting the output size.** The last window can start at $n + 2p - f$; step by $s$
+**Counting the output size.** On an image of side $H$, the last window can start at $H + 2p - f$; step by $s$
 from zero and count the starts, the $+1$ being the window at zero. → § 3.2
 
 **Kernel depth.** Always equal to the input's channel count — only the two spatial
@@ -44,7 +45,9 @@ dimensions are yours to choose, which is where parameter counts usually go wrong
 → § 5
 
 **Zero-sum kernel.** One whose weights add to zero, and which is therefore blind to
-absolute brightness and responds only to local contrast. → § 3.3
+absolute brightness: a constant offset cancels exactly and a slowly varying
+background is suppressed, leaving mostly local contrast. The sign of the centre
+weight decides whether it reports dark or bright spots. → § 3.3
 
 
 ## What makes it work
@@ -52,18 +55,18 @@ absolute brightness and responds only to local contrast. → § 3.3
 **Equivariance to translation.** Shift the input and the output shifts by the same
 amount: the response does not change, it moves. → § 4.1
 
-**Invariance.** What pooling turns equivariance into: one number saying whether a
+**Invariance.** What pooling turns equivariance into, approximately: one number saying whether a
 strong response occurred anywhere, with the position discarded. → § 4.2
 
-**Max pooling.** Take the maximum over a window. It converts equivariance into
-invariance, enlarges the receptive field, and discards spatial precision — a cost
+**Max pooling.** Take the maximum over a window. It turns equivariance into
+approximate invariance, enlarges the receptive field, and discards spatial precision — a cost
 whenever *where* is part of the answer. → § 4.2
 
 **Receptive field.** How much of the original image one unit deep in the network can
 see. Pooling grows it without adding weights. → § 4.2
 
 **Global pooling.** The maximum over the whole feature map: one number per kernel,
-which is what makes the answer independent of position. → § 4.2
+which is what makes the answer nearly independent of position. → § 4.2
 
 **Inductive bias.** An assumption built into the architecture rather than learned. A
 convolutional layer is a *restricted* dense layer — strictly less expressive — and
@@ -95,12 +98,12 @@ inductive bias shows up here more starkly than in any single score. → § 8
 ## Which assumption is actually doing the work
 
 **The permutation test.** Shuffle the pixel positions consistently across every image,
-then retrain. Anything that relies on adjacency should suffer; anything that does not,
-will not notice. → § 9
+then retrain — training and test images alike. Anything that relies on adjacency
+should suffer; anything that does not, will not notice. → § 9
 
 **Weight sharing against locality.** Two separate assumptions bundled into one slogan.
-Deciding *whether* something is present needs only the first; deciding *what shape* it
-is needs the second. → § 9
+On the wafers, deciding *whether* a defect is present did not need the arrangement;
+deciding *what shape* it is did. → § 9
 
 
 ## Transfer learning
@@ -114,10 +117,10 @@ is task-specific. → § 10
 before assuming its features generalise. → § 10.1
 
 **Warm start against a frozen base.** Freezing is a bet that the borrowed features are
-already right. When in doubt, warm start and leave everything trainable: that recovers
-from a bad source, and a frozen base cannot. → § 10.3
+already right. When in doubt, warm start and leave everything trainable: a frozen
+base cannot move away from a bad source, a trainable one at least can. → § 10.3
 
-**A window, not a slope.** Too little data and transfer has nothing to attach to; too
+**A window, not a slope.** In this lesson's experiment, too little data and transfer has nothing to attach to; too
 much and it has nothing to add. The gain is largest in between, not at the scarcest
 end. → § 10.2
 
