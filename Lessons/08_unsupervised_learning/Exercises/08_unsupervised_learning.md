@@ -7,8 +7,9 @@ date: "Set 4 December 2026 · discussed at the start of lesson 9, Friday 11 Dece
 
 ## What this exercise is for
 
-Lesson 8's own account table had one honest dimensionality — three latent
-factors behind eight observed columns — and one anomaly type: individually
+Lesson 8's own account table had one structure — three latent factors
+behind eight observed columns, plus a little independent noise in each —
+and one anomaly type: individually
 ordinary values that broke the relationship between columns. Principal
 component analysis (PCA) reconstruction error caught 37 of the 40 accounts
 flagged; a plain two-dimensional (2-D) scatter of the same accounts on
@@ -98,9 +99,10 @@ drive your prediction in Part 1.
 
 Read the module docstring in full before you do anything else — it
 describes both fraud patterns honestly and at length, and it is not
-padding. The `TRUE_*` constants below the loader functions record exactly
-how each book was built. **Do not read past the loader functions until
-Part 4.**
+padding. The `TRUE_*` constants, which sit above and between the two loader
+functions, record exactly how each book was built. **Do not read the
+`TRUE_*` constants until Part 4**: use the loaders without looking at
+them.
 
 Both loaders take `n_samples`, `anomaly_fraction` and `random_state`; leave
 `n_samples` and `anomaly_fraction` at their defaults throughout, and vary
@@ -108,14 +110,16 @@ only `random_state` where a part below asks you to.
 
 ---
 
-## Part 1 — Predict, before you plot anything that could give it away (20 marks)
+## Part 1 — Predict, before you fit anything that could give it away (20 marks)
 
 1. Load both books and report, for each: the number of accounts, the number
    of planted anomalies, and the anomaly rate.
 2. For each book, plot the six features split by `is_anomaly` — a pairwise
    scatter of a few feature combinations, or one strip/box plot per
    feature, whichever makes the anomalies easiest to see if they are
-   visible at all. **Do not fit PCA or any detector yet.**
+   visible at all. **Do not fit PCA or any detector yet.** The label is
+   used here only to reason about how each book's fraud was built; no
+   detector you fit later may see it.
 3. Then, in writing, **predict**: on which book would flagging "the points
    sitting farthest from the middle of a 2-D PCA plot" correctly catch most
    of the anomalies, and on which would it fail? Give a reason per book, in

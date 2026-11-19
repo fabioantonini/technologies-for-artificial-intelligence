@@ -166,6 +166,9 @@ S = StandardScaler().fit_transform(sessions[["session_duration_min", "pages_view
 bot = (sessions["true_group"] == "bot").values
 check("bots", bot.sum(), 180, 0)
 check("12% of 1,500", TRUE_BOT_FRACTION * TRUE_N_SESSIONS, 180, 1e-9)
+pages = sessions["pages_viewed"].values
+check("3.1: some humans sit on the 1-page floor", float(((pages == 1.0) & ~bot).sum() > 0), 1, 0)
+check("3.1: so the humans' mean page count is the higher", float(pages[~bot].mean() > pages[bot].mean()), 1, 0)
 km = KMeans(n_clusters=2, n_init=10, random_state=3).fit(S)
 check("k-means k = 2, ARI (pair counting)", ari_by_pairs(bot, km.labels_), -0.046, 5e-4)
 bot_cluster = km.labels_[bot][0]
@@ -235,6 +238,9 @@ check("noise on the outer edge (beyond 2.1)", ((db.labels_ == -1) & (radius > 2.
 kept = db.labels_ != -1
 check("silhouette, k-means k = 2", silhouette_score(S, km.labels_), 0.401, 5e-4)
 check("silhouette, DBSCAN", silhouette_score(S[kept], db.labels_[kept]), -0.106, 5e-4)
+check("sessions DBSCAN placed", kept.sum(), 1487, 0)
+check("silhouette, k-means on the same 1,487", silhouette_score(S[kept], km.labels_[kept]), 0.402, 5e-4)
+check("65 beyond 0.30 are not 65 noise: noise < 65", float((db.labels_ == -1).sum() < (kth > 0.30).sum()), 1, 0)
 per_point = silhouette_samples(S[kept], db.labels_[kept])
 ring = db.labels_[kept] != bot_group
 check("ring points with a negative silhouette, %", 100 * (per_point[ring] < 0).mean(), 99.2, 0.05)
@@ -269,6 +275,8 @@ s8 = np.linalg.svd(Z - Z.mean(axis=0), compute_uv=False) ** 2
 share = s8 / s8.sum()
 check("first three components, % (SVD)", 100 * share[:3].sum(), 93.5, 0.05)
 check("the fourth, % (SVD)", 100 * share[3], 2.4, 0.05)
+check("components 4 to 8 together, %", 100 * share[3:].sum(), 6.5, 0.05)
+check("negative annual spends (4.1)", (accounts["annual_spend_eur"] < 0).sum(), 89, 0)
 
 # =====================================================================
 section("5. Anomalies")
@@ -276,6 +284,9 @@ genuine = accounts.loc[~anomaly, cols]
 fraud = accounts.loc[anomaly, cols]
 inside = ((fraud >= genuine.quantile(0.05)) & (fraud <= genuine.quantile(0.95))).values.mean()
 check("anomaly values inside the genuine 5th-95th range", inside, 1.0, 0)
+check("genuine accounts", len(genuine), 1960, 0)
+check("genuine spends beyond their own 95th percentile",
+      (genuine["annual_spend_eur"] > genuine["annual_spend_eur"].quantile(0.95)).sum(), 98, 0)
 
 # 5.2 two columns, rebuilt from the diagonal directly rather than from PCA
 centred = pair - pair.mean(axis=0)

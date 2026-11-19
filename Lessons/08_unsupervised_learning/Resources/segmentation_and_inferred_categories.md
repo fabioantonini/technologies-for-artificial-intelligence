@@ -11,10 +11,11 @@ date: "4 December 2026 · reading time about 25 minutes"
 
 ## Why a computer scientist should read this
 
-Section 3.6 of the handout ran DBSCAN on Aurora's session data and, as a
+Section 3.6 of the handout ran density-based spatial clustering of
+applications with noise (DBSCAN) on Aurora's session data and, as a
 side effect of finding the bot cluster, produced thirteen sessions the
 algorithm would not put in either group: **noise**, in the technical
-sense of "not confidently either." The handout checked their true label —
+sense of "in no crowded region, so in neither group." The handout checked their true label —
 because this is a lesson and the data is synthetic — and reported that
 all thirteen were genuine humans: customers whose sessions fell where
 the data is thin, two in the gap around the bots' tight core and eleven
@@ -186,22 +187,24 @@ further reading works the tension through properly.
 Two concrete failure modes are already sitting in the handout, not invented
 for this reading.
 
-**Being the wrong kind of ambiguous.** Section 3.3's thirteen noise
-points are DBSCAN's honest admission that it cannot confidently place
-those sessions in either the bot or the human cluster — the handout
-calls this "a more honest output than a forced binary label would be,"
-and it is, *as an output*. What it becomes downstream is a separate
+**Being the wrong kind of ambiguous.** Section 3.6's thirteen noise
+points are sessions DBSCAN places in neither the bot nor the human
+cluster, because no crowded region reaches them — the handout calls
+this "more useful to a security analyst than a forced label," and it
+is, *as an output*. DBSCAN has measured no doubt about them, only a lack
+of density; reading that as "not sure" is the first step a pipeline
+takes on its own. What it becomes downstream is a separate
 question the handout never has to answer, because the lesson stops at
 the notebook. A rate limiter, a step-up authentication challenge, an
 account hold, a manual review — any of the ordinary things a
 bot-detection pipeline does with an ambiguous verdict costs the thirteen
 genuine customers behind it time, friction, or a blocked purchase, for
-behaving, by chance, a little more consistently than usual for one week.
+behaving, by chance, a little unlike most visitors for one week.
 DBSCAN did not misclassify them — noise is a legitimate, well-defined
 output, distinct from a wrong label. But a system built on top of it has
-to decide what "not confidently either" *means* for the person on the
+to decide what "in neither group" *means* for the person on the
 other end, and "possibly a bot" is a very different consequence from
-"possibly a very consistent human," even though the algorithm's evidence
+"possibly an unusual human," even though the algorithm's evidence
 for both is the identical sparse neighbourhood.
 
 **Being the low-value segment.** Section 2's four true customer groups

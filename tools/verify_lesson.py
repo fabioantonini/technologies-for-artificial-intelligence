@@ -68,6 +68,7 @@ ACRONYMS = {
     "MNAR": ("missing not at random", "not missing at random"),
     "IQR": ("interquartile range",),
     "OLS": ("ordinary least squares",),
+    "DBSCAN": ("density-based spatial clustering of applications with noise",),
     "AUC": ("area under",),
     "ROC": ("receiver operating",),
     "PCA": ("principal component",),

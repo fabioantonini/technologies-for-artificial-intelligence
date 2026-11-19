@@ -9,7 +9,7 @@ date: "4 December 2026"
 
 - No target at all: what changes
 - k-means: one centre per group, two moves, how many groups
-- When groups are not round: a tree of merges, and DBSCAN
+- When groups are not round: a tree of merges, and grouping by density
 - Principal component analysis (PCA): the widest shadow
 - Fraud that looks ordinary on every column, and how to catch it
 
@@ -74,12 +74,13 @@ Handout section 1.
 
 # Aurora: three problems, no answer key
 
-- **Group 2,000 customers**, from annual spend and visits per month:
-  **k-means**, notebook 1
-- **Tell bots from humans** in 1,500 website sessions with the same average
-  behaviour: **a tree of merges and DBSCAN**, notebook 2
-- **Catch fraud** in an 8-column account table, where every value looks
-  ordinary: **PCA**, notebook 3
+- **Group 2,000 customers** by annual spend and visits: **k-means**,
+  notebook 1
+- **Tell bots from humans** in 1,500 sessions: **a tree of merges and
+  density-based spatial clustering of applications with noise (DBSCAN)**,
+  notebook 2
+- **Catch fraud** in 8 columns where every value looks ordinary: **PCA**,
+  notebook 3
 
 ::: notes
 Aurora is a fictional online retailer, and the three problems are three
@@ -87,8 +88,9 @@ different shapes of "no labels", not three demonstrations of one idea.
 
 Grouping customers is close to what most people picture when they hear
 "clustering". Bots against humans is built to break that picture: the two kinds
-of session have the same average duration and page count, and differ only in
-how much they vary. The fraud problem breaks it again: every single value of a
+of session are generated around the same centre, bots tightly, humans in a
+wide ring around it, so what tells them apart is the shape of each cloud, not
+where it sits. The fraud problem breaks it again: every single value of a
 fraudulent account looks ordinary, and only the combination is wrong.
 
 DBSCAN and PCA are named here and defined on their own slides later (slides 29
@@ -301,8 +303,10 @@ The two numbers come from notebook 1, which runs the hand-written k-means from
 happen, and the WCSS of one run alone does not tell you which kind of run you
 had.
 
-The remedy costs only time: several starts, keep the best. scikit-learn does it
-by default with n_init=10, and it also chooses the starting centres with
+The remedy costs only time: several starts, keep the best. scikit-learn's
+KMeans does it with n_init=10, which the notebooks always pass explicitly
+(versions of scikit-learn newer than the course's default to a single start
+instead), and it also chooses the starting centres with
 k-means++, which picks each new starting centre preferring points far from the
 ones already picked, so that two centres rarely start inside one group.
 
@@ -313,7 +317,7 @@ four decimals from both. Handout section 2.4.
 # How many groups?
 
 - $k$ is an **input**: the algorithm does not choose it
-- WCSS always falls as $k$ grows: one group per point gives 0
+- The best WCSS can only fall as $k$ grows: one group per point gives 0
 - So "lowest WCSS" always picks the largest $k$ tried
 - Instead, **the elbow**: where WCSS stops falling steeply
 - And **the silhouette**: is each point nearer its own group than the next?
@@ -349,6 +353,11 @@ The dotted red lines go to the members of the other group: the square roots of
 When the solid lines are much shorter than the dotted ones, B sits well inside
 its own group. The next slide turns that comparison into one number: here,
 (8.536 - 1.207) / 8.536 = 0.859.
+
+The predictable mistake: after ten slides of distances to centres, most will
+compute a and b from the two centres. The silhouette uses no centre at all:
+a and b are averages of distances to the other customers. That is why it can
+score any grouping, including one that has no centres at all.
 
 Handout section 2.5, worked example.
 :::
@@ -476,7 +485,8 @@ Ask the room what they see. Not four separate clouds this time: a dense smudge
 sitting inside a much larger, looser ring, both centred on the same place. A
 script does the same thing every time, so the bots pile up in a tight spot;
 people vary, so they spread out around it. retail_data.py makes 180 of the
-1,500 sessions bots, 12%, with the same average as the humans.
+1,500 sessions bots, 12%, generated around the same centre as the humans but
+much more tightly.
 
 The natural split is "close to the middle" against "far from it". Handout
 section 3.1.
@@ -510,9 +520,9 @@ Handout section 3.2.
 
 # Hierarchical clustering: a tree of merges
 
-- Start: every point is a group of its own
-- Merge the two **closest** groups; repeat until one is left
-- The record is a tree, a **dendrogram**: a join's height = how far apart
+- From single points, merge the two **closest**; repeat
+- **Ward linkage**: closest = adding least to the WCSS
+- A **dendrogram** records it: a join's height = that merge's cost
 - **Cut** it with a horizontal line: the cut chooses $k$
 - In code: `AgglomerativeClustering(n_clusters=2)`
 
@@ -527,6 +537,9 @@ adds the least to the within-cluster sum of squares of slide 10: the merge that
 keeps the groups most compact. For two single points that is simply the two
 nearest. Ward is what AgglomerativeClustering uses unless told otherwise
 (linkage="ward").
+
+The height of a join in the tree is the cost of that merge; for two single
+points it is simply their distance.
 
 Handout section 3.3.
 :::
@@ -631,7 +644,8 @@ Four core, four border, four noise: one group. Handout section 3.4.
 
 - Too small: even the bot core breaks into noise
 - Too large: the ring reaches the core, all one group
-- Sort every point's distance to its 10th neighbour (10 = `min_samples`)
+- Sort every point's distance to its 10th neighbour (10 = `min_samples`,
+  the point itself counted as the first)
 - Put `eps` where the sorted curve **bends upward**
 - In code: `NearestNeighbors(n_neighbors=10)`, then `kneighbors`
 
@@ -691,7 +705,7 @@ group is, crowded and connected rather than compact. Handout section 3.6.
 - All 13 are **humans**
 - They sit where the data is thin: 2 in the gap around the bot core,
   11 on the ring's sparse outer edge
-- DBSCAN's answer for them: **not confidently either**
+- DBSCAN's answer for them: in no crowded region, so in **neither group**
 - For a security analyst, more useful than a forced "bot" or "human"
 
 ::: notes
@@ -701,9 +715,16 @@ distance from the middle of the bot core: two lie between the core and the
 ring, eleven on the outer edge, beyond where 95% of humans are.
 
 The point to make: noise is an output, not a failure. A k-means model would
-have forced each of those 13 into a group. DBSCAN says it does not know, and in
-a security pipeline "I do not know" can be sent to a person instead of to an
-automatic block. The supplementary reading of this lesson is about what such a
+have forced each of those 13 into a group. DBSCAN leaves them out. Noise means
+only that no crowded region reaches them with this eps and min_samples; it is
+not a doubt DBSCAN has measured. In a security pipeline, a session in no group
+can be sent to a person instead of to an automatic block.
+
+A predictable confusion: slide 32 counted 65 sessions above the dashed line,
+and only 13 are noise. A session whose own disc holds fewer than 10 points is
+not a core point, but it still joins a group as a border point when it lies
+inside a core point's disc. Only the sessions that are neither end up as
+noise. The supplementary reading of this lesson is about what such a
 label costs a real person.
 
 Handout section 3.6.
@@ -713,12 +734,16 @@ Handout section 3.6.
 
 | grouping | silhouette (no truth needed) | ARI (needs the truth) |
 |---|---|---|
-| k-means, $k = 2$ | 0.401 | −0.046 |
-| DBSCAN | −0.106 | 0.941 |
+| k-means, $k = 2$, all 1,500 sessions | 0.401 | −0.046 |
+| DBSCAN, the 1,487 sessions it placed | −0.106 | 0.941 |
 
 ::: notes
 Aurora has no truth, so it could not compute the ARI column. It could compute
 the silhouette, and the silhouette prefers k-means' useless split.
+
+The silhouette has no place for a noise point, so DBSCAN's is computed on the
+1,487 sessions it placed. Notebook 2 also scores k-means on those same 1,487
+sessions: 0.402, so the comparison does not depend on the 13 left out.
 
 Why. Two compact halves are exactly what the silhouette rewards, as slide 18's
 formula says: points close to their own group, far from the next. A ring is not
@@ -911,13 +936,15 @@ Handout section 4.4.
 - 40 of 2,000 accounts (2%) taken over by fraudsters
 - Each value drawn **inside** the genuine 5th-95th percentile range,
   column by column: notebook 3 finds 100% inside
-- So no one-column rule ("spend above X") finds them
+- So no one-column threshold ("spend above X") separates them from
+  genuine accounts
 - What fraud cannot copy: **how the columns move together**
 
 ::: notes
 This is how retail_data.py built the anomalies, and it is the whole difficulty.
-Every single value of a fraudulent account is ordinary. A single-column check,
-the kind a business rule would use, has nothing to find.
+Every single value of a fraudulent account is ordinary. A single-column
+threshold, the kind a business rule would use, cannot separate them: any cut
+that catches some of them catches more genuine accounts with them.
 
 But a genuine account with a high spend also has a large basket, because one
 tendency drives both. A fraudster drawing spend and basket separately breaks
@@ -993,7 +1020,13 @@ left of the dashed threshold: the mean error is 4.676 for anomalies against
 0.431 for genuine accounts.
 
 This is the number of the lesson: 37 of 40, using only how eight ordinary-looking
-columns relate to each other. Ask them to write it down. Handout section 5.3.
+columns relate to each other. Ask them to write it down.
+
+Two readings to stop. Flagging 2% is a budget decision, how many accounts the
+fraud team can check, not a probability of fraud for each flagged account. And
+37 of 40 is both precision (37 of the 40 flagged are fraud) and recall (37 of
+the 40 frauds are flagged) only because 40 were flagged and 40 were planted:
+flag 80 and the two part ways. Handout section 5.3.
 :::
 
 # 37 is one batch
@@ -1095,7 +1128,7 @@ anomalies are caught and how many genuine accounts are flagged in each case.
 - A core inside a ring defeats k-means and Ward; DBSCAN scores **0.941**
 - The silhouette measures compactness: it preferred the wrong answer
 - **37 of 40** disguised accounts caught by reconstruction error, invisible
-  to a 2-D scatter
+  on a 2-D picture of all eight columns
 
 ::: notes
 The number to carry out of the room is the last one: 37 of 40 accounts caught

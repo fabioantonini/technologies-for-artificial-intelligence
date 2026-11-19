@@ -52,13 +52,13 @@ true segments almost exactly.
 
 # Notebook 02 — `02_merge_trees_and_dbscan`
 
-## When groups are not round: a merge tree, and DBSCAN
+## When groups are not round: a merge tree, and DBSCAN (density-based spatial clustering of applications with noise)
 
 **What it is for.** A dataset built so that k-means **cannot** solve it, a dense
 core of bots inside a ring of humans, and the method that can.
 
 **The data.** 1,500 website sessions, duration and pages viewed; 180 bots (12%),
-with the same average as the humans and a much smaller spread.
+generated around the same centre as the humans with a much smaller spread.
 
 **The concepts, in order.**
 

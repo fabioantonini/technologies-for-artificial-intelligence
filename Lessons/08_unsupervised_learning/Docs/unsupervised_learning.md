@@ -14,7 +14,7 @@ date: "4 December 2026 · reading time about 70 minutes"
 | 0:40–1:05 | 25 | **Notebook 01** — k-means by hand | Slide 22 |
 | 1:05–1:20 | 15 | When groups are not round: the sessions, why k-means must fail, a tree of merges | Slides 23–27 |
 | 1:20–1:32 | 12 | **Break** | Slide 28 |
-| 1:32–1:50 | 18 | DBSCAN: core, border and noise; choosing `eps`; what the silhouette cannot see | Slides 29–36 |
+| 1:32–1:50 | 18 | DBSCAN (density-based spatial clustering of applications with noise): core, border and noise; choosing `eps`; what the silhouette cannot see | Slides 29–36 |
 | 1:50–2:10 | 20 | **Notebook 02** — merge trees and DBSCAN | Slide 37 |
 | 2:10–2:35 | 25 | Principal component analysis (PCA): the widest shadow; fraud that breaks the pattern; reconstruction error; why a 2-D plot misses it | Slides 38–51 |
 | 2:35–2:55 | 20 | **Notebook 03** — PCA and anomalies | Slide 52 |
@@ -67,8 +67,8 @@ exactly what will be missing the first time any of these methods runs on real
 data.
 
 The number to carry out of the lesson: **37 of the 40 disguised accounts are
-caught by reconstruction error, and a 2-D scatter plot of the same accounts
-would point at the wrong ones.** Section 5 explains both halves.
+caught by reconstruction error, and a 2-D picture of all eight columns of the
+same accounts would point at the wrong ones.** Section 5 explains both halves.
 
 ---
 
@@ -189,8 +189,9 @@ and that is not luck.
   or leave them as they are.
 
 The score can only fall or stay put, and there are only finitely many ways to
-split $m$ points into $k$ groups, so the algorithm must reach a grouping that
-repeats, and there it stops. The handout of the advanced lesson writes this
+split $m$ points into $k$ groups. Provided a tie between two equally near
+centres is always broken the same way (the notebook's `argmin` takes the
+first), the algorithm must reach a grouping that repeats, and there it stops. The handout of the advanced lesson writes this
 argument out in full.
 
 What the argument does **not** say is that the stopping point is the best
@@ -209,7 +210,8 @@ nothing any more, so the algorithm stops, although a better grouping exists.*
 
 The remedy is cheap: run k-means several times from different starts and keep
 the run with the lowest WCSS. scikit-learn's `KMeans` does this by default
-with `n_init=10` restarts, and it also chooses its starting centres more
+with `n_init=10` restarts, which the notebooks pass explicitly (scikit-learn
+1.4 and later default to a single start), and it also chooses its starting centres more
 carefully than at random, with a method called **k-means++** that prefers
 starting points far from those already chosen. Notebook 01 checks that the
 ten-line version and scikit-learn reach the same WCSS, 374.0919, to four
@@ -227,8 +229,10 @@ step helps any more.
 $k$ is an input. Two diagnostics help choose it, and they ask different
 questions.
 
-**The elbow.** WCSS always falls as $k$ grows: with one group per point, every
-line has length zero and WCSS is exactly 0. So the value alone says nothing,
+**The elbow.** The best WCSS can only fall, or stay level, as $k$ grows: with
+one group per point, every line has length zero and WCSS is exactly 0. (A
+single run can stop in a worse grouping, as section 2.4 showed, which is one
+more reason to use several starts at every $k$.) So the value alone says nothing,
 and choosing the $k$ with the lowest WCSS would always choose the largest $k$
 tried. What helps is *where the curve stops falling steeply*. Past the right
 number of groups, an extra centre only splits a group that was already fine,
@@ -252,6 +256,12 @@ to the other members of its own group are 1 (to A) and $\sqrt{2} = 1.414$
 (to C), so $a = 1.207$. Its distances to D, E and F are $\sqrt{65} = 8.062$,
 $\sqrt{80} = 8.944$ and $\sqrt{74} = 8.602$, so $b = 8.536$. Then
 $s = (8.536 - 1.207) / 8.536 = 0.859$: B is well inside its group.
+
+Notice what the example did not use: either centre. Unlike WCSS, the
+silhouette compares average distances to the other *points*, which is the
+mistake to expect after a section spent on distances to centres. It is also
+why the silhouette can score a grouping that has no centres at all, as section
+3.7 does with DBSCAN's.
 
 ![](silhouette_one_point.png)
 
@@ -321,8 +331,11 @@ much larger, looser ring, and both are centred on the same place.*
 
 A script does the same thing every time, so the bots pile up in a tight spot.
 People vary, so they spread out around it. `retail_data.py` makes 12% of the
-sessions bots (180 of 1,500) and gives both groups the same average duration
-and page count; only the spread differs. The natural split is *close to the
+sessions bots (180 of 1,500) and generates both groups around the same
+centre: the bots tightly, the humans in a wide ring around it. What differs is
+the shape of each cloud, not where it sits. (The averages are not quite equal:
+pages viewed cannot fall below 1, and that floor cuts off the bottom of the
+humans' ring and raises their mean page count.) The natural split is *close to the
 middle* against *far from it*.
 
 ### 3.2 Why k-means must fail here
@@ -423,7 +436,8 @@ core breaks up into noise. Too large, and the discs of the ring reach into the
 core and chain everything into one group.
 
 A **k-distance plot** suggests a value. For every point, take the distance to
-its 10th nearest neighbour (10 being the `min_samples` used), and sort those
+its 10th nearest neighbour (10 being the `min_samples` used, and the point
+itself counted as the first, as DBSCAN counts it), and sort those
 distances. Points in crowded places have short distances, points in sparse
 places long ones, and the sorted curve bends upward where crowded gives way to
 sparse. Put `eps` near the bend.
@@ -449,8 +463,16 @@ of the ring and in the gap around the core.*
 
 All 13 noise sessions are humans, and they sit where the data is thin: two in
 the gap between the bot core and the ring, eleven on the ring's sparse outer
-edge. DBSCAN's answer for them is not "bot" or "human" but *not confidently
-either*, which is more useful to a security analyst than a forced label.
+edge. DBSCAN's answer for them is not "bot" or "human" but *neither group*:
+no crowded region reaches them with this `eps` and `min_samples`. That is not
+a doubt DBSCAN has measured, only a lack of density, but a session in no group
+can be sent to a security analyst instead of being forced into a label.
+
+**A predictable confusion**: the k-distance plot of section 3.5 put 65
+sessions above the dashed line, and only 13 are noise. A session whose own
+disc is too empty is not a core point, but it still joins a group as a border
+point when it lies inside a core point's disc. Only the sessions that are
+neither become noise.
 
 ### 3.7 What the silhouette cannot see
 
@@ -459,8 +481,12 @@ could compute the silhouette, which needs only the data and the grouping:
 
 | Grouping | Silhouette (internal) | ARI (external) |
 |---|---|---|
-| k-means, $k = 2$ | 0.401 | −0.046 |
-| DBSCAN | −0.106 | 0.941 |
+| k-means, $k = 2$, all 1,500 sessions | 0.401 | −0.046 |
+| DBSCAN, the 1,487 sessions it placed | −0.106 | 0.941 |
+
+The silhouette has no place for a noise point, so DBSCAN's is computed on the
+1,487 sessions it placed. On those same 1,487 sessions k-means scores 0.402,
+so leaving out the 13 changes nothing in the comparison.
 
 The silhouette prefers the wrong answer. Two compact halves are exactly what
 it rewards, so k-means' useless split scores well. DBSCAN's correct answer
@@ -507,7 +533,11 @@ numbers are really varying.*
 
 `retail_data.py` knows why: three hidden tendencies (how much a customer likes
 to spend, how engaged they are, how sensitive to price) drive all eight
-columns. **Principal component analysis** (PCA) finds, from the data alone, a
+columns, plus a little independent noise in each column. The table is
+synthetic, and it shows: the generator's normal draws leave a few values that
+no real account would have, such as 89 negative annual spends among the
+2,000. They do not matter here, because PCA reads only how the columns move
+together, not whether each value is a plausible amount of money. **Principal component analysis** (PCA) finds, from the data alone, a
 few new columns that carry almost all of the variation.
 
 ### 4.2 The widest shadow, on two columns
@@ -591,7 +621,10 @@ dashed line: three components carry 93.5% of the variance, the fourth adds
 only 2.4%.*
 
 The scree plot has recovered, from the data alone, the number
-`retail_data.py` built in: three tendencies drive the eight columns. Real data
+`retail_data.py` built in: three tendencies drive the eight columns, and the
+remaining five components carry the 6.5% left by each column's own noise.
+Notebook 03 reads the 3 off this plot and only then compares it with the
+generator's hidden value. Real data
 is rarely this clean, and the drop is this sharp only because the generator
 made it so, but the reading is the same: keep the components before the drop.
 
@@ -612,7 +645,11 @@ the eight columns, `retail_data.py` drew the fraudulent value at random from
 inside the range genuine accounts occupy, between their 5th and 95th
 percentiles, and independently of the other columns. Notebook 03 checks it:
 every value of every anomaly lies inside that range. No single column gives
-them away, so no rule of the form "flag a spend above X" can find them.
+them away, so no threshold of the form "flag a spend above X" separates them
+from genuine accounts. Any cut inside the range catches at least the 5% of
+genuine accounts that lie beyond the 95th percentile, 98 of the 1,960, more
+than all 40 anomalies together, and a cut outside the range catches no
+anomaly at all.
 
 What the fraudster could not copy is how the columns move together. A genuine
 account with a high spend also has a large basket, because one tendency drives
@@ -668,6 +705,13 @@ for anomalies against 0.431 for genuine accounts.*
 
 **37 of the 40 anomalies are among the 40 flagged accounts.** So 37 of the 40
 flags are right, and 3 anomalies are missed.
+
+Two readings to avoid. Flagging 2% is a budget decision, how many accounts the
+fraud team can afford to check; it is not a probability of fraud for each
+flagged account. And 37 of 40 is at the same time the precision (37 of the 40
+flagged are fraud) and the recall (37 of the 40 frauds are flagged) only
+because the number flagged, 40, happens to equal the number planted. Flag 80,
+and the two part ways.
 
 37 is one batch of accounts. Notebook 03 regenerates the table at seven other
 seeds, the same process with different individual accounts, and repeats the

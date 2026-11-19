@@ -130,9 +130,13 @@ def make_customer_features(seed=8003):
     """2,000 Aurora accounts, 8 observed features driven by 3 latent factors.
 
     Every observed column is a linear combination of three independent
-    standard-normal latent factors plus its own noise term — so the honest
-    dimensionality of this table is 3, not 8, and PCA is being asked to
-    rediscover a number that is known here and nowhere else in the course.
+    standard-normal latent factors plus its own noise term — so three
+    directions carry almost all of the variation, the noise leaves a little
+    in the other five, and PCA is being asked to rediscover a number that is
+    known here and nowhere else in the course. The draws are normal and
+    mostly unclipped, so a few values come out negative (spend, basket,
+    frequency), which no real account would have; PCA reads only how the
+    columns move together.
 
     A final ``TRUE_ANOMALY_FRACTION`` of accounts are overwritten with an
     account-takeover pattern: independent, unstructured feature draws that

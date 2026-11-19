@@ -320,7 +320,7 @@ The ones so far:
 | 5 | **0.885 to 1.000** — 200 legitimate splits of the same data, one of them reporting a perfect classifier |
 | 6 | **0.613 to 0.947** — a linear model stuck exactly at the baseline where a kernel reaches the noise ceiling |
 | 7 | **54%** of a random forest's importance landed on 20 columns of pure noise |
-| 8 | **37 of 40** disguised accounts caught by reconstruction error, invisible to any 2-D scatter |
+| 8 | **37 of 40** disguised accounts caught by reconstruction error, invisible on any 2-D picture of all eight columns |
 | 9 | **39 against 2.8** — what one hidden layer is worth on the sensor acceptance test and on the handwritten digits: a great deal when inputs act together, little when they act alone |
 | 10 | **0.857 to 0.462** — what permuting the pixels costs a dense network, and nothing at all to a convolutional one |
 

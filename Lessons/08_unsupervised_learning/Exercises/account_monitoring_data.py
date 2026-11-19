@@ -61,13 +61,15 @@ individually unremarkable and never move together at all.
 expect the takeover accounts to sit near the middle of a two-dimensional
 scatter of the data, or out towards an edge? Now ask the same question
 about the business book's mule accounts, given that their construction is
-different. Section 6.2 of the handout describes exactly this kind of
+different. Section 5.4 of the handout describes exactly this kind of
 mismatch for Aurora's account table — the mechanism here is the same idea,
 built into a different pair of datasets so that the answer cannot be
 recalled, only worked out.
 
 The ``TRUE_*`` constants below record exactly how each book was built,
-feature by feature. **Do not read past the loader functions until Part 4.**
+feature by feature; they sit above and between the two loader functions.
+**Do not read the ``TRUE_*`` constants until Part 4**: use the loaders
+without looking at them.
 
 Both loaders are offline, seeded with NumPy's ``default_rng``, and return
 the same numbers on any machine. Neither needs a network connection or an

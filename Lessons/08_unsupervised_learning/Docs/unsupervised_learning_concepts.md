@@ -38,11 +38,12 @@ its own centre, added up: how tight the groups are. `inertia_` in scikit-learn.
 → § 2.2
 
 **Why k-means always stops.** Neither move can raise the WCSS, and there are only
-finitely many groupings, so a round eventually changes nothing. → § 2.4
+finitely many groupings, so with ties always broken the same way a round
+eventually changes nothing. → § 2.4
 
 **Local minimum, and several starts.** Stopping is not finding the best grouping:
 a bad start can stop at a much worse one. Run from several starts and keep the
-lowest WCSS (`n_init`). → § 2.4
+lowest WCSS (`n_init`, which the notebooks set to 10 explicitly). → § 2.4
 
 **k-means++.** A way of choosing the starting centres that prefers points far from
 those already chosen. → § 2.4
@@ -86,8 +87,9 @@ noise is neither. → § 3.4
 **k-distance plot.** Every point's distance to its $k$-th nearest neighbour,
 sorted; its upward bend suggests `eps`. → § 3.5
 
-**Noise as an answer.** A point DBSCAN will not place is "not confidently either",
-which can be more useful than a forced label. → § 3.6
+**Noise as an answer.** A point DBSCAN will not place lies in no crowded region for
+the chosen `eps` and `min_samples`: in neither group, which is a lack of density
+rather than a measured doubt, and can be more useful than a forced label. → § 3.6
 
 **What the silhouette cannot see.** It rewards compact groups, so on a ring it
 prefers a wrong answer. → § 3.7
