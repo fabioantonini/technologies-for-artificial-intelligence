@@ -1657,6 +1657,10 @@ that performs it in the notebook and the slide that introduces the idea, from
 `.score`, `ConfusionMatrixDisplay`, `classification_report` and `predict_proba`. If you
 get lost in a cell, the table leads back to the slide.
 
+The last row of the table names the alternative for class: atoms 1-4 of the lesson's
+atoms notebook, `Notebooks/atoms.ipynb`, the same ideas on a handful of rows, each asking
+for a prediction before it runs.
+
 The notebook runs **alongside** the next twelve slides rather than instead of them:
 each step is a slide and then the cell that performs it. Three moments to stop on.
 **The split**, because it happens before anything is learned, which is the whole rule

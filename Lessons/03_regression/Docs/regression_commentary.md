@@ -741,6 +741,10 @@ places, and the coefficient table at the end, which sets up Part VI. If someone'
 gradient descent diverges, that is a good thing to happen: it is slide 27 on their own
 screen.
 
+The last row of the table names the alternative for class: atoms 1-9 of the lesson's
+atoms notebook, `Notebooks/atoms.ipynb`, the same ideas on a handful of rows, each asking
+for a prediction before it runs.
+
 ---
 
 # Part IV — Curves, and the price of flexibility
@@ -889,6 +893,10 @@ and stop at the table: predict which degree wins before scrolling. Most people g
 too high, because the instinct that more flexibility is better is exactly what the
 lesson is dismantling. The coefficient printout at the end is the number the next
 slide is about.
+
+The last row of the table names the alternative for class: atom 10 of the lesson's
+atoms notebook, `Notebooks/atoms.ipynb`, the same ideas on a handful of rows, each asking
+for a prediction before it runs.
 
 ---
 
@@ -1352,6 +1360,10 @@ drives the outcome. The "try this" swaps Ridge for Lasso on the two area columns
 predict which way Lasso resolves the redundancy before running it, then explain why the
 two penalties disagree. It checks whether the disc and the diamond of slide 47 have
 landed.
+
+The last row of the table names the alternative for class: atoms 11-15 of the lesson's
+atoms notebook, `Notebooks/atoms.ipynb`, the same ideas on a handful of rows, each asking
+for a prediction before it runs.
 
 ---
 

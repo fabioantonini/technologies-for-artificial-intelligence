@@ -1,5 +1,5 @@
 ---
-title: "Consolidation: lessons 1 to 7, one call at a time"
+title: "Consolidation: the scikit-learn API, and every lesson's atoms"
 subtitle: "Technologies for Artificial Intelligence — self-study, and two hours in class"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
 date: "Not examinable"
@@ -10,9 +10,15 @@ date: "Not examinable"
 Lessons 1 to 5 ran every scikit-learn call on hundreds or thousands of rows: 569
 tumours, 2,000 customers, 600 houses, 8,000 disk drives. At that size the result of a call is visible, and what the
 call *did* is not, and the lesson notebooks often take in one line a step that someone
-new to machine learning needs to see on its own. This folder takes those steps one at
+new to machine learning needs to see on its own. The atoms take those steps one at
 a time, on two to ten rows, small enough that every number can be checked with a
 pencil.
+
+This folder holds the notebook that runs across the lessons, `00_the_scikit_learn_api.ipynb`.
+Each lesson's own atoms live inside that lesson, in `Lessons/NN_*/Notebooks/atoms.ipynb`,
+and each lesson's notebook guide lists them, with the notebook they can replace in class.
+In this guide `02·9` means lesson 2's atoms notebook, atom 9, and `00·3` atom 3 of the API
+notebook.
 
 Each section of a notebook is an **atom**: one idea, one call. Many atoms recompute
 the worked examples of the lesson 2, 3 and 4 commentaries
@@ -29,8 +35,8 @@ It is **not examinable**, and it adds no new material. It does not replace the
 lesson notebooks either: every atom names the slide and the notebook section where
 its idea is treated at full scale.
 
-Reading time: about 40 minutes for each of `00`, `02`, `03`, `04` and `05`, and 15 for
-`01`, so about three and a half hours for the six, done properly.
+Reading time: about 40 minutes for the API notebook and for most lessons' atoms, and 15
+for lesson 1's.
 
 ## How to use an atom
 
@@ -51,19 +57,21 @@ than any number of predictions that came out right.
 
 ## The files
 
-| File | What it covers | Atoms |
+| Notebook | What it covers | Atoms |
 |-------------------|----------------------|--|
 | `00_the_scikit_learn_api.ipynb` | `fit`, `transform`, `fit_transform`, `predict`, `predict_proba` and the threshold, `score`, the shape of `X`, `random_state`, `Pipeline`, `decision_function`, the thresholds behind a curve, the defaults `get_params()` shows, `kneighbors`, the fitted attributes of `GaussianNB` and `SVC`, `cross_validate` with training scores | 15 |
-| `01_lesson_1_atoms.ipynb` | splitting and `stratify`, the baseline, the confusion matrix, precision and recall | 4 |
-| `02_lesson_2_atoms.ipynb` | looking, missing values, outliers, scaling, encoding, `ColumnTransformer`, the area under the curve, two leaks | 15 |
-| `03_lesson_3_atoms.ipynb` | cost, the normal equation, gradient descent, Ridge and Lasso, what a coefficient means | 15 |
-| `04_lesson_4_atoms.ipynb` | odds and log-odds, log loss, one gradient step, the confusion matrix in order, the two averages, AUC and average precision, a threshold from costs, class weights, softmax, the whole chain on one fitted model | 12 |
-| `05_lesson_5_atoms.ipynb` | cross-validation round by round, the five round models, the spread and the report line, stratified, repeated and grouped folds, training against validation error, `GridSearchCV`, nested cross-validation one round at a time, a fresh test set, the threshold sweep, seeds | 13 |
-| `06_lesson_6_atoms.ipynb` | one pump's five nearest and the vote, scaling first, training accuracy inside the folds, distances that stop varying, choosing columns, Naive Bayes's ten numbers and three ratios, the two log totals, uncorrelated but not independent, the interaction and its product, confidence, the margin in one dimension, slack and the weights, the kernel trick and the RBF similarity, one pump's vote by hand, γ and C | 15 |
-| `07_lesson_7_atoms.ipynb` | Gini by hand, the gain by counting, thresholds and midpoints, a tree on ten loans and one path, depth against a budget of leaves, the noise ceiling, five folds by hand, sampling with and without replacement, bagging and out-of-bag by hand, one column per split, importance and permutation by hand, boosting by hand | 14 |
+| lesson 1, `Notebooks/atoms.ipynb` | splitting and `stratify`, the baseline, the confusion matrix, precision and recall | 4 |
+| lesson 2, `Notebooks/atoms.ipynb` | looking, missing values, outliers, scaling, encoding, `ColumnTransformer`, the area under the curve, two leaks | 15 |
+| lesson 3, `Notebooks/atoms.ipynb` | cost, the normal equation, gradient descent, Ridge and Lasso, what a coefficient means | 15 |
+| lesson 4, `Notebooks/atoms.ipynb` | odds and log-odds, log loss, one gradient step, the confusion matrix in order, the two averages, AUC and average precision, a threshold from costs, class weights, softmax, the whole chain on one fitted model | 12 |
+| lesson 5, `Notebooks/atoms.ipynb` | cross-validation round by round, the five round models, the spread and the report line, stratified, repeated and grouped folds, training against validation error, `GridSearchCV`, nested cross-validation one round at a time, a fresh test set, the threshold sweep, seeds | 16 |
+| lesson 6, `Notebooks/atoms.ipynb` | one pump's five nearest and the vote, scaling first, training accuracy inside the folds, distances that stop varying, choosing columns, Naive Bayes's ten numbers and three ratios, the two log totals, uncorrelated but not independent, the interaction and its product, confidence, the margin in one dimension, slack and the weights, the kernel trick and the RBF similarity, one pump's vote by hand, γ and C | 15 |
+| lesson 7, `Notebooks/atoms.ipynb` | Gini by hand, the gain by counting, thresholds and midpoints, a tree on ten loans and one path, depth against a budget of leaves, the noise ceiling, five folds by hand, sampling with and without replacement, bagging and out-of-bag by hand, one column per split, importance and permutation by hand, boosting by hand | 14 |
+| lesson 8, `Notebooks/atoms.ipynb` | standardising first, k-means by hand, starts and the number of groups, the silhouette, the adjusted Rand index (ARI) by pairs, Ward's merges, DBSCAN by counting, the widest shadow three ways, reconstruction error and 37 of 40 | 16 |
+| lesson 10, `Notebooks/atoms.ipynb` | Keras layers with weights set by hand, no training: one window by hand, Keras as cross-correlation, the output size, a contrast kernel and its threshold, shifting and pooling, the receptive field, parameter counts, the grader's error rate, shuffled pixels, augmentation, what transfer copies | 15 |
 
 They run in the course container like every other notebook, each in a few seconds,
-with no network. Start with `00`: the others assume it.
+with no network. Start with `00`: the lessons' atoms assume it. Lesson 9's atoms are still to come.
 
 ## The atoms
 
@@ -90,148 +98,6 @@ numbers.
 | 14 | SVM: the support vectors are attributes | L6 *The SVM's solution: a weighted sum of pumps*; *Training: one weight per pump* |
 | 15 | `cross_validate`: the training score beside the validation score | L6 *Training against cross-validated accuracy, by k* |
 
-### 01 — lesson 1
-
-| # | Atom | Lesson source |
-|--|--------------------------|------------------------|
-| 1 | `train_test_split`, and what `stratify` keeps | *Step 3: split, before anything else* |
-| 2 | `DummyClassifier`: what a baseline learns, and the score to beat | *Step 4: baseline first* |
-| 3 | The confusion matrix: where the right and wrong answers fall | *What accuracy hides* |
-| 4 | Precision and recall, counted and then printed | *Precision and recall, counted* |
-
-### 02 — lesson 2
-
-| # | Atom | Lesson source |
-|--|--------------------------|------------------------|
-| 1 | Load and look | *Look before you touch anything* |
-| 2 | Finding the missing values | *Where the gaps are* |
-| 3 | Dropping rows and columns | *What to do about a gap* |
-| 4 | Mean imputation: *four ages out of ten* | *What mean imputation actually costs* |
-| 5 | The missing indicator: keeping the fact of the gap | *What to do about a gap*; *Choosing among the four* |
-| 6 | Outliers: *the ruler made of the outlier*, and *the same eight values* | *Rule 1*; *Rule 2: interquartile range (IQR)* |
-| 7 | Two scalers: *five customers, one outlier* | *StandardScaler vs MinMaxScaler* |
-| 8 | *One step size for two directions* | *A 100:1 variance ratio, and what it costs* |
-| 9 | *Ten customers, three encodings*, and *the steps ordinal encoding assumes equal* | *One customer, three encodings*; *Ordinal: equal steps, unequal churn* |
-| 10 | *Four rows, four columns, rank three* | *One one-hot column too many*; *4 columns, but only rank 3* |
-| 11 | `ColumnTransformer`: a different preparation for each column, and what each piece learned | *ColumnTransformer + Pipeline*; *The code* |
-| 12 | *The AUC by counting pairs* | *The model, on churn* |
-| 13 | Leak 1: *the two nearest neighbours are both in the test set* | *Leak 1: impute before splitting* |
-| 14 | Leak 2: *a zip code with no signal, and an AUC of 0.875* | *Leak 2: encode before splitting*; *How much of its own label a row sees* |
-| 15 | The fix: *the same eight customers, cross-fitted*, and `TargetEncoder` | *The fix* |
-
-### 03 — lesson 3
-
-| # | Atom | Lesson source |
-|--|--------------------------|------------------------|
-| 1 | *The best single price for three houses* | *Why squared, not absolute* |
-| 2 | The cost of one guess | *Trying ŷ = 2,400 · area + 45,000* |
-| 3 | *The same model, two test sets* | *A cost needs something to be compared against* |
-| 4 | The design matrix, the label vector, and the normal equation by hand | *$\theta$ and X*; *The same equation, by hand* |
-| 5 | *One slope, no intercept*: the cost is a bowl | *The cost is a bowl* |
-| 6 | *Two standardised features, rising correlation* | *How stretched is the valley?* |
-| 7 | *Three houses voting on the price of a square metre* | *The gradients: one for w, one for b* |
-| 8 | Gradient descent, one iteration at a time | *One iteration, then the next*; *One step on two houses* |
-| 9 | *A bowl of curvature 2*, and four learning rates | *Three learning rates* |
-| 10 | *A parabola by the normal equation* | *"Linear" means linear in the coefficients* |
-| 11 | *One coefficient, four penalties* | *Ridge has an exact solution too* |
-| 12 | *The same column twice*: *one effect, two columns* | *The case Ridge was invented for* |
-| 13 | *Three coefficients, both penalties* | *Ridge shrinks, Lasso selects* |
-| 14 | *The same column, two coefficients* | *What a coefficient actually says* |
-| 15 | When can you trust a coefficient? | *When can you trust a coefficient?* |
-
-### 04 — lesson 4
-
-| # | Atom | Lesson source |
-|--|--------------------------|------------------------|
-| 1 | *Five probabilities, their odds and their log-odds*: `logit` and `expit` | *Why the log-odds* |
-| 2 | *One coefficient, three drives*: odds, not probability | *What the coefficients mean* |
-| 3 | *Four drives, one confident mistake*: `log_loss` | *Surprise: minus the log of a probability*; *Cross-entropy, also called log loss* |
-| 4 | *One step of gradient descent on three drives* | *Lesson 3's gradient* |
-| 5 | *Twenty drives, four of which fail*: `confusion_matrix(...).ravel()` in its order | *Four numbers instead of one*; *Our model, in those terms* |
-| 6 | `classification_report`: the two averages, by hand | *Read the minority class, not the average* |
-| 7 | *The AUC of seven drives*: ties count half, and only the order matters | *What the area means*; *What AUC does not tell you* |
-| 8 | *Average precision of a seven-drive ranking*: a step sum, not a trapezoid | *The rule: report both* |
-| 9 | *Invented costs: a false alarm €50, a missed failure €200*: a threshold applied to the probabilities | *Where the two costs cross*; *Where they cross, in one line* |
-| 10 | *A weight ratio of 4*: `compute_class_weight` and the threshold it stands for | *What class weights do*; *Class weights: the same lever, pulled earlier* |
-| 11 | *Softmax on three scores*, and `predict_proba` for three classes | *Three classes: softmax (optional)* |
-| 12 | *Twelve drives, one counter*: `fit`, the odds multiplier, 0.5 against $t^*$, `confusion_matrix`, precision, recall, `roc_auc_score` | *What the coefficients mean*; *Four numbers instead of one*; *Where they cross, in one line*; *What the area means* |
-
-### 05 — lesson 5
-
-Lesson 5 is about measuring, so most of its atoms run on the lesson's own data, the 800
-drives and the 25 days, where the slides' numbers come from; atoms 2 and 6 use ten and
-twenty rows. Atoms 12 to 14 repeat notebook 3's search and take about a minute. In
-class atoms 2-3 replace notebook 1, and atoms 11-13 notebook 3.
-
-| # | Atom | Lesson source |
-|--|--------------------------|------------------------|
-| 1 | Choosing C on a validation set: 450 / 150 / 200, the winner is a number, refit on 600 | *Choosing a hyperparameter on a validation set: two recipes*; *The same three models: who wins, and how they score* |
-| 2 | Cross-validation on ten days: who trains, who is held out; `neg_mean_squared_error` | *k-fold cross-validation: the validation set, rotated* |
-| 3 | Five round AUCs and their mean, 0.9514, by hand and with `cross_val_score` | *What it actually estimates* |
-| 4 | Five rounds, five different models, and a sixth you ship | *Five rounds, five different models; you ship a sixth, fitted on all 800* |
-| 5 | The spread: $s$ by hand, `std()` against `std(ddof=1)`, and the report line | *Report the spread, but not as a confidence interval*; *What to put in a report* |
-| 6 | `KFold` against `StratifiedKFold`, on twenty rows and on the 800 drives at seed 3 | *Stratify when a class is rare* |
-| 7 | `RepeatedStratifiedKFold`: the seed moves the score less | *Change only the seed, 40 times*; *How many folds?* (optional) |
-| 8 | Ten readings per drive: `drive_id`, `GroupKFold`, a flexible logistic regression, 0.999 against 0.724 | *When the rows are not independent*; *Split by the thing you must generalise to* |
-| 9 | Bias, variance and noise at 30 °C, by hand: 723.9 + 856.1 + 484 | *The bias–variance decomposition*; *The straight line (degree 1) at 30 °C, in three numbers* |
-| 10 | Training against validation error with `cross_validate(..., return_train_score=True)` | *Without the truth: two errors you can still measure* |
-| 11 | 0.931 on pure noise with the selector outside, 0.649 inside; the F-test made visible | *Now: what cross-validation does not protect you from*; *0.931*; *Fix it, and look what happens* |
-| 12 | `GridSearchCV`: 25 candidates, the winner's five round AUCs, `best_score_` before the refit | *GridSearchCV: try all, keep the best*; *The best of 25 scores is inflated: 0.800 for a worthless model* |
-| 13 | Nested cross-validation, one outer round at a time | *Nested cross-validation: slide 9's recipe, five times*; *Nested cross-validation: it measures what choosing costs* |
-| 14 | A fresh test set is centred on the truth | *Why it does not return to 0.5* |
-| 15 | The threshold: a sweep of 200 candidates on the validation drives | *The debt, paid: the honest threshold costs 1,400 EUR more* |
-| 16 | Seeds: the same seed, the same number, and still a spread | *A fixed seed buys repeatability, not stability*; *What to fix, and what to write down* (optional) |
-
-### 06 — lesson 6
-
-Lesson 6's atoms run on the lesson's own 1,200 pumps, where the slides' numbers come
-from; atoms 4, 11 and 12 use random points, six pumps on a line and seven, and atoms 9
-and 10 the interacting sensors. The notebook runs in a few seconds. In class atoms 1-5
-can replace notebook 1, atoms 6-10 notebook 2, and atoms 11-15 notebook 3: the
-"Notebook N, live" slides name both.
-
-| # | Atom | Lesson source |
-|--|--------------------------|------------------------|
-| 1 | One pump's five nearest with `kneighbors`: four faulty, one flipped label | *k-nearest neighbours: the whole algorithm*; *k-NN, drawn* |
-| 2 | Unscaled, none of the five nearest is the same: vibration picks them | *Scale first, or vibration decides everything* |
-| 3 | `cross_validate` with training scores: 1.000 at k = 1, 0.713 against 0.708 at k = 401 | *k sets the balance*; *Training against cross-validated accuracy, by k* |
-| 4 | 1,000 random points: nearest ÷ farthest 0.016 with 2 columns, 0.701 with 100 | *Why: distances stop varying*; *With n random columns* |
-| 5 | `SelectKBest`: `f_classif` keeps two noise columns (0.562), `mutual_info_classif` the readings (0.938) | *What the curse is, and is not* |
-| 6 | `GaussianNB`'s ten numbers; the 48 Hz pump as 86.4 × 1.58 ÷ 2.63 = 52 to 1, 0.981 | *Training computes ten numbers*; *A pump at 48 Hz, 5.6 bar* |
-| 7 | Two log totals, −8.095 and −4.144, and the gap 3.951; 0.01²⁰⁰ is 0.0 | *Logs turn the product into a sum*; *Software uses only the gap* |
-| 8 | Readings −0.049, squares −0.420: uncorrelated, not independent | *Uncorrelated within each class, but not independent* |
-| 9 | Interacting sensors: 0.404, and 0.972 with the product A × B | *A second dataset*; *0.404: below the baseline* |
-| 10 | Confidence 0.567 right, 0.555 wrong; 44% right at 56% confidence | *Its probabilities cannot be trusted* |
-| 11 | Six pumps on a line: the threshold at 5, support vectors 3 and 7 | *SVM: among the lines that fit, take the widest margin* |
-| 12 | Slack 0, 0.4 and 2.2; weights 0, 0.38 and C; w rebuilt from `dual_coef_` | *Not separable?*; *Three kinds of point*; *The SVM's solution* |
-| 13 | 25 = 25 by hand; `rbf_kernel` 0.607, 0.135, 0.011 | *The kernel trick by hand*; *The RBF kernel* |
-| 14 | The 48 Hz vote by hand: +37.455 − 36.677 + 1.105 = +1.883, `decision_function` | *Training: one weight per pump*; *The SVM's score at 48 Hz* |
-| 15 | γ and C: 0.996 against 0.902, and 548 support vectors | *Training against cross-validated, three settings* |
-
-### 07 — lesson 7
-
-Lesson 7's atoms run on the lesson's own 1,200 loans, where the slides' numbers come
-from; atoms 3, 4 and 9 use eight, ten and twelve loans, and atom 14 the lesson's toy
-step-and-sine data. The notebook runs in about a minute. In class atoms 1-4 can replace
-part of notebook 1, atoms 8-11 part of notebook 2, and atoms 13-14 part of notebook 3.
-
-| # | Atom | Lesson source |
-|--|--------------------------|------------------------|
-| 1 | Gini impurity by hand: 0.474, 0.381, 0.115, against `tree_.impurity` | *Gini impurity*; *For two classes, one number* |
-| 2 | The root gain by counting, 0.1438, and the plain-average slip | *The gain a split buys*; *Worked example: the root split* |
-| 3 | Seven midpoints on eight loans; any threshold in the gap, the same split | *Scanning for the best split*; *Every threshold, scored* |
-| 4 | A depth-2 tree on ten loans: `export_text`, `apply`, `decision_path` | *The algorithm, drawn*; *The loop, in seven lines*; *Reading a tree* |
-| 5 | `max_depth=8` against `max_leaf_nodes=9` against no limit: 71, 9 and 156 leaves | *Depth is the bias-variance dial*; *Reading a tree, and the knob that keeps it small* |
-| 6 | The noise ceiling, 0.929, and the flipped labels each depth learns | *The curve bends downward*; *The same rule, three depths* |
-| 7 | Five folds by hand: 1,059 of 1,200, `std` against `std(ddof=1)` | *Measured, at seven depths*; *Cross-validation, step by step* |
-| 8 | Without and with replacement: 753 different loans, 447 never drawn, 447 repeats | *A tree that doesn't stay still*; *How much data one bootstrap sample sees* |
-| 9 | `BaggingClassifier` with five trees: each tree's sample, the vote, `predict_proba` | *Bagging: many trees, one vote*; *Bagging, drawn* |
-| 10 | Out-of-bag by hand: 1,085 of 1,200, equal to `oob_score_` | *Out-of-bag: each loan judged by the trees that never saw it* |
-| 11 | One column per split: roots 100 against 51 and 49, a tree alone against the vote | *Random forests: trees less alike*; *Bagged trees against forest trees* |
-| 12 | Feature importance by hand on the depth-2 tree: 0.681 and 0.319 | *Feature importance on one tree*; *What a forest's importance says* |
-| 13 | Permutation by hand: shuffling debt costs 0.206, a random column 0.003 | *Permutation importance: the procedure*; *claimed against measured* |
-| 14 | Boosting by hand, two trees: 2.287, 2.578, 2.781, equal to `GradientBoostingRegressor` | *Boosting, drawn: the first two steps*; *Building the ensemble, one tree at a time* |
-
 ## Two hours in class
 
 A selection of thirteen atoms, run together from the projector. For each one: read the
@@ -257,7 +123,7 @@ point; the explanation follows from it.
 | 3 | — | close: which prediction surprised you most? |
 | **120** | | |
 
-Everything not in the selection is left for self-study, and the guide's index above
+Everything not in the selection is left for self-study; each lesson's notebook guide
 is where to find it.
 
 ## What students will get wrong, and why it is reasonable

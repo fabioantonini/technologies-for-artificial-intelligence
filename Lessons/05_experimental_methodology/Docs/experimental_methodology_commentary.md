@@ -19,7 +19,7 @@ header-includes:
 > Where a section mentions "the notes", it means the speaker notes stored in the
 > slide deck, which PowerPoint shows below each slide. The questions are the ones
 > that came up while the lesson was studied and reviewed. The atoms mentioned here
-> are the short predict-then-run examples in `Consolidation/05_lesson_5_atoms.ipynb`.
+> are the short predict-then-run examples in `Notebooks/atoms.ipynb`.
 
 <!-- examples-note:begin -->
 

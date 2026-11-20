@@ -745,6 +745,10 @@ The cells headed "Your prediction, before you run the next cell" ask the student
 commit to an answer before running the code, which turns the notebook into an
 experiment rather than a sequence of outputs to read.
 
+The last row of the table names the alternative for class: atoms 1-6 of the lesson's
+atoms notebook, `Notebooks/atoms.ipynb`, the same ideas on a handful of rows, each asking
+for a prediction before it runs.
+
 ---
 
 ## Slide 23 — Break
@@ -1403,6 +1407,10 @@ rank 3; the full pipeline at an AUC of 0.751; and the engineered feature at
 0.7514 → 0.7548 → 0.7439. Spend most time on `ColumnTransformer`: it is the construct
 you will reuse in every exercise.
 
+The last row of the table names the alternative for class: atoms 7-12 of the lesson's
+atoms notebook, `Notebooks/atoms.ipynb`, the same ideas on a handful of rows, each asking
+for a prediction before it runs.
+
 ---
 
 # Part VII — Leakage in preprocessing
@@ -1657,6 +1665,10 @@ split: 94 of 128 training rows used at least one test donor. Second, target enco
 `zip_code`: a column with no signal by construction, which the leaky encoding takes from
 an AUC of 0.751 to 0.891; `TargetEncoder` inside the `ColumnTransformer` brings it back
 to 0.751.
+
+The last row of the table names the alternative for class: atoms 13-15 of the lesson's
+atoms notebook, `Notebooks/atoms.ipynb`, the same ideas on a handful of rows, each asking
+for a prediction before it runs.
 
 The two leaks make an instructive pair. In the imputation leak the methodological
 violation is large and its effect on the score almost invisible; in the encoding leak

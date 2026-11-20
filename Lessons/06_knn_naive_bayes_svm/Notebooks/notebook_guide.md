@@ -227,3 +227,33 @@ weight per pump, 922 of them zero; a prediction is the 278 support vectors votin
 similarity, +1.883 for the 48 Hz pump. RBF scores 0.947 against a noise ceiling of 0.96. The last
 table is the lesson: three families reach the ceiling by three different mechanisms,
 the two linear models sit exactly on the baseline, and the gap is 0.334.*
+
+---
+
+# The atoms — `atoms.ipynb`
+
+## Lesson 6, one call at a time
+
+Lesson 6's atoms run on the lesson's own 1,200 pumps, where the slides' numbers come
+from; atoms 4, 11 and 12 use random points, six pumps on a line and seven, and atoms 9
+and 10 the interacting sensors. The notebook runs in a few seconds. In class atoms 1-5
+can replace notebook 1, atoms 6-10 notebook 2, and atoms 11-15 notebook 3: the
+"Notebook N, live" slides name both.
+
+| # | Atom | Lesson source |
+|--|--------------------------|------------------------|
+| 1 | One pump's five nearest with `kneighbors`: four faulty, one flipped label | *k-nearest neighbours: the whole algorithm*; *k-NN, drawn* |
+| 2 | Unscaled, none of the five nearest is the same: vibration picks them | *Scale first, or vibration decides everything* |
+| 3 | `cross_validate` with training scores: 1.000 at k = 1, 0.713 against 0.708 at k = 401 | *k sets the balance*; *Training against cross-validated accuracy, by k* |
+| 4 | 1,000 random points: nearest ÷ farthest 0.016 with 2 columns, 0.701 with 100 | *Why: distances stop varying*; *With n random columns* |
+| 5 | `SelectKBest`: `f_classif` keeps two noise columns (0.562), `mutual_info_classif` the readings (0.938) | *What the curse is, and is not* |
+| 6 | `GaussianNB`'s ten numbers; the 48 Hz pump as 86.4 × 1.58 ÷ 2.63 = 52 to 1, 0.981 | *Training computes ten numbers*; *A pump at 48 Hz, 5.6 bar* |
+| 7 | Two log totals, −8.095 and −4.144, and the gap 3.951; 0.01²⁰⁰ is 0.0 | *Logs turn the product into a sum*; *Software uses only the gap* |
+| 8 | Readings −0.049, squares −0.420: uncorrelated, not independent | *Uncorrelated within each class, but not independent* |
+| 9 | Interacting sensors: 0.404, and 0.972 with the product A × B | *A second dataset*; *0.404: below the baseline* |
+| 10 | Confidence 0.567 right, 0.555 wrong; 44% right at 56% confidence | *Its probabilities cannot be trusted* |
+| 11 | Six pumps on a line: the threshold at 5, support vectors 3 and 7 | *SVM: among the lines that fit, take the widest margin* |
+| 12 | Slack 0, 0.4 and 2.2; weights 0, 0.38 and C; w rebuilt from `dual_coef_` | *Not separable?*; *Three kinds of point*; *The SVM's solution* |
+| 13 | 25 = 25 by hand; `rbf_kernel` 0.607, 0.135, 0.011 | *The kernel trick by hand*; *The RBF kernel* |
+| 14 | The 48 Hz vote by hand: +37.455 − 36.677 + 1.105 = +1.883, `decision_function` | *Training: one weight per pump*; *The SVM's score at 48 Hz* |
+| 15 | γ and C: 0.996 against 0.902, and 548 support vectors | *Training against cross-validated, three settings* |

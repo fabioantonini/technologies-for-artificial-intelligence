@@ -173,6 +173,7 @@ it is what makes ten mathematically serious handouts feasible part-time.
 Course/            SYLLABUS.md, SCHEDULE.md, PREREQUISITES.md, template.pptx, Setup/
 Lessons/NN_topic/  Docs/ Slides/ Notebooks/ Quizzes/ Exercises/ Figures/ Resources/
 Assessment/        Exam/ Exercises/
+Consolidation/     00_the_scikit_learn_api.ipynb, the API atoms every lesson leans on, and consolidation_guide.md
 Workshop/          a two-hour in-class workshop, built but not scheduled (dropped 30 Oct 2026): notebook, checks, data, guide, deck
 
 tools/             build.py, verify_lesson.py, check_code_blocks.py, make_template.py, postprocess_pptx.py, render_math.py, release.py
@@ -194,6 +195,7 @@ this rule prevents.
 | Concepts index | `{topic_snake_case}_concepts.md` | `regression_concepts.md` |
 | Commentary | `{topic_snake_case}_commentary.md` | `regression_commentary.md` |
 | Notebook guide | `Notebooks/notebook_guide.md` | what each notebook shows, and its two-minute version |
+| Atoms | `Notebooks/atoms.ipynb` | the lesson's predict-then-run atoms; each "Notebook N, live" slide names the ones that can replace it |
 | Slides | `{topic_snake_case}_slides.md` | `regression_slides.md` |
 | Notebook | `{NN}_{topic_snake_case}.ipynb` | `01_gradient_descent_from_scratch.ipynb` |
 | Quiz | `{TopicName}-Quiz.ipynb` | `Regression-Quiz.ipynb` |

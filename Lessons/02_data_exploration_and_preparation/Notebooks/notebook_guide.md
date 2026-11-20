@@ -154,3 +154,32 @@ method, not in the number. Second, target-encoding `zip_code` before the split t
 AUC from 0.751 to 0.891 — fourteen points out of a column that contains nothing, by
 construction. The mechanism is at the end: a zip code with one customer gets an encoded
 value identical to that customer's label. The feature is the answer.*
+
+---
+
+# The atoms — `atoms.ipynb`
+
+## Lesson 2, one call at a time
+
+**What it is for.** Each preparation step of lesson 2 on its own, on five to ten
+customers, with the worked examples of the commentary computed by the library. In class
+atoms 1-6 can replace notebook 1, atoms 7-12 notebook 2, and atoms 13-15 notebook 3, in the
+same time. The notebook runs in a few seconds.
+
+| # | Atom | Lesson source |
+|--|--------------------------|------------------------|
+| 1 | Load and look | *Look before you touch anything* |
+| 2 | Finding the missing values | *Where the gaps are* |
+| 3 | Dropping rows and columns | *What to do about a gap* |
+| 4 | Mean imputation: *four ages out of ten* | *What mean imputation actually costs* |
+| 5 | The missing indicator: keeping the fact of the gap | *What to do about a gap*; *Choosing among the four* |
+| 6 | Outliers: *the ruler made of the outlier*, and *the same eight values* | *Rule 1*; *Rule 2: interquartile range (IQR)* |
+| 7 | Two scalers: *five customers, one outlier* | *StandardScaler vs MinMaxScaler* |
+| 8 | *One step size for two directions* | *A 100:1 variance ratio, and what it costs* |
+| 9 | *Ten customers, three encodings*, and *the steps ordinal encoding assumes equal* | *One customer, three encodings*; *Ordinal: equal steps, unequal churn* |
+| 10 | *Four rows, four columns, rank three* | *One one-hot column too many*; *4 columns, but only rank 3* |
+| 11 | `ColumnTransformer`: a different preparation for each column, and what each piece learned | *ColumnTransformer + Pipeline*; *The code* |
+| 12 | *The AUC by counting pairs* | *The model, on churn* |
+| 13 | Leak 1: *the two nearest neighbours are both in the test set* | *Leak 1: impute before splitting* |
+| 14 | Leak 2: *a zip code with no signal, and an AUC of 0.875* | *Leak 2: encode before splitting*; *How much of its own label a row sees* |
+| 15 | The fix: *the same eight customers, cross-fitted*, and `TargetEncoder` | *The fix* |

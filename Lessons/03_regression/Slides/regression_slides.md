@@ -669,6 +669,7 @@ divide by three if it rises. Lesson 5 replaces the recipe with a search.
 | the iterative answer, 22-27 | NumPy only: gradient descent → the same answer, slowly |
 | all six features, 52-53 | `LinearRegression` → area 2,421, bedrooms −16.6% |
 | the baseline, 12 | `DummyRegressor(strategy="mean")`, `r2_score` → 96,440 € against 20,341 €, R² 0.956 |
+| **or atoms 1-9** | `Notebooks/atoms.ipynb`; also `mean_absolute_error` |
 
 ::: notes
 The model, the cost, the exact solution and the iterative one, built from
@@ -681,6 +682,9 @@ end, which is the setup for the last section of the lesson.
 
 Watch for anyone whose gradient descent diverges. That is the "try this" at the
 end of the notebook and it is a good thing to have happen.
+
+Or, in class, run atoms 1-9 of the lesson 3 atoms notebook,
+Notebooks/atoms.ipynb, in the same time: each asks for a prediction, then runs.
 :::
 
 # Break
@@ -869,6 +873,7 @@ do not have a test set to spend.
 | linear in the coefficients, 32-34 | `PolynomialFeatures`, `StandardScaler` and `LinearRegression`, chained by `make_pipeline` |
 | too much flexibility, 35-37 | `mean_squared_error`, square-rooted → test RMSE 16.9 at degree 3, 24,655.7 at 12 |
 | why the wiggles appear, 39 | the fitted coefficients → largest 3,097,038,010 at degree 12 |
+| **or atom 10** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 Fit the curve, push the degree up, and watch the test error turn. 20 minutes. This is the shortest of the three notebooks and the most visual.
@@ -884,6 +889,9 @@ just seen it appear on their own screen.
 The "try this" reduces the training set from 21 points to 15 and asks which
 degree wins then. The answer moves down, which is the first hint that the right
 amount of flexibility depends on how much data you have - a theme for lesson 5.
+
+Or, in class, run atom 10 of the lesson 3 atoms notebook,
+Notebooks/atoms.ipynb, in the same time: each asks for a prediction, then runs.
 :::
 
 # Why flexibility goes wrong
@@ -1250,6 +1258,7 @@ what would happen if you moved a house.
 | Ridge on the degree-12 fit, 40-44 | `Ridge(alpha=0.01)` after `PolynomialFeatures` and `StandardScaler` → largest coefficient 365 |
 | regularisation paths, 47-49 | `make_pipeline(StandardScaler(), Ridge(alpha=...))`, the same with `Lasso` → only area left at 40,000 |
 | the collinear case, 50-51 | `LinearRegression` against `Ridge(alpha=10)` on four splits → 9,261 to 45,307, then about 40,000 |
+| **or atoms 11-15** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 Ridge on the degree-12 fit, the regularisation paths, and the collinear case.
@@ -1261,6 +1270,9 @@ The "try this" swaps Ridge for Lasso on the redundant columns. Ask them to
 predict which way lasso resolves it before running, then to explain why the two
 penalties disagree. It is a good check of whether the disc-and-diamond picture
 landed.
+
+Or, in class, run atoms 11-15 of the lesson 3 atoms notebook,
+Notebooks/atoms.ipynb, in the same time: each asks for a prediction, then runs.
 :::
 
 # What we did today

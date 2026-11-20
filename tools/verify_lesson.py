@@ -189,9 +189,12 @@ def check_notebooks(lesson: Path, report: Report, run: bool) -> None:
                                 f"{name} cell {index} stored an error: "
                                 f"{output.get('ename')}")
 
-        # Outputs are committed on purpose (see CLAUDE.md); missing ones mean
-        # the notebook was edited and never re-run.
-        without = [i for i, c in enumerate(code_cells, 1) if not c.get("outputs")]
+        # Outputs are committed on purpose (see CLAUDE.md); a cell that was
+        # never executed means the notebook was edited and not re-run. A cell
+        # that ran and printed nothing (a definition, an import) is fine: the
+        # atoms notebooks have many.
+        without = [i for i, c in enumerate(code_cells, 1)
+                   if not c.get("outputs") and c.get("execution_count") is None]
         if len(without) > 1:
             report.fail("notebooks",
                         f"{name}: {len(without)} code cells have no output "

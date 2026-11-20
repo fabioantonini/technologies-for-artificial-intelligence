@@ -167,3 +167,30 @@ problem only one of those two curves is telling you anything useful. Third, we c
 the threshold from money: doing nothing costs 197,600 euros, the default threshold
 87,620, and the right threshold 45,540 — 48% saved by making a decision somebody was
 already making by accident.*
+
+---
+
+# The atoms — `atoms.ipynb`
+
+## Lesson 4, one call at a time
+
+**What it is for.** Lesson 4's odds, log loss, metrics and thresholds on three to
+twenty drives. In class atoms 1-4, with atom 00·11 of `Consolidation/00_the_scikit_learn_api.ipynb`,
+can replace notebook 1; atoms 5-6, with atom 00·3, notebook 2; and atoms 7-10 and 12 notebook 3.
+Atom 11, softmax, goes with the optional three-class slide. The notebook runs in a few
+seconds.
+
+| # | Atom | Lesson source |
+|--|--------------------------|------------------------|
+| 1 | *Five probabilities, their odds and their log-odds*: `logit` and `expit` | *Why the log-odds* |
+| 2 | *One coefficient, three drives*: odds, not probability | *What the coefficients mean* |
+| 3 | *Four drives, one confident mistake*: `log_loss` | *Surprise: minus the log of a probability*; *Cross-entropy, also called log loss* |
+| 4 | *One step of gradient descent on three drives* | *Lesson 3's gradient* |
+| 5 | *Twenty drives, four of which fail*: `confusion_matrix(...).ravel()` in its order | *Four numbers instead of one*; *Our model, in those terms* |
+| 6 | `classification_report`: the two averages, by hand | *Read the minority class, not the average* |
+| 7 | *The AUC of seven drives*: ties count half, and only the order matters | *What the area means*; *What AUC does not tell you* |
+| 8 | *Average precision of a seven-drive ranking*: a step sum, not a trapezoid | *The rule: report both* |
+| 9 | *Invented costs: a false alarm €50, a missed failure €200*: a threshold applied to the probabilities | *Where the two costs cross*; *Where they cross, in one line* |
+| 10 | *A weight ratio of 4*: `compute_class_weight` and the threshold it stands for | *What class weights do*; *Class weights: the same lever, pulled earlier* |
+| 11 | *Softmax on three scores*, and `predict_proba` for three classes | *Three classes: softmax (optional)* |
+| 12 | *Twelve drives, one counter*: `fit`, the odds multiplier, 0.5 against $t^*$, `confusion_matrix`, precision, recall, `roc_auc_score` | *What the coefficients mean*; *Four numbers instead of one*; *Where they cross, in one line*; *What the area means* |

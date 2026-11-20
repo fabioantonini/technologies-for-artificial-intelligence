@@ -1086,7 +1086,7 @@ section 4.3.
 | the decision boundary, 28 | `make_pipeline(StandardScaler(), LogisticRegression())` on two features |
 | the truth, recovered, 15-16 | `LogisticRegression`, `.coef_`, `.intercept_` → seek_error_rate 0.02, intercept −6.09 |
 | the penalty, 29 | `penalty=None` → sectors 1.690 against 1.664 |
-| **or in class: atoms 1-4, 00·11** | `Consolidation/`, notebooks 04 and 00 |
+| **or in class: atoms 1-4, 00·11** | `Notebooks/atoms.ipynb` and Consolidation 00; also `log_loss` |
 
 ::: notes
 Fifteen lines of NumPy, then one line of scikit-learn, and the same answer. Run
@@ -1122,7 +1122,7 @@ if they have not been thinking about it.
 
 | Model, on the 2,000 test drives (76 fail) | Accuracy = right ÷ 2,000 | Failures caught |
 |---|---|---|
-| Predict "healthy" for everything | every healthy drive: 1,924 ÷ 2,000 = **96.20%** | **0 of 76** |
+| Predict "healthy" for everything (`DummyClassifier`) | every healthy drive: 1,924 ÷ 2,000 = **96.20%** | **0 of 76** |
 | Logistic regression, threshold 0.5 | 43 failures + 1,911 healthy: 1,954 ÷ 2,000 = 97.70% | 43 of 76 |
 
 ::: notes
@@ -1373,7 +1373,7 @@ equal voice.
 | precision and recall, 37-40 | `precision_score`, `recall_score`, `f1_score`, `classification_report` |
 | the threshold sweep, 42-43 | `predict_proba`, then the metrics at each threshold |
 | the precision-recall curve, 44 | `precision_recall_curve`, `average_precision_score` → 0.717 against 0.038 |
-| **or in class: atoms 5-6, 00·3** | `Consolidation/`, notebooks 04 and 00 |
+| **or in class: atoms 5-6, 00·3** | `Notebooks/atoms.ipynb`, `Consolidation/` |
 
 ::: notes
 The confusion matrix by hand, then from scikit-learn, then the threshold sweep.
@@ -1543,7 +1543,7 @@ can hide imbalance (slides 50-51).
 - **Area under the curve (AUC) = the probability that a random failing drive scores above a random healthy one**
 - Ours: 0.949 (`roc_auc_score`, notebook 3)
 - Check: in 200,000 random pairs, the failing drive scores higher 94.9% of the time
-- In code: `roc_auc_score(y_test, scores)`
+- In code: `roc_auc_score(y_test, scores)`; `auc` gives any curve's area
 
 ::: notes
 This is the definition to remember, and it is much more useful than "area under
@@ -1901,8 +1901,8 @@ three were expected.
 # What class weights do
 
 - Training multiplies each drive's log-loss term by its **class weight**
-- `class_weight="balanced"`: m ÷ (2 × class size), 0.52 healthy, 13.0 failed
-- A failure counts as 25 healthy drives: **class frequencies**, not costs
+- `class_weight="balanced"` (`compute_class_weight`): m ÷ (2 × class size)
+- 0.52 healthy, 13.0 failed: a failure counts as 25 healthy drives, **class frequencies**, not costs
 - **In effect it only lowers the threshold**: at 0.5 the weighted model decides like the plain one at 0.038
 
 ::: notes
@@ -2003,7 +2003,7 @@ argument for fitting the imputer on the training rows only.
 | the threshold from costs, 53-56 | `confusion_matrix` at each threshold → 45,540 EUR at 0.078, against 87,620 at 0.50 |
 | class weights, 57-58 | `LogisticRegression` with balanced class weights → AUC 0.950 |
 | three classes, 60-62 | `classification_report` → macro F1 0.707, weighted 0.883 |
-| **or in class: atoms 7-10 and 12** | `Consolidation/`, notebook 04 |
+| **or in class: atoms 7-10 and 12** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 The ROC curve by hand, the 200,000-pair experiment, the cost curve, then the

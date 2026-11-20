@@ -451,6 +451,7 @@ changed the population your model is trained on.
 | missingness, 8-12 | `df.isna().mean()`, and the mean before and after filling |
 | outliers from scratch, 15-19 | `.mean()` and `.std()` for rule 1, `.quantile([0.25, 0.75])` for rule 2 |
 | correlations, categories | `df.corr()`, `.value_counts()` |
+| **or atoms 1-6** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 Exploration, missingness mechanisms, both outlier rules: from scratch. The table
@@ -475,6 +476,9 @@ to an answer, not to be right; the most useful wrong answer in the room is
 Watch for the group that finishes early. Point them at the "try this" in the
 notebook: change the missing fraction and watch the correlation attenuate as
 the derivation predicts.
+
+Or, in class, run atoms 1-6 of the lesson 2 atoms notebook,
+Notebooks/atoms.ipynb, in the same time: each asks for a prediction, then runs.
 :::
 
 # Break
@@ -661,7 +665,7 @@ Handout Section 6.
 | Encoding | A one-year customer becomes | What that asserts |
 |---|---|---|
 | **One-hot** | `[0, 1, 0]` | all different, none closer to another |
-| **Ordinal** | `1` | ordered, **and** equally spaced |
+| **Ordinal**, `OrdinalEncoder` | `1` | ordered, **and** equally spaced |
 | **Target** | `0.137` | replaced by the churn rate of its own category |
 
 ::: notes
@@ -1023,6 +1027,7 @@ training rows only.
 | the pipeline, 36-38 | `train_test_split`, then `ColumnTransformer` + `Pipeline`: `SimpleImputer`, `StandardScaler`, `OneHotEncoder`, `LogisticRegression` |
 | the result, 39-40 | `DummyClassifier`, `accuracy_score`, `roc_auc_score`, `ConfusionMatrixDisplay` |
 | feature engineering, 41 | `FunctionTransformer` → **0.7514 → 0.7548 → 0.7439** |
+| **or atoms 7-12** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 The right-hand column carries the four numbers to come back with, each next to the
@@ -1061,6 +1066,9 @@ Two prediction cells to give a minute each: what learning rate 2.0 does on the
 raw features (most expect "slower"; it oscillates for ever), and what accuracy
 the full pipeline reaches against the 0.806 baseline (0.820, which is the cue
 for why accuracy is the wrong scale here).
+
+Or, in class, run atoms 7-12 of the lesson 2 atoms notebook,
+Notebooks/atoms.ipynb, in the same time: each asks for a prediction, then runs.
 :::
 
 # Same rule, broken three ways
@@ -1266,6 +1274,7 @@ tuning, where the same test applies once more.
 | the fix, 51 | `TargetEncoder` inside the `ColumnTransformer` → the honest **0.751** |
 | your own split | `clone` both models, refit on a split of your own |
 | scored with | `roc_auc_score` throughout |
+| **or atoms 13-15** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 Trace the imputation leak. Watch the encoding leak manufacture 0.89 from noise.
@@ -1293,6 +1302,9 @@ week early.
 
 If time is short, the target encoding case is the one to keep: it is the
 subtlest and the one most likely to appear in their own exercises.
+
+Or, in class, run atoms 13-15 of the lesson 2 atoms notebook,
+Notebooks/atoms.ipynb, in the same time: each asks for a prediction, then runs.
 :::
 
 # What we did today

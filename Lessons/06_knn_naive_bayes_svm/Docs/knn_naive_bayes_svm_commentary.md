@@ -783,7 +783,7 @@ idea. The notebook shows, in order, the straight line failing, k-NN written out 
 eight lines and checked against `KNeighborsClassifier` (the two agree on all 300
 held-out pumps), the effect of different values of $k$, the noise columns, the geometry
 degrading with the dimension, and the choice of columns. The last row names the
-alternative: atoms 1 to 5 of `Consolidation/06_lesson_6_atoms.ipynb`, the same ideas on
+alternative: atoms 1 to 5 of `Notebooks/atoms.ipynb`, the same ideas on
 small predict-then-run cells.
 
 ### Question — which results matter most, if there is no time for every cell?

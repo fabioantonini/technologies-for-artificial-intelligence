@@ -153,3 +153,20 @@ and the alarming part is that the two deployment failures which raise an excepti
 the safe ones. Fourth, one split is one measurement: the same model scores anywhere
 from 0.917 to 1.000 depending on the seed. Every one of these notebooks runs cleanly
 and reports a plausible number.*
+
+---
+
+# The atoms — `atoms.ipynb`
+
+## Lesson 1, one call at a time
+
+**What it is for.** The steps of lesson 1's workflow one at a time, on a handful of
+patients small enough to check with a pencil. In class atoms 1-4 can replace notebook 2,
+in the same time; notebooks 1 and 3 have no atoms. The notebook runs in a few seconds.
+
+| # | Atom | Lesson source |
+|--|--------------------------|------------------------|
+| 1 | `train_test_split`, and what `stratify` keeps | *Step 3: split, before anything else* |
+| 2 | `DummyClassifier`: what a baseline learns, and the score to beat | *Step 4: baseline first* |
+| 3 | The confusion matrix: where the right and wrong answers fall | *What accuracy hides* |
+| 4 | Precision and recall, counted and then printed | *Precision and recall, counted* |

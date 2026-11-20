@@ -1187,8 +1187,8 @@ the depth (peak 0.882 at depth 8); section 4 prints the nine-leaf tree and measu
 trees' disagreement (140 opposite verdicts).
 
 The cell worth protecting is the last one: seeing the 140 appear on your own screen
-lands harder than reading it off a slide. The consolidation notebook
-`Consolidation/07_lesson_7_atoms.ipynb` has short predict-then-run exercises on the
+lands harder than reading it off a slide. The lesson's atoms notebook
+`Notebooks/atoms.ipynb` has short predict-then-run exercises on the
 same ideas: Gini by hand, the root gain from counts, thresholds as midpoints, a depth-2
 tree read with `export_text`.
 

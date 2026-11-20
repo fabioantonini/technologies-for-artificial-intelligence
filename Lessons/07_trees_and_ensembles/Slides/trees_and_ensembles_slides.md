@@ -898,7 +898,7 @@ Notebook 1, section 4. Handout section 4.
 | 2. a tree, split by split, 7-20 | your own `gini` and `best_split`, then `DecisionTreeClassifier(max_depth=d)` → 100.0% identical predictions; gain 0.1438 |
 | 3. the depth dial, 21-24 | `DecisionTreeClassifier(max_depth=d)` in `cross_val_score` → peak 0.882 at depth 8 |
 | 4. what a tree costs, 25-27 | `DecisionTreeClassifier(max_leaf_nodes=9)`, `export_text` → 0.908 training, 0.901 cross-validated; two trees differ on 140 |
-| **or atoms 1-7** | `Consolidation/07_lesson_7_atoms.ipynb` |
+| **or atoms 1-7** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 The table is the notebook's map: each section, the calls it makes, the slides
@@ -1538,7 +1538,7 @@ Handout section 7.1.
 | 4. what a forest adds, 41-42 | `tree_.feature[0]` → roots 100, 51, 49 |
 | 5. feature importance, 44-46 | `.feature_importances_`, 0 to 20 noise columns → 54.5% on noise |
 | 6. checking the importances, 47-48 | `permutation_importance`, test split → real 0.09 and 0.18, noise ≈ 0 |
-| **or atoms 8-13** | `Consolidation/07_lesson_7_atoms.ipynb` |
+| **or atoms 8-13** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 The table is the notebook's map: bagging from scratch and against
@@ -1785,8 +1785,8 @@ Handout section 9.
 
 # On the loan data
 
-- `GradientBoostingClassifier`, defaults: **100 trees** of depth 3,
-  learning rate $\alpha = 0.1$
+- `GradientBoostingClassifier` (`GradientBoostingRegressor` for a number),
+  defaults: **100 trees** of depth 3, learning rate $\alpha = 0.1$
 - **0.902 ± 0.020** cross-validated accuracy: all 1,200 loans, the same five
   groups of 240 as slide 36
 - Ahead of the depth-8 tree (0.882), level with the nine-leaf tree (0.901)
@@ -1916,7 +1916,7 @@ Handout section 10.
 | 3. more trees, 58-59 | the same, `learning_rate=0.3`, `n_estimators` from 5 to 800 → peak 0.897 at 30 |
 | 4. learning rate, 60 | `n_estimators=120`, `learning_rate` from 0.02 to 1.0 → best 0.902 at 0.1 |
 | 5. leaderboard, 62 | every model in one `cross_val_score` loop → forest 0.911 |
-| **or atom 14** | `Consolidation/07_lesson_7_atoms.ipynb` |
+| **or atom 14** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 The table is the notebook's map: boosting from scratch on the residuals,

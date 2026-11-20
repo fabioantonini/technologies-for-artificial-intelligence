@@ -21,7 +21,7 @@ date: "6 November 2026 · reading time about 95 minutes"
 | 2:55–3:00 | 5 | What to put in a report; what to take away; homework, exercise 5 set | Slides 59–61 |
 | | **180** | **Total** | **61 slides, 3 notebooks, the atoms** |
 
-*The notebooks give way to short atoms from `Consolidation/05_lesson_5_atoms.ipynb`,
+*The notebooks give way to short atoms from `Notebooks/atoms.ipynb`,
 which students followed better than live notebooks in lesson 4: each atom asks for a
 prediction, then runs. Atoms 2 and 3 replace notebook 01 (slide 23), atoms 11 to 13
 replace notebook 03 (slide 58), and notebook 02 (slide 41) is left for self-study.

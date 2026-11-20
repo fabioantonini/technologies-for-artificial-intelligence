@@ -172,3 +172,32 @@ The last section is the case Ridge was designed for: two columns of the same
 measurement in different units, where least squares invents two huge opposing
 coefficients that swing by a factor of five between splits, and Ridge splits the effect
 evenly and stays put.*
+
+---
+
+# The atoms — `atoms.ipynb`
+
+## Lesson 3, one call at a time
+
+**What it is for.** Lesson 3's cost, exact solution, gradient descent and penalties
+on two to ten houses, small enough to check with a pencil. In class atoms 1-9 can replace
+notebook 1, atom 10 notebook 2, and atoms 11-15 notebook 3, in the same time. The notebook
+runs in a few seconds.
+
+| # | Atom | Lesson source |
+|--|--------------------------|------------------------|
+| 1 | *The best single price for three houses* | *Why squared, not absolute* |
+| 2 | The cost of one guess | *Trying ŷ = 2,400 · area + 45,000* |
+| 3 | *The same model, two test sets* | *A cost needs something to be compared against* |
+| 4 | The design matrix, the label vector, and the normal equation by hand | *$\theta$ and X*; *The same equation, by hand* |
+| 5 | *One slope, no intercept*: the cost is a bowl | *The cost is a bowl* |
+| 6 | *Two standardised features, rising correlation* | *How stretched is the valley?* |
+| 7 | *Three houses voting on the price of a square metre* | *The gradients: one for w, one for b* |
+| 8 | Gradient descent, one iteration at a time | *One iteration, then the next*; *One step on two houses* |
+| 9 | *A bowl of curvature 2*, and four learning rates | *Three learning rates* |
+| 10 | *A parabola by the normal equation* | *"Linear" means linear in the coefficients* |
+| 11 | *One coefficient, four penalties* | *Ridge has an exact solution too* |
+| 12 | *The same column twice*: *one effect, two columns* | *The case Ridge was invented for* |
+| 13 | *Three coefficients, both penalties* | *Ridge shrinks, Lasso selects* |
+| 14 | *The same column, two coefficients* | *What a coefficient actually says* |
+| 15 | When can you trust a coefficient? | *When can you trust a coefficient?* |

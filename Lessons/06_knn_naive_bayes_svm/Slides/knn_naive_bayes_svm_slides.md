@@ -674,7 +674,7 @@ behave as if they had far fewer dimensions. Handout section 3.2 measures it.
 | columns of noise, 16-18 | k = 15 on `load_with_noise(50)` → 0.602 |
 | distances, 19-22 | NumPy: nearest ÷ farthest → 0.701 at n = 100 |
 | choosing the columns, 23 | `SelectKBest`: `f_classif` 0.562, `mutual_info_classif` 0.938 |
-| **or atoms 1-5** | `Consolidation/06_lesson_6_atoms.ipynb` |
+| **or atoms 1-5** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 k-NN on the pumps, choosing k, and the curse of dimensionality measured. Run
@@ -1388,7 +1388,7 @@ in its handout section 7.2, where the threshold depends on the probability being
 | checking the assumption, 40-41 | squared standardised readings, `.corr()` within each class → −0.420 |
 | the interacting sensors, 42-44 | the same models, plus `SVC` → 0.404 |
 | confidence, right and wrong, 45 | `train_test_split`, then `predict_proba` → 0.567 against 0.555 |
-| **or atoms 6-10** | `Consolidation/06_lesson_6_atoms.ipynb` |
+| **or atoms 6-10** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 Where breaking the assumption is cheap, and one step away where it is fatal. Run
@@ -2155,7 +2155,7 @@ plot it.
 | the kernel trick, 58-63 | NumPy only: (u · v)² against the lifted product → 25 = 25 |
 | training and one prediction, 64-66 | `.support_`, `.dual_coef_`, `.intercept_` → +1.883 |
 | γ and C, 67-69 | `SVC(gamma=..., C=...)`, `cross_validate` → 0.944 at γ = 1 |
-| **or atoms 11-15** | `Consolidation/06_lesson_6_atoms.ipynb` |
+| **or atoms 11-15** | `Notebooks/atoms.ipynb`; also `rbf_kernel` |
 
 ::: notes
 Margins, support vectors, and what γ does to the boundary. Run notebook 03.

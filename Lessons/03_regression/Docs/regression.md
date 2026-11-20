@@ -13,13 +13,13 @@ date: "16 October 2026 · reading time about 80 minutes"
 | 0:08–0:23 | 15 | The model, its cost, and what to compare it against | Slides 6–14 |
 | 0:23–0:37 | 14 | The exact solution, and when it fails | Slides 15–21 |
 | 0:37–0:48 | 11 | Gradient descent | Slides 22–27 |
-| 0:48–1:13 | 25 | **Notebook 01** — regression from scratch | Slide 28 |
+| 0:48–1:13 | 25 | **Notebook 01**, or atoms 1–9 — regression from scratch | Slide 28 |
 | 1:13–1:28 | 15 | **Break** | Slide 29 |
 | 1:28–1:45 | 17 | Curves, and the price of flexibility | Slides 30–37 |
-| 1:45–2:05 | 20 | **Notebook 02** — polynomials and overfitting | Slide 38 |
+| 1:45–2:05 | 20 | **Notebook 02**, or atom 10 — polynomials and overfitting | Slide 38 |
 | 2:05–2:26 | 21 | Ridge and Lasso | Slides 39–49 |
 | 2:26–2:35 | 9 | Reading coefficients honestly | Slides 50–53 |
-| 2:35–2:55 | 20 | **Notebook 03** — ridge, lasso, collinearity | Slide 54 |
+| 2:35–2:55 | 20 | **Notebook 03**, or atoms 11–15 — ridge, lasso, collinearity | Slide 54 |
 | 2:55–3:00 | 5 | Summary; homework set | Slides 55–56 |
 | | **180** | **Total** | **56 slides, 3 notebooks** |
 

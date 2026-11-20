@@ -53,7 +53,7 @@ The last bullet covers the end of the lesson: lesson 4's threshold chosen on a
 validation set, the three sets and their three jobs, and what to put in a report.
 
 Say once, now: the slides marked (optional) are left for self-study, with the
-handout, and in class short atoms from Consolidation/05_lesson_5_atoms.ipynb
+handout, and in class short atoms from Notebooks/atoms.ipynb
 take the notebooks' place. Nobody has missed anything if a slide is skipped.
 
 One word to flag now, because it changes meaning halfway through. "Bias" is used
@@ -630,6 +630,7 @@ What it does NOT fix is the subject of slides 42 to 53.
 - **k = 5 or 10** in practice
 - Larger k: less pessimistic, more fits to run, round scores can be more correlated
 - k = m (m the number of rows) is **leave-one-out**: for very few rows and a per-row metric; with AUC it returns nan (one row holds no pair)
+- In code: `RepeatedStratifiedKFold` repeats the k folds under new seeds
 
 ::: notes
 Optional: skip in class if time is short, and say it is left for
@@ -793,7 +794,7 @@ The footnote carries slide 20's numbers: the flexible logistic regression
 | choosing on one split, 8-11 | three values of C, a winner per split → 89, 42, 38 outright wins, 31 ties |
 | k-fold by hand, 12-16 | `StratifiedKFold`, then `cross_val_score` → mean 0.9514; 300 new fleets → 0.0165 against 0.0084 |
 | stratify, 17-18 | `KFold` against `StratifiedKFold` → 1 failure, AUC 1.000; 0.0881 against 0.0149 |
-| **in class: atoms 2-3** | `Consolidation/05_lesson_5_atoms.ipynb` |
+| **in class: atoms 2-3** | `Notebooks/atoms.ipynb`; also `mean_squared_error` |
 
 
 ::: notes
@@ -801,7 +802,7 @@ The table is the notebook's map: each section, the calls it makes, the slides
 that introduced the idea, and the number to come back with.
 
 In class: run atoms 2 and 3 of
-Consolidation/05_lesson_5_atoms.ipynb instead (who trains and who is held out, on
+Notebooks/atoms.ipynb instead (who trains and who is held out, on
 ten days; the five round AUCs and their mean); atom 1, choosing C on a validation set, goes with
 slide 9 if there are three minutes, and leave the notebook to self-study with this
 table as its map. About ten minutes for the two atoms.
@@ -2066,12 +2067,12 @@ Commit the code that produced the number, not a tidied-up version of it.
 | nested, 51-53 | `GridSearchCV` inside `cross_val_score` → 0.670 |
 | the threshold, honestly, 54-55 | `train_test_split` twice → 4,700 EUR against 10,540 |
 | seeds, 56-57 | 30 values of `random_state` → 0.913 to 1.000 |
-| **in class: atoms 11-13** | `Consolidation/05_lesson_5_atoms.ipynb` |
+| **in class: atoms 11-13** | `Notebooks/atoms.ipynb` |
 
 
 ::: notes
 The table pairs each section with its calls and its number. In class: run atoms 11, 12 and 13 of
-Consolidation/05_lesson_5_atoms.ipynb instead (0.931 and the fix; GridSearchCV's
+Notebooks/atoms.ipynb instead (0.931 and the fix; GridSearchCV's
 25 candidates; nested cross-validation one outer round at a time), and leave the
 rest to self-study. About fifteen minutes for the three atoms.
 

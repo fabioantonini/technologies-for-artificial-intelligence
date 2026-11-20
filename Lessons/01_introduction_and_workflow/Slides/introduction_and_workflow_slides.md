@@ -1043,6 +1043,7 @@ result and a number.
 | model, 49 | `make_pipeline(StandardScaler(), LogisticRegression())`, then `.fit()` |
 | result, 51 | `.score(X_test, y_test)` |
 | errors, 52-55 | `ConfusionMatrixDisplay`, `classification_report`, `predict_proba` |
+| **or atoms 1-4** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 A question, a dataset, a split, a baseline, a model, and a number you can defend.
@@ -1062,6 +1063,9 @@ eleven false alarms to missing seven with none.
 Tell them to run it themselves rather than watch: everything after this in the
 course assumes they have a working environment, and this is the session where a
 broken one shows up.
+
+Or, in class, run atoms 1-4 of the lesson 1 atoms notebook,
+Notebooks/atoms.ipynb, in the same time: each asks for a prediction, then runs.
 :::
 
 # Step 1: frame it

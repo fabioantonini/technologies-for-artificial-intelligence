@@ -116,6 +116,17 @@ Ends when: every notebook is executed with its outputs saved, every figure is in
    python .claude/skills/new-lesson/scripts/notebook_outputs.py Lessons/NN_*/Notebooks
    ```
 
+5. **Build the atoms, `Notebooks/atoms.ipynb`.** One idea per atom, on a few rows
+   or the lesson's own data: what it shows and its *From:* (slide title, notebook
+   section), the data printed, a prediction question before the code, the call in
+   plain sight, what to look at, one thing to try changing. Group them by the
+   notebook they can replace in class, because since lesson 4 the class follows
+   atoms better than live notebooks. Execute it in the container like the others;
+   `verify_lesson.py` checks it as a notebook. Phase C then names the atoms on
+   each "Notebook N, live" slide (an `**or atoms a-b**` row and a line in the
+   notes), in the plan row, at the opening of the commentary's notebook sections,
+   and in a "The atoms" section of `notebook_guide.md`.
+
 ---
 
 ## Phase B — the handout
@@ -301,6 +312,7 @@ marking key turn a green/red gate into one with a standing exception.
 - every figure slide, and the fullest text slides, opened and looked at
 - `Resources/` holds one supplementary document, opening by saying it is not
   examinable
+- `Notebooks/atoms.ipynb` executed, and named on every "Notebook N, live" slide
 - the solution notebook exists on disk and is absent from `git status`
 - **`git status` shows nothing modified outside this lesson's folder.** Phase A
   rewrites notebooks through the container, and it is easy to touch another

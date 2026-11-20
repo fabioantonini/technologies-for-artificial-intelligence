@@ -17,7 +17,7 @@ date: "2 October 2026 · reading time about 70 minutes"
 | 1:15–1:30 | 15 | The three kinds of learning | Slides 35–40 |
 | 1:30–1:45 | 15 | **Notebook 01** — one dataset, three questions | Slide 41 |
 | 1:45–1:50 | 5 | The workflow, the map | Slide 42 |
-| 1:50–2:30 | 40 | **Notebook 02** — the workflow, live, with slides 44–57 | Slide 43 |
+| 1:50–2:30 | 40 | **Notebook 02**, or atoms 1–4 — the workflow, live, with slides 44–57 | Slide 43 |
 | 2:30–2:35 | 5 | How models mislead: the frame | Slide 58 |
 | 2:35–2:55 | 20 | **Notebook 03** — four failures, live, with slides 60–69 | Slide 59 |
 | 2:55–3:00 | 5 | Homework set, questions | Slides 70–71 |
