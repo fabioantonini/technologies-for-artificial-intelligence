@@ -2,14 +2,14 @@
 title: "Neural Networks"
 subtitle: "Lesson 9 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "11 December 2026 · reading time about 70 minutes"
+date: "4 December 2026 · reading time about 70 minutes"
 ---
 
 ## Lesson plan
 
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
-| 0:00–0:10 | 10 | Exercise 8 discussed; what a network adds; three problems | Slides 2–5 |
+| 0:00–0:10 | 10 | Exercise 7 discussed; what a network adds; three problems | Slides 2–5 |
 | 0:10–0:30 | 20 | One neuron is one line: the perceptron, the sigmoid, the acceptance test | Slides 6–13 |
 | 0:30–0:50 | 20 | A hidden layer: several lines, combined | Slides 14–26 |
 | 0:50–1:15 | 25 | **Notebook 01** — from one line to a hidden layer | Slide 27 |
@@ -671,8 +671,8 @@ notices.** Lesson 10 is about networks that do notice.
 
 ### Homework
 
-`Exercises/09_neural_networks.md`, discussed at the start of Lesson 10,
-**Friday 18 December 2026**.
+`Exercises/09_neural_networks.md`, discussed at the start of Lesson 8,
+**Friday 11 December 2026** (this year lesson 8 is taught after lesson 9).
 
 ### Notation used in this lesson
 

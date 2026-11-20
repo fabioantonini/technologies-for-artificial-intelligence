@@ -2,7 +2,7 @@
 title: "Exercise 9 — Neural Networks"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 11 December 2026 · discussed at the start of lesson 10, Friday 18 December 2026"
+date: "Set 4 December 2026 · discussed at the start of lesson 8, Friday 11 December 2026"
 ---
 
 ## What this exercise is for
@@ -43,7 +43,8 @@ problem and knowing in advance whether depth is what it needs.**
 course container. Written answers go in markdown cells beside the evidence for
 them.
 
-Nothing is handed in: lesson 10 opens by discussing this exercise, and at the
+Nothing is handed in: lesson 8, taught after lesson 9 this year, opens by
+discussing this exercise, and at the
 exam one of the ten is drawn for you to talk through your own notebook.
 
 ---
