@@ -1501,7 +1501,7 @@ budget was chosen for readability, not on these folds.
 
 ### Homework
 
-`Exercises/07_trees_and_ensembles.md`, discussed at the start of Lesson 8, **Friday 4 December 2026**.
+`Exercises/07_trees_and_ensembles.md`, discussed at the start of Lesson 9, **Friday 4 December 2026**.
 
 ### Notation used in this lesson
 

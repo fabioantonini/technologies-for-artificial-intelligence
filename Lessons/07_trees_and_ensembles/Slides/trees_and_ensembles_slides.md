@@ -2134,7 +2134,7 @@ Handout summary and notation table.
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten
-minutes of lesson 8, Friday 4 December.
+minutes of lesson 9, Friday 4 December.
 
 Remind them of the standing rule from lesson 5: every reported number needs
 a cross-validated spread, and any feature-importance claim needs the check
