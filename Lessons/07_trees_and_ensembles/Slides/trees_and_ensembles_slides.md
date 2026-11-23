@@ -139,14 +139,15 @@ builds.
 Handout section 1.1.
 :::
 
-# The whole algorithm, in one sentence
+# Training a tree, in one sentence
 
-- Try **every feature and every threshold**; keep the split leaving the
-  **purest** two groups
-- Apply it; repeat on each group, independently
-- Stop at a depth limit, a pure group, or too few examples to split
-- No coefficients, no gradient: thresholds are found by **searching**
-- **Greedy**: whichever split helps most *right now*, with no lookahead
+- Try **every feature and every threshold** (midpoints of neighbouring
+  values in the group); keep the **purest** split
+- Repeat on each group, independently, until a depth limit, a pure group, or
+  too few examples
+- **Greedy**: the best split *right now*, no lookahead
+- **Prediction** is separate: a new applicant answers the questions down to a
+  leaf, which answers with its **majority class**
 
 ::: notes
 Read the algorithm as one sentence and let it sit - it really is that short.
@@ -179,6 +180,22 @@ pure group stops its own branch while the others carry on, and the algorithm is
 finished when every branch has stopped. Without a depth limit, every branch runs
 until it is pure, which is why an unconstrained tree reaches a training accuracy of 1.000.
 
+The thresholds, at the board. Sort one feature's values in the group: every
+midpoint between two neighbours is a candidate, so k different values give
+k - 1 thresholds. They are recomputed in every group, on its own applicants
+only: fewer of them, and on the feature the last split did not use, some new -
+two values that are neighbours in the group need not have been neighbours
+before, because an applicant between them went down the other branch. A
+predictable slip: "the thresholds are fixed by the dataset, the same at every
+node". Natural, since the data never change during training; but each node's
+search sees only its own group.
+
+The last bullet separates the two phases, and the slides that follow are all
+about the first. Training builds the tree: it searches. Prediction walks it: a
+new applicant answers one question per level and receives the majority class
+of the leaf it lands in. Whenever a later slide says a split "changes no
+prediction", this is the prediction it means.
+
 Handout section 2.1.
 :::
 
@@ -198,9 +215,13 @@ defaulted, and the gain its split buys, ΔG - computed exactly a little later - 
 purer the two groups below are than the group above.
 
 Step 1: every possible single question was tried - every threshold on income
-and every threshold on debt, 2,234 candidates - and debt ratio at or below
-0.82 is the one that leaves the two groups purest: 971 applicants at 26%
-default against 229 at 94%. Do not say why it is the best yet; the next slides build the number that ranks it.
+and every threshold on debt, 2,234 candidates: 1,138 midpoints between
+neighbouring debt ratios and 1,096 between neighbouring incomes - and debt
+ratio at or below 0.82 is the one that leaves the two groups purest: 971
+applicants at 26% default against 229 at 94%. Do not say why it is the best
+yet; the next slides build the number that ranks it. Each ΔG in the figure is
+the largest among the candidates of its own node, not a score to compare with
+other nodes.
 
 Step 2 is the word "recursive" made visible, and the place where a student
 asks where the two groups of step 1 went. They are still there: each group's
@@ -210,10 +231,13 @@ box has become the question asked of it. The 971 now reads "income ≤ 28?" with
 question; its applicants do not go anywhere. The two questions are different -
 income on the left, debt again on the right - because each group is searched
 on its own, without regard to the other. That is "independently" in the
-sentence. Compare the two gains: the income question on the left buys 0.0836,
+sentence. Each group also recomputes its candidates on its own values: the 971
+offer 921 debt and 896 income thresholds, the 229 offer 216 and 224. Compare
+the two gains: the income question on the left buys 0.0836,
 the debt question on the right 0.0026, about thirty times less. The right one
-changes no prediction at all: its two groups, 160 at 96% and 69 at 88%, are both
-still mostly defaulted, as the 229 were. The tree makes the split anyway,
+changes no prediction at all: a leaf predicts its group's majority, and both
+new leaves, 160 at 96% and 69 at 88%, would still answer "default", as the 229
+did. The tree makes the split anyway,
 because it judges impurity, not decisions, and any gain above zero is taken.
 
 Step 3 is where to slow down, because it shows greed. On the right, one split
@@ -239,11 +263,12 @@ The printout of every node is in notebook 1, section 2. Handout section 2.1.
 
 # How pure is a group of examples?
 
-- A leaf that is all one class needs no more questions
-- A group half one class, half the other, is the worst case: a coin flip
-- **Impurity** is a number that captures this: 0 for a pure group, highest
-  for an even mix. "As pure as possible" then means "with the lowest
-  impurity"
+- Why purity: a new applicant gets its leaf's majority class; the purer the
+  leaf, the fewer training examples disagree with it
+- A leaf all of one class needs no more questions
+- Half one class, half the other: the worst case, a coin flip
+- **Impurity**: 0 for a pure group, highest for an even mix; "as pure as
+  possible" means "lowest impurity"
 
 ::: notes
 Before any symbol appears, ask the room what "pure" should mean for a group
@@ -251,11 +276,20 @@ of examples. Most will land close to the right answer on their own: a group
 where everyone shares a label needs nothing further, and a fifty-fifty split
 is as bad as it gets.
 
+The first bullet ties purity to the prediction of slide 7: the leaf answers
+with its majority, so the purer the leaf, the fewer of its own training
+examples that answer contradicts - fifty-fifty is a coin flip, pure is
+unanimous. Unanimous on the training data, not certain on a new applicant: a
+pure leaf of two applicants proves very little. A predictable slip: "a pure
+leaf means a certain prediction". Natural, since pure sounds like sure; but
+the purity was measured on the examples the leaf was built from.
+
 Say plainly that the standard choice for classification is called the Gini
-impurity, and that it is not a probability of misclassification - it is the
-probability that two examples drawn at random with replacement from the
-group, and labelled according to the group's own class frequencies, would
-disagree.
+impurity: the probability that two examples drawn at random, with
+replacement, from the group have different labels. It is not the error rate of
+the leaf, which always answers with the majority: in a group of 6 defaulted
+and 2 repaid the leaf is wrong on 2/8 = 0.25 of it, while its Gini impurity is
+0.375.
 
 A predictable slip: "this split is impure". Impurity belongs to a group, not to
 a split. A split is then judged by the impurity of the two groups it makes,
@@ -266,7 +300,7 @@ Handout section 2.2.
 
 # Gini impurity
 
-$$G = 1 - \sum_{c=1}^{C} p_c^2 \\ p_c\text{: share of class } c\text{ (defaulted, repaid)} \\ \text{slide 8's 229: } 1 - 0.939^2 - 0.061^2 = 0.115$$
+$$G = 1 - \sum_{c=1}^{C} p_c^2 \\ p_c\text{: share of class } c\text{ (defaulted, repaid)} \\ \text{slide 8's 229: } p = 215/229 = 0.939 \\ G = 1 - 0.939^2 - 0.061^2 = 0.115$$
 
 ::: notes
 Each p in the sum is the fraction of the group belonging to one class,
@@ -284,6 +318,12 @@ scores as high as the formula allows.
 Give them a moment to notice the formula asks nothing about *which* class is
 common, only about how mixed the group is - that symmetry matters later,
 when a split is chosen purely by how much it reduces this number.
+
+A predictable slip: dropping the square, "one minus the sum of the shares".
+Natural, because "the probability of class c" suggests p_c; but the event is
+two draws both of class c, which has probability p_c × p_c. The check that
+catches it: the shares always add up to 1, so without the square the formula
+gives 1 - 1 = 0 for every group.
 
 A predictable slip: "Gini never exceeds 0.5". Reasonable, since every group
 in this lesson has two classes. But 0.5 is the two-class maximum: with C
@@ -308,7 +348,9 @@ think they are one thing.
 - $G = 2p(1-p)$, where $p$ is the share defaulted and $1-p$ the share repaid
 - **0** when the group is pure ($p = 0$ or $p = 1$)
 - **0.5**, the maximum, at $p = 0.5$
-- On the full 1,200 applicants, $p = 0.387$ gives $G = 0.474$
+- On the full 1,200 applicants, $p = 464/1{,}200 = 0.387$, so
+  $G = 2 \times 0.387 \times 0.613 = 0.474$: the impurity every root split is
+  measured against
 
 ::: notes
 Two classes is the case that matters for this dataset, and the formula
@@ -326,18 +368,19 @@ every candidate root split is measured against.
 Handout section 2.2.
 :::
 
-# The gain a split buys
+# Choosing a split: the children's impurity, averaged by size
 
-- A split divides a parent P into a left child L and a right child R; *m*
-  counts each one's examples: at the root, 1,200 in P = 971 in L + 229 in R
-- Worth taking if the children's impurities, **averaged**, are lower than
-  the parent's: at the root 0.474 against 0.330
-- The average is **weighted by size**: one example cut off alone would
-  halve a plain average, and barely moves a weighted one
+- Parent P, children L and R: at the root, 1,200 = 971 + 229
+- Their impurities, **weighted by share**: 971/1,200 × 0.381 + 229/1,200 ×
+  0.115 = **0.330**, against the parent's **0.474**
+- **The search keeps the feature/threshold pair with the lowest weighted
+  average**
+- Weighted, because one example cut off alone would halve a plain average
 
 ::: notes
 Set up the idea in words before the formula: a split is only useful if the
-two resulting groups are, taken together, purer than the one group was. At the
+two resulting groups are, taken together, purer than the one group was, and
+the search keeps the candidate whose two groups are purest on balance. At the
 root the parent's impurity is 0.474; the left child's is
 2 × 0.256 × 0.744 = 0.381 (249 of 971 defaulted), the right child's
 2 × 0.939 × 0.061 = 0.115 (215 of 229); averaged with weights 971/1,200 = 0.809
@@ -363,16 +406,25 @@ Handout section 2.2.
 
 # The reduction in impurity
 
-$$\Delta G = G_P - \left(\frac{m_L}{m_P}\, G_L + \frac{m_R}{m_P}\, G_R\right)$$
+$$\Delta G = G_P - \left(\frac{m_L}{m_P}\, G_L + \frac{m_R}{m_P}\, G_R\right) \\ m, G\text{: examples, impurity of P, L, R} \\ \text{largest } \Delta G = \text{lowest weighted average}$$
 
 ::: notes
 Say what the symbols are before reading the formula: P, L and R are the
-parent group and its two children, as on the previous slide. Each G is the
-Gini impurity of one group, and each m is the number of examples in it; the
-two children's m add up to the parent's. Read it as: the parent's impurity,
-minus the children's impurities averaged with weights equal to the share of
-the parent that went to each child. ΔG (delta G) is the gain. The tree keeps
-whichever candidate split makes $\Delta G$ largest.
+parent group and its two children, the parent and the left and right child of
+the previous slide. Each G is the Gini impurity of one group, and each m is the
+number of examples in it, the course's m for a count of examples; the two
+children's m add up to the parent's. Read it as: the parent's impurity, minus
+the children's impurities averaged with weights equal to the share of the
+parent that went to each child. ΔG (delta G) is the gain. The third line is
+why this slide and the previous one say the same thing: at one node every
+candidate has the same parent, so subtracting the smallest weighted average
+from the same G_P gives the largest gain. ΔG also says how much is gained.
+
+A gain is never negative, but one child can be worse than its parent: slide
+8's split of the 229 makes a group of 69 with impurity 0.205, against the 229's
+0.115; the other child, 160 at 0.072, more than pays for it. A predictable
+slip: "every child of a good split is purer than its parent". Only the
+weighted average has to be.
 
 No derivation needed here - the formula is exactly the weighted comparison
 the previous slide described in words. Handout section 2.2 has it worked
@@ -388,13 +440,13 @@ never above 0.5.
 
 # Scanning for the best split
 
-- Sort a feature's values: every **midpoint** between neighbours is a
-  candidate threshold
+- Sort the values **of the group being split**: each **midpoint** between
+  neighbours is a candidate
 - Infinitely many thresholds, but **finitely many splits**: any threshold
   between the same two neighbours makes the same two groups
 - Score every candidate on **every feature**; keep the best pair, then
   repeat inside each child
-- **Greedy**: $\Delta G$ is judged one split at a time, never jointly
+- **Greedy**: $\Delta G$ judged one split at a time
 
 ::: notes
 This is the exhaustive-search part of the algorithm, and it is worth being
@@ -414,6 +466,15 @@ distinct values in the data, so 1,138 gaps; income has 1,097, so 1,096. The
 search is exact, not an approximation. A predictable slip is to think it must
 be approximate because thresholds are continuous: the data are finite, so the
 splits are too.
+
+The first bullet's "of the group being split" is the other half of slide 7's
+board example. In each child the candidates are recomputed from that child's
+values: the 971 of the left offer 921 debt and 896 income thresholds, the 229 of
+the right 216 and 224. On income, the feature the root did not use, 168 of the
+left's thresholds and 169 of the right's are new, midpoints that did not exist
+at the root: an applicant who lay between two neighbours went down the other
+branch. On debt, the feature the root did use, none is new: each child holds an
+unbroken stretch of the debt values.
 
 The last bullet is the one to slow down on. A feature that only helps in
 combination with a second split further down the tree can be - and in this
@@ -532,7 +593,9 @@ def grow(g):
   best = max(gain, key=gain.get)
   if gain[best] <= 0: return leaf(g)
   L, R = split(g, best)
+  # node keeps best: prediction asks it
   return node(best, grow(L), grow(R))
+tree = grow(training_examples)  # depth 0
 ```
 
 ::: notes
@@ -548,6 +611,17 @@ subtrees. Read it top to bottom with the room and point at where
 ΔG does its two jobs, both at one node at a time. It ranks that node's
 candidates - the largest wins. And it decides whether to split at all - if
 nothing gains, the node is a leaf.
+
+The last line is the call, and the comment above the return says why best is
+kept. The call is made once, on the training examples - all 1,200 for
+slide 8's tree, each fold's 960 in cross-validation, not "the whole dataset"
+whenever something is held out. The pseudocode hides the depth: stop(g) needs
+to know how deep g sits, so g is taken to carry it; notebook 1's
+build_tree(X, y, depth=0, max_depth=...) passes it explicitly, each child at
+depth + 1. And best is not needed by grow(L) and grow(R), which see only their
+own examples; the node stores it because prediction asks it - a new applicant
+at this node goes left or right by this question. A predictable slip: "best is
+passed on to the children's search".
 
 Then the recursion, which is the line students skip: each child calls grow on
 its own examples, with its own G as the parent's and its own size as m. ΔG is
@@ -583,12 +657,12 @@ new point with all the training points.
 
 # Checked against scikit-learn
 
-- The from-scratch implementation and scikit-learn's
-  `DecisionTreeClassifier` make **the same prediction for all 1,200
-  applicants**, at every depth tested
-- Not a coincidence: both search the same space by the same greedy rule
-- From here on, the notebooks use scikit-learn's implementation: the same
-  algorithm, compiled, not a different one
+- From scratch and `DecisionTreeClassifier`: **the same prediction for all
+  1,200 applicants they were trained on**, at depths 2, 3, 5 and 8
+- Not a coincidence: the same search, by the same greedy rule
+- Training data on purpose: it checks **the code, not the model**; no claim
+  about new applicants
+- From here on, scikit-learn's version: the same algorithm, compiled
 
 ::: notes
 This is the check notebook 1 runs live, and it matters for trust rather
@@ -645,16 +719,33 @@ lower edge at 0.40, and by depth 8 both islands are drawn. Greedy
 fails outright only where a single cut pays nothing at all - a chessboard, or
 the exclusive-or (XOR) of two features, where every first cut leaves both
 sides exactly as mixed as before.
+
+Draw the XOR at the board if someone asks what that means. Four quadrants of
+100 applicants: default where exactly one of the two features is high, repaid
+where both are low or both are high. The parent holds 200 defaults in 400,
+p = 0.5, G = 0.5. Cut on the first feature: each side has 100 defaulted and
+100 repaid, G = 0.5 on both, weighted average 0.5, ΔG = 0. The second feature,
+or any other threshold, gives the same. Slide 18's loop reaches "if gain[best]
+<= 0: return leaf(g)" at the root and stops: one leaf, although two cuts
+together would leave four pure groups, G = 0. The gain lies entirely in the
+pair of cuts and none of it in either cut alone.
+
+A predictable slip: "greedy means one feature per split". They are two
+different properties. One feature per split makes every cut parallel to an
+axis; greedy means the cuts are chosen one at a time, by their immediate gain.
+A tree with slanted cuts chosen one at a time would still be greedy. The
+islands need both ideas: a rectangle takes four axis-parallel cuts, and each
+cut alone pays only a little.
 :::
 
 # Depth is the bias-variance dial
 
-- `max_depth`: the most questions **one applicant** answers
-- **Shallow tree**: few questions, only the coarsest structure. High bias,
-  low variance
-- **Deep tree**: enough questions to isolate single points. Training
-  accuracy **exactly 1.000**, even on data with no structure, unless two
-  examples share every feature value but not the label
+- `max_depth`: most questions **one applicant** answers
+- **Shallow**: coarse structure; high bias, low variance
+- **Deep**: isolates single points; training accuracy **exactly 1.000**,
+  unless two examples share every value but not the label
+- Training accuracy above slide 4's **noise ceiling**, 0.929: **flipped
+  labels memorised**
 
 ::: notes
 Name the dial explicitly and connect it to lesson 6: k in k-nearest
@@ -682,8 +773,7 @@ single applicant - a prediction made from one person's label, lesson 6's k = 1.
 And the line at 0.929: the true rule itself scores 1,115/1,200 = 0.929 on these
 labels, because 85 were flipped. A training accuracy above that line means the
 tree agrees with the labels better than the truth does, so it must be
-reproducing flipped labels: depth 8 is just past it at 0.951, the unconstrained
-tree has learned all 85. If an
+reproducing flipped labels: the unconstrained tree has learned all 85. If an
 image helps: a checklist of three questions written from last year's customers
 works on this year's; fifty questions, each written about one past customer,
 do not.
@@ -793,13 +883,13 @@ had never seen. Handout section 3.
 
 # Reading a tree, and the knob that keeps it small
 
-- `max_depth` **caps every path**: each node above the cap is split if it
-  can be, worth it or not
-- `max_leaf_nodes` is a **budget of leaves**, spent first where
-  $\Delta G$ × share of applicants is largest
-- `max_leaf_nodes = 9`: **0.908** training, **0.901** cross-validated, above
-  depth 8's 0.882; thresholds 28 and 0.82
-- In code: `export_text(tree)` prints the tree as if/else rules
+- `max_depth` **caps every path**; above the cap every node is split, worth it
+  or not
+- `max_leaf_nodes`, a **budget of leaves**, spent where $\Delta G$ × the
+  leaf's share of all applicants, **the whole tree's** gain, is largest
+- `max_leaf_nodes = 9`: **0.901** cross-validated, above depth 8's 0.882;
+  leaves at depths 1 to 7
+- In code: `export_text(tree)`, the if/else rules
 
 ::: notes
 This is the readability half of the story. The two knobs limit different
@@ -812,6 +902,23 @@ leaf's gain weighted by its share of all the applicants. It is the one place
 where gains at different nodes are compared, which slide 18's loop never does. For a tree meant to be read rather than merely
 scored, the budget is the better knob: a small number of splits goes to the
 ones that matter most.
+
+Why the gain is weighted by the leaf's share. ΔG is an average over the
+examples of its own group, fine for ranking the candidates of one node. To
+compare leaves of different sizes the budget needs what each split takes off
+the whole tree's impurity, the leaves' impurities averaged by their shares of
+the 1,200; splitting one leaf lowers that by its share times its ΔG. After
+slide 8's first split: the left leaf, 971 applicants, 0.0836 × 971/1,200 =
+0.0676; the right one, 229 applicants, 0.0026 × 229/1,200 = 0.0005. The budget
+spends on the left. Without the weight a leaf of two applicants, one of each
+class, would win everything: separating them gains 0.5, the most there is, but
+it fixes 2 of 1,200, 0.5 × 2/1,200 = 0.0008.
+
+Why "lopsided". A depth cap is less even than it looks - at depth 8 a full
+tree would have 2⁸ = 256 leaves, and this one has 71, because many branches
+stop early, pure. The budget is not even at all: the nine-leaf tree answers
+debt above 0.82 at depth 1 and income below 28 at depth 2, and goes down to
+depth 7 only on the branch that outlines island A.
 
 The nine-leaf tree is worth reading aloud as a sequence of if/else
 statements - that is the entire model, and it is the thing k-nearest

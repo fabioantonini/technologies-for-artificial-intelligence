@@ -118,6 +118,14 @@ rest of this lesson builds.
 > groups as pure as possible. Apply it. Repeat on each group, independently,
 > until a stopping rule is met.
 
+That is **training**: it builds the tree. The candidate thresholds for a
+feature are the midpoints between neighbouring values of that feature *in the
+group being split* (section 2.2 counts them). **Prediction** is a separate and
+much simpler procedure, described at the end of this section: a new applicant
+answers the questions down to a leaf, and the leaf answers with the majority
+class of the training examples it holds. When a split is said to "change no
+prediction", this is the prediction meant.
+
 Nothing is estimated in the sense lessons 3 and 4 used the word — no
 coefficient, no gradient with respect to a parameter vector. The tree still
 learns from the data which feature to ask about and where to put each
@@ -181,7 +189,9 @@ def grow(g):
   best = max(gain, key=gain.get)
   if gain[best] <= 0: return leaf(g)
   L, R = split(g, best)
+  # node keeps best: prediction asks it
   return node(best, grow(L), grow(R))
+tree = grow(training_examples)  # depth 0
 ```
 
 Line by line: `g` is the group being grown; `stop(g)` is true when the group
@@ -190,7 +200,16 @@ predicts the group's majority class; `splits(g)` lists every candidate, a
 feature with one of its midpoint thresholds; `ΔG(g, c)` is the gain of section
 2.2 on the two groups candidate `c` would make; `max(gain, key=gain.get)` picks
 the candidate with the largest gain; `split` makes the two groups, `L` and `R`;
-`node` keeps the question and its two subtrees.
+`node` keeps the question and its two subtrees. The last line is the call,
+made once, on the training examples: all 1,200 for the tree in the figure, each
+fold's 960 in cross-validation. The pseudocode hides the depth, which `stop(g)`
+needs; notebook 1 passes it explicitly, `build_tree(X, y, depth=0, max_depth=...)`,
+each child at `depth + 1`.
+
+`best` is not needed by `grow(L)` and `grow(R)`, which see only their own
+examples; the node stores it because prediction asks it, sending a new
+applicant left or right by that question. **A predictable mistake** is to think
+`best` is passed on to the children's search.
 
 $\Delta G$, defined in section 2.2, does two jobs, both at one node at a time:
 it ranks that node's candidates, and it decides whether the node is split at
@@ -222,7 +241,16 @@ prediction compares the new point with all the training points.
 
 ### 2.2 Impurity, and the gain a split buys
 
-"As pure as possible" needs a number. For classification, the standard
+"As pure as possible" needs a number, and the reason it is worth one is
+prediction: a new applicant lands in a leaf and receives its majority class, so
+the purer the leaf, the fewer of its training examples disagree with that
+answer. A fifty-fifty leaf is a coin flip; a pure one is unanimous. Unanimous on
+the training data, not certain on a new applicant: a pure leaf of two applicants
+proves very little, and section 3 shows a tree made of pure leaves doing worse
+on unseen applicants than a shallower one. **A predictable mistake** is to read
+"pure leaf" as "certain prediction".
+
+For classification, the standard
 choice is the **Gini impurity** of a group of $m_g$ examples drawn from $C$
 classes:
 
@@ -242,17 +270,40 @@ $G = 1 - p^2 - (1 - 2p + p^2) = 2p - 2p^2$. It is $0$ when the group is pure
 classes. But 0.5 is the two-class maximum; with $C$ equally frequent classes
 $G = 1 - C \times (1/C)^2 = 1 - 1/C$, so three classes reach 0.667.
 
-**What that number is, exactly.** $G$ is not a probability of
-misclassification. It is the probability that two examples drawn at random
-*with replacement* from the group, and labelled according to the group's own
-class frequencies, would **disagree** — and the formula is that statement
-written out. Draw twice: the two draws agree on class $c$ with probability
-$p_c^2$, so they agree at all with probability $\sum_c p_c^2$, and they
-disagree with the rest:
+**What that number is, exactly.** $G$ is the probability that two examples
+drawn at random, *with replacement*, from the group have **different labels** —
+and the formula is that statement written out. Draw twice: "with replacement"
+makes the second draw independent of the first, with the same shares, so the
+two agree on class $c$ with probability $p_c \times p_c = p_c^2$; they agree at
+all with probability $\sum_c p_c^2$, and they disagree with the rest:
 
 $$P(\text{disagree}) = 1 - \sum_{c=1}^{C} p_c^2 = G$$
 
 A pure group cannot disagree with itself, which is why $G = 0$ there.
+Equivalently, $G$ is the chance of being wrong when one example is drawn and its
+label *guessed* at random with the group's proportions: wrong with probability
+$\sum_c p_c (1 - p_c) = 1 - \sum_c p_c^2$. That guesser is not the leaf. The
+leaf always answers with the majority, and its error rate is the minority share.
+In a group of 6 defaulted and 2 repaid, $p = 0.75$: the two draws agree with
+probability $0.75^2 + 0.25^2 = 0.5625 + 0.0625 = 0.625$, so $G = 1 - 0.625 =
+0.375 = 2 \times 0.75 \times 0.25$, while the leaf, answering "default", is wrong
+on $2/8 = 0.25$ of the group. So $G$ is not the leaf's misclassification rate.
+
+**A predictable mistake** is to drop the square, "one minus the sum of the
+shares". Natural, because "the probability of class $c$" suggests $p_c$; but the
+event is two draws both of class $c$. The check that catches it: the shares
+always add up to 1, so without the square the formula gives $1 - 1 = 0$ for every
+group.
+
+**Share or probability?** Inside the group the two are the same thing exactly:
+$p_c$ is a share, $215/229$, and drawing at random from that group gives a
+defaulter with exactly that probability, so the reading above is literal. As a
+statement about a *new* applicant — "whoever lands in this leaf defaults with
+probability 0.94", which is what `predict_proba` reports — the share is an
+estimate of a probability under the unknown distribution $\mathcal{D}$: good
+when the leaf holds many examples, crude when it holds few. A leaf of two
+applicants can only say 0%, 50% or 100%. It is the distinction between $R$ and
+$\hat{R}$ from lesson 1, at the scale of one leaf.
 
 *A note of history.* The name is Italian. Corrado Gini (1884–1965) was a
 statistician and the first president, in 1926, of the Istituto Centrale di
@@ -269,6 +320,24 @@ reduction in impurity, weighted by how the group is divided:
 
 $$\Delta G = G(\text{parent}) - \left(\frac{m_L}{m_P}\, G(\text{left}) + \frac{m_R}{m_P}\, G(\text{right})\right)$$
 
+At one node every candidate has the same parent, so $G(\text{parent})$ is a
+constant there: the candidate with the **largest $\Delta G$** is the one whose
+children have the **lowest weighted impurity**, and the search can be read
+either way; $\Delta G$ also says how much is gained.
+
+**A gain is never negative**, but one child can be worse than its parent. The
+weighted average of the children's shares is the parent's share, because a split
+moves examples without creating any, and $2p(1-p)$ bulges above every straight
+line between two of its points (the figure at the end of this section draws it);
+$\Delta G = 0$ only when both children keep the parent's share. Slide 8's split
+of the 229 (215 defaulted) into 160 (154 defaulted) and 69 (61 defaulted) shows
+the other half. The parent's impurity is $2 \times 0.939 \times 0.061 = 0.115$;
+the 160 have $2 \times 0.9625 \times 0.0375 = 0.072$; the 69 have
+$2 \times 0.884 \times 0.116 = 0.205$, *more* than the parent. The weighted
+average is $\tfrac{160}{229} \times 0.072 + \tfrac{69}{229} \times 0.205 = 0.050 +
+0.062 = 0.112$, still below 0.115. **A predictable mistake** is "every child of a
+good split is purer than its parent"; only the weighted average has to be.
+
 For a continuous feature, the tree scans every feature and, within each,
 every midpoint between two adjacent sorted values as a candidate threshold,
 and keeps whichever $(\text{feature}, \text{threshold})$ pair maximises
@@ -277,6 +346,21 @@ child. This is what makes the algorithm greedy: $\Delta G$ is evaluated one
 split at a time, never for a pair of splits jointly, so a feature that only
 helps in combination with a second split further down can be — and in this
 dataset's two interior islands, is — invisible to a shallow tree.
+
+Greedy is short-sighted, not blind: each edge of an island pays a little on its
+own, so with enough depth the islands are found one edge at a time. It fails
+outright only where no single cut pays anything. The exclusive-or (XOR) is the
+standard case: 400 applicants in four quadrants of 100, defaulting where exactly
+one of the two features is high. The parent has $p = 200/400 = 0.5$, $G = 0.5$.
+A cut on the first feature leaves 100 defaulted and 100 repaid on each side,
+$G = 0.5$ on both, weighted average 0.5, $\Delta G = 0$; so does every other cut.
+The loop stops at the root on `if gain[best] <= 0`, although two cuts together
+would leave four pure groups. **A predictable mistake** is to equate "greedy"
+with "one feature per split". They are two properties: one feature per split
+makes every cut parallel to an axis; greedy means the cuts are chosen one at a
+time by their immediate gain, and a tree with slanted cuts chosen that way would
+still be greedy. The islands need both: a rectangle takes four axis-parallel
+cuts, and each cut alone pays little.
 
 **Infinitely many thresholds, finitely many splits.** A threshold is a real
 number, so there are infinitely many to choose from, but they make only
@@ -291,6 +375,17 @@ debt ratio has 1,139 distinct values here and income 1,097, so the root search
 scores $1{,}138 + 1{,}096 = 2{,}234$ candidates. The search is exact, not an
 approximation — the predictable mistake is to assume it must be approximate
 because thresholds are continuous.
+
+**The candidates are recomputed in every group.** A child's search uses only its
+own examples' values. After the root split, the 971 on the left offer
+$921 + 896 = 1{,}817$ candidates (debt, income) and the 229 on the right
+$216 + 224 = 440$. Fewer, and on income, the feature the root did not use, partly
+*new*: 168 of the left's income thresholds and 169 of the right's did not exist
+at the root, because two incomes that are neighbours inside the child had an
+applicant between them who went down the other branch. On debt, the feature the
+root used, none is new: each child holds an unbroken stretch of debt values.
+**A predictable mistake** is to think the thresholds are fixed by the dataset,
+the same at every node; they are fixed by the group.
 
 ![](threshold_scan.png)
 
@@ -497,6 +592,26 @@ weighted by its share of all the examples — so a small budget of splits goes t
 the ones that matter most. It is the one place where gains at different nodes
 are compared. For a tree meant to be read rather than merely scored, that is the better
 knob.
+
+**Why the gain is weighted by the leaf's share.** $\Delta G$ is an average over
+the examples of its own group: right for ranking one node's candidates, wrong for
+comparing leaves of different sizes. The whole tree's impurity is the leaves'
+impurities averaged by their shares of all $m$ examples,
+$\sum_\ell (m_\ell/m)\, G_\ell$, and splitting leaf $\ell$ lowers it by
+$(m_\ell/m)\,\Delta G_\ell$ — that is what the budget compares. After the root
+split of section 2: the left leaf, 971 applicants, offers
+$0.0836 \times 971/1{,}200 = 0.0676$; the right one, 229 applicants,
+$0.0026 \times 229/1{,}200 = 0.0005$; the budget spends on the left. Without the
+weight, a leaf of two applicants, one of each class, would win everything:
+separating them gains $\Delta G = 0.5$, the most there is, yet it fixes 2
+applicants of 1,200, $0.5 \times 2/1{,}200 = 0.0008$.
+
+The result is a **lopsided** tree. A depth cap is less even than it looks: at
+depth 8 a full binary tree would have $2^8 = 256$ leaves, and the depth-8 tree has
+71, because many branches stop early, pure. A budget is not even at all: the
+nine-leaf tree below answers debt above 0.82 at depth 1 and income below 28 at
+depth 2, and goes down to depth 7 only on the branch that outlines the first
+stressed island.
 
 With `max_leaf_nodes = 9` the tree reaches 90.8% training accuracy in nine
 leaves and, more to the point, **0.901 cross-validated** (± 0.020) — above the

@@ -216,7 +216,7 @@ name both.
 | # | Atom | Lesson source |
 |--|--------------------------|------------------------|
 | 1 | Gini impurity by hand: 0.474, 0.381, 0.115, against `tree_.impurity` | *Gini impurity*; *For two classes, one number* |
-| 2 | The root gain by counting, 0.1438, and the plain-average slip | *The gain a split buys*; *Worked example: the root split* |
+| 2 | The root gain by counting, 0.1438, and the plain-average slip | *Choosing a split: the children's impurity, averaged by size*; *Worked example: the root split* |
 | 3 | Seven midpoints on eight loans; any threshold in the gap, the same split | *Scanning for the best split*; *Every threshold, scored* |
 | 4 | A depth-2 tree on ten loans: `export_text`, `apply`, `decision_path` | *The algorithm, drawn*; *The loop, in seven lines*; *Reading a tree* |
 | 5 | `max_depth=8` against `max_leaf_nodes=9` against no limit: 71, 9 and 156 leaves | *Depth is the bias-variance dial*; *Reading a tree, and the knob that keeps it small* |

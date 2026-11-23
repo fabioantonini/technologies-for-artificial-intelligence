@@ -913,5 +913,88 @@ same("8 at 20 trees, 0.0119", _true_err[19], 0.0119, tolerance=5e-5)
 same("7 C(20,4)", comb(20, 4), 4845, tolerance=0)
 same("7 C(22,4)", comb(22, 4), 7315, tolerance=0)
 
+# ---------------------------------------- third study pass (22-23 Nov)
+# 2.2: G is two draws disagreeing, not the leaf's error - by enumerating draws.
+_grp = np.array([1] * 6 + [0] * 2)
+_pairs = [(a, b) for a in _grp for b in _grp]                 # with replacement
+same("2.2 6-2 group: draws agree 0.625", np.mean([a == b for a, b in _pairs]), 0.625, tolerance=1e-12)
+same("2.2 6-2 group: G = 0.375", np.mean([a != b for a, b in _pairs]), 0.375, tolerance=1e-12)
+same("2.2 6-2 group: the same from gini()", gini(_grp), 0.375, tolerance=1e-12)
+same("2.2 6-2 group: the majority leaf is wrong on 2/8", np.mean(_grp != 1), 0.25, tolerance=1e-12)
+same("2.2 without the square the formula gives 0", 1 - (0.75 + 0.25), 0, tolerance=1e-12)
+
+# 2.2: one child worse than its parent - the 229's split, found by scikit-learn.
+_t2 = DecisionTreeClassifier(max_depth=2, random_state=0).fit(X, y).tree_
+_r = _t2.children_right[0]
+_rl, _rr = _t2.children_left[_r], _t2.children_right[_r]
+_yR = y[X.debt_ratio > _t2.threshold[0]]
+_xR = X.debt_ratio[X.debt_ratio > _t2.threshold[0]]
+_lo, _hi = _yR[_xR <= _t2.threshold[_r]], _yR[_xR > _t2.threshold[_r]]
+same("2.2 the 229", len(_yR), 229, tolerance=0)
+same("2.2 the 229's defaults", int(_yR.sum()), 215, tolerance=0)
+same("2.2 the 160", len(_lo), 160, tolerance=0)
+same("2.2 the 160's defaults", int(_lo.sum()), 154, tolerance=0)
+same("2.2 the 69", len(_hi), 69, tolerance=0)
+same("2.2 the 69's defaults", int(_hi.sum()), 61, tolerance=0)
+same("2.2 G of the 229", gini(_yR.values), 0.115, tolerance=5e-4)
+same("2.2 G of the 160", gini(_lo.values), 0.072, tolerance=5e-4)
+same("2.2 G of the 69, above the parent", gini(_hi.values), 0.205, tolerance=5e-4)
+_wavg = (len(_lo) * gini(_lo.values) + len(_hi) * gini(_hi.values)) / len(_yR)
+same("2.2 weighted average 0.112", _wavg, 0.112, tolerance=5e-4)
+same("2.2 the gain 0.0026", gini(_yR.values) - _wavg, 0.0026, tolerance=5e-5)
+same("2.2 the gain, scikit-learn's own impurities",
+     _t2.impurity[_r] - (_t2.n_node_samples[_rl] * _t2.impurity[_rl]
+                         + _t2.n_node_samples[_rr] * _t2.impurity[_rr]) / _t2.n_node_samples[_r],
+     0.0026, tolerance=5e-5)
+
+# 2.2: candidates recomputed per group, and the new ones on income.
+def _mids(mask, col):
+    v = np.unique(X.loc[mask, col].values)
+    return set(np.round((v[:-1] + v[1:]) / 2, 10))
+_all = np.ones(len(X), bool)
+_L, _R = (X.debt_ratio <= 0.82).values, (X.debt_ratio > 0.82).values
+for _name, _m, _debt, _inc, _new in (("left", _L, 921, 896, 168), ("right", _R, 216, 224, 169)):
+    same(f"2.2 {_name}: debt candidates", len(_mids(_m, "debt_ratio")), _debt, tolerance=0)
+    same(f"2.2 {_name}: income candidates", len(_mids(_m, "income_k")), _inc, tolerance=0)
+    same(f"2.2 {_name}: new income candidates", len(_mids(_m, "income_k") - _mids(_all, "income_k")), _new, tolerance=0)
+    same(f"2.2 {_name}: no new debt candidate", len(_mids(_m, "debt_ratio") - _mids(_all, "debt_ratio")), 0, tolerance=0)
+same("2.2 left total", 921 + 896, 1817, tolerance=0)
+same("2.2 right total", 216 + 224, 440, tolerance=0)
+
+# 2.2: XOR - every single cut gains nothing, two cuts leave four pure groups.
+_q = np.array([(a, b) for a in (0, 1) for b in (0, 1) for _ in range(100)], dtype=float)
+_lab = (_q[:, 0] != _q[:, 1]).astype(int)
+same("2.2 XOR parent G", gini(_lab), 0.5, tolerance=1e-12)
+for _f in (0, 1):
+    _left = _q[:, _f] <= 0.5
+    _w = (_left.sum() * gini(_lab[_left]) + (~_left).sum() * gini(_lab[~_left])) / len(_lab)
+    same(f"2.2 XOR: a cut on feature {_f} gains 0", gini(_lab) - _w, 0, tolerance=1e-12)
+_four = [gini(_lab[(_q[:, 0] == a) & (_q[:, 1] == b)]) for a in (0, 1) for b in (0, 1)]
+same("2.2 XOR: two cuts leave four pure groups", max(_four), 0, tolerance=1e-12)
+
+# 4: the budget weights a leaf's gain by its share of all 1,200.
+_t1 = DecisionTreeClassifier(max_depth=2, random_state=0).fit(X, y).tree_
+_l1 = _t1.children_left[0]
+def _gain(t, n):
+    a, b = t.children_left[n], t.children_right[n]
+    return t.impurity[n] - (t.n_node_samples[a] * t.impurity[a] + t.n_node_samples[b] * t.impurity[b]) / t.n_node_samples[n]
+same("4 left leaf's gain 0.0836", _gain(_t1, _l1), 0.0836, tolerance=5e-5)
+same("4 weighted, x 971/1,200", _gain(_t1, _l1) * _t1.n_node_samples[_l1] / len(X), 0.0676, tolerance=5e-5)
+same("4 right leaf's, x 229/1,200", _gain(_t1, _r) * _t1.n_node_samples[_r] / len(X), 0.0005, tolerance=5e-5)
+same("4 a leaf of two, one of each class", gini(np.array([0, 1])) * 2 / len(X), 0.0008, tolerance=5e-5)
+same("4 depth 8: 71 leaves", DecisionTreeClassifier(max_depth=8, random_state=0).fit(X, y).get_n_leaves(), 71, tolerance=0)
+same("4 a full tree of depth 8: 256 leaves", 2 ** 8, 256, tolerance=0)
+_t9 = DecisionTreeClassifier(max_leaf_nodes=9, random_state=0).fit(X, y).tree_
+_depths, _stack = [], [(0, 0)]
+while _stack:
+    _n, _d = _stack.pop()
+    if _t9.children_left[_n] < 0:
+        _depths.append(_d)
+    else:
+        _stack += [(_t9.children_left[_n], _d + 1), (_t9.children_right[_n], _d + 1)]
+same("4 nine leaves: the shallowest at depth 1", min(_depths), 1, tolerance=0)
+same("4 nine leaves: the deepest at depth 7", max(_depths), 7, tolerance=0)
+same("4 nine leaves: debt above 0.82 is a leaf", int(_t9.children_left[_t9.children_right[0]] < 0), 1, tolerance=0)
+
 print(f"{checks} numbers recomputed from raw inputs and confirmed against "
       f"{HANDOUT}.")

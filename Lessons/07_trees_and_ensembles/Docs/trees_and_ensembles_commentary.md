@@ -23,7 +23,7 @@ header-includes:
 
 <!-- examples-note:begin -->
 
-> **Worked examples** sit under eight slides (10, 13, 25, 30, 32, 51, 56, 65):
+> **Worked examples** sit under nine slides (7, 10, 13, 25, 30, 32, 51, 56, 65):
 > a handful of invented values each, small enough to work through by hand. Their
 > numbers are not the lesson's data; every one is computed by `commentary_examples.py`,
 > beside this file, which also writes them here.
@@ -195,7 +195,7 @@ the high-debt strip.
 
 ---
 
-## Slide 7 — The whole algorithm, in one sentence
+## Slide 7 — Training a tree, in one sentence
 
 A decision tree is grown by one procedure, repeated:
 
@@ -250,6 +250,79 @@ few examples, by default fewer than 2), plus one more case: no split helps, for
 example when the remaining examples have identical features and different labels.
 Without a depth limit every branch runs until its group is pure, which is why an
 unconstrained tree reaches a training accuracy of 1.000.
+
+### Question — which thresholds are tried, and are they the same at every step?
+
+> *I take the range of each feature and pick the middle value between the samples. The
+> dataset is fixed, so are the thresholds the same at every iteration, or are they
+> recomputed on the samples of the group being split?*
+
+Recomputed, on the group alone. And not one middle value per feature: the tree sorts a
+feature's values and takes **every midpoint between two neighbours** as a candidate, so
+a feature with $k$ different values offers $k - 1$ thresholds. At the root of slide 8
+that gives 1,138 on debt ratio and 1,096 on income, 2,234 in all.
+
+When a group is split again, its candidates come from its own applicants only. There
+are fewer of them, and they can be **new**: two values that are neighbours inside the
+group need not have been neighbours in the whole dataset, because an applicant lying
+between them may have gone down the other branch. The deck shows this happening on the
+two bootstrap trees of slide 26: one cuts debt at 0.82015, the other at 0.81935,
+because the second sample lacks the applicant at 0.8198, so its neighbours are
+different. The example below does the same with six applicants.
+
+**A predictable mistake.** "The thresholds are fixed by the dataset, the same at every
+node." It is natural, since the data never change during training; but the search at
+each node sees only that node's group.
+
+<!-- example:begin -->
+
+\Needspace{49\baselineskip}
+
+### Worked example — where the thresholds come from, at the root and in a group
+
+Six applicants, with a debt ratio and an income in thousands of euros:
+
+| applicant | debt ratio | income |
+|---|---|---|
+| A | 0.2 | 20 |
+| B | 0.4 | 60 |
+| C | 0.5 | 25 |
+| D | 0.7 | 70 |
+| E | 0.8 | 30 |
+| F | 0.9 | 80 |
+
+**The rule.** Sort one feature's values within the group being split; every midpoint
+between two neighbours, (left value + right value) ÷ 2, is a candidate threshold. A
+group with $k$ different values has $k - 1$ of them.
+
+**At the root**, all six applicants:
+
+- debt ratio, sorted: 0.2 < 0.4 < 0.5 < 0.7 < 0.8 < 0.9; midpoints (0.2 + 0.4) ÷ 2 = 0.30, and so on:
+  0.30, 0.45, 0.60, 0.75, 0.85
+- income, sorted: 20 < 25 < 30 < 60 < 70 < 80; midpoints (20 + 25) ÷ 2 = 22.5, and so on:
+  22.5, 27.5, 45, 65, 75
+
+5 + 5 = 10 candidates. Suppose the search keeps
+income ≤ 45 (which one wins depends on the labels, left out here): A, C and E go
+left, B, D and F go right.
+
+**In the left group**, only A, C and E, the search starts again on their own values:
+
+- debt ratio: 0.2 < 0.5 < 0.8; midpoints
+  (0.2 + 0.5) ÷ 2 = 0.35 and (0.5 + 0.8) ÷ 2 = 0.65
+- income: 20 < 25 < 30; midpoints 22.5, 27.5
+
+2 + 2 = 4 candidates, fewer than 10. The income ones,
+22.5, 27.5, were already on the root's list. The debt ones, 0.35, 0.65, were
+not: at the root 0.2 and 0.5 were not neighbours, because B's 0.4 lay between them, and
+B went to the other group. The right group gets new debt thresholds the same way,
+0.55, 0.80.
+
+What this means: the candidates are not fixed by the dataset once and for all. Each
+group computes its own from the applicants it holds - fewer of them, and on a feature
+the previous split did not use, values that no earlier list contained.
+
+<!-- example:end -->
 
 ---
 
@@ -464,7 +537,7 @@ measured against.
 
 ---
 
-## Slide 12 — The gain a split buys
+## Slide 12 — Choosing a split: the children's impurity, averaged by size
 
 A split divides a parent group P into a left child L and a right child R. Write $m$ for
 the number of examples in each: $m_P = m_L + m_R$, and at the root

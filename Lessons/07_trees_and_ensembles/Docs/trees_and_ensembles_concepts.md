@@ -18,9 +18,9 @@ splitting a group into two purer ones, until a stopping rule fires. → § 2.1
 **Greedy splitting.** At every step the tree takes whichever split helps most *right
 now*, with no way to look ahead to one that would help more two levels down. → § 2.1
 
-**Gini impurity.** The probability that two examples drawn at random from a group,
-labelled by the group's own class frequencies, would disagree. Zero when the group
-is pure. → § 2.2
+**Gini impurity.** The probability that two examples drawn at random, with
+replacement, from a group have different labels. Zero when the group is pure; not
+the error rate of the leaf, which answers with the majority. → § 2.2
 
 **Impurity reduction.** What a candidate split is worth: the parent's impurity minus
 the children's, weighted by how the group was divided. → § 2.2

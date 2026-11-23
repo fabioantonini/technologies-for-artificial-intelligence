@@ -24,6 +24,86 @@ def gini(counts):
     return 1 - sum((c / total) ** 2 for c in counts)
 
 
+# --------------------------------------------------------------- slide 7
+@example(7)
+def thresholds_per_group():
+    people = {"A": (0.2, 20), "B": (0.4, 60), "C": (0.5, 25),
+              "D": (0.7, 70), "E": (0.8, 30), "F": (0.9, 80)}   # (debt, income)
+
+    def candidates(names, col):
+        vals = sorted({people[n][col] for n in names})
+        return [(a + b) / 2 for a, b in zip(vals, vals[1:])]
+
+    def show(cands, digits):
+        if digits is None:                      # income: 22.5, 45 - not 45.0
+            return ", ".join(f"{c:g}" for c in cands)
+        return ", ".join(fmt(c, digits) for c in cands)
+
+    everyone = sorted(people)
+    root_debt, root_inc = candidates(everyone, 0), candidates(everyone, 1)
+    cut = 45
+    assert cut in root_inc
+    left = [n for n in everyone if people[n][1] <= cut]
+    right = [n for n in everyone if people[n][1] > cut]
+    assert left == ["A", "C", "E"] and right == ["B", "D", "F"]
+    l_debt, r_debt = candidates(left, 0), candidates(right, 0)
+    l_inc, r_inc = candidates(left, 1), candidates(right, 1)
+    close = lambda c, pool: any(abs(c - p) < 1e-9 for p in pool)
+    # After a split on income, the debt candidates are new; the income ones are not.
+    assert not any(close(c, root_debt) for c in l_debt + r_debt)
+    assert all(close(c, root_inc) for c in l_inc + r_inc)
+    n_root = len(root_debt) + len(root_inc)
+    n_left = len(l_debt) + len(l_inc)
+    assert (n_root, n_left) == (10, 4)
+
+    def row(n):
+        return f"| {n} | {fmt(people[n][0], 1)} | {people[n][1]} |"
+
+    rows = "\n".join(row(n) for n in everyone)
+    debt_sorted = " < ".join(fmt(people[n][0], 1) for n in everyone)
+    inc_sorted = " < ".join(str(v) for v in sorted(p[1] for p in people.values()))
+    return f"""
+### Worked example — where the thresholds come from, at the root and in a group
+
+Six applicants, with a debt ratio and an income in thousands of euros:
+
+| applicant | debt ratio | income |
+|---|---|---|
+{rows}
+
+**The rule.** Sort one feature's values within the group being split; every midpoint
+between two neighbours, (left value + right value) ÷ 2, is a candidate threshold. A
+group with $k$ different values has $k - 1$ of them.
+
+**At the root**, all six applicants:
+
+- debt ratio, sorted: {debt_sorted}; midpoints (0.2 + 0.4) ÷ 2 = 0.30, and so on:
+  {show(root_debt, 2)}
+- income, sorted: {inc_sorted}; midpoints (20 + 25) ÷ 2 = 22.5, and so on:
+  {show(root_inc, None)}
+
+{len(root_debt)} + {len(root_inc)} = {n_root} candidates. Suppose the search keeps
+income ≤ {cut} (which one wins depends on the labels, left out here): A, C and E go
+left, B, D and F go right.
+
+**In the left group**, only A, C and E, the search starts again on their own values:
+
+- debt ratio: {" < ".join(fmt(people[n][0], 1) for n in left)}; midpoints
+  (0.2 + 0.5) ÷ 2 = {fmt(l_debt[0], 2)} and (0.5 + 0.8) ÷ 2 = {fmt(l_debt[1], 2)}
+- income: {" < ".join(str(people[n][1]) for n in left)}; midpoints {show(l_inc, None)}
+
+{len(l_debt)} + {len(l_inc)} = {n_left} candidates, fewer than {n_root}. The income ones,
+{show(l_inc, None)}, were already on the root's list. The debt ones, {show(l_debt, 2)}, were
+not: at the root 0.2 and 0.5 were not neighbours, because B's 0.4 lay between them, and
+B went to the other group. The right group gets new debt thresholds the same way,
+{show(r_debt, 2)}.
+
+What this means: the candidates are not fixed by the dataset once and for all. Each
+group computes its own from the applicants it holds - fewer of them, and on a feature
+the previous split did not use, values that no earlier list contained.
+"""
+
+
 # --------------------------------------------------------------- slide 10
 @example(10)
 def gini_by_hand():
