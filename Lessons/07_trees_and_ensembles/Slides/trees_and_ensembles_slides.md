@@ -1053,16 +1053,23 @@ that two trees fit to overlapping samples give opposite verdicts on 140 of the
 1,200 applicants. If those disagreements come from the luck of each sample,
 many trees combined by a vote should cancel them.
 
-Why a vote cancels them, one applicant at a time. A tree's verdict on an
-applicant depends on two things: what the data really say in that part of the
-plane, which is the same for every tree, and the luck of its own bootstrap
-sample, which is different for every tree. A mistake caused by luck falls on
-different applicants for different trees, so on any one applicant the unlucky
-trees are a minority, and the vote outvotes them. Notebook 2, section 1, on its
-360 test applicants: the applicant at income 39.22 and debt ratio 0.9721, who
-defaulted, gets "default" from 69 of the 100 trees and "repaid" from 31, tree 1
-among them; the vote is right. Over all 360, one tree alone is wrong on 58.7 on
-average; the vote gets 18.9 of those right; the vote itself is wrong on 46.
+Why a vote cancels them, one applicant at a time, starting from one case.
+Notebook 2, section 1, on its 360 test applicants: the applicant at income 39.22
+and debt ratio 0.9721, who defaulted, gets "default" from 69 of the 100 trees
+and "repaid" from 31, tree 1 among them; the vote is right. Why the 31 are
+wrong and the 69 are not: a tree's verdict has two parts. One is what the
+training loans say in that part of the plane - the class that prevails among
+that applicant's neighbours - and it is the same for every tree, because every
+sample is drawn from the same loans. The other is the luck of the tree's own
+bootstrap sample, different for every tree: a neighbour drawn twice weighs
+double, a key neighbour is missing (about 37% of the rows are absent from each
+sample), the thresholds move because they are midpoints between the values
+drawn, and a different early split changes every question below it. A mistake
+caused by luck falls on different applicants for different trees, so on any one
+applicant the unlucky trees are usually a minority. The condition, said
+plainly: the vote fixes a mistake only if most trees are right on that
+applicant. Over all 360, one tree alone is wrong on 58.7 on average; the vote
+gets 18.9 of those right; the vote itself is wrong on 46.
 
 A predictable mistake: "the trees cancel each other's errors". Reasonable,
 because the picture of slide 27 is all disagreement. But the vote cancels only
@@ -1290,12 +1297,22 @@ Handout section 5.1.
 ::: notes
 This is the intuition; the formula is in handout section 5.2 for those who
 want it, and it says these words in symbols. Two kinds of luck go into each
-tree. Which bootstrap sample it drew is private to that tree, so many trees
-cancel it. Which 1,200 loans the lender happened to collect is shared by every
-tree: had the lender collected another 1,200, all the trees would have moved
-together. That shared part is the floor. The next slide measures it: with
-another 1,200 loans, one tree changes its verdict on 14.5% of the applicants, a
-vote of 99 trees on 3.9%.
+tree, because each tree comes out of two draws in sequence. Draw one, made
+once: the lender collects 1,200 loans from all its possible applicants - the
+same for every tree. Draw two, made by each tree: its bootstrap sample from
+those 1,200. Which bootstrap sample a tree drew is private to that tree, so
+many trees cancel it. Which 1,200 loans the lender happened to collect is
+shared by every tree: had the lender collected another 1,200, all the trees
+would have moved together. That shared part is the floor.
+
+One test tells the two apart, and notebook 2's generator can run it. Keep the
+same 1,200 loans and change only the bagging's seed - a new draw two: the vote
+of 99 trees changes its verdict on 1.4% of the applicants, and the more trees,
+the closer to zero. Collect another 1,200 loans - a new draw one: the vote of
+99 trees changes on 3.9%, and the next slide shows that curve going flat. A
+single tree changes on 12.0% with a new seed and on 14.5% with new loans: most
+of one tree's instability is the bootstrap's luck, which is why the vote helps
+so much.
 
 How can the 1,200 loans "mislead"? They are one sample of the lender's
 applicants, and a sample's chance features cannot be told apart from the rule
@@ -1328,9 +1345,11 @@ collected its data in two different years. Two: the same model is trained on
 each, model A and model B. Three: both are asked about the same new applicant.
 Four: if one says "default" and the other "repaid", the verdict changed - for
 that person, the answer depends on which year's loans the bank happened to
-collect. Five: repeat for 300 applicants spread over the plane and for every
-pair of 40 sets of loans, and count the share of applicants whose verdict
-changes.
+collect. Five: repeat for 300 applicants spread over the plane, and for 40
+sets of loans drawn by the generator (seeds 1000 to 1039), comparing every pair
+of them - 40 x 39 / 2 = 780 pairs, so the A-against-B comparison is made 780
+times - and count the share of applicants whose verdict changes, averaged over
+the 780.
 
 The applicant drawn here, at income 71k and debt ratio 0.90, is a real case from
 notebook 2: one tree trained on set A says "repaid", one trained on set B says
@@ -1379,7 +1398,7 @@ ensemble is still wrong on about one applicant in ten.
 Handout section 5.2, where the same floor is also derived as a formula.
 :::
 
-# Bagging against one tree, on 30 splits
+# Bagging vs one tree, 30 train/test splits
 
 ![](bagging_vs_tree.png)
 
@@ -1407,13 +1426,12 @@ Handout section 5.2.
 
 # Random forests: trees less alike
 
-- Bagging: every split may use **every column**, so all 100 trees start on
-  `debt_ratio`
-- **Random forest**: bagging, but each split may use only `max_features`
-  random columns, **redrawn at every split**
-- Default $\sqrt{n}$ rounded down, $n$ = number of **columns**; here $n = 2$:
-  **one** per split
-- A tree is **worse** alone (0.828 vs 0.837), the forest **better**
+- Bagging's floor (slide 39): trees **alike**, all 100 open on `debt_ratio`
+- **Random forest**: each split sees only `max_features` random columns,
+  **redrawn every split**; default $\sqrt{n}$ rounded down: here **one**
+- One forest tree: **worse** (0.828 vs 0.837); the forest's **vote**:
+  **better** (0.908 vs 0.902)
+- In code: `RandomForestClassifier()`
 
 ::: notes
 The intuition first: a committee of experts who all look at the strongest clue
@@ -1435,10 +1453,11 @@ columns, while the classes are still 2. With one column offered, the split
 still picks the best threshold on that column; and because the draw is redone
 at every split, a tree denied debt_ratio at the root can use it further down.
 
-Notebook 2, section 4, counts the roots on the first of the 30 splits: all 100
+Notebook 2, section 4, counts the roots on the first of the 30 train/test splits: all 100
 bagged trees open on debt_ratio; the forest's open 51 on debt_ratio and 49 on
 income_k. The trade, because someone will ask: each forest tree alone is a
-little worse, 0.828 against 0.837 mean test accuracy, since some splits are
+little worse, 0.828 against 0.837 mean test accuracy - each of the 100 trees
+scored alone on the 360 test applicants, then averaged - since some splits are
 denied the better column. A predictable mistake is to conclude the forest must
 be worse. The reasoning is right about each tree and wrong about their vote:
 what a vote needs is trees that err differently, not trees that are each the
@@ -1458,7 +1477,7 @@ Two Cultures", a defence of judging models by how well they predict.
 
 ::: notes
 Top row bagging, bottom row the random forest, both trained on the first of
-the 30 splits (notebook 2, section 4). The three bagged trees are its first
+the 30 train/test splits (notebook 2, section 4). The three bagged trees are its first
 three; all open on debt and draw the same two strips. The three forest trees
 are chosen to show both cases: the first tree that opens on debt and the first
 two that open on income. They fill the plane differently: tree 2, offered only
@@ -1481,7 +1500,7 @@ Handout section 6.
 ![](ensemble_variance.png)
 
 ::: notes
-Left: the same 30 random splits as slide 40, now with the random forest added
+Left: the same 30 train/test splits as slide 40, now with the random forest added
 (notebook 2, section 3). Each dot is one split's test accuracy; the box holds
 the middle half of the 30, as on slide 40, and the red line is the mean. The means are 0.856,
 0.902 and 0.908, the standard deviations 0.0185, 0.0153 and 0.0137. The step
@@ -1500,33 +1519,48 @@ different from the first hour's trees. The only change across the three boxes
 is what surrounds the tree - resampling, then also restricting the columns each
 split may use.
 
+A predictable mistake: "so the forest is always better than bagging". It is
+reasonable, because it wins here on both panels. But two things limit it. The
+30 train/test splits are how we measure, not how we predict: in use the forest
+is trained once on all the data. And 0.908 against 0.902 is evidence on these
+data, not a law: each forest tree is worse, and whether the lower floor pays
+for that depends on the data. max_features is a hyperparameter, and the choice
+between forest and bagging, like its value, is made by cross-validation
+(lesson 5).
+
 Handout section 6.
 :::
 
 # Feature importance on one tree
 
-| Split of slide 8's tree | Applicants | Gain ΔG | Weight = applicants ÷ 1,200 | Credit = ΔG × weight |
-|---|---|---|---|---|
-| debt ratio ≤ 0.82 (root) | 1,200 | 0.1438 | 1.0000 | 0.1438 |
-| income ≤ 28 (left) | 971 | 0.0836 | 0.8092 | 0.0676 |
-| debt ratio ≤ 0.947 (right) | 229 | 0.0026 | 0.1908 | 0.0005 |
-| **Debt**: 0.1438 + 0.0005 | | | | 0.1443 ÷ 0.2119 = **0.681** |
-| **Income** | | | | 0.0676 ÷ 0.2119 = **0.319** |
+| Split of slide 8's tree | Gain ΔG | Weight = applicants ÷ 1,200 | Credit = ΔG × weight |
+|---|---|---|---|
+| debt ratio ≤ 0.82 (root) | 0.1438 | 1,200 ÷ 1,200 = 1.0000 | 0.1438 |
+| income ≤ 28 (left) | 0.0836 | 971 ÷ 1,200 = 0.8092 | 0.0676 |
+| debt ratio ≤ 0.947 (right) | 0.0026 | 229 ÷ 1,200 = 0.1908 | 0.0005 |
+| **Total** of the credits | | | 0.1438 + 0.0676 + 0.0005 = **0.2119** |
+| **Debt**: two questions | | | (0.1438 + 0.0005) ÷ 0.2119 = **0.681** |
+| **Income**: one question | | | 0.0676 ÷ 0.2119 = **0.319** |
 
 ::: notes
 The idea in one sentence: each question of the tree makes its groups purer by
 its gain ΔG (slide 13); weight it by the share of applicants it splits, credit
 it to the column it asks about, add up per column, and divide by the total so
 that the columns add up to 1. The result, 0.681 and 0.319, is exactly what
-tree.feature_importances_ returns. A forest does this in every tree, averages,
+tree.feature_importances_ returns. The total, 0.2119, is the whole purification
+the tree buys: the root's impurity, 0.474, minus the impurity left in its four
+leaves averaged by size, 0.262. So the two shares say which column's questions
+bought how much of it. A forest does this in every tree, averages,
 and scales again.
 :::
 
 # What a forest's importance says
 
-- **Feature importance** says how much each column helped the trees'
-  questions, scaled so that all the columns add up to 1
-- A 300-tree forest on the loans: **debt 0.61, income 0.39**
+- **Feature importance**: how much each column helped the trees' questions,
+  scaled to add up to 1
+- A 300-tree forest on all 1,200: **debt 0.61, income 0.39**, not slide 44's
+  0.68 / 0.32 - it counts every question of 300 deep trees, half opening on
+  income
 - **Predict**: add columns of random numbers, unrelated to default. How
   much importance should they get?
 
@@ -1568,9 +1602,15 @@ average over hundreds of trees to wash out noise is entirely reasonable  -
 the variance-reduction result of the averaging slides is real and measured, and it
 does point the same way. It reduces the variance of the *prediction*. It
 does not guarantee small importance for irrelevant columns. Two things hand
-credit to noise, and the lesson comes back to take them apart: the random, incomplete menu
-at each split, and the deep splits on small groups, where some noise column
-always lowers the impurity a little by chance.
+credit to noise. The menu: each split is offered only 4 of the 22 columns, and
+all 4 are noise with probability C(20,4) / C(22,4) = 4,845 / 7,315 = 0.662 - two
+splits in three see no real column and must pick the noise column that happens
+to separate best; that is also why the accuracy falls, since with every column
+on offer it is 0.897, not 0.837. Small groups: deep in a tree a node holds a
+handful of applicants, and among twenty random columns one almost always
+separates them a little by chance; even with all 22 on offer, noise still takes
+28%. If time is short, skip the why: the fact is what matters here, and the
+next two slides give the remedy.
 
 What "more than half" means: the importances of all 22 columns add up to 1, and
 the 20 random columns together take 0.545. One by one, the real columns are
@@ -1604,6 +1644,11 @@ put the column back and repeat for every column.
 On the slide, one shuffle of the debt ratio takes the accuracy from 0.806 to
 0.600, a drop of 0.206. Notebook 2 repeats each shuffle 20 times and averages:
 0.175 for the debt ratio, the number on the next slide.
+
+A detail that puzzles a careful reader: the five shuffled values are not the
+five originals in another order. The shuffle is over all 360 held-out
+applicants, so each of the five gets the debt ratio of another of the 360; the
+figure shows only the first five rows.
 
 Handout section 7.1.
 :::
@@ -1669,20 +1714,27 @@ accuracy rises from 0.837 to 0.897. Handout section 7 explains both.
 
 # Boosting: one tree after another
 
-- Bagging and random forests grow trees **independently**, then let them
-  vote
-- **Gradient boosting** grows trees **in sequence**: each is trained to
-  correct what the trees before it still get wrong
-- Each tree is shallow and outputs a **number**, a correction, not a class:
-  a **regression tree**
-- The learning rate $\alpha$ decides **how much** of each correction is added
+- Bagging, forests: independent trees, then a **vote**
+- **Gradient boosting**: trees **in sequence**, all on the **same examples**
+- Each tree's **target**: what the **sum so far** still gets wrong
+- Shallow **regression trees**: a leaf outputs a **number**; $\alpha$ = how
+  much of it is added
 
 ::: notes
 Contrast the two strategies directly, because the difference is the whole
 segment. Bagging and random forests are parallel: every tree is grown once,
 independently, and combined only at prediction time. Boosting is
 sequential: tree $t$ exists specifically because of what trees $1$ through
-$t-1$ still got wrong.
+$t-1$ still got wrong. Say how the examples are used, because it is the
+opposite of bagging: no bootstrap, every tree sees every training example; the
+x stay the same and only the column the tree is trained to predict changes.
+The next slide does it by hand on four points.
+
+Why shallow, in one breath. The two kinds of ensemble start from opposite ends
+of slide 21's depth dial: bagging averages deep trees - low bias, high
+variance - and the vote removes variance (slide 37); boosting adds shallow
+trees - high bias, low variance - each fixing part of what the sum still
+misses, and the sum removes bias.
 
 Slow down on "regression tree", because it is new. "Shallow" means depth 2
 or 3 here. Everything so far this
@@ -1718,6 +1770,42 @@ paper (in the further reading) recast the idea as gradient descent on a loss,
 which is the version this lesson teaches and scikit-learn implements.
 :::
 
+# Boosting by hand: 4 points, 2 trees
+
+| x | y | Start F₀ = mean | r₁ = y − F₀ | Tree 1: x ≤ 2.5? | F₁ = F₀ + 0.5 × tree 1 | r₂ = y − F₁ | Tree 2: x ≤ 1.5? | F₂ = F₁ + 0.5 × tree 2 |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 1 | 4 | −3 | −2 | 3 | −2 | −2 | 2 |
+| 2 | 3 | 4 | −1 | −2 | 3 | 0 | +0.667 | 3.333 |
+| 3 | 6 | 4 | +2 | +2 | 5 | +1 | +0.667 | 5.333 |
+| 4 | 6 | 4 | +2 | +2 | 5 | +1 | +0.667 | 5.333 |
+
+::: notes
+Four points small enough to do on the board: x = 1, 2, 3, 4 and y = 1, 3, 6, 6;
+trees of depth 1, one question and two leaves; learning rate 0.5. Read the
+table left to right, one column at a time.
+
+The start, F0, is the mean for everyone: (1 + 3 + 6 + 6) / 4 = 4. The residuals
+r1 = y - F0 are -3, -1, +2, +2: what the start still misses. Tree 1 is trained on
+the pairs (x, r1) - the same four x, a new target. It tries the three possible
+questions and scores each by the squared error of the residuals around its two
+leaf means: x <= 1.5 gives 6.0, x <= 2.5 gives 2.0, x <= 3.5 gives 12.667. It
+keeps x <= 2.5, and each leaf outputs the mean residual of its points:
+(-3 - 1) / 2 = -2 and (2 + 2) / 2 = +2. That number is the "correction". F1
+adds half of it: 4 - 1 = 3 on the left, 4 + 1 = 5 on the right.
+
+Tree 2 is trained on the same four points against the new residuals, -2, 0,
++1, +1. Now x <= 1.5 gives 0.667, x <= 2.5 gives 2.0, x <= 3.5 gives 4.667: the
+best question is a different one, because the errors left are different - the
+point at x = 1 is now the farthest off. Its leaves: -2 and (0 + 1 + 1) / 3 =
++0.667. F2 adds half again.
+
+What to point at: every tree saw all four points; the target shrank from
+(-3, -1, 2, 2) to (-1, -0.333, 0.667, 0.667); and a new point at x = 3.5 gets
+4 + 0.5 x 2 + 0.5 x 0.667 = 5.333, the start plus a half-step from each tree.
+
+Handout section 8.
+:::
+
 # Boosting, drawn: the first two steps
 
 ![](boosting_drawn.png)
@@ -1740,12 +1828,31 @@ residual falls from 0.838 to 0.601 after tree 1. And so on, sixty times.
 Handout section 8.
 :::
 
+# Tree 1, drawn as a tree
+
+![](boosting_tree1.png)
+
+::: notes
+The previous figure showed tree 1 only as four levels; here it is as a tree,
+drawn like slide 8's. The root asks x <= 2.89 of all 200 points; the left
+group, 57 points, asks x <= 2.48; the right group, 143 points, asks x <= 7.05.
+Every box shows how many points reach it and the mean of their residuals.
+
+The contrast with slide 8 is the point. There a leaf held a group of
+applicants and a share who defaulted, and predicted a class. Here a leaf holds
+a group of points and outputs one number, the mean of their residuals: -0.914,
+-1.243, +0.967, -0.504. Those are the four levels of the previous figure. The
+prediction adds 0.3 times that number: at x = 5, 2.287 + 0.3 x 0.967 = 2.578.
+
+Handout section 8.
+:::
+
 # Building the ensemble, one tree at a time, for squared error
 
 $$F_0(x) = \bar{y}\text{: start from the mean} \\ F_t(x) = F_{t-1}(x) + \alpha\, h_t(x)\text{: add a scaled tree}$$
 
 ::: notes
-The previous figure in symbols, said in thirty seconds. $F_0$ is the flat
+Slide 52's figure in symbols, said in thirty seconds. $F_0$ is the flat
 starting guess: the best single constant for the loss being used. For squared error, as on this slide and the next three, that is
 the mean of the target; for classification it will be the log-odds of the
 base rate. Each subsequent
@@ -1831,7 +1938,7 @@ sign that the model has started to learn the noise - a sign, not a proof, since
 column, which turns up. Counted tree by tree, the lowest error against the true
 function is at 19 trees, 0.0116 against 0.0119 at 20: "about 20" is the
 honest reading. In real data the truth is
-unknown, and slides 57 to 59 put cross-validation in its place.
+unknown, and slides 59 to 61 put cross-validation in its place.
 
 Name what this is: the same overfitting story as the unconstrained single
 tree of the depth table, reached by a completely different route - not one
@@ -2018,11 +2125,11 @@ Handout section 10.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| 1. boosting from scratch, 50-55 | `DecisionTreeRegressor(max_depth=2)` on the residuals, 60 times → MSE 0.0119 at 20 trees |
-| 2. classification, 56-57 | `GradientBoostingClassifier()` in `cross_val_score` → F0 = −0.461; 0.902 |
-| 3. more trees, 58-59 | the same, `learning_rate=0.3`, `n_estimators` from 5 to 800 → peak 0.897 at 30 |
-| 4. learning rate, 60 | `n_estimators=120`, `learning_rate` from 0.02 to 1.0 → best 0.902 at 0.1 |
-| 5. leaderboard, 62 | every model in one `cross_val_score` loop → forest 0.911 |
+| 1. boosting from scratch, 50-57 | `DecisionTreeRegressor(max_depth=2)` on the residuals, 60 times → MSE 0.0119 at 20 trees |
+| 2. classification, 58-59 | `GradientBoostingClassifier()` in `cross_val_score` → F0 = −0.461; 0.902 |
+| 3. more trees, 60-61 | the same, `learning_rate=0.3`, `n_estimators` from 5 to 800 → peak 0.897 at 30 |
+| 4. learning rate, 62 | `n_estimators=120`, `learning_rate` from 0.02 to 1.0 → best 0.902 at 0.1 |
+| 5. leaderboard, 64 | every model in one `cross_val_score` loop → forest 0.911 |
 | **or atom 14** | `Notebooks/atoms.ipynb` |
 
 ::: notes
@@ -2132,8 +2239,8 @@ Handout section 11.
 A table to photograph, exactly as lesson 6 closed with one. Work down it
 and attach today's evidence to each row rather than leaving it as generic
 advice: the nine-leaf tree, readable as if/else rules, for the first row
-(slide 25); the leaderboard for the second (slide 62); the tree-count curve and
-the learning-rate table for the third (slides 59 and 60); the noise experiment
+(slide 25); the leaderboard for the second (slide 64); the tree-count curve and
+the learning-rate table for the third (slides 61 and 62); the noise experiment
 and the permutation check for the fourth (slides 46 to 48); the out-of-bag
 slides for the fifth (34 and 35). On the first row: explaining a credit
 decision to the person it affects is also a legal question - the lesson's

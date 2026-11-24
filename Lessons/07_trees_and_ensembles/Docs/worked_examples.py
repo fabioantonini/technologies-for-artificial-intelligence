@@ -909,7 +909,7 @@ for _t in range(1, 61):
 same("8 the lowest error is at 19 trees", int(np.argmin(_true_err)) + 1, 19, tolerance=0)
 same("8 its value, 0.0116", min(_true_err), 0.0116, tolerance=5e-5)
 same("8 at 20 trees, 0.0119", _true_err[19], 0.0119, tolerance=5e-5)
-# Section 7 / slide 65: the menu's two counts.
+# Section 7 / slide 67: the menu's two counts.
 same("7 C(20,4)", comb(20, 4), 4845, tolerance=0)
 same("7 C(22,4)", comb(22, 4), 7315, tolerance=0)
 
@@ -995,6 +995,75 @@ while _stack:
 same("4 nine leaves: the shallowest at depth 1", min(_depths), 1, tolerance=0)
 same("4 nine leaves: the deepest at depth 7", max(_depths), 7, tolerance=0)
 same("4 nine leaves: debt above 0.82 is a leaf", int(_t9.children_left[_t9.children_right[0]] < 0), 1, tolerance=0)
+
+# ---------------------------------------- third study pass, slides 30-53 (24 Nov)
+# 5.2: the two draws. Same 1,200 loans, only the bagging's seed changes (a new
+# draw two), against new loans (a new draw one, checked above at 3.9%). Ten seeds
+# and its own 300 points here, so a looser tolerance than the notebook's 40.
+_pts2 = np.column_stack([np.random.default_rng(15).uniform(20, 100, 300),
+                         np.random.default_rng(16).uniform(0, 1, 300)])
+_sv = []
+for _d in range(10):
+    _m = BaggingClassifier(DecisionTreeClassifier(), n_estimators=99, random_state=500 + _d).fit(X.to_numpy(), y.to_numpy())
+    _sv.append(np.array([t.predict(_pts2[:, f]) for t, f in zip(_m.estimators_, _m.estimators_features_)]))
+same("5.2 same loans, new seed: 99 trees change on about 1.4%", 100 * _change(_sv, 99), 1.4, tolerance=0.8)
+same("5.2 same loans, new seed: one tree on about 12.0%", 100 * _change(_sv, 1), 12.0, tolerance=2.5)
+at_least("5.2 a new seed moves the vote less than new loans", 100 * (_change(_bv, 99) - _change(_sv, 99)), 0.5)
+# 5: the 67% of trees voting a flipped training label, split into holders and the rest,
+# from the bootstrap draws themselves.
+_n_tr = len(Xtr_b)
+_held = np.array([np.bincount(_s, minlength=_n_tr) > 0 for _s in bag_b.estimators_samples_])
+_ff = np.flatnonzero(_flip[Xtr_b.index.to_numpy()])
+_tvf = np.array([t.predict(Xtr_b.to_numpy()[:, f]) for t, f in
+                 zip(bag_b.estimators_, bag_b.estimators_features_)])[:, _ff] == ytr_b.to_numpy()[_ff]
+same("5 trees holding a flipped training row: 62%", _held[:, _ff].mean(), 0.62, tolerance=0.006)
+same("5 every holder votes its flipped label", _tvf[_held[:, _ff]].mean(), 1.0, tolerance=0)
+same("5 of the trees that never saw it, 12% vote it", _tvf[~_held[:, _ff]].mean(), 0.12, tolerance=0.006)
+same("5 together: 67%", _tvf.mean(), 0.67, tolerance=0.005)
+# 7: the total credit is the root's impurity minus the leaves', weighted by size,
+# from the four leaves' counts of slide 8's tree.
+_lf = DecisionTreeClassifier(max_depth=2, random_state=0).fit(X, y).apply(X)
+_leaves = [(int((_lf == k).sum()), int(y.to_numpy()[_lf == k].sum())) for k in np.unique(_lf)]   # (applicants, defaulted)
+same("7 four leaves of 87, 884, 160, 69", int(sorted(n for n, _ in _leaves) == [69, 87, 160, 884]), 1, tolerance=0)
+_root_g = 2 * (464 / 1200) * (1 - 464 / 1200)
+_leaf_g = sum(n / 1200 * 2 * (d / n) * (1 - d / n) for n, d in _leaves)
+same("7 root impurity 0.474", _root_g, 0.474, tolerance=5e-4)
+same("7 leaves' impurity, averaged by size, 0.262", _leaf_g, 0.262, tolerance=5e-4)
+same("7 their difference is the total credit 0.2119", _root_g - _leaf_g, 0.2119, tolerance=5e-5)
+# 8: boosting by hand, four points, depth-1 trees, learning rate 0.5 - by brute force
+# over the three questions, not with DecisionTreeRegressor.
+_xh, _yh = np.array([1., 2., 3., 4.]), np.array([1., 3., 6., 6.])
+_F = np.full(4, _yh.mean())
+same("8 by hand: start 4", _F[0], 4, tolerance=0)
+_by_hand = [(2.5, (2.0, 6.0, 12.667), (-2, 2)), (1.5, (0.667, 2.0, 4.667), (-2, 0.667))]
+_trees_h = []
+for _cut_p, _sse_p, _leaves_p in _by_hand:
+    _r = _yh - _F
+    _sse = {c: sum(((_r[m] - _r[m].mean()) ** 2).sum() for m in (_xh <= c, _xh > c)) for c in (1.5, 2.5, 3.5)}
+    _cut = min(_sse, key=_sse.get)
+    same(f"8 by hand: best question x <= {_cut_p}", _cut, _cut_p, tolerance=0)
+    for _c, _v in zip((2.5, 1.5, 3.5) if _cut_p == 2.5 else (1.5, 2.5, 3.5), _sse_p):
+        same(f"8 by hand: squared error of x <= {_c}", _sse[_c], _v, tolerance=5e-4)
+    _lv = (_r[_xh <= _cut].mean(), _r[_xh > _cut].mean())
+    same("8 by hand: left leaf", _lv[0], _leaves_p[0], tolerance=5e-4)
+    same("8 by hand: right leaf", _lv[1], _leaves_p[1], tolerance=5e-4)
+    _trees_h.append((_cut, _lv))
+    _F = _F + 0.5 * np.where(_xh <= _cut, *_lv)
+for _got, _printed in zip(_F, (2, 3.333, 5.333, 5.333)):
+    same("8 by hand: F2", _got, _printed, tolerance=5e-4)
+same("8 by hand: a new x = 3.5", 4 + sum(0.5 * (lv[1] if 3.5 > c else lv[0]) for c, lv in _trees_h), 5.333, tolerance=5e-4)
+# 8: tree 1 of the toy data, drawn as a tree - counts, thresholds, leaf means.
+_rng7 = np.random.default_rng(7)
+_xt = np.sort(_rng7.uniform(0, 10, 200))
+_yt = np.where(_xt < 3, 1.0, np.where(_xt < 7, 3.5, 1.5)) + 0.6 * np.sin(_xt) + _rng7.normal(0, 0.25, 200)
+_rt = _yt - _yt.mean()
+for _lo, _hi, _n, _v in ((-1, 2.48, 50, -0.914), (2.48, 2.89, 7, -1.243), (2.89, 7.05, 86, 0.967), (7.05, 11, 57, -0.504)):
+    _in = (_xt > _lo) & (_xt <= _hi)
+    same(f"8 tree 1 leaf ({_lo}, {_hi}]: points", int(_in.sum()), _n, tolerance=0)
+    same(f"8 tree 1 leaf ({_lo}, {_hi}]: mean residual", _rt[_in].mean(), _v, tolerance=5e-4)
+same("8 tree 1: 57 points left of 2.89", int((_xt <= 2.89).sum()), 57, tolerance=0)
+same("8 tree 1: their mean residual", _rt[_xt <= 2.89].mean(), -0.954, tolerance=5e-4)
+same("8 tree 1: 143 right of it, mean residual", _rt[_xt > 2.89].mean(), 0.380, tolerance=5e-4)
 
 print(f"{checks} numbers recomputed from raw inputs and confirmed against "
       f"{HANDOUT}.")
