@@ -274,6 +274,28 @@ different. The example below does the same with six applicants.
 node." It is natural, since the data never change during training; but the search at
 each node sees only that node's group.
 
+### Question — is a tree just an if/else?
+
+> *Can the algorithm be compared to a sequence of if/else in a programming language?*
+
+The **trained tree** is a nested if/else: each internal node is an `if feature <=
+threshold`, each leaf a `return class`, one path per applicant - what `export_text`
+prints on slide 25. The **algorithm** is a program that writes that if/else: the
+conditions are found by search on the data, not chosen by a programmer. Two caveats: it is
+nested, not a flat `elif` chain, since each branch asks its own questions; and every
+condition compares one feature with a threshold, never `income > 2 * debt`, which is why
+the cuts are parallel to the axes.
+
+### Question — an unconstrained tree reaches 1.000: is that overfitting?
+
+> *Leaving the depth unconstrained, the tree memorises the examples: so it is overfitting, right?*
+
+Memorising, yes: depth 24, 156 leaves, 72 of them holding one applicant. But a training
+accuracy of 1.000 alone does not show overfitting - it shows the model *can* memorise, as
+k = 1 did in lesson 6. Overfitting is the comparison with unseen data: cross-validated,
+the unconstrained tree scores 0.852 against 0.882 at depth 8, while its training accuracy
+goes from 0.951 to 1.000 (slides 22 and 23).
+
 <!-- example:begin -->
 
 \Needspace{49\baselineskip}
@@ -420,6 +442,26 @@ majority-default: 96% and 88% are purer, on average, than 94% all together, so t
 impurity goes down a little and the tree takes the gain. Whether a split was worth
 making is a question the tree cannot ask; slide 25 shows the knob that lets you ask it.
 
+### Question — is the split shown the one with the largest gain?
+
+> *Can I say that the split on the slide is the one with the largest ΔG, every other pair giving less?*
+
+Yes, with two cautions. The maximum is among the candidates **at that node** - 2,234 at
+the root - and each group searches again among its own. And "largest" is not "large":
+step 2's right split gains 0.0026 against 0.0836 on the left, about thirty times less, yet
+it is the best for its own group, and it is made because any gain above zero is taken. The
+gains of different nodes do not compete with each other in this loop.
+
+### Question — does the third level serve the prediction at all?
+
+> *It seems the third level of the figure does very little for prediction. True?*
+
+True, and worse: its four splits change one prediction in 1,200 (training accuracy
+0.8400 at depth 2, 0.8408 at depth 3), and that applicant is a flipped label - a split
+spent memorising noise. But a useless level is not a useless depth: greedy finds no island
+at depth 3, and deeper it does; cross-validated, depth 2 scores 0.836, depth 4 0.827,
+depth 8 0.882 (slide 22).
+
 ---
 
 ## Slide 9 — How pure is a group of examples?
@@ -442,6 +484,36 @@ Because neither class dominates. If you drew two members of the group at random,
 fifty-fifty group gives the highest chance that they have different labels; a pure
 group gives zero. That chance is exactly what the Gini impurity of the next slide
 measures.
+
+### Question — why does purity matter?
+
+> *Shouldn't it be stressed that reaching groups as pure as possible serves prediction?*
+
+Yes: a new applicant lands in a leaf and gets the leaf's majority class, so the purer
+the leaf, the fewer of its training examples disagree with that answer. One caution: a pure
+leaf is unanimous **on the training data**, not certain on a new applicant - a pure leaf of
+two applicants proves nothing, and the unconstrained tree is made entirely of pure leaves
+while its cross-validated score falls.
+
+### Question — is impurity the measure a split is judged by?
+
+> *Can I say that impurity becomes the measure by which a possible split is judged?*
+
+Almost, and the difference matters: impurity belongs to a **group**, not to a split. A
+feature/threshold pair makes two groups, each with its impurity; the split is judged by
+their size-weighted average against the parent's - slides 12 and 13.
+
+### Question — what does "two draws with replacement disagree" mean?
+
+> *Explain again the probability that two examples drawn at random would disagree.*
+
+Draw two examples from the group, with replacement, and compare their labels. In a
+group of eight with 6 defaulted and 2 repaid, $p = 0.75$: they agree with probability
+$0.75^2 + 0.25^2 = 0.5625 + 0.0625 = 0.625$, and disagree with $1 - 0.625 = 0.375 = 2
+\times 0.75 \times 0.25$, the Gini impurity. "With replacement" makes the second draw
+independent of the first, with the same proportions. This is not the error of the leaf: the
+leaf always answers its majority, default, and is wrong on $2/8 = 0.25$ of its examples;
+0.375 would be the error of a guesser answering at random in the group's proportions.
 
 ---
 
@@ -494,15 +566,45 @@ both belong to class $c$. Summed over the classes it is the probability that the
 share a label, whatever the label; subtracted from one, the probability that they
 disagree. A pure group never disagrees with itself, so its impurity is 0.
 
-### Question — the 229 were split into 160 and 69: does that change 0.115?
+### Question — the 229 were split into 160 and 69: does that change their impurity of 0.115?
 
 > *The group of 229 was split into 160 at 96% and 69 at 88%. Does the 0.115 still
 > hold?*
 
-It holds for the 229 **before** the split. After it there are two groups: 160 at
-0.9625 default (impurity 0.072) and 69 at 0.884 (impurity 0.205). Weighted by size,
-$160/229 \times 0.072 + 69/229 \times 0.205 = 0.112$. The gain of that split is
-$0.115 - 0.112$, about 0.003: the 0.0026 printed on slide 8.
+0.115 is the Gini impurity of the 229, computed on this slide. It holds for the 229
+**before** the split; after it there are two groups:
+
+| Group | Defaulted | $p$ = defaulted / size | $G = 2p(1-p)$ |
+|---|---|---|---|
+| the 229 | 215 | 215 / 229 = 0.939 | 2 × 0.939 × 0.061 = 0.115 |
+| the 160 | 154 | 154 / 160 = 0.9625 | 2 × 0.9625 × 0.0375 = 0.072 |
+| the 69 | 61 | 61 / 69 = 0.884 | 2 × 0.884 × 0.116 = 0.205 |
+
+The defaulters add up, 154 + 61 = 215. Weighted by size,
+$160/229 \times 0.072 + 69/229 \times 0.205 = 0.050 + 0.062 = 0.112$, and the gain is
+$0.115 - 0.112$, about 0.003: the 0.0026 printed on slide 8. Note the 69: its impurity,
+0.205, is **worse** than its parent's - a child can be less pure than its parent; only the
+weighted average cannot.
+
+### Question — the sum of $p_c$, or of $p_c$ squared?
+
+> *The sum of the p_c is the probability that two applicants share a label; 1 minus it is the impurity. Right?*
+
+Missing the square. The sum of the $p_c$ is always 1 - the formula would give $1 - 1 = 0$
+for every group, a quick check. Two independent draws are both of class $c$ with
+probability $p_c \times p_c$, so the probability of the same label is $\sum_c p_c^2$, and
+$G = 1 - \sum_c p_c^2$. In the 6-2 group: $0.5625 + 0.0625 = 0.625$, $G = 0.375$.
+
+### Question — is it a probability or a frequency?
+
+> *We only ever have frequencies from a finite sample, yet we often treat them as probabilities. Am I wrong?*
+
+Right, with two cases. **Within the group** the two coincide exactly: $215/229$ is the
+share, and drawing at random from that group has exactly that probability - so Gini's
+"two draws" reading is literal. **About a new applicant** ("94% chance of default in this
+leaf") the share is an estimate of a probability we do not know: good in a large group,
+crude in a small one - a leaf of two can only say 0%, 50% or 100%. It is lesson 1's
+distinction between the expected risk $R$ and its estimate $\hat{R}$.
 
 <!-- example:begin -->
 
@@ -854,6 +956,24 @@ a left and a right child, and a prediction for leaves; `predict_one` walks it.
 Yes. What training learns is the questions at the nodes and the class at each leaf;
 that is the whole model. Inference is a handful of comparisons.
 
+### Question — why does the node keep `best`?
+
+> *node(best, grow(L), grow(R)): why does the search need best to go on?*
+
+It does not: `split(g, best)` uses it to make L and R, and `grow(L)`, `grow(R)` see only
+their own examples. `best` is stored because the node **is** the question: at prediction a
+new applicant is asked "debt ≤ 0.82?" there, to go left or right. Found in training, used
+in prediction.
+
+### Question — what is called at the root?
+
+> *With this pseudocode, is grow(root) called on the full dataset?*
+
+Once, on all the **training** examples - slide 8's tree on all 1,200, each cross-validation
+fold's tree on its 960. It returns the root node, which is the whole tree; the recursion
+does the rest. One thing the pseudocode hides is the depth, which `stop(g)` needs: notebook
+1 passes it, starting at depth 0 and adding 1 at each call.
+
 ---
 
 ## Slide 19 — Checked against scikit-learn
@@ -913,6 +1033,21 @@ measures only the immediate gain of one. The first cut of an island is a weak sp
 its own; the strips are strong splits on their own. The tree takes the strong ones
 first and reaches the islands only when the strips are used up.
 
+### Question — is greedy the same as one feature per split?
+
+> *A greedy tree splits on one feature and threshold, never two at once, so it finds the islands only by going deeper. Right? And what is the XOR example about?*
+
+They are two properties. **One feature per split** means cuts parallel to the axes.
+**Greedy** means questions chosen one at a time, by their immediate gain, never two
+evaluated together - a tree with oblique cuts chosen that way would still be greedy. For
+the islands, each edge alone pays a little, so the tree takes them late, deeper down.
+
+The exclusive-or (XOR) is where greedy is blind, not just short-sighted. Four quadrants of
+100 applicants, defaulting when exactly one feature is high: 200 of 400 defaulted, $G =
+0.5$. Any single cut leaves 100 of 200 defaulted on each side, $G = 0.5$, a gain of 0; the
+loop of slide 18 stops at its `gain <= 0` line and returns one leaf, although two cuts
+together would give four pure groups. The whole gain is in the pair, none in either cut.
+
 ---
 
 ## Slide 21 — Depth is the bias-variance dial
@@ -935,7 +1070,7 @@ Two pictures make the dial concrete, both from notebook 1's depth table.
 - **The line at 0.929.** The rule that generated the data scores 0.929 on these labels,
   because 85 were flipped. A training accuracy above that line means the tree agrees
   with the labels better than the truth does, so it must be reproducing flipped labels:
-  depth 8 is just past it at 0.951, the unconstrained tree has learned all 85.
+  the noise ceiling of slide 4; the unconstrained tree has learned all 85 flipped labels.
 
 An image for it: a checklist of three questions written from last year's customers works
 on this year's; fifty questions, each written about one past customer, do not.
@@ -1004,6 +1139,14 @@ splits they do make are partly fitted to details of the training folds that do n
 repeat in the held-out fold. The difference, 0.836 against 0.827, is also well inside
 one standard deviation: on these five folds the two are effectively level.
 
+### Question — does the smallest spread at the peak mean anything?
+
+> *At max_depth = 8 the cross-validated accuracy peaks, and the spread across folds is also the smallest.*
+
+A coincidence of these data, not a rule: depth is chosen on the mean, and a standard
+deviation of five numbers is itself noisy. Read the peak as "around 8", and remember that
+choosing the depth on the same folds makes 0.882 slightly optimistic (lesson 5).
+
 ---
 
 ## Slide 23 — The curve bends downward
@@ -1039,6 +1182,16 @@ blue curve crosses the gold line just before depth 8, where memorising starts, a
 1.000 all 85 flipped labels are learned. The rust curve does not cross. On a test set a
 score a little above 0.93 would be possible by luck (slide 4), but not a score
 consistently far above it.
+
+### Question — has the deep tree learned to recognise flipped labels?
+
+> *With depth 20 the tree has learned to recognise the applicants with an inverted label: it memorised them.*
+
+It memorised **those** training applicants, one leaf each - it has not learned to
+recognise a flipped label in a new applicant, and cannot: the flip is random, 7% for anyone,
+independent of income and debt. Those leaves only harm prediction, which is why the
+cross-validated curve falls while training rises. ("20" on the axis is the unconstrained
+tree, whose real depth is 24.)
 
 ---
 
@@ -1085,6 +1238,13 @@ And depth 8's islands are close to the true rectangles, not exact.
 Because every split is a threshold on one feature, a vertical or horizontal cut, so
 every region a tree draws is a rectangle. More splits make smaller rectangles, never
 curved ones; at full depth some of them enclose single noisy applicants.
+
+### Question — at depth 2, which questions does an applicant answer?
+
+> *At depth 2 each new applicant answers two questions: debt ≤ 0.82, then income ≤ 28 or debt ≤ 0.947. Right?*
+
+Yes. The right-branch question draws no line in the depth-2 panel: its two groups,
+160 at 96% and 69 at 88%, are both "default", so the boundary does not move.
 
 ---
 
@@ -1134,6 +1294,33 @@ The budget spends its nine leaves where they gain most, the strips and the islan
 depth-8 tree also spends splits on small groups with weak gains, which improve its
 training fit without improving its predictions on new applicants. On rectangle-shaped
 data, nine well-placed thresholds are close to all there is to learn.
+
+### Question — why multiply ΔG by the share of applicants?
+
+> *Why ΔG times the share of applicants? Is the share the number of examples in the group being split?*
+
+Not the number: the group's fraction of **all** training applicants. ΔG is an average
+reduction per example **within** its group - fine to compare candidates at one node, not
+groups of different size. Splitting a leaf lowers the whole tree's impurity by ΔG times the
+leaf's share. After slide 8's first split:
+
+| leaf | ΔG | share of the 1,200 | ΔG × share |
+|---|---|---|---|
+| left, 971 | 0.0836 | 971 / 1,200 | 0.0676 |
+| right, 229 | 0.0026 | 229 / 1,200 | 0.0005 |
+
+Without the weight the budget would go to tiny groups: a leaf of two, one of each class, has
+the largest possible ΔG, 0.5, but $0.5 \times 2/1{,}200 = 0.0008$.
+
+### Question — the same number of leaves, spent two ways?
+
+> *Show me a simple tree with max_depth and one with max_leaf_nodes.*
+
+With eight leaves each (atom 5). `max_depth=3` spends them evenly: training 0.841,
+five folds 0.829, and one leaf holds a single applicant. `max_leaf_nodes=8` grows to depth 7
+where the gain is: training 0.891, five folds 0.879, and one of its leaves is island A - 42
+applicants, 83% defaulted - which no depth-3 tree reaches. Same leaves, five points apart:
+what matters is where they go, not how many.
 
 <!-- example:begin -->
 
@@ -1212,6 +1399,16 @@ drawn.
 Correct. "Strongest" means the largest gain with the most evidence behind it, which
 greedy takes first, so here it is the root. "Weaker" means smaller gains decided inside
 smaller groups.
+
+### Question — do the two trees predict very differently?
+
+> *Two depth-6 trees on 780 of the 1,200: the root stays, below they differ, 140 opposite verdicts.*
+
+Yes, but locally. The root is stable because it is decided on all 780 applicants with a
+huge contrast; below it, the disagreement sits where splits rest on a few dozen applicants -
+the islands (105 of the 140, slide 27). A tree is stable where the evidence is large and
+unstable where it is thin. And disagreement is not error: two trees can disagree where one
+of them is right.
 
 ---
 
@@ -1364,6 +1561,18 @@ The closer analogy is Ridge on lesson 3's degree-12 polynomial: a flexible, unst
 model and a remedy for its variance, Ridge by restraining the coefficients and bagging
 by averaging many models. Neither touches the bias.
 
+### Question — what are a tree's "two parts", and where does the luck come from?
+
+> *'What the data say' means the real pattern? And what are the errors due to luck?*
+
+What the **training loans** say in that part of the plane - the class that prevails
+among an applicant's neighbours - the same for every tree. The luck is the tree's own
+sample: a neighbour drawn twice weighs double, a key neighbour is missing (about 37% of the
+rows are absent from each sample), the thresholds move because they are midpoints between
+the values drawn, and a different early split changes every question below it. The vote
+fixes a mistake only if most trees are right on that applicant - so not on a flipped label
+(1 of 29).
+
 <!-- example:begin -->
 
 \Needspace{19\baselineskip}
@@ -1461,6 +1670,15 @@ because some take three or four draws.
 Correct except for "441 repeated": 441 are repeated **draws**, $1{,}200 - 759$. The
 applicants drawn two or more times are about 317, because some of them take three or
 four of those draws. And 759 and 441 are expected counts, averages over many samples.
+
+### Question — is 36.8% a row's probability or a share of rows?
+
+> *Does it mean a single row has a 36.8% probability of not being drawn?*
+
+Both, and the second follows from the first. For one row, $(1 - 1/m)^m = 0.3677$ at
+$m = 1{,}200$ is the probability of escaping every draw; every row has the same, so on
+average 36.8% of the rows are never drawn - 0.366 in the sample of slide 33. Seen from the
+trees: a given row is out-of-bag for about 36.8% of them, the 110 of 300 on slide 35.
 
 <!-- example:begin -->
 
@@ -1684,6 +1902,29 @@ told apart from the rule that generated the data. Three ways, all seen today:
 The only remedy for these is more data. The next two slides measure how much of each
 tree's instability is of this shared kind.
 
+### Question — the two parts: which is which?
+
+> *It is not clear what separates the first part from the second.*
+
+Two draws in sequence. **Draw one**, made once: the lender collects 1,200 loans - the same
+for every tree. **Draw two**, made by each tree: its bootstrap sample from those 1,200.
+Everything decided by draw one is shared and cannot be voted away; everything decided by
+draw two is the tree's own luck. The test: change only the bagging's seed (a new draw two)
+and the vote of 99 trees changes on 1.4% of the applicants, falling further with more
+trees; collect another 1,200 loans (a new draw one) and it changes on 3.9%, a floor.
+
+### Question — so bagging does not remove the flipped labels?
+
+> *The flipped labels are not removed by bagging, correct?*
+
+Correct: they stay in the data and every tree errs the same way on them. On a new
+applicant with a flipped label the trees vote what the neighbours say, and the vote gets 1 of
+29 right - the best any model can do, since the flip is random. On the training rows the
+trees that hold the row memorised it: 55 of 56 come out "right", which is memorisation, not
+skill. What bagging does remove is the **spread** of a flipped label onto its neighbours:
+whether a neighbour falls inside the flipped label's small leaf depends on each sample's
+thresholds, so it happens in a minority of trees, and the vote outvotes them.
+
 ---
 
 ## Slide 38 — The experiment: two sets of loans, two models, one applicant
@@ -1762,6 +2003,15 @@ It means that in this experiment, beyond about 50 trees the remaining disagreeme
 hardly changes. It does not fix a number for every dataset; and more trees never hurt a
 bagging, they only cost time. What the flat part says is that the remaining instability
 is not the kind more trees can remove.
+
+### Question — two trees taken at random?
+
+> *The share of cases where two trees, trained on different datasets, give opposite predictions?*
+
+Two **models** of the same size, each trained on a different set: two single trees at 1,
+two votes of 99 trees at 99. Every set is trained on once - a bagging of 100 trees, of which
+the first $k$ are used - and all 780 pairs of the 40 sets are compared, not pairs drawn at
+random.
 
 ---
 
@@ -1867,6 +2117,25 @@ split only random columns when most columns are noise, and many splits have noth
 useful to choose from: slide 46 shows the forest's accuracy falling and its importance
 going to noise.
 
+### Question — what are 0.828 and 0.837?
+
+> *A tree is worse alone (0.828 vs 0.837): what are those numbers?*
+
+The mean test accuracy of **one tree on its own**, inside each ensemble: each of the 100
+trees scored alone on the 360 test applicants of one train/test split, then averaged. A
+forest tree is worse because some splits are denied the better column. The forest's **vote**
+is better, 0.908 against 0.902, averaged over the 30 train/test splits.
+
+### Question — does this show the forest beats bagging in general?
+
+> *We will not make 30 divisions when we predict: how does this example ensure the forest works better in general?*
+
+It does not. The 30 train/test splits are how the comparison is **measured**; in use the
+forest is trained once on all the data. And 0.908 against 0.902 is evidence on these data,
+not a law: each forest tree is worse, and whether the lower floor pays for that depends on
+the data. `max_features` is a hyperparameter, and the choice between forest and bagging is
+made by cross-validation on your own data.
+
 ---
 
 ## Slide 42 — Bagged trees against forest trees
@@ -1934,6 +2203,15 @@ is a small difference and partly test-set luck; the right panel is the clearer m
 of stability. The rectangles are box plots, as on slide 40: the middle half of the 30
 values, with the red line at the mean.
 
+### Question — is 2.6% the share of forest trees that change verdict?
+
+> *With another 1,200 applicants only 2.6% of the forest's trees change verdict?*
+
+Of the **applicants**: on 2.6% of the 300, the vote of 99 forest trees trained on one set
+and the vote trained on another give opposite verdicts, averaged over the 780 pairs. Note also
+the left end of the curves: one forest tree alone changes more than one bagged tree - each
+forest tree is less steady, the forest steadier.
+
 ---
 
 ## Slide 44 — Feature importance on one tree
@@ -1959,6 +2237,16 @@ Twice over. Its gain is larger, 0.1438 against 0.0026; and it splits every appli
 while the right split works on 229 of them, so its gain is weighted by 1 and the other's
 by 0.1908.
 
+### Question — where does 0.2119 come from?
+
+> *Debt gets 0.1438 + 0.0005, income has no sum; and where does the total come from?*
+
+0.2119 is the sum of the three credits, 0.1438 + 0.0676 + 0.0005: the whole purification
+the tree buys, the root's 0.474 minus the leaves' impurity averaged by size, 0.262. Income has
+one question, so one credit. Divided by the total, debt 0.681 and income 0.319: how much of
+the purification each column's questions bought - not how much the column matters in the
+world.
+
 ---
 
 ## Slide 45 — What a forest's importance says
@@ -1983,6 +2271,14 @@ No. It measures how the fitted trees **used** the column: the impurity reduction
 credited to it at the forest's splits. A column can earn credit by being split on often,
 even by chance, without being related to default at all, which is what the next slide
 shows.
+
+### Question — why 0.61 and 0.39, not slide 44's numbers?
+
+> *These are different numbers from the previous slide: where is the difference?*
+
+The same computation, many more questions: 300 fully grown trees, every question counted,
+many of them on income deep down in small groups, and with one column offered per split,
+about half the trees open on income. So income's share rises from 0.319 to 0.392.
 
 ---
 
@@ -2058,6 +2354,15 @@ depend on it. Shuffling it alone breaks its link with the label and with the oth
 columns, while the model and every other column stay exactly as they were, so the drop
 belongs to that column alone.
 
+### Question — why are the shuffled values not the five originals?
+
+> *The procedure is done on the 360 applicants not seen in training, correct?*
+
+Yes, the 30% held out. The five rows shown are five of the 360; the shuffle is over all
+360, so each gets the debt ratio of another of the 360. Held-out rows are what make the check
+honest: on the training rows the forest memorised its noise columns too, and shuffling them
+there would cost something.
+
 ---
 
 ## Slide 48 — Permutation importance: claimed against measured
@@ -2094,6 +2399,15 @@ help on applicants it has not seen.
 No. On a finite test set a shuffle can improve the accuracy by a thousandth or two by
 chance. A small negative value is what "no importance" looks like once noise is added to
 it.
+
+### Question — so shuffling penalises the real columns and not the noise?
+
+> *Shuffling penalises the real columns a lot and the noise columns almost not at all?*
+
+It is the model's accuracy that is penalised: shuffle a real column and the forest loses
+what it relied on for new applicants; shuffle a noise column and nothing useful is lost.
+The loss is the importance - in a different unit from the left panel, accuracy, not shares
+summing to 1.
 
 ---
 
@@ -2265,6 +2579,15 @@ Fair: slide 53 uses the rule, so the rule comes first, and it says what each sym
 in particular that $F_t(x)$ is the model's prediction, and $r_t$ is only the target the
 next tree is trained on.
 
+### Question — how do we get from $r_t$ to $h_t$?
+
+> *The step from the residual r_t to the tree's output h_t is not clear.*
+
+$r_t$ is a list, one number per training example, and it needs the true $y$. $h_t$ is a
+function of $x$: a tree that learns to reproduce that list from $x$ alone, so that it can
+answer for a point whose $y$ is unknown. Each leaf returns the mean of the residuals of its
+training examples: on slide 53, $(-3 - 1)/2 = -2$ and $(2 + 2)/2 = +2$.
+
 ---
 
 ## Slide 53 — Boosting by hand: 4 points, depth 1, α = 0.5
@@ -2414,6 +2737,15 @@ code, notebook 3's whole loop is a `DecisionTreeRegressor(max_depth=2)` fitted t
 Differentiate $L = \tfrac{1}{2}(y - F)^2$ with respect to $F$: the result is $F - y$.
 Its negative is $y - F$, the residual. The one half is there only to cancel the 2 that
 the derivative brings down.
+
+### Question — what does "trained on the negative gradient" mean?
+
+> *h_t is the mean of the residuals of each leaf; the residuals give the cut that minimises the squared error, then the leaves. Right?*
+
+Right. The gradient decides only the tree's **target**: for each example, $-\partial
+L/\partial F$ says which way its prediction should move to lower the loss; with $L =
+\tfrac{1}{2}(y - F)^2$ that is $y - F$, the residual. The tree then does what it always
+does: cuts by squared error, leaves as means.
 
 ---
 
