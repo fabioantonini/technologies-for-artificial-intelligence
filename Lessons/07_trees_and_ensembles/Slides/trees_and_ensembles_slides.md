@@ -1715,20 +1715,42 @@ accuracy rises from 0.837 to 0.897. Handout section 7 explains both.
 # Boosting: one tree after another
 
 - Bagging, forests: independent trees, then a **vote**
-- **Gradient boosting**: trees **in sequence**, all on the **same examples**
-- Each tree's **target**: what the **sum so far** still gets wrong
-- Shallow **regression trees**: a leaf outputs a **number**; $\alpha$ = how
-  much of it is added
+- **Boosting**: trees one **after another**; each learns the **error still
+  left**: truth minus the prediction so far
+- A boosted tree outputs a **number**, a correction; we start by predicting a
+  number (regression), a class comes after, by the same mechanism
+- Prediction = a **start** plus a small share $\alpha$ of every tree's
+  correction
 
 ::: notes
-Contrast the two strategies directly, because the difference is the whole
-segment. Bagging and random forests are parallel: every tree is grown once,
-independently, and combined only at prediction time. Boosting is
-sequential: tree $t$ exists specifically because of what trees $1$ through
-$t-1$ still got wrong. Say how the examples are used, because it is the
-opposite of bagging: no bootstrap, every tree sees every training example; the
-x stay the same and only the column the tree is trained to predict changes.
-The next slide does it by hand on four points.
+The segment in one line, so that the room knows where it is going: slide 51
+gives the rule, slides 52 and 53 apply it to four points, one to train and one
+to predict, slides 54 and 55 draw it on 200 points, then the evidence that it
+overfits if left alone, then classification, then the tuning. Say also why we
+start with a number: the thing a boosted tree learns is always a number - a
+correction - even when the final task is a class; the mechanism is easiest to
+see on a number, and classification then changes only the scale the correction
+lives on (slide 59).
+
+Contrast the two strategies directly. Bagging and random forests are parallel:
+every tree is grown once, independently, and combined only at prediction time.
+Boosting is sequential: tree $t$ exists because of what trees $1$ to $t-1$
+still get wrong. Say how the examples are used, because it is the opposite of
+bagging: no bootstrap, every tree sees every training example; the x stay the
+same and only the column the tree is trained to predict changes.
+
+"The error still left", in one concrete case: if the prediction so far for a
+house is 200 and it sold for 230, the error left is +30, and the next tree is
+trained to predict +30 for houses like it. The prediction so far is the sum of
+the start and the corrections already added, not the output of the previous
+tree alone.
+
+"A number, not a class", slowly: every tree so far this lesson was a
+classification tree - leaves vote, splits are scored by Gini. A boosted tree is
+a regression tree: the same greedy search over features and thresholds, but
+each leaf outputs the mean of the corrections of the examples in it, and a
+split is scored by how much it lowers the squared error around those means.
+Even `GradientBoostingClassifier` grows regression trees inside.
 
 Why shallow, in one breath. The two kinds of ensemble start from opposite ends
 of slide 21's depth dial: bagging averages deep trees - low bias, high
@@ -1736,30 +1758,15 @@ variance - and the vote removes variance (slide 37); boosting adds shallow
 trees - high bias, low variance - each fixing part of what the sum still
 misses, and the sum removes bias.
 
-Slow down on "regression tree", because it is new. "Shallow" means depth 2
-or 3 here. Everything so far this
-lesson was a classification tree: leaves vote, splits are scored by Gini. A
-boosted tree is fit to corrections, which are numbers like +0.613 or -0.387,
-not classes, so it is the regression version of the same algorithm: the same
-greedy search over features and thresholds, but each leaf predicts the
-average correction of the examples in it, and a split is scored by how much
-it lowers the squared error around those averages. Even
-`GradientBoostingClassifier` grows regression trees inside.
+Two predictable slips. "Each tree corrects the previous tree": it corrects what
+the whole sum so far gets wrong. "Each tree votes default or repaid, like a
+tree in a forest": a boosted tree never outputs a class; it outputs a
+correction that is added to a running score, and only the final score is turned
+into a class.
 
-A second predictable slip: "each tree corrects the previous tree". Each new
-tree corrects what the whole sum so far still gets wrong: start F0, the mean;
-F1 = F0 plus alpha times tree 1; tree 2 is trained on what F1 still gets wrong;
-the final prediction is the start plus alpha times all the corrections.
-
-A predictable slip, worth naming now: "the final task is classification, so
-each boosted tree votes default or repaid, like a tree in a forest". It is
-reasonable - every ensemble so far was made of trees that vote. But a boosted
-tree never outputs a class. It outputs a correction that is added to a
-running score, and only the final score is turned into a class.
-
-Name $\alpha$ carefully and tie it to the course's shared notation - this is
-the same symbol as lesson 3's gradient descent learning rate, doing an
-analogous job: how large a step each correction takes.
+Name $\alpha$ carefully and tie it to the course's shared notation: the same
+symbol as lesson 3's learning rate, doing an analogous job - how large a step
+each correction takes.
 
 Handout section 8.
 
@@ -1770,9 +1777,32 @@ paper (in the further reading) recast the idea as gradient descent on a loss,
 which is the version this lesson teaches and scikit-learn implements.
 :::
 
-# Boosting by hand: 4 points, 2 trees
+# Boosting in three lines
 
-| x | y | Start F₀ = mean | r₁ = y − F₀ | Tree 1: x ≤ 2.5? | F₁ = F₀ + 0.5 × tree 1 | r₂ = y − F₁ | Tree 2: x ≤ 1.5? | F₂ = F₁ + 0.5 × tree 2 |
+$$F_0 = \bar{y}\text{: start, the mean} \\ r_t = y - F_{t-1}(x)\text{: what is still wrong} \\ F_t(x) = F_{t-1}(x) + \alpha\,h_t(x) \\ \text{the prediction after } t \text{ trees}$$
+
+::: notes
+The rule the next slides use, said before any number. $F_t(x)$ is a function:
+the model's prediction for an input $x$ after $t$ trees have been added; $F_0$ is
+the flat starting guess, the best single constant for the loss being used - for
+squared error, as in this and the next four slides, the mean of the targets; for
+classification it will be the log-odds of the base rate. $r_t$ is the residual:
+truth minus the prediction so far, what is still wrong. $h_t(x)$ is the output
+of the new tree $t$, a number - a correction - found by training a shallow tree
+on the pairs $(x, r_t)$; it is not multiplied by $x$, it is read off the leaf
+$x$ falls in. $\alpha$ is the learning rate: the share of the correction that is
+actually added.
+
+Read it top to bottom: start flat; measure what is wrong, and train a tree $h_t$
+to predict it; add a fraction of it; measure again. Training repeats the last
+three steps; prediction needs only the last one (slide 53).
+
+Handout section 8.
+:::
+
+# Boosting by hand: 4 points, depth 1, α = 0.5
+
+| x | y | Start F₀ = mean | r₁ = y − F₀ | Tree 1: cut x ≤ 2.5 (squared error 2.0; other cuts 6.0, 12.667) | F₁ = F₀ + 0.5 × tree 1 | r₂ = y − F₁ | Tree 2: cut x ≤ 1.5 (0.667; other cuts 2.0, 4.667) | F₂ = F₁ + 0.5 × tree 2 |
 |---|---|---|---|---|---|---|---|---|
 | 1 | 1 | 4 | −3 | −2 | 3 | −2 | −2 | 2 |
 | 2 | 3 | 4 | −1 | −2 | 3 | 0 | +0.667 | 3.333 |
@@ -1780,9 +1810,13 @@ which is the version this lesson teaches and scikit-learn implements.
 | 4 | 6 | 4 | +2 | +2 | 5 | +1 | +0.667 | 5.333 |
 
 ::: notes
-Four points small enough to do on the board: x = 1, 2, 3, 4 and y = 1, 3, 6, 6;
-trees of depth 1, one question and two leaves; learning rate 0.5. Read the
-table left to right, one column at a time.
+Slide 51's rule with numbers, on four points small enough to do on the board:
+x = 1, 2, 3, 4 and y = 1, 3, 6, 6; trees of depth 1, one question and two leaves;
+learning rate 0.5. Read the table left to right, one column at a time. The two
+cuts are not given: each tree tries the three possible cuts - the midpoints
+between neighbouring x, as in lesson 7's first hour - and keeps the one with the
+lowest squared error, the sum over the two leaves of the squared distances of
+$r$ from the leaf's mean; the numbers are on the slide.
 
 The start, F0, is the mean for everyone: (1 + 3 + 6 + 6) / 4 = 4. The residuals
 r1 = y - F0 are -3, -1, +2, +2: what the start still misses. Tree 1 is trained on
@@ -1803,6 +1837,29 @@ What to point at: every tree saw all four points; the target shrank from
 (-3, -1, 2, 2) to (-1, -0.333, 0.667, 0.667); and a new point at x = 3.5 gets
 4 + 0.5 x 2 + 0.5 x 0.667 = 5.333, the start plus a half-step from each tree.
 
+The next slide uses this very model on a new point. Handout section 8.
+:::
+
+# Predicting a new point
+
+- New input x = 3.5; its y is **unknown**
+- Tree 1: x ≤ 2.5? no, so h₁ = +2. Tree 2: x ≤ 1.5? no, so h₂ = +0.667
+- F₂(3.5) = F₀ + α h₁ + α h₂ = 4 + 0.5 × 2 + 0.5 × 0.667 = **5.333**
+- No residual, no new tree: residuals exist **only in training**
+
+::: notes
+Training and prediction are different, and this slide is the second. Training
+used the known $y$ to compute residuals and grow the trees. A new applicant has
+no $y$ - that is what we are predicting - so the trained ensemble just walks
+the input through every tree in order, reads each leaf, and adds the start and
+the scaled corrections: $F_2(3.5) = 4 + 0.5 \times 2 + 0.5 \times 0.667 = 5.333$.
+Nothing is retrained and no residual is computed. Check it against slide 52's
+table: at $x = 3$ and $x = 4$ the model gives 5.333 too, because both fall in
+the same leaves as 3.5.
+
+The same holds for every boosted model in the lesson, 60 trees or 800: the
+prediction is the start plus alpha times the sum of the trees' outputs.
+
 Handout section 8.
 :::
 
@@ -1811,9 +1868,10 @@ Handout section 8.
 ![](boosting_drawn.png)
 
 ::: notes
-Before any formula, the procedure on the toy data of the next slides: 200
-noisy points around a step plus a sine wave (notebook 3, section 1). Four
-panels, left to right. One: the start, the same prediction for every x - the
+The same procedure on a bigger example, to see it: 200 noisy points around a step
+plus a sine wave (notebook 3, section 1), trees of depth 2 - up to four leaves -
+and learning rate 0.3, which the figure's title says; slide 52's example had 4
+points, depth 1 and 0.5. Four panels, left to right. One: the start, the same prediction for every x - the
 mean of all 200 y, 2.287. Before any tree the model cannot tell one x from
 another, and among all constants the mean has the smallest squared error. The
 red segments are the residuals, truth minus prediction: negative where the
@@ -1844,24 +1902,13 @@ a group of points and outputs one number, the mean of their residuals: -0.914,
 -1.243, +0.967, -0.504. Those are the four levels of the previous figure. The
 prediction adds 0.3 times that number: at x = 5, 2.287 + 0.3 x 0.967 = 2.578.
 
+Why three cuts and four leaves: this tree has depth 2 - a root and two children -
+so at most three cuts and four leaves; that comes from the depth we chose, not
+from boosting. To predict at x = 5: root, right (5 > 2.89); then x <= 7.05, yes;
+leaf +0.967; the prediction moves by 0.3 times it. The three cuts were chosen by
+the same rule as slide 52's: the lowest squared error of the residuals.
+
 Handout section 8.
-:::
-
-# Building the ensemble, one tree at a time, for squared error
-
-$$F_0(x) = \bar{y}\text{: start from the mean} \\ F_t(x) = F_{t-1}(x) + \alpha\, h_t(x)\text{: add a scaled tree}$$
-
-::: notes
-Slide 52's figure in symbols, said in thirty seconds. $F_0$ is the flat
-starting guess: the best single constant for the loss being used. For squared error, as on this slide and the next three, that is
-the mean of the target; for classification it will be the log-odds of the
-base rate. Each subsequent
-$F_t$ is the previous ensemble plus a scaled correction from the newest
-tree, $h_t$. Read it left to right: start flat, then keep adding small,
-scaled corrections.
-
-Do not derive anything further here - the next slide states what $h_t$ is
-actually fit to. Handout section 8.
 :::
 
 # What each tree is fit to
@@ -1878,6 +1925,10 @@ In code, the whole from-scratch loop of notebook 3, section 1, is
 DecisionTreeRegressor(max_depth=2) fit to y - prediction:
 fit a depth-2 regression tree to the residuals, add 0.3 times its predictions
 to the running prediction, repeat sixty times.
+
+Two separate jobs, said apart: the gradient decides what the tree is trained to
+predict - its target - and the tree then finds its cuts by the squared-error
+rule of slide 52; the gradient does not choose thresholds.
 
 State the result without the calculus. For plain squared-error regression,
 what a new tree corrects is literally the residual - the gap between the
@@ -1910,9 +1961,9 @@ order.
 
 The dashed grey line is the start, the mean 2.287. Say the numbers as you
 point: one tree barely moves it - the gold curve is the start plus 0.3 times
-tree 1's leaves (slide 53): 2.287 + 0.3 x (-0.914) = 2.287 - 0.274 = 2.01 on
+tree 1's leaves (slide 55): 2.287 + 0.3 x (-0.914) = 2.287 - 0.274 = 2.01 on
 the left, 2.287 + 0.3 x 0.967 = 2.287 + 0.290 = 2.58 in the middle, 2.287 +
-0.3 x (-0.504) = 2.287 - 0.151 = 2.14 on the right, as in slide 52's third
+0.3 x (-0.504) = 2.287 - 0.151 = 2.14 on the right, as in slide 54's third
 panel. Five trees sketch the coarse shape. Twenty trace the step function
 closely - the best of the four curves shown, as the next slide measures. By sixty, the
 ensemble is tracking individual noisy observations as well as the
@@ -1923,15 +1974,16 @@ Handout section 8.
 
 # Training error keeps falling; the true error does not
 
-| Trees | Mean squared error (MSE) on the 200 training points | MSE against the true function |
+| Trees | Mean squared error (MSE) on the 200 training points | MSE against the true function (known only because the data are synthetic) |
 |---|---|---|
 | 1 | 0.476 | 0.395 |
 | 5 | 0.119 | 0.068 |
-| 20 | 0.046 | **0.012**, the best point |
+| 20 | 0.046 | **0.012**, the best of the four |
 | 60 | **0.025**, still falling | 0.018, rising: it tracks noise |
 
 ::: notes
-Put a number on each curve of the previous slide, two ways. The middle column
+Put a number on each curve of the previous slide (notebook 3, section 1), two
+ways. The middle column
 is the error on the points the model is trained on; the right column, the error
 against the black line, the true function - possible only because these data
 are synthetic. The training error keeps falling; the error against the truth
@@ -1943,7 +1995,7 @@ sign that the model has started to learn the noise - a sign, not a proof, since
 column, which turns up. Counted tree by tree, the lowest error against the true
 function is at 19 trees, 0.0116 against 0.0119 at 20: "about 20" is the
 honest reading. In real data the truth is
-unknown, and slides 60 and 61 put cross-validation in its place.
+unknown, and slides 62 and 63 put cross-validation in its place.
 
 Name what this is: the same overfitting story as the unconstrained single
 tree of slide 22's depth table, reached by a completely different route - not one
@@ -1955,12 +2007,12 @@ Handout section 8.
 
 # Classification: the same idea, a different gradient
 
-- Now $y$ is 0 or 1. The running score $F$ becomes a probability through
-  lesson 4's logistic function, $p = \sigma(F)$
-- The loss is lesson 4's **log-loss**; its negative gradient is $y - p$, the
-  **pseudo-residual**, lesson 4's error term: each tree is trained on it
+- Now $y$ is 0 or 1. The trees correct a **score** $F$; lesson 4's logistic
+  function turns it into a probability, $p = \sigma(F)$, and $p$ into a class
+- Each tree is trained on $y - p$, the **pseudo-residual**, lesson 4's error
+  term, to correct $F$ - never $p$ itself
 - Start: $p = 464/1{,}200 = 0.387$ for all (the share who defaulted), so the
-  first tree fits +0.613 to defaulters and −0.387 to the rest
+  first targets are +0.613 for defaulters and −0.387 for the rest
 
 ::: notes
 State the result, not the chain rule behind it - the handout carries the
@@ -1991,6 +2043,10 @@ correct the score F, not p: F moves by alpha times the tree's output, and
 only then does the logistic function turn the new F into a new p. That is
 what keeps p between 0 and 1 however large the corrections add up.
 
+This slide is the same rule as slide 51, on a different scale: the corrections
+add up in $F$, the log-odds, and $p$ is computed from $F$ at the end. The next
+slide does it on four points, with numbers.
+
 One detail, if someone has read scikit-learn's source. The tree's
 splits are chosen on y - p exactly as described. The number written in each
 leaf is then recomputed: the sum of y - p over the leaf divided by the sum
@@ -1998,6 +2054,45 @@ of p(1 - p), one Newton step on the log-loss rather than the plain mean. The
 splits come from the residuals; the size of each step takes the curvature of
 the loss into account. Handout section 9 has it in one sentence; nothing in
 the lesson depends on it.
+
+Handout section 9.
+:::
+
+# Classification by hand: 4 points, depth 1, α = 0.5
+
+| x | y (1 = default) | Start: p₀ = 1/4, F₀ = log(1/3) = −1.099, p₀ = σ(F₀) | y − p₀ | Tree 1 (cut x ≤ 3.5): leaf = Σ(y − p) ÷ Σp(1 − p) | F₁ = F₀ + 0.5 × leaf | p₁ = σ(F₁) |
+|---|---|---|---|---|---|---|
+| 1, 2, 3 | 0 | 0.25 | −0.25 | −0.75 ÷ 0.5625 = −1.333 | −1.765 | 0.146 |
+| 4 | 1 | 0.25 | +0.75 | 0.75 ÷ 0.1875 = +4.000 | +0.901 | 0.711 |
+
+::: notes
+Classification with numbers, on the same four x as slide 52 but with a yes/no
+answer: the first three applicants repaid, the fourth defaulted. Three steps, as
+for regression. One: the start is the base rate, 1 of 4 defaulted, p = 0.25 for
+everyone; on the score scale that is F0 = log(0.25 / 0.75) = -1.099. Two: the
+target of the first tree is y - p: -0.25 for the three who repaid, +0.75 for the
+one who defaulted. The tree is a regression tree, as before; the cut that
+separates these targets best is x <= 3.5. Three: each leaf outputs a number, a
+correction to the SCORE F, and alpha times it is added: the three left points go
+from F = -1.099 to -1.765 and the right one to +0.901. Only then does the
+logistic function turn the new F into a new p: 0.146 for the three who repaid -
+down from 0.25 - and 0.711 for the one who defaulted - up from 0.25. The
+probabilities moved toward the truth.
+
+Two things to say. First, p is never updated directly: the corrections add up
+in F, and p = sigma(F) comes out between 0 and 1 however many trees are added.
+Second, the leaf is not the plain mean of y - p (that would be -0.25 and
++0.75): scikit-learn divides the sum of y - p in the leaf by the sum of
+p(1 - p), a step that takes the curvature of the log-loss into account; here
+-0.75 / 0.5625 = -1.333 and 0.75 / 0.1875 = 4.000. The cut is chosen on the
+targets y - p exactly as in regression; the number written in the leaf is the
+corrected one. Nothing in the lesson depends on the division.
+
+To predict a new applicant, as on slide 53: walk through the tree, add alpha
+times the leaf to F0, apply the logistic function, and call it default if p
+exceeds 0.5 - here x = 3.7 gets F = 0.901, p = 0.711, default; x = 2 gets 0.146,
+repaid. Checked against GradientBoostingClassifier(n_estimators=1, max_depth=1,
+learning_rate=0.5) in worked_examples.py.
 
 Handout section 9.
 :::
@@ -2053,6 +2148,11 @@ the size of that drop with the single trees of slide 22: from depth 8 (0.882) to
 unconstrained (0.852), three points lost past the peak - boosting's overfitting is real
 but gentler.
 
+Say the setting first, because it is not slide 61's: depth 3 and alpha 0.3 here,
+against the default's 0.1, so this is a different model, not the same one with
+fewer trees; slide 64 does the opposite sweep, holding the trees and varying
+alpha.
+
 A predictable slip: "30 trees beat the default 100 of the previous slide".
 Reasonable, since 30 is the peak here. But this table uses a learning rate of
 0.3 and the default uses 0.1: two different configurations, not one knob
@@ -2101,6 +2201,11 @@ Handout section 10.
 | 1.00 | 1.000 | 0.878 ± 0.020 |
 
 ::: notes
+The opposite sweep of slide 62: there alpha was held (0.3) and the trees varied;
+here the trees are held (120) and alpha varies. Smaller alpha usually needs more
+trees, but not as an exact product: each tree is fit to what the sum so far
+still gets wrong, so the path changes with the step size.
+
 Learning rate and tree count are not independent - both control how much
 total correction the ensemble applies, so they trade off against each
 other. At $\alpha = 0.02$, 120 trees haven't finished fitting the signal:
@@ -2130,15 +2235,17 @@ Handout section 10.
 
 | section, and its slides | you call (→ the number to come back with) |
 |---|---|
-| 1. boosting from scratch, 50-57 | `DecisionTreeRegressor(max_depth=2)` on the residuals, 60 times → MSE 0.0119 at 20 trees |
-| 2. classification, 58-59 | `GradientBoostingClassifier()` in `cross_val_score` → F0 = −0.461; 0.902 |
-| 3. more trees, 60-61 | the same, `learning_rate=0.3`, `n_estimators` from 5 to 800 → peak 0.897 at 30 |
-| 4. learning rate, 62 | `n_estimators=120`, `learning_rate` from 0.02 to 1.0 → best 0.902 at 0.1 |
-| 5. leaderboard, 64 | every model in one `cross_val_score` loop → forest 0.911 |
+| 1. boosting from scratch, 50-58 | `DecisionTreeRegressor(max_depth=2)` on the residuals, 60 times → MSE 0.0119 at 20 trees |
+| 2. classification, 59-61 | `GradientBoostingClassifier()` in `cross_val_score` → F0 = −0.461; 0.902 |
+| 3. more trees, 62-63 | the same, `learning_rate=0.3`, `n_estimators` from 5 to 800 → peak 0.897 at 30 |
+| 4. learning rate, 64 | `n_estimators=120`, `learning_rate` from 0.02 to 1.0 → best 0.902 at 0.1 |
+| 5. leaderboard, 66 | every model in one `cross_val_score` loop → forest 0.911 |
 | **or atom 14** | `Notebooks/atoms.ipynb` |
 
 ::: notes
-The table is the notebook's map: boosting from scratch on the residuals,
+The recipe in one line: the mean, then a tree on the error left, add alpha times
+it, repeat; predict by summing; choose the number of trees and alpha on unseen
+data. The table is the notebook's map: boosting from scratch on the residuals,
 then scikit-learn's classifier, the tree-count and learning-rate sweeps, and
 the leaderboard of the next slide.
 
@@ -2244,8 +2351,8 @@ Handout section 11.
 A table to photograph, exactly as lesson 6 closed with one. Work down it
 and attach today's evidence to each row rather than leaving it as generic
 advice: the nine-leaf tree, readable as if/else rules, for the first row
-(slide 25); the leaderboard for the second (slide 64); the tree-count curve and
-the learning-rate table for the third (slides 61 and 62); the noise experiment
+(slide 25); the leaderboard for the second (slide 66); the tree-count curve and
+the learning-rate table for the third (slides 63 and 64); the noise experiment
 and the permutation check for the fourth (slides 46 to 48); the out-of-bag
 slides for the fifth (34 and 35). On the first row: explaining a credit
 decision to the person it affects is also a legal question - the lesson's

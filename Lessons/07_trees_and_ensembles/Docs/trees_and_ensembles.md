@@ -16,10 +16,10 @@ date: "27 November 2026 · reading time about 85 minutes"
 | 1:12–1:24 | 12 | **Break** | Slide 29 |
 | 1:24–1:49 | 25 | Bagging and random forests | Slides 30–48 |
 | 1:49–2:02 | 13 | **Notebook 02**, or atoms 8–13 — bagging and random forests | Slide 49 |
-| 2:02–2:24 | 22 | Gradient boosting | Slides 50–62 |
-| 2:24–2:42 | 18 | **Notebook 03**, or atom 14 — gradient boosting | Slide 63 |
-| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 64–69 |
-| | **180** | **Total** | **69 slides, 3 notebooks** |
+| 2:02–2:24 | 22 | Gradient boosting | Slides 50–64 |
+| 2:24–2:42 | 18 | **Notebook 03**, or atom 14 — gradient boosting | Slide 65 |
+| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 66–71 |
+| | **180** | **Total** | **71 slides, 3 notebooks** |
 
 ---
 
@@ -1514,6 +1514,22 @@ adding it to a probability looks natural. But the trees correct the score $F$,
 not $p$: $F$ moves by $\alpha h_t(x)$, and only then does the logistic function
 turn the new $F$ into a new $p$. That is what keeps $p$ between 0 and 1 however
 large the corrections add up.
+
+**Classification by hand: four points, one tree.** The same four $x$ as section 8,
+now with a yes/no answer: $y$ = 0, 0, 0, 1 (1 = default), one tree of depth 1,
+$\alpha = 0.5$. The base rate is 1 in 4, so $p_0 = 0.25$ for everyone and
+$F_0 = \log(0.25 / 0.75) = -1.099$. The pseudo-residuals $y - p_0$ are $-0.25$,
+$-0.25$, $-0.25$ and $+0.75$. The cut that separates them best is $x \le 3.5$.
+Each leaf outputs a correction to the score, $\sum(y - p) / \sum p(1 - p)$ (the
+detail below): on the left $-0.75 / (3 \times 0.1875) = -1.333$, on the right
+$0.75 / 0.1875 = +4.000$. Then $F_1 = F_0 + 0.5 \times$ leaf: $-1.099 - 0.667 =
+-1.765$ for the three who repaid, $-1.099 + 2.000 = 0.901$ for the one who
+defaulted; and only now the logistic function: $p_1 = 0.146$ for the first
+three — down from 0.25 — and $0.711$ for the fourth — up from 0.25. The
+probabilities moved toward the truth, and $p$ was never updated directly. A new
+applicant is predicted as in section 8: walk through the tree, add $\alpha$ times
+the leaf to $F_0$, apply the logistic function; $x = 3.7$ gives $p = 0.711$, so
+"default".
 
 One detail of scikit-learn's implementation, for anyone who reads its source.
 The splits of each tree are chosen on $y - p$ exactly as described; the value

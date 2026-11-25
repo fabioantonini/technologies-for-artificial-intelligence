@@ -909,7 +909,7 @@ for _t in range(1, 61):
 same("8 the lowest error is at 19 trees", int(np.argmin(_true_err)) + 1, 19, tolerance=0)
 same("8 its value, 0.0116", min(_true_err), 0.0116, tolerance=5e-5)
 same("8 at 20 trees, 0.0119", _true_err[19], 0.0119, tolerance=5e-5)
-# Section 7 / slide 67: the menu's two counts.
+# Section 7 / slide 69: the menu's two counts.
 same("7 C(20,4)", comb(20, 4), 4845, tolerance=0)
 same("7 C(22,4)", comb(22, 4), 7315, tolerance=0)
 
@@ -996,7 +996,7 @@ same("4 nine leaves: the shallowest at depth 1", min(_depths), 1, tolerance=0)
 same("4 nine leaves: the deepest at depth 7", max(_depths), 7, tolerance=0)
 same("4 nine leaves: debt above 0.82 is a leaf", int(_t9.children_left[_t9.children_right[0]] < 0), 1, tolerance=0)
 
-# ---------------------------------------- third study pass, slides 30-53 (24 Nov)
+# ---------------------------------------- third study pass, slides 30-55 (24 Nov)
 # 5.2: the two draws. Same 1,200 loans, only the bagging's seed changes (a new
 # draw two), against new loans (a new draw one, checked above at 3.9%). Ten seeds
 # and its own 300 points here, so a looser tolerance than the notebook's 40.
@@ -1064,6 +1064,29 @@ for _lo, _hi, _n, _v in ((-1, 2.48, 50, -0.914), (2.48, 2.89, 7, -1.243), (2.89,
 same("8 tree 1: 57 points left of 2.89", int((_xt <= 2.89).sum()), 57, tolerance=0)
 same("8 tree 1: their mean residual", _rt[_xt <= 2.89].mean(), -0.954, tolerance=5e-4)
 same("8 tree 1: 143 right of it, mean residual", _rt[_xt > 2.89].mean(), 0.380, tolerance=5e-4)
+
+# 9: classification by hand, four points, depth 1, alpha 0.5 - by hand, and against
+# scikit-learn's own first tree.
+_xc, _yc = np.array([[1.], [2.], [3.], [4.]]), np.array([0, 0, 0, 1])
+_p0 = _yc.mean(); _F0 = np.log(_p0 / (1 - _p0))
+same("9 by hand: p0 = 0.25", _p0, 0.25, tolerance=0)
+same("9 by hand: F0 = log(1/3)", _F0, -1.099, tolerance=5e-4)
+_res = _yc - _p0
+same("9 by hand: left leaf, sum(y - p) / sum p(1 - p)", _res[:3].sum() / (3 * _p0 * (1 - _p0)), -1.333, tolerance=5e-4)
+same("9 by hand: right leaf", _res[3:].sum() / (_p0 * (1 - _p0)), 4.0, tolerance=5e-4)
+_F1 = _F0 + 0.5 * np.array([-4 / 3] * 3 + [4.0])
+same("9 by hand: F1 left", _F1[0], -1.765, tolerance=5e-4)
+same("9 by hand: F1 right", _F1[3], 0.901, tolerance=5e-4)
+_sig = lambda z: 1 / (1 + np.exp(-z))
+same("9 by hand: p1 left", _sig(_F1[0]), 0.146, tolerance=5e-4)
+same("9 by hand: p1 right", _sig(_F1[3]), 0.711, tolerance=5e-4)
+_g1 = GradientBoostingClassifier(n_estimators=1, max_depth=1, learning_rate=0.5, random_state=0).fit(_xc, _yc)
+_t1c = _g1.estimators_[0, 0].tree_
+same("9 scikit-learn's cut is x <= 3.5", _t1c.threshold[0], 3.5, tolerance=0)
+same("9 scikit-learn's left leaf", _t1c.value[1][0][0], -1.333, tolerance=5e-4)
+same("9 scikit-learn's right leaf", _t1c.value[2][0][0], 4.0, tolerance=5e-4)
+same("9 scikit-learn's F1 on the fourth point", _g1.decision_function(_xc)[3], 0.901, tolerance=5e-4)
+same("9 scikit-learn's p1 on the first point", _g1.predict_proba(_xc)[0, 1], 0.146, tolerance=5e-4)
 
 print(f"{checks} numbers recomputed from raw inputs and confirmed against "
       f"{HANDOUT}.")
