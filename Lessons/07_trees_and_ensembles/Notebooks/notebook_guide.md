@@ -219,7 +219,7 @@ name both.
 | 2 | The root gain by counting, 0.1438, and the plain-average slip | *Choosing a split: the children's impurity, averaged by size*; *Worked example: the root split* |
 | 3 | Seven midpoints on eight loans; any threshold in the gap, the same split | *Scanning for the best split*; *Every threshold, scored* |
 | 4 | A depth-2 tree on ten loans: `export_text`, `apply`, `decision_path` | *The algorithm, drawn*; *The loop, in seven lines*; *Reading a tree* |
-| 5 | `max_depth=8` against `max_leaf_nodes=9` against no limit: 71, 9 and 156 leaves | *Depth is the bias-variance dial*; *Reading a tree, and the knob that keeps it small* |
+| 5 | `max_depth=8` against `max_leaf_nodes=9` against no limit: 71, 9 and 156 leaves; the same 8 leaves by depth 3 (0.829) and by budget (0.879, island A) | *Depth is the bias-variance dial*; *Reading a tree, and the knob that keeps it small* |
 | 6 | The noise ceiling, 0.929, and the flipped labels each depth learns | *The curve bends downward*; *The same rule, three depths* |
 | 7 | Five folds by hand: 1,059 of 1,200, `std` against `std(ddof=1)` | *Measured, at seven depths*; *Cross-validation, step by step* |
 | 8 | Without and with replacement: 753 different loans, 447 never drawn, 447 repeats | *A tree that doesn't stay still*; *How much data one bootstrap sample sees* |
@@ -228,4 +228,4 @@ name both.
 | 11 | One column per split: roots 100 against 51 and 49, a tree alone against the vote | *Random forests: trees less alike*; *Bagged trees against forest trees* |
 | 12 | Feature importance by hand on the depth-2 tree: 0.681 and 0.319 | *Feature importance on one tree*; *What a forest's importance says* |
 | 13 | Permutation by hand: shuffling debt costs 0.206, a random column 0.003 | *Permutation importance: the procedure*; *claimed against measured* |
-| 14 | Boosting by hand, two trees: 2.287, 2.578, 2.781, equal to `GradientBoostingRegressor` | *Boosting, drawn: the first two steps*; *Building the ensemble, one tree at a time* |
+| 14 | Boosting by hand, two trees: 2.287, 2.578, 2.781, equal to `GradientBoostingRegressor` | *Boosting, drawn: the first two steps*; *Boosting in three lines* |
