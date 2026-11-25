@@ -253,7 +253,7 @@ For large $m$ the share tends to 0.368.
 """
 
 
-# --------------------------------------------------------------- slide 54
+# --------------------------------------------------------------- slide 55
 @example(51)
 def boosting_by_hand():
     y = [1.0, 1.0, 3.0, 3.0]
@@ -288,7 +288,7 @@ prediction approaches 1 and 3 without ever jumping there in one step.
 """
 
 
-# --------------------------------------------------------------- slide 59
+# --------------------------------------------------------------- slide 60
 @example(56)
 def classification_start():
     defaulted, total = 3, 10
@@ -312,7 +312,7 @@ from the new $p$, so they change from round to round.
 """
 
 
-# --------------------------------------------------------------- slide 69
+# --------------------------------------------------------------- slide 49
 @example(65)
 def menu_by_hand():
     real, noise, offered = 2, 6, 2
@@ -324,7 +324,7 @@ def menu_by_hand():
     return f"""
 ### Worked example — how often the menu holds no real column
 
-A smaller version of slide 69: {real} real columns and {noise} random ones, {real + noise} in all;
+A smaller version of slide 49: {real} real columns and {noise} random ones, {real + noise} in all;
 each split is offered {offered} of them at random.
 
 - Possible menus: $\\binom{{{real + noise}}}{{{offered}}} = {len(menus)}$.

@@ -14,12 +14,12 @@ date: "27 November 2026 · reading time about 85 minutes"
 | 0:32–0:52 | 20 | Depth is the bias-variance dial | Slides 21–27 |
 | 0:52–1:12 | 20 | **Notebook 01**, or atoms 1–7 — decision trees from scratch | Slide 28 |
 | 1:12–1:24 | 12 | **Break** | Slide 29 |
-| 1:24–1:49 | 25 | Bagging and random forests | Slides 30–48 |
-| 1:49–2:02 | 13 | **Notebook 02**, or atoms 8–13 — bagging and random forests | Slide 49 |
-| 2:02–2:24 | 22 | Gradient boosting | Slides 50–64 |
-| 2:24–2:42 | 18 | **Notebook 03**, or atom 14 — gradient boosting | Slide 65 |
-| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 66–71 |
-| | **180** | **Total** | **71 slides, 3 notebooks** |
+| 1:24–1:49 | 25 | Bagging and random forests | Slides 30–49 |
+| 1:49–2:02 | 13 | **Notebook 02**, or atoms 8–13 — bagging and random forests | Slide 50 |
+| 2:02–2:24 | 22 | Gradient boosting | Slides 51–66 |
+| 2:24–2:42 | 18 | **Notebook 03**, or atom 14 — gradient boosting | Slide 67 |
+| 2:42–3:00 | 18 | The full leaderboard; homework | Slides 68–72 |
+| | **180** | **Total** | **72 slides, 3 notebooks** |
 
 ---
 
@@ -1519,9 +1519,11 @@ large the corrections add up.
 now with a yes/no answer: $y$ = 0, 0, 0, 1 (1 = default), one tree of depth 1,
 $\alpha = 0.5$. The base rate is 1 in 4, so $p_0 = 0.25$ for everyone and
 $F_0 = \log(0.25 / 0.75) = -1.099$. The pseudo-residuals $y - p_0$ are $-0.25$,
-$-0.25$, $-0.25$ and $+0.75$. The cut that separates them best is $x \le 3.5$.
+$-0.25$, $-0.25$ and $+0.75$. The cut that separates them best is $x \le 3.5$,
+with squared error 0 against 0.667 for $x \le 1.5$ and 0.5 for $x \le 2.5$ —
+chosen exactly as in regression.
 Each leaf outputs a correction to the score, $\sum(y - p) / \sum p(1 - p)$ (the
-detail below): on the left $-0.75 / (3 \times 0.1875) = -1.333$, on the right
+detail below: gap in probability ÷ slope of the logistic function): on the left $-0.75 / (3 \times 0.1875) = -1.333$, on the right
 $0.75 / 0.1875 = +4.000$. Then $F_1 = F_0 + 0.5 \times$ leaf: $-1.099 - 0.667 =
 -1.765$ for the three who repaid, $-1.099 + 2.000 = 0.901$ for the one who
 defaulted; and only now the logistic function: $p_1 = 0.146$ for the first
@@ -1535,7 +1537,13 @@ One detail of scikit-learn's implementation, for anyone who reads its source.
 The splits of each tree are chosen on $y - p$ exactly as described; the value
 written in each leaf is then recomputed as
 $\sum (y - p) \,/\, \sum p(1 - p)$ over the leaf's examples — one Newton step
-on the log-loss in place of the plain mean. The splits come from the
+on the log-loss in place of the plain mean. The reason, without the calculus:
+$y - p$ is a gap in probability, but the tree corrects the score $F$, and the
+logistic function's slope at $p$ is $p(1 - p)$; a gap in $p$ becomes a step in
+$F$ of gap ÷ slope (summed over the leaf). Where $p$ is near 0 or 1 the curve
+is flat and a large step in $F$ is needed; near 0.5 a small one will do. In
+regression the prediction is $F$ itself, the slope is 1, and gap ÷ slope is the
+plain mean of the residuals: the same rule. The splits come from the
 residuals, the size of each step from the curvature of the loss. Nothing in
 this lesson depends on it.
 

@@ -2003,7 +2003,7 @@ that the importances have gone wrong.
 The instinct this breaks is reasonable: averaging over hundreds of trees really does
 reduce the variance of the **prediction**. It does not guarantee small importance for
 irrelevant columns. Two things hand credit to noise, the random menu at each split and
-the deep splits on small groups; slide 69 takes them apart.
+the deep splits on small groups; slide 49 takes them apart.
 
 ### Question — what does "more than half of the importance" mean?
 
@@ -2023,7 +2023,7 @@ together.
 Averaging cancels what differs between trees. The credit given to noise does not differ
 in sign: every tree that splits on a random column records a positive gain, however
 small, and positive gains add up. Two causes produce them, the menu that sometimes
-offers only noise and the small groups deep in each tree; slide 69 has both.
+offers only noise and the small groups deep in each tree; slide 49 has both.
 
 ---
 
@@ -2097,7 +2097,49 @@ it.
 
 ---
 
-## Slide 49 — Notebook 2, live
+## Slide 49 — 54% of the importance on noise
+
+The lesson's number: with **20 random columns against 2 real ones, more than half of a
+random forest's importance landed on the random ones.** Every lesson so far has left one
+of these numbers: lesson 1's 77% accuracy on coin-flip labels, lesson 3's 365. This is
+lesson 7's.
+
+Two causes, not one.
+
+- **The menu.** Each split may use $\lfloor\sqrt{22}\rfloor = 4$ of the 22 columns. The
+  chance that all 4 are noise is $\binom{20}{4}/\binom{22}{4} = 4{,}845/7{,}315 = 0.662$:
+  two splits in three see no real column. At those splits the tree still has to pick
+  something, and it picks the noise column that happens to separate the classes best.
+- **Small groups.** With every split offered all 22 columns (`max_features=None`), the
+  noise share falls from 54.5% only to **28%**. Deep in a tree a node holds a handful of
+  applicants, and among twenty columns of random numbers one will almost always separate
+  that handful a little better than income or debt can, purely by chance.
+
+The same run raised the accuracy from 0.837 to 0.897: with 20 useless columns out of 22,
+the random menu costs more accuracy than decorrelating the trees buys back. The default
+is a good default, not a law. The check is the one of slide 48: shuffling a column on
+held-out data costs the two real features 0.09 and 0.18 of accuracy, and each noise
+column almost nothing.
+
+**A predictable mistake.** "So 54% of the forest's predictions are decided by noise."
+Reasonable, since a share of importance reads like a share of responsibility. But the
+54% adds up credit for splits, the impurity gain each bought on the training rows; it is
+not a share of predictions or of accuracy. Permutation importance measures that second
+thing, and there the noise columns are worth almost nothing.
+
+### Question — why does noise still get 28% with every column on offer?
+
+> *If every split can choose among all 22 columns, a real one is always available. Why
+> does noise still take 28%?*
+
+Near the root a real column always wins. Deep in the trees, a node holds a few
+applicants, and the real columns have little left to say about them; among twenty random
+columns, one will separate those few slightly better by chance. Each such gain is small,
+but there are thousands of them across 300 trees, and they add up.
+
+---
+
+## Slide 50 — Notebook 2, live
 
 The notebook's map: bagging from scratch against `BaggingClassifier` (0.872 both, and 1
 of 29 flipped labels right); the out-of-bag score against cross-validation (0.9083 and
@@ -2107,14 +2149,14 @@ noise); the permutation check (real columns 0.09 and 0.18, noise about 0).
 
 The cell worth protecting is the noise-column sweep: add the columns yourself and watch
 the share climb. If time allows, try `max_features=None` in section 6 and predict the
-noise share first; the answer is on slide 69. The atoms notebook has the out-of-bag vote
+noise share first; the answer is on slide 49. The atoms notebook has the out-of-bag vote
 by hand, a `BaggingClassifier` on twelve loans, and importance and permutation by hand.
 
 ---
 
 # Part III — Trees in sequence: boosting
 
-## Slide 50 — Boosting: one tree after another
+## Slide 51 — Boosting: one tree after another
 
 The third way of combining trees, and the opposite of the second. Bagging and random
 forests grow their trees **independently**, then let them vote. **Gradient boosting**
@@ -2122,7 +2164,7 @@ grows them **in sequence**: each new tree is trained on the **error still left**
 truth minus the prediction so far. Every tree sees every training example, with no
 resampling; what changes from tree to tree is the number it is trained to predict.
 
-The segment goes: the rule (slide 51), four points worked by hand to train (52) and to
+The segment goes: the rule (slide 52), four points worked by hand to train (52) and to
 predict (53), the same on 200 points drawn (54, 55), then the evidence that boosting
 overfits if left alone, then classification, then the tuning. We start with a number
 because what a boosted tree learns is always a number - a correction - even when the
@@ -2174,32 +2216,7 @@ Right, except "the errors of the previous one": of the whole sum so far, as abov
 
 Because what each tree predicts is a correction to a score, a number like +0.613 or
 −0.387, not a class. The score is turned into a probability, and the probability into a
-class, only at the end (slide 59).
-
----
-
-## Slide 51 — Boosting in three lines
-
-$$F_0 = \bar{y} \qquad r_t = y - F_{t-1}(x) \qquad F_t(x) = F_{t-1}(x) + \alpha\,h_t(x)$$
-
-The rule every next slide uses, said before any number. $F_t(x)$ is a function: the
-model's prediction for an input $x$ after $t$ trees. $F_0$ is the flat start, the best
-single constant for the loss being used - for squared error, the mean of the targets; for
-classification, the log-odds of the base rate (slide 59). $r_t$ is the residual: truth
-minus the prediction so far, what is still wrong. $h_t(x)$ is the output of the new
-tree, a number found by training a shallow tree on the pairs $(x, r_t)$; it is read off
-the leaf $x$ falls in, not multiplied by $x$. $\alpha$ is the learning rate, the share of
-the correction that is added. Training repeats the last three steps; prediction needs
-only the last one (slide 53).
-
-### Question - the earlier version put this after the figure; why first now?
-
-> *The table appeared before the formula; the output of the model, F_t(x), was never
-> said.*
-
-Fair: slide 52 uses the rule, so the rule comes first, and it says what each symbol is -
-in particular that $F_t(x)$ is the model's prediction, and $r_t$ is only the target the
-next tree is trained on.
+class, only at the end (slide 60).
 
 <!-- example:begin -->
 
@@ -2225,7 +2242,32 @@ prediction approaches 1 and 3 without ever jumping there in one step.
 
 ---
 
-## Slide 52 — Boosting by hand: 4 points, 2 trees
+## Slide 52 — Boosting in three lines
+
+$$F_0 = \bar{y} \qquad r_t = y - F_{t-1}(x) \qquad F_t(x) = F_{t-1}(x) + \alpha\,h_t(x)$$
+
+The rule every next slide uses, said before any number. $F_t(x)$ is a function: the
+model's prediction for an input $x$ after $t$ trees. $F_0$ is the flat start, the best
+single constant for the loss being used - for squared error, the mean of the targets; for
+classification, the log-odds of the base rate (slide 60). $r_t$ is the residual: truth
+minus the prediction so far, what is still wrong. $h_t(x)$ is the output of the new
+tree, a number found by training a shallow tree on the pairs $(x, r_t)$; it is read off
+the leaf $x$ falls in, not multiplied by $x$. $\alpha$ is the learning rate, the share of
+the correction that is added. Training repeats the last three steps; prediction needs
+only the last one (slide 54).
+
+### Question - the earlier version put this after the figure; why first now?
+
+> *The table appeared before the formula; the output of the model, F_t(x), was never
+> said.*
+
+Fair: slide 53 uses the rule, so the rule comes first, and it says what each symbol is -
+in particular that $F_t(x)$ is the model's prediction, and $r_t$ is only the target the
+next tree is trained on.
+
+---
+
+## Slide 53 — Boosting by hand: 4 points, depth 1, α = 0.5
 
 Before the toy data of 200 points, the whole procedure on four points small enough to
 do on paper: $x$ = 1, 2, 3, 4 and $y$ = 1, 3, 6, 6, trees of depth 1 (one question,
@@ -2255,23 +2297,23 @@ Into every tree, all of them. Bagging changes the rows each tree sees; boosting 
 the rows and changes the column the tree is trained to predict. That is why the trees
 can be shallow: each only has to explain what is left over.
 
-## Slide 53 — Predicting a new point
+## Slide 54 — Predicting a new point
 
 Training and prediction are different. Training used the known $y$ to compute residuals
 and grow the trees. A new applicant has no $y$, so the trained ensemble walks the input
 through every tree, reads each leaf, and adds the start and the scaled corrections. On
-slide 52's model, at $x = 3.5$: tree 1 answers $x \le 2.5$? no, $h_1 = +2$; tree 2 answers
+slide 53's model, at $x = 3.5$: tree 1 answers $x \le 2.5$? no, $h_1 = +2$; tree 2 answers
 $x \le 1.5$? no, $h_2 = +0.667$; $F_2(3.5) = 4 + 0.5 \times 2 + 0.5 \times 0.667 = 5.333$.
 No residual is computed and nothing is retrained.
 
-### Question - where does 5.333 appear in the table of slide 52?
+### Question - where does 5.333 appear in the table of slide 53?
 
 At $x = 3$ and $x = 4$, the last column: they fall in the same leaves as 3.5, so the
 model gives them, and any $x$ between 2.5 and 4, the same value.
 
 ---
 
-## Slide 54 — Boosting, drawn: the first two steps
+## Slide 55 — Boosting, drawn: the first two steps
 
 ![](boosting_drawn.png)
 
@@ -2315,7 +2357,7 @@ also copy the noise in the residuals in one go.
 
 ---
 
-## Slide 55 — Tree 1, drawn as a tree
+## Slide 56 — Tree 1, drawn as a tree
 
 ![](boosting_tree1.png)
 
@@ -2328,31 +2370,8 @@ group, 143 points, asks $x \le 7.05$. Its four leaves hold 50, 7, 86 and 57 poin
 
 The contrast with slide 8 is the point. There a leaf held a group of applicants and a
 share who defaulted, and predicted a class. Here a leaf outputs one number, the mean of
-its points' residuals: −0.914, −1.243, +0.967, −0.504, the four levels of slide 54. The
+its points' residuals: −0.914, −1.243, +0.967, −0.504, the four levels of slide 55. The
 prediction adds 0.3 times that number: at $x = 5$, $2.287 + 0.3 \times 0.967 = 2.578$.
-
-## Slide 56 — What each tree is fit to
-
-- For squared error, the next tree $h_t$ is trained on the **residual**
-  $y - F_{t-1}(x)$: what the trees so far have not explained.
-- In general, $h_t$ is trained on the **negative gradient** of the loss with respect to
-  the prediction: the direction in which each prediction should move.
-- With $L = \tfrac{1}{2}(y - F)^2$, $-\partial L/\partial F = y - F$: the same thing as
-  the residual.
-
-The second bullet is lesson 3's gradient descent, moving the **predictions** of the
-points instead of coefficients, with a tree to draw that move as a function of $x$. It
-matters because it covers classification too, once the loss changes (slide 59). In
-code, notebook 3's whole loop is a `DecisionTreeRegressor(max_depth=2)` fitted to
-`y - prediction`, 0.3 times its output added to the prediction, sixty times.
-
-### Question — why is the residual the negative gradient?
-
-> *Why does the derivative give back the residual?*
-
-Differentiate $L = \tfrac{1}{2}(y - F)^2$ with respect to $F$: the result is $F - y$.
-Its negative is $y - F$, the residual. The one half is there only to cancel the 2 that
-the derivative brings down.
 
 <!-- example:begin -->
 
@@ -2373,9 +2392,32 @@ from the new $p$, so they change from round to round.
 
 <!-- example:end -->
 
+## Slide 57 — What each tree is fit to
+
+- For squared error, the next tree $h_t$ is trained on the **residual**
+  $y - F_{t-1}(x)$: what the trees so far have not explained.
+- In general, $h_t$ is trained on the **negative gradient** of the loss with respect to
+  the prediction: the direction in which each prediction should move.
+- With $L = \tfrac{1}{2}(y - F)^2$, $-\partial L/\partial F = y - F$: the same thing as
+  the residual.
+
+The second bullet is lesson 3's gradient descent, moving the **predictions** of the
+points instead of coefficients, with a tree to draw that move as a function of $x$. It
+matters because it covers classification too, once the loss changes (slide 60). In
+code, notebook 3's whole loop is a `DecisionTreeRegressor(max_depth=2)` fitted to
+`y - prediction`, 0.3 times its output added to the prediction, sixty times.
+
+### Question — why is the residual the negative gradient?
+
+> *Why does the derivative give back the residual?*
+
+Differentiate $L = \tfrac{1}{2}(y - F)^2$ with respect to $F$: the result is $F - y$.
+Its negative is $y - F$, the residual. The one half is there only to cancel the 2 that
+the derivative brings down.
+
 ---
 
-## Slide 57 — A step plus a sine wave, fit by 60 shallow trees
+## Slide 58 — A step plus a sine wave, fit by 60 shallow trees
 
 ![](boosting_residuals.png)
 
@@ -2406,7 +2448,7 @@ steps looks like a ramp. That is also why the fitted curves are step-shaped up c
 
 ---
 
-## Slide 58 — Training error keeps falling; the true error does not
+## Slide 59 — Training error keeps falling; the true error does not
 
 | Trees | Mean squared error (MSE) on the 200 training points | MSE against the true function |
 |---|---|---|
@@ -2431,7 +2473,7 @@ the right column, which turns up.
 It is the overfitting story of the unconstrained tree, reached by a different route: not
 one tree grown too deep, but too many shallow trees each chasing whatever residual noise
 is left. With real data the truth is unknown, and cross-validation takes its place
-(slides 62 and 63).
+(slides 64 and 65).
 
 ### Question — how can the true error rise while the training error falls?
 
@@ -2445,7 +2487,7 @@ away from the line.
 
 ---
 
-## Slide 59 — Classification: the same idea, a different gradient
+## Slide 60 — Classification: the same idea, a different gradient
 
 For classification, $y$ is 0 or 1. The running score $F$ becomes a probability through
 lesson 4's logistic function, $p = \sigma(F) = 1/(1 + e^{-F})$. The loss is lesson 4's
@@ -2483,39 +2525,58 @@ log-loss. Nothing in the lesson depends on it; handout section 9 has it in a sen
 No. Here $\sigma$ is lesson 4's logistic function. The $\sigma^2$ of section 5.2 is the
 variance of one tree's verdict, a different quantity that happens to share the letter.
 
+### Question - how are +0.613 and −0.387 computed?
+
+> *"So the first targets are +0.613 for defaulters and −0.387 for the rest": how?*
+
+The target is $y - p$ with $p = 464/1{,}200 = 0.387$ for everyone at the start: a
+defaulter has $y = 1$, so $1 - 0.387 = +0.613$; a repaid loan has $y = 0$, so
+$0 - 0.387 = -0.387$.
+
+### Question - why is the leaf $\sum(y - p) / \sum p(1 - p)$?
+
+Because $y - p$ is a gap in probability, while the tree corrects the score $F$; between
+the two sits the logistic function, whose slope at $p$ is $p(1 - p)$. A gap in $p$
+becomes a step in $F$ of gap ÷ slope, summed over the leaf. In regression the prediction
+is $F$ itself, the slope is 1, and the rule gives the plain mean of the residuals.
+
 ---
 
-## Slide 60 — Classification by hand: four points, one tree
+## Slide 61 — Classification by hand (1): the targets, and the cut
 
-Slide 52's four $x$ with a yes/no answer: $y$ = 0, 0, 0, 1 (1 = default), one tree of
+Slide 53's four $x$ with a yes/no answer: $y$ = 0, 0, 0, 1 (1 = default), one tree of
 depth 1, $\alpha = 0.5$.
 
 1. **The start** is the base rate, 1 in 4: $p_0 = 0.25$ for everyone; on the score scale
    $F_0 = \log(0.25 / 0.75) = -1.099$.
 2. **The target** of the first tree is $y - p_0$: $-0.25$ for the three who repaid,
-   $+0.75$ for the one who defaulted. The tree is a regression tree, as before; the cut
-   that separates these targets best is $x \le 3.5$.
-3. **Each leaf outputs a correction to the score**, $\sum(y - p) / \sum p(1 - p)$:
-   $-0.75 / 0.5625 = -1.333$ on the left, $0.75 / 0.1875 = +4.000$ on the right. The
-   leaf is not the plain mean of $y - p$ ($-0.25$ and $+0.75$): scikit-learn divides by
-   the curvature of the log-loss; the cut is chosen on $y - p$ as in regression.
+   $+0.75$ for the one who defaulted. The tree is a regression tree and chooses its cut as
+   in regression: $x \le 3.5$ separates the targets perfectly (squared error 0, against
+   0.667 for $x \le 1.5$ and 0.5 for $x \le 2.5$).
+
+The cut is chosen exactly as in regression; what is new is the number the leaves write.
+
+---
+
+## Slide 62 — Classification by hand (2): the leaf values, and the update
+
+3. **Each leaf writes a correction to the score**: gap ÷ slope. The gap is $\sum(y - p_0)$,
+   in probability; the slope is $\sum p_0(1 - p_0)$, the logistic function's slope, 0.1875
+   per point at $p = 0.25$. Left leaf: $-0.75 / 0.5625 = -1.333$; right leaf:
+   $0.75 / 0.1875 = +4.000$. Not the plain mean of $y - p$ ($-0.25$ and $+0.75$).
 4. **The new score** $F_1 = F_0 + 0.5 \times$ leaf: $-1.765$ for the three who repaid,
    $0.901$ for the one who defaulted. Only then the logistic function: $p_1 = 0.146$
    (down from 0.25) and $0.711$ (up from 0.25).
 
-The probabilities moved toward the truth; $p$ was never updated directly, only $F$, which
-is what keeps $p$ between 0 and 1. A new applicant: walk the tree, add $\alpha$ times the
-leaf to $F_0$, apply the logistic function; $x = 3.7$ gives $p = 0.711$, so "default".
-
-### Question - why numbers on a regression first, and classification after?
-
-Because the correction a boosted tree learns is always a number; in classification it is a
-correction to a score, and the logistic function turns the score into a probability at the
-end. The mechanism is easier to see on a number first.
+The distinction to keep: in regression with squared error the leaves return the mean of
+the residuals; in classification with log-loss the trees learn from $y - p$, but the leaves
+return gap ÷ slope. In both, the corrections are added to the current score, and $p$ is
+never updated directly. A new applicant: walk the tree, add $\alpha$ times the leaf to
+$F_0$, apply the logistic function; $x = 3.7$ gives $p = 0.711$, so "default".
 
 ---
 
-## Slide 61 — On the loan data
+## Slide 63 — On the loan data
 
 `GradientBoostingClassifier` at scikit-learn's defaults, **100 trees** of depth 3 and
 learning rate $\alpha = 0.1$, on all 1,200 loans and the same five groups of 240 as
@@ -2542,7 +2603,7 @@ much each, and a modest learning rate, which keeps every correction small. On th
 
 ---
 
-## Slide 62 — Boosting never stops fitting on its own
+## Slide 64 — Boosting never stops fitting on its own
 
 | `n_estimators` ($\alpha = 0.3$, depth 3) | Training accuracy | Cross-validated |
 |---|---|---|
@@ -2575,7 +2636,7 @@ held-out fold: the training score rises and the held-out score drifts down.
 
 ---
 
-## Slide 63 — Training climbs to 1.000 and stays; the honest curve turns over first
+## Slide 65 — Training climbs to 1.000 and stays; the honest curve turns over first
 
 ![](gbm_learning_curve.png)
 
@@ -2600,9 +2661,29 @@ other is **early stopping**: set aside part of the training data, watch the scor
 as trees are added, and stop once it has not improved for a number of rounds. In
 scikit-learn that is the `n_iter_no_change` argument of `GradientBoostingClassifier`.
 
+<!-- example:begin -->
+
+\Needspace{19\baselineskip}
+
+### Worked example — how often the menu holds no real column
+
+A smaller version of slide 49: 2 real columns and 6 random ones, 8 in all;
+each split is offered 2 of them at random.
+
+- Possible menus: $\binom{8}{2} = 28$.
+- Menus with no real column, both picked among the 6 random ones:
+  $\binom{6}{2} = 15$.
+- Share: 15 ÷ 28 = **0.536**: more than half of the splits must pick a
+  random column.
+
+The lesson's case is the same count with 20 random columns out of 22 and 4 offered:
+4,845 ÷ 7,315 = 0.662.
+
+<!-- example:end -->
+
 ---
 
-## Slide 64 — Fixing 120 trees, varying only the learning rate
+## Slide 66 — Fixing 120 trees, varying only the learning rate
 
 | Learning rate $\alpha$ | Training accuracy | Cross-validated |
 |---|---|---|
@@ -2631,7 +2712,7 @@ is not.
 
 ---
 
-## Slide 65 — Notebook 3, live
+## Slide 67 — Notebook 3, live
 
 The notebook's map: boosting from scratch on the residuals (error against the truth
 0.0119 at 20 trees); classification with `GradientBoostingClassifier` (start $-0.461$,
@@ -2641,31 +2722,11 @@ sweep: watching the error against the truth fall and rise again is the most dire
 experience of boosting's overfitting. The atoms notebook does the first two boosting
 steps by hand and checks them against `GradientBoostingRegressor`.
 
-<!-- example:begin -->
-
-\Needspace{19\baselineskip}
-
-### Worked example — how often the menu holds no real column
-
-A smaller version of slide 69: 2 real columns and 6 random ones, 8 in all;
-each split is offered 2 of them at random.
-
-- Possible menus: $\binom{8}{2} = 28$.
-- Menus with no real column, both picked among the 6 random ones:
-  $\binom{6}{2} = 15$.
-- Share: 15 ÷ 28 = **0.536**: more than half of the splits must pick a
-  random column.
-
-The lesson's case is the same count with 20 random columns out of 22 and 4 offered:
-4,845 ÷ 7,315 = 0.662.
-
-<!-- example:end -->
-
 ---
 
 # Part IV — Closing
 
-## Slide 66 — Every method, on the same five folds
+## Slide 68 — Every method, on the same five folds
 
 | Model, on the 1,200 loans | Cross-validated accuracy | ± over the 5 folds |
 |---|---|---|
@@ -2707,7 +2768,7 @@ methods in this experiment; it does not prove a general superiority.
 
 ---
 
-## Slide 67 — Three findings
+## Slide 69 — Three findings
 
 - **On this dataset** the three ensembles land within 1.5 points of each other, and a
   **nine-leaf tree** among them (0.901): one a person can read.
@@ -2731,7 +2792,7 @@ score than a steadier one: their verdicts move less when the data change (slide 
 
 ---
 
-## Slide 68 — How to choose, in practice
+## Slide 70 — How to choose, in practice
 
 | Situation | Reach for |
 |---|---|
@@ -2742,8 +2803,8 @@ score than a steadier one: their verdicts move less when the data change (slide 
 | Too few rows to set a validation set aside | A random forest, judged by its out-of-bag score |
 
 Each row rests on evidence from today: the nine-leaf tree read as if/else rules
-(slide 25); the leaderboard (slide 66); the tree-count curve and the learning-rate table
-(slides 63 and 64); the noise experiment and the permutation check (slides 46 to 48);
+(slide 25); the leaderboard (slide 68); the tree-count curve and the learning-rate table
+(slides 65 and 66); the noise experiment and the permutation check (slides 46 to 48);
 the out-of-bag slides (34 and 35). On the first row: explaining a credit decision to the
 person it affects is also a legal question, the subject of the lesson's optional
 reading, `Resources/right_to_explanation.md`.
@@ -2759,49 +2820,7 @@ on the score.
 
 ---
 
-## Slide 69 — 54% of the importance on noise
-
-The lesson's number: with **20 random columns against 2 real ones, more than half of a
-random forest's importance landed on the random ones.** Every lesson so far has left one
-of these numbers: lesson 1's 77% accuracy on coin-flip labels, lesson 3's 365. This is
-lesson 7's.
-
-Two causes, not one.
-
-- **The menu.** Each split may use $\lfloor\sqrt{22}\rfloor = 4$ of the 22 columns. The
-  chance that all 4 are noise is $\binom{20}{4}/\binom{22}{4} = 4{,}845/7{,}315 = 0.662$:
-  two splits in three see no real column. At those splits the tree still has to pick
-  something, and it picks the noise column that happens to separate the classes best.
-- **Small groups.** With every split offered all 22 columns (`max_features=None`), the
-  noise share falls from 54.5% only to **28%**. Deep in a tree a node holds a handful of
-  applicants, and among twenty columns of random numbers one will almost always separate
-  that handful a little better than income or debt can, purely by chance.
-
-The same run raised the accuracy from 0.837 to 0.897: with 20 useless columns out of 22,
-the random menu costs more accuracy than decorrelating the trees buys back. The default
-is a good default, not a law. The check is the one of slide 48: shuffling a column on
-held-out data costs the two real features 0.09 and 0.18 of accuracy, and each noise
-column almost nothing.
-
-**A predictable mistake.** "So 54% of the forest's predictions are decided by noise."
-Reasonable, since a share of importance reads like a share of responsibility. But the
-54% adds up credit for splits, the impurity gain each bought on the training rows; it is
-not a share of predictions or of accuracy. Permutation importance measures that second
-thing, and there the noise columns are worth almost nothing.
-
-### Question — why does noise still get 28% with every column on offer?
-
-> *If every split can choose among all 22 columns, a real one is always available. Why
-> does noise still take 28%?*
-
-Near the root a real column always wins. Deep in the trees, a node holds a few
-applicants, and the real columns have little left to say about them; among twenty random
-columns, one will separate those few slightly better by chance. Each such gain is small,
-but there are thousands of them across 300 trees, and they add up.
-
----
-
-## Slide 70 — What to take away
+## Slide 71 — What to take away
 
 The lesson's story in six sentences:
 
@@ -2825,7 +2844,7 @@ nobody has given the answer.
 
 ---
 
-## Slide 71 — Homework
+## Slide 72 — Homework
 
 Exercise 7, `Exercises/07_trees_and_ensembles.md`, is discussed at the start of lesson
 8. It gives you two loan products from the same lender, on which the ranking of the

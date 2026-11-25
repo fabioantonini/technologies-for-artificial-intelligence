@@ -909,7 +909,7 @@ for _t in range(1, 61):
 same("8 the lowest error is at 19 trees", int(np.argmin(_true_err)) + 1, 19, tolerance=0)
 same("8 its value, 0.0116", min(_true_err), 0.0116, tolerance=5e-5)
 same("8 at 20 trees, 0.0119", _true_err[19], 0.0119, tolerance=5e-5)
-# Section 7 / slide 69: the menu's two counts.
+# Section 7 / slide 49: the menu's two counts.
 same("7 C(20,4)", comb(20, 4), 4845, tolerance=0)
 same("7 C(22,4)", comb(22, 4), 7315, tolerance=0)
 
@@ -996,7 +996,7 @@ same("4 nine leaves: the shallowest at depth 1", min(_depths), 1, tolerance=0)
 same("4 nine leaves: the deepest at depth 7", max(_depths), 7, tolerance=0)
 same("4 nine leaves: debt above 0.82 is a leaf", int(_t9.children_left[_t9.children_right[0]] < 0), 1, tolerance=0)
 
-# ---------------------------------------- third study pass, slides 30-55 (24 Nov)
+# ---------------------------------------- third study pass, slides 30-56 (24 Nov)
 # 5.2: the two draws. Same 1,200 loans, only the bagging's seed changes (a new
 # draw two), against new loans (a new draw one, checked above at 3.9%). Ten seeds
 # and its own 300 points here, so a looser tolerance than the notebook's 40.
@@ -1080,6 +1080,11 @@ same("9 by hand: F1 right", _F1[3], 0.901, tolerance=5e-4)
 _sig = lambda z: 1 / (1 + np.exp(-z))
 same("9 by hand: p1 left", _sig(_F1[0]), 0.146, tolerance=5e-4)
 same("9 by hand: p1 right", _sig(_F1[3]), 0.711, tolerance=5e-4)
+for _c, _v in ((1.5, 0.667), (2.5, 0.5), (3.5, 0.0)):
+    _l, _r = _res[_xc[:, 0] <= _c], _res[_xc[:, 0] > _c]
+    same(f"9 by hand: squared error of the targets, cut x <= {_c}",
+         ((_l - _l.mean()) ** 2).sum() + ((_r - _r.mean()) ** 2).sum(), _v, tolerance=5e-4)
+same("9 by hand: one point's gap / slope, -0.25 / 0.1875", -0.25 / (_p0 * (1 - _p0)), -1.333, tolerance=5e-4)
 _g1 = GradientBoostingClassifier(n_estimators=1, max_depth=1, learning_rate=0.5, random_state=0).fit(_xc, _yc)
 _t1c = _g1.estimators_[0, 0].tree_
 same("9 scikit-learn's cut is x <= 3.5", _t1c.threshold[0], 3.5, tolerance=0)
