@@ -1892,7 +1892,9 @@ The second bullet is the generalisation that pays off in the very next
 segment: the same recipe - fit a tree to the negative gradient of whatever
 loss you're using - covers classification too, once the loss changes from
 squared error to something else. The one line of algebra connecting the
-two is on the slide; handout section 8 sets it out.
+two is on the slide: the 1/2 in the loss is there only so that the 2 the
+derivative brings down cancels, leaving exactly y - F. Handout section 8 sets
+it out.
 :::
 
 # A step plus a sine wave, fit by 60 shallow trees
@@ -1908,8 +1910,10 @@ order.
 
 The dashed grey line is the start, the mean 2.287. Say the numbers as you
 point: one tree barely moves it - the gold curve is the start plus 0.3 times
-tree 1: 2.287 - 0.274 = 2.01 on the left, 2.287 + 0.290 = 2.58 in the middle,
-2.287 - 0.151 = 2.14 on the right, as on the previous drawing. Five trees sketch the coarse shape. Twenty trace the step function
+tree 1's leaves (slide 53): 2.287 + 0.3 x (-0.914) = 2.287 - 0.274 = 2.01 on
+the left, 2.287 + 0.3 x 0.967 = 2.287 + 0.290 = 2.58 in the middle, 2.287 +
+0.3 x (-0.504) = 2.287 - 0.151 = 2.14 on the right, as in slide 52's third
+panel. Five trees sketch the coarse shape. Twenty trace the step function
 closely - the best of the four curves shown, as the next slide measures. By sixty, the
 ensemble is tracking individual noisy observations as well as the
 underlying shape.
@@ -1931,17 +1935,18 @@ Put a number on each curve of the previous slide, two ways. The middle column
 is the error on the points the model is trained on; the right column, the error
 against the black line, the true function - possible only because these data
 are synthetic. The training error keeps falling; the error against the truth
-falls until 20 trees and then rises. The noise added to the points has variance
-0.25 squared = 0.0625: from 20 trees on the training error is below it, a
+falls until 20 trees and then rises. The points were generated with noise of
+standard deviation 0.25, so its variance is 0.25 squared = 0.0625 - the error
+even the true function makes on them: from 20 trees on the training error is below it, a
 sign that the model has started to learn the noise - a sign, not a proof, since
 200 noise values have a sample variance of their own. The proof is the right
 column, which turns up. Counted tree by tree, the lowest error against the true
 function is at 19 trees, 0.0116 against 0.0119 at 20: "about 20" is the
 honest reading. In real data the truth is
-unknown, and slides 59 to 61 put cross-validation in its place.
+unknown, and slides 60 and 61 put cross-validation in its place.
 
 Name what this is: the same overfitting story as the unconstrained single
-tree of the depth table, reached by a completely different route - not one
+tree of slide 22's depth table, reached by a completely different route - not one
 tree grown too deep, but too many shallow trees each chasing whatever
 residual noise is left.
 
@@ -2044,8 +2049,8 @@ dips at a handful of individual steps, too small to show in this table
 Point at the peak, 30 trees, and then at 800: training accuracy reached
 1.000 by 200 trees and stayed there, and cross-validated accuracy has
 drifted down from 0.897 to 0.890, under a point, since the peak. Contrast
-the size of that drop with the unconstrained single tree of the depth table,
-which lost three points past its own peak - boosting's overfitting is real
+the size of that drop with the single trees of slide 22: from depth 8 (0.882) to
+unconstrained (0.852), three points lost past the peak - boosting's overfitting is real
 but gentler.
 
 A predictable slip: "30 trees beat the default 100 of the previous slide".
@@ -2200,8 +2205,8 @@ Handout section 11.
 
 - **On this dataset** the three ensembles land within 1.5 points of each
   other, and a **nine-leaf tree** among them (0.901): one a person can read
-- What the ensembles buy here is **steadiness**: over 30 splits, the nine-leaf
-  tree's spread is 0.020, the forest's 0.0137
+- What the ensembles buy here is **steadiness**: over 30 train/test splits,
+  the nine-leaf tree's spread is 0.020, the forest's 0.0137
 - The **unconstrained tree is the worst tree**, though the most flexible
 
 ::: notes
@@ -2210,8 +2215,8 @@ content, more than any single accuracy number.
 
 The second finding is the honest surprise. The ensembles were not built to
 score higher than a well-budgeted tree on data made of rectangles - here they
-barely do. What they buy is steadiness: on the same 30 random splits as slide
-40, the nine-leaf tree averages 0.897 with a standard deviation of 0.020, the
+barely do. What they buy is steadiness: on the same 30 train/test splits as
+slide 40, the nine-leaf tree averages 0.897 with a standard deviation of 0.020, the
 forest 0.908 with 0.0137 (notebook 2, section 3). Slide 27 showed where a
 single tree's verdicts change.
 
