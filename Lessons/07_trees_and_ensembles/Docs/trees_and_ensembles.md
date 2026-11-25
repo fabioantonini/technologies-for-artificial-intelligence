@@ -1642,6 +1642,7 @@ third column is the standard deviation of the five fold scores:
 | Single tree, `max_depth = 8` | 0.882 | 0.010 |
 | Gradient boosting, 30 trees | 0.897 | 0.020 |
 | Single tree, `max_leaf_nodes = 9` | 0.901 | 0.020 |
+| Gradient boosting, defaults (100 trees, $\alpha = 0.1$) | 0.902 | 0.020 |
 | Bagging, 100 trees | 0.904 | 0.020 |
 | **Random forest, 100 trees** | **0.911** | 0.018 |
 
@@ -1653,12 +1654,14 @@ point to a bug.*
 
 Three findings, read together, are this lesson's real content. First, on this
 dataset the ensembles — bagging, the random forest, gradient boosting — land
-within about a point and a half of each other, the top four rows within one
+within about a point and a half of each other, the top five rows within one
 spread of each other. **A predictable mistake** is to call gradient boosting the
 winner: it is presented last, and on tabular data in practice it often wins;
-here the random forest is on top and boosting at 30 trees is fourth — the most
-sophisticated method is not automatically the best. Second, a single tree sits among them: the nine-leaf tree of section 4 reaches 0.901, above gradient
-boosting and a point behind bagging, and a person can read it start to finish.
+here the random forest is on top, and boosting is third at its defaults (section
+9) and fifth with the 30 trees its tree-count curve picked at a learning rate of
+0.3 (section 10) — two configurations, not one knob — so the most
+sophisticated method is not automatically the best. Second, a single tree sits among them: the nine-leaf tree of section 4 reaches 0.901, level with gradient
+boosting at its defaults and a point behind bagging, and a person can read it start to finish.
 On data whose rule is a handful of axis-aligned rectangles, a small tree is
 nearly enough; what the ensembles buy here is less a higher score than a
 steadier one. On the same 30 random splits as section 5.2, the nine-leaf tree

@@ -2347,33 +2347,39 @@ the table is in handout section 10.
 
 # Every method, on the same five folds
 
-| Model, on the 1,200 loans | Cross-validated accuracy | ± over the 5 folds |
+| Model, on the 1,200 loans | Cross-validated accuracy | ± over 5 folds |
 |---|---|---|
 | Majority baseline | 0.613 | |
 | Logistic regression | 0.748 | 0.030 |
-| Single tree, unconstrained | 0.852 | 0.021 |
-| Single tree, `max_depth = 8` (chosen on these folds) | 0.882 | 0.010 |
-| Gradient boosting, 30 trees (chosen on these folds) | 0.897 | 0.020 |
-| Single tree, nine leaves | 0.901 | 0.020 |
+| Tree, unconstrained | 0.852 | 0.021 |
+| Tree, depth 8 (tuned here) | 0.882 | 0.010 |
+| Boosting, α 0.3, 30 trees (tuned here) | 0.897 | 0.020 |
+| Tree, nine leaves | 0.901 | 0.020 |
+| Boosting, defaults | 0.902 | 0.020 |
 | Bagging, 100 trees | 0.904 | 0.020 |
 | **Random forest, 100 trees** | **0.911** | 0.018 |
-| *noise ceiling* | *≈ 0.93* | |
+| *noise ceiling; "tuned here" = chosen on these folds* | *≈ 0.93* | |
 
 ::: notes
 A predictable slip: "gradient boosting is the best". Reasonable - it is
 presented last, and on tabular data in practice it often wins. Here the random
-forest is on top, and boosting at 30 trees is fourth: the most sophisticated
-method is not automatically the best.
+forest is on top, and boosting is third at its defaults and fifth with the 30
+trees chosen on these folds: the most sophisticated method is not
+automatically the best. Why two boosting rows ("defaults" = 100 trees, alpha
+0.1): the 30 trees come from the
+tree-count curve of slides 64 and 65, at a learning rate of 0.3; the defaults,
+100 trees at 0.1, are slide 63's - a different configuration, and here the
+better one.
 
 Everything from this lesson, cross-validated the same way: 5 folds of the
 1,200 loans, the same folds for every model. The third column is the standard
 deviation of the five fold scores, the spread lesson 5 asks to see beside
-every mean: the top four rows lie within one spread of each other. Read down
+every mean: the top five rows lie within one spread of each other. Read down
 the column and let the pattern speak before naming it: the ensembles - bagging,
 the random forest, gradient boosting - land within about a point and a half of
 each other, the random forest on top. And one single tree sits among them: the
-nine-leaf tree of slide 25, at 0.901, above gradient boosting and a point
-behind bagging. On this dataset that is no accident - the rule is made of
+nine-leaf tree of slide 25, at 0.901, level with gradient boosting at its
+defaults and a point behind bagging. On this dataset that is no accident - the rule is made of
 axis-aligned rectangles, the shape a few well-placed thresholds draw.
 
 The ceiling itself: 1 minus the 7% of labels deliberately flipped, what the

@@ -3068,6 +3068,7 @@ steps by hand and checks them against `GradientBoostingRegressor`.
 | Single tree, `max_depth = 8` (chosen on these folds) | 0.882 | 0.010 |
 | Gradient boosting, 30 trees (chosen on these folds) | 0.897 | 0.020 |
 | Single tree, nine leaves | 0.901 | 0.020 |
+| Gradient boosting, defaults (100 trees, α = 0.1) | 0.902 | 0.020 |
 | Bagging, 100 trees | 0.904 | 0.020 |
 | **Random forest, 100 trees** | **0.911** | 0.018 |
 | *noise ceiling* | *≈ 0.93* | |
@@ -3086,16 +3087,18 @@ defaults and chose nothing; the nine leaves were chosen for readability, not on 
 folds.
 
 **A predictable mistake.** "Gradient boosting is the best." Reasonable: it is presented
-last, and on tabular data in practice it often wins. Here the random forest is on top
-and boosting at 30 trees is fourth: the most sophisticated method is not automatically
-the best.
+last, and on tabular data in practice it often wins. Here the random forest is on top,
+and boosting is third at its defaults and fifth with the 30 trees chosen on these folds:
+the most sophisticated method is not automatically the best. The two boosting rows are
+two configurations: 30 trees at a learning rate of 0.3 (slides 64-65), 100 trees at 0.1
+(slide 63).
 
 ### Question — is the forest definitely better than bagging?
 
 > *0.911 against 0.904: can I conclude the forest is better?*
 
 On these folds it has the higher mean, but the gap is small against the spread of about
-0.02: the top four rows lie within one spread of each other. The table ranks the
+0.02: the top five rows lie within one spread of each other. The table ranks the
 methods in this experiment; it does not prove a general superiority.
 
 ---
