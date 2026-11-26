@@ -28,22 +28,23 @@ Nothing today needs a graphics card, a downloaded model, or a network call.
 The largest network in this lesson has 1,537 parameters. Handout section 1.
 :::
 
-# Exercise 8, before we start
+# Exercise 9, before we start
 
 - Nothing is collected: we discuss it, ten minutes
-- What counts is the **prediction made before plotting**, and its reason
-- The common mistake: trusting a two-dimensional plot of the principal
-  components to show every anomaly
+- What counts is the **prediction made before fitting**: which of the two
+  stations needs a hidden layer, and why
+- The common gap: a difference between two models read without the run-to-run
+  spread, or against 1 instead of the 0.97 the data allows
 - Today the same obligation lands on an **architecture** claim
 
 ::: notes
 Nothing to collect and nothing to hand back: discuss it. Ask who predicted,
-before plotting anything, which account book a "flag whatever sits at the edge
-of the plot" detector would fail on, and what their reason was. Listen for the
-gap: treating a two-dimensional picture of the principal components as if it
-showed everything the columns contain. An anomaly that changes how the columns
-move together, without making any single column unusual, does not have to sit
-at the edge of that picture.
+from the docstring and the plots alone, on which station the hidden layer
+would be worth points and on which it would buy nothing, and what their reason
+was. Listen for the gap of lesson 9: a gap of a few thousandths between the
+network and logistic regression read as a win, when it is smaller than the
+spread across runs, and accuracies read against 1 rather than against the 0.97
+that 3% of flipped verdicts leaves.
 
 Link it forward deliberately, because today is the easiest lesson in the course
 in which to fool yourself. Every claim this afternoon is of the form

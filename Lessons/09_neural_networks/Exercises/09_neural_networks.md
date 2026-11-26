@@ -43,8 +43,7 @@ problem and knowing in advance whether depth is what it needs.**
 course container. Written answers go in markdown cells beside the evidence for
 them.
 
-Nothing is handed in: lesson 8, taught after lesson 9 this year, opens by
-discussing this exercise, and at the
+Nothing is handed in: the next lesson opens by discussing this exercise, and at the
 exam one of the ten is drawn for you to talk through your own notebook.
 
 ---

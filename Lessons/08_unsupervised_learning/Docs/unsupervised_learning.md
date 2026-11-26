@@ -9,7 +9,7 @@ date: "Lesson 8 · academic year 2026/27 · reading time about 70 minutes"
 
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
-| 0:00–0:10 | 10 | Exercise 9 discussed; what changes when there is no $y$; three problems | Slides 2–6 |
+| 0:00–0:10 | 10 | Exercise 7 discussed; what changes when there is no $y$; three problems | Slides 2–6 |
 | 0:10–0:40 | 30 | k-means: one centre per group, two moves, six customers by hand, a bad start, how many groups, the check against the truth | Slides 7–21 |
 | 0:40–1:05 | 25 | **Notebook 01** — k-means by hand | Slide 22 |
 | 1:05–1:20 | 15 | When groups are not round: the sessions, why k-means must fail, a tree of merges | Slides 23–27 |

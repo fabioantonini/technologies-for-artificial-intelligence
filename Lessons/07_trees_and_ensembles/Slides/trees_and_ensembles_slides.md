@@ -2508,5 +2508,5 @@ this lesson just demonstrated - a random forest's importance ranking is a
 claim to be verified, not a fact to be quoted.
 
 Lesson 8: unsupervised learning, the first lesson in which the data comes
-with no labels at all. Lesson 9: neural networks.
+with no labels at all.
 :::

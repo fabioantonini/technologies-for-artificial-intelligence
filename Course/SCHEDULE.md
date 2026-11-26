@@ -3,7 +3,7 @@
 **Technologies for Artificial Intelligence** — Università degli Studi dell'Aquila
 First-year MSc in Computer Science, autumn 2026.
 
-Ten lessons of three hours, every Friday from 2 October to 18 December 2026.
+Ten lessons of three hours, on Fridays from 2 October 2026.
 Total: **30 hours**.
 
 The calendar moved by one week in October: on 23 October the class worked through
@@ -11,10 +11,10 @@ the consolidation notebooks (`Consolidation/`) in place of lesson 4, and lesson 
 taught on 30 October, ran over into the first three quarters of an hour of
 6 November. Lesson 5 began after it and ran over in turn, filling the whole of
 13 November. Every date from lesson 6 on is two weeks later than first
-announced, and lesson 10 moves to 18 December. Lesson 9 is taught before
-lesson 8, on 4 December, so that neural networks are covered even if the
-last Friday cannot be held; lesson 8 follows on 11 December. Each lesson
-opens with the exercise set the Friday before.
+announced. Lesson 9 is taught on 4 December, ahead of lesson 8, so that neural
+networks are covered even if no further Friday can be held; lessons 8 and 10
+are to be confirmed. The material keeps the official order, 7, 8, 9, 10: each
+lesson opens with the exercise of the lesson before it in that order.
 
 | # | Date | Lesson | Materials |
 |---|---|---|---|
@@ -25,9 +25,9 @@ opens with the exercise set the Friday before.
 | 5 | Fri 6 Nov 2026, ending Fri 13 Nov | Experimental methodology and model selection | [`05_experimental_methodology`](../Lessons/05_experimental_methodology) |
 | 6 | Fri 20 Nov 2026 | k-NN, Naive Bayes and support vector machines | [`06_knn_naive_bayes_svm`](../Lessons/06_knn_naive_bayes_svm) |
 | 7 | Fri 27 Nov 2026 | Trees and ensembles | [`07_trees_and_ensembles`](../Lessons/07_trees_and_ensembles) |
+| 8 | to be confirmed | Unsupervised learning | [`08_unsupervised_learning`](../Lessons/08_unsupervised_learning) |
 | 9 | Fri 4 Dec 2026 | Neural networks | [`09_neural_networks`](../Lessons/09_neural_networks) |
-| 8 | Fri 11 Dec 2026 | Unsupervised learning | [`08_unsupervised_learning`](../Lessons/08_unsupervised_learning) |
-| 10 | Fri 18 Dec 2026 | Convolutional networks and course synthesis | [`10_convolutional_networks`](../Lessons/10_convolutional_networks) |
+| 10 | to be confirmed | Convolutional networks and course synthesis | [`10_convolutional_networks`](../Lessons/10_convolutional_networks) |
 
 ## Assessment dates
 

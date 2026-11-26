@@ -9,7 +9,7 @@ date: "Lesson 9 · academic year 2026/27 · reading time about 70 minutes"
 
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
-| 0:00–0:10 | 10 | Exercise 7 discussed; what a network adds; three problems | Slides 2–5 |
+| 0:00–0:10 | 10 | Exercise 8 discussed; what a network adds; three problems | Slides 2–5 |
 | 0:10–0:30 | 20 | One neuron is one line: the perceptron, the sigmoid, the acceptance test | Slides 6–13 |
 | 0:30–0:51 | 21 | A hidden layer: several lines, combined; why the activation is needed | Slides 14–27 |
 | 0:51–1:12 | 21 | **Notebook 01** — from one line to a hidden layer | Slide 28 |

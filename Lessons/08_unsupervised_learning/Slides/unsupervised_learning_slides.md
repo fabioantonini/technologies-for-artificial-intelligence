@@ -29,23 +29,21 @@ worked example.
 Handout section 1.
 :::
 
-# Exercise 9, before we start
+# Exercise 7, before we start
 
 - Nothing is collected: we discuss it, ten minutes
-- What counts is the **prediction made before fitting**: which of the two
-  stations needs a hidden layer, and why
-- The common gap: a difference between two models read without the run-to-run
-  spread, or against 1 instead of the 0.97 the data allows
+- What counts is the **prediction made before fitting**, and its reason
+- The common mistake: "an ensemble always beats one tree", or "a small tree
+  is always enough"
 - Today the same duty, with no labels at all: every grouping is a claim to check
 
 ::: notes
 Nothing to collect and nothing to hand back: discuss it. Ask who predicted,
-from the docstring and the plots alone, on which station the hidden layer
-would be worth points and on which it would buy nothing, and what their reason
-was. Listen for the gap of lesson 9: a gap of a few thousandths between the
-network and logistic regression read as a win, when it is smaller than the
-spread across runs, and accuracies read against 1 rather than against the 0.97
-that 3% of flipped verdicts leaves.
+before fitting anything, on which of the two loan products a single
+depth-tuned tree would come within noise of the best ensemble, and on which the
+ensemble would win by a wide margin, and what their reason was. Listen for the
+gap: judging by the names of the algorithms rather than by the shape of the
+rule that made the labels.
 
 Link forward. Today there is no accuracy to fall back on, because there is no
 target. The duty to check a result does not disappear; it changes shape, and

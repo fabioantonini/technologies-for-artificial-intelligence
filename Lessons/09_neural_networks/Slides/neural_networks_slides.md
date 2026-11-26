@@ -28,25 +28,25 @@ Two of today's three datasets come from a fictional sensor maker, Meridian
 Instruments; the third is real handwritten digits. Handout section 1.
 :::
 
-# Exercise 7, before we start
+# Exercise 8, before we start
 
 - Nothing is collected: we discuss it, ten minutes
-- What counts is the **prediction made before fitting**, and its reason
-- The common mistake: "an ensemble always beats one tree", or "a small tree
-  is always enough"
-- Today asks the same question of a **hidden layer**: when is it worth it?
+- What counts is the **prediction made before plotting**, and its reason
+- The common mistake: trusting a two-dimensional plot of the principal
+  components to show every anomaly
+- Today has the same trap: a network's high training accuracy, on its own,
+  says little
 
 ::: notes
 Nothing to collect and nothing to hand back: discuss it. Ask who predicted,
-before fitting anything, on which of the two loan products a single
-depth-tuned tree would come within noise of the best ensemble, and on which the
-ensemble would win by a wide margin, and what their reason was. Listen for the
-gap: judging by the names of the algorithms rather than by the shape of the
-rule that made the labels.
+before plotting anything, which account book a "flag whatever sits at the edge
+of the plot" detector would fail on, and what their reason was. Listen for the
+gap: treating a two-dimensional picture of the principal components as if it
+showed everything the columns contain. An anomaly that changes how the columns
+move together, without making any single column unusual, does not have to sit
+at the edge of that picture.
 
-Link forward deliberately: exercise 9, set at the end of today, asks the same
-question of a hidden layer, on two production lines. And today has one more
-trap. Today's models are the easiest in the whole course
+Link forward deliberately. Today's models are the easiest in the whole course
 to make look as if they work: a network with enough units drives its training
 accuracy towards 1 on almost anything. Every table today carries the number of
 runs and a spread for that reason, and the sensor scores are read against the
@@ -1899,7 +1899,6 @@ which today's material makes easy to forget. Every reported difference needs the
 was measured against. And every accuracy on Meridian's data is read against
 the ceiling of 0.97, not against 1.
 
-Lesson 8 is unsupervised learning. Lesson 10 is
-convolutional networks: networks built to use which pixel is next to which,
+Lesson 10 is convolutional networks: networks built to use which pixel is next to which,
 the information the shuffled pixels showed a dense network does not assume.
 :::
