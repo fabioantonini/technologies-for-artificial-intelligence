@@ -51,6 +51,10 @@ separates the classes. → § 3.2
 **Representation learning.** Learning those new coordinates from data, rather than
 designing them by hand. → § 3.2
 
+**Why the activation is needed.** Without it, a weighted sum of weighted sums is one
+weighted sum: any number of layers equals a single unit. The bend of the activation is
+what lets several lines combine into a region. → § 3.2
+
 **Forward pass.** Computing the output from the input, layer by layer: weighted sums,
 then activations. → § 3.3
 
@@ -59,7 +63,12 @@ then activations. → § 3.3
 
 **Each hidden unit is a line.** Its weights are one column of the first weight matrix;
 the unit outputs zero on one side of its line and a growing value on the other, and the
-output unit takes a weighted sum of those values. → § 3.4
+output unit takes a weighted sum of those values. The boundary turns a corner where it
+crosses one of these lines, so its corners, not its sides, sit on the lines. → § 3.4
+
+**Local minimum.** A valley of the cost that is not the deepest, from which no small
+step leads down. Logistic regression's cost has one valley; a network's has many, so
+where training stops depends on where it started. → § 3.4
 
 **Width and findability.** A layer just wide enough to solve a problem is often not found
 by training from a random start; a wider one is found far more often. → § 3.4
@@ -85,8 +94,13 @@ scaled by the learning rate. → § 4.3
 **The blame on one unit.** For a sigmoid unit with cross-entropy, prediction minus truth;
 each weight's share is that times the input it carried. → § 4.3
 
+**Chain rule.** A change passed through two links is multiplied by both: the blame of a
+weight is the blame of its unit's weighted sum times the input the weight carried.
+→ § 4.3
+
 **Backpropagation.** The chain rule applied layer by layer from the output back, giving
-every weight its blame in one backward sweep. → § 4.4
+every weight its blame in one backward sweep, for about the cost of one forward pass.
+It computes the blame; the gradient step is what moves the weights. → § 4.4
 
 **Learning rate.** The step size. Too small and training is still going when it stops;
 too large and it never settles. → § 6.1
@@ -97,9 +111,19 @@ too large and it never settles. → § 6.1
 **Keras.** The library used for networks in lessons 9 and 10: a list of layers, a loss
 and an optimiser, then `fit`. → § 5.2
 
+**TensorFlow.** The library underneath Keras that does the arithmetic and computes the
+gradients; `tf.GradientTape` records a forward pass and runs it backwards. → § 4.4,
+§ 5.2
+
 **Dense layer.** A layer in which every unit sees every input. → § 5.2
 
-**Adam.** A refined gradient descent that adapts the step for each weight. → § 5.2
+**Adam.** Adaptive moment estimation: gradient descent with momentum, a running average
+of recent gradients, and a step scaled for each weight by the recent size of its own
+gradient. → § 5.2
+
+**Baseline.** The score of always answering the most common class; it says whether a
+model has learned anything. The linear model is a different reference: it says whether
+a hidden layer adds anything. → § 5.5
 
 **Softmax.** Turns one score per class into probabilities that add up to one; with two
 classes it is the sigmoid of the difference of the two scores. → § 5.3
@@ -119,7 +143,11 @@ the best weights seen. → § 6.3
 
 **Dropout.** During training, zero a random fraction of the hidden activations, afresh
 for each example, and scale up the rest, so no unit relies on another; off for
-predictions. → § 6.3
+predictions. Like early stopping, a form of regularisation. → § 6.3
+
+**Dead ReLU.** A ReLU unit that outputs zero for every training example: its slope is
+zero wherever it is used, so it never receives blame again. The leaky ReLU keeps a
+small slope for negative inputs to avoid it. → § 6.1, § 6.4
 
 **Vanishing gradient.** The blame shrinks at every layer it passes back through; with
 sigmoids, whose slope is at most a quarter, a deep stack trained with plain gradient

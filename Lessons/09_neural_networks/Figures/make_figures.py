@@ -355,16 +355,20 @@ def one_unit_step():
     ax.text((s[0] + out[0]) / 2, 0.65, "sent back", ha="center", fontsize=13, color=RUST,
             style="italic")
     ax.text(5.2, -0.55,
-            f"each weight's blame = {blame:.3f} × its input;  step with α = {alpha:g}:",
+            f"each weight's blame = {blame:.3f} × its input:  w₁: {blame:.3f} × x₁ (1),  "
+            f"w₂: {blame:.3f} × x₂ (1),  b: {blame:.3f} × 1",
             ha="center", fontsize=14, color=RUST)
+    ax.text(xs[2][0] - 0.65, xs[2][1], "a bias's\ninput is\nalways 1", ha="right",
+            va="center", fontsize=12.5, color=SLATE, style="italic")
     ax.text(5.2, -1.15,
-            f"w₁ → {nw1:.3f},   w₂ → {nw2:.3f},   b → {nb:.3f}".replace("-", "−"),
+            f"step with α = {alpha:g}:   w₁ → {nw1:.3f},   w₂ → {nw2:.3f},   "
+            f"b → {nb:.3f}".replace("-", "−"),
             ha="center", fontsize=15,
             color=RUST, weight="bold")
     ax.text(5.2, -1.8,
             f"new prediction: ŷ = σ({z_new:.3f}) = {y_new:.3f}, closer to the true 0",
             ha="center", fontsize=14, color=TEAL, weight="bold")
-    ax.set_xlim(-0.6, 12.6)
+    ax.set_xlim(-1.9, 12.6)
     ax.set_ylim(-2.2, 5.0)
     ax.set_aspect("equal")
     ax.axis("off")
@@ -411,6 +415,216 @@ def blame_backwards():
     plt.close(fig)
 
 
+def backprop_by_hand():
+    """Backpropagation with every number: the drift network on one misjudged sensor."""
+    a_in, b_in, y, alpha = 1.5, -0.1, 0, 0.01
+    z1 = a_in + b_in - 1
+    z2 = -a_in - b_in - 1
+    h1, h2 = max(0.0, z1), max(0.0, z2)
+    z = 10 * h1 + 10 * h2 - 1
+    y_hat = 1 / (1 + np.exp(-z))
+    d = y_hat - y                        # the output's blame
+    back = 10 * d                        # what reaches each hidden unit
+    d1 = back * (1 if z1 > 0 else 0)     # times the ReLU's slope
+    d2 = back * (1 if z2 > 0 else 0)
+
+    fig, ax = plt.subplots(figsize=(15.0, 6.0))
+    A, B = (0.9, 4.0), (0.9, 1.0)
+    H1, H2 = (4.4, 4.0), (4.4, 1.0)
+    Y = (7.6, 2.5)
+    edge(ax, A, H1, "+1", BLUE, (0, 0.22), at=0.35)
+    edge(ax, B, H1, "+1", BLUE, (0.25, 0.0), at=0.3)
+    edge(ax, H1, Y, "10", BLUE, (0.1, 0.25), at=0.45)
+    for start, end in ((A, H2), (B, H2), (H2, Y)):
+        ax.add_patch(FancyArrowPatch(start, end, arrowstyle="-|>", mutation_scale=12, lw=1.2,
+                                     color=SLATE, alpha=.35, shrinkA=24, shrinkB=24, zorder=1))
+    node(ax, A, "a", SLATE)
+    node(ax, B, "b", SLATE)
+    ax.add_patch(Circle(H1, 0.42, facecolor="white", edgecolor=TEAL, lw=2.4, zorder=3))
+    relu_icon(ax, H1, TEAL)
+    ax.add_patch(Circle(H2, 0.42, facecolor="#EEEEEE", edgecolor=SLATE, lw=1.6, zorder=3))
+    relu_icon(ax, H2, SLATE)
+    node(ax, Y, "", GOLD)
+    ax.text(*Y, "σ", ha="center", va="center", fontsize=21, zorder=4)
+
+    # Forward, in blue, beside each node.
+    ax.text(A[0], A[1] + 0.65, f"a = {a_in:g}", ha="center", fontsize=15, color=BLUE)
+    ax.text(B[0], B[1] - 0.95, f"b = {b_in:g}".replace("-", "−"), ha="center", fontsize=15,
+            color=BLUE)
+    ax.text(H1[0], H1[1] + 0.65, f"z₁ = {z1:.1f},  h₁ = {h1:.1f}", ha="center", fontsize=15,
+            color=BLUE)
+    ax.text(H2[0], H2[1] - 0.95, f"z₂ = {z2:.1f},  h₂ = 0: off".replace("-", "−"),
+            ha="center", fontsize=15, color=SLATE)
+    ax.text(Y[0], Y[1] - 0.95, f"z = {z:.0f},  ŷ = {y_hat:.3f}", ha="center", fontsize=15,
+            color=BLUE)
+    ax.text(Y[0], Y[1] - 1.5, f"true y = {y}", ha="center", fontsize=15)
+    ax.add_patch(FancyArrowPatch((Y[0] - 0.2, Y[1] + 0.5), (H1[0] + 0.45, H1[1] + 0.25),
+                                 arrowstyle="-|>", mutation_scale=18, lw=2.2, color=RUST,
+                                 connectionstyle="arc3,rad=0.35", zorder=2))
+
+    # Backward, in rust: the four steps, in a column of their own.
+    x0 = 9.4
+    ax.text(x0, 5.0, "backward: every weight's blame", fontsize=15.5, color=RUST,
+            weight="bold")
+    steps = [
+        f"1. at the output: ŷ − y = {d:.3f}",
+        f"2. back along the weight 10: {d:.3f} × 10 = {back:.2f}",
+        f"3. × the ReLU's slope: unit 1 on, × 1 = {d1:.2f};",
+        f"    unit 2 off, × 0 = {d2:.0f}: it learns nothing here",
+        f"4. each weight: its unit's blame × its input",
+        f"    into unit 1: {d1:.2f} × 1.5 = {d1 * a_in:.2f},  "
+        f"{d1:.2f} × (−0.1) = {d1 * b_in:.2f},",
+        f"    bias {d1:.2f} × 1 = {d1:.2f}",
+        f"    into the output: {d:.3f} × h₁ = {d * h1:.3f},  {d:.3f} × h₂ = 0",
+    ]
+    for k, line in enumerate(steps):
+        ax.text(x0, 4.35 - 0.58 * k, line.replace("-", "−"), fontsize=14, color=RUST)
+    ax.text(x0, -0.55, f"then one step, α = {alpha:g}: every weight moves against its blame",
+            fontsize=13.5, color=SLATE, style="italic")
+    ax.set_xlim(-0.2, 19.4)
+    ax.set_ylim(-0.9, 5.5)
+    ax.set_aspect("equal")
+    ax.axis("off")
+    fig.savefig(OUT / "backprop_by_hand.png", dpi=150, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+
+
+def digit_network():
+    """The digit network drawn: 64 pixels in, 32 ReLU units, 10 outputs, with its code."""
+    from sklearn.datasets import load_digits
+    image = load_digits().images[0] / 16
+
+    fig = plt.figure(figsize=(14.0, 6.4))
+    pic = fig.add_axes([0.0, 0.34, 0.15, 0.36])
+    pic.imshow(image, cmap="gray_r", vmin=0, vmax=1)
+    pic.set_xticks([]); pic.set_yticks([])
+    pic.set_title("one image, 8 × 8", fontsize=13)
+    ax = fig.add_axes([0.15, 0.0, 0.85, 1.0])
+
+    X0, H0, O0 = 1.6, 6.0, 10.4
+    xin = [5.6, 4.8, 4.0, 1.6, 0.8]          # a few of the 64 inputs, then a gap
+    hid = [5.4, 4.5, 3.6, 1.8, 0.9]          # a few of the 32 hidden units
+    out = [5.6 - 0.55 * k for k in range(10)]
+    for yi in xin:
+        for yh in hid:
+            ax.plot([X0, H0], [yi, yh], color=BLUE, lw=.5, alpha=.35, zorder=1)
+    for yh in hid:
+        for yo in out:
+            ax.plot([H0, O0], [yh, yo], color=RUST, lw=.5, alpha=.35, zorder=1)
+    for yi in xin:
+        ax.add_patch(Circle((X0, yi), 0.22, facecolor="white", edgecolor=SLATE, lw=1.8, zorder=3))
+    for yh in hid:
+        ax.add_patch(Circle((H0, yh), 0.26, facecolor="white", edgecolor=TEAL, lw=2.0, zorder=3))
+        relu_icon(ax, (H0, yh), TEAL, w=0.28, h=0.18)
+    for k, yo in enumerate(out):
+        ax.add_patch(Circle((O0, yo), 0.21, facecolor="white", edgecolor=GOLD, lw=2.0, zorder=3))
+        ax.text(O0, yo, str(k), ha="center", va="center", fontsize=11, zorder=4)
+    for x, (lo, hi) in ((X0, (1.6, 4.0)), (H0, (1.8, 3.6))):
+        ax.text(x, (lo + hi) / 2, "⋮", ha="center", va="center", fontsize=24, color=SLATE)
+    ax.annotate("", xy=(X0 - 0.35, 3.2), xytext=(-0.25, 3.2),
+                arrowprops=dict(arrowstyle="-|>", lw=1.8, color=SLATE))
+    ax.text(0.55, 3.45, "unrolled\ninto a row", ha="center", fontsize=11.5, color=SLATE)
+
+    ax.text(X0, 6.45, "64 inputs\n(one per pixel)", ha="center", fontsize=14, weight="bold",
+            color=SLATE)
+    ax.text(H0, 6.45, "hidden layer:\n32 ReLU units", ha="center", fontsize=14, weight="bold",
+            color=TEAL)
+    ax.text(O0, 6.45, "output:\n10 units, one per digit", ha="center", fontsize=14,
+            weight="bold", color="#8A6D0B")
+    ax.text((X0 + H0) / 2, -0.35, "64 × 32 weights + 32 biases\n= 2,080", ha="center",
+            fontsize=12, color=BLUE)
+    ax.text((H0 + O0) / 2, -0.35, "32 × 10 weights + 10 biases\n= 330", ha="center",
+            fontsize=12, color=RUST)
+    for x, y_text, line in ((X0, -1.3, "keras.Input(shape=(64,))"),
+                            (H0, -1.95, 'layers.Dense(32, activation="relu")'),
+                            (O0, -1.3, "layers.Dense(10, ...)")):
+        ax.text(x, y_text, line, ha="center", fontsize=10.5, family="monospace", color=SLATE,
+                bbox=dict(boxstyle="round,pad=0.3", fc="#F3F3F3", ec="none"))
+    ax.text(6.0, -2.75, "every arrow is one weight: 2,080 + 330 = 2,410 parameters",
+            ha="center", fontsize=14, style="italic", color=SLATE)
+    ax.set_xlim(-0.5, 12.6)
+    ax.set_ylim(-3.1, 7.1)
+    ax.set_aspect("equal")
+    ax.axis("off")
+    fig.savefig(OUT / "digit_network.png", dpi=150, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+
+
+def dropout_drawn():
+    """Dropout: a different 40% of the hidden units is off for each training example."""
+    layers_y = [[3.0, 2.0, 1.0], [4.0, 3.0, 2.0, 1.0, 0.0], [4.0, 3.0, 2.0, 1.0, 0.0],
+                [2.5, 1.5]]
+    xs = [0.0, 1.6, 3.2, 4.8]
+    panels = [("training, one example", ({1, 3}, {0, 4})),
+              ("training, the next example", ({0, 2}, {1, 2})),
+              ("prediction: dropout off", (set(), set()))]
+    fig, axes = plt.subplots(1, 3, figsize=(14.0, 4.9))
+    for ax, (title, (off1, off2)) in zip(axes, panels):
+        off = {1: off1, 2: off2}
+        for li in range(3):
+            for i, y0 in enumerate(layers_y[li]):
+                for k, y1 in enumerate(layers_y[li + 1]):
+                    dead = i in off.get(li, ()) or k in off.get(li + 1, ())
+                    if not dead:
+                        ax.plot([xs[li], xs[li + 1]], [y0, y1], color=BLUE, lw=.8,
+                                alpha=.45, zorder=1)
+        for li, ys in enumerate(layers_y):
+            for i, y0 in enumerate(ys):
+                is_off = i in off.get(li, ())
+                colour = SLATE if li in (0, 3) else TEAL
+                ax.add_patch(Circle((xs[li], y0), 0.26, zorder=3, lw=1.8,
+                                    facecolor="#E6E6E6" if is_off else "white",
+                                    edgecolor="#AAAAAA" if is_off else colour))
+                if is_off:
+                    ax.plot([xs[li] - .2, xs[li] + .2], [y0 - .2, y0 + .2], color=RUST, lw=2.2,
+                            zorder=4)
+                    ax.plot([xs[li] - .2, xs[li] + .2], [y0 + .2, y0 - .2], color=RUST, lw=2.2,
+                            zorder=4)
+        ax.set_title(title, fontsize=14)
+        ax.set_xlim(-0.5, 5.3)
+        ax.set_ylim(-0.8, 4.6)
+        ax.set_aspect("equal")
+        ax.axis("off")
+    fig.text(0.5, 0.02, "two hidden layers of 5: in training, 2 of 5 (40%) are off, a different "
+             "2 for each example; their outputs are 0. For predictions every unit is on.",
+             ha="center", fontsize=13, color=SLATE, style="italic")
+    fig.savefig(OUT / "dropout_drawn.png", dpi=150, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+
+
+def network_timeline():
+    """Where networks went next: a few milestones, each built from today's pieces."""
+    events = [        # (year, where the label sits, label, above or below)
+        (1986, 1986.0, "backpropagation\n(Rumelhart,\nHinton, Williams)", 1),
+        (1989, 1989.5, "one hidden layer\ncan approximate\nany continuous\nfunction (Cybenko)", -1),
+        (1989.9, 1993.6, "a convolutional\nnetwork reads\nZIP codes (LeCun)", 1),
+        (2012, 2009.0, "AlexNet wins\nImageNet: ReLU,\ndropout, GPUs", -1),
+        (2015, 2012.8, "ResNet:\n152 layers", 1),
+        (2016, 2016.8, "AlphaGo beats\nLee Sedol at Go", -1),
+        (2020, 2019.8, "AlphaFold\npredicts protein\nstructures", 1),
+    ]
+    fig, ax = plt.subplots(figsize=(14.0, 5.6))
+    ax.plot([1984, 2023], [0, 0], color=SLATE, lw=2.2)
+    for year in range(1985, 2025, 5):
+        ax.plot([year, year], [-0.08, 0.08], color=SLATE, lw=1.2)
+        ax.text(year, -0.32, str(year), ha="center", fontsize=11, color=SLATE)
+    for year, text_x, text, side in events:
+        top = 1.15 * side
+        ax.plot([year, text_x], [0, top * 0.85], color=TEAL, lw=1.4)
+        ax.add_patch(Circle((year, 0), 0.16, facecolor=GOLD, edgecolor="white", zorder=3))
+        ax.text(text_x, top, text, ha="center", va="bottom" if side > 0 else "top",
+                fontsize=11.5, linespacing=1.2)
+    ax.text(2003.5, -3.15, "the same pieces as today - weighted sums, the ReLU, softmax, "
+            "backpropagation, Adam -\nstacked deeper, trained on far more data, and shaped "
+            "to the data: for images, convolution (lesson 10)", ha="center", fontsize=13.5,
+            color=SLATE, style="italic")
+    ax.set_xlim(1983, 2024)
+    ax.set_ylim(-3.7, 2.6)
+    ax.axis("off")
+    fig.savefig(OUT / "network_timeline.png", dpi=150, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     drift_clouds()
     two_unit_network()
@@ -419,5 +633,10 @@ if __name__ == "__main__":
     learning_loop()
     one_unit_step()
     blame_backwards()
+    backprop_by_hand()
+    digit_network()
+    dropout_drawn()
+    network_timeline()
     print("wrote drift_clouds, two_unit_network, one_neuron, forward_pass_map, "
-          "learning_loop, one_unit_step, blame_backwards")
+          "learning_loop, one_unit_step, blame_backwards, backprop_by_hand, "
+          "digit_network, dropout_drawn, network_timeline")

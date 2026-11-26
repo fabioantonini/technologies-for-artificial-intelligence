@@ -11,16 +11,16 @@ date: "4 December 2026 · reading time about 70 minutes"
 |---|---|---|---|
 | 0:00–0:10 | 10 | Exercise 7 discussed; what a network adds; three problems | Slides 2–5 |
 | 0:10–0:30 | 20 | One neuron is one line: the perceptron, the sigmoid, the acceptance test | Slides 6–13 |
-| 0:30–0:50 | 20 | A hidden layer: several lines, combined | Slides 14–26 |
-| 0:50–1:15 | 25 | **Notebook 01** — from one line to a hidden layer | Slide 27 |
-| 1:15–1:27 | 12 | **Break** | Slide 28 |
-| 1:27–1:42 | 15 | How a network learns: the loop, mini-batches, one step by hand, the blame flowing back | Slides 29–35 |
-| 1:42–1:57 | 15 | A network in Keras on the digits; softmax; 39 points against 2.8 | Slides 36–44 |
-| 1:57–2:15 | 18 | **Notebook 02** — a network in Keras | Slide 45 |
-| 2:15–2:35 | 20 | Training in practice: the learning rate, memorising, two remedies, the vanishing gradient, shuffled pixels | Slides 46–56 |
-| 2:35–2:55 | 20 | **Notebook 03** — training in practice | Slide 57 |
-| 2:55–3:00 | 5 | What to take away; homework | Slides 58–60 |
-| | **180** | **Total** | **60 slides, 3 notebooks** |
+| 0:30–0:51 | 21 | A hidden layer: several lines, combined; why the activation is needed | Slides 14–27 |
+| 0:51–1:12 | 21 | **Notebook 01** — from one line to a hidden layer | Slide 28 |
+| 1:12–1:24 | 12 | **Break** | Slide 29 |
+| 1:24–1:46 | 22 | How a network learns: the loop, mini-batches, one step by hand, backpropagation by hand | Slides 30–39 |
+| 1:46–2:04 | 18 | A network in Keras on the digits; softmax and two classes; 39 points against 2.8 | Slides 40–52 |
+| 2:04–2:19 | 15 | **Notebook 02** — a network in Keras | Slide 53 |
+| 2:19–2:39 | 20 | Training in practice: the learning rate, memorising, two remedies, the vanishing gradient, shuffled pixels | Slides 54–65 |
+| 2:39–2:54 | 15 | **Notebook 03** — training in practice | Slide 66 |
+| 2:54–3:00 | 6 | What to take away; where networks went next; homework | Slides 67–70 |
+| | **180** | **Total** | **70 slides, 3 notebooks** |
 
 ---
 
@@ -113,7 +113,12 @@ of this line are you on, and how far".
 
 ### 2.2 The acceptance test
 
-Each sensor has a gain offset (in decibels) and a phase offset (in degrees).
+At the end of the line a test rig sends each sensor a reference signal and
+measures two **calibration offsets**: the **gain offset**, by how many decibels
+the sensor's output is stronger or weaker than specified, and the **phase
+offset**, by how many degrees its output wave is shifted from the reference.
+An offset of 0 is a perfect sensor; production scatters them around 0, with a
+spread of 0.40 dB and 3.00 degrees.
 Notebook 01 splits the 3,000 sensors into 2,250 for training and 750 for
 testing, then standardises each axis with a scaler fitted on the training part.
 
@@ -178,6 +183,12 @@ our class 1, is its complement (sometimes called XNOR); either way no single
 line separates the classes. Logistic regression scores exactly
 **0.5000**: a line is worth nothing at all.
 
+The structure is the one of lesson 6's pumps, where a fault meant exactly one
+of two sensors high: an **interaction**. One channel's drift says nothing on
+its own, because whether $+1$ is good or bad depends on the sign of the other.
+Naive Bayes failed there because it assumes the features independent given the
+class; logistic regression fails here because it draws one line.
+
 ### 3.2 A network written down by hand
 
 Both correctable clouds have $a + b$ near $+2$ or $-2$; both uncorrectable ones
@@ -219,8 +230,24 @@ and now one line separates them.*
 
 That picture is the central idea of the lesson. **The hidden layer did not
 classify anything. It moved the data** into new coordinates where the output
-unit's single line is enough. Learning a network means learning such
-coordinates, and that is called **representation learning**.
+unit's single line is enough. Here we wrote those coordinates by hand; when
+training finds them on its own, from the data (section 3.4), that is called
+**representation learning**.
+
+**Why the activation is needed.** Take the ReLU away and each hidden unit
+passes on its weighted sum unchanged: $h_1 = a + b - 1$, $h_2 = -a - b - 1$.
+Then the output's weighted sum is
+$10(a + b - 1) + 10(-a - b - 1) - 1 = -21$ for every sensor: $a$ and $b$
+cancel, the network says $\sigma(-21) \approx 0$, "not correctable", to all
+800, and scores 0.5000. In general, with $h = xW^{[1]} + b^{[1]}$ and
+$z = hW^{[2]} + b^{[2]}$,
+
+$$z = x\,W^{[1]}W^{[2]} + \big(b^{[1]}W^{[2]} + b^{[2]}\big)$$
+
+one weight vector and one bias: a weighted sum of weighted sums is one weighted
+sum. Any number of layers without an activation is one unit, a logistic
+regression with a sigmoid output, a linear regression without one. The bend of
+the ReLU at 0 is what lets several lines combine into a region.
 
 ### 3.3 Forward propagation
 
@@ -271,6 +298,15 @@ stop at three clouds of four. A wider layer than the problem strictly needs give
 start near a good set of lines, which is why networks used in practice are
 wider than their task requires.
 
+**Why the starting point matters.** For logistic regression the cross-entropy,
+seen as a function of the weights, is convex: one valley, and gradient descent
+reaches its bottom from any start. With a hidden layer it is not convex: there
+is a lowest point, but also **local minima**, valleys that are not the deepest,
+and flat stretches. Where training stops depends on where it started; the
+two-unit runs that wall off three clouds have stopped in a local minimum. The
+figures of this section are drawn by running each trained network's forward
+pass on a fine grid of points and colouring each by whether $\hat{y} > 0.5$.
+
 Back to the acceptance test, scored on the 750 test sensors. The test set is
 used here to *show* how capacity changes the boundary, not to choose a width: to
 choose one honestly, compare widths on validation data or by cross-validation
@@ -303,8 +339,18 @@ four a four-sided fence, eight an eight-sided one close to the circle.*
 *The eight hidden units of that network, each drawn as its own line from its
 column of the first weight matrix (`coefs_[0]`), with the network's boundary in
 black. Each hidden unit outputs zero on one side of its line and a value that
-grows with the distance on the other. Look at how the output unit's weighted sum
-of those eight values encloses a region that no single line could.*
+grows with the distance on the other. Look at where the lines meet the black
+boundary: at its corners, not along its sides.*
+
+Why the corners? Between two gold lines the same hidden units are on, so the
+output's weighted sum is a flat plane there and the boundary is a straight
+side; crossing a line switches one unit on or off, the plane tilts, and the
+boundary turns a corner. Notebook 01 counts the lines that cross the region the
+network accepts: four, all within 0.19 of the centre and with negative output
+weights, each crossed twice, which makes the eight corners. The other four lie
+1.84 to 4.38 from the centre; they are on throughout the region, tilt the
+plane, and make no corner. "Eight units, eight sides" is therefore not a rule:
+the rule is two corners for each line that crosses the region.
 
 With eight units the mean, **0.9445**, is within three points of the ceiling of
 0.97. From one line, 0.5507, that is **39 points**.
@@ -328,14 +374,20 @@ the error it is responsible for: precisely, its gradient, the rate at which the
 loss changes when that weight changes. Section 4.3 computes it for one unit.
 
 Two more words name how the data is fed in. A **mini-batch** is a small random group
-of training examples, 32 in notebook 02; each round of the loop uses one
-mini-batch, which is much cheaper than using all the data and still points
-roughly the right way on average. An **epoch** is one pass through all the
-mini-batches, so through every training example once. Notebook 02 keeps 1,077
-of the 1,797 digits for training (section 5.1 gives the full split); in
-mini-batches of 32 that is $1{,}077 / 32 = 33.7$, so 34 mini-batches per
-epoch, the last one smaller, and 60 epochs make $60 \times 34 = 2{,}040$ rounds
-of the loop.
+of training examples; each round of the loop uses one mini-batch, which is much
+cheaper than using all the data and still points roughly the right way on
+average. An **epoch** is one pass through all the mini-batches, so through every
+training example once: at the start of each epoch the training data is shuffled
+and cut into consecutive blocks. `MLPClassifier`, as notebook 01 runs it on the
+2,250 training sensors, uses its default mini-batch of
+$\min(200, m) = 200$: $2{,}250 / 200 = 11.25$, so 12 mini-batches per epoch,
+11 of 200 and one of 50. Keras's default, used in section 5, is 32.
+
+**The predictable mistake.** Backpropagation, step 3, is often taken for the
+whole of training, or for the step that moves the weights. It only computes
+the blame; the gradient step, step 4, moves the weights. And the weights do
+not converge to *the* optimum: section 3.4 showed a network's cost has many
+valleys, and training settles in a good one.
 
 ### 4.2 The loss
 
@@ -386,6 +438,13 @@ $w_1 \to 0.5596$, $w_2 \to 1.5596$, $b \to -1.4404$ (the figure rounds them to
 three decimals). The new $z$ is $0.5596 + 1.5596 - 1.4404 = 0.679$ and the new
 prediction $\sigma(0.679) = 0.663$: closer to 0, with loss down to 1.089.
 
+Here every input is 1, so "times its input" is invisible. The point
+$x = (1, 0)$, also with $y = 0$, shows it: $z = 0$, $\hat{y} = 0.5$, and the
+blames are $0.5 \times 1$, $0.5 \times 0$ and $0.5 \times 1$. With
+$\alpha = 0.5$, $w_1 \to 0.75$, $b \to -1.25$, and $w_2$ stays at 2: its input
+was 0, it took no part in the prediction and takes no blame. The new prediction
+is $\sigma(-0.5) = 0.378$.
+
 ### 4.4 Backpropagation: the blame flows backwards
 
 In a network, a hidden unit's weights do not touch the loss directly; they
@@ -401,9 +460,49 @@ it further back the same way.
 the output and travels back along the same connections the forward pass used,
 so one sweep gives every weight its blame.*
 
-Two facts make it practical. One backward sweep costs about as much arithmetic
-as one forward pass, so a gradient for every weight costs roughly one more
-prediction. And the libraries do it for you: `MLPClassifier` and Keras both run
+**Worked example: one backward sweep, every number.** The hand-built drift
+network of section 3.2 sees the sensor $a = 1.5$, $b = -0.1$: opposite signs, so
+$y = 0$. Forward: $z_1 = 1.5 - 0.1 - 1 = 0.4$, $h_1 = 0.4$;
+$z_2 = -1.5 + 0.1 - 1 = -2.4$, $h_2 = 0$; $z = 10 \times 0.4 - 1 = 3$,
+$\hat{y} = \sigma(3) = 0.953$, wrong and sure, with loss
+$-\log(1 - 0.953) = 3.049$.
+
+![](backprop_by_hand.png)
+
+*The backward sweep with its numbers. Look at step 3: unit 2 was off, its
+ReLU's slope is 0, so it receives no blame and learns nothing from this
+sensor.*
+
+Backward, in four steps:
+
+| step | rule | numbers |
+|---|---|---|
+| 1. output | $\hat{y} - y$ | $0.953 - 0 = 0.953$ |
+| 2. back to each hidden unit | output blame $\times$ its outgoing weight | $0.953 \times 10 = 9.53$ |
+| 3. through the ReLU | $\times$ slope: 1 if on, 0 if off | unit 1: $9.53$; unit 2: $0$ |
+| 4. each weight | its unit's blame $\times$ its input | unit 1: $9.53 \times 1.5 = 14.29$, $9.53 \times (-0.1) = -0.95$, bias $9.53$; output: $0.953 \times 0.4 = 0.381$, $0.953 \times 0 = 0$ |
+
+A step with $\alpha = 0.01$ (small, because the output weight of 10 made the
+hidden blames large): $w \to 1 - 0.01 \times 14.29 = 0.857$,
+$1 - 0.01 \times (-0.953) = 1.0095$, bias $-1 - 0.01 \times 9.53 = -1.095$;
+output weight $10 - 0.01 \times 0.381 = 9.996$, output bias
+$-1 - 0.01 \times 0.953 = -1.0095$; unit 2's weights do not move. Forward
+again: $h_1 = 0.857 \times 1.5 + 1.0095 \times (-0.1) - 1.095 = 0.089$,
+$z = 9.996 \times 0.089 - 1.0095 = -0.115$, $\hat{y} = 0.471$, loss
+$-\log(1 - 0.471) = 0.637$. One step and the network calls this sensor not
+correctable. Notebook 02 asks TensorFlow for the same gradients with
+`tf.GradientTape`, which records the forward pass and runs it backwards, and
+prints the same numbers.
+
+Two facts make backpropagation practical. One backward sweep costs about as
+much arithmetic as one forward pass, so a gradient for every weight costs
+roughly one more prediction. The naive alternative, nudging one weight at a
+time and running the forward pass again to see the loss move, costs one
+forward pass per weight: 33 for the eight-unit sensor network
+($2 \times 8 + 8$ into the hidden layer, $8 + 1$ into the output), millions for
+a large one. Backpropagation avoids it by computing each unit's blame once and
+reusing it for every weight entering the unit, as 9.53 was reused three times.
+And the libraries do it for you: `MLPClassifier` and Keras both run
 backpropagation inside `fit`.
 
 ---
@@ -417,11 +516,20 @@ backpropagation inside `fit`.
 *Two training examples of each digit, eight by eight pixels. Look at how coarse
 they are: some are hard for a person to read.*
 
-The 1,797 images are split three ways, as lesson 5 asks: 1,077 to train, 360 to
-validate (to compare designs), 360 to test (touched once, at the end). Each
+Each image is 64 numbers, one per pixel, so a network has 64 inputs; and there
+are ten classes, not two. The 1,797 images are split three ways, as lesson 5
+asks, with the same share of each digit in every part: 1,077 to train, 360 to
+validate (to compare designs), 360 to test (touched once, at the end). Three
+parts rather than the sensors' two because this section compares designs. Each
 pixel is divided by 16 so it lies between 0 and 1.
 
 ### 5.2 A network in three lines
+
+![](digit_network.png)
+
+*The network drawn: one image unrolled into 64 inputs, 32 ReLU units, 10
+outputs, one per digit. Every line is one weight. Look under each column for
+the line of Keras that creates it.*
 
 ```python
 model = keras.Sequential([
@@ -435,10 +543,28 @@ history = model.fit(X_train, y_train, validation_data=(X_val, y_val),
                     epochs=60, batch_size=32)
 ```
 
-`Dense` is a layer in which every unit sees every input. `compile` chooses the
-loss, cross-entropy for integer class labels, and the optimiser, **Adam**, a
-refined form of gradient descent that adapts the step for each weight. `fit`
-runs the loop of section 4.1.
+`Dense` is a layer in which every unit sees every input. Keras is the
+interface; underneath it **TensorFlow** does the arithmetic and computes the
+gradients (notebook 02 has one cell in plain TensorFlow). `compile` chooses the
+loss, cross-entropy for integer class labels, and the optimiser. `fit` runs the
+loop of section 4.1, in mini-batches of 32, Keras's default:
+$1{,}077 / 32 = 33.7$, so 34 mini-batches per epoch and
+$60 \times 34 = 2{,}040$ steps in 60 epochs.
+
+**Adam** (adaptive moment estimation; Kingma and Ba, 2014) is gradient descent
+with two additions, made weight by weight. With $g_t$ the gradient of one weight
+at step $t$:
+
+$$m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t, \qquad v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2, \qquad w \leftarrow w - \alpha \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}$$
+
+$m_t$ is a running average of recent gradients (**momentum**), which smooths
+out the noise of small mini-batches; $v_t$ a running average of their squares,
+so dividing by $\sqrt{v_t}$ gives each weight a step scaled to its own recent
+gradient size: shorter where the blame has been large or jumpy, longer where it
+has been small and steady. $\hat{m}_t$ and $\hat{v}_t$ are the two averages
+corrected for starting at zero; Keras's defaults are $\beta_1 = 0.9$,
+$\beta_2 = 0.999$, $\epsilon = 10^{-7}$. That is why Adam works here at
+$\alpha = 0.001$ with no tuning.
 
 **Worked example: counting the weights.** The hidden layer has one weight per
 pixel and unit plus one bias per unit, $64 \times 32 + 32 = 2{,}080$. The output
@@ -453,8 +579,26 @@ $$\mathrm{softmax}(z)_k = \frac{e^{z_k}}{\sum_{j=1}^{10} e^{z_j}}$$
 
 The prediction is the digit with the largest probability. All ten scores share
 one denominator: softmax is not a sigmoid applied to each score separately.
-With two classes it gives class 1 the probability $\sigma(z_1 - z_0)$, the
-sigmoid of the *difference* of the two scores.
+
+**Worked example: three scores.** With $z = (2, 1, 0)$: $e^2 = 7.389$,
+$e^1 = 2.718$, $e^0 = 1$, total $11.107$; the probabilities are
+$7.389 / 11.107 = 0.665$, $2.718 / 11.107 = 0.245$ and $1 / 11.107 = 0.090$,
+which add to 1. Adding the same number to every score changes nothing: each
+exponential, and the total, is multiplied by the same factor. Ten equal scores
+give one tenth each.
+
+**Two classes: softmax is the sigmoid.** With two output units, class 1 gets
+
+$$\frac{e^{z_1}}{e^{z_0} + e^{z_1}} = \frac{1}{1 + e^{-(z_1 - z_0)}} = \sigma(z_1 - z_0)$$
+
+dividing top and bottom by $e^{z_1}$. Only the difference of the two scores
+counts: $(0, 1)$ and $(5, 6)$ both give $\sigma(1) = 0.731$. And that difference
+is itself one weighted sum,
+$z_1 - z_0 = (w_1 - w_0) \cdot x + (b_1 - b_0)$: call it $w \cdot x + b$ and it
+is the $z$ of section 2.1. Two output units are therefore redundant for two
+classes; one unit computing the difference does the same job, and that unit is
+logistic regression. This is why every two-class network in sections 2 to 4
+has a single sigmoid output.
 
 ![](softmax_example.png)
 
@@ -463,7 +607,8 @@ at the difference: the 6 above gets 0.991 on one digit; the 1 below, which the
 network gets wrong, has no digit above a third.*
 
 **The predictable mistake.** It is tempting to read the largest probability as
-how likely the prediction is to be right. Softmax says how *sure* the network
+how likely the prediction is to be right. No probability is ever exactly 0,
+since every exponential is positive. Softmax says how *sure* the network
 is, not how *right*: notebook 02 also finds a 4 called a 7 with probability
 0.920.
 
@@ -476,12 +621,25 @@ Look at the first ten epochs: almost all the learning happens there.*
 
 After the first epoch the network scores 0.2667 on the validation images; after
 60 it scores 0.9639, getting 13 of the 360 wrong, and 0.9926 on the images it
-trained on.
+trained on. The two curves stay close for most of the run: a small network,
+data from one distribution, too few epochs to memorise.
+
+For the first ten or so epochs the validation curve lies *above* the training
+curve. That is how Keras measures: the training figure is the average over
+the epoch's 34 mini-batches, taken while the weights were still changing, the
+validation figure is taken at the end of the epoch with the final weights. The
+training curve lags by about half an epoch, which shows while learning is
+fast.
 
 ![](softmax_confusion.png)
 
 *Which digits are confused with which, on the validation images. Look off the
 diagonal: the mistakes are few and scattered, a 4 taken for a 7, a 9 for a 5.*
+
+Each row is a true digit and adds up to how many of that digit the 360 hold,
+35 to 37, since the digits are not exactly balanced (row 1:
+$35 + 1 + 1 = 37$). Each column is an answer of the network and adds up to how
+often it was given (column 8: $1 + 1 + 1 + 33 = 36$).
 
 ### 5.5 39 points against 2.8
 
@@ -491,11 +649,21 @@ on the validation images:
 
 | architecture | parameters | validation accuracy | sd over 3 runs |
 |---|---|---|---|
+| baseline: always the most common digit, 1 | 0 | 0.1028 | - |
 | softmax alone, no hidden layer | 650 | 0.9324 | 0.0035 |
 | one hidden layer of 32 | 2,410 | **0.9602** | 0.0052 |
 | one hidden layer of 64 | 4,810 | 0.9611 | 0.0045 |
 
-(The single run of section 5.4 scored 0.9639; this table averages three.)
+The first row is the baseline of lessons 4 and 5: the digit most common in
+training is a 1 (109 of the 1,077, tied with 3, 5 and 6, and the first of the
+tie is taken), right on the 37 ones among the 360, $37 / 360 = 0.1028$. It says
+whether a model has learned anything; the linear model, the second row, says
+whether the hidden layer adds anything. Doubling the hidden layer from 32 to 64
+adds $0.9611 - 0.9602 = 0.0009$, a third of an image, far inside the
+run-to-run spread: the two cannot be ranked. That does not make width useless
+in general: on the sensors, going from four units to eight is what made
+training reliable (section 3.4). (The single run of section 5.4 scored 0.9639;
+this table averages three.)
 
 ![](hidden_layer_worth.png)
 
@@ -506,11 +674,16 @@ Is 2.8 a property of the digits? Notebook 02 draws a different train/validation
 split and three other starting points: the gap comes out at 4.7 points. The exact
 figure moves with the split; its size does not. **A few points on the digits,
 about 39 on the sensors**: the same idea is worth roughly ten times more on one
-problem than on the other, and the reason is the shape of each problem. On the sensors the answer depends on
-the two offsets **together**: a sensor passes when the pair is near the centre,
-and no weighted sum of the two can say "near the centre". On the digits a
-**weighted sum of the pixels** already gets most of the way: ink here suggests a
-0, ink there a 1. That does not mean the pixels are independent of one another;
+problem than on the other ($39.4 / 2.8 = 14$ on the first split,
+$39.4 / 4.7 = 8.4$ on the second), and the reason is the shape of each problem.
+A weight can only say "more is better" or "more is worse". On the sensors
+neither holds: an offset fails when it is large in **either** direction, and
+how large is too large depends on the other one (a gain of 0.4 dB passes with a
+phase of 0, $(0.4/0.50)^2 = 0.64 < 1$, and fails with a phase of 3 degrees,
+$0.64 + (3/3.75)^2 = 1.28 > 1$); no weighted sum of the two can say "near the
+centre". On the digits each pixel votes much the same way whatever the others
+do, and a **weighted sum of the pixels** already gets most of the way: ink here
+suggests a 0, ink there a 1. That does not mean the pixels are independent of one another;
 it means a linear score is already a strong approximation here, so a hidden
 layer has little left to add.
 
@@ -519,7 +692,10 @@ layer has little left to add.
 inputs act in combination; on data where a weighted sum already works it buys
 little and costs parameters, here almost four times as many (2,410 against 650) for
 2.8 points. **Fit the linear
-model first: the size of the gap tells you whether a network was needed.**
+model first: the size of the gap, read against the spread of the runs, tells
+you whether a network was needed.** The reason is method rather than memory:
+the linear model is the reference that says whether the network adds anything,
+it is simpler to read, and it is less able to memorise.
 
 ---
 
@@ -546,16 +722,29 @@ training stops, at 0.5 it settles high, at 2.0 it never leaves 0.1.*
 | 0.5 | 0.0007 | **0.9722** |
 | 2.0 | 2.3195 | 0.1000 |
 
-Too large, and every step overshoots, so the loss never comes down: 0.1000 is
-what guessing scores on ten classes. Too small, and the network is still
-learning when the epochs run out.
+Too large, and the first steps throw the network into a region it never
+leaves. Notebook 03 looks inside: at $\alpha = 2.0$, 49 of the 64 units of the
+first hidden layer and all 64 of the second output 0 for every training image.
+Such a ReLU unit has slope 0 wherever it is used, receives no blame and never
+recovers: it is **dead**. With its second layer dead the network gives every
+image the same answer, a 4, right on the 36 fours among the 360 validation
+images, 0.1000, at a loss of 2.3195, close to $\ln 10 = 2.303$, the loss of
+giving every digit one tenth. (At 0.5, 10 of the 64 first-layer units also
+end dead, which costs a little capacity and nothing more.) Too small, and the
+network is still learning when the epochs run out.
+
+Learning rates do not carry over between optimisers: section 5.2 trains with
+Adam at 0.001 and it works, because Adam adapts each weight's step; here, with
+plain SGD, every weight takes the same step and 0.001 is far too small.
 
 **The predictable mistake.** A rate too small gives low accuracy on both the
 training and the validation data, which is exactly what a network *too small*
 looks like, and the natural response is to make the network bigger. That
 reasoning is sound in general: low training accuracy is the usual sign of a
-model too simple. Here it is the wrong fix. **Try learning rates a factor of
-ten apart before changing the network.**
+model too simple. Here it is the wrong fix: the same network reaches 0.9722
+at $\alpha = 0.5$. **Try learning rates a factor of ten apart, 0.001, 0.01,
+0.1, 1, before changing the network**: multiplications, not additions, because
+the right rate can lie anywhere across several orders of magnitude.
 
 ### 6.2 A network that memorises
 
@@ -570,8 +759,16 @@ loss: lowest at epoch 13, then climbing for the rest of training.*
 
 The network has enough freedom to store the 300 answers outright, and it does.
 The validation accuracy, 0.9472 after 200 epochs, hides the damage; the
-validation *loss*, 1.4 times its lowest value by the end, shows it: the network
-is growing more confident about the validation images it gets wrong.
+validation *loss*, from 0.1725 at its lowest to 0.2419 by the end,
+$0.2419 / 0.1725 = 1.4$ times higher, shows it: the network is growing more
+confident about the validation images it gets wrong. An image's loss is
+$-\log$ of the probability given to its true class, so the surer the network
+is of a wrong answer the higher it goes: a probability of 0.10 costs
+$-\log 0.10 = 2.30$, one of 0.01 costs $-\log 0.01 = 4.61$. The network keeps
+getting about the same images wrong, about 19 of 360, and grows more convinced
+it is right. Lesson 5 saw overfitting grow with the complexity of the model;
+here the model is fixed and it grows with the epochs, which is what makes
+stopping at the right epoch a remedy.
 
 ### 6.3 Two remedies
 
@@ -580,7 +777,16 @@ improved for a set number of epochs (25 here), keeping the weights from the best
 epoch. **Dropout**, during training, zeroes a random 40% of the hidden
 activations, drawn afresh for each example, and scales the rest up by $1/0.6$
 so their total is unchanged on average; no unit can rely on any particular
-other one. For predictions dropout is off. Three
+other one. For predictions dropout is off. Both are **regularisation** in
+lesson 3's sense: they limit what the network can memorise without changing
+the data.
+
+![](dropout_drawn.png)
+
+*Dropout on a small network with two hidden layers of five. Look at the first
+two panels: a different two units of each layer are off for each training
+example; at prediction time every unit works.*
+ Three
 runs each, scored on the test images, which nothing here was chosen against:
 
 | method | test accuracy | sd over 3 runs | epochs run |
@@ -593,7 +799,12 @@ Read the spread before the means, as lesson 5 taught. The best and worst rows
 differ by 0.0055, under two standard deviations of the runs: with three runs we
 see no clear difference between the three methods, and cannot rank them. What
 early stopping certainly
-bought is time, 39 epochs instead of 200.
+bought is time, 39 epochs instead of 200. With a patience of 25 the epochs run
+are the best epoch plus 25: $39 - 25 = 14$, in line with the minimum at epoch 13
+of section 6.2; with dropout $50.3 - 25 \approx 25$, because dropout slows
+learning. The spreads are small too: one image of 360 is $1/360 = 0.0028$ of
+accuracy, so 0.0013 and 0.0035 are half an image and a little over one, from
+three runs each.
 
 ### 6.4 Activations, and six layers that did not learn
 
@@ -610,7 +821,16 @@ $0.25^6 = 1/4096$. The weights it crosses multiply it too: small starting
 weights shrink it further, large ones could enlarge it, so 1/4096 describes the
 mechanism rather than bounding the whole gradient. In the network below, too
 little reaches the first layers to move anything. This is the **vanishing
-gradient**.
+gradient**. It does not need the sigmoids to be saturated, working where they
+are almost flat (at $z = 5$ the slope is 0.0066): Keras starts the weighted
+sums near 0, where the sigmoid is steepest, and six factors of 1/4 are already
+enough.
+
+A ReLU unit, in turn, learns nothing from an example for which it is off,
+since its slope there is 0; but it is on for other examples, and learns from
+those. The risk is a unit off for every example, which is dead for good
+(section 6.1). A common fix is the **leaky ReLU**, with a small slope, such as
+0.01, for negative $z$.
 
 ![](deep_training_curves.png)
 
@@ -643,22 +863,47 @@ structure assumes them. For a photograph, where neighbouring pixels are the poin
 that is a strange blindness: **permute the pixels consistently and nothing here
 notices.** Lesson 10 is about networks that do notice.
 
+### 6.6 Where networks went next
+
+![](network_timeline.png)
+
+*Seven milestones. Look at what they share: the pieces of this lesson, stacked
+deeper, trained on far more data, and shaped to the data.*
+
+Not examinable. In 1986 Rumelhart, Hinton and Williams made backpropagation
+the standard way to train networks. In 1989 Cybenko proved that one hidden
+layer of sigmoid units can approximate any continuous function on a bounded
+region as closely as wanted, given enough units; in practice "enough" can be
+enormous, one reason networks went deep instead. The same year LeCun and
+colleagues trained a convolutional network to read handwritten ZIP codes. In
+2012 AlexNet (Krizhevsky, Sutskever and Hinton) won the ImageNet
+image-recognition contest by a wide margin with the ReLU, dropout and graphics
+processors; in 2015 ResNet (He and colleagues) trained a network 152 layers
+deep; in 2016 DeepMind's AlphaGo beat Lee Sedol at Go; in 2020 DeepMind's
+AlphaFold predicted the shapes of proteins from their sequence, for many of
+them close to the accuracy of laboratory methods. None of this contradicts the
+lesson's number: these results came from depth, very large data sets and a
+structure matched to the data, and for images that structure is convolution,
+lesson 10.
+
 ---
 
 ## Summary
 
 - **One neuron is one line.** One unit scores 0.5507 on the acceptance test,
   barely above always saying "accepted", and 0.5000 on the drift problem.
-- **A hidden layer moves the data** into coordinates where a line is enough. Two
+- **A hidden layer gives the data new coordinates** in which a line is enough;
+  without an activation, any number of layers is one unit. Two
   ReLU units written by hand solve the drift problem, 0.9938; each hidden unit
   is a line, and the output unit combines their values.
 - **Training finds such weights more reliably as the layer widens**: on the
   drift problem 6 runs of 20 succeeded with two units, 17 with four, all 20 with
   eight; eight units reached 0.9445 on the acceptance test, against a ceiling of
   0.97.
-- **Learning is a loop**: predict a mini-batch, measure the loss, send the blame
-  back with backpropagation, move each weight against its blame. For one unit
-  the blame is $\hat{y} - y$ times the input.
+- **Learning is a loop**: predict a mini-batch, measure the loss,
+  backpropagation sends the blame back, the gradient step moves each weight
+  against its blame. Each weight's blame is its unit's blame times its input;
+  a network's cost has many valleys, so the start matters.
 - **The learning rate** has a narrow useful band: 0.001 still learning after 60
   epochs, 2.0 never settling.
 - **39 points against 2.8**: a hidden layer is worth a great deal when inputs act
@@ -699,4 +944,8 @@ notices.** Lesson 10 is about networks that do notice.
 | [Keras: getting started](https://keras.io/getting_started/) | Official docs | The `Sequential` model, `compile` and `fit`, with more examples |
 | [TensorFlow Playground](https://playground.tensorflow.org/) | Interactive | Add hidden units and watch the boundary change, in the browser |
 | Nielsen, *Neural Networks and Deep Learning*, ch. 1–2 | Book, free online | A gentle, picture-led account of networks and backpropagation |
+| Rumelhart, Hinton and Williams, "Learning representations by back-propagating errors", *Nature* 323, 1986 | Paper | The paper that made backpropagation the standard (section 6.6) |
+| Cybenko, "Approximation by superpositions of a sigmoidal function", *Mathematics of Control, Signals and Systems* 2, 1989 | Paper | One hidden layer can approximate any continuous function (section 6.6) |
+| Krizhevsky, Sutskever and Hinton, "ImageNet classification with deep convolutional neural networks", NeurIPS 2012 | Paper | AlexNet: the ReLU, dropout and GPUs together (section 6.6) |
+| Kingma and Ba, "Adam: a method for stochastic optimization", 2014 | Paper | The optimiser of section 5.2 |
 | `Advanced/09_neural_networks_advanced/` in this repository | Lesson | Backpropagation in matrix form, gradient checking, initialisation, optimisers: the material this lesson leaves out |

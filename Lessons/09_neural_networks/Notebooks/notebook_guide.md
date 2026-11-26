@@ -42,7 +42,11 @@ clouds.
 6. **Back to the acceptance test.** Mean of five runs: 1 unit 0.6048, 2 units 0.7392,
    4 units 0.8821, **8 units 0.9445**, 16 units 0.9549. The boundary grows from a line
    to a strip, a four-sided fence and an eight-sided one.
-7. **What it was worth:** from 0.5507 to 0.9445, **39.4 points**.
+7. **Where the corners come from.** Each hidden unit is a line. Of the eight, **4**
+   cross the accepted region, all within 0.19 of the centre, each crossed twice:
+   **8 corners**. The other four lie 1.84 to 4.38 away and make no corner. The
+   corners sit on the lines; the number of sides is not one per unit.
+8. **What it was worth:** from 0.5507 to 0.9445, **39.4 points**.
 
 **The two-minute version.** *One unit is one straight line, and on a problem whose
 answer is a disc a line scores what saying "accepted" to everyone scores. A hidden
@@ -69,12 +73,17 @@ library lesson 10 uses, and to measure what a hidden layer is worth on real data
    softmax outputs; **2,410** parameters, checked by hand.
 2. **Training, watched**: 34 mini-batches of 32 per epoch, 2,040 steps in 60 epochs.
    Validation accuracy 0.2667 after one epoch, **0.9639** after sixty (one run).
-3. **Softmax**: ten probabilities adding up to 1. An easy 6 gets 0.991; the mistake the
+3. **What `fit` does inside, in TensorFlow**: `tf.GradientTape` records the forward
+   pass of the hand-built drift network on the sensor (1.5, −0.1) and runs it
+   backwards. The blames match the slides: **14.29** for the weight from a, 0 for the
+   unit that was off; one step with α = 0.01 takes ŷ from 0.9526 to **0.4712**.
+4. **Softmax**: ten probabilities adding up to 1. An easy 6 gets 0.991; the mistake the
    network was least sure about gives no digit more than a third; and a 4 is called a 7
    with probability **0.920**: confidence is not correctness.
-4. **Is the hidden layer worth it?** Mean of three runs on the validation set: softmax
+5. **Is the hidden layer worth it?** The baseline, always answering the most common
+   digit, scores **0.1028**. Mean of three runs on the validation set: softmax
    alone **0.9324**, one hidden layer of 32 **0.9602**, of 64 0.9611.
-5. **The number of the lesson**: on the sensors the hidden layer is worth **39.4
+6. **The number of the lesson**: on the sensors the hidden layer is worth **39.4
    points**, on the digits **2.8**.
 
 **The two-minute version.** *Keras lists the layers, compile picks the loss and the
@@ -97,10 +106,14 @@ and the property of dense networks lesson 10 starts from.
 
 1. **The learning rate**, two hidden layers of 64, plain SGD, 60 epochs, one run each:
    α = 0.001 reaches **0.4806** and is still learning; α = 0.5 reaches **0.9722**;
-   α = 2.0 stays at **0.1000**, guessing.
+   α = 2.0 stays at **0.1000**, guessing. Looking inside explains the flat line: at
+   α = 2.0, **49 of 64** units of the first hidden layer and **all 64** of the second
+   are dead, outputting 0 for every image, so the network gives every image the same
+   answer.
 2. **Memorising**: two layers of 512 on 300 digits, **301,066** weights and biases.
-   Training accuracy 1.000; validation loss lowest at **epoch 13**, then 1.4 times
-   higher by epoch 200, while validation accuracy (0.9472) hides it.
+   Training accuracy 1.000; validation loss lowest at **epoch 13**, 0.1725, then
+   0.2419 by epoch 200, 1.4 times higher, while validation accuracy (0.9472) hides
+   it.
 3. **Two remedies**, three runs each, on the test set: no remedy 0.9426, early stopping
    0.9463 (39 epochs), early stopping and dropout 0.9481. The differences sit inside
    the spread; early stopping certainly saved time.

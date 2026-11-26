@@ -108,6 +108,14 @@ for (a_, b_), (h1, h2, s, yh) in zip(
 hand = ((sigmoid(relu(D @ W1 + b1) @ W2 + b2) > 0.5) == d).mean()
 check("3.2 hand-built network on all 800 sensors", hand, 0.9938, 5e-5)
 
+# 3.2 without the activation: the same weights, no ReLU, and a and b cancel.
+linear_out = (D @ W1 + b1) @ W2 + b2
+check("3.2 without the ReLU, largest |z + 21| over 800 sensors", float(np.abs(linear_out + 21).max()), 0.0, 1e-9)
+check("3.2 without the ReLU, accuracy", float(((sigmoid(linear_out) > 0.5) == d).mean()), 0.5, 1e-12)
+# The matrix route: one weight vector and one bias, W1 W2 and b1 W2 + b2.
+check("3.2 W1 W2, the collapsed weights", float(np.abs(W1 @ W2).max()), 0.0, 1e-12)
+check("3.2 b1 W2 + b2, the collapsed bias", float(b1 @ W2 + b2), -21.0, 1e-12)
+
 def solved(width, seeds):
     return sum(MLPClassifier(hidden_layer_sizes=(width,), max_iter=3000, random_state=s)
                .fit(D, d).score(D, d) > 0.99 for s in seeds)
@@ -159,13 +167,86 @@ check("4.3 new z", float(x @ w_new + b_new), 0.679, 5e-4)
 check("4.3 new y-hat", float(sigmoid(x @ w_new + b_new)), 0.663, 5e-4)
 check("4.3 new loss", float(loss(w_new, b_new)), 1.089, 5e-4)
 
+# 4.3 the contrast: the point (1, 0) of section 2.1, also with true label 0.
+x10 = np.array([1.0, 0.0])
+p10 = sigmoid(x10 @ w + b)
+check("4.3 (1, 0): y-hat", float(p10), 0.5, 1e-12)
+check("4.3 (1, 0): blame of w2 is 0.5 x 0", float((p10 - 0) * x10[1]), 0.0, 1e-12)
+w10, b10 = w - alpha * (p10 - 0) * x10, b - alpha * (p10 - 0)
+check("4.3 (1, 0): new w1", w10[0], 0.75, 1e-12)
+check("4.3 (1, 0): new b", b10, -1.25, 1e-12)
+check("4.3 (1, 0): new y-hat, sigma(-0.5)", float(sigmoid(x10 @ w10 + b10)), 0.378, 5e-4)
+
+# 4.1 mini-batches on the sensors: MLPClassifier's default is min(200, m).
+mlp_default = MLPClassifier().get_params()["batch_size"]
+batch = min(200, len(Z_tr)) if mlp_default == "auto" else mlp_default
+check("4.1 MLPClassifier's default mini-batch on 2,250 sensors", batch, 200, 0)
+check("4.1 2,250 / 200", len(Z_tr) / batch, 11.25, 1e-12)
+check("4.1 mini-batches per epoch on the sensors", int(np.ceil(len(Z_tr) / batch)), 12, 0)
+check("4.1 the last one", len(Z_tr) - (int(np.ceil(len(Z_tr) / batch)) - 1) * batch, 50, 0)
+
+# 4.4 backpropagation by hand on the drift network, sensor (1.5, -0.1), y = 0.
+s = np.array([1.5, -0.1])
+
+
+def drift_loss(W1_, b1_, W2_, b2_):
+    out_ = sigmoid(relu(s @ W1_ + b1_) @ W2_ + b2_)
+    return -np.log(1 - out_)
+
+
+z1 = s @ W1 + b1
+hs = relu(z1)
+yb = sigmoid(hs @ W2 + b2)
+check("4.4 z1 of unit 1", z1[0], 0.4, 1e-12)
+check("4.4 z2 of unit 2", z1[1], -2.4, 1e-12)
+check("4.4 forward: y-hat = sigma(3)", float(yb), 0.953, 5e-4)
+check("4.4 forward: loss", float(drift_loss(W1, b1, W2, b2)), 3.049, 5e-4)
+d_out = yb - 0
+d_hidden = d_out * W2 * (z1 > 0)          # back along the weights, times the ReLU's slope
+check("4.4 blame reaching each hidden unit, 0.953 x 10", float(d_out * W2[0]), 9.53, 5e-3)
+check("4.4 unit 2 off: its blame", float(d_hidden[1]), 0.0, 0)
+gW1 = np.outer(s, d_hidden)
+# Each weight's blame, against a numerical derivative of the loss (an independent route).
+def numerical(which, i, j=None):
+    args = [W1.copy(), b1.copy(), W2.copy(), np.array(b2)]
+    def at(delta):
+        a = [x_.copy() for x_ in args]
+        if j is None:
+            a[which][i] += delta
+        else:
+            a[which][i, j] += delta
+        return drift_loss(*a)
+    return float((at(1e-6) - at(-1e-6)) / 2e-6)
+check("4.4 blame of the weight from a into unit 1", gW1[0, 0], 14.29, 5e-3)
+check("4.4 ... against a numerical derivative", gW1[0, 0], numerical(0, 0, 0), 1e-5)
+check("4.4 blame of the weight from b into unit 1", gW1[1, 0], -0.953, 5e-4)
+check("4.4 ... against a numerical derivative", gW1[1, 0], numerical(0, 1, 0), 1e-5)
+check("4.4 blame of unit 1's bias", d_hidden[0], 9.53, 5e-3)
+check("4.4 blame of the output weight from h1", float(d_out * hs[0]), 0.381, 5e-4)
+check("4.4 ... against a numerical derivative", float(d_out * hs[0]), numerical(2, 0), 1e-5)
+lr = 0.01
+W1n, b1n = W1 - lr * gW1, b1 - lr * d_hidden
+W2n, b2n = W2 - lr * d_out * hs, b2 - lr * d_out
+check("4.4 new weight from a", W1n[0, 0], 0.857, 5e-4)
+check("4.4 new weight from b", W1n[1, 0], 1.0095, 5e-5)
+check("4.4 new bias of unit 1", b1n[0], -1.095, 5e-4)
+check("4.4 new output weight", W2n[0], 9.996, 5e-4)
+check("4.4 new output bias", float(b2n), -1.0095, 5e-5)
+h_new = relu(s @ W1n + b1n)
+check("4.4 new h1", h_new[0], 0.089, 5e-4)
+check("4.4 new z", float(h_new @ W2n + b2n), -0.115, 5e-4)
+check("4.4 new y-hat", float(sigmoid(h_new @ W2n + b2n)), 0.471, 5e-4)
+check("4.4 new loss", float(drift_loss(W1n, b1n, W2n, b2n)), 0.637, 5e-4)
+check("4.4 alpha = 0.5 would send the first weight to", 1 - 0.5 * gW1[0, 0], -6.1, 0.05)
+check("4.4 weights of the 8-unit sensor network", 2 * 8 + 8 + 8 + 1, 33, 0)
+
 X_d, y_d, X_v, y_v, X_t, y_t = load_digit_images()
-check("4.1, 5.1 training digits", len(X_d), 1077, 0)
+check("5.1 training digits", len(X_d), 1077, 0)
 check("5.1 validation digits", len(X_v), 360, 0)
 check("5.1 test digits", len(X_t), 360, 0)
-check("4.1 1,077 / 32, before rounding up", len(X_d) / 32, 33.7, 0.05)
-check("4.1 mini-batches of 32 per epoch", int(np.ceil(len(X_d) / 32)), 34, 0)
-check("4.1 rounds of the loop in 60 epochs", 60 * int(np.ceil(len(X_d) / 32)), 2040, 0)
+check("5.2 1,077 / 32, before rounding up", len(X_d) / 32, 33.7, 0.05)
+check("5.2 mini-batches of 32 per epoch", int(np.ceil(len(X_d) / 32)), 34, 0)
+check("5.2 rounds of the loop in 60 epochs", 60 * int(np.ceil(len(X_d) / 32)), 2040, 0)
 
 
 # =====================================================================
@@ -177,6 +258,40 @@ check("5.5 softmax alone, 64 x 10 + 10", 64 * 10 + 10, 650, 0)
 check("5.5 one hidden layer of 64", 64 * 64 + 64 + 64 * 10 + 10, 4810, 0)
 check("6.2 two layers of 512", 64 * 512 + 512 + 512 * 512 + 512 + 512 * 10 + 10, 301066, 0)
 check("5.5 parameters, 2,410 against 650 (almost four times)", 2410 / 650, 3.71, 0.01)
+
+# 5.3 softmax with three scores, and with two.
+sc = np.exp([2.0, 1.0, 0.0])
+check("5.3 e^2 + e^1 + e^0", float(sc.sum()), 11.107, 5e-4)
+for k, value in enumerate((0.665, 0.245, 0.090)):
+    check(f"5.3 softmax of (2, 1, 0), class {k}", float(sc[k] / sc.sum()), value, 5e-4)
+for pair in ((0.0, 1.0), (5.0, 6.0)):
+    e = np.exp(pair)
+    check(f"5.3 two classes, scores {pair}: e^z1 / (e^z0 + e^z1)", float(e[1] / e.sum()), 0.731, 5e-4)
+check("5.3 ... equals sigma(z1 - z0)", float(sigmoid(1.0)), 0.731, 5e-4)
+check("5.3 2.718 / 3.718", np.e / (1 + np.e), 0.731, 5e-4)
+
+# 5.5 the baseline: the most common training digit, on the validation images.
+common = np.bincount(y_d).argmax()
+check("5.5 the most common training digit", common, 1, 0)
+check("5.5 its count in training (tied)", np.bincount(y_d)[common], 109, 0)
+check("5.5 baseline, 37 / 360", float((y_v == common).mean()), 0.1028, 5e-5)
+check("5.4 row 1 of the confusion matrix, ones among the 360", int((y_v == 1).sum()), 37, 0)
+check("5.5 32 to 64 units, 0.9611 - 0.9602", 0.9611 - 0.9602, 0.0009, 1e-9)
+
+# 6.x the small numbers of the second half.
+check("6.1 ln 10, the loss of one tenth each", float(np.log(10)), 2.303, 5e-4)
+check("6.1 fours among the 360 validation images", float((y_v == 4).mean()), 0.1000, 5e-5)
+check("6.2 -log 0.10", float(-np.log(0.10)), 2.30, 5e-3)
+check("6.2 -log 0.01", float(-np.log(0.01)), 4.61, 5e-3)
+check("6.2 0.2419 / 0.1725", 0.2419 / 0.1725, 1.4, 0.05)
+check("6.2 wrong at epoch 200, 360 x (1 - 0.9472)", 360 * (1 - 0.9472), 19, 0.05)
+check("6.3 one image of 360", 1 / 360, 0.0028, 5e-5)
+check("6.3 best epoch with early stopping, 39 - 25", 39 - 25, 14, 0)
+check("6.4 the sigmoid's slope at z = 5", float(sigmoid(5) * (1 - sigmoid(5))), 0.0066, 5e-5)
+check("5.5 39.4 / 2.8", 39.4 / 2.8, 14, 0.1)
+check("5.5 39.4 / 4.7", 39.4 / 4.7, 8.4, 0.05)
+check("2.2 gain alone at 0.6 dB, (0.6 / 0.50)^2", (0.6 / 0.50) ** 2, 1.44, 1e-12)
+check("5.5 gain 0.4 dB, phase 3 degrees", (0.4 / 0.50) ** 2 + (3 / 3.75) ** 2, 1.28, 1e-12)
 
 zz = np.linspace(-8, 8, 160001)
 slope = sigmoid(zz) * (1 - sigmoid(zz))

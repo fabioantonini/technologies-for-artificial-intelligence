@@ -11,7 +11,7 @@ Lesson 9 put two results side by side on purpose. On Meridian's acceptance
 data a linear model scored 0.55 and a network 0.94 — a hidden layer was worth
 39 points. On the handwritten digits a linear model scored 0.93 and a network
 with one hidden layer 0.96 — the same hidden layer was worth 2.8 points, and
-doubling its width after that was worth 0.09, which is a fifth of the
+doubling its width after that was worth 0.09 points, which is a fifth of the
 run-to-run spread and therefore nothing.
 
 Both numbers are in the handout, so both can be recalled. What cannot be
