@@ -182,7 +182,7 @@ builds them **in sequence**, each one correcting what the ensemble so far got wr
    | bagging, 100 trees | 0.904 | 97.2% |
    | gradient boosting, defaults | 0.902 | 97.0% |
    | single tree, 9 leaves | 0.901 | 96.9% |
-   | gradient boosting, α 0.3, 30 trees (tuned on these folds) | 0.897 | 96.5% |
+   | gradient boosting, $\alpha$ = 0.3, 30 trees (tuned on these folds) | 0.897 | 96.5% |
    | single tree, depth 8 | 0.882 | 94.9% |
    | single tree, unconstrained | 0.852 | — |
    | logistic regression | 0.748 | — |
