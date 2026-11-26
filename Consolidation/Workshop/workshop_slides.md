@@ -45,7 +45,7 @@ lesson that covered it rather than giving the fix.
 
 # Before you start
 
-- Start the course container and open `Workshop/workshop.ipynb`
+- Start the course container and open `Consolidation/Workshop/workshop.ipynb`
 - Run the first cell: it loads the data
 - `NameError: name '___' is not defined` means a blank is still empty
 - Do **not** open `delivery_data.py`: it holds the answer

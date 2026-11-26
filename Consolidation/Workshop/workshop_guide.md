@@ -27,7 +27,7 @@ choice is what the exam asks for.
 | `workshop_slides.pptx` | a title and five slides, to open and close the session |
 
 The notebook runs in the course container like every other: open
-`Workshop/workshop.ipynb` in JupyterLab. No network is needed.
+`Consolidation/Workshop/workshop.ipynb` in JupyterLab. No network is needed.
 
 ## The dataset
 

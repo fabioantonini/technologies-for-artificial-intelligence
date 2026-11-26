@@ -38,6 +38,12 @@ its idea is treated at full scale.
 Reading time: about 40 minutes for the API notebook and for most lessons' atoms, and 15
 for lesson 1's.
 
+## The workshop
+
+`Workshop/` holds a two-hour in-class workshop on late deliveries, from data to an
+honest number: a notebook, its checks, its data, a guide and a short deck. It is built
+and runs like every other notebook, but it is not on the calendar. It is not examinable.
+
 ## How to use an atom
 
 Every atom has the same shape:

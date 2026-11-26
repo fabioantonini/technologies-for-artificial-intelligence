@@ -17,7 +17,7 @@ Course-level, built once rather than per lesson:
 
     Course/*.md     ->  .pdf   syllabus, schedule, prerequisites
     Course/Setup/*.md, Assessment/**/*.md
-    Workshop/*.md, Consolidation/*.md   the two in-class sessions' guides
+    Consolidation/*.md, Consolidation/Workshop/*.md   the in-class sessions' guides
 
 Everything except the slides needs a working LaTeX engine.
 
@@ -361,10 +361,10 @@ def main() -> int:
                 )
                 made, failed = made + m, failed + f
 
-        # The in-class workshop and the consolidation of lessons 1 to 3 are not
-        # lessons, so each sits in its own folder: a guide, built like a handout,
-        # and for the workshop one short deck.
-        for folder in ("Workshop", "Consolidation"):
+        # The consolidation material and the in-class workshop inside it are not
+        # lessons: a guide each, built like a handout, and for the workshop one
+        # short deck.
+        for folder in ("Consolidation/Workshop", "Consolidation"):
             sources = sorted((ROOT / folder).glob("*.md"))
             if not sources:
                 continue
