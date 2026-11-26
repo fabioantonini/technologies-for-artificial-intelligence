@@ -3181,8 +3181,8 @@ nobody has given the answer.
 
 ## Slide 72 — Homework
 
-Exercise 7, `Exercises/07_trees_and_ensembles.md`, is discussed at the start of lesson
-8. It gives you two loan products from the same lender, on which the ranking of the
+Exercise 7, `Exercises/07_trees_and_ensembles.md`, is discussed at the start of the next
+lesson. It gives you two loan products from the same lender, on which the ranking of the
 methods is not the same, and asks you to predict which method wins before fitting
 anything, to measure it, and to explain the difference with at least one measurement
 per product, not an assertion. As always for the exam, the reasoning in your notebook

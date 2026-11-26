@@ -2,7 +2,7 @@
 title: "Lesson 4: Classification and Evaluation Metrics"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "30 October 2026"
+date: "Lesson 4 · academic year 2026/27"
 ---
 
 # Before we start
@@ -2133,14 +2133,12 @@ convex, so any minimum gradient descent finds is the global one.
 
 # Homework
 
-- **Exercise 4**, discussed at the start of **Friday 13 November**
+- **Exercise 4**, discussed at the start of **the next lesson**
 - Build a classifier, choose a threshold from a stated cost ratio, defend it
 
 ::: notes
-Set it explicitly and say out loud when it comes back: the start of Friday
-13 November, on its own: exercise 5 is discussed a week later, on 20 November.
-(Lesson 4 ran over two Fridays: this
-slide is reached on 6 November, after which lesson 5 begins the same day.)
+Set it explicitly and say out loud when it comes back: the start of the next
+lesson.
 
 Emphasise which part matters at the exam, where one of the ten exercises is
 drawn and they talk through their own notebook. The classifier is a few lines

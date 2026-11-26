@@ -2,7 +2,7 @@
 title: "Exercise 1 — Your first honest workflow"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 2 October 2026 · discussed at the start of lesson 2, Friday 9 October 2026"
+date: "Lesson 1 · academic year 2026/27 · discussed at the start of the next lesson"
 ---
 
 Roughly 2–3 hours. Work alone; discussing ideas with others is fine, sharing notebooks
@@ -124,7 +124,7 @@ A single notebook named `exercise01.ipynb` that:
 - alternates markdown and code — the prose is not decoration, it is where the reasoning
   lives
 
-Nothing is handed in: lesson 2 opens by discussing this exercise, and at the
+Nothing is handed in: the next lesson opens by discussing this exercise, and at the
 exam one of the ten is drawn for you to talk through your own notebook.
 
 ---

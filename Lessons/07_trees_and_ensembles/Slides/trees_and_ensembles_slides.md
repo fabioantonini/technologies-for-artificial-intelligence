@@ -2,7 +2,7 @@
 title: "Lesson 7: Trees and Ensembles"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "27 November 2026"
+date: "Lesson 7 · academic year 2026/27"
 ---
 
 # Agenda
@@ -2495,18 +2495,18 @@ Handout summary and notation table.
 
 # Homework
 
-- **Exercise 7**, discussed at the start of **Friday 4 December**
+- **Exercise 7**, discussed at the start of **the next lesson**
 - `Exercises/07_trees_and_ensembles.md`
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten
-minutes of lesson 9, Friday 4 December.
+minutes of the next lesson.
 
 Remind them of the standing rule from lesson 5: every reported number needs
 a cross-validated spread, and any feature-importance claim needs the check
 this lesson just demonstrated - a random forest's importance ranking is a
 claim to be verified, not a fact to be quoted.
 
-Next week: unsupervised learning, the first lesson in which the data comes
-with no labels at all.
+Lesson 8: unsupervised learning, the first lesson in which the data comes
+with no labels at all. Lesson 9: neural networks.
 :::

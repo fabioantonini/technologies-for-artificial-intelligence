@@ -2,7 +2,7 @@
 title: "Exercise 10 — Two Stations, One Photograph"
 subtitle: "Technologies for Artificial Intelligence — Lesson 10"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 18 December 2026 · the last one, and the only one no lesson follows: worked for the exam alone"
+date: "Lesson 10 · academic year 2026/27 · the last one, and the only one no lesson follows: worked for the exam alone"
 ---
 
 ## What this is

@@ -2,7 +2,7 @@
 title: "Where Linear Models Still Win"
 subtitle: "Supplementary reading, lesson 3 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "16 October 2026 · reading time about 25 minutes"
+date: "Lesson 3 · academic year 2026/27 · reading time about 25 minutes"
 ---
 
 > Not examinable. It explains why the simplest model in the course is also the one you are most likely to meet in production.

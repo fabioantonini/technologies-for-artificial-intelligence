@@ -2,7 +2,7 @@
 title: "Lesson 3 — What Each Notebook Shows"
 subtitle: "Notebook guide, lesson 3 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "16 October 2026 · three notebooks"
+date: "Lesson 3 · academic year 2026/27 · three notebooks"
 ---
 
 > A short guide to this lesson's notebooks. For each one: what it is for, the
@@ -66,7 +66,7 @@ prices, so the true coefficients are known. Fit area alone and the normal equati
 gives 2,785 euros per square metre where the truth is 2,400 — 16% high, because area
 is standing in for everything correlated with it. Our implementation and scikit-learn
 agree to twelve decimal places. Gradient descent reaches the same slope but its
-intercept is still crawling, which is the scaling argument from last week showing up
+intercept is still crawling, which is the scaling argument from lesson 2 showing up
 in the iterations. With all six features the estimates land within 1% of the truth,
 except bedrooms, which correlates 0.77 with area. And the residual spread, 20,340
 euros, sits just above the 18,000 of noise we added — that gap is what the model does

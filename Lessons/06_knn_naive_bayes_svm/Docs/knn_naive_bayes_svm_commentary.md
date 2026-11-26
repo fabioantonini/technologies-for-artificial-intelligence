@@ -62,8 +62,8 @@ them. Lesson 6 is where **model selection** begins in earnest: knowing how to tr
 model is not enough; you have to decide which *family* of models suits the structure
 of the problem. The opening discussion of Exercise 5 is about a result that looked too good: a
 colleague's notebook whose score was wrong in more than one way, and the honest number
-that replaces it. Exercise 5 was set when lesson 5 finished, on 13 November; exercise 4
-had been discussed at the start of that same day.
+that replaces it. Exercise 5 was set when lesson 5 finished; exercise 4 had been discussed
+at the start of that same session.
 
 ---
 
@@ -2585,7 +2585,7 @@ this with the section numbers.
 
 ## Slide 74 — Homework
 
-Exercise 6, discussed at the start of the lesson on Friday 27 November. Two stations:
+Exercise 6, discussed at the start of the next lesson. Two stations:
 fit five models from the three families and the linear baseline, at both stations, and
 argue which one you would choose, and why. What matters in the exam is the reasoning in
 your notebook, not the accuracy: a well-argued choice that scores slightly lower beats a

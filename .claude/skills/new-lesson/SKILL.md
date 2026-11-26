@@ -28,8 +28,10 @@ Then read, in this order:
 1. **`CLAUDE.md`**, all of it. It carries the audience, the hard constraints, the
    naming, the notation table and the slide conventions. It is not boilerplate —
    the audience section in particular decides how everything else is written.
-2. **`Course/SCHEDULE.md`** — this lesson's date and title, and the *next*
-   lesson's date, which is the exercise deadline.
+2. **`Course/SCHEDULE.md`** — this lesson's title and where it sits. Dates stay
+   there: the lesson itself carries none (front matter "Lesson N · academic year",
+   homework "discussed at the start of the next lesson"), and `verify_lesson.py`
+   fails a calendar date in a lesson file.
 3. **The previous lesson's handout and slides.** Read the handout's first ~150
    lines and skim the slides. This is for register: how much is explained, how
    the speaker notes are voiced, how numbers are cited.

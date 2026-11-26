@@ -1280,6 +1280,41 @@ def check_deck_overflow(lesson: Path, report: Report) -> None:
                     )
 
 
+_MONTHS = ("January|February|March|April|May|June|July|August|September|October|"
+           "November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec")
+_WEEKDAYS = "Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Mon|Tue|Wed|Thu|Fri|Sat|Sun"
+_CALENDAR_DATE = re.compile(
+    rf"\b\d{{1,2}} (?:{_MONTHS})\b,? 202[6-9]\b"        # 13 November 2026
+    rf"|\b(?:{_WEEKDAYS}),? \d{{1,2}}\b"                   # Friday 13
+    rf"|\b(?:{_WEEKDAYS}),? (?:{_MONTHS}) \d{{1,2}}\b"     # Friday November 13
+    rf"|\b[Nn]ext (?:week|{_WEEKDAYS})\b")                 # next week, next Friday
+
+
+def check_no_calendar_dates(lesson: Path, report: Report) -> None:
+    """No calendar date anywhere in a lesson: dates live in Course/SCHEDULE.md.
+
+    Decided on 26 November 2026, after two calendar shifts in a month each cost
+    a pass over seven lessons. A lesson refers to "the next lesson" for its
+    homework and to a lesson by number for its content, so a moved or cancelled
+    Friday needs no edit here. Historical dates (Rosenblatt 1958, the GDPR in
+    2018) are not calendar dates of the course and do not match.
+    """
+    files = [f for f in lesson.rglob("*") if f.suffix in (".md", ".ipynb")
+             and not any(part in ("Review", "archive", ".ipynb_checkpoints")
+                         for part in f.parts)]
+    for f in sorted(files):
+        text = f.read_text(encoding="utf8")
+        if f.suffix == ".ipynb":
+            cells = json.loads(text).get("cells", [])
+            text = "\n".join("".join(c.get("source", [])) for c in cells)
+        for number, line in enumerate(text.splitlines(), 1):
+            match = _CALENDAR_DATE.search(line)
+            if match:
+                report.fail("dates", f"{f.relative_to(lesson)}:{number} carries a calendar "
+                                     f"date, {match.group(0)!r}; dates belong in "
+                                     "Course/SCHEDULE.md")
+
+
 def verify(lesson: Path, run: bool) -> Report:
     report = Report()
     check_notebooks(lesson, report, run)
@@ -1295,6 +1330,7 @@ def verify(lesson: Path, run: bool) -> Report:
     check_concept_pointers(lesson, report)
     check_cross_references(lesson, report)
     check_quoted_numbers(lesson, report)
+    check_no_calendar_dates(lesson, report)
     return report
 
 

@@ -2,7 +2,7 @@
 title: "Lesson 9: Neural Networks"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "4 December 2026"
+date: "Lesson 9 · academic year 2026/27"
 ---
 
 # Agenda
@@ -1880,7 +1880,7 @@ examinable; the further-reading list in the handout has the sources.
 
 # Homework
 
-- **Exercise 9**, discussed in lesson 8, **Friday 11 December**
+- **Exercise 9**, discussed at the start of **the next lesson**
 - `Exercises/09_neural_networks.md`
 - Two Meridian batches: where is a hidden layer worth it, and why?
 - **Predict which before fitting**, then measure
@@ -1888,8 +1888,7 @@ examinable; the further-reading list in the handout has the sources.
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten minutes
-of lesson 8, Friday 11 December: lesson 8 is taught after this one this
-year. Nothing is collected; we discuss it, and at
+of the next lesson. Nothing is collected; we discuss it, and at
 the exam one of the ten exercises is drawn and the student talks through their
 own notebook.
 
@@ -1900,7 +1899,7 @@ which today's material makes easy to forget. Every reported difference needs the
 was measured against. And every accuracy on Meridian's data is read against
 the ceiling of 0.97, not against 1.
 
-Next week is lesson 8, unsupervised learning. Lesson 10, on 18 December, is
+Lesson 8 is unsupervised learning. Lesson 10 is
 convolutional networks: networks built to use which pixel is next to which,
 the information the shuffled pixels showed a dense network does not assume.
 :::

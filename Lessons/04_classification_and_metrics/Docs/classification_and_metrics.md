@@ -2,7 +2,7 @@
 title: "Classification and Evaluation Metrics"
 subtitle: "Lesson 4 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "30 October 2026 · reading time about 80 minutes"
+date: "Lesson 4 · academic year 2026/27 · reading time about 80 minutes"
 ---
 
 ## Lesson plan
@@ -23,10 +23,9 @@ date: "30 October 2026 · reading time about 80 minutes"
 | 2:55–3:00 | What to take away; homework | Slides 63–64 |
 | | **Total** | **180 minutes** |
 
-*Taught over two Fridays in 2026: up to the precision-recall curve (now slide 44) on
-30 October, the rest at the start of 6 November, before lesson 5. Slides 29 and 30,
-the penalty and which line the cost chooses, were added on 7 November, after the
-lesson.*
+*In 2026 the lesson ran over two sessions: up to the precision-recall curve (now slide
+44) in the first, the rest at the start of the second, before lesson 5. Slides 29 and
+30, the penalty and which line the cost chooses, were added after the lesson.*
 
 ---
 
@@ -1773,7 +1772,7 @@ missing a healthy drive, macro is the honest one.**
 
 ### Homework
 
-`Exercises/04_classification_and_metrics.md`, discussed on **Friday 13 November 2026**.
+`Exercises/04_classification_and_metrics.md`, discussed at the start of the next lesson.
 
 ### Notation used in this lesson
 

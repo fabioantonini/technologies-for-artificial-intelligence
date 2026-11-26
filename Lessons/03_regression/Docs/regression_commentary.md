@@ -1379,7 +1379,7 @@ cost function.
 
 ---
 
-## Slide 56 — Homework: we discuss it on Friday 23 October
+## Slide 56 — Homework: discussed in the next lesson
 
 Exercise 3 uses a new dataset, bike-sharing demand, so the exploration is yours to do.
 Two tasks carry the most weight. Task 4 asks for a choice of $\lambda$ justified without

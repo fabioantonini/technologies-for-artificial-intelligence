@@ -2,7 +2,7 @@
 title: "Exercise 3 — Fit, regularise, and say what you believe"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 16 October 2026 · discussed at the start of lesson 4, Friday 23 October 2026"
+date: "Lesson 3 · academic year 2026/27 · discussed at the start of the next lesson"
 ---
 
 Roughly 2–3 hours. Work alone; discussing ideas is fine, sharing notebooks is not.

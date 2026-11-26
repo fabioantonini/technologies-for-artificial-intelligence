@@ -11,7 +11,10 @@ the consolidation notebooks (`Consolidation/`) in place of lesson 4, and lesson 
 taught on 30 October, ran over into the first three quarters of an hour of
 6 November. Lesson 5 began after it and ran over in turn, filling the whole of
 13 November. Every date from lesson 6 on is two weeks later than first
-announced, and lesson 10 moves to 18 December.
+announced, and lesson 10 moves to 18 December. Lesson 9 is taught before
+lesson 8, on 4 December, so that neural networks are covered even if the
+last Friday cannot be held; lesson 8 follows on 11 December. Each lesson
+opens with the exercise set the Friday before.
 
 | # | Date | Lesson | Materials |
 |---|---|---|---|
@@ -22,8 +25,8 @@ announced, and lesson 10 moves to 18 December.
 | 5 | Fri 6 Nov 2026, ending Fri 13 Nov | Experimental methodology and model selection | [`05_experimental_methodology`](../Lessons/05_experimental_methodology) |
 | 6 | Fri 20 Nov 2026 | k-NN, Naive Bayes and support vector machines | [`06_knn_naive_bayes_svm`](../Lessons/06_knn_naive_bayes_svm) |
 | 7 | Fri 27 Nov 2026 | Trees and ensembles | [`07_trees_and_ensembles`](../Lessons/07_trees_and_ensembles) |
-| 8 | Fri 4 Dec 2026 | Unsupervised learning | [`08_unsupervised_learning`](../Lessons/08_unsupervised_learning) |
-| 9 | Fri 11 Dec 2026 | Neural networks | [`09_neural_networks`](../Lessons/09_neural_networks) |
+| 9 | Fri 4 Dec 2026 | Neural networks | [`09_neural_networks`](../Lessons/09_neural_networks) |
+| 8 | Fri 11 Dec 2026 | Unsupervised learning | [`08_unsupervised_learning`](../Lessons/08_unsupervised_learning) |
 | 10 | Fri 18 Dec 2026 | Convolutional networks and course synthesis | [`10_convolutional_networks`](../Lessons/10_convolutional_networks) |
 
 ## Assessment dates
@@ -31,7 +34,7 @@ announced, and lesson 10 moves to 18 December.
 | Milestone | Date |
 |---|---|
 | Weekly exercises | Set at the end of each lesson, discussed at the start of the next. Exercise 4 is set on 6 November and discussed on 13 November; lesson 5 runs over to 13 November, so exercise 5 is set that day and discussed on 20 November. Nothing is collected: one of the ten is drawn at the exam and you talk through your own notebook. Exercise 10 has no lesson after it, so it is worked for the exam alone. |
-| Exam: one of the ten exercises drawn and discussed | **Three sittings between January and February 2027.** The dates are set by the degree programme and are not yet published; this table is updated when they are. |
+| Exam: one of the ten exercises drawn and discussed | **Friday 22 January, Friday 5 February and Friday 19 February 2027.** |
 
 ## Material release policy
 

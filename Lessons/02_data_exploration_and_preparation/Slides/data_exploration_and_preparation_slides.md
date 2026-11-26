@@ -2,12 +2,12 @@
 title: "Lesson 2: Data Exploration and Preparation"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "9 October 2026"
+date: "Lesson 2 · academic year 2026/27"
 ---
 
 # Before we start
 
-Exercise 1 was set last week. We discuss it now.
+Exercise 1 was set at the end of lesson 1. We discuss it now.
 
 - The wine-quality workflow, end to end
 - What counts is **methodology**, not accuracy
@@ -1330,7 +1330,7 @@ Preview Lesson 3 in one sentence: with the data prepared honestly, we can
 finally fit something and look at what the fitting actually does.
 :::
 
-# Homework: we discuss it on Friday 16 October
+# Homework: discussed in the next lesson
 
 `Exercises/02_data_exploration_and_preparation.md`
 
@@ -1352,7 +1352,7 @@ thing to the exam there is, since the exam draws one of their own notebooks and
 asks why each decision was made.
 :::
 
-# Before next week
+# Before the next lesson
 
 - Work the three notebooks in order
 - Read the handout: it has the derivations behind today's slides
@@ -1362,8 +1362,8 @@ asks why each decision was made.
 Next: regression, the first model we derive completely.
 
 ::: notes
-The checklist for the week. The exercise was set on the previous slide; say once
-more that it is discussed at the start of Lesson 3, Friday 16 October.
+The checklist until the next lesson. The exercise was set on the previous slide;
+say once more that it is discussed at the start of the next lesson.
 
 Point out that it uses the same churn generator, so the exploration they did
 today carries over, and that what counts is again methodology: a pipeline

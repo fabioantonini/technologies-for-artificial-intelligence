@@ -2,7 +2,7 @@
 title: "Lesson 2 — What Each Notebook Shows"
 subtitle: "Notebook guide, lesson 2 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "9 October 2026 · three notebooks"
+date: "Lesson 2 · academic year 2026/27 · three notebooks"
 ---
 
 > A short guide to this lesson's notebooks. For each one: what it is for, the

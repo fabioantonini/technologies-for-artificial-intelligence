@@ -2,7 +2,7 @@
 title: "Exercise 2 — Build the pipeline, then break it on purpose"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 9 October 2026 · discussed at the start of lesson 3, Friday 16 October 2026"
+date: "Lesson 2 · academic year 2026/27 · discussed at the start of the next lesson"
 ---
 
 Roughly 2–3 hours. Work alone; discussing ideas with others is fine, sharing

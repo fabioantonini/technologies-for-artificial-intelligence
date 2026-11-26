@@ -2,7 +2,7 @@
 title: "Exercise 7 — Decision Trees and Ensembles"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 27 November 2026 · discussed at the start of lesson 9, Friday 4 December 2026"
+date: "Lesson 7 · academic year 2026/27 · discussed at the start of the next lesson"
 ---
 
 ## What this exercise is for
@@ -32,7 +32,7 @@ ensemble.**
 course container. Written answers go in markdown cells beside the evidence for
 them.
 
-Nothing is handed in: lesson 8 opens by discussing this exercise, and at the
+Nothing is handed in: the next lesson opens by discussing this exercise, and at the
 exam one of the ten is drawn for you to talk through your own notebook.
 
 ---

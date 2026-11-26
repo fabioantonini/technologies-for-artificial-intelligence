@@ -2,7 +2,7 @@
 title: "Lesson 6: k-NN, Naive Bayes and Support Vector Machines"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "20 November 2026"
+date: "Lesson 6 · academic year 2026/27"
 ---
 
 # Before we start
@@ -12,15 +12,15 @@ date: "20 November 2026"
 - How much did honesty cost, and which fix cost the most?
 
 ::: notes
-Nothing is collected. Exercise 5 was set on 13 November, when lesson 5
-finished; exercise 4 was discussed at the start of that same day.
+Nothing is collected. Exercise 5 was set when lesson 5 finished; exercise 4
+was discussed at the start of that same session.
 
 Ask two people to say what they found wrong in the colleague's notebook and
 what the honest score came out at - that is the rehearsal for the exam - and
 name the recurring mistake if it appeared: fixing the first problem found and
 stopping there, when the notebook is wrong in more than one way.
 
-Then the sentence that links last week to today: everything from now on is evaluated with the tools built in lesson 5:
+Then the sentence that links lesson 5 to today: everything from now on is evaluated with the tools built in lesson 5:
 cross-validation, baselines, training scores read against validation scores.
 Today adds three families of models, and each of them can produce a result that
 looks right and is not, in a way of its own.
@@ -2283,13 +2283,13 @@ Handout section 7 lists all of this with the section numbers.
 
 # Homework
 
-- **Exercise 6**, discussed at the start of **Friday 27 November**
+- **Exercise 6**, discussed at the start of **the next lesson**
 - Two stations: fit five models from the three families and the linear
   baseline, and argue which one you would choose, and why
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten
-minutes of next Friday, 27 November.
+minutes of the next lesson.
 
 If this exercise is drawn at the exam, what counts is the reasoning, not the
 accuracy. A well-argued choice that scores slightly worse beats a lucky winner
@@ -2301,7 +2301,7 @@ Remind them that everything must be cross-validated and reported with a spread,
 in the format lesson 5 set. Scaling goes inside the pipeline; at the exam that is one of the first things
 looked at.
 
-Next week: decision trees and ensembles. A fourth family, with a different
+Lesson 7: decision trees and ensembles. A fourth family, with a different
 answer again to the same question - how do you draw a boundary that is not a
 line.
 :::

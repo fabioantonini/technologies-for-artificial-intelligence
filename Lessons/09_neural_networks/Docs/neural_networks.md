@@ -2,7 +2,7 @@
 title: "Neural Networks"
 subtitle: "Lesson 9 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "4 December 2026 · reading time about 70 minutes"
+date: "Lesson 9 · academic year 2026/27 · reading time about 70 minutes"
 ---
 
 ## Lesson plan
@@ -916,8 +916,7 @@ lesson 10.
 
 ### Homework
 
-`Exercises/09_neural_networks.md`, discussed at the start of Lesson 8,
-**Friday 11 December 2026** (this year lesson 8 is taught after lesson 9).
+`Exercises/09_neural_networks.md`, discussed at the start of the next lesson.
 
 ### Notation used in this lesson
 

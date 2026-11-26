@@ -2,7 +2,7 @@
 title: "Lesson 5: Experimental Methodology"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "6 November 2026"
+date: "Lesson 5 · academic year 2026/27"
 ---
 
 # We broke a promise on purpose
@@ -120,7 +120,7 @@ holds 7. Eight hundred records with 29 positives is a far more common
 situation than eight thousand - it is what a real pilot study looks like - and
 what follows is simply what the honest version of that situation looks like.
 
-Same data, same model, same code as last week. Only the sample size changed.
+Same data, same model, same code as lesson 4. Only the sample size changed.
 :::
 
 # 200 honest splits, one dataset
@@ -2149,13 +2149,12 @@ one they are most likely to be asked at the exam about whichever exercise is dra
 
 # Homework
 
-- **Exercise 5**, discussed at the start of **Friday 20 November**
+- **Exercise 5**, discussed at the start of **the next lesson**
 - A result that is too good. Find out why, then produce the honest number
 
 ::: notes
 Set it explicitly and say out loud when it comes back: the first ten
-minutes of Friday 20 November. Lesson 5 ran over two Fridays, so exercise 5 is
-set on 13 November and gets its full week, like every other exercise.
+minutes of the next lesson.
 
 The shape of it: they are given a notebook that reports an excellent score, and
 the score is wrong. They have to find the reason, fix it, report the honest
@@ -2165,6 +2164,6 @@ Warn them that there is more than one problem planted, and that at the exam
 what counts is the diagnosis, not the final figure - which will be much worse
 than the one they start with, and is supposed to be.
 
-Next week: k-nearest neighbours, Naive Bayes and support vector machines. Three
+Lesson 6: k-nearest neighbours, Naive Bayes and support vector machines. Three
 new model families, all of them evaluated with what we built today.
 :::

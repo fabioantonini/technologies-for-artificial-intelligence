@@ -2,7 +2,7 @@
 title: "Lesson 10: Convolutional Networks and Course Synthesis"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "18 December 2026"
+date: "Lesson 10 · academic year 2026/27"
 ---
 
 # Agenda
@@ -13,7 +13,7 @@ date: "18 December 2026"
 - What ten lessons add up to
 
 ::: notes
-Frame the three hours before any content. Last week's networks treated the 64
+Frame the three hours before any content. Lesson 9's networks treated the 64
 pixels of a digit as 64 unrelated numbers. Today exactly one assumption
 changes - that the inputs have an arrangement worth keeping - and the whole
 lesson is the consequence of that single change, measured rather than
@@ -28,18 +28,22 @@ Nothing today needs a graphics card, a downloaded model, or a network call.
 The largest network in this lesson has 1,537 parameters. Handout section 1.
 :::
 
-# Exercise 9, before we start
+# Exercise 8, before we start
 
-- What counts is the **spread** reported beside each number, not the number
-- The gap to watch for: a hand-written backward pass, never gradient-checked
-- Conclusions drawn from a single seed, presented as differences
+- Nothing is collected: we discuss it, ten minutes
+- What counts is the **prediction made before plotting**, and its reason
+- The common mistake: trusting a two-dimensional plot of the principal
+  components to show every anomaly
 - Today the same obligation lands on an **architecture** claim
 
 ::: notes
-Nothing to collect and nothing to hand back - discuss it. Two things to listen
-for: gradients written by hand and trusted without the four-line check, and
-single-seed runs whose differences were smaller than the seed-to-seed spread
-would have been.
+Nothing to collect and nothing to hand back: discuss it. Ask who predicted,
+before plotting anything, which account book a "flag whatever sits at the edge
+of the plot" detector would fail on, and what their reason was. Listen for the
+gap: treating a two-dimensional picture of the principal components as if it
+showed everything the columns contain. An anomaly that changes how the columns
+move together, without making any single column unusual, does not have to sit
+at the edge of that picture.
 
 Link it forward deliberately, because today is the easiest lesson in the course
 in which to fool yourself. Every claim this afternoon is of the form
@@ -60,7 +64,7 @@ difference measured?
 - Today: what you get by refusing to throw the arrangement away
 
 ::: notes
-Put last week's closing sentence back on the screen, because this lesson exists
+Put lesson 9's closing sentence back on the screen, because this lesson exists
 to cash it. A dense layer sees a flat vector of 576 numbers. Shuffle those 576
 positions with one fixed permutation, apply it to every image in the dataset,
 and a dense network trains to exactly the same accuracy. It never knew which
@@ -78,13 +82,13 @@ people in the room will be wrong. Handout section 1.
 
 # One assumption changes
 
-- Same loss, same optimiser, same backpropagation as last week
+- Same loss, same optimiser, same backpropagation as lesson 9
 - One new layer type, and inside it **two** assumptions
 - Everything else today is consequence, or measurement
 - No new mathematics after the first twenty-five minutes
 
 ::: notes
-Reassure them about scope. Nothing derived last week is superseded: the chain
+Reassure them about scope. Nothing derived in lesson 9 is superseded: the chain
 rule right to left, the ŷ − y gradient at the output, the initialisation and
 optimiser advice all apply unchanged. A convolutional layer is a layer, and it
 trains the way every other layer trains.
@@ -181,7 +185,7 @@ what they think it will be about.
 
 ::: notes
 Introduce the problem physically before any picture. Meridian Instruments is
-the fictional sensor maker from last week; this week we are one step upstream,
+the fictional sensor maker from lesson 9; in this lesson we are one step upstream,
 on the wafer line where the sensors are cut. A die is a small square of
 silicon, photographed under a microscope at 24 by 24 pixels - 576 numbers - and
 graded pass or fail by an automatic station.
@@ -1282,7 +1286,7 @@ frozen the base by default. Handout section 10.3.
 - **In doubt: warm start, and leave everything trainable**
 
 ::: notes
-Land the segment on two rules that are usable at the keyboard next week.
+Land the segment on two rules that are usable at the keyboard in exercise 10.
 
 The first is about choosing a source. "Related task" is too weak a criterion.
 The right question is what the source task made impossible to ignore. Our
@@ -1446,7 +1450,7 @@ layer's activations at a sane scale so the signal neither dies nor explodes.
 Residual connections add a layer's input to its output, so there is always a
 path along which the gradient reaches earlier layers undiminished.
 
-Both are direct descendants of what was derived last week, which is the point
+Both are direct descendants of what was derived in lesson 9, which is the point
 worth making. Our images are 576 pixels with one defect, and 1,537 parameters
 solve them perfectly, so neither repair would have anything to do here.
 `Resources/` carries the pointers. Handout section 11.

@@ -2,12 +2,12 @@
 title: "Lesson 1: Introduction and the ML Workflow"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "2 October 2026"
+date: "Lesson 1 · academic year 2026/27"
 ---
 
 # Welcome
 
-- 10 lessons, 3 hours each, every Friday until 18 December
+- 10 lessons, 3 hours each, one a week
 - A first course in **machine learning**, for people who can already program
 - Foundations, not products
 - Course team on Microsoft Teams: code **`v0t2gvu`**
@@ -214,7 +214,7 @@ it is orientation, and that section is where the real subject of the course appe
 
 Timing: about an hour to the break, which comes after the history (slide 34); then
 the three kinds of learning, then the workflow worked live, then the failure modes. Homework is set in the last five minutes
-- do not let it slip; nothing is handed in, and it is discussed next Friday.
+- do not let it slip; nothing is handed in, and it is discussed at the start of the next lesson.
 :::
 
 # A problem you cannot specify
@@ -1493,7 +1493,7 @@ The practical takeaway from the whole leakage section, and the thing to put on t
 if anything goes on the board today.
 
 Two of the five words are not today's: imputation (filling missing values) and
-encoding (turning categories into numbers) are next week's subject, and tuning is
+encoding (turning categories into numbers) are lesson 2's subject, and tuning is
 lesson 5's. Name them now so the rule is already in place when they arrive - each
 one learns something from the data, which is the only property the rule cares
 about.
@@ -1657,7 +1657,7 @@ end of a report.
 Keep this short and serious. Do not moralise - state it and move on.
 :::
 
-# Homework: we discuss it on Friday 9 October
+# Homework: discussed in the next lesson
 
 `Exercises/01_first_workflow.md`
 
@@ -1682,7 +1682,7 @@ Also point them at the quiz - 20 questions, ungraded, and the ones marked "reaso
 are the closest thing there is to the exam, because they ask why rather than what.
 :::
 
-# Before next week
+# Before the next lesson
 
 - Get the environment running
 - Work the three notebooks in order
@@ -1690,7 +1690,7 @@ are the closest thing there is to the exam, because they ask why rather than wha
 - Take the quiz
 - **Do the exercise**
 
-Next week: data exploration, preparation, and leakage in earnest.
+Lesson 2: data exploration, preparation, and leakage in earnest.
 
 ::: notes
 Close on time and offer to stay for setup problems - it is worth twenty minutes now to

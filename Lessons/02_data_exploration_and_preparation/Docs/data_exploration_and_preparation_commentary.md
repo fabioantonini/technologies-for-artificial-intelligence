@@ -1690,7 +1690,7 @@ code, like ordinary preprocessing. The thread is lesson 1's rule, generalised:
 
 ---
 
-## Slide 55 — Homework: we discuss it on Friday 16 October
+## Slide 55 — Homework: discussed in the next lesson
 
 The exercise asks you to build the complete pipeline and to **produce a leak on
 purpose before fixing it**: that way you see not only how the problem is avoided but
@@ -1701,7 +1701,7 @@ and why, not the best possible score.
 
 ---
 
-## Slide 56 — Before next week
+## Slide 56 — Before the next lesson
 
 The closing slide sends you to the handout, which carries the derivations behind the
 slides. Remembering `StandardScaler()`, `OneHotEncoder()` and `Pipeline(...)` is not

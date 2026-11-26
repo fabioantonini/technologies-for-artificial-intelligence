@@ -2,7 +2,7 @@
 title: "Exercise 8 — Unsupervised Learning"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 4 December 2026 · discussed at the start of lesson 9, Friday 11 December 2026"
+date: "Lesson 8 · academic year 2026/27 · discussed at the start of the next lesson"
 ---
 
 ## What this exercise is for
@@ -43,7 +43,7 @@ whether a picture will show it to you.**
 course container. Written answers go in markdown cells beside the evidence for
 them.
 
-Nothing is handed in: lesson 9 opens by discussing this exercise, and at the
+Nothing is handed in: the next lesson opens by discussing this exercise, and at the
 exam one of the ten is drawn for you to talk through your own notebook.
 
 ---

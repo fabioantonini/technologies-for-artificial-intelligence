@@ -2,7 +2,7 @@
 title: "Lesson 8: Unsupervised Learning"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "4 December 2026"
+date: "Lesson 8 · academic year 2026/27"
 ---
 
 # Agenda
@@ -29,19 +29,23 @@ worked example.
 Handout section 1.
 :::
 
-# Exercise 7, before we start
+# Exercise 9, before we start
 
 - Nothing is collected: we discuss it, ten minutes
-- What counts is the **defence of the chosen model family**, not the winning score
-- The common gap: an importance ranking quoted as fact, without checking how
-  much of it landed on noise columns
+- What counts is the **prediction made before fitting**: which of the two
+  stations needs a hidden layer, and why
+- The common gap: a difference between two models read without the run-to-run
+  spread, or against 1 instead of the 0.97 the data allows
 - Today the same duty, with no labels at all: every grouping is a claim to check
 
 ::: notes
-Nothing to collect and nothing to hand back: discuss it. Ask what the
-feature-importance ranking was taken to mean, and listen for the gap of lesson
-7: reading the ranking as settled fact, when lesson 7 showed that a random
-forest put 54% of its importance on twenty columns of pure noise.
+Nothing to collect and nothing to hand back: discuss it. Ask who predicted,
+from the docstring and the plots alone, on which station the hidden layer
+would be worth points and on which it would buy nothing, and what their reason
+was. Listen for the gap of lesson 9: a gap of a few thousandths between the
+network and logistic regression read as a win, when it is smaller than the
+spread across runs, and accuracies read against 1 rather than against the 0.97
+that 3% of flipped verdicts leaves.
 
 Link forward. Today there is no accuracy to fall back on, because there is no
 target. The duty to check a result does not disappear; it changes shape, and
@@ -1156,14 +1160,14 @@ Handout summary.
 
 # Homework
 
-- **Exercise 8**, discussed at the start of lesson 9, **Friday 11 December**
+- **Exercise 8**, discussed at the start of **the next lesson**
 - `Exercises/08_unsupervised_learning.md`
 - Two account books: predict, **before plotting**, where a 2-D plot will
   find the fraud and where it will not
 
 ::: notes
-Set it explicitly and say when it comes back: the first ten minutes of lesson 9,
-Friday 11 December. Nothing is collected; at the exam one of the ten exercises
+Set it explicitly and say when it comes back: the first ten minutes of the next
+lesson. Nothing is collected; at the exam one of the ten exercises
 is drawn and the student talks through their own notebook.
 
 The exercise gives two account books from one fictional bank. On one, flagging

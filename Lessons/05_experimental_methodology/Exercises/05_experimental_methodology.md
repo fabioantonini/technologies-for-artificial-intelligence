@@ -2,7 +2,7 @@
 title: "Exercise 5 — Experimental Methodology"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 13 November 2026 · discussed on Friday 20 November 2026"
+date: "Lesson 5 · academic year 2026/27 · discussed at the start of the next lesson"
 ---
 
 ## What this exercise is for
@@ -26,7 +26,7 @@ there — which will be worse, and is the point.
 course container. Written answers go in markdown cells beside the evidence for
 them.
 
-Nothing is handed in: lesson 6 opens by discussing this exercise, and at the
+Nothing is handed in: the next lesson opens by discussing this exercise, and at the
 exam one of the ten is drawn for you to talk through your own notebook.
 
 ---

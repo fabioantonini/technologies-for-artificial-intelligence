@@ -2,7 +2,7 @@
 title: "Exercise 6 — k-NN, Naive Bayes and Support Vector Machines"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 20 November 2026 · discussed at the start of lesson 7, Friday 27 November 2026"
+date: "Lesson 6 · academic year 2026/27 · discussed at the start of the next lesson"
 ---
 
 ## What this exercise is for
@@ -21,7 +21,7 @@ That is the skill being assessed. Not tuning — **choosing**.
 course container. Written answers go in markdown cells beside the evidence for
 them.
 
-Nothing is handed in: lesson 7 opens by discussing this exercise, and at the
+Nothing is handed in: the next lesson opens by discussing this exercise, and at the
 exam one of the ten is drawn for you to talk through your own notebook.
 
 ---

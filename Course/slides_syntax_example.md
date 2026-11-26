@@ -2,7 +2,7 @@
 title: "Lesson 3 — Regression"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "9 October 2026"
+date: "academic year 2026/27"
 ---
 
 # Agenda

@@ -128,6 +128,15 @@ reviewer independent:
 4. **Claude writes the commentary** from both sources - the logged questions and the
    review - under the rules above.
 
+### No calendar dates in a lesson
+
+Dates live in `Course/SCHEDULE.md` and nowhere else. A lesson's front matter reads
+"Lesson N · academic year 2026/27"; homework is "discussed at the start of the next
+lesson", with no date, weekday or lesson number; a content bridge names the lesson
+("lesson 10 starts from this finding"). Historical dates stay. Decided on 26 November
+2026, after two calendar shifts in one month each cost a pass over seven lessons;
+`verify_lesson.check_no_calendar_dates` keeps them out.
+
 ### Every lesson fills three hours, and every lesson sets homework
 
 Two non-negotiables.

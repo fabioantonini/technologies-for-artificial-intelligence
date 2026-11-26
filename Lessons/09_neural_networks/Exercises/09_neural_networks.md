@@ -2,7 +2,7 @@
 title: "Exercise 9 — Neural Networks"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "Set 4 December 2026 · discussed at the start of lesson 8, Friday 11 December 2026"
+date: "Lesson 9 · academic year 2026/27 · discussed at the start of the next lesson"
 ---
 
 ## What this exercise is for

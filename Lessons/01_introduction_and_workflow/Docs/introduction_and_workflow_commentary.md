@@ -2808,7 +2808,7 @@ These requirements must enter at the framing stage, not be added afterwards.
 
 \newpage
 
-## Slide 70 — Homework: we discuss it on Friday 9 October
+## Slide 70 — Homework: discussed in the next lesson
 The exercise uses wine quality.
 
 But the interesting part is:
@@ -2839,7 +2839,7 @@ The task with ten random seeds is also interesting: it makes you see for yoursel
 
 \newpage
 
-## Slide 71 — Before next week
+## Slide 71 — Before the next lesson
 The final slide sums up the working cycle:
 
 environment → notebook → handout → quiz → exercise.

@@ -1645,7 +1645,7 @@ positives are in the test set, and which choices were made while looking at whic
 
 ## Slide 61 — Homework
 
-Exercise 5, discussed at the start of Friday 20 November: a
+Exercise 5, discussed at the start of the next lesson: a
 notebook that reports a result too good to be true. Find out why, isolate each problem,
 produce the honest number, and explain what it means to the people who will use it.
 

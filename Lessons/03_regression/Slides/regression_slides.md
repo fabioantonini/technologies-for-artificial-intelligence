@@ -2,7 +2,7 @@
 title: "Lesson 3: Regression"
 subtitle: "Technologies for Artificial Intelligence"
 author: "Fabio Antonini, Università degli Studi dell'Aquila"
-date: "16 October 2026"
+date: "Lesson 3 · academic year 2026/27"
 ---
 
 # Before we start
@@ -1300,7 +1300,7 @@ category instead of a number - and that single change turns out to require a
 different cost function, for a reason lesson 4 derives.
 :::
 
-# Homework: we discuss it on Friday 23 October
+# Homework: discussed in the next lesson
 
 `Exercises/03_regression.md`
 

@@ -2,14 +2,14 @@
 title: "Unsupervised Learning"
 subtitle: "Lesson 8 — Technologies for Artificial Intelligence"
 author: "Fabio Antonini — Università degli Studi dell'Aquila"
-date: "4 December 2026 · reading time about 70 minutes"
+date: "Lesson 8 · academic year 2026/27 · reading time about 70 minutes"
 ---
 
 ## Lesson plan
 
 | Time | Minutes | Segment | Material |
 |---|---|---|---|
-| 0:00–0:10 | 10 | Exercise 7 discussed; what changes when there is no $y$; three problems | Slides 2–6 |
+| 0:00–0:10 | 10 | Exercise 9 discussed; what changes when there is no $y$; three problems | Slides 2–6 |
 | 0:10–0:40 | 30 | k-means: one centre per group, two moves, six customers by hand, a bad start, how many groups, the check against the truth | Slides 7–21 |
 | 0:40–1:05 | 25 | **Notebook 01** — k-means by hand | Slide 22 |
 | 1:05–1:20 | 15 | When groups are not round: the sessions, why k-means must fail, a tree of merges | Slides 23–27 |
@@ -807,8 +807,7 @@ sitting near the middle of every picture.
 
 ### Homework
 
-`Exercises/08_unsupervised_learning.md`, discussed at the start of lesson 9,
-**Friday 11 December 2026**.
+`Exercises/08_unsupervised_learning.md`, discussed at the start of the next lesson.
 
 ### Notation used in this lesson
 
@@ -834,4 +833,4 @@ sitting near the middle of every picture.
 | Ester, Kriegel, Sander & Xu, *A Density-Based Algorithm for Discovering Clusters* (1996) | Paper | The original DBSCAN paper: section 3.4's algorithm from its source |
 | van der Maaten & Hinton, *Visualizing Data using t-SNE* (2008) | Paper | How t-SNE works, which this lesson leaves out |
 | James, Witten, Hastie & Tibshirani, *An Introduction to Statistical Learning*, ch. 12 | Book | Clustering and PCA at the level of this lesson, with more examples |
-| `Advanced/08_unsupervised_learning_advanced/` | This repository | The proofs this lesson states: why k-means stops, PCA derived and computed from the singular value decomposition, four linkages compared, whether `eps` transfers to next week's data |
+| `Advanced/08_unsupervised_learning_advanced/` | This repository | The proofs this lesson states: why k-means stops, PCA derived and computed from the singular value decomposition, four linkages compared, whether `eps` transfers to the following week's data |
