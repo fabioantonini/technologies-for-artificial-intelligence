@@ -62,6 +62,12 @@ on unseen rows, with a different arrangement (about 110 of 300 trees, trained on
 all 1,200 rows, against 300 trees trained on 960). Here the two agree within
 their own noise; that is reassuring, not guaranteed. → § 5.1
 
+**Two draws, two kinds of luck.** Draw one is the training data itself: the loans
+are one sample of the lender's possible applicants, and every tree inherits
+them. Draw two is each tree's bootstrap sample from those rows. The vote averages
+over draw two only; a different draw one changes the forest's verdicts, and more
+trees do not undo it. → § 5.2
+
 **The variance floor.** Averaging cancels each tree's private luck but not what the
 trees share, because they all grow from the same data: variance falls towards the
 trees' correlation times their individual variance — not to zero. Past that point,
@@ -73,7 +79,9 @@ rule stay too shallow, however many are averaged. → § 5.2
 
 **Random forest.** Bagging plus one restriction: at each split only a random subset
 of features is offered as a candidate, which forces the trees to disagree and lowers
-the floor. → § 6
+the floor. One forest tree on its own is *worse* than one bagged tree, because it
+is often denied the best column; the forest's vote is better, because its trees
+are less alike. → § 6
 
 **Feature importance.** The total impurity reduction each feature is credited with,
 summed over every split and tree. Suggestive, not definitive. → § 7
@@ -91,7 +99,9 @@ chance of the shuffle. → § 7.1
 ## Boosting
 
 **Boosting.** Building trees *in sequence*, each fitted specifically to correct what
-the ensemble so far got wrong. → § 8
+the ensemble so far got wrong. The prediction is a sum: $F_t = F_{t-1} + \alpha\,h_t$,
+the previous model plus a scaled copy of the new tree. Each tree is a regression
+tree, outputting a number, even when the problem is classification. → § 8
 
 **Weak learner.** The shallow tree — depth two or three — that each round adds. → § 8
 
@@ -108,6 +118,11 @@ ensemble's current output. → § 8
 **Pseudo-residual.** That negative gradient when the loss is not squared error. For
 log-loss it is the true label minus the predicted probability — the same quantity
 Lesson 4's logistic regression descended against. → § 9
+
+**Starting value and leaf value in classification boosting.** The model works on
+the log-odds scale and starts at the log-odds of the base rate. A leaf then outputs
+$\sum (y - p) / \sum p(1-p)$: the gap in probability divided by the slope of the
+logistic function, which turns a gap in $p$ into a step in log-odds. → § 9
 
 **Learning rate in boosting.** How much of each new tree's correction is actually
 applied. It trades off against the number of trees: both control how much total
