@@ -1131,6 +1131,17 @@ loans, three different shapes - slide 27 again, now a hundred times over. Then
 the vote: the two strips and the two islands survive, and most single-tree
 slivers do not, because a sliver one tree draws, most of the others do not.
 
+A question that comes up: "so the vote removes something the bootstrap put
+there?" No. A single tree trained on all 840 loans, with no bootstrap, has
+slivers too: choices that hang on a few loans, a threshold placed where one
+applicant happens to sit. It has one version of them, so nothing shows they are
+chance. The bootstrap asks, tree by tree, "what if this loan were missing, or
+counted twice?". A choice that hangs on a few loans changes from tree to tree,
+and the vote smooths it; a choice backed by many loans is the same in every
+tree, and the vote keeps it. What it cannot reach: a feature due to loans that
+are not there - no resample adds a loan the 840 do not hold - or one that every
+sample shares.
+
 Handout section 5.
 :::
 
@@ -1417,7 +1428,10 @@ The message is the mean: 0.856 against 0.902, so on 360 test applicants
 bagging gets (0.902 - 0.856) x 360 = 16.6, about 17, more right. And split by
 split: every grey line rises - bagging is ahead on all 30 splits, by 3 to 33
 applicants. Why: the single tree's slivers and memorised flipped labels (slide
-24) are outvoted. The dots are also a little closer together, standard
+24) are outvoted. And the single tree here saw no bootstrap: it was trained on
+all 840 loans. So the 17 come from errors that were already in a tree grown on
+the whole training set, not from errors the bootstrap introduced and then
+removed. The dots are also a little closer together, standard
 deviation 0.0153 against 0.0185; much of that spread is the luck of which 360
 applicants land in the test set, which no model removes.
 

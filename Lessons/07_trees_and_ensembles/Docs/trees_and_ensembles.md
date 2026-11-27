@@ -703,6 +703,22 @@ one another: each needs only its own sample, so they can be grown in parallel
 (`n_jobs` in scikit-learn). scikit-learn's default is `n_estimators=10`;
 notebook 2 uses 100.
 
+**The bootstrap reveals the instability; it does not create it.** A natural
+worry is that the vote only removes what the resampling put there. It does
+not. A single tree trained on all the training rows, with no bootstrap, makes
+choices that hang on a few rows — a threshold placed where one applicant
+happens to sit, a sliver around two odd loans — but it holds one version of
+them, so nothing shows they are chance. The bootstrap asks, tree by tree,
+*what if this row were missing, or counted twice?* A choice that hangs on a few
+rows changes from tree to tree, and the vote smooths it; a choice backed by many
+rows is the same in every tree, and the vote keeps it. The measurement is in
+section 5.2: on the same 30 train/test splits, one tree grown on all 840
+training loans scores 0.856 and the vote of 100 bootstrap trees 0.902 — the
+errors removed were already in the tree that never saw a bootstrap. The limit
+follows from the same picture: a resample can only drop or repeat rows that are
+there, so a feature due to rows that are missing, or one every sample shares,
+is out of its reach (section 5.2: what the vote cannot cancel).
+
 One detail of scikit-learn's `BaggingClassifier`: it does not count votes, it
 averages the trees' predicted probabilities. With fully grown trees the two are
 the same thing. Every leaf is pure, so each tree's probability is 0 or 1, and

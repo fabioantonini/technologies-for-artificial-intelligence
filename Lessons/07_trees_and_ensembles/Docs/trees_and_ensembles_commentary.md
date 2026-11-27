@@ -1633,6 +1633,23 @@ imaginary applicants covering income 20 to 100 and debt 0 to 1, and every point 
 coloured by its verdict. It is the same technique as slide 24's figure: a picture of
 the rule the tree has learned, not of its training loans.
 
+### Question — does the vote remove something the bootstrap put there?
+
+> *If the bootstrap makes the trees different and the vote then cancels the differences,
+> where is the gain?*
+
+The bootstrap does not create the instability; it makes it visible. A single tree
+trained on all 840 loans, with no bootstrap, already makes choices that hang on a few
+loans: a threshold placed where one applicant happens to sit, a sliver around two odd
+loans. It holds one version of them, so nothing shows they are chance. The bootstrap
+asks, tree by tree, *what if this loan were missing, or counted twice?* A choice that
+hangs on a few loans changes from tree to tree, and the vote smooths it; a choice backed
+by many loans, like the strips and the islands, is the same in every tree, and the vote
+keeps it. Slide 40 measures the gain against exactly that tree: 0.856 for one tree on
+all 840 loans, 0.902 for the vote. What the bootstrap cannot reach is a feature due to
+loans that are not there, since no resample adds a loan the 840 do not hold, or one
+that every sample shares.
+
 ---
 
 ## Slide 32 — How much data one bootstrap sample sees
