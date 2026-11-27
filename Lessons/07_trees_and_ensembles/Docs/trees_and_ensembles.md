@@ -1387,6 +1387,14 @@ numbers say: the residuals shrink from $(-3, -1, 2, 2)$ to $(-1, -0.333, 0.667,
 it; and $\alpha = 0.5$ takes only half of each correction, so no single tree
 decides alone.
 
+![](boosting_predict.png)
+
+*Predicting the new point $x = 3.5$: the start, then the two trees side by side,
+with the path of $x = 3.5$ in rust. The same $x$ goes down every tree, one leaf
+is read in each, and the leaves are added to the start, times $\alpha$. The order
+of the trees mattered only in training; at prediction time no residual is
+computed, and tree 2 never sees tree 1's output.*
+
 **Boosting, drawn.** On the toy data of the worked example below — 200 noisy
 points around a step plus a sine wave — the first two steps one at a time. The
 start is the same prediction for every $x$, the mean of all 200 $y$, 2.287:

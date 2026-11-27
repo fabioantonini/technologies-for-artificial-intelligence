@@ -2620,14 +2620,31 @@ Into every tree, all of them. Bagging changes the rows each tree sees; boosting 
 the rows and changes the column the tree is trained to predict. That is why the trees
 can be shallow: each only has to explain what is left over.
 
-## Slide 54 — Predicting a new point
+## Slide 54 — Predicting a new point: no residual, one leaf per tree
+
+![](boosting_predict.png)
+
+*The start and slide 53's two trees, side by side; the path of the new point $x = 3.5$
+is in rust, and the sum underneath is the prediction.*
 
 Training and prediction are different. Training used the known $y$ to compute residuals
-and grow the trees. A new applicant has no $y$, so the trained ensemble walks the input
-through every tree, reads each leaf, and adds the start and the scaled corrections. On
+and grow the trees. A new point has no $y$, so the trained ensemble sends the input
+down every tree, reads one leaf in each, and adds the start and the scaled leaves. On
 slide 53's model, at $x = 3.5$: tree 1 answers $x \le 2.5$? no, $h_1 = +2$; tree 2 answers
 $x \le 1.5$? no, $h_2 = +0.667$; $F_2(3.5) = 4 + 0.5 \times 2 + 0.5 \times 0.667 = 5.333$.
 No residual is computed and nothing is retrained.
+
+### Question - is the prediction decided by what is in the leaves?
+
+Yes, with the cuts. The cuts choose which leaf the point reaches in each tree; the leaf
+holds a number fixed in training, the mean residual of the training points that reached
+it. Prediction only reads those numbers and adds them, times $\alpha$, to the start.
+
+### Question - why are the trees drawn side by side and not one below the other?
+
+Because at prediction time each tree sees only $x$: tree 2 never receives tree 1's
+output. The order mattered in training, where tree 2 was fit to the residuals tree 1
+left; once both are trained, their leaves are simply added.
 
 ### Question - where does 5.333 appear in the table of slide 53?
 

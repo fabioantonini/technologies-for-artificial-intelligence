@@ -1896,19 +1896,22 @@ What to point at: every tree saw all four points; the target shrank from
 The next slide uses this very model on a new point. Handout section 8.
 :::
 
-# Predicting a new point
+# Predicting a new point: no residual, one leaf per tree
 
-- New input x = 3.5; its y is **unknown**
-- Tree 1: x ≤ 2.5? no, so h₁ = +2. Tree 2: x ≤ 1.5? no, so h₂ = +0.667
-- F₂(3.5) = F₀ + α h₁ + α h₂ = 4 + 0.5 × 2 + 0.5 × 0.667 = **5.333**
-- No residual, no new tree: residuals exist **only in training**
+![](boosting_predict.png)
 
 ::: notes
 Training and prediction are different, and this slide is the second. Training
-used the known $y$ to compute residuals and grow the trees. A new applicant has
-no $y$ - that is what we are predicting - so the trained ensemble just walks
-the input through every tree in order, reads each leaf, and adds the start and
-the scaled corrections: $F_2(3.5) = 4 + 0.5 \times 2 + 0.5 \times 0.667 = 5.333$.
+used the known $y$ to compute residuals and grow the trees. A new point,
+$x = 3.5$, has no $y$ - that is what we are predicting - so no residual can be
+computed and no tree is grown. The figure: the start on the left, then slide
+53's two trees side by side. The same $x$ goes down each tree; the path is in
+rust. Tree 1 asks x ≤ 2.5: no, leaf $+2$. Tree 2 asks x ≤ 1.5: no, leaf
+$+0.667$. The leaves are added to the start, each times 0.5:
+$F_2(3.5) = 4 + 0.5 \times 2 + 0.5 \times 0.667 = 5.333$. The trees stand side
+by side here, not one below the other: the order mattered only in training,
+where tree 2 was fit to what tree 1 left; tree 2 never sees tree 1's output,
+only $x$.
 Nothing is retrained and no residual is computed. Check it against slide 53's
 table: at $x = 3$ and $x = 4$ the model gives 5.333 too, because both fall in
 the same leaves as 3.5.
