@@ -12,13 +12,13 @@ date: "Lesson 9 · academic year 2026/27 · reading time about 70 minutes"
 | 0:00–0:10 | 10 | Exercise 8 discussed; what a network adds; three problems | Slides 2–5 |
 | 0:10–0:30 | 20 | One neuron is one line: the perceptron, the sigmoid, the acceptance test | Slides 6–13 |
 | 0:30–0:51 | 21 | A hidden layer: several lines, combined; why the activation is needed | Slides 14–27 |
-| 0:51–1:12 | 21 | **Notebook 01** — from one line to a hidden layer | Slide 28 |
+| 0:51–1:12 | 21 | **Notebook 01**, or atoms 1–7 — from one line to a hidden layer | Slide 28 |
 | 1:12–1:24 | 12 | **Break** | Slide 29 |
 | 1:24–1:46 | 22 | How a network learns: the loop, mini-batches, one step by hand, backpropagation by hand | Slides 30–39 |
 | 1:46–2:04 | 18 | A network in Keras on the digits; softmax and two classes; 39 points against 2.8 | Slides 40–52 |
-| 2:04–2:19 | 15 | **Notebook 02** — a network in Keras | Slide 53 |
+| 2:04–2:19 | 15 | **Notebook 02**, or atoms 8–12 — a network in Keras | Slide 53 |
 | 2:19–2:39 | 20 | Training in practice: the learning rate, memorising, two remedies, the vanishing gradient, shuffled pixels | Slides 54–65 |
-| 2:39–2:54 | 15 | **Notebook 03** — training in practice | Slide 66 |
+| 2:39–2:54 | 15 | **Notebook 03**, or atoms 13–17 — training in practice | Slide 66 |
 | 2:54–3:00 | 6 | What to take away; where networks went next; homework | Slides 67–70 |
 | | **180** | **Total** | **70 slides, 3 notebooks** |
 

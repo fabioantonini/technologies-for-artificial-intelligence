@@ -129,3 +129,37 @@ validation loss says so before the accuracy does; early stopping and dropout hel
 little and early stopping saves time. Here a deep sigmoid stack never learned, because
 the blame shrinks at every layer; ReLU fixed it. And a dense network cannot tell a digit from its
 pixels shuffled, which is where lesson 10 begins.*
+
+---
+
+# The atoms — `atoms.ipynb`
+
+## Lesson 9, one call at a time
+
+Lesson 9's atoms run on the lesson's own data, where the slides' numbers come from:
+Meridian's acceptance test and drift sensors, and the handwritten digits; atoms 1, 9,
+11 and 14 use a point or three that a pencil can follow. Each atom asks for a prediction
+before its code cell, and every cell says in a comment why each step is there. The
+notebook runs in about fifteen seconds. In class atoms 1-7 can replace notebook 1,
+atoms 8-12 notebook 2, and atoms 13-17 notebook 3: the "Notebook N, live" slides name
+both.
+
+| # | Atom | Lesson source |
+|--|--------------------------|------------------------|
+| 1 | One unit by hand: 0.8808, 0.2689, and 0.5 on the line | *The unit and its line*; *One unit, by hand* |
+| 2 | The circle of radius 1.25: the fitted spreads 0.39 and 3.057, semi-axes 1.28 and 1.23 | *Meridian's acceptance test*; *2,250 sensors, raw and standardised* |
+| 3 | One line on a disc: v = −2.70 − 0.14u, 0.5507 against 0.5480 | *What one line is worth*; *No line encloses a region* |
+| 4 | The hand-built network, 0.9938; without the ReLU, z = −21 for every sensor and 0.5000 | *Two units, written down rather than trained*; *Without the ReLU, two layers are one* |
+| 5 | The new coordinates: one line on (h₁, h₂) scores 0.9738 | *What the hidden layer actually did*; *The hidden layer classified nothing* |
+| 6 | Two units from eight starts: two reach 0.9938, five stop near 0.74, one at 0.5000 | *Letting training find the weights*; *Two units can; training often misses them* |
+| 7 | Eight hidden lines: 4 cross the accepted region, 8 corners | *The boundary at 1, 2, 4 and 8 units*; *Each hidden unit is a line* |
+| 8 | Mini-batches on the sensors: 12 per epoch, 11 of 200 and one of 50 | *Mini-batches and epochs* |
+| 9 | One gradient step, at (1, 1) and at (1, 0): w₂'s blame is 0.5 × 0 | *The loss and the gradient step*; *Reading the step* |
+| 10 | Backpropagation by hand, 14.29 and −0.95, against 18 forward passes by nudging | *Backpropagation by hand*; *What backpropagation buys* |
+| 11 | Softmax by hand: 0.665, 0.245, 0.090; two classes give σ(z₁ − z₀) = 0.731 | *Softmax in words, with three scores*; *Why the difference of the two scores* |
+| 12 | Parameter counts 650, 2,410, 4,810; the baseline 0.1028 | *The digit network, drawn*; *Is the hidden layer worth it here?* |
+| 13 | SGD at four rates, ten epochs: 0.1222, 0.6972, 0.9472, 0.1000 | *A rate too small looks like a network too small* |
+| 14 | A rising loss with a flat accuracy: 0.877, 1.069, 1.773 at 0.667 | *Reading the two curves* |
+| 15 | `Dropout(0.4)` looked at: zeros and 1.667 in training, nothing dropped in prediction | *Two remedies for overfitting*; *Dropout, drawn* |
+| 16 | The vanishing gradient measured: first-to-last ratio 0.0006 with sigmoids, 0.57 with ReLU | *The vanishing gradient* |
+| 17 | Shuffled pixels for logistic regression: 0.9556 both ways, 0.0639 if only validation is shuffled | *Nothing notices* |

@@ -717,10 +717,13 @@ Handout section 3.4.
 | training finds the weights, 23-24 | `MLPClassifier`, 20 runs per size → 6 of 20 at two units |
 | widths and hidden lines, 25-27 | `MLPClassifier`, then `coefs_[0]` → 0.9445 at eight units |
 | what it was worth, 25 | 0.9445 − 0.5507 → 39.4 points |
+| **or atoms 1-7** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 From one line to a hidden layer, on Meridian's sensors. Run
-Notebooks/01_from_one_line_to_a_hidden_layer.ipynb. 21 minutes.
+Notebooks/01_from_one_line_to_a_hidden_layer.ipynb. 21 minutes. Or atoms
+1-7 of the lesson 9 atoms notebook, in the same time: one call at a time, a
+prediction before each, on the same sensors.
 
 Have them look at the scatter in section 2 before any model is fitted, and
 predict the logistic regression score out loud before section 3 prints it.
@@ -1394,10 +1397,12 @@ Handout section 5.5.
 | what fit does inside, 35-38 | `tf.GradientTape` → blame 14.29, ŷ 0.4712 |
 | softmax, confusion, 43-49 | `model.predict`, `confusion_matrix` → 13 of 360 wrong |
 | worth it?, 50-52 | the baseline, three architectures, the sensors again → 0.1028, 0.9324, 0.9602; 39.4 and 2.8 points |
+| **or atoms 8-12** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 A network in Keras, on handwritten digits. Run
-Notebooks/02_a_network_in_keras.ipynb. 15 minutes.
+Notebooks/02_a_network_in_keras.ipynb. 15 minutes. Or atoms 8-12 of the
+lesson 9 atoms notebook, in the same time.
 
 Have them read the model summary in section 3 and check the parameter count by
 hand before moving on: 2,080 plus 330.
@@ -1784,11 +1789,14 @@ Handout section 6.5.
 | two remedies, 58-60 | `EarlyStopping`, `Dropout(0.4)`, 3 runs each → 0.9426, 0.9463, 0.9481 |
 | sigmoid against ReLU, 61-63 | six `Dense` layers of 32 → 0.1000 against 0.9611 |
 | shuffled pixels, 64-65 | one fixed permutation of the 64 pixels → 0.9602 against 0.9630 |
+| **or atoms 13-17** | `Notebooks/atoms.ipynb` |
 
 ::: notes
 Training in practice: the learning rate, memorising, two remedies, the
 vanishing gradient, and shuffled pixels. Run
-Notebooks/03_training_in_practice.ipynb. 15 minutes.
+Notebooks/03_training_in_practice.ipynb. 15 minutes. Or atoms 13-17 of the
+lesson 9 atoms notebook, in the same time; atom 13 runs a short version of
+the learning-rate experiment.
 
 If time runs short, keep sections 3 and 5: the validation loss climbing while
 accuracy stays level, and the sigmoid network stuck at 0.1000. Those are the

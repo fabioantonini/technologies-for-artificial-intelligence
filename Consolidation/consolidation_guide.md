@@ -74,10 +74,11 @@ than any number of predictions that came out right.
 | lesson 6, `Notebooks/atoms.ipynb` | one pump's five nearest and the vote, scaling first, training accuracy inside the folds, distances that stop varying, choosing columns, Naive Bayes's ten numbers and three ratios, the two log totals, uncorrelated but not independent, the interaction and its product, confidence, the margin in one dimension, slack and the weights, the kernel trick and the RBF similarity, one pump's vote by hand, γ and C | 15 |
 | lesson 7, `Notebooks/atoms.ipynb` | Gini by hand, the gain by counting, thresholds and midpoints, a tree on ten loans and one path, depth against a budget of leaves, the noise ceiling, five folds by hand, sampling with and without replacement, bagging and out-of-bag by hand, one column per split, importance and permutation by hand, boosting by hand | 14 |
 | lesson 8, `Notebooks/atoms.ipynb` | standardising first, k-means by hand, starts and the number of groups, the silhouette, the adjusted Rand index (ARI) by pairs, Ward's merges, DBSCAN by counting, the widest shadow three ways, reconstruction error and 37 of 40 | 16 |
+| lesson 9, `Notebooks/atoms.ipynb` | one unit by hand, the circle of radius 1.25, one line on a disc, two ReLU units and the same without the ReLU, the new coordinates, eight starts and their valleys, hidden lines and corners, mini-batches on the sensors, one gradient step and the input factor, backpropagation against nudging, softmax and two classes, parameter counts and the baseline, learning rates ten apart, a rising loss with a flat accuracy, dropout looked at, the vanishing gradient measured, shuffled pixels | 17 |
 | lesson 10, `Notebooks/atoms.ipynb` | Keras layers with weights set by hand, no training: one window by hand, Keras as cross-correlation, the output size, a contrast kernel and its threshold, shifting and pooling, the receptive field, parameter counts, the grader's error rate, shuffled pixels, augmentation, what transfer copies | 15 |
 
 They run in the course container like every other notebook, each in a few seconds,
-with no network. Start with `00`: the lessons' atoms assume it. Lesson 9's atoms are still to come.
+with no network. Start with `00`: the lessons' atoms assume it.
 
 ## The atoms
 
